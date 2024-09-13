@@ -208,15 +208,15 @@ if __name__ == '__main__':
                 best_white_require = 0
                 round_count = 200_000
 
-                # 誤差は 0.01 に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
-                # 0.01 未満からさらに 0 に近づいていくので、そうなる前に打ち切る
-                LIMIT = 0.01
+                # 誤差は LIMIT に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
+                # LIMIT 未満からさらに 0 に近づいていくので、そうなる前に打ち切る
+                LIMIT = 0.03
                 OUT_OF_ERROR = 0.51
                 best_black_win_error = OUT_OF_ERROR
 
                 is_cutoff = False
 
-                for bout_count in range(1, 13):
+                for bout_count in range(1, 71):
 
                     # １本勝負のときだけ、白はｎ本－１ではない
                     if bout_count == 1:
@@ -244,15 +244,6 @@ if __name__ == '__main__':
                         #print(f"{black_win_count=}  {round_count=}  {black_win_count / round_count=}")
                         black_win_error = abs(black_win_count / round_count - 0.5)
 
-                        # 十分な答えが出たので探索を打ち切ります
-                        if best_black_win_error != OUT_OF_ERROR and black_win_error < LIMIT:
-                            is_cutoff = True
-
-                            # 進捗バー
-                            print('x', end='')
-
-                            break
-
                         if black_win_error < best_black_win_error:
                             best_black_win_count = black_win_count
                             best_black_win_error = black_win_error
@@ -263,6 +254,15 @@ if __name__ == '__main__':
                             text = f'[{black_win_error:6.4f}]'
                             calculation_list.append(text)
                             print(text, end='')
+
+                            # 十分な答えが出たので探索を打ち切ります
+                            if black_win_error < LIMIT:
+                                is_cutoff = True
+
+                                # 進捗バー
+                                print('x', end='')
+
+                                break
 
                     if is_cutoff:
                         break
