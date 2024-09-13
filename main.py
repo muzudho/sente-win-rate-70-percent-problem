@@ -121,65 +121,67 @@ if __name__ == '__main__':
 
         # 0.50 ～ 0.99 まで試算
         rule_list = [
-            # black_win_rate, best_bout_count, best_white_require
-            # -----------------------------------------
+            # black_win_rate, best_bout_count, best_white_require, best_black_win_error, round_count
+            # --------------------------------------------------------------------------------------
             # 人の目で見て十分だと思ったら、best_bout_count と best_white_require を 0 以外にすること
-            [0.50,  0,  0],
-            [0.51,  0,  0],
-            [0.52,  0,  0],
-            [0.53,  0,  0],
-            [0.54,  0,  0],
-            [0.55,  0,  0],
-            [0.56,  0,  0],
-            [0.57,  0,  0],
-            [0.58,  0,  0],
-            [0.59,  0,  0],
-            [0.60,  0,  0],
-            [0.61,  0,  0],
-            [0.62,  0,  0],
-            [0.63,  0,  0],
-            [0.64,  0,  0],
-            [0.65,  0,  0],
-            [0.66,  0,  0],
-            [0.67,  0,  0],
-            [0.68,  0,  0],
-            [0.69,  0,  0],
-            [0.70,  0,  0],
-            [0.71,  0,  0],
-            [0.72,  0,  0],
-            [0.73,  0,  0],
-            [0.74,  0,  0],
-            [0.75,  0,  0],
-            [0.76,  0,  0],
-            [0.77,  0,  0],
-            [0.78,  0,  0],
-            [0.79,  0,  0],
-            [0.80,  0,  0],
-            [0.81,  0,  0],
-            [0.82,  0,  0],
-            [0.83,  0,  0],
-            [0.84,  0,  0],
-            [0.85,  0,  0],
-            [0.86,  0,  0],
-            [0.87,  0,  0],
-            [0.88,  0,  0],
-            [0.89,  0,  0],
-            [0.90,  0,  0],
-            [0.91,  0,  0],
-            [0.92,  0,  0],
-            [0.93,  0,  0],
-            [0.94,  0,  0],
-            [0.95,  0,  0],
-            [0.96,  0,  0],
-            [0.97,  0,  0],
-            [0.98,  0,  0],
-            [0.99,  0,  0],
+            [0.50,  1,  1, 0.0020, 20_000],
+            [0.51,  1,  1, 0.0164, 20_000],
+            [0.52,  1,  1, 0.0155, 20_000],
+            [0.53,  1,  1, 0.0288, 20_000],
+            [0.54,  0,  0, 0, 0],
+            [0.55,  0,  0, 0, 0],
+            [0.56,  0,  0, 0, 0],
+            [0.57,  0,  0, 0, 0],
+            [0.58,  0,  0, 0, 0],
+            [0.59,  0,  0, 0, 0],
+            [0.60,  0,  0, 0, 0],
+            [0.61,  0,  0, 0, 0],
+            [0.62,  0,  0, 0, 0],
+            [0.63,  0,  0, 0, 0],
+            [0.64,  0,  0, 0, 0],
+            [0.65,  0,  0, 0, 0],
+            [0.66,  0,  0, 0, 0],
+            [0.67,  0,  0, 0, 0],
+            [0.68,  0,  0, 0, 0],
+            [0.69,  0,  0, 0, 0],
+            [0.70,  0,  0, 0, 0],
+            [0.71,  0,  0, 0, 0],
+            [0.72,  0,  0, 0, 0],
+            [0.73,  0,  0, 0, 0],
+            [0.74,  0,  0, 0, 0],
+            [0.75,  0,  0, 0, 0],
+            [0.76,  0,  0, 0, 0],
+            [0.77,  0,  0, 0, 0],
+            [0.78,  0,  0, 0, 0],
+            [0.79,  0,  0, 0, 0],
+            [0.80,  0,  0, 0, 0],
+            [0.81,  0,  0, 0, 0],
+            [0.82,  0,  0, 0, 0],
+            [0.83,  0,  0, 0, 0],
+            [0.84,  0,  0, 0, 0],
+            [0.85,  0,  0, 0, 0],
+            [0.86,  0,  0, 0, 0],
+            [0.87,  0,  0, 0, 0],
+            [0.88,  0,  0, 0, 0],
+            [0.89,  0,  0, 0, 0],
+            [0.90,  0,  0, 0, 0],
+            [0.91,  0,  0, 0, 0],
+            [0.92,  0,  0, 0, 0],
+            [0.93,  0,  0, 0, 0],
+            [0.94,  0,  0, 0, 0],
+            [0.95,  0,  0, 0, 0],
+            [0.96,  0,  0, 0, 0],
+            [0.97,  0,  0, 0, 0],
+            [0.98,  0,  0, 0, 0],
+            [0.99,  0,  0, 0, 0],
         ]
 
         for rule in rule_list:
             black_win_rate=rule[0]
             best_bout_count=rule[1]
             best_white_require=rule[2]
+            best_black_win_error=rule[3]
+            best_round_count=rule[4]
             is_automatic = best_bout_count == 0 or best_white_require == 0
 
             # （仮説）何本勝負にするかは、以下の式で求まる
@@ -198,7 +200,7 @@ if __name__ == '__main__':
                 best_black_win_count = 0
                 best_bout_count = 0
                 best_white_require = 0
-                round_count = 20_000
+                round_count = 200_000
 
                 # 誤差は 0.01 に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
                 # 0.01 未満からさらに 0 に近づいていくので、そうなる前に打ち切る
@@ -208,7 +210,7 @@ if __name__ == '__main__':
 
                 is_cutoff = False
 
-                for bout_count in range(1, 10):
+                for bout_count in range(1, 11):
 
                     # １本勝負のときだけ、白はｎ本－１ではない
                     if bout_count == 1:
@@ -255,25 +257,23 @@ if __name__ == '__main__':
 
             # best_bout_count と best_white_require が設定されていれば、より細かく確率を求める
             else:
-                round_count = 2_000_000
-
-                best_black_win_count = n_round(
-                    black_win_rate=black_win_rate,
-                    bout_count=best_bout_count,
-                    white_require=best_white_require,
-                    round_count=round_count)
-
-                best_black_win_error = abs(best_black_win_count / round_count - 0.5)
+                pass
 
 
             with open('result_summary.log', 'a', encoding='utf8') as f:
-                # 計算未完了
-                if best_black_win_error == OUT_OF_ERROR:
-                    text = f"先手勝率：{black_win_rate:4.02f}  （計算未完了）  {is_automatic=}  {''.join(calculation_list)}\n"
+                # 自動計算
+                if is_automatic:
+                    # 未完了
+                    if best_black_win_error == OUT_OF_ERROR:
+                        text = f"先手勝率：{black_win_rate:4.02f}  {''.join(calculation_list)}  （自動計算未完了）\n"
+
+                    # 満了
+                    else:           
+                        text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count}回  白{best_white_require:2}先取制  調整先手勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
                 
-                # 計算可能
+                # 手動設定
                 else:
-                    text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count}回  白{best_white_require:2}先取制  調整先手勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {is_automatic=}  {''.join(calculation_list)}\n"
+                    text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count}回  白{best_white_require:2}先取制  調整先手勝率：{best_black_win_error + 0.5:7.04f} ％  （手動設定）\n"
 
                 f.write(text)
                 print(text, end='')
