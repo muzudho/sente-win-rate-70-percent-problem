@@ -128,33 +128,33 @@ if __name__ == '__main__':
             [0.51,  1,  1, 0.0164, 20_000],
             [0.52,  1,  1, 0.0155, 20_000],
             [0.53,  1,  1, 0.0288, 20_000],
-            [0.54,  0,  0, 0, 0],
-            [0.55,  0,  0, 0, 0],
-            [0.56,  0,  0, 0, 0],
-            [0.57,  0,  0, 0, 0],
-            [0.58,  0,  0, 0, 0],
-            [0.59,  0,  0, 0, 0],
-            [0.60,  0,  0, 0, 0],
+            [0.54,  1,  1, 0.0399, 200_000],
+            [0.55,  1,  1, 0.0507, 200_000],
+            [0.56,  1,  1, 0.0594, 200_000],
+            [0.57, 11,  5, 0.0487, 200_000],
+            [0.58, 11,  5, 0.0215, 200_000],
+            [0.59,  9,  4, 0.0430, 200_000],
+            [0.60,  9,  4, 0.0181, 200_000],
             [0.61,  0,  0, 0, 0],
             [0.62,  0,  0, 0, 0],
-            [0.63,  0,  0, 0, 0],
+            [0.63,  7,  3, 0.0165, 200_000],
             [0.64,  0,  0, 0, 0],
-            [0.65,  0,  0, 0, 0],
-            [0.66,  0,  0, 0, 0],
-            [0.67,  0,  0, 0, 0],
-            [0.68,  0,  0, 0, 0],
-            [0.69,  0,  0, 0, 0],
-            [0.70,  0,  0, 0, 0],
+            [0.65,  7,  3, 0.0333, 200_000],
+            [0.66, 11,  4, 0.0472, 200_000],
+            [0.67, 11,  4, 0.0192, 200_000],
+            [0.68,  5,  2, 0.0106, 200_000],
+            [0.69,  2,  1, 0.0224, 200_000],
+            [0.70,  2,  1, 0.0113, 200_000],
             [0.71,  0,  0, 0, 0],
-            [0.72,  0,  0, 0, 0],
-            [0.73,  0,  0, 0, 0],
-            [0.74,  0,  0, 0, 0],
-            [0.75,  0,  0, 0, 0],
-            [0.76,  0,  0, 0, 0],
+            [0.72,  2,  1, 0.0184, 200_000],
+            [0.73, 10,  3, 0.0323, 200_000],
+            [0.74,  2,  1, 0.0458, 200_000],
+            [0.75, 10,  3, 0.0273, 200_000],
+            [0.76, 11,  3, 0.0136, 200_000],
             [0.77,  0,  0, 0, 0],
             [0.78,  0,  0, 0, 0],
             [0.79,  0,  0, 0, 0],
-            [0.80,  0,  0, 0, 0],
+            [0.80,  3,  1, 0.0103, 200_000],
             [0.81,  0,  0, 0, 0],
             [0.82,  0,  0, 0, 0],
             [0.83,  0,  0, 0, 0],
@@ -165,8 +165,8 @@ if __name__ == '__main__':
             [0.88,  0,  0, 0, 0],
             [0.89,  0,  0, 0, 0],
             [0.90,  0,  0, 0, 0],
-            [0.91,  0,  0, 0, 0],
-            [0.92,  0,  0, 0, 0],
+            [0.91,  7,  1, 0.2538, 200_000],
+            [0.92,  8,  1, 0.2774, 200_000],
             [0.93,  0,  0, 0, 0],
             [0.94,  0,  0, 0, 0],
             [0.95,  0,  0, 0, 0],
@@ -184,6 +184,9 @@ if __name__ == '__main__':
             best_round_count=rule[4]
             is_automatic = best_bout_count == 0 or best_white_require == 0
 
+            # FIXME 全部再計算。あとで消す
+            #is_automatic = True
+
             # （仮説）何本勝負にするかは、以下の式で求まる
             # bout_count = round_letro(1/(1-black_win_rate)-1)
             # print(f"試算： 1 / ( 1 - {black_win_rate} ) - 1 = {bout_count} ※小数点以下四捨五入")
@@ -194,6 +197,9 @@ if __name__ == '__main__':
 
             # 途中の計算式
             calculation_list = []
+
+            # 比が同じになるｎ本勝負と白のｍ勝先取のペアはスキップしたい
+            ration_set = set()
 
             # best_bout_count と best_white_require が未設定なら、アルゴリズムで求めることにする
             if is_automatic:
@@ -210,7 +216,7 @@ if __name__ == '__main__':
 
                 is_cutoff = False
 
-                for bout_count in range(1, 11):
+                for bout_count in range(1, 13):
 
                     # １本勝負のときだけ、白はｎ本－１ではない
                     if bout_count == 1:
@@ -219,6 +225,15 @@ if __name__ == '__main__':
                         end_white_require = bout_count
 
                     for white_require in range(1, end_white_require):
+
+                        # 同じ比はスキップ。１０００倍して小数点以下四捨五入
+                        ration = round_letro(white_require / bout_count * 1000)
+
+                        if ration in ration_set:
+                            continue
+
+                        ration_set.add(ration)
+
 
                         black_win_count = n_round(
                             black_win_rate=black_win_rate,
@@ -229,6 +244,7 @@ if __name__ == '__main__':
                         #print(f"{black_win_count=}  {round_count=}  {black_win_count / round_count=}")
                         black_win_error = abs(black_win_count / round_count - 0.5)
 
+                        # 十分な答えが出たので探索を打ち切ります
                         if best_black_win_error != OUT_OF_ERROR and black_win_error < LIMIT:
                             is_cutoff = True
 
@@ -269,11 +285,11 @@ if __name__ == '__main__':
 
                     # 満了
                     else:           
-                        text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count}回  白{best_white_require:2}先取制  調整先手勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
+                        text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count:6}回  白{best_white_require:2}本先取勝／それ以外黒勝制  調整先手勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
                 
                 # 手動設定
                 else:
-                    text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count}回  白{best_white_require:2}先取制  調整先手勝率：{best_black_win_error + 0.5:7.04f} ％  （手動設定）\n"
+                    text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count:6}回  白{best_white_require:2}本先取勝／それ以外黒勝制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  （手動設定）\n"
 
                 f.write(text)
                 print(text, end='')
