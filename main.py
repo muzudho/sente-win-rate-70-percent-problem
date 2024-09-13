@@ -2,6 +2,9 @@
 import traceback
 import random
 
+# 四捨五入 📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
+from decimal import Decimal, getcontext, ROUND_HALF_UP
+
 # 黒。先手
 BLACK = 1
 
@@ -77,6 +80,24 @@ def n_round(black_win_rate, bout_count, round_count):
     return black_win_count
 
 
+def round_letro(number):
+    """四捨五入
+
+    📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
+
+    Parameters
+    ----------
+    number : float
+        四捨五入したい数
+    
+    Returns
+    -------
+    answer : int
+        整数
+    """
+    return int(Decimal(str(number)).quantize(Decimal('0'), ROUND_HALF_UP))
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -86,16 +107,26 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        black_win_rate = 0.5
-        bout_count = 1
         round_count = 2_000_000
 
-        black_win_count = n_round(
-            black_win_rate=black_win_rate,
-            bout_count=bout_count,
-            round_count=round_count)
+        # 0.50 ～ 0.99 まで試算
+        for i in range(50, 100):
+            black_win_rate = i / 100
 
-        print(f"先手勝率：{black_win_rate}  {bout_count}本勝負×{round_count}回  調整先手勝率：{black_win_count * 100 / round_count:3.4f} ％")
+            # （仮説）何本勝負にするかは、以下の式で求まる
+            bout_count = round_letro(1/(1-black_win_rate)-1)
+            print(f"試算： 1 / ( 1 - {black_win_rate} ) - 1 = {bout_count} ※四捨五入")
+
+            black_win_count = n_round(
+                black_win_rate=black_win_rate,
+                bout_count=bout_count,
+                round_count=round_count)
+
+            with open('result_summary.log', 'a', encoding='utf8') as f:
+                text = f"先手勝率：{black_win_rate:4.02f}  {bout_count:2}本勝負×{round_count}回  調整先手勝率：{black_win_count * 100 / round_count:7.04f} ％\n"
+
+                f.write(text)
+                print(text, end='')
 
 
     except Exception as err:
