@@ -1,4 +1,10 @@
+#
+# シミュレーション
 # python main.py
+#
+#   引き分けは考慮していない。
+#
+
 import traceback
 import random
 import math
@@ -23,7 +29,7 @@ if __name__ == '__main__':
         rule_list = [
             # black_win_rate, best_black_win_error, best_bout_count, best_round_count, best_white_require
             # -------------------------------------------------------------------------------------------
-            # 人の目で見て十分だと思ったら、best_bout_count と best_white_require を 0 以外にすること
+            # ここに設定されている場合、アルゴリズムを使った自動計算を省きます
             [0.50, 0.0002,  1, 2_000_000,  1],  # r2_000_000 [0.0002  1本  1黒  1白]  （自動計算満了）
             [0.51, 0.0094,  1, 2_000_000,  1],  # r2_000_000 [0.0094  1本  1黒  1白]  （自動計算満了）
             [0.52, 0.0193,  1, 2_000_000,  1],  # r2_000_000 [0.0193  1本  1黒  1白]  （自動計算満了）
@@ -107,7 +113,7 @@ if __name__ == '__main__':
             # 比が同じになるｎ本勝負と白のｍ勝先取のペアはスキップしたい
             ration_set = set()
 
-            # best_bout_count と best_white_require が未設定なら、アルゴリズムで求めることにする
+            # アルゴリズムで求めるケース
             if is_automatic:
                 best_black_win_count = 0
                 best_bout_count = 0
@@ -183,15 +189,15 @@ if __name__ == '__main__':
                 if is_automatic:
                     # 未完了
                     if best_black_win_error == OUT_OF_ERROR:
-                        text = f"黒番勝率：{black_win_rate:4.02f}  {''.join(calculation_list)}  （自動計算未完了）\n"
+                        text = f"先手勝率：{black_win_rate:4.02f}  {''.join(calculation_list)}  （自動計算未完了）\n"
 
                     # 満了
                     else:           
-                        text = f"黒番勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count:6}回  黒{best_bout_count-best_white_require+1:2}本先取/白{best_white_require:2}本先取制  調整黒番勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
+                        text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count:6}回  先手{best_bout_count-best_white_require+1:2}本先取/後手{best_white_require:2}本先取制  調整先手勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
                 
                 # 手動設定
                 else:
-                    text = f"黒番勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count:6}回  黒{best_bout_count-best_white_require+1:2}本先取/白{best_white_require:2}本先取制  調整黒番勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  （手動設定）\n"
+                    text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count:6}回  先手{best_bout_count-best_white_require+1:2}本先取/後手{best_white_require:2}本先取制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  （手動設定）\n"
 
                 f.write(text)
                 print(text, end='')
