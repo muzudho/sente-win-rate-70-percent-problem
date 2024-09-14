@@ -185,7 +185,7 @@ if __name__ == '__main__':
             is_automatic = best_bout_count == 0 or best_white_require == 0
 
             # FIXME 全部再計算。あとで消す
-            #is_automatic = True
+            is_automatic = True
 
             # （仮説）何本勝負にするかは、以下の式で求まる
             # bout_count = round_letro(1/(1-black_win_rate)-1)
@@ -206,17 +206,17 @@ if __name__ == '__main__':
                 best_black_win_count = 0
                 best_bout_count = 0
                 best_white_require = 0
-                round_count = 200_000
+                round_count = 2_000_000
 
                 # 誤差は LIMIT に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
                 # LIMIT 未満からさらに 0 に近づいていくので、そうなる前に打ち切る
-                LIMIT = 0.03
+                LIMIT = 0.02    # 例えば LIMIT = 0.03 にすると、黒番勝率 0.53 のときに 0.5 へ近づけるため 0.03 縮める必要があるから、運悪く 1:1 のときに外すと、そのあと見つけるのに時間がかかるようだ
                 OUT_OF_ERROR = 0.51
                 best_black_win_error = OUT_OF_ERROR
 
                 is_cutoff = False
 
-                for bout_count in range(1, 71):
+                for bout_count in range(1, 101):
 
                     # １本勝負のときだけ、白はｎ本－１ではない
                     if bout_count == 1:
@@ -245,13 +245,13 @@ if __name__ == '__main__':
                         black_win_error = abs(black_win_count / round_count - 0.5)
 
                         if black_win_error < best_black_win_error:
-                            best_black_win_count = black_win_count
                             best_black_win_error = black_win_error
                             best_bout_count = bout_count
+                            best_black_win_count = black_win_count
                             best_white_require = white_require
                         
                             # 進捗バー（更新時）
-                            text = f'[{black_win_error:6.4f}]'
+                            text = f'[{best_black_win_error:6.4f} {best_bout_count:2}本 {best_bout_count-best_white_require+1:2}黒 {best_white_require:2}白]'
                             calculation_list.append(text)
                             print(text, end='')
 
@@ -281,15 +281,15 @@ if __name__ == '__main__':
                 if is_automatic:
                     # 未完了
                     if best_black_win_error == OUT_OF_ERROR:
-                        text = f"先手勝率：{black_win_rate:4.02f}  {''.join(calculation_list)}  （自動計算未完了）\n"
+                        text = f"黒番勝率：{black_win_rate:4.02f}  {''.join(calculation_list)}  （自動計算未完了）\n"
 
                     # 満了
                     else:           
-                        text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count:6}回  白{best_white_require:2}本先取勝／それ以外黒勝制  調整先手勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
+                        text = f"黒番勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{round_count:6}回  黒{best_bout_count-best_white_require+1:2}本先取/白{best_white_require:2}本先取制  調整黒番勝率：{best_black_win_count * 100 / round_count:>7.04f} ％  {''.join(calculation_list)}  （自動計算満了）\n"
                 
                 # 手動設定
                 else:
-                    text = f"先手勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count:6}回  白{best_white_require:2}本先取勝／それ以外黒勝制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  （手動設定）\n"
+                    text = f"黒番勝率：{black_win_rate:4.02f}  {best_bout_count:2}本勝負×{best_round_count:6}回  黒{best_bout_count-best_white_require+1:2}本先取/白{best_white_require:2}本先取制  調整黒番勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  （手動設定）\n"
 
                 f.write(text)
                 print(text, end='')
