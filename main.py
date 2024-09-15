@@ -3,6 +3,7 @@
 # python main.py
 #
 #   引き分けは考慮していない。
+#   主に、無理数に近似する有理数を、アルゴリズムで探索する感じ。
 #
 
 import traceback
@@ -97,17 +98,6 @@ if __name__ == '__main__':
             best_white_require=rule[4]
 
             is_automatic = best_black_win_error >= LIMIT or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_white_require == 0
-
-            # 全部再計算。あとで消す
-            #is_automatic = True
-
-            # （仮説）何本勝負にするかは、以下の式で求まる
-            # max_bout_count = round_letro(1/(1-black_win_rate)-1)
-            # print(f"試算： 1 / ( 1 - {black_win_rate} ) - 1 = {max_bout_count} ※小数点以下四捨五入")
-            # max_bout_count = math.floor(1/(1-black_win_rate)-1)
-            # print(f"試算： 1 / ( 1 - {black_win_rate} ) - 1 = {max_bout_count} ※小数点以下切り捨て")
-            #max_bout_count = math.ceil(1/(1-black_win_rate)-1)
-            #print(f"試算： 1 / ( 1 - {black_win_rate} ) - 1 = {max_bout_count} ※小数点以下切り上げ")
 
             # 途中の計算式
             calculation_list = []
