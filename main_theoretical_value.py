@@ -144,16 +144,16 @@ if __name__ == '__main__':
 
                     # ※繰り返し
 
-                    # 次の閏対局までの長さ
-                    leap_span = math.floor(hangover_b_win_point / quotient)
+                    # あと何対局すると、余りが後手先取必要本数を上回るか（次の閏対局までの長さ）
+                    fill_bouts = math.ceil(d_w_win_rate / carried)
                     print() # 改行
-                    print(f"  一対局毎に余りが{carried}ずつ溜まり、{d_w_win_rate}以上になるのが、次の閏対局までの長さ{leap_span:2}")
+                    print(f"  一対局毎に余りが{carried}ずつ溜まり、{d_w_win_rate}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
 
                     if carried != 0:
                         for i in range(0, 1):
 
                             # 次に余りを解消できる閏対局
-                            next_leap += leap_span
+                            next_leap += fill_bouts
                             print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点
@@ -169,25 +169,6 @@ if __name__ == '__main__':
                             print(f"  持ち越し勝率点{hangover_b_win_point}")
 
                     countdown -= 1
-
-
-                # # 閏対局の列挙
-                # print(f"閏対局", end='')
-
-                # # 閏対局を１つ求める
-                # print(f"[{next_leap:2} 余{remainder:2}]", end='')
-
-                # # 余り解消の周期
-                # countdown = 2
-                # while remainder != 0 and 0 < countdown:
-
-                #     remainder += d_cycle
-                #     next_game += d_cycle
-
-                #     next_game += d_cycle
-                #     d_cycle = remainder
-                #     remainder = d_b_win_rate - (d_cycle * remainder)
-                #     countdown -= 1
 
             print() # 改行
 
