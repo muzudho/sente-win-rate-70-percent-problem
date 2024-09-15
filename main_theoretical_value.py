@@ -128,15 +128,18 @@ if __name__ == '__main__':
             # 繰り上がり先手勝率点
             carried = remainder
 
+            # 繰り上がり先手勝率点込みの先手勝率点
+            hangover_b_win_point = d_b_win_rate + carried
+
             # 繰り上がりがある場合
             if carried != 0:
                 # 次の閏対局
                 next_leap = 0
 
-                print(f"余り解消の周期{d_b_win_rate / carried:7.4f}  ", end='')
+                print(f"余り解消の周期{hangover_b_win_point / quotient:7.4f}  ", end='')
 
                 # 次の閏対局までの長さ
-                leap_span = math.ceil(d_b_win_rate / carried)
+                leap_span = math.ceil(hangover_b_win_point / quotient)
                 print() # 改行
                 print(f"  次の閏対局までの長さ{leap_span:2}")
 
@@ -166,7 +169,7 @@ if __name__ == '__main__':
                                 break
 
                             # 次の閏対局までの長さ
-                            leap_span = math.ceil(hangover_b_win_point / carried)
+                            leap_span = math.ceil(hangover_b_win_point / quotient)
                             print() # 改行
                             print(f"  次の閏対局までの長さ{leap_span:2}")
 
