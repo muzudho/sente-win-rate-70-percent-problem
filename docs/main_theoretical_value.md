@@ -72,29 +72,44 @@ p != 0.5    … イカサマコインの確率。 "!=" はノットイコール�
 確率の小数部（Decimal places）の桁が消えるほど 10^n を掛けると、整数（Integer）になる
 
 ```
-scale = 10^n
-p_int = scale * p
+scale   = 10^n
+p_point = scale * p
 ```
 
 例：  
 
 ```
-scale = 10
-p     =  0.7
-p_int =  7
+scale   = 10
+p       =  0.7
+p_point =  7
 ```
 
 
-## 説明３　先手のｎ本先取
+## 説明３　表のｎ本先取
 
-表が出る確率を、裏が出る確率で割り、その整数部を取り出すと、表は何本先取すると勝ちにするかが求まる  
+表が出る確率を、裏が出る確率で割り、その整数部を取り出すと、表は何本先取すると勝ちにするか（p_target）が求まる  
 
 ```
 ※ floor(x) は x の小数点以下切り捨て
-p_int = floor(scale * p / (1 - p))
-q_int = floor(scale * (1 - p) / p)
+p_target = floor(p / (1 - p))
+```
 
-p_target = floor(p_int / q_int)
+
+## 説明４　表がまだ多めに出る得
+
+表が出る確率を、裏が出る確率で割り、その小数部を取り出す。この小数部も、表が出る確率だ  
+
+```
+carried = p_point % (scale - p_point)
+```
+
+
+# 説明５　繰り上がり込みの表のポイント
+
+表のポイントに、表の得を加算する  
+
+```
+carryover_b_point = b_point + carried
 ```
 
 

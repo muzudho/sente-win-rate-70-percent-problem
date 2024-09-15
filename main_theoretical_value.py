@@ -98,17 +98,17 @@ if __name__ == '__main__':
             #
             #   NOTE ここでは、小数点以下切り捨てにするところだが、 4 が 内部的に 3.9999... だったりするので、四捨五入に変更している
             #
-            b_int = round_letro(scale * black_win_rate)
-            print(f"先後勝率整数比　{b_int:2}：", end='')
-            w_int = round_letro(scale * w_win_rate)
-            print(f"{w_int:2}  ", end='')
+            b_point = round_letro(scale * black_win_rate)
+            print(f"先後勝率整数比　{b_point:2}：", end='')
+            w_point = round_letro(scale * w_win_rate)
+            print(f"{w_point:2}  ", end='')
 
 
-            # 説明３　先手のｎ本先取
-            # ---------------------
+            # 説明３　表のｎ本先取
+            # -------------------
 
             # 黒/白の商の整数部（quotient）
-            b_target = math.floor(b_int / w_int)
+            b_target = math.floor(b_point / w_point)
             print(f"先手の{b_target:2}本先取制  ", end='')
 
             # # NOTE この計算式では、エラーが出てしまう。 0.5 が 0.050000000000000044 になってる
@@ -117,12 +117,13 @@ if __name__ == '__main__':
             #     raise ValueError(f"{b_target=}  {black_target_2=}  {black_win_rate=}/{w_win_rate=}")
 
 
-            # 剰余
-            remainder = b_int % w_int
-            
-            print(f"先手得{remainder:2}  ", end='')
+            # 説明４　表がまだ多めに出る得
+            # --------------------------
 
-            #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
+            # 剰余（remainder）。繰り上がり先手勝率点
+            carried = b_point % w_point            
+            print(f"先手得{carried:2}  ", end='')
+
 
             # 以下で行っているのは、余りの解消
             # -----------------------------
@@ -131,11 +132,13 @@ if __name__ == '__main__':
             #   NOTE 余りを全て解消しても、また最初から繰り返しを行うこと
             #
 
-            # 繰り上がり先手勝率点
-            carried = remainder
+
+            # 説明５　繰り上がり込みの表のポイント
+            # ---------------------------------
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            carryover_b_win_point = b_int + carried
+            carryover_b_point = b_point + carried
+
 
             # 繰り上がりがある場合
             if carried != 0:
@@ -154,9 +157,9 @@ if __name__ == '__main__':
                     # ※繰り返し
 
                     # あと何対局すると、余りが後手先取必要本数を上回るか（次の閏対局までの長さ）
-                    fill_bouts = math.ceil(w_int / carried)
-                    #print(f"\n  一対局毎に余りが{carried}ずつ溜まり、{w_int}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
-                    print(f"(得{carried:2}×{fill_bouts:2}局>=分子{w_int:2})", end='')
+                    fill_bouts = math.ceil(w_point / carried)
+                    #print(f"\n  一対局毎に余りが{carried}ずつ溜まり、{w_point}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
+                    print(f"(得{carried:2}×{fill_bouts:2}局>=分子{w_point:2})", end='')
 
                     if carried != 0:
                         for i in range(0, 1):
@@ -166,7 +169,7 @@ if __name__ == '__main__':
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点
-                            carried = b_int % carried
+                            carried = b_point % carried
                             #print(f"  次の繰り上がり先手勝率点{carried}")
                             print(f"[第{next_leap:2}](新得{carried:2}) ", end='')
 
@@ -176,8 +179,8 @@ if __name__ == '__main__':
                                 break
 
                             # 繰り上がり込み先手勝率点
-                            carryover_b_win_point = b_int + carried
-                            #print(f"  繰り上がり込み先手勝率点{carryover_b_win_point}")
+                            carryover_b_point = b_point + carried
+                            #print(f"  繰り上がり込み先手勝率点{carryover_b_point}")
 
                     countdown -= 1
 
