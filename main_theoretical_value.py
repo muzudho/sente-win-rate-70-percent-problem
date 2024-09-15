@@ -114,17 +114,23 @@ if __name__ == '__main__':
             # 剰余
             remainder = d_b_win_rate % d_w_win_rate
             
-            print(f"余りの持ち越し{remainder:2}  ", end='')
+            print(f"余り{remainder:2}  ", end='')
 
-            # 閏対局を１つ求める
+            # 余り解消の周期
             if remainder == 0:
-                leap_game_1 = 0
-            else:
-                leap_game_1 = 1 // remainder
+                print() # 改行
 
-            #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
-            #print(f"後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  ", end='')
-            print(f"閏対局[{leap_game_1:2.0f}]")
+            else:
+                cycle = d_b_win_rate / remainder
+                print(f"余り解消の周期{cycle:7.4f}  ", end='')
+
+                # 閏対局を１つ求める
+                leap_game_1 = math.floor(cycle)
+                remainder_1 = d_b_win_rate - (leap_game_1 * remainder)
+
+                #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
+                #print(f"後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  ", end='')
+                print(f"閏対局[{leap_game_1:2} 余{remainder_1:2}]")
 
 
     except Exception as err:
