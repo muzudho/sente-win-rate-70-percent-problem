@@ -114,29 +114,57 @@ if __name__ == '__main__':
             # 剰余
             remainder = d_b_win_rate % d_w_win_rate
             
-            print(f"余り{remainder:2}  ", end='')
+            print(f"先手余り{remainder:2}  ", end='')
 
             #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
             #print(f"後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  ", end='')
 
-            if remainder != 0:
-                # 余り解消の周期
-                cycle = d_b_win_rate / remainder
-                print(f"余り解消の周期{cycle:7.4f}  ", end='')
-                d_cycle = math.floor(cycle)
+            # 繰り上がり先手勝率点
+            carried = remainder
 
-                # 閏対局の列挙
-                print(f"閏対局", end='')
+            # 繰り上がりがある場合
+            if carried != 0:
+                # 次の閏対局
+                next_leap = 0
 
-                if remainder == 0:
-                    pass
+                print(f"余り解消の周期{d_b_win_rate / carried:7.4f}  ", end='')
 
-                else:
+                # 次の閏対局までの長さ
+                leap_span = math.ceil(d_b_win_rate / carried)
+                print() # 改行
+                print(f"  次の閏対局までの長さ{leap_span:2}")
 
-                    # 閏対局を１つ求める
-                    remainder = d_b_win_rate - (d_cycle * remainder)
-                    print(f"[{d_cycle:2} 余{remainder:2}]", end='')
+                # 次に余りを解消できる閏対局
+                next_leap += leap_span
+                print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
+                # 次の繰り上がり先手勝率点
+                carried = d_b_win_rate % carried
+                print(f"  次の繰り上がり先手勝率点{carried}")
+
+                # 持ち越し勝率点
+                hangover_b_win_point = d_b_win_rate + carried
+                print(f"  持ち越し勝率点{hangover_b_win_point}")
+
+
+
+                # # 閏対局の列挙
+                # print(f"閏対局", end='')
+
+                # # 閏対局を１つ求める
+                # print(f"[{next_leap:2} 余{remainder:2}]", end='')
+
+                # # 余り解消の周期
+                # countdown = 2
+                # while remainder != 0 and 0 < countdown:
+
+                #     remainder += d_cycle
+                #     next_game += d_cycle
+
+                #     next_game += d_cycle
+                #     d_cycle = remainder
+                #     remainder = d_b_win_rate - (d_cycle * remainder)
+                #     countdown -= 1
 
             print() # 改行
 
