@@ -33,6 +33,28 @@ def round_letro(number):
     return int(Decimal(str(number)).quantize(Decimal('0'), ROUND_HALF_UP))
 
 
+def count_of_decimal_places(value):
+    """小数部の桁数を取得
+    
+    Parameters
+    ----------
+    value : float
+        浮動小数点数
+    """
+    if not isinstance(value, float):
+        raise ValueError(f"{value} is not float. {type(value)}")
+    
+    # 文字列表現
+    s = str(value)
+    # 小数点の位置
+    i = s.find('.')
+    if i < 0:
+        return 0
+    # 小数部の文字列
+    s = s[i+1:]
+    return len(s)
+
+
 def white_win_rate(black_win_rate):
     """後手勝率
     

@@ -4,7 +4,7 @@
 #
 
 import traceback
-from library import round_letro, white_win_rate, white_win_value, black_win_value
+from library import round_letro, count_of_decimal_places, white_win_rate, white_win_value, black_win_value
 
 
 
@@ -73,7 +73,14 @@ if __name__ == '__main__':
 
         for rule in rule_list:
             # 初期値
+            # ------
+
+            # 先手勝率
             black_win_rate=rule[0]
+            print(f"先手勝率{black_win_rate:4.2f}  小数部の長さ{count_of_decimal_places(black_win_rate)}  ", end='')
+
+            # 計算過程
+            # --------
 
             # 後手勝率
             w_win_rate = white_win_rate(black_win_rate=black_win_rate)
@@ -90,7 +97,13 @@ if __name__ == '__main__':
             # 剰余
             remainder = b_win_value % w_win_value
 
-            print(f"先手勝率{black_win_rate:4.2f}  後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  余りの持ち越し{remainder:7.4f}")
+            # 閏対局を１つ求める
+            if remainder == 0:
+                leap_game_1 = 0
+            else:
+                leap_game_1 = 1 // remainder
+
+            print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  先手の勝ちの価値{b_win_value:7.4f}  後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  余りの持ち越し{remainder:7.4f}　閏対局[{leap_game_1:2.0f}]")
 
 
     except Exception as err:
