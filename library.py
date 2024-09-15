@@ -238,6 +238,9 @@ class CoinToss():
             # 黒が勝った確率
             black_won_rate = black_wons / round_total
 
-            text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  先手{black_target_in_bout:2}本先取/後手{white_target_in_bout:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate:8.4f} ％"
+            # 均等からの誤差
+            error = abs(black_won_rate - 0.5)
+
+            text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  先手{black_target_in_bout:2}本先取/後手{white_target_in_bout:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
             print(text) # 表示
             f.write(f"{text}\n")    # ファイルへ出力
