@@ -34,25 +34,64 @@ if __name__ == '__main__':
         if 1 != one:
             raise ValueError(f"{one=}")
 
-        # なんでこいつら似てんの？
+        black_advantage_rate = expected_black_target/expected_white_target
+        print(f"[{datetime.datetime.now()}] black_advantage_rate {black_advantage_rate} ＝ {expected_black_target} ／ {expected_white_target}")
 
-        #ずれると似てない print(f"[{datetime.datetime.now()}] {0.51 - 0.48} ＝ 0.51 - 0.48")
-        #ずれると似てない print(f"[{datetime.datetime.now()}] {0.51**2 - 0.48**2} ＝ (0.51^2) － (0.48^2)")
-        print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
-        print(f"[{datetime.datetime.now()}] {0.51 - 0.49} ＝ 0.51 - 0.49")
-        print(f"[{datetime.datetime.now()}] {0.51**2 - 0.49**2} ＝ (0.51^2) － (0.49^2)")
-        print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
-        print(f"[{datetime.datetime.now()}] {0.65 - 0.35} ＝ 0.65 - 0.35")
-        print(f"[{datetime.datetime.now()}] {0.65**2 - 0.35**2} ＝ (0.65^2) － (0.35^2)")
-        #print(f"[{datetime.datetime.now()}] {0.35**2 - 0.65**2} ＝ (0.35^2) － (0.65^2)")
-        #print(f"[{datetime.datetime.now()}] {0.65**3 - 0.35**3} ＝ (0.65^3) － (0.35^3)")
-        print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
-        print(f"[{datetime.datetime.now()}] {0.7 - 0.3} ＝ 0.7 - 0.3")
-        print(f"[{datetime.datetime.now()}] {0.7**2 - 0.3**2} ＝ (0.7^2) － (0.3^2)")
+        print(f"[{datetime.datetime.now()}] {black_advantage_rate/0.65} =black_advantage_rate/0.65")
+        print(f"[{datetime.datetime.now()}] {black_advantage_rate/0.35} =black_advantage_rate/0.35")
+        print(f"[{datetime.datetime.now()}] {0.65/black_advantage_rate} =0.65/black_advantage_rate")
+        print(f"[{datetime.datetime.now()}] {0.35/black_advantage_rate} =0.35/black_advantage_rate")
 
-        print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
-        print(f"[{datetime.datetime.now()}] {0.79 - 0.21} ＝ 0.79 - 0.21")
-        print(f"[{datetime.datetime.now()}] {0.79**2 - 0.21**2} ＝ (0.79^2) － (0.21^2)")
+        # print(f"[{datetime.datetime.now()}] {0.65/0.35} =0.65/0.35")
+        # #print(f"[{datetime.datetime.now()}] {0.35/0.65} =0.35/0.65")
+
+        # print(f"[{datetime.datetime.now()}] {0.7/0.3} =0.7/0.3")
+        # #print(f"[{datetime.datetime.now()}] {0.3/0.7} =0.3/0.7")
+
+        # print(f"[{datetime.datetime.now()}] {0.79/0.21} =0.79/0.21")
+        # #print(f"[{datetime.datetime.now()}] {0.21/0.79} =0.21/0.79")
+
+
+        # print(f"[{datetime.datetime.now()}] {expected_white_target/expected_black_target} =expected_white_target/expected_black_target")
+        # print(f"[{datetime.datetime.now()}] {expected_white_target/expected_max_bout_count} =expected_white_target/expected_max_bout_count")
+        #print(f"[{datetime.datetime.now()}] {expected_black_target/expected_white_target} =expected_black_target/expected_white_target")
+        # print(f"[{datetime.datetime.now()}] {expected_black_target/expected_max_bout_count} =expected_black_target/expected_max_bout_count")
+        # print(f"[{datetime.datetime.now()}] {expected_max_bout_count/expected_white_target} =expected_max_bout_count/expected_white_target")
+        # print(f"[{datetime.datetime.now()}] {expected_max_bout_count/expected_black_target} =expected_max_bout_count/expected_black_target")
+
+        # print(f"[{datetime.datetime.now()}] {expected_white_target/expected_black_target/expected_max_bout_count} =expected_white_target/expected_black_target/expected_max_bout_count")
+        # print(f"[{datetime.datetime.now()}] {expected_white_target/expected_max_bout_count/expected_black_target} =expected_white_target/expected_max_bout_count/expected_black_target")
+        # print(f"[{datetime.datetime.now()}] {expected_black_target/expected_white_target/expected_max_bout_count} =expected_black_target/expected_white_target/expected_max_bout_count")
+        # print(f"[{datetime.datetime.now()}] {expected_black_target/expected_max_bout_count/expected_white_target} =expected_black_target/expected_max_bout_count/expected_white_target")
+        # print(f"[{datetime.datetime.now()}] {expected_max_bout_count/expected_white_target/expected_black_target} =expected_max_bout_count/expected_white_target/expected_black_target")
+        # print(f"[{datetime.datetime.now()}] {expected_max_bout_count/expected_black_target/expected_white_target} =expected_max_bout_count/expected_black_target/expected_white_target")
+
+        # print(f"[{datetime.datetime.now()}] {expected_white_target**2/expected_black_target**2/expected_max_bout_count**2} =expected_white_target^2/expected_black_target^2/expected_max_bout_count^2")
+        # print(f"[{datetime.datetime.now()}] {expected_white_target**2/expected_max_bout_count**2/expected_black_target**2} =expected_white_target^2/expected_max_bout_count^2/expected_black_target^2")
+        # print(f"[{datetime.datetime.now()}] {expected_black_target**2/expected_white_target**2/expected_max_bout_count**2} =expected_black_target^2/expected_white_target^2/expected_max_bout_count^2")
+        # print(f"[{datetime.datetime.now()}] {expected_black_target**2/expected_max_bout_count**2/expected_white_target**2} =expected_black_target^2/expected_max_bout_count^2/expected_white_target^2")
+        # print(f"[{datetime.datetime.now()}] {expected_max_bout_count**2/expected_white_target**2/expected_black_target**2} =expected_max_bout_count^2/expected_white_target^2/expected_black_target^2")
+        # print(f"[{datetime.datetime.now()}] {expected_max_bout_count**2/expected_black_target**2/expected_white_target**2} =expected_max_bout_count^2/expected_black_target^2/expected_white_target^2")
+
+        # # なんでこいつら似てんの？
+
+        # #ずれると似てない print(f"[{datetime.datetime.now()}] {0.51 - 0.48} ＝ 0.51 - 0.48")
+        # #ずれると似てない print(f"[{datetime.datetime.now()}] {0.51**2 - 0.48**2} ＝ (0.51^2) － (0.48^2)")
+        # print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
+        # print(f"[{datetime.datetime.now()}] {0.51 - 0.49} ＝ 0.51 - 0.49")
+        # print(f"[{datetime.datetime.now()}] {0.51**2 - 0.49**2} ＝ (0.51^2) － (0.49^2)")
+        # print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
+        # print(f"[{datetime.datetime.now()}] {0.65 - 0.35} ＝ 0.65 - 0.35")
+        # print(f"[{datetime.datetime.now()}] {0.65**2 - 0.35**2} ＝ (0.65^2) － (0.35^2)")
+        # #print(f"[{datetime.datetime.now()}] {0.35**2 - 0.65**2} ＝ (0.35^2) － (0.65^2)")
+        # #print(f"[{datetime.datetime.now()}] {0.65**3 - 0.35**3} ＝ (0.65^3) － (0.35^3)")
+        # print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
+        # print(f"[{datetime.datetime.now()}] {0.7 - 0.3} ＝ 0.7 - 0.3")
+        # print(f"[{datetime.datetime.now()}] {0.7**2 - 0.3**2} ＝ (0.7^2) － (0.3^2)")
+
+        # print(f"[{datetime.datetime.now()}] なんでこいつら似てんの？")
+        # print(f"[{datetime.datetime.now()}] {0.79 - 0.21} ＝ 0.79 - 0.21")
+        # print(f"[{datetime.datetime.now()}] {0.79**2 - 0.21**2} ＝ (0.79^2) － (0.21^2)")
 
         # print(f"[{datetime.datetime.now()}] {1 / 0.65**2} ＝ 1 ／ (0.65^2)")
         # print(f"[{datetime.datetime.now()}] {1 / 0.35**2} ＝ 1 ／ (0.35^2)")
