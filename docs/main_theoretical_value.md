@@ -72,16 +72,29 @@ p != 0.5    … イカサマコインの確率。 "!=" はノットイコール�
 確率の小数部（Decimal places）の桁が消えるほど 10^n を掛けると、整数（Integer）になる
 
 ```
-dp_len = 10^n
-p_int  = dp_len * p
+scale = 10^n
+p_int = scale * p
 ```
 
 例：  
 
 ```
-dp_len = 10
-p      =  0.7
-p_int  =  7
+scale = 10
+p     =  0.7
+p_int =  7
+```
+
+
+## 説明３　先手のｎ本先取
+
+表が出る確率を、裏が出る確率で割り、その整数部を取り出すと、表は何本先取すると勝ちにするかが求まる  
+
+```
+※ floor(x) は x の小数点以下切り捨て
+p_int = floor(scale * p / (1 - p))
+q_int = floor(scale * (1 - p) / p)
+
+p_target = floor(p_int / q_int)
 ```
 
 
