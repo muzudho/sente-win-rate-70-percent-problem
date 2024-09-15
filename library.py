@@ -15,6 +15,57 @@ BLACK = 1
 WHITE = 2
 
 
+def round_letro(number):
+    """四捨五入
+
+    📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
+
+    Parameters
+    ----------
+    number : float
+        四捨五入したい数
+    
+    Returns
+    -------
+    answer : int
+        整数
+    """
+    return int(Decimal(str(number)).quantize(Decimal('0'), ROUND_HALF_UP))
+
+
+def white_win_rate(black_win_rate):
+    """後手勝率
+    
+    Parameters
+    ----------
+    black_win_rate : float
+        先手勝率
+    """
+    return 1 - black_win_rate
+
+
+def black_win_value(white_win_rate):
+    """先手の勝ちの価値
+    
+    Parameters
+    ----------
+    white_win_rate : float
+        後手勝率
+    """
+    return white_win_rate / (1 - white_win_rate)
+
+
+def white_win_value(black_win_rate):
+    """後手の勝ちの価値
+    
+    Parameters
+    ----------
+    black_win_rate : float
+        先手勝率
+    """
+    return black_win_rate / (1 - black_win_rate)
+
+
 def coin(black_rate):
     """表が黒、裏が白のコイン
 
@@ -91,21 +142,3 @@ def n_round(black_win_rate, bout_count, white_require, round_count):
             black_win_count += 1
 
     return black_win_count
-
-
-def round_letro(number):
-    """四捨五入
-
-    📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
-
-    Parameters
-    ----------
-    number : float
-        四捨五入したい数
-    
-    Returns
-    -------
-    answer : int
-        整数
-    """
-    return int(Decimal(str(number)).quantize(Decimal('0'), ROUND_HALF_UP))
