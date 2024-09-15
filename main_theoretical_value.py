@@ -119,6 +119,12 @@ if __name__ == '__main__':
             #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
             #print(f"後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  ", end='')
 
+            # 以下で行っているのは、余りの解消
+            # -----------------------------
+            #
+            #   NOTE 余りを全て解消しても、また最初から繰り返しを行うこと
+            #
+
             # 繰り上がり先手勝率点
             carried = remainder
 
@@ -134,18 +140,37 @@ if __name__ == '__main__':
                 print() # 改行
                 print(f"  次の閏対局までの長さ{leap_span:2}")
 
-                # 次に余りを解消できる閏対局
-                next_leap += leap_span
-                print(f"  次に余りを解消できる閏対局第{next_leap:2}")
+                # 余り解消の周期
+                countdown = 10
+                while carried != 0 and 0 < countdown:
 
-                # 次の繰り上がり先手勝率点
-                carried = d_b_win_rate % carried
-                print(f"  次の繰り上がり先手勝率点{carried}")
+                    # ※繰り返し
 
-                # 持ち越し勝率点
-                hangover_b_win_point = d_b_win_rate + carried
-                print(f"  持ち越し勝率点{hangover_b_win_point}")
+                    if carried != 0:
+                        for i in range(0, 1):
 
+                            # 次に余りを解消できる閏対局
+                            next_leap += leap_span
+                            print(f"  次に余りを解消できる閏対局第{next_leap:2}")
+
+                            # 次の繰り上がり先手勝率点
+                            carried = d_b_win_rate % carried
+                            print(f"  次の繰り上がり先手勝率点{carried}")
+
+                            # 持ち越し勝率点
+                            hangover_b_win_point = d_b_win_rate + carried
+                            print(f"  持ち越し勝率点{hangover_b_win_point}")
+
+                            if carried == 0:
+                                print(f"  余りなし")
+                                break
+
+                            # 次の閏対局までの長さ
+                            leap_span = math.ceil(hangover_b_win_point / carried)
+                            print() # 改行
+                            print(f"  次の閏対局までの長さ{leap_span:2}")
+
+                    countdown -= 1
 
 
                 # # 閏対局の列挙
