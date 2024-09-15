@@ -109,7 +109,17 @@ carried = p_point % (scale - p_point)
 表のポイントに、表の得を加算する  
 
 ```
-carryover_b_point = b_point + carried
+carryover_p_point = p_point + carried
+```
+
+
+# 説明６　あと何回対局すると、表の得が、裏が出る確率の整数比を上回るか
+
+あと何回対局（fill_bouts）すると、表の得が、裏が出る確率の整数比を上回るか  
+
+```
+※ ceil(x) は x の小数点以下切り上げ
+fill_bouts = ceil((scale - p_point) / carried)
 ```
 
 
