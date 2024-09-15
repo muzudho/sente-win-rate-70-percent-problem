@@ -124,6 +124,7 @@ if __name__ == '__main__':
             # 以下で行っているのは、余りの解消
             # -----------------------------
             #
+            #   方法としては、足し算の筆算の繰り上がりと同じ。
             #   NOTE 余りを全て解消しても、また最初から繰り返しを行うこと
             #
 
@@ -131,16 +132,19 @@ if __name__ == '__main__':
             carried = remainder
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            hangover_b_win_point = d_b_win_rate + carried
+            carryover_b_win_point = d_b_win_rate + carried
 
             # 繰り上がりがある場合
             if carried != 0:
                 # 次の閏対局
                 next_leap = 0
 
-                print(f"余り解消の周期{hangover_b_win_point / quotient:7.4f}  ", end='')
+                print(f"閏対局", end='')
 
                 # 余り解消の周期
+                #
+                #   NOTE 繰り上がりが解消しないケース。循環時に打ち切り
+                #
                 countdown = 10
                 while carried != 0 and 0 < countdown:
 
@@ -148,29 +152,35 @@ if __name__ == '__main__':
 
                     # あと何対局すると、余りが後手先取必要本数を上回るか（次の閏対局までの長さ）
                     fill_bouts = math.ceil(d_w_win_rate / carried)
-                    print() # 改行
-                    print(f"  一対局毎に余りが{carried}ずつ溜まり、{d_w_win_rate}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
+                    #print(f"\n  一対局毎に余りが{carried}ずつ溜まり、{d_w_win_rate}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
 
                     if carried != 0:
                         for i in range(0, 1):
 
                             # 次に余りを解消できる閏対局
                             next_leap += fill_bouts
-                            print(f"  次に余りを解消できる閏対局第{next_leap:2}")
+                            #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
+                            print(f"[{next_leap:2}]", end='')
 
                             # 次の繰り上がり先手勝率点
                             carried = d_b_win_rate % carried
-                            print(f"  次の繰り上がり先手勝率点{carried}")
+                            #print(f"  次の繰り上がり先手勝率点{carried}")
 
                             if carried == 0:
-                                print(f"  余りなし")
+                                #print(f"  余り解消")
+                                print(f"  （繰り返し）", end='')
                                 break
 
-                            # 持ち越し勝率点
-                            hangover_b_win_point = d_b_win_rate + carried
-                            print(f"  持ち越し勝率点{hangover_b_win_point}")
+                            # 繰り上がり込み先手勝率点
+                            carryover_b_win_point = d_b_win_rate + carried
+                            #print(f"  繰り上がり込み先手勝率点{carryover_b_win_point}")
 
                     countdown -= 1
+
+            # 繰り上がりがある場合
+            if carried != 0:
+                #print(f"  （計算未完了）", end='')
+                print(f"（計算未完了）", end='')
 
             print() # 改行
 
