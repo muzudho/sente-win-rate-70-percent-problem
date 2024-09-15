@@ -4,6 +4,7 @@
 #
 
 import traceback
+import math
 from library import round_letro, count_of_decimal_places, white_win_rate, white_win_value, black_win_value
 
 
@@ -77,25 +78,43 @@ if __name__ == '__main__':
 
             # 先手勝率
             black_win_rate=rule[0]
-            print(f"先手勝率{black_win_rate:4.2f}  小数部の長さ{count_of_decimal_places(black_win_rate)}  ", end='')
+            # 小数部の桁数
+            d = count_of_decimal_places(black_win_rate)
+            print(f"先手勝率{black_win_rate:4.2f}  小数部の桁数{d}  ", end='')
 
             # 計算過程
             # --------
 
             # 後手勝率
             w_win_rate = white_win_rate(black_win_rate=black_win_rate)
+            #print(f"後手勝率{w_win_rate:4.2f}  ", end='')
+
+            # 先手勝率と後手勝率を整数にする
+            d_b_win_rate = round_letro((10**d) * black_win_rate)    # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
+            print(f"先後勝率整数比　{d_b_win_rate:2}：", end='')
+            d_w_win_rate = round_letro((10**d) * w_win_rate)        # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
+            print(f"{d_w_win_rate:2}  ", end='')
 
             # 先手の勝ちの価値
-            b_win_value = black_win_value(white_win_rate=w_win_rate)
+            # b_win_value = black_win_value(white_win_rate=w_win_rate)
+            # print(f"先手の勝ちの価値{b_win_value:7.4f}  ", end='')
 
             # 後手の勝ちの価値
             w_win_value = white_win_value(black_win_rate=black_win_rate)
 
             # 先手のｎ本先取制
-            b_win_required = round_letro(w_win_value)
+            b_win_required = math.floor(w_win_value)
+
+            # 黒/白の商の整数部
+            quotient = round_letro(d_b_win_rate / d_w_win_rate)     # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
+
+            # 商の整数部
+            print(f"先手の{quotient:2}本先取制  ", end='')
 
             # 剰余
-            remainder = b_win_value % w_win_value
+            remainder = d_b_win_rate % d_w_win_rate
+            
+            print(f"余りの持ち越し{remainder:2}  ", end='')
 
             # 閏対局を１つ求める
             if remainder == 0:
@@ -103,7 +122,9 @@ if __name__ == '__main__':
             else:
                 leap_game_1 = 1 // remainder
 
-            print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  先手の勝ちの価値{b_win_value:7.4f}  後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  余りの持ち越し{remainder:7.4f}　閏対局[{leap_game_1:2.0f}]")
+            #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
+            #print(f"後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  ", end='')
+            print(f"閏対局[{leap_game_1:2.0f}]")
 
 
     except Exception as err:
