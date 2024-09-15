@@ -3,6 +3,7 @@
 #
 
 import random
+import datetime
 
 # 四捨五入 📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
 from decimal import Decimal, ROUND_HALF_UP
@@ -164,3 +165,79 @@ def n_round(black_win_rate, bout_count, white_require, round_count):
             black_win_count += 1
 
     return black_win_count
+
+
+class CoinToss():
+    """コイントスの試行"""
+
+
+    def __init__(self, summary_file_path):
+        """初期化
+        
+        Parameters
+        ----------
+        summary_file_path : str
+            結果の出力ファイルへのパス
+        """
+        self._summary_file_path = summary_file_path
+
+
+    def coin_toss_in_some_rounds(self, black_win_rate, black_target_in_bout, white_target_in_bout, round_total):
+        """コイントスを複数対局する
+        
+        Parameters
+        ----------
+        black_win_rate : float
+            黒が出る確率（先手勝率）
+        black_target_in_bout : int
+            先手の何本先取制
+        white_target_in_bout : int
+            後手の何本先取制
+        round_total : int
+            対局数
+        """
+
+        # 初期値
+        # ------
+
+        # 黒が勝った回数
+        black_wons = 0
+
+
+        for round in range(0, round_total):
+
+            # 新しい本目（Bout）
+            b_count_in_bout = 0
+            w_count_in_bout = 0
+
+            # ｎ本勝負で勝ち負けが出るまでやる
+            while True:
+
+                # 黒が出た
+                if coin(black_win_rate) == BLACK:
+                    b_count_in_bout += 1
+                
+                # 白が出た
+                else:
+                    w_count_in_bout += 1
+
+                # 黒の先取本数を取った（黒が勝った）
+                if black_target_in_bout <= b_count_in_bout:
+                    black_wons += 1
+                    break
+
+                # 白の先取本数を取った（白が勝った）
+                elif white_target_in_bout <= w_count_in_bout:
+                    break
+
+
+        with open(self._summary_file_path, 'a', encoding='utf8') as f:
+            # 文言作成
+            # -------
+
+            # 黒が勝った確率
+            black_won_rate = black_wons / round_total
+
+            text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  先手{black_target_in_bout:2}本先取/後手{white_target_in_bout:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate:8.4f} ％"
+            print(text) # 表示
+            f.write(f"{text}\n")    # ファイルへ出力
