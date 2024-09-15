@@ -138,16 +138,16 @@ if __name__ == '__main__':
 
                 print(f"余り解消の周期{hangover_b_win_point / quotient:7.4f}  ", end='')
 
-                # 次の閏対局までの長さ
-                leap_span = math.ceil(hangover_b_win_point / quotient)
-                print() # 改行
-                print(f"  次の閏対局までの長さ{leap_span:2}")
-
                 # 余り解消の周期
                 countdown = 10
                 while carried != 0 and 0 < countdown:
 
                     # ※繰り返し
+
+                    # 次の閏対局までの長さ
+                    leap_span = math.floor(hangover_b_win_point / quotient)
+                    print() # 改行
+                    print(f"  一対局毎に余りが{carried}ずつ溜まり、{d_w_win_rate}以上になるのが、次の閏対局までの長さ{leap_span:2}")
 
                     if carried != 0:
                         for i in range(0, 1):
@@ -160,18 +160,13 @@ if __name__ == '__main__':
                             carried = d_b_win_rate % carried
                             print(f"  次の繰り上がり先手勝率点{carried}")
 
-                            # 持ち越し勝率点
-                            hangover_b_win_point = d_b_win_rate + carried
-                            print(f"  持ち越し勝率点{hangover_b_win_point}")
-
                             if carried == 0:
                                 print(f"  余りなし")
                                 break
 
-                            # 次の閏対局までの長さ
-                            leap_span = math.ceil(hangover_b_win_point / quotient)
-                            print() # 改行
-                            print(f"  次の閏対局までの長さ{leap_span:2}")
+                            # 持ち越し勝率点
+                            hangover_b_win_point = d_b_win_rate + carried
+                            print(f"  持ち越し勝率点{hangover_b_win_point}")
 
                     countdown -= 1
 
