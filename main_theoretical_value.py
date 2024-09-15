@@ -78,9 +78,11 @@ if __name__ == '__main__':
 
             # 先手勝率
             black_win_rate=rule[0]
+            print(f"先手勝率{black_win_rate:4.2f}  ", end='')
+
             # 小数部の桁数
             d = count_of_decimal_places(black_win_rate)
-            print(f"先手勝率{black_win_rate:4.2f}  小数部の桁数{d}  ", end='')
+            #print(f"小数部の桁数{d}  ", end="")
 
             # 計算過程
             # --------
