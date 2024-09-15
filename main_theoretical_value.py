@@ -73,53 +73,47 @@ if __name__ == '__main__':
     try:
 
         for rule in rule_list:
-            # 初期値
-            # ------
+            # 説明１　コインの表裏の確率
+            # ------------------------
 
             # 先手勝率
             black_win_rate=rule[0]
             print(f"先手勝率{black_win_rate:4.2f}  ", end='')
 
-            # 小数部の桁数
-            d = count_of_decimal_places(black_win_rate)
-            #print(f"小数部の桁数{d}  ", end="")
-
-            # 計算過程
-            # --------
-
             # 後手勝率
             w_win_rate = white_win_rate(black_win_rate=black_win_rate)
             #print(f"後手勝率{w_win_rate:4.2f}  ", end='')
 
+
+            # 説明２  コインの表裏の確率の整数化
+            # --------------------------------
+
+            # 小数部の桁数
+            dp_len = count_of_decimal_places(black_win_rate)
+            #print(f"小数部の桁数{dp_len}  ", end="")
+
             # 先手勝率と後手勝率を整数にする
-            d_b_win_rate = round_letro((10**d) * black_win_rate)    # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
-            print(f"先後勝率整数比　{d_b_win_rate:2}：", end='')
-            d_w_win_rate = round_letro((10**d) * w_win_rate)        # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
-            print(f"{d_w_win_rate:2}  ", end='')
+            b_win_rate_int = round_letro((10**dp_len) * black_win_rate)    # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
+            print(f"先後勝率整数比　{b_win_rate_int:2}：", end='')
+            w_win_rate_int = round_letro((10**dp_len) * w_win_rate)        # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
+            print(f"{w_win_rate_int:2}  ", end='')
 
-            # 先手の勝ちの価値
-            # b_win_value = black_win_value(white_win_rate=w_win_rate)
-            # print(f"先手の勝ちの価値{b_win_value:7.4f}  ", end='')
 
-            # 後手の勝ちの価値
-            w_win_value = white_win_value(black_win_rate=black_win_rate)
-
-            # 先手のｎ本先取制
-            b_win_required = math.floor(w_win_value)
+            # 計算過程
+            # --------
 
             # 黒/白の商の整数部
-            quotient = round_letro(d_b_win_rate / d_w_win_rate)     # NOTE 4 が 内部的に 3.9999... だったりするので、四捨五入している
+            quotient = math.floor(b_win_rate_int / w_win_rate_int)
 
             # 商の整数部
             print(f"先手の{quotient:2}本先取制  ", end='')
 
             # 剰余
-            remainder = d_b_win_rate % d_w_win_rate
+            remainder = b_win_rate_int % w_win_rate_int
             
-            print(f"先手余り{remainder:2}  ", end='')
+            print(f"先手得{remainder:2}  ", end='')
 
             #print(f"先手勝率{black_win_rate:4.2f}　後手勝率{w_win_rate:4.2f}  ", end='')
-            #print(f"後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  ", end='')
 
             # 以下で行っているのは、余りの解消
             # -----------------------------
@@ -132,14 +126,14 @@ if __name__ == '__main__':
             carried = remainder
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            carryover_b_win_point = d_b_win_rate + carried
+            carryover_b_win_point = b_win_rate_int + carried
 
             # 繰り上がりがある場合
             if carried != 0:
                 # 次の閏対局
                 next_leap = 0
 
-                print(f"閏対局", end='')
+                print(f"先手得をチャラにするのに必要な次の閏対局", end='')
 
                 # 余り解消の周期
                 #
@@ -151,8 +145,9 @@ if __name__ == '__main__':
                     # ※繰り返し
 
                     # あと何対局すると、余りが後手先取必要本数を上回るか（次の閏対局までの長さ）
-                    fill_bouts = math.ceil(d_w_win_rate / carried)
-                    #print(f"\n  一対局毎に余りが{carried}ずつ溜まり、{d_w_win_rate}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
+                    fill_bouts = math.ceil(w_win_rate_int / carried)
+                    #print(f"\n  一対局毎に余りが{carried}ずつ溜まり、{w_win_rate_int}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
+                    print(f"(得{carried:2}×{fill_bouts:2}局>=分子{w_win_rate_int:2})", end='')
 
                     if carried != 0:
                         for i in range(0, 1):
@@ -160,19 +155,19 @@ if __name__ == '__main__':
                             # 次に余りを解消できる閏対局
                             next_leap += fill_bouts
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
-                            print(f"[{next_leap:2}]", end='')
 
                             # 次の繰り上がり先手勝率点
-                            carried = d_b_win_rate % carried
+                            carried = b_win_rate_int % carried
                             #print(f"  次の繰り上がり先手勝率点{carried}")
+                            print(f"[第{next_leap:2}](新得{carried:2}) ", end='')
 
                             if carried == 0:
                                 #print(f"  余り解消")
-                                print(f"  （繰り返し）", end='')
+                                print(f"(繰り返し)", end='')
                                 break
 
                             # 繰り上がり込み先手勝率点
-                            carryover_b_win_point = d_b_win_rate + carried
+                            carryover_b_win_point = b_win_rate_int + carried
                             #print(f"  繰り上がり込み先手勝率点{carryover_b_win_point}")
 
                     countdown -= 1
@@ -180,7 +175,7 @@ if __name__ == '__main__':
             # 繰り上がりがある場合
             if carried != 0:
                 #print(f"  （計算未完了）", end='')
-                print(f"（計算未完了）", end='')
+                print(f"(計算未完了)", end='')
 
             print() # 改行
 
