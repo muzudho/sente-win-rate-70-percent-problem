@@ -84,7 +84,13 @@ if __name__ == '__main__':
             # 後手の勝ちの価値
             w_win_value = white_win_value(black_win_rate=black_win_rate)
 
-            print(f"先手勝率{black_win_rate:4.2f}  先手の勝ちの価値{b_win_value:6.4f}  後手の勝ちの価値{w_win_value:7.4f}  四捨五入{round_letro(w_win_value):2}")
+            # 先手のｎ本先取制
+            b_win_required = round_letro(w_win_value)
+
+            # 剰余
+            remainder = b_win_value % w_win_value
+
+            print(f"先手勝率{black_win_rate:4.2f}  後手の勝ちの価値{w_win_value:7.4f}  先手の{b_win_required:2}本先取制  余りの持ち越し{remainder:7.4f}")
 
 
     except Exception as err:
