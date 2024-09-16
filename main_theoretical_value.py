@@ -14,7 +14,7 @@ from library import round_letro, count_of_decimal_places, white_win_rate, white_
 ########################################
 
 # 0.50 ～ 0.99 まで試算
-rule_list = [
+INPUT_DATA = [
     [0.50],
     [0.51],
     [0.52],
@@ -72,7 +72,7 @@ if __name__ == '__main__':
 
     try:
 
-        for rule in rule_list:
+        for rule in INPUT_DATA:
             # 説明１　コインの表裏の確率
             # ------------------------
 

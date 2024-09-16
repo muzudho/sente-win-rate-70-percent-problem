@@ -21,7 +21,7 @@ LIMIT = 0.005   # 例えば LIMIT = 0.03 にすると、黒番勝率 0.53 のと
 OUT_OF_ERROR = 0.51
 
 # 先手勝率 0.50 ～ 0.99 まで試算
-rule_list = [
+INPUT_DATA = [
     # 項目   black_win_rate, best_black_win_error, best_max_bout_count, best_round_count, best_white_require
     # 初期値             --,         OUT_OF_ERROR,                   1,                1,                  0
     # ------------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     try:
 
-        for rule in rule_list:
+        for rule in INPUT_DATA:
             # 初期値
             black_win_rate=rule[0]
             best_black_win_error=rule[1]
