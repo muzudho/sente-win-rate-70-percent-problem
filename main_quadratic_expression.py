@@ -107,12 +107,15 @@ if __name__ == '__main__':
             #quadratic_expression = x**2 + x + a
             #quadratic_expression = x**2 + (0 * x) + a
             #quadratic_expression = x**2 - (x) + (0)
+
+            # これが近い
             quadratic_expression = 1 - (2 * black_win_rate - 1)
 
             # 誤差
             error = inverse_target_ration - quadratic_expression
 
-            print(f"[{datetime.datetime.now()}] 先手勝率{black_win_rate:4.2f}  先手{black_target_in_bout:2}本先取/後手{white_target_in_bout:2}本先取＝比{target_ration:8.4f}逆{inverse_target_ration:8.4f}  仮説の二次式＝{quadratic_expression:8.4f}  誤差{error:8.4f}")
+            #print(f"[{datetime.datetime.now()}] 先手勝率{black_win_rate:4.2f}  先手{black_target_in_bout:2}本先取/後手{white_target_in_bout:2}本先取＝比{target_ration:8.4f}逆{inverse_target_ration:8.4f}  仮説の二次式＝{quadratic_expression:8.4f}  誤差{error:8.4f}")
+            print(f"[{datetime.datetime.now()}] 先手勝率{black_win_rate:4.2f}  先手{black_target_in_bout:2}本先取/後手{white_target_in_bout:2}本先取＝逆数{inverse_target_ration:8.4f}  仮説の式 1 - (2 * 先手勝率 - 1)＝{quadratic_expression:8.4f}  誤差{error:8.4f}")
 
 
     except Exception as err:
