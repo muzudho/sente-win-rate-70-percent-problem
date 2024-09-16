@@ -102,10 +102,12 @@ if __name__ == '__main__':
             # 仮説の二次式
             #x = 1 - black_win_rate
             #x = 1 - math.sqrt(black_win_rate)
-            x = 1 - (black_win_rate - 0.5)
-            a = 0
+            #x = 1 - (black_win_rate - 0.5)
+            #a = 0
             #quadratic_expression = x**2 + x + a
-            quadratic_expression = x**2 + (0 * x) + a
+            #quadratic_expression = x**2 + (0 * x) + a
+            #quadratic_expression = x**2 - (x) + (0)
+            quadratic_expression = 1 - (2 * black_win_rate - 1)
 
             # 誤差
             error = inverse_target_ration - quadratic_expression
