@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python main_coin_toss.py
+# python simulation_coin_toss.py
 #
 #   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_bout_count）投げる
 #
@@ -13,7 +13,7 @@ import math
 from library import CoinToss
 
 
-SUMMARY_FILE_PATH = 'output/main_coin_toss.log'
+SUMMARY_FILE_PATH = 'output/simulation_coin_toss.log'
 
 # 下の式になるような、先手先取本数、後手先取本数を求めたい。
 #

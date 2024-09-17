@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python main.py
+# python simulation.py
 #
 #   引き分けは考慮していない。
 #   主に、無理数に近似する有理数を、アルゴリズムで探索する感じ。
@@ -13,7 +13,7 @@ import math
 from library import BLACK, WHITE, coin, n_bout, n_round, round_letro
 
 
-SUMMARY_FILE_PATH = 'output/result_summary.log'
+SUMMARY_FILE_PATH = 'output/simulation.log'
 
 # 誤差は LIMIT に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 # LIMIT 未満からさらに 0 に近づいていくので、そうなる前に打ち切る

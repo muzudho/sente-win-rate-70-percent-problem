@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python main_coin_toss_leap.py
+# python simulation_coin_toss_with_leap.py
 #
 #   閏対局のシミュレーション
 #
@@ -13,7 +13,7 @@ import math
 from library import BLACK, round_letro, black_win_rate_to_b_w_targets, CoinToss
 
 
-SUMMARY_FILE_PATH = 'output/main_coin_toss_leap.log'
+SUMMARY_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
 
 
 INPUT_DATA = [

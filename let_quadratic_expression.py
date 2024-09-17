@@ -1,6 +1,6 @@
 #
-# シミュレーション
-# python main_quadratic_expression.py
+# 計算
+# python let_quadratic_expression.py
 #
 #   二次式を探すのに使う
 #
@@ -13,7 +13,7 @@ import math
 from library import CoinToss
 
 
-SUMMARY_FILE_PATH = 'output/main_quadratic_expression.log'
+SUMMARY_FILE_PATH = 'output/let_quadratic_expression.log'
 
 
 # 連続コイントス

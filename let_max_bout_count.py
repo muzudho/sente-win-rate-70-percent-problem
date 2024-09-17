@@ -1,5 +1,5 @@
 # 何本勝負にするかを算出
-# python main_max_bout_count.py
+# python let_max_bout_count.py
 
 import traceback
 import datetime

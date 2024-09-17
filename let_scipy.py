@@ -2,7 +2,7 @@
 # scipy ライブラリーの使い方の練習
 #
 # python -m pip install scipy
-# python main_scipy.py
+# python let_scipy.py
 #
 # 📖 [How do I properly write scipy.stats.binom.cdf() details](https://datascience.stackexchange.com/questions/51436/how-do-i-properly-write-scipy-stats-binom-cdf-details)
 #

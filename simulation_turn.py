@@ -14,7 +14,7 @@ import math
 from library import BLACK, WHITE, coin, n_bout, n_round, round_letro
 
 
-SUMMARY_FILE_PATH = 'output/result_summary_turn.log'
+SUMMARY_FILE_PATH = 'output/simulation_turn.log'
 
 
 # 0.50 ～ 0.99 まで試算

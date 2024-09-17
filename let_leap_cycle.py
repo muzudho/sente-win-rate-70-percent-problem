@@ -1,5 +1,5 @@
 # 計算
-# python main_leap.py
+# python let_leap_cycle.py
 #
 #   閏対局の周期の算出
 #
