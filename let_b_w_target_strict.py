@@ -1,8 +1,8 @@
 #
 # 計算
-# python let_b_w_target_rough.py
+# python let_b_w_target_strict.py
 #
-#   先手先取本数、後手先取本数を求める（正確ではない）
+#   先手先取本数、後手先取本数を求める（厳密）
 #
 
 import traceback
@@ -10,37 +10,15 @@ import datetime
 import random
 import math
 
-from library import black_win_rate_to_b_w_targets
+from library import black_win_rate_to_b_w_targets, calculate_probability
 
 
-SUMMARY_FILE_PATH = 'output/let_b_w_target_rough.log'
+SUMMARY_FILE_PATH = 'output/let_b_w_target_strict.log'
 
-# 下の式になるような、先手先取本数、後手先取本数を求めたい。
-#
-#
-# 　　　　   先手先取本数
-# ───────────────────────────────　＝　先手勝率
-# 　先手先取本数　＋　後手先取本数
-#
-# ここで、先手先取本数、後手先取本数は１以上の整数とし、先手先取本数　≧　後手先取本数。
-#
-#
-# 例：
-#
-# 　　　７
-# ─────────────　＝　０．７
-# 　７　＋　３
-#
-#
-# このような数式はすぐに作れる。例えば　先手勝率０．６５なら、
-#
-# 　　　 ６５
-# ─────────────────　＝　０．６５
-# 　６５　＋　３５
 
-# 0.50 ～ 0.99 まで試算
+# 0.50 < p and p <= 0.99
 INPUT_DATA = [
-    [0.50],
+    #[0.50],
     [0.51],
     [0.52],
     [0.53],
@@ -105,14 +83,35 @@ if __name__ == '__main__':
             # 先手勝率
             black_win_rate=input_datum[0]
 
-            b_point, w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
+            # ベストな調整後の先手勝率と、その誤差
+            best_balanced_black_win_rate = 101.0
+            best_error = 0.51
+            best_b_point = 0
+            best_w_point = 0
+
+            # p=0.5 は含みません
+            for b_point in range(1, 101):
+                for w_point in range (1, b_point):
+                    balanced_black_win_rate = calculate_probability(
+                        p=black_win_rate,
+                        H=b_point,
+                        T=w_point)
+
+                    # 誤差
+                    error = abs(balanced_black_win_rate - 0.5)
+
+                    if error < best_error:
+                        best_error = error
+                        best_balanced_black_win_rate = balanced_black_win_rate
+                        best_b_point = b_point
+                        best_w_point = w_point
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  先取本数　黒：白＝{b_point:>2}：{w_point:>2}"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate:4.2f}  先取本数　黒：白＝{best_b_point:>3}：{best_w_point:>2}  調整後先手勝率 {best_balanced_black_win_rate:6.4f} 誤差 {best_error:6.4f} ％"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
