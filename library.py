@@ -311,3 +311,49 @@ class CoinToss():
             text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  先手{black_target_in_bout:2}本先取／後手{white_target_in_bout:2}本先取制＝比{inverse_target_ration:6.4f}  先／（先＋後）＝{ration:8.4f}  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
             print(text) # 表示
             f.write(f"{text}\n")    # ファイルへ出力
+
+
+def calculate_probability(p, H, T):
+    """TODO このコードは検証中
+
+    # パラメータの設定例
+    p = 0.7  # 表が出る確率
+    H = 7    # Aさんが必要な表の回数
+    T = 3    # Bさんが必要な裏の回数
+
+    # 計算の実行例
+    probability = calculate_probability(p, H, T)
+    print(f"Aさんが勝つ確率: {probability * 100:.2f}%")
+
+    Parameters
+    ----------
+    p : float
+        表が出る確率
+    H : int
+        表側のプレイヤー（Ａさん）が必要な、表の先取回数
+    T : int
+        裏側のプレイヤー（Ｂさん）が必要な、裏の先取回数
+    
+    Returns
+    black_win_rate : float
+        Ａさんが勝つ確率
+    """
+
+    # 裏が出る確率
+    q = 1 - p
+
+    # 状態を格納する二次元配列を初期化
+    P = [[0.0 for _ in range(T + 1)] for _ in range(H + 1)]
+
+    # 境界条件の設定
+    for h in range(H + 1):
+        P[h][T] = 0  # Bさんが勝利
+    for t in range(T + 1):
+        P[H][t] = 1  # Aさんが勝利
+
+    # 再帰関係式の適用
+    for h in range(H - 1, -1, -1):
+        for t in range(T - 1, -1, -1):
+            P[h][t] = p * P[h + 1][t] + q * P[h][t + 1]
+
+    return P[0][0]
