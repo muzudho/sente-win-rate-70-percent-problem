@@ -1,5 +1,5 @@
 #
-# シミュレーション
+# 計算
 # python main_b_w_target.py
 #
 #   先手先取本数、後手先取本数を求める
@@ -105,7 +105,7 @@ if __name__ == '__main__':
             # 先手勝率
             black_win_rate=input_datum[0]
 
-            w_point, b_point = black_win_rate_to_b_w_targets(p=black_win_rate)
+            b_point, w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
