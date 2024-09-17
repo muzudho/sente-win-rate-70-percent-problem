@@ -10,7 +10,8 @@ import datetime
 import random
 import math
 
-from library import CoinToss, white_win_rate, scale_for_float_to_int
+from library import round_letro, white_win_rate, scale_for_float_to_int
+from fractions import Fraction
 
 
 SUMMARY_FILE_PATH = 'main_b_w_target.log'
@@ -116,17 +117,25 @@ if __name__ == '__main__':
             #w_scale = scale_for_float_to_int(w_win_rate)
 
             # 黒先取本数基礎
-            b_point = int(black_win_rate * scale)
+            #
+            #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりする
+            #
+            b_point = round_letro(black_win_rate * scale)
 
             # 白先取本数基礎
             w_point = scale - b_point
+
+            # DO 約分する
+            fraction = Fraction(w_point, b_point) # とりあえず、白、黒の順にする
+            w_point_2 = fraction.numerator
+            b_point_2 = fraction.denominator
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  スケール：黒{scale:3}  黒先取本数基礎{b_point:>2}  白先取本数基礎{w_point:>2}"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  スケール：黒{scale:3}  先取本数基礎　黒：白＝{b_point:>2}：{w_point:>2}　約分  {b_point_2:>2}：{w_point_2:>2}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
