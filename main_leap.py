@@ -1,17 +1,61 @@
-# 理論値の出力
+# 閏対局の周期の算出
 #
-#   python main_theoretical_value.py
+#   python main_leap.py
 #
 
 import traceback
 import math
-from library import round_letro, count_of_decimal_places, white_win_rate, white_win_value, black_win_value
+from library import round_letro, scale_for_float_to_int, white_win_rate, white_win_value, black_win_value
 
 
+class LeapRoundCalculate():
+    """閏対局計算"""
 
-########################################
-# コマンドから実行時
-########################################
+
+    def __init__(self, black_win_rate, scale, b_point, w_point):
+        """初期化
+        
+        Parameters
+        ----------
+        black_win_rate : float
+            表が出る確率
+        scale : float
+            小数を使った確率を、整数比にするための倍率
+        b_point : int
+            表が出る確率の整数比
+        w_point : int
+            裏が出る確率の整数比
+        """
+
+        self._black_win_rate = black_win_rate
+        self._scale = scale
+        self._b_point = b_point
+        self._w_point = w_point
+
+
+    @property
+    def black_win_rate(self):
+        """表が出る確率"""
+        return self._black_win_rate
+
+
+    @property
+    def scale(self):
+        """小数を使った確率を、整数比にするための倍率"""
+        return self._scale
+
+
+    @property
+    def b_point(self):
+        """表が出る確率の整数比"""
+        return self._b_point
+
+
+    @property
+    def w_point(self):
+        """裏が出る確率の整数比"""
+        return self._w_point
+
 
 # 0.50 ～ 0.99 まで試算
 INPUT_DATA = [
@@ -67,6 +111,11 @@ INPUT_DATA = [
     [0.99],
 ]
 
+
+########################################
+# コマンドから実行時
+########################################
+
 if __name__ == '__main__':
     """コマンドから実行時"""
 
@@ -76,7 +125,7 @@ if __name__ == '__main__':
             # 説明１　コインの表裏の確率
             # ------------------------
 
-            # 先手勝率
+            # 先手勝率（表が出る確率）
             black_win_rate=rule[0]
             print(f"先手勝率{black_win_rate:4.2f}  ", end='')
 
@@ -87,12 +136,8 @@ if __name__ == '__main__':
 
             # 説明２  コインの表裏の確率の整数化
             # --------------------------------
+            scale = scale_for_float_to_int(black_win_rate)
 
-            # 小数部の桁数
-            dp_len = count_of_decimal_places(black_win_rate)
-            #print(f"小数部の桁数{dp_len}  ", end="")
-
-            scale = 10**dp_len
 
             # 先手勝率と後手勝率を整数にする
             #
@@ -195,6 +240,16 @@ if __name__ == '__main__':
                 print(f"(計算未完了)", end='')
 
             print() # 改行
+
+            LeapRoundCalculate(
+                # 表が出る確率
+                black_win_rate=black_win_rate,
+                # 小数を使った確率を、整数比にするための倍率
+                scale=scale,
+                # 先手勝率の整数比
+                b_point=b_point,
+                # 後手勝率の整数比
+                w_point=w_point)
 
 
     except Exception as err:

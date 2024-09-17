@@ -56,6 +56,16 @@ def count_of_decimal_places(value):
     return len(s)
 
 
+def scale_for_float_to_int(value):
+    """小数部を持つ数を、小数部を持たないようにするのに必要な１０の倍数"""
+    # 小数部の桁数
+    dp_len = count_of_decimal_places(value)
+    #print(f"小数部の桁数{dp_len}  ", end="")
+
+    return 10**dp_len
+
+
+
 def white_win_rate(black_win_rate):
     """後手勝率
     
@@ -184,7 +194,7 @@ class CoinToss():
 
     def coin_toss_in_round(self, black_win_rate, black_target_in_bout, white_target_in_bout):
         """１対局行う"""
-        
+
         # 新しい本目（Bout）
         b_count_in_bout = 0
         w_count_in_bout = 0
