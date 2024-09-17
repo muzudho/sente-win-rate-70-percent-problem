@@ -175,17 +175,29 @@ if __name__ == '__main__':
 
                             # NOTE ６２％の前後は山ができてる地点
 
-                            # 先手勝率が［６５％～８３％）なら
-                            elif 0.65 <= black_win_rate and black_win_rate < 0.83:
+                            # 先手勝率が［６５％～８２％）なら
+                            elif 0.65 <= black_win_rate and black_win_rate < 0.82:
                                 # ７本勝負で調整できなければ諦める
                                 if 7 < bout_count:
-                                    message = f"[▲！先手勝率が［６５％～８３％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［６５％～８２％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
-                            # NOTE ８０％、８２％が跳ねる地点
+                            # NOTE ８０％で跳ねる
+
+                            # NOTE ８２％は、４本勝負の次、１３本勝負に跳ねてしまう。手調整する
                             #
+                            #   [0.3200 黒  1 白 1][0.1724 黒  2 白 1][0.0514 黒  3 白 1][0.0479 黒  4 白 1][0.0234 黒 13 白 3]x
+                            #
+                            elif 0.82 <= black_win_rate and black_win_rate < 0.83:
+                                # １２本勝負で調整できなければ諦める
+                                if 12 < bout_count:
+                                    message = f"[▲！先手勝率が［８２％～８３％）（{black_win_rate}）なら、１２本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
+
                             # 先手勝率が［８３％～９０％）なら
                             elif 0.83 <= black_win_rate and black_win_rate < 0.90:
                                 # １０本勝負で調整できなければ諦める
