@@ -9,7 +9,7 @@
 
 import traceback
 import math
-from library import round_letro, scale_for_float_to_int, white_win_rate, black_win_rate_to_b_w_targets, white_win_value, black_win_value
+from library import round_letro, scale_for_float_to_int, black_win_rate_to_b_w_targets
 
 
 class LeapRoundCalculate():

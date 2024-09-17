@@ -1,9 +1,10 @@
 #
 # 共通コード
 #
+#   ファイル出力、ログ等を除く
+#
 
 import random
-import datetime
 from fractions import Fraction
 
 # 四捨五入 📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
@@ -66,17 +67,17 @@ def scale_for_float_to_int(value):
     return 10**dp_len
 
 
-def white_win_rate(black_win_rate):
-    """後手勝率
-    
-    NOTE 0.11 が 0.10999999999999999 になっていたり、想定した結果を返さないことがあるから使わないほうがいい
-
-    Parameters
-    ----------
-    black_win_rate : float
-        先手勝率
-    """
-    return 1 - black_win_rate
+# def white_win_rate(black_win_rate):
+#     """後手勝率
+#
+#     NOTE 0.11 が 0.10999999999999999 になっていたり、想定した結果を返さないことがあるから使わないほうがいい
+#
+#     Parameters
+#     ----------
+#     black_win_rate : float
+#         先手勝率
+#     """
+#     return 1 - black_win_rate
 
 
 def black_win_rate_to_b_w_targets(p):
@@ -113,26 +114,26 @@ def black_win_rate_to_b_w_targets(p):
     return fraction.numerator, fraction.denominator
 
 
-def black_win_value(white_win_rate):
-    """先手の勝ちの価値
-    
-    Parameters
-    ----------
-    white_win_rate : float
-        後手勝率
-    """
-    return white_win_rate / (1 - white_win_rate)
+# def black_win_value(white_win_rate):
+#     """先手の勝ちの価値
+#
+#     Parameters
+#     ----------
+#     white_win_rate : float
+#         後手勝率
+#     """
+#     return white_win_rate / (1 - white_win_rate)
 
 
-def white_win_value(black_win_rate):
-    """後手の勝ちの価値
-    
-    Parameters
-    ----------
-    black_win_rate : float
-        先手勝率
-    """
-    return black_win_rate / (1 - black_win_rate)
+# def white_win_value(black_win_rate):
+#     """後手の勝ちの価値
+#
+#     Parameters
+#     ----------
+#     black_win_rate : float
+#         先手勝率
+#     """
+#     return black_win_rate / (1 - black_win_rate)
 
 
 def coin(black_rate):
@@ -217,19 +218,35 @@ class CoinToss():
     """コイントスの試行"""
 
 
-    def __init__(self, summary_file_path):
+    def __init__(self, output_file_path):
         """初期化
         
         Parameters
         ----------
-        summary_file_path : str
-            結果の出力ファイルへのパス
+        output_file_path : str
+            出力先ファイルへのパス
         """
-        self._summary_file_path = summary_file_path
+        self._output_file_path = output_file_path
 
 
-    def coin_toss_in_round(self, black_win_rate, black_target_in_bout, white_target_in_bout):
-        """１対局行う"""
+    @property
+    def output_file_path(self):
+        """出力先ファイルへのパス"""
+        return self._output_file_path
+
+
+    def coin_toss_in_round(self, black_win_rate, b_point, w_point):
+        """１対局行う
+        
+        Parameters
+        ----------
+        black_win_rate : float
+            黒が出る確率（先手勝率）
+        b_point : int
+            先手の何本先取制
+        w_point : int
+            後手の何本先取制
+        """
 
         # 新しい本目（Bout）
         b_count_in_bout = 0
@@ -243,7 +260,7 @@ class CoinToss():
                 b_count_in_bout += 1
 
                 # 黒の先取本数を取った（黒が勝った）
-                if black_target_in_bout <= b_count_in_bout:
+                if b_point <= b_count_in_bout:
                     return BLACK
 
             # 白が出た
@@ -251,25 +268,30 @@ class CoinToss():
                 w_count_in_bout += 1
 
                 # 白の先取本数を取った（白が勝った）
-                if white_target_in_bout <= w_count_in_bout:
+                if w_point <= w_count_in_bout:
                     return WHITE
 
             # 続行
 
 
-    def coin_toss_in_some_rounds(self, black_win_rate, black_target_in_bout, white_target_in_bout, round_total):
+    def coin_toss_in_some_rounds(self, black_win_rate, b_point, w_point, round_total):
         """コイントスを複数対局する
         
         Parameters
         ----------
         black_win_rate : float
             黒が出る確率（先手勝率）
-        black_target_in_bout : int
+        b_point : int
             先手の何本先取制
-        white_target_in_bout : int
+        w_point : int
             後手の何本先取制
         round_total : int
             対局数
+        
+        Returns
+        -------
+        black_wons : int
+            黒が勝った回数
         """
 
         # 初期値
@@ -281,26 +303,10 @@ class CoinToss():
 
         for round in range(0, round_total):
 
-            if self.coin_toss_in_round(black_win_rate, black_target_in_bout, white_target_in_bout) == BLACK:
+            if self.coin_toss_in_round(black_win_rate, b_point, w_point) == BLACK:
                 black_wons += 1
 
-
-        with open(self._summary_file_path, 'a', encoding='utf8') as f:
-            # 文言作成
-            # -------
-
-            # 黒が勝った確率
-            black_won_rate = black_wons / round_total
-
-            # 均等からの誤差
-            error = abs(black_won_rate - 0.5)
-
-            # 後手が最初からｎ本持つアドバンテージがあるという表記
-            w_advantage = black_target_in_bout - white_target_in_bout
-
-            text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> 先手が勝った確率{black_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {black_target_in_bout:2}本勝負（後手は最初から{w_advantage:2}本もつアドバンテージ）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
-            print(text) # 表示
-            f.write(f"{text}\n")    # ファイルへ出力
+        return black_wons
 
 
 def calculate_probability(p, H, T):
@@ -347,54 +353,9 @@ def calculate_probability(p, H, T):
 
     # 表が H 回から N 回出る確率を計算
     for n in range(H, N + 1):
+        # 📖 ［累計二項分布］を調べること
         combinations = comb(N, n)   # 組み合わせの数
         prob = combinations * (p ** n) * (q ** (N - n))
         probability += prob
 
     return probability
-
-
-# def calculate_probability(p, H, T):
-#     """ NOTE このコードでもいいが処理が重たい
-
-#     # パラメータの設定例
-#     p = 0.7  # 表が出る確率
-#     H = 7    # Aさんが必要な表の回数
-#     T = 3    # Bさんが必要な裏の回数
-
-#     # 計算の実行例
-#     probability = calculate_probability(p, H, T)
-#     print(f"Aさんが勝つ確率: {probability * 100:.2f}%")
-
-#     Parameters
-#     ----------
-#     p : float
-#         表が出る確率
-#     H : int
-#         表側のプレイヤー（Ａさん）が必要な、表の先取回数
-#     T : int
-#         裏側のプレイヤー（Ｂさん）が必要な、裏の先取回数
-    
-#     Returns
-#     black_win_rate : float
-#         Ａさんが勝つ確率
-#     """
-
-#     # 裏が出る確率
-#     q = 1 - p
-
-#     # 状態を格納する二次元配列を初期化
-#     P = [[0.0 for _ in range(T + 1)] for _ in range(H + 1)]
-
-#     # 境界条件の設定
-#     for h in range(H + 1):
-#         P[h][T] = 0  # Bさんが勝利
-#     for t in range(T + 1):
-#         P[H][t] = 1  # Aさんが勝利
-
-#     # 再帰関係式の適用
-#     for h in range(H - 1, -1, -1):
-#         for t in range(T - 1, -1, -1):
-#             P[h][t] = p * P[h + 1][t] + q * P[h][t + 1]
-
-#     return P[0][0]

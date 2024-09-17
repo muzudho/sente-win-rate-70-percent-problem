@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     try:
         for input_datum in INPUT_DATA:
-            coin_toss = CoinToss(summary_file_path=SUMMARY_FILE_PATH)
+            coin_toss = CoinToss(output_file_path=SUMMARY_FILE_PATH)
 
             # 先手勝率
             black_win_rate=input_datum[0]
@@ -133,9 +133,9 @@ if __name__ == '__main__':
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
                                 # 先手の何本先取制
-                                black_target_in_bout=practical_b_point + 1,
+                                b_point=practical_b_point + 1,
                                 # 後手の何本先取制
-                                white_target_in_bout=practical_w_point):
+                                w_point=practical_w_point):
                             black_wons += 1
 
                     else:
@@ -144,9 +144,9 @@ if __name__ == '__main__':
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
                                 # 先手の何本先取制
-                                black_target_in_bout=practical_b_point,
+                                b_point=practical_b_point,
                                 # 後手の何本先取制
-                                white_target_in_bout=practical_w_point):
+                                w_point=practical_w_point):
                             black_wons += 1
 
                 # 閏対局を使わないパターン
@@ -155,9 +155,9 @@ if __name__ == '__main__':
                             # 先手勝率
                             black_win_rate=black_win_rate,
                             # 先手の何本先取制
-                            black_target_in_bout=practical_b_point,
+                            b_point=practical_b_point,
                             # 後手の何本先取制
-                            white_target_in_bout=practical_w_point):
+                            w_point=practical_w_point):
                         black_wons += 1
 
             # 黒が勝った確率
