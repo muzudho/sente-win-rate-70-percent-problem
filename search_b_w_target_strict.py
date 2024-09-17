@@ -16,6 +16,9 @@ from library import black_win_rate_to_b_w_targets, calculate_probability
 SUMMARY_FILE_PATH = 'output/search_b_w_target_strict.log'
 
 
+OUT_OF_ERROR = 0.51
+
+
 # 0.50 < p and p <= 0.99
 INPUT_DATA = [
     #[0.50],
@@ -84,8 +87,8 @@ if __name__ == '__main__':
             black_win_rate=input_datum[0]
 
             # ベストな調整後の先手勝率と、その誤差
-            best_balanced_black_win_rate = 101.0
-            best_error = 0.51
+            best_balanced_black_win_rate = None
+            best_error = OUT_OF_ERROR
             best_b_point = 0
             best_w_point = 0
 
@@ -94,7 +97,7 @@ if __name__ == '__main__':
 
             # p=0.5 は計算の対象外とします
             for b_point in range(1, 101):                
-                for w_point in range (1, b_point):
+                for w_point in range (1, b_point + 1):
 
                     balanced_black_win_rate = calculate_probability(
                         p=black_win_rate,
@@ -130,8 +133,8 @@ if __name__ == '__main__':
                 text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>3}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
-                # # 計算過程を追加する場合
-                # text += f"  {''.join(process_list)}"
+                # 計算過程を追加する場合
+                text += f"  {''.join(process_list)}"
 
                 f.write(f"{text}\n")    # ファイルへ出力
 

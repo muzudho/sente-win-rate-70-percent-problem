@@ -90,8 +90,8 @@ if __name__ == '__main__':
             black_win_rate=input_datum[0]
 
             # ベストな調整後の先手勝率と、その誤差
-            best_balanced_black_win_rate = 101.0
             best_error = OUT_OF_ERROR
+            best_balanced_black_win_rate = None
             best_b_point = 0
             best_w_point = 0
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
             # p=0.5 は計算の対象外とします
             for b_point in range(1, 101):
                 
-                for w_point in range (1, b_point):
+                for w_point in range (1, b_point + 1):
                 #for w_point in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
 
                     # # 先手が勝つのに必要な先取本数　＞＝　後手が勝つのに必要な先取本数。かつ、後手が勝つのに必要な先取本数が１の場合は特別
@@ -127,59 +127,61 @@ if __name__ == '__main__':
 
                         # しかし
                         #
-                        # 先手勝率が［５０％～５４％）なら
-                        if 0.5 <= black_win_rate and black_win_rate < 0.54:
-                            # ２本勝負で調整できなければ諦める
-                            if 2 < bout_count:
-                                message = f"[▲！先手勝率が［５０％～５４％）（{black_win_rate}）なら、２本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
-                                print(message)
-                                process_list.append(f"{message}\n")
-                                continue
+                        if best_error != OUT_OF_ERROR:
+
+                            # 先手勝率が［５０％～５４％）なら
+                            if 0.5 <= black_win_rate and black_win_rate < 0.54:
+                                # １本勝負で調整できなければ諦める
+                                if 1 < bout_count:
+                                    message = f"[▲！先手勝率が［５０％～５４％）（{black_win_rate}）なら、１本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
 
 
-                        # 先手勝率が［５４％～５７％）なら
-                        elif 0.54 <= black_win_rate and black_win_rate < 0.57:
-                            # ３本勝負で調整できなければ諦める
-                            if 3 < bout_count:
-                                message = f"[▲！先手勝率が［５４％～５７％）（{black_win_rate}）なら、３本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
-                                print(message)
-                                process_list.append(f"{message}\n")
-                                continue
+                            # 先手勝率が［５４％～５７％）なら
+                            elif 0.54 <= black_win_rate and black_win_rate < 0.57:
+                                # ３本勝負で調整できなければ諦める
+                                if 3 < bout_count:
+                                    message = f"[▲！先手勝率が［５４％～５７％）（{black_win_rate}）なら、３本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
 
 
-                        # 先手勝率が［５７％～６３％）なら
-                        elif 0.57 <= black_win_rate and black_win_rate < 0.63:
-                            # ５本勝負で調整できなければ諦める
-                            if 5 < bout_count:
-                                message = f"[▲！先手勝率が［５７％～６３％）（{black_win_rate}）なら、５本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
-                                print(message)
-                                process_list.append(f"{message}\n")
-                                continue
+                            # 先手勝率が［５７％～６３％）なら
+                            elif 0.57 <= black_win_rate and black_win_rate < 0.63:
+                                # ５本勝負で調整できなければ諦める
+                                if 5 < bout_count:
+                                    message = f"[▲！先手勝率が［５７％～６３％）（{black_win_rate}）なら、５本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
 
 
-                        # 先手勝率が［６３％～７０％）なら
-                        elif 0.63 <= black_win_rate and black_win_rate < 0.70:
-                            # ７本勝負で調整できなければ諦める
-                            if 7 < bout_count:
-                                message = f"[▲！先手勝率が［６３％～７０％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
-                                print(message)
-                                process_list.append(f"{message}\n")
-                                continue
+                            # 先手勝率が［６３％～７０％）なら
+                            elif 0.63 <= black_win_rate and black_win_rate < 0.70:
+                                # ７本勝負で調整できなければ諦める
+                                if 7 < bout_count:
+                                    message = f"[▲！先手勝率が［６３％～７０％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
 
 
-                        # 先手勝率が［７０％～８０％）なら
-                        elif 0.70 <= black_win_rate and black_win_rate < 0.80:
-                            # １０本勝負で調整できなければ諦める
-                            if 10 < bout_count:
-                                message = f"[▲！先手勝率が［７０％～８０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
-                                print(message)
-                                process_list.append(f"{message}\n")
-                                continue
+                            # 先手勝率が［７０％～８０％）なら
+                            elif 0.70 <= black_win_rate and black_win_rate < 0.80:
+                                # １０本勝負で調整できなければ諦める
+                                if 10 < bout_count:
+                                    message = f"[▲！先手勝率が［７０％～８０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
 
 
-                        # それ以上なら、調整する
-                        else:
-                            pass
+                            # それ以上なら、調整する
+                            else:
+                                pass
 
 
                         best_error = error
