@@ -10,7 +10,7 @@ import datetime
 import random
 import math
 
-from library import black_win_rate_to_b_w_targets, calculate_probability
+from library import calculate_probability
 
 
 SUMMARY_FILE_PATH = 'output/search_b_w_target_strict.log'

@@ -138,8 +138,8 @@ if __name__ == '__main__':
 
                     for white_require in range(1, end_white_require):
 
-                        # 同じ比はスキップ。１０００倍して小数点以下四捨五入
-                        ration = round_letro(white_require / bout_count_in_all_win_alice * 1000)
+                        # 同じ比はスキップ。１００００倍（１００×１００程度を想定）して小数点以下四捨五入
+                        ration = round_letro(white_require / bout_count_in_all_win_alice * 10000)
 
                         if ration in ration_set:
                             continue

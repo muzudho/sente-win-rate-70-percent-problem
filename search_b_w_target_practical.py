@@ -10,7 +10,7 @@ import datetime
 import random
 import math
 
-from library import black_win_rate_to_b_w_targets, calculate_probability
+from library import round_letro, calculate_probability
 
 
 SUMMARY_FILE_PATH = 'output/search_b_w_target_practical.log'
@@ -95,6 +95,9 @@ if __name__ == '__main__':
             best_b_point = 0
             best_w_point = 0
 
+            # 比が同じになるｎ本勝負と白のｍ勝先取のペアはスキップしたい
+            ration_set = set()
+
             # 計算過程
             process_list = []
 
@@ -110,6 +113,18 @@ if __name__ == '__main__':
                     # if b_point <= w_point and 1 < w_point:
                     #     continue
                     
+                    # NOTE ［先手が勝つのに必要な先取本数が４，後手が勝つのに必要な先取本数が２］というのは、［先手が勝つのに必要な先取本数が２，後手が勝つのに必要な先取本数が１］と同じように見えるが、均等に近づく精度が上がる
+                    #
+                    #   同じ比はスキップ。１００００倍（１００×１００程度を想定）して小数点以下四捨五入
+                    #
+                    ration = round_letro(w_point / b_point * 10000)
+
+                    if ration in ration_set:
+                        continue
+
+                    ration_set.add(ration)
+
+
                     balanced_black_win_rate = calculate_probability(
                         p=black_win_rate,
                         H=b_point,
@@ -149,31 +164,33 @@ if __name__ == '__main__':
                                     continue
 
 
-                            # 先手勝率が［５７％～６３％）なら
-                            elif 0.57 <= black_win_rate and black_win_rate < 0.63:
+                            # 先手勝率が［５７％～６５％）なら
+                            elif 0.57 <= black_win_rate and black_win_rate < 0.65:
                                 # ５本勝負で調整できなければ諦める
                                 if 5 < bout_count:
-                                    message = f"[▲！先手勝率が［５７％～６３％）（{black_win_rate}）なら、５本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［５７％～６５％）（{black_win_rate}）なら、５本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
+                            # NOTE ６２％の前後は山ができてる地点
 
-                            # 先手勝率が［６３％～７５％）なら
-                            elif 0.63 <= black_win_rate and black_win_rate < 0.75:
+                            # 先手勝率が［６５％～８３％）なら
+                            elif 0.65 <= black_win_rate and black_win_rate < 0.83:
                                 # ７本勝負で調整できなければ諦める
                                 if 7 < bout_count:
-                                    message = f"[▲！先手勝率が［６３％～７５％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［６５％～８３％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
-
-                            # 先手勝率が［７５％～９０％）なら
-                            elif 0.75 <= black_win_rate and black_win_rate < 0.90:
+                            # NOTE ８０％、８２％が跳ねる地点
+                            #
+                            # 先手勝率が［８３％～９０％）なら
+                            elif 0.83 <= black_win_rate and black_win_rate < 0.90:
                                 # １０本勝負で調整できなければ諦める
                                 if 10 < bout_count:
-                                    message = f"[▲！先手勝率が［７５％～９０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［８３％～９０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
