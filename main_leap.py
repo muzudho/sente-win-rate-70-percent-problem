@@ -5,22 +5,20 @@
 
 import traceback
 import math
-from library import round_letro, scale_for_float_to_int, white_win_rate, white_win_value, black_win_value
+from library import round_letro, scale_for_float_to_int, white_win_rate, black_win_rate_to_b_w_targets, white_win_value, black_win_value
 
 
 class LeapRoundCalculate():
     """閏対局計算"""
 
 
-    def __init__(self, black_win_rate, scale, b_point, w_point):
+    def __init__(self, black_win_rate, b_point, w_point):
         """初期化
         
         Parameters
         ----------
         black_win_rate : float
             表が出る確率
-        scale : float
-            小数を使った確率を、整数比にするための倍率
         b_point : int
             表が出る確率の整数比
         w_point : int
@@ -28,7 +26,6 @@ class LeapRoundCalculate():
         """
 
         self._black_win_rate = black_win_rate
-        self._scale = scale
         self._b_point = b_point
         self._w_point = w_point
 
@@ -37,12 +34,6 @@ class LeapRoundCalculate():
     def black_win_rate(self):
         """表が出る確率"""
         return self._black_win_rate
-
-
-    @property
-    def scale(self):
-        """小数を使った確率を、整数比にするための倍率"""
-        return self._scale
 
 
     @property
@@ -129,37 +120,10 @@ if __name__ == '__main__':
             black_win_rate=rule[0]
             print(f"先手勝率{black_win_rate:4.2f}  ", end='')
 
-            # 後手勝率
-            w_win_rate = white_win_rate(black_win_rate=black_win_rate)
-            #print(f"後手勝率{w_win_rate:4.2f}  ", end='')
-
-
-            # 説明２  コインの表裏の確率の整数化
-            # --------------------------------
-            scale = scale_for_float_to_int(black_win_rate)
-
-
-            # 先手勝率と後手勝率を整数にする
-            #
-            #   NOTE ここでは、小数点以下切り捨てにするところだが、 4 が 内部的に 3.9999... だったりするので、四捨五入に変更している
-            #
-            b_point = round_letro(scale * black_win_rate)
-            print(f"先後勝率整数比　{b_point:2}：", end='')
-            w_point = round_letro(scale * w_win_rate)
-            print(f"{w_point:2}  ", end='')
-
 
             # 説明３　表のｎ本先取
             # -------------------
-
-            # 黒/白の商の整数部（quotient）
-            b_target = math.floor(b_point / w_point)
-            print(f"先手の{b_target:2}本先取制  ", end='')
-
-            # # NOTE この計算式では、エラーが出てしまう。 0.5 が 0.050000000000000044 になってる
-            # black_target_2 = math.floor(black_win_rate / w_win_rate)
-            # if b_target != black_target_2:
-            #     raise ValueError(f"{b_target=}  {black_target_2=}  {black_win_rate=}/{w_win_rate=}")
+            b_point, w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
 
 
             # 説明４　表がまだ多めに出る得
@@ -244,8 +208,6 @@ if __name__ == '__main__':
             LeapRoundCalculate(
                 # 表が出る確率
                 black_win_rate=black_win_rate,
-                # 小数を使った確率を、整数比にするための倍率
-                scale=scale,
                 # 先手勝率の整数比
                 b_point=b_point,
                 # 後手勝率の整数比
