@@ -159,21 +159,21 @@ if __name__ == '__main__':
                                     continue
 
 
-                            # 先手勝率が［６３％～７０％）なら
-                            elif 0.63 <= black_win_rate and black_win_rate < 0.70:
+                            # 先手勝率が［６３％～７５％）なら
+                            elif 0.63 <= black_win_rate and black_win_rate < 0.75:
                                 # ７本勝負で調整できなければ諦める
                                 if 7 < bout_count:
-                                    message = f"[▲！先手勝率が［６３％～７０％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［６３％～７５％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
 
-                            # 先手勝率が［７０％～８０％）なら
-                            elif 0.70 <= black_win_rate and black_win_rate < 0.80:
+                            # 先手勝率が［７５％～９０％）なら
+                            elif 0.75 <= black_win_rate and black_win_rate < 0.90:
                                 # １０本勝負で調整できなければ諦める
                                 if 10 < bout_count:
-                                    message = f"[▲！先手勝率が［７０％～８０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［７５％～９０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
