@@ -3,3 +3,13 @@
 先手勝率７０％問題を解決する方法を考えます  
 
 📖 [高橋智史システム](./docs/takahashi_satoshi_system.md)  
+
+
+## インポート
+
+足りなかったら、インポートすること（使うとは限りません）  
+
+```
+python -m pip install scipy
+python -m pip install pandas
+```
