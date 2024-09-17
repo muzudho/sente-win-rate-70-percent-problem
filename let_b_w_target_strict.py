@@ -118,7 +118,12 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％  先取本数　先手：後手＝{best_b_point:>2}：{best_w_point:>2}  調整後先手勝率 {best_balanced_black_win_rate*100:6.4f} ％  誤差 {best_error*100:>7.4f}  {''.join(process_list)}"
+                # 後手がアドバンテージを持っているという表記に変更
+                w_advantage = best_b_point - best_w_point
+
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                # {''.join(process_list)}
+
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
