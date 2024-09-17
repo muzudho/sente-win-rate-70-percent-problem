@@ -26,16 +26,15 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        round_total = 2_000_000
+        # 対局数
+        round_total = 2_000_000 # 十分多いケース
+        #round_total = 10 # 少なすぎるケース
 
         df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
         for p, b_point, w_point in zip(df['p'], df['b_point'], df['w_point']):
             coin_toss = CoinToss(output_file_path=SUMMARY_FILE_PATH)
-
-            # 対局数
-            round_total=round_total
 
             # 黒が勝った回数
             black_wons = 0

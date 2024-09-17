@@ -20,8 +20,6 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_point, w_point, roun
         黒が勝った回数
     """
     with open(output_file_path, 'a', encoding='utf8') as f:
-        # 文言作成
-        # -------
 
         # 黒が勝った確率
         black_won_rate = black_wons / round_total
