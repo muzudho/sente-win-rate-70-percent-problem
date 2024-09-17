@@ -102,9 +102,6 @@ if __name__ == '__main__':
             # 途中の計算式
             calculation_list = []
 
-            # # 比が同じになるｎ本勝負と白のｍ勝先取のペアはスキップしたい
-            # ration_set = set()
-
             # アルゴリズムで求めるケース
             if is_automatic:
 
@@ -114,9 +111,6 @@ if __name__ == '__main__':
                 is_cutoff = False
 
                 # ｎ本勝負
-                #
-                #   NOTE バイナリーサーチにしたいが、［同じ比のスキップ］を小さい本数順にするのが大変だから、そうしてない
-                #
                 for max_bout_count in range(best_max_bout_count, 101):
 
                     # １本勝負のときだけ、白はｎ本－１ではない
@@ -126,18 +120,6 @@ if __name__ == '__main__':
                         end_white_require = max_bout_count
 
                     for white_require in range(1, end_white_require):
-
-                        # # 同じ比はスキップ。１００００倍（１００×１００程度を想定）して小数点以下四捨五入
-                        # #
-                        # #   FIXME バックアップを使って再開すると、小さい本数のときの比と被ることがある。再び反復深化をした方がいいか？
-                        # #
-                        # ration = round_letro(white_require / max_bout_count * 10000)
-
-                        # if ration in ration_set:
-                        #     continue
-
-                        # ration_set.add(ration)
-
 
                         black_win_count = n_round(
                             black_win_rate=black_win_rate,
