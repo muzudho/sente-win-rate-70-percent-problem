@@ -2,6 +2,9 @@
 #
 #   python main_leap.py
 #
+#   計算上、先手勝率７０％の場合、先手２本先取、後手２本先取ルールで行い、
+#   ３対局毎に１回は、先手３本先取、後手２本先取ルールを行う閏対局を入れると、先後勝率が均等になるはず
+#
 
 import traceback
 import math
@@ -12,22 +15,28 @@ class LeapRoundCalculate():
     """閏対局計算"""
 
 
-    def __init__(self, black_win_rate, b_point, w_point):
+    def __init__(self, black_win_rate, strict_b_point, strict_w_point, practical_b_point, practical_w_point):
         """初期化
         
         Parameters
         ----------
         black_win_rate : float
             表が出る確率
-        b_point : int
-            表が出る確率の整数比
-        w_point : int
-            裏が出る確率の整数比
+        strict_b_point : int
+            表が出る確率の厳密な整数比
+        strict_w_point : int
+            裏が出る確率の厳密な整数比
+        practical_b_point : int
+            表が出る確率の実用的な整数比
+        practical_w_point : int
+            裏が出る確率の実用的な整数比
         """
 
         self._black_win_rate = black_win_rate
-        self._b_point = b_point
-        self._w_point = w_point
+        self._strict_b_point = strict_b_point
+        self._strict_w_point = strict_w_point
+        self._practical_b_point = practical_b_point
+        self._practical_w_point = practical_w_point
 
 
     @property
@@ -37,15 +46,27 @@ class LeapRoundCalculate():
 
 
     @property
-    def b_point(self):
-        """表が出る確率の整数比"""
-        return self._b_point
+    def strict_b_point(self):
+        """表が出る確率の厳密な整数比"""
+        return self._strict_b_point
 
 
     @property
-    def w_point(self):
-        """裏が出る確率の整数比"""
-        return self._w_point
+    def strict_w_point(self):
+        """裏が出る確率の厳密な整数比"""
+        return self._strict_w_point
+
+
+    @property
+    def practical_b_point(self):
+        """表が出る確率の実用的な整数比"""
+        return self._practical_b_point
+
+
+    @property
+    def practical_w_point(self):
+        """裏が出る確率の実用的な整数比"""
+        return self._practical_w_point
 
 
 # 0.50 ～ 0.99 まで試算
@@ -123,17 +144,23 @@ if __name__ == '__main__':
 
             # 説明３　表のｎ本先取
             # -------------------
-            b_point, w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
 
-            print(f"先取本数  先手：後手＝{b_point:>2}：{w_point:>2}  ", end='')
+            # 厳密な値
+            strict_b_point, strict_w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
+            print(f"厳密な先取本数  先手：後手＝{strict_b_point:>2}：{strict_w_point:>2}  ", end='')
+
+            # 実用的な値（後手取得本数が１になるよう丸めたもの）
+            practical_b_point = round_letro(strict_b_point / strict_w_point) # 小数点以下四捨五入
+            practical_w_point = 1
+            print(f"実用的な先取本数  先手：後手＝{practical_b_point:>2}：{practical_w_point:>2}  ", end='')
 
 
             # 説明４　表がまだ多めに出る得
             # --------------------------
 
             # 剰余（remainder）。繰り上がり先手勝率点
-            carried = b_point % w_point            
-            print(f"先手得{carried:2}  ", end='')
+            strict_carried = strict_b_point % strict_w_point            
+            print(f"割り切れない先手得{strict_carried:2}  ", end='')
 
 
             # 以下で行っているのは、余りの解消
@@ -148,11 +175,11 @@ if __name__ == '__main__':
             # ---------------------------------
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            carryover_b_point = b_point + carried
+            carryover_strict_b_point = strict_b_point + strict_carried
 
 
             # 繰り上がりがある場合
-            if carried != 0:
+            if strict_carried != 0:
                 # 次の閏対局
                 next_leap = 0
 
@@ -163,7 +190,7 @@ if __name__ == '__main__':
                 #   NOTE もしかすると、繰り上がりが解消しないかもしれないから、循環時に打ち切るよう上限を付けておく
                 #
                 countdown = 100
-                while carried != 0 and 0 < countdown:
+                while strict_carried != 0 and 0 < countdown:
 
                     # ※繰り返し
 
@@ -172,12 +199,12 @@ if __name__ == '__main__':
                     # ---------------------------------------------------------------
 
                     # あと何対局すると、余りが後手の整数比を上回るか（次の閏対局までの長さ）
-                    fill_bouts = math.ceil(w_point / carried)
-                    #print(f"\n  一対局毎に余りが{carried}ずつ溜まり、{w_point}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
-                    print(f"(得{carried:2}×{fill_bouts:2}局>=分子{w_point:2})", end='')
+                    fill_bouts = math.ceil(strict_w_point / strict_carried)
+                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_w_point}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
+                    print(f"(得{strict_carried:2}×{fill_bouts:2}局>=分子{strict_w_point:2})", end='')
 
 
-                    if carried != 0:
+                    if strict_carried != 0:
                         for i in range(0, 1):
 
                             # 次に余りを解消できる閏対局
@@ -185,23 +212,23 @@ if __name__ == '__main__':
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点
-                            carried = b_point % carried
-                            #print(f"  次の繰り上がり先手勝率点{carried}")
-                            print(f"[第{next_leap:2}](新得{carried:2}) ", end='')
+                            strict_carried = strict_b_point % strict_carried
+                            #print(f"  次の繰り上がり先手勝率点{strict_carried}")
+                            print(f"[第{next_leap:2}](新得{strict_carried:2}) ", end='')
 
-                            if carried == 0:
+                            if strict_carried == 0:
                                 #print(f"  余り解消")
                                 print(f"(繰り返し)", end='')
                                 break
 
                             # 繰り上がり込み先手勝率点
-                            carryover_b_point = b_point + carried
-                            #print(f"  繰り上がり込み先手勝率点{carryover_b_point}")
+                            carryover_strict_b_point = strict_b_point + strict_carried
+                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_b_point}")
 
                     countdown -= 1
 
             # 繰り上がりがある場合
-            if carried != 0:
+            if strict_carried != 0:
                 #print(f"  （計算未完了）", end='')
                 print(f"(計算未完了)", end='')
 
@@ -210,10 +237,14 @@ if __name__ == '__main__':
             LeapRoundCalculate(
                 # 表が出る確率
                 black_win_rate=black_win_rate,
-                # 先手勝率の整数比
-                b_point=b_point,
-                # 後手勝率の整数比
-                w_point=w_point)
+                # 先手勝率の厳密な整数比
+                strict_b_point=strict_b_point,
+                # 後手勝率の厳密な整数比
+                strict_w_point=strict_w_point,
+                # 先手勝率の実用的な整数比
+                practical_b_point=practical_b_point,
+                # 後手勝率の実用的な整数比
+                practical_w_point=practical_w_point)
 
 
     except Exception as err:
