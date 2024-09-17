@@ -8,6 +8,7 @@
 import traceback
 import random
 import math
+import pandas as pd
 
 from library import BLACK, CoinToss
 from views import write_coin_toss_log
@@ -139,67 +140,6 @@ SUMMARY_FILE_PATH = 'output/simulation_coin_toss.log'
 # ]
 
 
-# ［高橋智史システム］
-INPUT_DATA = [
-    # p ... 表が出る確率
-    # b ... 表(Black)を選んだ側が勝つのに必要な、表が先取する本数
-    # w ... 裏(White)を選んだ側が勝つのに必要な、裏が先取する本数
-    #
-    #  p      b    w
-    #  ----   --   --
-    [  0.50,   1,   1],
-    [  0.51,   1,   1],
-    [  0.52,   1,   1],
-    [  0.53,   1,   1],
-    [  0.54,   1,   1],
-    [  0.55,   1,   1],
-    [  0.56,   1,   1],
-    [  0.57,   1,   1],
-    [  0.58,   3,   2],
-    [  0.59,   3,   2],
-    [  0.60,   3,   2],
-    [  0.61,   3,   2],
-    [  0.62,   3,   2],
-    [  0.63,   3,   2],
-    [  0.64,   5,   3],
-    [  0.65,   5,   3],
-    [  0.66,   7,   4],
-    [  0.67,   4,   2],
-    [  0.68,   4,   2],
-    [  0.69,   2,   1],
-    [  0.70,   2,   1],
-    [  0.71,   2,   1],
-    [  0.72,   2,   1],
-    [  0.73,   5,   2],
-    [  0.74,   5,   2],
-    [  0.75,   5,   2],
-    [  0.76,   6,   2],
-    [  0.77,   6,   2],
-    [  0.78,   3,   1],
-    [  0.79,   3,   1],
-    [  0.80,   3,   1],
-    [  0.81,   3,   1],
-    [  0.82,   8,   2],
-    [  0.83,   4,   1],
-    [  0.84,   4,   1],
-    [  0.85,   4,   1],
-    [  0.86,   5,   1],
-    [  0.87,   5,   1],
-    [  0.88,   5,   1],
-    [  0.89,   6,   1],
-    [  0.90,   7,   1],
-    [  0.91,   7,   1],
-    [  0.92,   8,   1],
-    [  0.93,   9,   1],
-    [  0.94,  11,   1],
-    [  0.95,  13,   1],
-    [  0.96,  16,   1],
-    [  0.97,  21,   1],
-    [  0.98,  32,   1],
-    [  0.99,  64,   1],
-]
-
-
 ########################################
 # コマンドから実行時
 ########################################
@@ -211,18 +151,13 @@ if __name__ == '__main__':
     try:
         round_total = 2_000_000
 
-        for input_datum in INPUT_DATA:
+        df = pd.read_csv(
+                "./data/takahashi_satoshi_system.csv",
+                encoding="utf8")
+
+        # 先手勝率, 先手の何本先取制, 後手の何本先取制
+        for p, b_point, w_point in zip(df['p'], df['b_point'], df['w_point']):
             coin_toss = CoinToss(output_file_path=SUMMARY_FILE_PATH)
-
-
-            # 先手勝率
-            black_win_rate=input_datum[0]
-
-            # 先手の何本先取制
-            b_point=input_datum[1]
-
-            # 後手の何本先取制
-            w_point=input_datum[2]
 
             # 対局数
             round_total=round_total
@@ -231,7 +166,7 @@ if __name__ == '__main__':
             black_wons = 0
 
             for round in range(0, round_total):
-                if coin_toss.coin_toss_in_round(black_win_rate, b_point, w_point) == BLACK:
+                if coin_toss.coin_toss_in_round(p, b_point, w_point) == BLACK:
                     black_wons += 1
 
 
@@ -240,11 +175,11 @@ if __name__ == '__main__':
                     # 出力先ファイルへのパス
                     output_file_path=coin_toss.output_file_path,
                     # 先手勝率
-                    black_win_rate=input_datum[0],
+                    black_win_rate=p,
                     # 先手の何本先取制
-                    b_point=input_datum[1],
+                    b_point=b_point,
                     # 後手の何本先取制
-                    w_point=input_datum[2],
+                    w_point=w_point,
                     # 対局数
                     round_total=round_total,
                     # 黒が勝った回数
