@@ -105,15 +105,14 @@ if __name__ == '__main__':
             # 先手勝率
             black_win_rate=input_datum[0]
 
-            w_point_2, b_point_2 = black_win_rate_to_b_w_targets(p=black_win_rate)
+            w_point, b_point = black_win_rate_to_b_w_targets(p=black_win_rate)
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                #text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  スケール：黒{scale:3}  先取本数基礎　黒：白＝{b_point:>2}：{w_point:>2}　約分  {b_point_2:>2}：{w_point_2:>2}"
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  先取本数　黒：白＝{b_point_2:>2}：{w_point_2:>2}"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  先取本数　黒：白＝{b_point:>2}：{w_point:>2}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
