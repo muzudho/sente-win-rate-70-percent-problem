@@ -89,6 +89,9 @@ if __name__ == '__main__':
             best_b_point = 0
             best_w_point = 0
 
+            # 計算過程
+            process_list = []
+
             # p=0.5 は含みません
             for b_point in range(1, 101):
                 for w_point in range (1, b_point):
@@ -105,13 +108,14 @@ if __name__ == '__main__':
                         best_balanced_black_win_rate = balanced_black_win_rate
                         best_b_point = b_point
                         best_w_point = w_point
+                        process_list.append(f"[{best_error:6.4f} 黒{best_b_point:>3} 白{best_w_point:>2}]")
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate:4.2f}  先取本数　黒：白＝{best_b_point:>3}：{best_w_point:>2}  調整後先手勝率 {best_balanced_black_win_rate:6.4f} 誤差 {best_error:6.4f} ％"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate:4.2f}  先取本数　黒：白＝{best_b_point:>3}：{best_w_point:>2}  調整後先手勝率 {best_balanced_black_win_rate:6.4f} 誤差 {best_error:6.4f} ％  {''.join(process_list)}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
