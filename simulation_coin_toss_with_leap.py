@@ -1,4 +1,6 @@
 #
+# NOTE ［閏対局］は今のところ没案
+#
 # シミュレーション
 # python simulation_coin_toss_with_leap.py
 #

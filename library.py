@@ -249,64 +249,29 @@ class CoinToss():
         """
 
         # 新しい本目（Bout）
-        b_count_in_bout = 0
-        w_count_in_bout = 0
+        b_got = 0
+        w_got = 0
 
         # ｎ本勝負で勝ち負けが出るまでやる
         while True:
 
             # 黒が出た
             if coin(black_win_rate) == BLACK:
-                b_count_in_bout += 1
+                b_got += 1
 
                 # 黒の先取本数を取った（黒が勝った）
-                if b_point <= b_count_in_bout:
+                if b_point <= b_got:
                     return BLACK
 
             # 白が出た
             else:
-                w_count_in_bout += 1
+                w_got += 1
 
                 # 白の先取本数を取った（白が勝った）
-                if w_point <= w_count_in_bout:
+                if w_point <= w_got:
                     return WHITE
 
             # 続行
-
-
-    def coin_toss_in_some_rounds(self, black_win_rate, b_point, w_point, round_total):
-        """コイントスを複数対局する
-        
-        Parameters
-        ----------
-        black_win_rate : float
-            黒が出る確率（先手勝率）
-        b_point : int
-            先手の何本先取制
-        w_point : int
-            後手の何本先取制
-        round_total : int
-            対局数
-        
-        Returns
-        -------
-        black_wons : int
-            黒が勝った回数
-        """
-
-        # 初期値
-        # ------
-
-        # 黒が勝った回数
-        black_wons = 0
-
-
-        for round in range(0, round_total):
-
-            if self.coin_toss_in_round(black_win_rate, b_point, w_point) == BLACK:
-                black_wons += 1
-
-        return black_wons
 
 
 def calculate_probability(p, H, T):

@@ -9,7 +9,7 @@ import traceback
 import random
 import math
 
-from library import CoinToss
+from library import BLACK, CoinToss
 from views import write_coin_toss_log
 
 
@@ -209,20 +209,31 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        round_total = 2_000_000
+
         for input_datum in INPUT_DATA:
             coin_toss = CoinToss(output_file_path=SUMMARY_FILE_PATH)
 
-            round_total = 2_000_000
 
-            black_wons = coin_toss.coin_toss_in_some_rounds(
-                    # 先手勝率
-                    black_win_rate=input_datum[0],
-                    # 先手の何本先取制
-                    b_point=input_datum[1],
-                    # 後手の何本先取制
-                    w_point=input_datum[2],
-                    # 対局数
-                    round_total=round_total)
+            # 先手勝率
+            black_win_rate=input_datum[0]
+
+            # 先手の何本先取制
+            b_point=input_datum[1]
+
+            # 後手の何本先取制
+            w_point=input_datum[2]
+
+            # 対局数
+            round_total=round_total
+
+            # 黒が勝った回数
+            black_wons = 0
+
+            for round in range(0, round_total):
+                if coin_toss.coin_toss_in_round(black_win_rate, b_point, w_point) == BLACK:
+                    black_wons += 1
+
 
             # ログ出力
             write_coin_toss_log(
