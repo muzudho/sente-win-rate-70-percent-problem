@@ -13,7 +13,7 @@ import math
 from library import BLACK, round_letro, black_win_rate_to_b_w_targets, CoinToss
 
 
-SUMMARY_FILE_PATH = 'main_coin_toss_leap.log'
+SUMMARY_FILE_PATH = 'output/main_coin_toss_leap.log'
 
 
 INPUT_DATA = [

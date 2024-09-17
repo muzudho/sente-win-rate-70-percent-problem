@@ -13,7 +13,7 @@ import math
 from library import CoinToss
 
 
-SUMMARY_FILE_PATH = 'main_coin_toss.log'
+SUMMARY_FILE_PATH = 'output/main_coin_toss.log'
 
 # 下の式になるような、先手先取本数、後手先取本数を求めたい。
 #

@@ -13,7 +13,7 @@ import math
 from library import black_win_rate_to_b_w_targets
 
 
-SUMMARY_FILE_PATH = 'main_b_w_target.log'
+SUMMARY_FILE_PATH = 'output/main_b_w_target.log'
 
 # 下の式になるような、先手先取本数、後手先取本数を求めたい。
 #

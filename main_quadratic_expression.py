@@ -13,7 +13,7 @@ import math
 from library import CoinToss
 
 
-SUMMARY_FILE_PATH = 'main_quadratic_expression.log'
+SUMMARY_FILE_PATH = 'output/main_quadratic_expression.log'
 
 
 # 連続コイントス

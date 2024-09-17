@@ -13,7 +13,7 @@ import math
 from library import BLACK, WHITE, coin, n_bout, n_round, round_letro
 
 
-SUMMARY_FILE_PATH = 'result_summary.log'
+SUMMARY_FILE_PATH = 'output/result_summary.log'
 
 # 誤差は LIMIT に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 # LIMIT 未満からさらに 0 に近づいていくので、そうなる前に打ち切る
