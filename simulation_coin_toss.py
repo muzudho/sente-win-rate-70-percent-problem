@@ -40,6 +40,7 @@ if __name__ == '__main__':
             black_wons = 0
 
             for round in range(0, round_total):
+                # 勝った方の手番を返す
                 if coin_toss.coin_toss_in_round(p, b_point, w_point) == BLACK:
                     black_wons += 1
 

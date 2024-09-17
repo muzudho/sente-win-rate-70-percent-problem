@@ -11,11 +11,17 @@ from fractions import Fraction
 from decimal import Decimal, ROUND_HALF_UP
 
 
-# 黒。先手
+# 黒。表。先手
 BLACK = 1
 
-# 白。後手
+# 白。裏。後手
 WHITE = 2
+
+# Ａさん。配列のインデックスに使う    NOTE 黒白と混同しないように注意
+ALICE = 1
+
+# Ｂさん。配列のインデックスに使う
+BOB = 2
 
 
 def round_letro(number):
@@ -236,7 +242,7 @@ class CoinToss():
 
 
     def coin_toss_in_round(self, black_win_rate, b_point, w_point):
-        """１対局行う
+        """１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
         ----------
@@ -246,6 +252,11 @@ class CoinToss():
             先手の何本先取制
         w_point : int
             後手の何本先取制
+        
+        Returns
+        -------
+        winner_color : int
+            黒か白
         """
 
         # 新しい本目（Bout）
@@ -270,6 +281,70 @@ class CoinToss():
                 # 白の先取本数を取った（白が勝った）
                 if w_point <= w_got:
                     return WHITE
+
+            # 続行
+
+
+    def coin_toss_in_round_with_turn(self, black_win_rate, b_point, w_point):
+        """１対局行う（どちらの勝ちが出るまでコイントスを行う）
+
+        手番を交互にするパターン
+        
+        Parameters
+        ----------
+        black_win_rate : float
+            黒が出る確率（先手勝率）
+        b_point : int
+            先手の何本先取制
+        w_point : int
+            後手の何本先取制
+        
+        Returns
+        -------
+        winner_player : int
+            ＡさんかＢさん
+        """
+
+        # 新しい本目（Bout）。未使用、Ａさん、Ｂさんの順
+        b_got = [0, 0, 0]
+        w_got = [0, 0, 0]
+
+        # ｎ本勝負で勝ち負けが出るまでやる
+        for bout_th in range(1, 2_147_483_647):
+
+            # 黒が出た
+            if coin(black_win_rate) == BLACK:
+
+                # 奇数本で黒番のプレイヤーはＡさん
+                if bout_th % 2 == 1:
+                    successful_player = ALICE
+
+                # 偶数本で黒番のプレイヤーはＢさん
+                else:
+                    successful_player = BOB
+
+                b_got[successful_player] += 1
+
+                # 黒の先取本数を取った（黒で、勝利条件を満たした）
+                if b_point <= b_got[successful_player]:
+                    return successful_player
+
+            # 白が出た
+            else:
+
+                # 奇数本で白番のプレイヤーはＢさん
+                if bout_th % 2 == 1:
+                    successful_player = BOB
+
+                # 偶数本で白番のプレイヤーはＡさん
+                else:
+                    successful_player = ALICE
+
+                w_got[successful_player] += 1
+
+                # 白の先取本数を取った（白で、勝利条件を満たした）
+                if w_point <= w_got[successful_player]:
+                    return successful_player
 
             # 続行
 

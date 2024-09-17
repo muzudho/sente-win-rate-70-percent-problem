@@ -131,6 +131,7 @@ if __name__ == '__main__':
 
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
+                        # 勝った方の手番を返す
                         if BLACK == coin_toss.coin_toss_in_round(
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
@@ -142,6 +143,7 @@ if __name__ == '__main__':
 
                     else:
                         # 閏対局を使わないパターン
+                        # 勝った方の手番を返す
                         if BLACK == coin_toss.coin_toss_in_round(
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
@@ -153,6 +155,7 @@ if __name__ == '__main__':
 
                 # 閏対局を使わないパターン
                 else:
+                    # 勝った方の手番を返す
                     if BLACK == coin_toss.coin_toss_in_round(
                             # 先手勝率
                             black_win_rate=black_win_rate,

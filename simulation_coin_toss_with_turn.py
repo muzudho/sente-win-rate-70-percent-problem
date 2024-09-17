@@ -14,7 +14,7 @@ import math
 import datetime
 import pandas as pd
 
-from library import BLACK, CoinToss
+from library import ALICE, CoinToss
 from views import write_coin_toss_log
 
 
@@ -45,15 +45,9 @@ if __name__ == '__main__':
             for round in range(0, round_total):
                 round_th = round + 1
 
-                # TODO コイントスの関数を変更する必要がある
-                if coin_toss.coin_toss_in_round(p, b_point, w_point) == BLACK:
-                    # Ａさんが先手のときに、先手が勝ち
-                    if round_th % 2 == 1:
-                        alice_wons += 1
-                else:
-                    # Ａさんが後手のときに、後手が勝ち
-                    if round_th % 2 == 0:
-                        alice_wons += 1
+                # 勝ったプレイヤーを返す
+                if coin_toss.coin_toss_in_round_with_turn(p, b_point, w_point) == ALICE:
+                    alice_wons += 1
 
 
             # ログ出力
