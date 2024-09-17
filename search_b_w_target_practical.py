@@ -133,8 +133,11 @@ if __name__ == '__main__':
                     # 誤差
                     error = abs(balanced_black_win_rate - 0.5)
 
-                    # ｎ本勝負
-                    bout_count = b_point + w_point - 1
+                    # 最大ｎ本勝負
+                    #
+                    #   NOTE 例えば３本勝負というとき、２本取れば勝ち。３本取るゲームではない。最大３本勝負という感じ
+                    #
+                    max_bout_count = b_point + w_point - 1
 
 
                     # より誤差が小さい組み合わせが見つかった
@@ -145,41 +148,50 @@ if __name__ == '__main__':
                         if best_error != OUT_OF_ERROR:
 
                             # 先手勝率が［５０％～５４％）なら
-                            if 0.5 <= black_win_rate and black_win_rate < 0.54:
-                                # １本勝負で調整できなければ諦める
-                                if 1 < bout_count:
-                                    message = f"[▲！先手勝率が［５０％～５４％）（{black_win_rate}）なら、１本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                            #
+                            #   NOTE ５１％～５５％付近を調整するには、４～１２本勝負ぐらいしないと変わらない。このあたりは調整を諦めることにする
+                            #
+                            if 0.5 <= black_win_rate and black_win_rate < 0.57:
+                                # ４本勝負で調整できなければ諦める
+                                if 4 < max_bout_count:
+                                    message = f"[▲！先手勝率が［５０％～５７％）（{black_win_rate}）なら、４本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
-
-                            # 先手勝率が［５４％～５７％）なら
-                            elif 0.54 <= black_win_rate and black_win_rate < 0.57:
-                                # ３本勝負で調整できなければ諦める
-                                if 3 < bout_count:
-                                    message = f"[▲！先手勝率が［５４％～５７％）（{black_win_rate}）なら、３本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
-                                    print(message)
-                                    process_list.append(f"{message}\n")
-                                    continue
-
-
-                            # 先手勝率が［５７％～６５％）なら
-                            elif 0.57 <= black_win_rate and black_win_rate < 0.65:
+                            # 先手勝率が［５７％～６１％）なら
+                            elif 0.57 <= black_win_rate and black_win_rate < 0.61:
                                 # ５本勝負で調整できなければ諦める
-                                if 5 < bout_count:
-                                    message = f"[▲！先手勝率が［５７％～６５％）（{black_win_rate}）なら、５本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                if 5 < max_bout_count:
+                                    message = f"[▲！先手勝率が［５７％～６１％）（{black_win_rate}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
-                            # NOTE ６２％の前後は山ができてる地点
+                            # NOTE ６２％の前後は山ができてる地点。６本勝負にしたい
 
-                            # 先手勝率が［６５％～８２％）なら
-                            elif 0.65 <= black_win_rate and black_win_rate < 0.82:
+                            # NOTE ６６％、６７％は山ができてる地点。５本勝負の次は、８本勝負に飛んでいる
+                            #   ６６％  [0.1600 黒  1 白 1][0.0644 黒  2 白 1][0.0522 黒  4 白 2][0.0481 黒  6 白 3][0.0411 黒  7 白 4][0.0314 黒  9 白 5][0.0241 黒 11 白 6][0.0182 黒 13 白 7][0.0134 黒 15 白 8][0.0092 黒 17 白 9][0.0055 黒 19 白10][0.0022 黒 21 白11][0.0008 黒 23 白12][0.0006 黒 56 白29][0.0005 黒 89 白46]
+                            #   ６７％  [0.1700 黒  1 白 1][0.0511 黒  2 白 1][0.0325 黒  4 白 2][0.0236 黒  6 白 3][0.0179 黒  8 白 4][0.0138 黒 10 白 5][0.0105 黒 12 白 6][0.0079 黒 14 白 7][0.0056 黒 16 白 8][0.0037 黒 18 白 9][0.0019 黒 20 白10][0.0003 黒 22 白11][0.0002 黒 89 白44]
+                            #
+                            # 先手勝率が［６６％～６８％）なら
+                            elif 0.66 <= black_win_rate and black_win_rate < 0.68:
+                                # １２本勝負で調整できなければ諦める
+                                if 12 < max_bout_count:
+                                    message = f"[▲！先手勝率が［６６％～６８％）（{black_win_rate}）なら、１２本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    print(message)
+                                    process_list.append(f"{message}\n")
+                                    continue
+
+                            # NOTE ７６％～７７％は山ができてる地点
+                            #   ７６％  [0.2600 黒  1 白 1][0.0776 黒  2 白 1][0.0610 黒  3 白 1][0.0578 黒  5 白 2][0.0298 黒  6 白 2][0.0134 黒  9 白 3][0.0022 黒 12 白 4][0.0017 黒 31 白10][0.0014 黒 50 白16][0.0012 黒 69 白22][0.0011 黒 88 白28]
+                            #   ７７％  [0.2700 黒  1 白 1][0.0929 黒  2 白 1][0.0435 黒  3 白 1][0.0040 黒  6 白 2][0.0014 黒 16 白 5][0.0003 黒 26 白 8]
+
+                            # 先手勝率が［６１％～８２％）なら
+                            elif 0.61 <= black_win_rate and black_win_rate < 0.82:
                                 # ７本勝負で調整できなければ諦める
-                                if 7 < bout_count:
-                                    message = f"[▲！先手勝率が［６５％～８２％）（{black_win_rate}）なら、７本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                if 7 < max_bout_count:
+                                    message = f"[▲！先手勝率が［６１％～８２％）（{black_win_rate}）なら、７本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -192,8 +204,8 @@ if __name__ == '__main__':
                             #
                             elif 0.82 <= black_win_rate and black_win_rate < 0.83:
                                 # １２本勝負で調整できなければ諦める
-                                if 12 < bout_count:
-                                    message = f"[▲！先手勝率が［８２％～８３％）（{black_win_rate}）なら、１２本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                if 12 < max_bout_count:
+                                    message = f"[▲！先手勝率が［８２％～８３％）（{black_win_rate}）なら、１２本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -201,8 +213,8 @@ if __name__ == '__main__':
                             # 先手勝率が［８３％～９０％）なら
                             elif 0.83 <= black_win_rate and black_win_rate < 0.90:
                                 # １０本勝負で調整できなければ諦める
-                                if 10 < bout_count:
-                                    message = f"[▲！先手勝率が［８３％～９０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{bout_count}）は、調整を諦めます]"
+                                if 10 < max_bout_count:
+                                    message = f"[▲！先手勝率が［８３％～９０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -239,10 +251,16 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
+                # 最大ｎ本勝負
+                #
+                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。３本取るゲームではない。最大３本勝負という感じ
+                #
+                max_bout_count = best_b_point + best_w_point - 1
+
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合

@@ -15,6 +15,8 @@ from library import calculate_probability
 
 SUMMARY_FILE_PATH = 'output/search_b_w_target_strict.log'
 
+# 後手が勝つのに必要な先取本数の上限
+MAX_W_POINT = 1
 
 OUT_OF_ERROR = 0.51
 
@@ -96,8 +98,14 @@ if __name__ == '__main__':
             process_list = []
 
             # p=0.5 は計算の対象外とします
-            for b_point in range(1, 101):                
-                for w_point in range (1, b_point + 1):
+            for b_point in range(1, 101):
+
+                # 後手が勝つのに必要な先取本数の上限
+                max_w_point = b_point
+                if MAX_W_POINT < max_w_point:
+                    max_w_point = MAX_W_POINT                
+
+                for w_point in range (1, max_w_point+1):
 
                     balanced_black_win_rate = calculate_probability(
                         p=black_win_rate,
@@ -127,10 +135,16 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
+                # 最大ｎ本勝負
+                #
+                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。３本取るゲームではない。最大３本勝負という感じ
+                #
+                max_bout_count = best_b_point + best_w_point - 1
+
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>3}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>3}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
                 # 計算過程を追加する場合
