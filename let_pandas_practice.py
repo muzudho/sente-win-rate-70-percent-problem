@@ -14,10 +14,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv("./data/takahashi_satoshi_system.csv",
-                   encoding="utf8",
-                   #skiprows=1, # 1行読み飛ばす
-                   )
+        df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
 
         print(df)
 

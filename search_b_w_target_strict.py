@@ -9,6 +9,7 @@ import traceback
 import datetime
 import random
 import math
+import pandas as pd
 
 from library import calculate_probability
 
@@ -21,61 +22,6 @@ MAX_W_POINT = 99999
 OUT_OF_ERROR = 0.51
 
 
-# 0.50 < p and p <= 0.99
-INPUT_DATA = [
-    #[0.50],
-    [0.51],
-    [0.52],
-    [0.53],
-    [0.54],
-    [0.55],
-    [0.56],
-    [0.57],
-    [0.58],
-    [0.59],
-    [0.60],
-    [0.61],
-    [0.62],
-    [0.63],
-    [0.64],
-    [0.65],
-    [0.66],
-    [0.67],
-    [0.68],
-    [0.69],
-    [0.70],
-    [0.71],
-    [0.72],
-    [0.73],
-    [0.74],
-    [0.75],
-    [0.76],
-    [0.77],
-    [0.78],
-    [0.79],
-    [0.80],
-    [0.81],
-    [0.82],
-    [0.83],
-    [0.84],
-    [0.85],
-    [0.86],
-    [0.87],
-    [0.88],
-    [0.89],
-    [0.90],
-    [0.91],
-    [0.92],
-    [0.93],
-    [0.94],
-    [0.95],
-    [0.96],
-    [0.97],
-    [0.98],
-    [0.99],
-]
-
-
 ########################################
 # コマンドから実行時
 ########################################
@@ -84,9 +30,10 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        for input_datum in INPUT_DATA:
-            # 先手勝率
-            black_win_rate=input_datum[0]
+        df = pd.read_csv("./data/p.csv", encoding="utf8")
+
+        # 先手勝率
+        for p in df['p']:
 
             # ベストな調整後の先手勝率と、その誤差
             best_balanced_black_win_rate = None
@@ -108,7 +55,7 @@ if __name__ == '__main__':
                 for w_point in range (1, max_w_point+1):
 
                     balanced_black_win_rate = calculate_probability(
-                        p=black_win_rate,
+                        p=p,
                         H=b_point,
                         T=w_point)
 
@@ -146,7 +93,7 @@ if __name__ == '__main__':
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合

@@ -1,80 +1,27 @@
 #
 # 探索
-# python search_b_w_target_practical.py
+# python generate_takahashi_satoshi_system.py
 #
-#   実用的な、先手先取本数、後手先取本数を求める
+#   ［高橋智史システム］ジェネレーター。
+#   実用的な、先手先取本数、後手先取本数を求める。
 #
 
 import traceback
 import datetime
 import random
 import math
+import pandas as pd
 
 from library import round_letro, calculate_probability
 
 
-SUMMARY_FILE_PATH = 'output/search_b_w_target_practical.log'
+SUMMARY_FILE_PATH = 'output/generate_takahashi_satoshi_system.log'
 
 
 OUT_OF_ERROR = 0.51
 
 # 先手勝率が 5割 +-0.03未満なら良い
 LIMIT_ERROR = 0.03
-
-
-# 0.50 <= p and p <= 0.99
-INPUT_DATA = [
-    [0.50],
-    [0.51],
-    [0.52],
-    [0.53],
-    [0.54],
-    [0.55],
-    [0.56],
-    [0.57],
-    [0.58],
-    [0.59],
-    [0.60],
-    [0.61],
-    [0.62],
-    [0.63],
-    [0.64],
-    [0.65],
-    [0.66],
-    [0.67],
-    [0.68],
-    [0.69],
-    [0.70],
-    [0.71],
-    [0.72],
-    [0.73],
-    [0.74],
-    [0.75],
-    [0.76],
-    [0.77],
-    [0.78],
-    [0.79],
-    [0.80],
-    [0.81],
-    [0.82],
-    [0.83],
-    [0.84],
-    [0.85],
-    [0.86],
-    [0.87],
-    [0.88],
-    [0.89],
-    [0.90],
-    [0.91],
-    [0.92],
-    [0.93],
-    [0.94],
-    [0.95],
-    [0.96],
-    [0.97],
-    [0.98],
-    [0.99],
-]
 
 
 ########################################
@@ -85,9 +32,10 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        for input_datum in INPUT_DATA:
-            # 先手勝率
-            black_win_rate=input_datum[0]
+        df = pd.read_csv("./data/p.csv", encoding="utf8")
+
+        # 先手勝率
+        for p in df['p']:
 
             # ベストな調整後の先手勝率と、その誤差
             best_error = OUT_OF_ERROR
@@ -127,7 +75,7 @@ if __name__ == '__main__':
 
 
                     balanced_black_win_rate = calculate_probability(
-                        p=black_win_rate,
+                        p=p,
                         H=b_point,
                         T=w_point)
 
@@ -152,19 +100,19 @@ if __name__ == '__main__':
                             #
                             #   NOTE ５１％～５５％付近を調整するには、４～１２本勝負ぐらいしないと変わらない。このあたりは調整を諦めることにする
                             #
-                            if 0.5 <= black_win_rate and black_win_rate < 0.57:
+                            if 0.5 <= p and p < 0.57:
                                 # ４本勝負で調整できなければ諦める
                                 if 4 < max_bout_count:
-                                    message = f"[▲！先手勝率が［５０％～５７％）（{black_win_rate}）なら、４本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［５０％～５７％）（{p}）なら、４本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
                             # 先手勝率が［５７％～６１％）なら
-                            elif 0.57 <= black_win_rate and black_win_rate < 0.61:
+                            elif 0.57 <= p and p < 0.61:
                                 # ５本勝負で調整できなければ諦める
                                 if 5 < max_bout_count:
-                                    message = f"[▲！先手勝率が［５７％～６１％）（{black_win_rate}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［５７％～６１％）（{p}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -176,10 +124,10 @@ if __name__ == '__main__':
                             #   NOTE ６６％は山ができてる地点。５本勝負の次は、８本、１０本勝負に飛んでいる。１３本勝負ぐらいしないと互角にならないが、多いし……
                             #   ６６％  [0.1600 黒  1 白 1][0.0644 黒  2 白 1][0.0522 黒  4 白 2][0.0481 黒  6 白 3][0.0411 黒  7 白 4][0.0314 黒  9 白 5][0.0241 黒 11 白 6][0.0182 黒 13 白 7][0.0134 黒 15 白 8][0.0092 黒 17 白 9][0.0055 黒 19 白10][0.0022 黒 21 白11][0.0008 黒 23 白12][0.0006 黒 56 白29][0.0005 黒 89 白46]
                             #
-                            elif 0.66 <= black_win_rate and black_win_rate < 0.67:
+                            elif 0.66 <= p and p < 0.67:
                                 # １０本勝負で調整できなければ諦める
                                 if 10 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６６％～６７％）（{black_win_rate}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［６６％～６７％）（{p}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -189,10 +137,10 @@ if __name__ == '__main__':
                             #   NOTE ６７％は山ができてる地点。５本勝負の次は、８本勝負に飛んでいる
                             #   ６７％  [0.1700 黒  1 白 1][0.0511 黒  2 白 1][0.0325 黒  4 白 2][0.0236 黒  6 白 3][0.0179 黒  8 白 4][0.0138 黒 10 白 5][0.0105 黒 12 白 6][0.0079 黒 14 白 7][0.0056 黒 16 白 8][0.0037 黒 18 白 9][0.0019 黒 20 白10][0.0003 黒 22 白11][0.0002 黒 89 白44]
                             #
-                            elif 0.67 <= black_win_rate and black_win_rate < 0.68:
+                            elif 0.67 <= p and p < 0.68:
                                 # ５本勝負で調整できなければ諦める
                                 if 5 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６７％～６８％）（{black_win_rate}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［６７％～６８％）（{p}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -201,19 +149,19 @@ if __name__ == '__main__':
                             # # #   ７６％  [0.2600 黒  1 白 1][0.0776 黒  2 白 1][0.0610 黒  3 白 1][0.0578 黒  5 白 2][0.0298 黒  6 白 2][0.0134 黒  9 白 3][0.0022 黒 12 白 4][0.0017 黒 31 白10][0.0014 黒 50 白16][0.0012 黒 69 白22][0.0011 黒 88 白28]
                             # # #   ７７％  [0.2700 黒  1 白 1][0.0929 黒  2 白 1][0.0435 黒  3 白 1][0.0040 黒  6 白 2][0.0014 黒 16 白 5][0.0003 黒 26 白 8]
                             # # 先手勝率が［７６％～７８％）なら
-                            # elif 0.76 <= black_win_rate and black_win_rate < 0.78:
+                            # elif 0.76 <= p and p < 0.78:
                             #     # ７本勝負で調整できなければ諦める
                             #     if 7 < max_bout_count:
-                            #         message = f"[▲！先手勝率が［７６％～７８％）（{black_win_rate}）なら、７本勝負を超えるケース（{max_bout_count} 黒{b_point} 白{w_point}）は、調整を諦めます]"
+                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{max_bout_count} 黒{b_point} 白{w_point}）は、調整を諦めます]"
                             #         print(message)
                             #         process_list.append(f"{message}\n")
                             #         continue
 
                             # 先手勝率が［６１％～８２％）なら
-                            elif 0.61 <= black_win_rate and black_win_rate < 0.82:
+                            elif 0.61 <= p and p < 0.82:
                                 # ７本勝負で調整できなければ諦める
                                 if 7 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６１％～８２％）（{black_win_rate}）なら、７本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［６１％～８２％）（{p}）なら、７本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -230,19 +178,19 @@ if __name__ == '__main__':
                             #   NOTE ８２％は、４本勝負の次、９本勝負に跳ねてしまう。手調整する
                             #   [0.3200 黒  1 白 1][0.1724 黒  2 白 1][0.0514 黒  3 白 1][0.0479 黒  4 白 1][0.0234 黒 13 白 3]x
                             #
-                            elif 0.82 <= black_win_rate and black_win_rate < 0.83:
+                            elif 0.82 <= p and p < 0.83:
                                 # ９本勝負で調整できなければ諦める
                                 if 9 < max_bout_count:
-                                    message = f"[▲！先手勝率が［８２％～８３％）（{black_win_rate}）なら、９本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［８２％～８３％）（{p}）なら、９本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
 
                             # 先手勝率が［８３％～９０％）なら
-                            elif 0.83 <= black_win_rate and black_win_rate < 0.90:
+                            elif 0.83 <= p and p < 0.90:
                                 # １０本勝負で調整できなければ諦める
                                 if 10 < max_bout_count:
-                                    message = f"[▲！先手勝率が［８３％～９０％）（{black_win_rate}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                    message = f"[▲！先手勝率が［８３％～９０％）（{p}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -292,7 +240,7 @@ if __name__ == '__main__':
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-                text += f"先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合

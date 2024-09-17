@@ -9,6 +9,8 @@
 
 import traceback
 import math
+import pandas as pd
+
 from library import round_letro, scale_for_float_to_int, black_win_rate_to_b_w_targets
 
 
@@ -70,61 +72,6 @@ class LeapRoundCalculate():
         return self._practical_w_point
 
 
-# 0.50 ～ 0.99 まで試算
-INPUT_DATA = [
-    [0.50],
-    [0.51],
-    [0.52],
-    [0.53],
-    [0.54],
-    [0.55],
-    [0.56],
-    [0.57],
-    [0.58],
-    [0.59],
-    [0.60],
-    [0.61],
-    [0.62],
-    [0.63],
-    [0.64],
-    [0.65],
-    [0.66],
-    [0.67],
-    [0.68],
-    [0.69],
-    [0.70],
-    [0.71],
-    [0.72],
-    [0.73],
-    [0.74],
-    [0.75],
-    [0.76],
-    [0.77],
-    [0.78],
-    [0.79],
-    [0.80],
-    [0.81],
-    [0.82],
-    [0.83],
-    [0.84],
-    [0.85],
-    [0.86],
-    [0.87],
-    [0.88],
-    [0.89],
-    [0.90],
-    [0.91],
-    [0.92],
-    [0.93],
-    [0.94],
-    [0.95],
-    [0.96],
-    [0.97],
-    [0.98],
-    [0.99],
-]
-
-
 ########################################
 # コマンドから実行時
 ########################################
@@ -133,21 +80,22 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        df = pd.read_csv("./data/p.csv", encoding="utf8")
 
-        for rule in INPUT_DATA:
+        # 先手勝率（表が出る確率）
+        for p in df['p']:
+
             # 説明１　コインの表裏の確率
             # ------------------------
 
-            # 先手勝率（表が出る確率）
-            black_win_rate=rule[0]
-            print(f"先手勝率{black_win_rate:4.2f}  ", end='')
+            print(f"先手勝率{p:4.2f}  ", end='')
 
 
             # 説明３　表のｎ本先取
             # -------------------
 
             # 厳密な値
-            strict_b_point, strict_w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
+            strict_b_point, strict_w_point = black_win_rate_to_b_w_targets(p=p)
             print(f"厳密な先取本数  先手：後手＝{strict_b_point:>2}：{strict_w_point:>2}  ", end='')
 
             # 実用的な値（後手取得本数が１になるよう丸めたもの）
@@ -237,7 +185,7 @@ if __name__ == '__main__':
 
             LeapRoundCalculate(
                 # 表が出る確率
-                black_win_rate=black_win_rate,
+                black_win_rate=p,
                 # 先手勝率の厳密な整数比
                 strict_b_point=strict_b_point,
                 # 後手勝率の厳密な整数比
