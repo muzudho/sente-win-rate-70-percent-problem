@@ -16,7 +16,7 @@ from library import calculate_probability
 SUMMARY_FILE_PATH = 'output/search_b_w_target_strict.log'
 
 # 後手が勝つのに必要な先取本数の上限
-MAX_W_POINT = 1
+MAX_W_POINT = 99999
 
 OUT_OF_ERROR = 0.51
 
