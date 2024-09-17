@@ -1,6 +1,6 @@
 #
-# 計算
-# python let_b_w_target_strict.py
+# 探索
+# python search_b_w_target_strict.py
 #
 #   先手先取本数、後手先取本数を求める（厳密）
 #
@@ -13,7 +13,7 @@ import math
 from library import black_win_rate_to_b_w_targets, calculate_probability
 
 
-SUMMARY_FILE_PATH = 'output/let_b_w_target_strict.log'
+SUMMARY_FILE_PATH = 'output/search_b_w_target_strict.log'
 
 
 # 0.50 < p and p <= 0.99
@@ -93,10 +93,15 @@ if __name__ == '__main__':
             process_list = []
 
             # p=0.5 は計算の対象外とします
-            for b_point in range(1, 1001):
+            for b_point in range(1, 101):
 
-                # 後手に必要な先取本数は 1 に固定します
-                for w_point in range (1, 2): # (1, b_point)
+                
+                #for w_point in range (1, b_point):
+                #for w_point in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
+                for w_point in range (1, 3):  # 後手に必要な先取本数を 1 ～ 2 の範囲にする場合
+
+                    if b_point <= w_point and 1 < w_point:
+                        continue
 
                     balanced_black_win_rate = calculate_probability(
                         p=black_win_rate,
@@ -111,7 +116,14 @@ if __name__ == '__main__':
                         best_balanced_black_win_rate = balanced_black_win_rate
                         best_b_point = b_point
                         best_w_point = w_point
-                        process_list.append(f"[{best_error:6.4f} 黒{best_b_point:>3} 白{best_w_point:>2}]")
+
+                        # 計算過程
+                        process = f"[{best_error:6.4f} 黒{best_b_point:>3} 白{best_w_point:>2}]"
+                        process_list.append(process)
+                        print(process, end='', flush=True) # すぐ表示
+
+            # 計算過程の表示の切れ目
+            print() # 改行
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
@@ -122,9 +134,11 @@ if __name__ == '__main__':
                 w_advantage = best_b_point - best_w_point
 
                 text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
-                # {''.join(process_list)}
-
                 print(text) # 表示
+
+                # 計算過程を追加する場合
+                text += f"  {''.join(process_list)}"
+
                 f.write(f"{text}\n")    # ファイルへ出力
 
 
