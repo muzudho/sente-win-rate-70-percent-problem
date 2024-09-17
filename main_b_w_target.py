@@ -10,8 +10,7 @@ import datetime
 import random
 import math
 
-from library import round_letro, white_win_rate, scale_for_float_to_int
-from fractions import Fraction
+from library import black_win_rate_to_b_w_targets
 
 
 SUMMARY_FILE_PATH = 'main_b_w_target.log'
@@ -106,36 +105,15 @@ if __name__ == '__main__':
             # 先手勝率
             black_win_rate=input_datum[0]
 
-            # 後手勝率
-            # NOTE 0.11 が 0.10999999999999999 になっていたり、難しい
-            #w_win_rate = white_win_rate(black_win_rate=black_win_rate)
-
-            # 説明２  コインの表裏の確率の整数化
-            # --------------------------------
-            scale = scale_for_float_to_int(black_win_rate)
-
-            #w_scale = scale_for_float_to_int(w_win_rate)
-
-            # 黒先取本数基礎
-            #
-            #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりする
-            #
-            b_point = round_letro(black_win_rate * scale)
-
-            # 白先取本数基礎
-            w_point = scale - b_point
-
-            # DO 約分する
-            fraction = Fraction(w_point, b_point) # とりあえず、白、黒の順にする
-            w_point_2 = fraction.numerator
-            b_point_2 = fraction.denominator
+            w_point_2, b_point_2 = black_win_rate_to_b_w_targets(p=black_win_rate)
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  スケール：黒{scale:3}  先取本数基礎　黒：白＝{b_point:>2}：{w_point:>2}　約分  {b_point_2:>2}：{w_point_2:>2}"
+                #text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  スケール：黒{scale:3}  先取本数基礎　黒：白＝{b_point:>2}：{w_point:>2}　約分  {b_point_2:>2}：{w_point_2:>2}"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.2f}  先取本数　黒：白＝{b_point_2:>2}：{w_point_2:>2}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 

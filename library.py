@@ -4,6 +4,7 @@
 
 import random
 import datetime
+from fractions import Fraction
 
 # 四捨五入 📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
 from decimal import Decimal, ROUND_HALF_UP
@@ -65,16 +66,51 @@ def scale_for_float_to_int(value):
     return 10**dp_len
 
 
-
 def white_win_rate(black_win_rate):
     """後手勝率
     
+    NOTE 0.11 が 0.10999999999999999 になっていたり、想定した結果を返さないことがあるから使わないほうがいい
+
     Parameters
     ----------
     black_win_rate : float
         先手勝率
     """
     return 1 - black_win_rate
+
+
+def black_win_rate_to_b_w_targets(p):
+    """表が出る確率 p を与えると、表取得本数、裏取得本数を返す
+    
+    Parameters
+    ----------
+    p : float
+        表が出る確率
+    
+    Returns
+    -------
+    p_point : int
+        表取得本数
+    q_point : int
+        裏取得本数
+    """
+
+    # 説明２  コインの表裏の確率の整数化
+    # --------------------------------
+    scale = scale_for_float_to_int(p)
+
+    # 黒先取本数基礎
+    #
+    #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
+    #
+    b_point = round_letro(p * scale)
+
+    # 白先取本数基礎
+    w_point = scale - b_point
+
+    # 約分する
+    fraction = Fraction(w_point, b_point) # とりあえず、白、黒の順にする
+    return fraction.numerator, fraction.denominator
 
 
 def black_win_value(white_win_rate):
