@@ -125,6 +125,8 @@ if __name__ == '__main__':
             # -------------------
             b_point, w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
 
+            print(f"先取本数  先手：後手＝{b_point:>2}：{w_point:>2}  ", end='')
+
 
             # 説明４　表がまだ多めに出る得
             # --------------------------

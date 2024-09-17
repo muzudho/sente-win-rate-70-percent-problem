@@ -109,7 +109,7 @@ def black_win_rate_to_b_w_targets(p):
     w_point = scale - b_point
 
     # 約分する
-    fraction = Fraction(w_point, b_point) # とりあえず、白、黒の順にする
+    fraction = Fraction(b_point, w_point)
     return fraction.numerator, fraction.denominator
 
 
