@@ -99,7 +99,10 @@ if __name__ == '__main__':
                 #for w_point in range (1, b_point):
                 #for w_point in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
                 #for w_point in range (1, 3):  # 後手に必要な先取本数を 1 ～ 2 の範囲にする場合
-                for w_point in range (1, 4):  # 後手に必要な先取本数を 1 ～ 3 の範囲にする場合
+                #for w_point in range (1, 4):  # 後手に必要な先取本数を 1 ～ 3 の範囲にする場合
+                #for w_point in range (1, 5):  # 後手に必要な先取本数を 1 ～ 4 の範囲にする場合
+                #for w_point in range (1, 6):  # 後手に必要な先取本数を 1 ～ 5 の範囲にする場合
+                for w_point in range (1, 7):  # 後手に必要な先取本数を 1 ～ 6 の範囲にする場合
 
                     if b_point <= w_point and 1 < w_point:
                         continue
