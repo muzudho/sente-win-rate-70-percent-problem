@@ -92,9 +92,12 @@ if __name__ == '__main__':
             # 計算過程
             process_list = []
 
-            # p=0.5 は含みません
-            for b_point in range(1, 101):
-                for w_point in range (1, b_point):
+            # p=0.5 は計算の対象外とします
+            for b_point in range(1, 1001):
+
+                # 後手に必要な先取本数は 1 に固定します
+                for w_point in range (1, 2): # (1, b_point)
+
                     balanced_black_win_rate = calculate_probability(
                         p=black_win_rate,
                         H=b_point,
@@ -115,7 +118,7 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate:4.2f}  先取本数　黒：白＝{best_b_point:>3}：{best_w_point:>2}  調整後先手勝率 {best_balanced_black_win_rate:6.4f} 誤差 {best_error:6.4f} ％  {''.join(process_list)}"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate:4.2f}  先取本数　先手：後手＝{best_b_point:>3}：{best_w_point:>2}  調整後先手勝率 {best_balanced_black_win_rate:6.4f} 誤差 {best_error:6.4f} ％  {''.join(process_list)}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
