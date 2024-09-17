@@ -315,6 +315,11 @@ class CoinToss():
 
 def calculate_probability(p, H, T):
     """TODO このコードは検証中
+    Ａさんが勝つ確率を返します
+
+    Ａさんが勝つ条件：　表が H 回出る前に裏が T 回出ないこと
+    試行回数の考え方：　ゲームは最小で H 回、最大で N = H + T - 1 回のコイン投げで終了します
+    確率の計算：　総試行回数 N 回で、表が H 回以上出る確率を計算します
 
     # パラメータの設定例
     p = 0.7  # 表が出る確率
@@ -339,21 +344,67 @@ def calculate_probability(p, H, T):
         Ａさんが勝つ確率
     """
 
+    from math import comb
+
     # 裏が出る確率
     q = 1 - p
 
-    # 状態を格納する二次元配列を初期化
-    P = [[0.0 for _ in range(T + 1)] for _ in range(H + 1)]
+    # 試行回数
+    N = H + T - 1
 
-    # 境界条件の設定
-    for h in range(H + 1):
-        P[h][T] = 0  # Bさんが勝利
-    for t in range(T + 1):
-        P[H][t] = 1  # Aさんが勝利
+    # Ａさんが勝つ確率を初期化
+    probability = 0.0
 
-    # 再帰関係式の適用
-    for h in range(H - 1, -1, -1):
-        for t in range(T - 1, -1, -1):
-            P[h][t] = p * P[h + 1][t] + q * P[h][t + 1]
+    # 表が H 回から N 回出る確率を計算
+    for n in range(H, N + 1):
+        combinations = comb(N, n)   # 組み合わせの数
+        prob = combinations * (p ** n) * (q ** (N - n))
+        probability += prob
 
-    return P[0][0]
+    return probability
+
+
+# def calculate_probability(p, H, T):
+#     """ NOTE このコードでもいいが処理が重たい
+
+#     # パラメータの設定例
+#     p = 0.7  # 表が出る確率
+#     H = 7    # Aさんが必要な表の回数
+#     T = 3    # Bさんが必要な裏の回数
+
+#     # 計算の実行例
+#     probability = calculate_probability(p, H, T)
+#     print(f"Aさんが勝つ確率: {probability * 100:.2f}%")
+
+#     Parameters
+#     ----------
+#     p : float
+#         表が出る確率
+#     H : int
+#         表側のプレイヤー（Ａさん）が必要な、表の先取回数
+#     T : int
+#         裏側のプレイヤー（Ｂさん）が必要な、裏の先取回数
+    
+#     Returns
+#     black_win_rate : float
+#         Ａさんが勝つ確率
+#     """
+
+#     # 裏が出る確率
+#     q = 1 - p
+
+#     # 状態を格納する二次元配列を初期化
+#     P = [[0.0 for _ in range(T + 1)] for _ in range(H + 1)]
+
+#     # 境界条件の設定
+#     for h in range(H + 1):
+#         P[h][T] = 0  # Bさんが勝利
+#     for t in range(T + 1):
+#         P[H][t] = 1  # Aさんが勝利
+
+#     # 再帰関係式の適用
+#     for h in range(H - 1, -1, -1):
+#         for t in range(T - 1, -1, -1):
+#             P[h][t] = p * P[h + 1][t] + q * P[h][t + 1]
+
+#     return P[0][0]
