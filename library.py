@@ -182,6 +182,35 @@ class CoinToss():
         self._summary_file_path = summary_file_path
 
 
+    def coin_toss_in_round(self, black_win_rate, black_target_in_bout, white_target_in_bout):
+        """１対局行う"""
+        
+        # 新しい本目（Bout）
+        b_count_in_bout = 0
+        w_count_in_bout = 0
+
+        # ｎ本勝負で勝ち負けが出るまでやる
+        while True:
+
+            # 黒が出た
+            if coin(black_win_rate) == BLACK:
+                b_count_in_bout += 1
+
+                # 黒の先取本数を取った（黒が勝った）
+                if black_target_in_bout <= b_count_in_bout:
+                    return BLACK
+
+            # 白が出た
+            else:
+                w_count_in_bout += 1
+
+                # 白の先取本数を取った（白が勝った）
+                if white_target_in_bout <= w_count_in_bout:
+                    return WHITE
+
+            # 続行
+
+
     def coin_toss_in_some_rounds(self, black_win_rate, black_target_in_bout, white_target_in_bout, round_total):
         """コイントスを複数対局する
         
@@ -206,29 +235,8 @@ class CoinToss():
 
         for round in range(0, round_total):
 
-            # 新しい本目（Bout）
-            b_count_in_bout = 0
-            w_count_in_bout = 0
-
-            # ｎ本勝負で勝ち負けが出るまでやる
-            while True:
-
-                # 黒が出た
-                if coin(black_win_rate) == BLACK:
-                    b_count_in_bout += 1
-                
-                # 白が出た
-                else:
-                    w_count_in_bout += 1
-
-                # 黒の先取本数を取った（黒が勝った）
-                if black_target_in_bout <= b_count_in_bout:
-                    black_wons += 1
-                    break
-
-                # 白の先取本数を取った（白が勝った）
-                elif white_target_in_bout <= w_count_in_bout:
-                    break
+            if self.coin_toss_in_round(black_win_rate, black_target_in_bout, white_target_in_bout) == BLACK:
+                black_wons += 1
 
 
         with open(self._summary_file_path, 'a', encoding='utf8') as f:
