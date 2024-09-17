@@ -93,19 +93,8 @@ if __name__ == '__main__':
             process_list = []
 
             # p=0.5 は計算の対象外とします
-            for b_point in range(1, 101):
-
-                
-                #for w_point in range (1, b_point):
-                #for w_point in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
-                #for w_point in range (1, 3):  # 後手に必要な先取本数を 1 ～ 2 の範囲にする場合
-                #for w_point in range (1, 4):  # 後手に必要な先取本数を 1 ～ 3 の範囲にする場合
-                #for w_point in range (1, 5):  # 後手に必要な先取本数を 1 ～ 4 の範囲にする場合
-                #for w_point in range (1, 6):  # 後手に必要な先取本数を 1 ～ 5 の範囲にする場合
-                for w_point in range (1, 7):  # 後手に必要な先取本数を 1 ～ 6 の範囲にする場合
-
-                    if b_point <= w_point and 1 < w_point:
-                        continue
+            for b_point in range(1, 101):                
+                for w_point in range (1, b_point):
 
                     balanced_black_win_rate = calculate_probability(
                         p=black_win_rate,
@@ -126,6 +115,7 @@ if __name__ == '__main__':
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
+
             # 計算過程の表示の切れ目
             print() # 改行
 
@@ -137,11 +127,11 @@ if __name__ == '__main__':
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {best_b_point:>3}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
-                # 計算過程を追加する場合
-                text += f"  {''.join(process_list)}"
+                # # 計算過程を追加する場合
+                # text += f"  {''.join(process_list)}"
 
                 f.write(f"{text}\n")    # ファイルへ出力
 
