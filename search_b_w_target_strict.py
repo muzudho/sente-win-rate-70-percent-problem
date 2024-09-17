@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
                 # 最大ｎ本勝負
                 #
-                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。３本取るゲームではない。最大３本勝負という感じ
+                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                 #
                 max_bout_count = best_b_point + best_w_point - 1
 
@@ -146,7 +146,7 @@ if __name__ == '__main__':
 
                 text = ""
                 text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text += f"先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
                 # 計算過程を追加する場合

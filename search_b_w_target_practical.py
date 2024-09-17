@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
                     # 最大ｎ本勝負
                     #
-                    #   NOTE 例えば３本勝負というとき、２本取れば勝ち。３本取るゲームではない。最大３本勝負という感じ
+                    #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                     #
                     max_bout_count = b_point + w_point - 1
 
@@ -173,13 +173,13 @@ if __name__ == '__main__':
 
                             # 先手勝率が［６６％～６７％）なら
                             #
-                            #   NOTE ６６％は山ができてる地点。５本勝負の次は、８本勝負に飛んでいる
+                            #   NOTE ６６％は山ができてる地点。５本勝負の次は、８本、１０本勝負に飛んでいる。１３本勝負ぐらいしないと互角にならないが、多いし……
                             #   ６６％  [0.1600 黒  1 白 1][0.0644 黒  2 白 1][0.0522 黒  4 白 2][0.0481 黒  6 白 3][0.0411 黒  7 白 4][0.0314 黒  9 白 5][0.0241 黒 11 白 6][0.0182 黒 13 白 7][0.0134 黒 15 白 8][0.0092 黒 17 白 9][0.0055 黒 19 白10][0.0022 黒 21 白11][0.0008 黒 23 白12][0.0006 黒 56 白29][0.0005 黒 89 白46]
                             #
                             elif 0.66 <= black_win_rate and black_win_rate < 0.67:
-                                # １３本勝負で調整できなければ諦める
-                                if 13 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６６％～６７％）（{black_win_rate}）なら、１３本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                # １０本勝負で調整できなければ諦める
+                                if 10 < max_bout_count:
+                                    message = f"[▲！先手勝率が［６６％～６７％）（{black_win_rate}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -220,14 +220,20 @@ if __name__ == '__main__':
 
                             # NOTE ８０％で跳ねる
 
-                            # NOTE ８２％は、４本勝負の次、１３本勝負に跳ねてしまう。手調整する
                             #
+                            #   NOTE ８１％は、３本勝負の次、１４本勝負に跳ねてしまう。手調整する
+                            #   [0.3100 黒  1 白 1][0.1561 黒  2 白 1][0.0314 黒  3 白 1][0.0138 黒 12 白 3][0.0005 黒 16 白 4]
+                            #
+
+                            # 先手勝率が［８２％～８３％）なら
+                            #
+                            #   NOTE ８２％は、４本勝負の次、９本勝負に跳ねてしまう。手調整する
                             #   [0.3200 黒  1 白 1][0.1724 黒  2 白 1][0.0514 黒  3 白 1][0.0479 黒  4 白 1][0.0234 黒 13 白 3]x
                             #
                             elif 0.82 <= black_win_rate and black_win_rate < 0.83:
-                                # １２本勝負で調整できなければ諦める
-                                if 12 < max_bout_count:
-                                    message = f"[▲！先手勝率が［８２％～８３％）（{black_win_rate}）なら、１２本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                # ９本勝負で調整できなければ諦める
+                                if 9 < max_bout_count:
+                                    message = f"[▲！先手勝率が［８２％～８３％）（{black_win_rate}）なら、９本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -275,14 +281,14 @@ if __name__ == '__main__':
 
                 # 最大ｎ本勝負
                 #
-                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。３本取るゲームではない。最大３本勝負という感じ
+                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                 #
                 max_bout_count = best_b_point + best_w_point - 1
 
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合
