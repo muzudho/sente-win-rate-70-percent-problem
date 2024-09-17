@@ -289,26 +289,16 @@ class CoinToss():
             # 文言作成
             # -------
 
-            # 先取本数比
-            #target_ration = black_target_in_bout / white_target_in_bout
-            inverse_target_ration = white_target_in_bout / black_target_in_bout
-
-            #
-            #             　　　　    先手先取本数
-            # 先手勝率　＝  ────────────────────────────────
-            #        　　　　 先手先取本数　＋　後手先取本数
-            #
-            # 上式になるような、先手先取本数、後手先取本数を求めればよい
-            #
-            ration = black_target_in_bout / (black_target_in_bout + white_target_in_bout)
-
             # 黒が勝った確率
             black_won_rate = black_wons / round_total
 
             # 均等からの誤差
             error = abs(black_won_rate - 0.5)
 
-            text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  先手{black_target_in_bout:2}本先取／後手{white_target_in_bout:2}本先取制＝比{inverse_target_ration:6.4f}  先／（先＋後）＝{ration:8.4f}  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
+            # 後手が最初からｎ本持つアドバンテージがあるという表記
+            w_advantage = black_target_in_bout - white_target_in_bout
+
+            text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> 先手が勝った確率{black_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {black_target_in_bout:2}本勝負（後手は最初から{w_advantage:2}本もつアドバンテージ）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
             print(text) # 表示
             f.write(f"{text}\n")    # ファイルへ出力
 
