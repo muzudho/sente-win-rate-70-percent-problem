@@ -1,4 +1,4 @@
-# 何本勝負にするかを算出
+# ［最大ｎ本勝負］のｎを何にするかを算出
 # python let_max_bout_count.py
 
 import traceback
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         #
         #           先手が先取する必要のある本数　＋　後手が先取する必要のある本数　ー　１
         # １　＝　────────────────────────────────────────────────────────────────────
-        #                                     最大本数
+        #                                 ［最大ｎ本勝負］
         #
         one = (expected_black_target + expected_white_target - 1) / expected_max_bout_count
         if 1 != one:

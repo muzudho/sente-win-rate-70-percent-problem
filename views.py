@@ -21,6 +21,13 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_point, w_point, roun
     """
     with open(output_file_path, 'a', encoding='utf8') as f:
 
+        # ［最大ｎ本勝負］
+        #
+        #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
+        #
+        #max_bout_count = b_point + w_point - 1
+        max_bout_count = (b_point-1) + (w_point-1) + 1
+
         # 黒が勝った確率
         black_won_rate = black_wons / round_total
 
@@ -30,6 +37,6 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_point, w_point, roun
         # 後手が最初からｎ本持つアドバンテージがあるという表記
         w_advantage = b_point - w_point
 
-        text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> 先手が勝った確率{black_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {b_point:2}本勝負（後手は最初から{w_advantage:2}本もつアドバンテージ）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
+        text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> 先手が勝った確率{black_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {max_bout_count:2}本勝負（ただし、{b_point:>3}本先取制。後手は最初から{w_advantage:2}本もつアドバンテージ）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
         print(text) # 表示
         f.write(f"{text}\n")    # ファイルへ出力

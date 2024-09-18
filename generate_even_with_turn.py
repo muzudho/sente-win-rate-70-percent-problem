@@ -28,6 +28,9 @@ LIMIT = 0.005   # 例えば LIMIT = 0.03 にすると、黒番勝率 0.53 のと
 OUT_OF_ERROR = 0.51
 
 # 先手勝率 0.50 ～ 0.99 まで試算
+#
+#   NOTE 手番を交代する場合、［最大ｎ本勝負］は、（Ａさんの先手取得本数－１）＋（Ａさんの後手取得本数－１）＋（Ｂさんの先手取得本数－１）＋（Ｂさんの後手取得本数－１）＋１ になる
+#
 INPUT_DATA = [
     # 項目   p , best_alice_win_error, best_max_bout_count, best_round_count, best_w_point
     # 初期値 --,         OUT_OF_ERROR,                   1,                1,                  0
@@ -117,7 +120,7 @@ if __name__ == '__main__':
 
                 is_cutoff = False
 
-                # ｎ本勝負
+                # ［最大ｎ本勝負］
                 for max_bout_count in range(best_max_bout_count, 101):
 
                     # １本勝負のときだけ、白はｎ本－１ではない

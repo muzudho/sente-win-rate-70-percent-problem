@@ -134,7 +134,7 @@ def coin(black_rate):
 
 
 def n_bout(n, black_rate, w_point):
-    """ｎ本勝負
+    """［最大ｎ本勝負］を行う
     
     n はコインを振る回数。全部黒が出たら黒の勝ち、white_require 回白が出れば白の勝ち。
 
@@ -146,7 +146,7 @@ def n_bout(n, black_rate, w_point):
     Parameters
     ----------
     n : int
-        ｎ本勝負
+        ［最大ｎ本勝負］
     black_rate : float
         黒番の勝率。例： 黒番の勝率が７割なら 0.7
     w_point : int
@@ -178,7 +178,7 @@ def n_round(black_win_rate, bout_count, w_point, round_count):
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
     bout_count : int
-        ｎ本勝負。例： ３本勝負なら 3
+        ［最大ｎ本勝負］。例： ３本勝負なら 3
     w_point : int
         白が勝つのに必要な番数
     round_count : int

@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
                 is_cutoff = False
 
-                # ｎ本勝負
+                # ［最大ｎ本勝負］
                 for max_bout_count in range(best_max_bout_count, 101):
 
                     # １本勝負のときだけ、白はｎ本－１ではない
