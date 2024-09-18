@@ -30,8 +30,8 @@ if __name__ == '__main__':
         print(df)
 
         # * `p` - 先手が勝つ確率
-        # * `b_repeat_when_frozen_turn` - 先手の必要な先取本数
-        # * `w_repeat_when_frozen_turn` - 後手の必要な先取本数
+        # * `b_repeat_when_frozen_turn` - ［黒だけでの反復数］
+        # * `w_repeat_when_frozen_turn` - ［白だけでの反復数］
         # * `new_p` - 調整後の先手が勝つ確率
         # * `new_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は 0.51
         # * `comment` - この行データの説明
@@ -51,7 +51,7 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先取本数　先手：後手＝{b_repeat_when_frozen_turn:>2}：{w_repeat_when_frozen_turn:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先後固定制での反復数　先手だけ：後手だけ＝{b_repeat_when_frozen_turn:>2}：{w_repeat_when_frozen_turn:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 

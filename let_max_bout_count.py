@@ -24,11 +24,14 @@ if __name__ == '__main__':
         expected_max_bout_count = 13    # この数字は、無理数の小数点以下何桁という精度を追求すれば、いくらでも増えていくのではないか？
         print(f"[{datetime.datetime.now()}] 入力データ： {expected_black_win_rate=}  {expected_white_target=}  {expected_max_bout_count=}")
 
+        #
+        # NOTE この式は間違っている。累積二項分布を使う必要がある
+        #
         # （式）
         #
-        #           先手が先取する必要のある本数　＋　後手が先取する必要のある本数　ー　１
-        # １　＝　────────────────────────────────────────────────────────────────────
-        #                                 ［最大ｎ本勝負］
+        #           ［黒だけでの反復数］　＋　［白だけでの反復数］　ー　１
+        # １　＝　──────────────────────────────────────────────────────
+        #                         ［最大ｎ本勝負］
         #
         one = (expected_black_target + expected_white_target - 1) / expected_max_bout_count
         if 1 != one:

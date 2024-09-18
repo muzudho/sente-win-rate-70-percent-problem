@@ -88,7 +88,7 @@ def scale_for_float_to_int(value):
 
 
 def black_win_rate_to_b_w_targets(p):
-    """表が出る確率 p を与えると、表取得本数、裏取得本数を返す
+    """表が出る確率 p を与えると、［黒だけでの反復数］、［白だけでの反復数］を返す
     
     Parameters
     ----------
@@ -98,22 +98,22 @@ def black_win_rate_to_b_w_targets(p):
     Returns
     -------
     p_point : int
-        表取得本数
+        ［黒だけでの反復数］
     q_point : int
-        裏取得本数
+        ［白だけでの反復数］
     """
 
     # 説明２  コインの表裏の確率の整数化
     # --------------------------------
     scale = scale_for_float_to_int(p)
 
-    # 黒先取本数基礎
+    # ［黒だけでの反復数］基礎
     #
     #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
     #
     b_repeat_when_frozen_turn = round_letro(p * scale)
 
-    # 白先取本数基礎
+    # ［白だけでの反復数］基礎
     w_repeat_when_frozen_turn = scale - b_repeat_when_frozen_turn
 
     # 約分する
@@ -260,7 +260,7 @@ class CoinToss():
             if coin(black_win_rate) == BLACK:
                 b_got += 1
 
-                # 黒の先取本数を取った（黒が勝った）
+                # ［黒だけでの反復数］を取った（黒が勝った）
                 if b_repeat_when_frozen_turn <= b_got:
                     return BLACK
 
@@ -268,7 +268,7 @@ class CoinToss():
             else:
                 w_got += 1
 
-                # 白の先取本数を取った（白が勝った）
+                # ［白だけでの反復数］を取った（白が勝った）
                 if w_repeat_when_frozen_turn <= w_got:
                     return WHITE
 
@@ -315,7 +315,7 @@ class CoinToss():
 
                 b_got[successful_player] += 1
 
-                # 黒の先取本数を取った（黒で、勝利条件を満たした）
+                # ［黒だけでの反復数］を取った（黒で、勝利条件を満たした）
                 if b_repeat_when_frozen_turn <= b_got[successful_player]:
                     return successful_player
 
@@ -332,7 +332,7 @@ class CoinToss():
 
                 w_got[successful_player] += 1
 
-                # 白の先取本数を取った（白で、勝利条件を満たした）
+                # ［白だけでの反復数］を取った（白で、勝利条件を満たした）
                 if w_repeat_when_frozen_turn <= w_got[successful_player]:
                     return successful_player
 
@@ -432,13 +432,13 @@ class PointRuleDescription():
 
     @property
     def b_repeat_when_frozen_turn(self):
-        """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な数［反復数］"""
+        """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な数［黒だけでの反復数］"""
         return self._span_when_frozen_turn / self._b_step
 
 
     @property
     def w_repeat_when_frozen_turn(self):
-        """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な数［反復数］"""
+        """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な数［白だけでの反復数］"""
         return self._span_when_frozen_turn / self._w_step
 
 

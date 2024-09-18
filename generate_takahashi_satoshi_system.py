@@ -3,7 +3,7 @@
 # python generate_takahashi_satoshi_system.py
 #
 #   ［高橋智史システム］ジェネレーター。
-#   実用的な、先手先取本数、後手先取本数を求める。
+#   実用的な、先後固定制での［白だけでの反復数］、［黒だけでの反復数］を求める。
 #
 
 import traceback
@@ -55,9 +55,9 @@ if __name__ == '__main__':
             for b_repeat_when_frozen_turn in range(1, 101):
                 
                 for w_repeat_when_frozen_turn in range (1, b_repeat_when_frozen_turn + 1):
-                #for w_repeat_when_frozen_turn in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
+                #for w_repeat_when_frozen_turn in range (1, 2): # ［黒だけでの反復数］を 1 に固定する場合
 
-                    # # 先手が勝つのに必要な先取本数　＞＝　後手が勝つのに必要な先取本数。かつ、後手が勝つのに必要な先取本数が１の場合は特別
+                    # # ［白だけでの反復数］　＞＝　［黒だけでの反復数］。かつ、［白だけでの反復数］が１の場合は特別
                     # if b_repeat_when_frozen_turn <= w_repeat_when_frozen_turn and 1 < w_repeat_when_frozen_turn:
                     #     continue
 

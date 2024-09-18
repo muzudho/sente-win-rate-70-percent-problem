@@ -4,7 +4,7 @@
 #
 #   引き分けは考慮していない。
 #   手番を交代しない方式。
-#   先手が勝つのに必要な先取本数と、後手が勝つのに必要な先取本数を探索する。
+#   先後固定制での、［白だけでの反復数］と、［黒だけでの反復数］を探索する。
 #
 
 import traceback
@@ -56,7 +56,7 @@ def iteration_deeping(df, limit_of_error):
 
                 for w_repeat_when_frozen_turn in range(1, end_w_repeat_when_frozen_turn):
 
-                    # FIXME 黒の［反復数］は計算で求めます
+                    # FIXME ［黒だけでの反復数］は計算で求めます
                     b_repeat_when_frozen_turn = max_number_of_bout_when_frozen_turn-(w_repeat_when_frozen_turn-1)
 
                     black_win_count = n_round_when_frozen_turn(
@@ -141,7 +141,7 @@ def iteration_deeping(df, limit_of_error):
 
             #best_b_repeat_when_frozen_turn は max_number_of_bout_when_frozen_turn と w_repeat_when_frozen_turn から求まる
 
-            # ［白が勝つのに必要な先取本数］列を更新
+            # ［白だけでの反復数］列を更新
             df.loc[df['p']==p, ['w_repeat_when_frozen_turn']] = best_w_repeat_when_frozen_turn
 
         

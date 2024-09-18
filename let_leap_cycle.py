@@ -97,12 +97,12 @@ if __name__ == '__main__':
 
             # 厳密な値
             strict_b_repeat_when_frozen_turn, strict_w_repeat_when_frozen_turn = black_win_rate_to_b_w_targets(p=p)
-            print(f"厳密な先取本数  先手：後手＝{strict_b_repeat_when_frozen_turn:>2}：{strict_w_repeat_when_frozen_turn:>2}  ", end='')
+            print(f"厳密な、先後固定制での反復数  先手だけ：後手だけ＝{strict_b_repeat_when_frozen_turn:>2}：{strict_w_repeat_when_frozen_turn:>2}  ", end='')
 
-            # 実用的な値（後手取得本数が１になるよう丸めたもの）
+            # 実用的な値（［白だけでの反復数］が１になるよう丸めたもの）
             practical_b_repeat_when_frozen_turn = round_letro(strict_b_repeat_when_frozen_turn / strict_w_repeat_when_frozen_turn) # 小数点以下四捨五入
             practical_w_repeat_when_frozen_turn = 1
-            print(f"実用的な先取本数  先手：後手＝{practical_b_repeat_when_frozen_turn:>2}：{practical_w_repeat_when_frozen_turn:>2}  ", end='')
+            print(f"実用的な、先後固定制での反復数  先手だけ：後手だけ＝{practical_b_repeat_when_frozen_turn:>2}：{practical_w_repeat_when_frozen_turn:>2}  ", end='')
 
 
             # 説明４　表がまだ多めに出る得
