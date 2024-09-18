@@ -21,7 +21,7 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_require, w_require, 
     """
     with open(output_file_path, 'a', encoding='utf8') as f:
 
-        # 先後交代なし（Freeze-turn）方式のときの［最長対局数］
+        # ［最長対局数（先後固定制）］
         #
         #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
         #

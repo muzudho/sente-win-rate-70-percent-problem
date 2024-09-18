@@ -134,12 +134,12 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_in_freeze_turn(black_rate, max_number_of_bout_in_freeze_turn, b_require, w_require):
-    """先後交代なし（Freeze-turn）方式のときの［最長対局数］を行い、勝った方の手番を返します
+def n_bout_in_freeze_turn(black_rate, max_number_of_bout, b_require, w_require):
+    """先後固定制で、最長で max_number_of_bout 回の対局を行い、勝った方の手番を返します
 
     NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
 
-    max_number_of_bout_in_freeze_turn はコインを振る回数。全部黒が出たら黒の勝ち、 w_require 回白が出れば白の勝ち。
+    max_number_of_bout はコインを振る回数。全部黒が出たら黒の勝ち、 w_require 回白が出れば白の勝ち。
 
     例えば n=1 なら、コインを最大１回振る。１勝先取で勝ち。
     n=2 なら、コインを最大２回振る。２勝先取で勝ち。白は１勝のアドバンテージが付いている。
@@ -150,8 +150,8 @@ def n_bout_in_freeze_turn(black_rate, max_number_of_bout_in_freeze_turn, b_requi
     ----------
     black_rate : float
         黒番の勝率。例： 黒番の勝率が７割なら 0.7
-    max_number_of_bout_in_freeze_turn : int
-        先後交代なし（Freeze-turn）方式のときの［最長対局数］
+    max_number_of_bout : int
+        最長の対局数
     b_require : int
         黒が勝つのに必要な一本の数
     w_require : int
@@ -165,25 +165,21 @@ def n_bout_in_freeze_turn(black_rate, max_number_of_bout_in_freeze_turn, b_requi
     black_count_down = b_require
     white_count_down = w_require
 
-    # 先後交代なし（Freeze-turn）方式のときの［最長対局数］の間に白が勝ちぬけなければ、黒の勝ち
-    #
-    #   FIXME 黒はｎ本勝たなくても、それより早く、先取本数を取った時点で勝ちなのでは？
-    #
-    for i in range(0, max_number_of_bout_in_freeze_turn):
+    for i in range(0, max_number_of_bout):
         if coin(black_rate) == WHITE:
             white_count_down -= 1
             if white_count_down < 1:
-                return WHITE
+                return WHITE    # 白が勝ちぬけ
         else:
             black_count_down -= 1
             if black_count_down < 1:
-                return BLACK
+                return BLACK    # 黒が勝ちぬけ
 
-    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout_in_freeze_turn=}  {b_require=}  {w_require=}")
+    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_require=}  {w_require=}")
 
 
 def n_round_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_require, w_require, round_count):
-    """先後交代なし（Freeze-turn）方式のときの［最長対局数］の中で対局
+    """［最長対局数（先後固定制）］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
     
@@ -192,7 +188,7 @@ def n_round_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
     max_number_of_bout_in_freeze_turn : int
-        先後交代なし（Freeze-turn）方式のときの［最長対局数］。例： ３本勝負なら 3
+        ［最長対局数（先後固定制）］。例： ３本勝負なら 3
     b_require : int
         黒が勝つのに必要な一本の数
     w_require : int

@@ -142,7 +142,7 @@ def iteration_deeping(df, limit_of_error):
 
             is_cutoff = False
 
-            # 先後交代なし（Freeze-turn）方式のときの［最長対局数］
+            # ［最長対局数（先後固定制）］
             for max_number_of_bout_in_freeze_turn in range(best_max_bout_count, 101):
 
                 # １本勝負のときだけ、白はｎ本－１ではない
@@ -175,7 +175,7 @@ def iteration_deeping(df, limit_of_error):
                         best_w_require = w_require
                     
                         # 進捗バー（更新時）
-                        text = f'[{best_new_p_error:6.4f} {best_max_bout_count:2}本 {best_max_bout_count-best_w_require+1:2}黒 {best_w_require:2}白]'
+                        text = f'[{best_new_p_error:6.4f} 最長対局数{best_max_bout_count:2} {best_max_bout_count-best_w_require+1:2}黒 {best_w_require:2}白]'
                         print(text, end='', flush=True) # すぐ表示
                         calculation_list.append(text)
 
@@ -209,7 +209,7 @@ def iteration_deeping(df, limit_of_error):
             # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
             point_rule_description = PointRuleDescription.let_points_from_require(best_b_require, best_w_require)
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手勝ち{point_rule_description.b_point:2.0f}点、後手勝ち{point_rule_description.w_point:2.0f}点の{point_rule_description.target_point:3.0f}点先取制")
+            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  最長対局数{best_max_bout_count:2} {best_round_count:6}回  先手勝ち{point_rule_description.b_point:2.0f}点、後手勝ち{point_rule_description.w_point:2.0f}点の{point_rule_description.target_point:3.0f}点先取制")
             if is_automatic:
                 print(f"{text}  （自動計算満了）")
             else:
@@ -225,7 +225,7 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
-            # 先後交代なし（Freeze-turn）方式のときの［最長対局数］列を更新
+            # ［最長対局数（先後固定制）］列を更新
             df.loc[df['p']==p, ['max_number_of_bout_in_freeze_turn']] = best_max_bout_count
 
             #best_b_require は max_number_of_bout_in_freeze_turn と w_require から求まる
