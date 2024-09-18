@@ -124,13 +124,13 @@ def iteration_deeping(df, limit_of_error):
             b_unit = lcm / best_b_point
             # 後手一本の価値
             w_unit = lcm / best_w_point
-            # 先手勝ち、後手勝ちの共通ゴール
-            b_win_value_goal = best_w_point * w_unit
-            w_win_value_goal = best_b_point * b_unit
-            if b_win_value_goal != w_win_value_goal:
-                raise ValueError(f"{b_win_value_goal=}  {w_win_value_goal=}")
+            # ［ｎ点先取制］先手、後手共通
+            target_point = best_w_point * w_unit
+            target_point_w = best_b_point * b_unit
+            if target_point != target_point_w:
+                raise ValueError(f"{target_point=}  {target_point_w=}")
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_b_point:2}本先取/後手{best_w_point:2}本先取制  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}", end='')
+            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_b_point:2}本先取/後手{best_w_point:2}本先取制  先手勝ち{b_unit:2.0f}点、後手勝ち{w_unit:2.0f}点の{target_point:3.0f}点先取制", end='')
             # 自動計算満了
             if is_automatic:
                 print(f"  （自動計算満了）")
