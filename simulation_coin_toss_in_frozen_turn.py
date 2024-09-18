@@ -1,8 +1,8 @@
 #
 # シミュレーション
-# python simulation_coin_toss_in_freeze_turn.py
+# python simulation_coin_toss_in_frozen_turn.py
 #
-#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_in_freeze_turn）投げる
+#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_in_frozen_turn）投げる
 #
 
 import traceback
@@ -14,7 +14,7 @@ from library import BLACK, CoinToss
 from views import write_coin_toss_log
 
 
-LOG_FILE_PATH = 'output/simulation_coin_toss_in_freeze_turn.log'
+LOG_FILE_PATH = 'output/simulation_coin_toss_in_frozen_turn.log'
 
 
 ########################################

@@ -84,14 +84,14 @@ if __name__ == '__main__':
                 #
                 #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                 #
-                max_number_of_bout_in_freeze_turn = (best_b_require-1) + (best_w_require-1) + 1
+                max_number_of_bout_in_frozen_turn = (best_b_require-1) + (best_w_require-1) + 1
 
                 # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
                 point_rule_description = PointRuleDescription.let_points_from_require(best_b_require, best_w_require)
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_freeze_turn:>3}  先手勝ち{point_rule_description.b_step:2.0f}点、後手勝ち{point_rule_description.w_step:2.0f}点の{point_rule_description.target_point:3.0f}点先取制"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_frozen_turn:>3}  先手勝ち{point_rule_description.b_step:2.0f}点、後手勝ち{point_rule_description.w_step:2.0f}点の{point_rule_description.target_point:3.0f}点先取制"
 
                 print(text) # 表示
 

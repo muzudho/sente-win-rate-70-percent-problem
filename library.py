@@ -134,7 +134,7 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_in_freeze_turn(black_rate, max_number_of_bout, b_require, w_require):
+def n_bout_in_frozen_turn(black_rate, max_number_of_bout, b_require, w_require):
     """先後固定制で、最長で max_number_of_bout 回の対局を行い、勝った方の手番を返します
 
     NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
@@ -178,7 +178,7 @@ def n_bout_in_freeze_turn(black_rate, max_number_of_bout, b_require, w_require):
     raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_require=}  {w_require=}")
 
 
-def n_round_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_require, w_require, round_count):
+def n_round_in_frozen_turn(black_win_rate, max_number_of_bout_in_frozen_turn, b_require, w_require, round_count):
     """［最長対局数（先後固定制）］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -187,7 +187,7 @@ def n_round_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_
     ----------
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
-    max_number_of_bout_in_freeze_turn : int
+    max_number_of_bout_in_frozen_turn : int
         ［最長対局数（先後固定制）］。例： ３本勝負なら 3
     b_require : int
         黒が勝つのに必要な一本の数
@@ -204,7 +204,7 @@ def n_round_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_require, w_require) == BLACK:
+        if n_bout_in_frozen_turn(black_win_rate, max_number_of_bout_in_frozen_turn, b_require, w_require) == BLACK:
             black_win_count += 1
 
     return black_win_count
@@ -405,7 +405,7 @@ class PointRuleDescription():
         w_step : int
             後手勝ちの点
         target_point : int
-            目標の点
+            先後固定制での目標の点
         """
         self._b_step = b_step
         self._w_step = w_step

@@ -2,7 +2,7 @@
 # シミュレーション 手番を交互にするパターン
 # python simulation_coin_toss_in_alternating_turn.py
 #
-#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_in_freeze_turn）投げる
+#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_in_frozen_turn）投げる
 #   Ａさん（Alice）とＢさん（Bob）の勝率を五分五分にする。Ａさんの先手から始める。
 #   引き分けは考慮していない。
 #
