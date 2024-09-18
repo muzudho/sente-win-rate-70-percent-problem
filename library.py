@@ -395,23 +395,33 @@ class PointRuleDescription():
     """勝ち点ルールの説明"""
 
 
-    def __init__(self, b_point, w_point, target_point):
-        """初期化"""
-        self._b_point = b_point
-        self._w_point = w_point
+    def __init__(self, b_step, w_step, target_point):
+        """初期化
+        
+        Parameters
+        ----------
+        b_step : int
+            先手勝ちの点
+        w_step : int
+            後手勝ちの点
+        target_point : int
+            目標の点
+        """
+        self._b_step = b_step
+        self._w_step = w_step
         self._target_point = target_point
 
 
     @property
-    def b_point(self):
+    def b_step(self):
         """先手勝ちの点"""
-        return self._b_point
+        return self._b_step
 
 
     @property
-    def w_point(self):
+    def w_step(self):
         """後手勝ちの点"""
-        return self._w_point
+        return self._w_step
 
 
     @property
@@ -426,13 +436,13 @@ class PointRuleDescription():
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_require, w_require)
         # 先手一本の価値
-        b_point = lcm / b_require
+        b_step = lcm / b_require
         # 後手一本の価値
-        w_point = lcm / w_require
+        w_step = lcm / w_require
         # ［ｎ点先取制］先手、後手共通
-        target_point = w_require * w_point
-        target_point_w = b_require * b_point
+        target_point = w_require * w_step
+        target_point_w = b_require * b_step
         if target_point != target_point_w:
             raise ValueError(f"{target_point=}  {target_point_w=}")
 
-        return PointRuleDescription(b_point, w_point, target_point)
+        return PointRuleDescription(b_step, w_step, target_point)

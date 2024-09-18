@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_freeze_turn:>3}  先手勝ち{point_rule_description.b_point:2.0f}点、後手勝ち{point_rule_description.w_point:2.0f}点の{point_rule_description.target_point:3.0f}点先取制"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_freeze_turn:>3}  先手勝ち{point_rule_description.b_step:2.0f}点、後手勝ち{point_rule_description.w_step:2.0f}点の{point_rule_description.target_point:3.0f}点先取制"
 
                 print(text) # 表示
 
