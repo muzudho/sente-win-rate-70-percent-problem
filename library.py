@@ -133,9 +133,11 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout(n, black_rate, w_point):
-    """［最大ｎ本勝負］を行う
-    
+def n_bout_without_turn(n, black_rate, w_point):
+    """［最大ｎ本勝負］を行い、勝った方の手番を返します
+
+    NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
+
     n はコインを振る回数。全部黒が出たら黒の勝ち、w_point 回白が出れば白の勝ち。
 
     例えば n=1 なら、コインを最大１回振る。１勝先取で勝ち。
@@ -168,7 +170,7 @@ def n_bout(n, black_rate, w_point):
     return BLACK
 
 
-def n_round(black_win_rate, bout_count, w_point, round_count):
+def n_round_without_turn(black_win_rate, bout_count, w_point, round_count):
     """ｎ回対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -192,7 +194,7 @@ def n_round(black_win_rate, bout_count, w_point, round_count):
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout(bout_count, black_win_rate, w_point) == BLACK:
+        if n_bout_without_turn(bout_count, black_win_rate, w_point) == BLACK:
             black_win_count += 1
 
     return black_win_count

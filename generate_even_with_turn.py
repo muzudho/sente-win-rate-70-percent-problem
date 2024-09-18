@@ -17,7 +17,7 @@ import traceback
 import random
 import math
 
-from library import BLACK, WHITE, coin, n_bout, n_round, round_letro
+from library import BLACK, WHITE, coin, n_bout_without_turn, n_round_without_turn, round_letro
 
 
 SUMMARY_FILE_PATH = 'output/generate_even.log'
@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
                     for w_point in range(1, end_w_point):
 
-                        black_win_count = n_round(
+                        black_win_count = n_round_without_turn(
                             black_win_rate=black_win_rate,
                             bout_count=max_bout_count,
                             w_point=w_point,
