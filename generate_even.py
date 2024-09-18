@@ -115,11 +115,11 @@ if __name__ == '__main__':
 
                     # １本勝負のときだけ、白はｎ本－１ではない
                     if max_bout_count == 1:
-                        end_white_require = 2
+                        end_w_point = 2
                     else:
-                        end_white_require = max_bout_count
+                        end_w_point = max_bout_count
 
-                    for w_point in range(1, end_white_require):
+                    for w_point in range(1, end_w_point):
 
                         black_win_count = n_round(
                             black_win_rate=black_win_rate,
