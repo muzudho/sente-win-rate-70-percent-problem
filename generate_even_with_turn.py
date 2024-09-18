@@ -22,70 +22,78 @@ from library import BLACK, WHITE, coin, n_bout_without_turn, n_round_without_tur
 
 SUMMARY_FILE_PATH = 'output/generate_even.log'
 
-# 誤差は LIMIT に接近するほどベスト。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
-# LIMIT 未満からさらに 0 に近づいていくので、そうなる前に打ち切る
-LIMIT = 0.005   # 例えば LIMIT = 0.03 にすると、黒番勝率 0.53 のときに 0.5 へ近づけるため 0.03 縮める必要があるから、運悪く 1:1 のときに外すと、そのあと見つけるのに時間がかかるようだ
+# 先手勝率は 0.5 に近づけたい。その差の絶対値をエラーと呼んでいる。
+# LIMIT で示す値よりエラーが下回れば、もう十分なので、探索を打ち切る。打ち切らないと延々と探索してしまう
+#
+#   NOTE とりあえず、0.1, 0.05, 0.04, 0.03, 0.02, 0.015, 0.01 のように少しずつ値を減らしていくこと。（いきなり小さくしても、処理時間がかかるから、適度に探索を切り上げて保存したい）
+#   NOTE 例えば LIMIT = 0.03 にすると、黒番勝率 0.53 のときに 0.5 へ近づけるため 0.03 縮める必要があるから、運悪く 1:1 のときに外すと、そのあと見つけるのに時間がかかるようだ
+#
+LIMIT = 0.1
+# 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 OUT_OF_ERROR = 0.51
 
 # 先手勝率 0.50 ～ 0.99 まで試算
 #
 #   NOTE 手番を交代する場合、［最大ｎ本勝負］は、（Ａさんの先手取得本数－１）＋（Ａさんの後手取得本数－１）＋（Ｂさんの先手取得本数－１）＋（Ｂさんの後手取得本数－１）＋１ になる
 #
+#   
+#
+#
 INPUT_DATA = [
     # 項目   p , best_alice_win_error, best_max_bout_count, best_round_count, best_w_point
-    # 初期値 --,         OUT_OF_ERROR,                   1,                1,            0
+    # 初期値 --,         OUT_OF_ERROR,                   1,                1,            1
     # ------------------------------------------------------------------------------------
     # これを初期値にして、続きからアルゴリズムを使った自動計算を行います
-    [0.50, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.51, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.52, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.53, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.54, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.55, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.56, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.57, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.58, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.59, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.60, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.61, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.62, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.63, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.64, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.65, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.66, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.67, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.68, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.69, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.70, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.71, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.72, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.73, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.74, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.75, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.76, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.77, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.78, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.79, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.80, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.81, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.82, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.83, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.84, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.85, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.86, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.87, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.88, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.89, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.90, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.91, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.92, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.93, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.94, OUT_OF_ERROR, 1, 2_000_000, 0],  # 
-    [0.95, OUT_OF_ERROR, 1, 2_000_000, 0],  #  
-    [0.96, OUT_OF_ERROR, 1, 2_000_000, 0],  #  
-    [0.97, OUT_OF_ERROR, 1, 2_000_000, 0],  #  
-    [0.98, OUT_OF_ERROR, 1, 2_000_000, 0],  #  
-    [0.99, OUT_OF_ERROR, 1, 2_000_000, 0],  #  
+    [0.50, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.51, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.52, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.53, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.54, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.55, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.56, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.57, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.58, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.59, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.60, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.61, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.62, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.63, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.64, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.65, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.66, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.67, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.68, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.69, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.70, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.71, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.72, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.73, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.74, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.75, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.76, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.77, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.78, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.79, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.80, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.81, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.82, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.83, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.84, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.85, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.86, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.87, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.88, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.89, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.90, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.91, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.92, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.93, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.94, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.95, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.96, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.97, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.98, OUT_OF_ERROR, 1, 2_000_000, 1],  #
+    [0.99, OUT_OF_ERROR, 1, 2_000_000, 1],  #
 ]
 
 
@@ -108,7 +116,10 @@ if __name__ == '__main__':
             best_w_point=rule[4]
 
             # 黒の必要先取数は計算で求めます
-            best_b_point = best_max_bout_count-best_w_point+1
+            #
+            #   FIXME 合ってるか、あとで確認
+            #
+            best_b_point = (best_max_bout_count-2*(best_w_point-1))/2
 
             is_automatic = best_black_win_error >= LIMIT or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_point == 0
 
@@ -131,9 +142,13 @@ if __name__ == '__main__':
 
                     for w_point in range(1, end_w_point):
 
+                        # FIXME 黒の必要先取数は計算で求めます
+                        b_point = max_bout_count-(w_point-1)
+
                         black_win_count = n_round_without_turn(
                             black_win_rate=black_win_rate,
-                            bout_count=max_bout_count,
+                            max_bout_count=max_bout_count,
+                            b_point=b_point,
                             w_point=w_point,
                             round_count=best_round_count)
                         
@@ -143,7 +158,7 @@ if __name__ == '__main__':
                         if black_win_error < best_black_win_error:
                             best_black_win_error = black_win_error
                             best_max_bout_count = max_bout_count
-                            best_b_point = black_win_count
+                            best_b_point = b_point
                             best_w_point = w_point
                         
                             # 進捗バー（更新時）

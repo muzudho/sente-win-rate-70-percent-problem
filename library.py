@@ -133,12 +133,12 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_without_turn(n, black_rate, w_point):
+def n_bout_without_turn(black_rate, max_bout_count, b_point, w_point):
     """［最大ｎ本勝負］を行い、勝った方の手番を返します
 
     NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
 
-    n はコインを振る回数。全部黒が出たら黒の勝ち、w_point 回白が出れば白の勝ち。
+    max_bout_count はコインを振る回数。全部黒が出たら黒の勝ち、w_point 回白が出れば白の勝ち。
 
     例えば n=1 なら、コインを最大１回振る。１勝先取で勝ち。
     n=2 なら、コインを最大２回振る。２勝先取で勝ち。白は１勝のアドバンテージが付いている。
@@ -147,30 +147,41 @@ def n_bout_without_turn(n, black_rate, w_point):
 
     Parameters
     ----------
-    n : int
-        ［最大ｎ本勝負］
     black_rate : float
         黒番の勝率。例： 黒番の勝率が７割なら 0.7
+    max_bout_count : int
+        ［最大ｎ本勝負］
+    b_point : int
+        黒が勝つのに必要な一本の数
     w_point : int
-        白が勝つのに必要な番数
+        白が勝つのに必要な一本の数
     
     Returns
     -------
     winner_color : int
         勝った方の色
     """
+    black_count_down = b_point
     white_count_down = w_point
 
-    for i in range(0, n):
+    # ［最大ｎ本勝負］の間に白が勝ちぬけなければ、黒の勝ち
+    #
+    #   FIXME 黒はｎ本勝たなくても、それより早く、先取本数を取った時点で勝ちなのでは？
+    #
+    for i in range(0, max_bout_count):
         if coin(black_rate) == WHITE:
             white_count_down -= 1
             if white_count_down < 1:
                 return WHITE
+        else:
+            black_count_down -= 1
+            if black_count_down < 1:
+                return BLACK
 
-    return BLACK
+    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_bout_count=}  {b_point=}  {w_point=}")
 
 
-def n_round_without_turn(black_win_rate, bout_count, w_point, round_count):
+def n_round_without_turn(black_win_rate, max_bout_count, b_point, w_point, round_count):
     """ｎ回対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -179,10 +190,12 @@ def n_round_without_turn(black_win_rate, bout_count, w_point, round_count):
     ----------
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
-    bout_count : int
+    max_bout_count : int
         ［最大ｎ本勝負］。例： ３本勝負なら 3
+    b_point : int
+        黒が勝つのに必要な一本の数
     w_point : int
-        白が勝つのに必要な番数
+        白が勝つのに必要な一本の数
     round_count : int
         ｎ回対局
     
@@ -194,7 +207,7 @@ def n_round_without_turn(black_win_rate, bout_count, w_point, round_count):
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_without_turn(bout_count, black_win_rate, w_point) == BLACK:
+        if n_bout_without_turn(black_win_rate, max_bout_count, b_point, w_point) == BLACK:
             black_win_count += 1
 
     return black_win_count
