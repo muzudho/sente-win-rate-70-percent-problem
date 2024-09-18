@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, let_points_from_require
+from library import calculate_probability, PointRuleDescription
 
 
 LOG_FILE_PATH = 'output/generate_b_w_target_strict.log'
@@ -87,11 +87,11 @@ if __name__ == '__main__':
                 max_number_of_bout_in_freeze_turn = (best_b_require-1) + (best_w_require-1) + 1
 
                 # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
-                b_point, w_point, target_point = let_points_from_require(best_b_require, best_w_require)
+                point_rule_description = PointRuleDescription.let_points_from_require(best_b_require, best_w_require)
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_freeze_turn:>3}  先手勝ち{b_point:2.0f}点、後手勝ち{w_point:2.0f}点の{target_point:3.0f}点先取制"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_freeze_turn:>3}  先手勝ち{point_rule_description.b_point:2.0f}点、後手勝ち{point_rule_description.w_point:2.0f}点の{point_rule_description.target_point:3.0f}点先取制"
 
                 print(text) # 表示
 

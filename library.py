@@ -395,18 +395,48 @@ def calculate_probability(p, H, T):
     return probability
 
 
-def let_points_from_require(b_require, w_require):
-    """先手の勝ち点、後手の勝ち点、目標の勝ち点を求める"""
-    # DO 通分したい。最小公倍数を求める
-    lcm = math.lcm(b_require, w_require)
-    # 先手一本の価値
-    b_point = lcm / b_require
-    # 後手一本の価値
-    w_point = lcm / w_require
-    # ［ｎ点先取制］先手、後手共通
-    target_point = w_require * w_point
-    target_point_w = b_require * b_point
-    if target_point != target_point_w:
-        raise ValueError(f"{target_point=}  {target_point_w=}")
+class PointRuleDescription():
+    """勝ち点ルールの説明"""
 
-    return b_point, w_point, target_point
+
+    def __init__(self, b_point, w_point, target_point):
+        """初期化"""
+        self._b_point = b_point
+        self._w_point = w_point
+        self._target_point = target_point
+
+
+    @property
+    def b_point(self):
+        """先手勝ちの点"""
+        return self._b_point
+
+
+    @property
+    def w_point(self):
+        """後手勝ちの点"""
+        return self._w_point
+
+
+    @property
+    def target_point(self):
+        """目標の点"""
+        return self._target_point
+
+
+    @staticmethod
+    def let_points_from_require(b_require, w_require):
+        """先手の勝ち点、後手の勝ち点、目標の勝ち点を求める"""
+        # DO 通分したい。最小公倍数を求める
+        lcm = math.lcm(b_require, w_require)
+        # 先手一本の価値
+        b_point = lcm / b_require
+        # 後手一本の価値
+        w_point = lcm / w_require
+        # ［ｎ点先取制］先手、後手共通
+        target_point = w_require * w_point
+        target_point_w = b_require * b_point
+        if target_point != target_point_w:
+            raise ValueError(f"{target_point=}  {target_point_w=}")
+
+        return PointRuleDescription(b_point, w_point, target_point)

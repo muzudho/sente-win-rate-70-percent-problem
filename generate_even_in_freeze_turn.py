@@ -12,7 +12,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, coin, n_bout_in_freeze_turn, n_round_in_freeze_turn, round_letro, let_points_from_require
+from library import BLACK, WHITE, coin, n_bout_in_freeze_turn, n_round_in_freeze_turn, round_letro, PointRuleDescription
 
 
 LOG_FILE_PATH = 'output/generate_even_in_freeze_turn.log'
@@ -119,9 +119,9 @@ def iteration_deeping(df, limit_of_error):
 
         else:
             # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
-            b_point, w_point, target_point = let_points_from_require(best_b_require, best_w_require)
+            point_rule_description = PointRuleDescription.let_points_from_require(best_b_require, best_w_require)
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手勝ち{b_point:2.0f}点、後手勝ち{w_point:2.0f}点の{target_point:3.0f}点先取制", end='')
+            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手勝ち{point_rule_description.b_point:2.0f}点、後手勝ち{point_rule_description.w_point:2.0f}点の{point_rule_description.target_point:3.0f}点先取制", end='')
             # 自動計算満了
             if is_automatic:
                 print(f"  （自動計算満了）")
