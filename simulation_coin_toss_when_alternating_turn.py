@@ -35,7 +35,7 @@ if __name__ == '__main__':
         df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
-        for p, b_require, w_require in zip(df['p'], df['b_require'], df['w_require']):
+        for p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn in zip(df['p'], df['b_repeat_when_frozen_turn'], df['w_repeat_when_frozen_turn']):
             coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # Ａさんが勝った回数
@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 round_th = round + 1
 
                 # 勝ったプレイヤーを返す
-                if coin_toss.coin_toss_in_round_when_alternating_turn(p, b_require, w_require) == ALICE:
+                if coin_toss.coin_toss_in_round_when_alternating_turn(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn) == ALICE:
                     alice_wons += 1
 
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
                 # 均等からの誤差
                 error = abs(alice_won_rate - 0.5)
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {p*100:2.0f} ％ --調整後--> Ａさんが勝った確率{alice_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {b_require:2}本勝負  {round_total:7}対局試行"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {p*100:2.0f} ％ --調整後--> Ａさんが勝った確率{alice_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {b_repeat_when_frozen_turn:2}本勝負  {round_total:7}対局試行"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 

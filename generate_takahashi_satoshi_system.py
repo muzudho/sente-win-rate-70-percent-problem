@@ -40,8 +40,8 @@ if __name__ == '__main__':
             # ベストな調整後の先手勝率と、その誤差
             best_error = OUT_OF_ERROR
             best_balanced_black_win_rate = None
-            best_b_require = 0
-            best_w_require = 0
+            best_b_repeat_when_frozen_turn = 0
+            best_w_repeat_when_frozen_turn = 0
 
             # # 比が同じになるｎ本勝負と白のｍ勝先取のペアはスキップしたい
             # ration_set = set()
@@ -52,19 +52,19 @@ if __name__ == '__main__':
             is_cutoff = False
 
             # p=0.5 は計算の対象外とします
-            for b_require in range(1, 101):
+            for b_repeat_when_frozen_turn in range(1, 101):
                 
-                for w_require in range (1, b_require + 1):
-                #for w_require in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
+                for w_repeat_when_frozen_turn in range (1, b_repeat_when_frozen_turn + 1):
+                #for w_repeat_when_frozen_turn in range (1, 2): # 後手に必要な先取本数を 1 に固定する場合
 
                     # # 先手が勝つのに必要な先取本数　＞＝　後手が勝つのに必要な先取本数。かつ、後手が勝つのに必要な先取本数が１の場合は特別
-                    # if b_require <= w_require and 1 < w_require:
+                    # if b_repeat_when_frozen_turn <= w_repeat_when_frozen_turn and 1 < w_repeat_when_frozen_turn:
                     #     continue
 
                     balanced_black_win_rate = calculate_probability(
                         p=p,
-                        H=b_require,
-                        T=w_require)
+                        H=b_repeat_when_frozen_turn,
+                        T=w_repeat_when_frozen_turn)
 
                     # 誤差
                     error = abs(balanced_black_win_rate - 0.5)
@@ -73,7 +73,7 @@ if __name__ == '__main__':
                     #
                     #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                     #
-                    max_number_of_bout_when_frozen_turn = (b_require-1) + (w_require-1) + 1
+                    max_number_of_bout_when_frozen_turn = (b_repeat_when_frozen_turn-1) + (w_repeat_when_frozen_turn-1) + 1
 
 
                     # より誤差が小さい組み合わせが見つかった
@@ -139,7 +139,7 @@ if __name__ == '__main__':
                             # elif 0.76 <= p and p < 0.78:
                             #     # ７本勝負で調整できなければ諦める
                             #     if 7 < max_number_of_bout_when_frozen_turn:
-                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{max_number_of_bout_when_frozen_turn} 黒{b_require} 白{w_require}）は、調整を諦めます]"
+                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{max_number_of_bout_when_frozen_turn} 黒{b_repeat_when_frozen_turn} 白{w_repeat_when_frozen_turn}）は、調整を諦めます]"
                             #         print(message)
                             #         process_list.append(f"{message}\n")
                             #         continue
@@ -190,11 +190,11 @@ if __name__ == '__main__':
 
                         best_error = error
                         best_balanced_black_win_rate = balanced_black_win_rate
-                        best_b_require = b_require
-                        best_w_require = w_require
+                        best_b_repeat_when_frozen_turn = b_repeat_when_frozen_turn
+                        best_w_repeat_when_frozen_turn = w_repeat_when_frozen_turn
 
                         # 計算過程
-                        process = f"[{best_error:6.4f} 黒{best_b_require:>3} 白{best_w_require:>2}]"
+                        process = f"[{best_error:6.4f} 黒{best_b_repeat_when_frozen_turn:>3} 白{best_w_repeat_when_frozen_turn:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
@@ -220,10 +220,10 @@ if __name__ == '__main__':
                 #   NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
                 #   NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
                 #
-                max_number_of_bout_when_frozen_turn = best_b_require + best_w_require - 1
+                max_number_of_bout_when_frozen_turn = best_b_repeat_when_frozen_turn + best_w_repeat_when_frozen_turn - 1
 
                 # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
-                point_rule_description = PointRuleDescription.let_points_from_require(best_b_require, best_w_require)
+                point_rule_description = PointRuleDescription.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ

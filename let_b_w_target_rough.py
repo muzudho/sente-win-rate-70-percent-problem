@@ -54,13 +54,13 @@ if __name__ == '__main__':
 
         # 先手勝率
         for p in df['p']:
-            b_require, w_require = black_win_rate_to_b_w_targets(p=p)
+            b_repeat_when_frozen_turn, w_repeat_when_frozen_turn = black_win_rate_to_b_w_targets(p=p)
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.2f}  先取本数　黒：白＝{b_require:>2}：{w_require:>2}"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.2f}  先取本数　黒：白＝{b_repeat_when_frozen_turn:>2}：{w_repeat_when_frozen_turn:>2}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 

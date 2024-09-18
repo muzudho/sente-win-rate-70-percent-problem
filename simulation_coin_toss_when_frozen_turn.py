@@ -33,7 +33,7 @@ if __name__ == '__main__':
         df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
-        for p, b_require, w_require in zip(df['p'], df['b_require'], df['w_require']):
+        for p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn in zip(df['p'], df['b_repeat_when_frozen_turn'], df['w_repeat_when_frozen_turn']):
             coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # 黒が勝った回数
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
             for round in range(0, round_total):
                 # 勝った方の手番を返す
-                if coin_toss.coin_toss_in_round(p, b_require, w_require) == BLACK:
+                if coin_toss.coin_toss_in_round(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn) == BLACK:
                     black_wons += 1
 
 
@@ -52,9 +52,9 @@ if __name__ == '__main__':
                     # 先手勝率
                     black_win_rate=p,
                     # 先手の何本先取制
-                    b_require=b_require,
+                    b_repeat_when_frozen_turn=b_repeat_when_frozen_turn,
                     # 後手の何本先取制
-                    w_require=w_require,
+                    w_repeat_when_frozen_turn=w_repeat_when_frozen_turn,
                     # 対局数
                     round_total=round_total,
                     # 黒が勝った回数

@@ -19,28 +19,28 @@ class LeapRoundCalculate():
     """閏対局計算"""
 
 
-    def __init__(self, black_win_rate, strict_b_require, strict_w_require, practical_b_require, practical_w_require):
+    def __init__(self, black_win_rate, strict_b_repeat_when_frozen_turn, strict_w_repeat_when_frozen_turn, practical_b_repeat_when_frozen_turn, practical_w_repeat_when_frozen_turn):
         """初期化
         
         Parameters
         ----------
         black_win_rate : float
             表が出る確率
-        strict_b_require : int
+        strict_b_repeat_when_frozen_turn : int
             表が出る確率の厳密な整数比
-        strict_w_require : int
+        strict_w_repeat_when_frozen_turn : int
             裏が出る確率の厳密な整数比
-        practical_b_require : int
+        practical_b_repeat_when_frozen_turn : int
             表が出る確率の実用的な整数比
-        practical_w_require : int
+        practical_w_repeat_when_frozen_turn : int
             裏が出る確率の実用的な整数比
         """
 
         self._black_win_rate = black_win_rate
-        self._strict_b_require = strict_b_require
-        self._strict_w_require = strict_w_require
-        self._practical_b_require = practical_b_require
-        self._practical_w_require = practical_w_require
+        self._strict_b_repeat_when_frozen_turn = strict_b_repeat_when_frozen_turn
+        self._strict_w_repeat_when_frozen_turn = strict_w_repeat_when_frozen_turn
+        self._practical_b_repeat_when_frozen_turn = practical_b_repeat_when_frozen_turn
+        self._practical_w_repeat_when_frozen_turn = practical_w_repeat_when_frozen_turn
 
 
     @property
@@ -50,27 +50,27 @@ class LeapRoundCalculate():
 
 
     @property
-    def strict_b_require(self):
+    def strict_b_repeat_when_frozen_turn(self):
         """表が出る確率の厳密な整数比"""
-        return self._strict_b_require
+        return self._strict_b_repeat_when_frozen_turn
 
 
     @property
-    def strict_w_require(self):
+    def strict_w_repeat_when_frozen_turn(self):
         """裏が出る確率の厳密な整数比"""
-        return self._strict_w_require
+        return self._strict_w_repeat_when_frozen_turn
 
 
     @property
-    def practical_b_require(self):
+    def practical_b_repeat_when_frozen_turn(self):
         """表が出る確率の実用的な整数比"""
-        return self._practical_b_require
+        return self._practical_b_repeat_when_frozen_turn
 
 
     @property
-    def practical_w_require(self):
+    def practical_w_repeat_when_frozen_turn(self):
         """裏が出る確率の実用的な整数比"""
-        return self._practical_w_require
+        return self._practical_w_repeat_when_frozen_turn
 
 
 ########################################
@@ -96,20 +96,20 @@ if __name__ == '__main__':
             # -------------------
 
             # 厳密な値
-            strict_b_require, strict_w_require = black_win_rate_to_b_w_targets(p=p)
-            print(f"厳密な先取本数  先手：後手＝{strict_b_require:>2}：{strict_w_require:>2}  ", end='')
+            strict_b_repeat_when_frozen_turn, strict_w_repeat_when_frozen_turn = black_win_rate_to_b_w_targets(p=p)
+            print(f"厳密な先取本数  先手：後手＝{strict_b_repeat_when_frozen_turn:>2}：{strict_w_repeat_when_frozen_turn:>2}  ", end='')
 
             # 実用的な値（後手取得本数が１になるよう丸めたもの）
-            practical_b_require = round_letro(strict_b_require / strict_w_require) # 小数点以下四捨五入
-            practical_w_require = 1
-            print(f"実用的な先取本数  先手：後手＝{practical_b_require:>2}：{practical_w_require:>2}  ", end='')
+            practical_b_repeat_when_frozen_turn = round_letro(strict_b_repeat_when_frozen_turn / strict_w_repeat_when_frozen_turn) # 小数点以下四捨五入
+            practical_w_repeat_when_frozen_turn = 1
+            print(f"実用的な先取本数  先手：後手＝{practical_b_repeat_when_frozen_turn:>2}：{practical_w_repeat_when_frozen_turn:>2}  ", end='')
 
 
             # 説明４　表がまだ多めに出る得
             # --------------------------
 
             # 剰余（remainder）。繰り上がり先手勝率点
-            strict_carried = strict_b_require % strict_w_require            
+            strict_carried = strict_b_repeat_when_frozen_turn % strict_w_repeat_when_frozen_turn            
             print(f"割り切れない先手得{strict_carried:2}  ", end='')
 
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
             # ---------------------------------
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            carryover_strict_b_require = strict_b_require + strict_carried
+            carryover_strict_b_repeat_when_frozen_turn = strict_b_repeat_when_frozen_turn + strict_carried
 
 
             # 繰り上がりがある場合
@@ -149,9 +149,9 @@ if __name__ == '__main__':
                     # ---------------------------------------------------------------
 
                     # あと何対局すると、余りが後手の整数比を上回るか（次の閏対局までの長さ）
-                    fill_bouts = math.ceil(strict_w_require / strict_carried)
-                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_w_require}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
-                    print(f"(得{strict_carried:2}×{fill_bouts:2}局>=分子{strict_w_require:2})", end='')
+                    fill_bouts = math.ceil(strict_w_repeat_when_frozen_turn / strict_carried)
+                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_w_repeat_when_frozen_turn}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
+                    print(f"(得{strict_carried:2}×{fill_bouts:2}局>=分子{strict_w_repeat_when_frozen_turn:2})", end='')
 
 
                     if strict_carried != 0:
@@ -162,7 +162,7 @@ if __name__ == '__main__':
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点
-                            strict_carried = strict_b_require % strict_carried
+                            strict_carried = strict_b_repeat_when_frozen_turn % strict_carried
                             #print(f"  次の繰り上がり先手勝率点{strict_carried}")
                             print(f"[第{next_leap:2}](新得{strict_carried:2}) ", end='')
 
@@ -172,8 +172,8 @@ if __name__ == '__main__':
                                 break
 
                             # 繰り上がり込み先手勝率点
-                            carryover_strict_b_require = strict_b_require + strict_carried
-                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_b_require}")
+                            carryover_strict_b_repeat_when_frozen_turn = strict_b_repeat_when_frozen_turn + strict_carried
+                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_b_repeat_when_frozen_turn}")
 
                     countdown -= 1
 
@@ -188,13 +188,13 @@ if __name__ == '__main__':
                 # 表が出る確率
                 black_win_rate=p,
                 # 先手勝率の厳密な整数比
-                strict_b_require=strict_b_require,
+                strict_b_repeat_when_frozen_turn=strict_b_repeat_when_frozen_turn,
                 # 後手勝率の厳密な整数比
-                strict_w_require=strict_w_require,
+                strict_w_repeat_when_frozen_turn=strict_w_repeat_when_frozen_turn,
                 # 先手勝率の実用的な整数比
-                practical_b_require=practical_b_require,
+                practical_b_repeat_when_frozen_turn=practical_b_repeat_when_frozen_turn,
                 # 後手勝率の実用的な整数比
-                practical_w_require=practical_w_require)
+                practical_w_repeat_when_frozen_turn=practical_w_repeat_when_frozen_turn)
 
 
     except Exception as err:
