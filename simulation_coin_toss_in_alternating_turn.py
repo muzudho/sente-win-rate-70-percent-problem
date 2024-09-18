@@ -1,8 +1,8 @@
 #
 # シミュレーション 手番を交互にするパターン
-# python simulation_coin_toss_with_turn.py
+# python simulation_coin_toss_in_alternating_turn.py
 #
-#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_bout_count）投げる
+#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_in_freeze_turn）投げる
 #   Ａさん（Alice）とＢさん（Bob）の勝率を五分五分にする。Ａさんの先手から始める。
 #   引き分けは考慮していない。
 #
@@ -17,7 +17,7 @@ from library import ALICE, CoinToss
 from views import write_coin_toss_log
 
 
-LOG_FILE_PATH = 'output/simulation_coin_toss_with_turn.log'
+LOG_FILE_PATH = 'output/simulation_coin_toss_in_alternating_turn.log'
 
 
 ########################################
@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 round_th = round + 1
 
                 # 勝ったプレイヤーを返す
-                if coin_toss.coin_toss_in_round_with_turn(p, b_point, w_point) == ALICE:
+                if coin_toss.coin_toss_in_round_in_alternating_turn(p, b_point, w_point) == ALICE:
                     alice_wons += 1
 
 

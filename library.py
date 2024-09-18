@@ -133,12 +133,12 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_without_turn(black_rate, max_bout_count, b_point, w_point):
-    """［最大ｎ本勝負］を行い、勝った方の手番を返します
+def n_bout_in_freeze_turn(black_rate, max_number_of_bout_in_freeze_turn, b_point, w_point):
+    """先後交代なし（Freeze-turn）方式のときの［最長対局数］を行い、勝った方の手番を返します
 
     NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
 
-    max_bout_count はコインを振る回数。全部黒が出たら黒の勝ち、w_point 回白が出れば白の勝ち。
+    max_number_of_bout_in_freeze_turn はコインを振る回数。全部黒が出たら黒の勝ち、w_point 回白が出れば白の勝ち。
 
     例えば n=1 なら、コインを最大１回振る。１勝先取で勝ち。
     n=2 なら、コインを最大２回振る。２勝先取で勝ち。白は１勝のアドバンテージが付いている。
@@ -149,8 +149,8 @@ def n_bout_without_turn(black_rate, max_bout_count, b_point, w_point):
     ----------
     black_rate : float
         黒番の勝率。例： 黒番の勝率が７割なら 0.7
-    max_bout_count : int
-        ［最大ｎ本勝負］
+    max_number_of_bout_in_freeze_turn : int
+        先後交代なし（Freeze-turn）方式のときの［最長対局数］
     b_point : int
         黒が勝つのに必要な一本の数
     w_point : int
@@ -164,11 +164,11 @@ def n_bout_without_turn(black_rate, max_bout_count, b_point, w_point):
     black_count_down = b_point
     white_count_down = w_point
 
-    # ［最大ｎ本勝負］の間に白が勝ちぬけなければ、黒の勝ち
+    # 先後交代なし（Freeze-turn）方式のときの［最長対局数］の間に白が勝ちぬけなければ、黒の勝ち
     #
     #   FIXME 黒はｎ本勝たなくても、それより早く、先取本数を取った時点で勝ちなのでは？
     #
-    for i in range(0, max_bout_count):
+    for i in range(0, max_number_of_bout_in_freeze_turn):
         if coin(black_rate) == WHITE:
             white_count_down -= 1
             if white_count_down < 1:
@@ -178,11 +178,11 @@ def n_bout_without_turn(black_rate, max_bout_count, b_point, w_point):
             if black_count_down < 1:
                 return BLACK
 
-    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_bout_count=}  {b_point=}  {w_point=}")
+    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout_in_freeze_turn=}  {b_point=}  {w_point=}")
 
 
-def n_round_without_turn(black_win_rate, max_bout_count, b_point, w_point, round_count):
-    """ｎ回対局
+def n_round_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_point, w_point, round_count):
+    """先後交代なし（Freeze-turn）方式のときの［最長対局数］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
     
@@ -190,8 +190,8 @@ def n_round_without_turn(black_win_rate, max_bout_count, b_point, w_point, round
     ----------
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
-    max_bout_count : int
-        ［最大ｎ本勝負］。例： ３本勝負なら 3
+    max_number_of_bout_in_freeze_turn : int
+        先後交代なし（Freeze-turn）方式のときの［最長対局数］。例： ３本勝負なら 3
     b_point : int
         黒が勝つのに必要な一本の数
     w_point : int
@@ -207,7 +207,7 @@ def n_round_without_turn(black_win_rate, max_bout_count, b_point, w_point, round
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_without_turn(black_win_rate, max_bout_count, b_point, w_point) == BLACK:
+        if n_bout_in_freeze_turn(black_win_rate, max_number_of_bout_in_freeze_turn, b_point, w_point) == BLACK:
             black_win_count += 1
 
     return black_win_count
@@ -278,7 +278,7 @@ class CoinToss():
             # 続行
 
 
-    def coin_toss_in_round_with_turn(self, black_win_rate, b_point, w_point):
+    def coin_toss_in_round_in_alternating_turn(self, black_win_rate, b_point, w_point):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
 
         手番を交互にするパターン

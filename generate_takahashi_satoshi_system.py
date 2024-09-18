@@ -69,11 +69,11 @@ if __name__ == '__main__':
                     # 誤差
                     error = abs(balanced_black_win_rate - 0.5)
 
-                    # 最大ｎ本勝負
+                    # 先後交代なし（Freeze-turn）方式のときの［最長対局数］
                     #
                     #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                     #
-                    max_bout_count = (b_point-1) + (w_point-1) + 1
+                    max_number_of_bout_in_freeze_turn = (b_point-1) + (w_point-1) + 1
 
 
                     # より誤差が小さい組み合わせが見つかった
@@ -89,8 +89,8 @@ if __name__ == '__main__':
                             #
                             if 0.5 <= p and p < 0.57:
                                 # ４本勝負で調整できなければ諦める
-                                if 4 < max_bout_count:
-                                    message = f"[▲！先手勝率が［５０％～５７％）（{p}）なら、４本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 4 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［５０％～５７％）（{p}）なら、４本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -98,8 +98,8 @@ if __name__ == '__main__':
                             # 先手勝率が［５７％～６１％）なら
                             elif 0.57 <= p and p < 0.61:
                                 # ５本勝負で調整できなければ諦める
-                                if 5 < max_bout_count:
-                                    message = f"[▲！先手勝率が［５７％～６１％）（{p}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 5 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［５７％～６１％）（{p}）なら、５本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -113,8 +113,8 @@ if __name__ == '__main__':
                             #
                             elif 0.66 <= p and p < 0.67:
                                 # １０本勝負で調整できなければ諦める
-                                if 10 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６６％～６７％）（{p}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 10 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［６６％～６７％）（{p}）なら、１０本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -126,8 +126,8 @@ if __name__ == '__main__':
                             #
                             elif 0.67 <= p and p < 0.68:
                                 # ５本勝負で調整できなければ諦める
-                                if 5 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６７％～６８％）（{p}）なら、５本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 5 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［６７％～６８％）（{p}）なら、５本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -138,8 +138,8 @@ if __name__ == '__main__':
                             # # 先手勝率が［７６％～７８％）なら
                             # elif 0.76 <= p and p < 0.78:
                             #     # ７本勝負で調整できなければ諦める
-                            #     if 7 < max_bout_count:
-                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{max_bout_count} 黒{b_point} 白{w_point}）は、調整を諦めます]"
+                            #     if 7 < max_number_of_bout_in_freeze_turn:
+                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{max_number_of_bout_in_freeze_turn} 黒{b_point} 白{w_point}）は、調整を諦めます]"
                             #         print(message)
                             #         process_list.append(f"{message}\n")
                             #         continue
@@ -147,8 +147,8 @@ if __name__ == '__main__':
                             # 先手勝率が［６１％～８２％）なら
                             elif 0.61 <= p and p < 0.82:
                                 # ７本勝負で調整できなければ諦める
-                                if 7 < max_bout_count:
-                                    message = f"[▲！先手勝率が［６１％～８２％）（{p}）なら、７本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 7 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［６１％～８２％）（{p}）なら、７本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -167,8 +167,8 @@ if __name__ == '__main__':
                             #
                             elif 0.82 <= p and p < 0.83:
                                 # ９本勝負で調整できなければ諦める
-                                if 9 < max_bout_count:
-                                    message = f"[▲！先手勝率が［８２％～８３％）（{p}）なら、９本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 9 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［８２％～８３％）（{p}）なら、９本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -176,8 +176,8 @@ if __name__ == '__main__':
                             # 先手勝率が［８３％～９０％）なら
                             elif 0.83 <= p and p < 0.90:
                                 # １０本勝負で調整できなければ諦める
-                                if 10 < max_bout_count:
-                                    message = f"[▲！先手勝率が［８３％～９０％）（{p}）なら、１０本勝負を超えるケース（{max_bout_count}）は、調整を諦めます]"
+                                if 10 < max_number_of_bout_in_freeze_turn:
+                                    message = f"[▲！先手勝率が［８３％～９０％）（{p}）なら、１０本勝負を超えるケース（{max_number_of_bout_in_freeze_turn}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -214,13 +214,13 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                # ［最大ｎ本勝負］
+                # 先後交代なし（Freeze-turn）方式のときの［最長対局数］
                 #
                 #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                 #   NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
                 #   NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
                 #
-                max_bout_count = best_b_point + best_w_point - 1
+                max_number_of_bout_in_freeze_turn = best_b_point + best_w_point - 1
 
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
@@ -239,7 +239,11 @@ if __name__ == '__main__':
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
+
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  先後交代なしなら最長{max_number_of_bout_in_freeze_turn:>2}局  つまり、先手勝ち{b_unit:2.0f}点  後手勝ち{w_unit:2.0f}点の {b_win_value_goal:3.0f}点先取制"
+                # （ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）
+
+
                 print(text) # 表示
 
                 # # 計算過程を追加する場合

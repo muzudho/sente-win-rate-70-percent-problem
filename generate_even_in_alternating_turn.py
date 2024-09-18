@@ -1,7 +1,7 @@
 #
 # 生成 手番を交互にするパターン
 # NOTE まだできてない
-# python generate_even_with_turn.py
+# python generate_even_in_alternating_turn.py
 #
 #   引き分けは考慮していない。
 #
@@ -17,11 +17,11 @@ import traceback
 import random
 import math
 
-from library import BLACK, WHITE, coin, n_bout_without_turn, n_round_without_turn, round_letro
+from library import BLACK, WHITE, coin, n_bout_in_freeze_turn, n_round_in_freeze_turn, round_letro
 
 
-LOG_FILE_PATH = 'output/generate_even.log'
-CSV_FILE_PATH = './data/generate_even_with_turn.csv'
+LOG_FILE_PATH = 'output/generate_even_in_alternating_turn.log'
+CSV_FILE_PATH = './data/generate_even_in_alternating_turn.csv'
 
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 OUT_OF_ERROR = 0.51
@@ -41,7 +41,7 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_point, process in zip(df['p'], df['new_p'], df['new_p_error'], df['max_bout_count'], df['round_count'], df['w_point'], df['process']):
+    for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_point, process in zip(df['p'], df['new_p'], df['new_p_error'], df['max_number_of_bout_in_freeze_turn'], df['round_count'], df['w_point'], df['process']):
 
         # 黒の必要先取数は計算で求めます
         #
@@ -142,23 +142,23 @@ def iteration_deeping(df, limit_of_error):
 
             is_cutoff = False
 
-            # ［最大ｎ本勝負］
-            for max_bout_count in range(best_max_bout_count, 101):
+            # 先後交代なし（Freeze-turn）方式のときの［最長対局数］
+            for max_number_of_bout_in_freeze_turn in range(best_max_bout_count, 101):
 
                 # １本勝負のときだけ、白はｎ本－１ではない
-                if max_bout_count == 1:
+                if max_number_of_bout_in_freeze_turn == 1:
                     end_w_point = 2
                 else:
-                    end_w_point = max_bout_count
+                    end_w_point = max_number_of_bout_in_freeze_turn
 
                 for w_point in range(1, end_w_point):
 
                     # FIXME 黒の必要先取数は計算で求めます
-                    b_point = max_bout_count-(w_point-1)
+                    b_point = max_number_of_bout_in_freeze_turn-(w_point-1)
 
-                    black_win_count = n_round_without_turn(
+                    black_win_count = n_round_in_freeze_turn(
                         black_win_rate=p,
-                        max_bout_count=max_bout_count,
+                        max_number_of_bout_in_freeze_turn=max_number_of_bout_in_freeze_turn,
                         b_point=b_point,
                         w_point=w_point,
                         round_count=best_round_count)
@@ -170,7 +170,7 @@ def iteration_deeping(df, limit_of_error):
                     if new_p_error < best_new_p_error:
                         best_new_p = new_p_rate
                         best_new_p_error = new_p_error
-                        best_max_bout_count = max_bout_count
+                        best_max_bout_count = max_number_of_bout_in_freeze_turn
                         best_b_point = b_point
                         best_w_point = w_point
                     
@@ -236,10 +236,10 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
-            # ［最大ｎ本勝負］列を更新
-            df.loc[df['p']==p, ['max_bout_count']] = best_max_bout_count
+            # 先後交代なし（Freeze-turn）方式のときの［最長対局数］列を更新
+            df.loc[df['p']==p, ['max_number_of_bout_in_freeze_turn']] = best_max_bout_count
 
-            #best_b_point は max_bout_count と w_point から求まる
+            #best_b_point は max_number_of_bout_in_freeze_turn と w_point から求まる
 
             # ［白が勝つのに必要な先取本数］列を更新
             df.loc[df['p']==p, ['w_point']] = best_w_point
