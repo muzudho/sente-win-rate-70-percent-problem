@@ -5,6 +5,7 @@
 #
 
 import random
+import math
 from fractions import Fraction
 
 # 四捨五入 📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
@@ -392,3 +393,20 @@ def calculate_probability(p, H, T):
         probability += prob
 
     return probability
+
+
+def let_points_from_require(b_require, w_require):
+    """先手の勝ち点、後手の勝ち点、目標の勝ち点を求める"""
+    # DO 通分したい。最小公倍数を求める
+    lcm = math.lcm(b_require, w_require)
+    # 先手一本の価値
+    b_point = lcm / b_require
+    # 後手一本の価値
+    w_point = lcm / w_require
+    # ［ｎ点先取制］先手、後手共通
+    target_point = w_require * w_point
+    target_point_w = b_require * b_point
+    if target_point != target_point_w:
+        raise ValueError(f"{target_point=}  {target_point_w=}")
+
+    return b_point, w_point, target_point

@@ -58,10 +58,7 @@ if __name__ == '__main__':
                 # 均等からの誤差
                 error = abs(alice_won_rate - 0.5)
 
-                # 後手が最初からｎ本持つアドバンテージがあるという表記
-                w_advantage = b_require - w_require
-
-                text = f"[{datetime.datetime.now()}]  先手勝率 {p*100:2.0f} ％ --調整後--> Ａさんが勝った確率{alice_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {b_require:2}本勝負（後手は最初から{w_advantage:2}本もつアドバンテージ）  {round_total:7}対局試行"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {p*100:2.0f} ％ --調整後--> Ａさんが勝った確率{alice_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {b_require:2}本勝負  {round_total:7}対局試行"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 

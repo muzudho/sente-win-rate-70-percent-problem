@@ -12,7 +12,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, coin, n_bout_in_freeze_turn, n_round_in_freeze_turn, round_letro
+from library import BLACK, WHITE, coin, n_bout_in_freeze_turn, n_round_in_freeze_turn, round_letro, let_points_from_require
 
 
 LOG_FILE_PATH = 'output/generate_even_in_freeze_turn.log'
@@ -118,19 +118,10 @@ def iteration_deeping(df, limit_of_error):
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
 
         else:
-            # DO 通分したい。最小公倍数を求める
-            lcm = math.lcm(best_b_require, best_w_require)
-            # 先手一本の価値
-            b_unit = lcm / best_b_require
-            # 後手一本の価値
-            w_unit = lcm / best_w_require
-            # ［ｎ点先取制］先手、後手共通
-            target_point = best_w_require * w_unit
-            target_point_w = best_b_require * b_unit
-            if target_point != target_point_w:
-                raise ValueError(f"{target_point=}  {target_point_w=}")
+            # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
+            b_point, w_point, target_point = let_points_from_require(best_b_require, best_w_require)
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_b_require:2}本先取/後手{best_w_require:2}本先取制  先手勝ち{b_unit:2.0f}点、後手勝ち{w_unit:2.0f}点の{target_point:3.0f}点先取制", end='')
+            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_b_require:2}本先取/後手{best_w_require:2}本先取制  先手勝ち{b_point:2.0f}点、後手勝ち{w_point:2.0f}点の{target_point:3.0f}点先取制", end='')
             # 自動計算満了
             if is_automatic:
                 print(f"  （自動計算満了）")

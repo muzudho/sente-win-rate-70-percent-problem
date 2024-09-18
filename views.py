@@ -33,9 +33,6 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_require, w_require, 
         # 均等からの誤差
         error = abs(black_won_rate - 0.5)
 
-        # 後手が最初からｎ本持つアドバンテージがあるという表記
-        w_advantage = b_require - w_require
-
-        text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> 先手が勝った確率{black_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {max_number_of_bout_in_freeze_turn:2}本勝負（ただし、{b_require:>3}本先取制。後手は最初から{w_advantage:2}本もつアドバンテージ）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
+        text = f"[{datetime.datetime.now()}]  先手勝率 {black_win_rate*100:2.0f} ％ --調整後--> 先手が勝った確率{black_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {max_number_of_bout_in_freeze_turn:2}本勝負（ただし、{b_require:>3}本先取制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
         print(text) # 表示
         f.write(f"{text}\n")    # ファイルへ出力
