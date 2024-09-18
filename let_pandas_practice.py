@@ -23,8 +23,8 @@ if __name__ == '__main__':
             print(f"{column_name=}")
 
 
-        for p, b_point, w_point in zip(df['p'], df['b_point'], df['w_point']):
-            print(f"{p=}  {b_point=}  {w_point}")
+        for p, b_require, w_require in zip(df['p'], df['b_require'], df['w_require']):
+            print(f"{p=}  {b_require=}  {w_require}")
 
 
     except Exception as err:

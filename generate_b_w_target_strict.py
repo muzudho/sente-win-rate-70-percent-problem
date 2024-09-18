@@ -38,26 +38,26 @@ if __name__ == '__main__':
             # ベストな調整後の先手勝率と、その誤差
             best_balanced_black_win_rate = None
             best_error = OUT_OF_ERROR
-            best_b_point = 0
-            best_w_point = 0
+            best_b_require = 0
+            best_w_require = 0
 
             # 計算過程
             process_list = []
 
             # p=0.5 は計算の対象外とします
-            for b_point in range(1, 101):
+            for b_require in range(1, 101):
 
                 # 後手が勝つのに必要な先取本数の上限
-                max_w_point = b_point
-                if MAX_W_POINT < max_w_point:
-                    max_w_point = MAX_W_POINT                
+                max_w_require = b_require
+                if MAX_W_POINT < max_w_require:
+                    max_w_require = MAX_W_POINT                
 
-                for w_point in range (1, max_w_point+1):
+                for w_require in range (1, max_w_require+1):
 
                     balanced_black_win_rate = calculate_probability(
                         p=p,
-                        H=b_point,
-                        T=w_point)
+                        H=b_require,
+                        T=w_require)
 
                     # 誤差
                     error = abs(balanced_black_win_rate - 0.5)
@@ -65,11 +65,11 @@ if __name__ == '__main__':
                     if error < best_error:
                         best_error = error
                         best_balanced_black_win_rate = balanced_black_win_rate
-                        best_b_point = b_point
-                        best_w_point = w_point
+                        best_b_require = b_require
+                        best_w_require = w_require
 
                         # 計算過程
-                        process = f"[{best_error:6.4f} 黒{best_b_point:>3} 白{best_w_point:>2}]"
+                        process = f"[{best_error:6.4f} 黒{best_b_require:>3} 白{best_w_require:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
@@ -84,27 +84,26 @@ if __name__ == '__main__':
                 #
                 #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                 #
-                max_number_of_bout_in_freeze_turn = (best_b_point-1) + (best_w_point-1) + 1
+                max_number_of_bout_in_freeze_turn = (best_b_require-1) + (best_w_require-1) + 1
 
                 # 後手がアドバンテージを持っているという表記に変更
-                w_advantage = best_b_point - best_w_point
+                w_advantage = best_b_require - best_w_require
 
                 # DO 通分したい。最小公倍数を求める
-                lcm = math.lcm(best_b_point, best_w_point)
+                lcm = math.lcm(best_b_require, best_w_require)
                 # 先手一本の価値
-                b_unit = lcm / best_b_point
+                b_unit = lcm / best_b_require
                 # 後手一本の価値
-                w_unit = lcm / best_w_point
+                w_unit = lcm / best_w_require
                 # ［ｎ点先取制］先手、後手共通
-                target_point = best_w_point * w_unit
-                target_point_w = best_b_point * b_unit
+                target_point = best_w_require * w_unit
+                target_point_w = best_b_require * b_unit
                 if target_point != target_point_w:
                     raise ValueError(f"{target_point=}  {target_point_w=}")
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_number_of_bout_in_freeze_turn:>3}本勝負  先手勝ち{b_unit:2.0f}点、後手勝ち{w_unit:2.0f}点の{target_point:3.0f}点先取制"
-                #（ただし、{best_b_point:>3}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_in_freeze_turn:>3}  先手勝ち{b_unit:2.0f}点、後手勝ち{w_unit:2.0f}点の{target_point:3.0f}点先取制"
 
                 print(text) # 表示
 

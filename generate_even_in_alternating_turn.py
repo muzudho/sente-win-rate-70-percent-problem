@@ -41,7 +41,7 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_point, process in zip(df['p'], df['new_p'], df['new_p_error'], df['max_number_of_bout_in_freeze_turn'], df['round_count'], df['w_point'], df['process']):
+    for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_require, process in zip(df['p'], df['new_p'], df['new_p_error'], df['max_number_of_bout_in_freeze_turn'], df['round_count'], df['w_require'], df['process']):
 
         # 黒の必要先取数は計算で求めます
         #
@@ -130,9 +130,9 @@ def iteration_deeping(df, limit_of_error):
         #
         #   FIXME 合ってるか、あとで確認
         #
-        best_b_point = (best_max_bout_count-2*(best_w_point-1))/2
+        best_b_require = (best_max_bout_count-2*(best_w_require-1))/2
 
-        is_automatic = best_new_p_error >= limit_of_error or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_point == 0
+        is_automatic = best_new_p_error >= limit_of_error or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_require == 0
 
         # 途中の計算式
         calculation_list = []
@@ -147,20 +147,20 @@ def iteration_deeping(df, limit_of_error):
 
                 # １本勝負のときだけ、白はｎ本－１ではない
                 if max_number_of_bout_in_freeze_turn == 1:
-                    end_w_point = 2
+                    end_w_require = 2
                 else:
-                    end_w_point = max_number_of_bout_in_freeze_turn
+                    end_w_require = max_number_of_bout_in_freeze_turn
 
-                for w_point in range(1, end_w_point):
+                for w_require in range(1, end_w_require):
 
                     # FIXME 黒の必要先取数は計算で求めます
-                    b_point = max_number_of_bout_in_freeze_turn-(w_point-1)
+                    b_require = max_number_of_bout_in_freeze_turn-(w_require-1)
 
                     black_win_count = n_round_in_freeze_turn(
                         black_win_rate=p,
                         max_number_of_bout_in_freeze_turn=max_number_of_bout_in_freeze_turn,
-                        b_point=b_point,
-                        w_point=w_point,
+                        b_require=b_require,
+                        w_require=w_require,
                         round_count=best_round_count)
                     
                     #print(f"{black_win_count=}  {best_round_count=}  {black_win_count / best_round_count=}")
@@ -171,11 +171,11 @@ def iteration_deeping(df, limit_of_error):
                         best_new_p = new_p_rate
                         best_new_p_error = new_p_error
                         best_max_bout_count = max_number_of_bout_in_freeze_turn
-                        best_b_point = b_point
-                        best_w_point = w_point
+                        best_b_require = b_require
+                        best_w_require = w_require
                     
                         # 進捗バー（更新時）
-                        text = f'[{best_new_p_error:6.4f} {best_max_bout_count:2}本 {best_max_bout_count-best_w_point+1:2}黒 {best_w_point:2}白]'
+                        text = f'[{best_new_p_error:6.4f} {best_max_bout_count:2}本 {best_max_bout_count-best_w_require+1:2}黒 {best_w_require:2}白]'
                         print(text, end='', flush=True) # すぐ表示
                         calculation_list.append(text)
 
@@ -207,18 +207,18 @@ def iteration_deeping(df, limit_of_error):
         else:
 
             # DO 通分したい。最小公倍数を求める
-            lcm = math.lcm(best_b_point, best_w_point)
+            lcm = math.lcm(best_b_require, best_w_require)
             # 先手一本の価値
-            b_unit = lcm / best_b_point
+            b_unit = lcm / best_b_require
             # 後手一本の価値
-            w_unit = lcm / best_w_point
+            w_unit = lcm / best_w_require
             # ［ｎ点先取制］先手、後手共通
-            target_point = best_w_point * w_unit
-            target_point_w = best_b_point * b_unit
+            target_point = best_w_require * w_unit
+            target_point_w = best_b_require * b_unit
             if target_point != target_point_w:
                 raise ValueError(f"{target_point=}  {target_point_w=}")
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  先手勝ち{b_unit:2.0f}点、後手勝ち{w_unit:2.0f}点の{target_point:3.0f}点先取制")
+            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_require+1:2}本先取/後手{best_w_require:2}本先取制  先手勝ち{b_unit:2.0f}点、後手勝ち{w_unit:2.0f}点の{target_point:3.0f}点先取制")
 
             # 自動計算満了
             if is_automatic:
@@ -240,10 +240,10 @@ def iteration_deeping(df, limit_of_error):
             # 先後交代なし（Freeze-turn）方式のときの［最長対局数］列を更新
             df.loc[df['p']==p, ['max_number_of_bout_in_freeze_turn']] = best_max_bout_count
 
-            #best_b_point は max_number_of_bout_in_freeze_turn と w_point から求まる
+            #best_b_require は max_number_of_bout_in_freeze_turn と w_require から求まる
 
             # ［白が勝つのに必要な先取本数］列を更新
-            df.loc[df['p']==p, ['w_point']] = best_w_point
+            df.loc[df['p']==p, ['w_require']] = best_w_require
 
 
         # CSV保存

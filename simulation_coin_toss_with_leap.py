@@ -105,13 +105,13 @@ if __name__ == '__main__':
 
 
             # 厳密な値
-            strict_b_point, strict_w_point = black_win_rate_to_b_w_targets(p=black_win_rate)
-            print(f"厳密な先取本数  先手：後手＝{strict_b_point:>2}：{strict_w_point:>2}  ", end='')
+            strict_b_point, strict_w_require = black_win_rate_to_b_w_targets(p=black_win_rate)
+            print(f"厳密な先取本数  先手：後手＝{strict_b_point:>2}：{strict_w_require:>2}  ", end='')
 
             # 実用的な値（後手取得本数が１になるよう丸めたもの）
-            practical_b_point = round_letro(strict_b_point / strict_w_point) # 小数点以下四捨五入
-            practical_w_point = 1
-            print(f"実用的な先取本数  先手：後手＝{practical_b_point:>2}：{practical_w_point:>2}  ", end='')
+            practical_b_point = round_letro(strict_b_point / strict_w_require) # 小数点以下四捨五入
+            practical_w_require = 1
+            print(f"実用的な先取本数  先手：後手＝{practical_b_point:>2}：{practical_w_require:>2}  ", end='')
 
             print() # 改行
 
@@ -136,9 +136,9 @@ if __name__ == '__main__':
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
                                 # 先手の何本先取制
-                                b_point=practical_b_point + 1,
+                                b_require=practical_b_point + 1,
                                 # 後手の何本先取制
-                                w_point=practical_w_point):
+                                w_require=practical_w_require):
                             black_wons += 1
 
                     else:
@@ -148,9 +148,9 @@ if __name__ == '__main__':
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
                                 # 先手の何本先取制
-                                b_point=practical_b_point,
+                                b_require=practical_b_point,
                                 # 後手の何本先取制
-                                w_point=practical_w_point):
+                                w_require=practical_w_require):
                             black_wons += 1
 
                 # 閏対局を使わないパターン
@@ -160,9 +160,9 @@ if __name__ == '__main__':
                             # 先手勝率
                             black_win_rate=black_win_rate,
                             # 先手の何本先取制
-                            b_point=practical_b_point,
+                            b_require=practical_b_point,
                             # 後手の何本先取制
-                            w_point=practical_w_point):
+                            w_require=practical_w_require):
                         black_wons += 1
 
             # 黒が勝った確率
@@ -172,7 +172,7 @@ if __name__ == '__main__':
             error = abs(black_won_rate - 0.5)
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  実用的な先手{practical_b_point:2}本先取／後手{practical_w_point:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  実用的な先手{practical_b_point:2}本先取／後手{practical_w_require:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
                 print(text)
                 f.write(f"{text}\n")
 

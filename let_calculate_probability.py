@@ -30,18 +30,18 @@ if __name__ == '__main__':
         print(df)
 
         # * `p` - 先手が勝つ確率
-        # * `b_point` - 先手の必要な先取本数
-        # * `w_point` - 後手の必要な先取本数
+        # * `b_require` - 先手の必要な先取本数
+        # * `w_require` - 後手の必要な先取本数
         # * `new_p` - 調整後の先手が勝つ確率
         # * `new_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は 0.51
         # * `comment` - この行データの説明
         # 
-        for p, b_point, w_point, new_p, new_p_error, comment in zip(df['p'], df['b_point'], df['w_point'], df['new_p'], df['new_p_error'], df['comment']):
+        for p, b_require, w_require, new_p, new_p_error, comment in zip(df['p'], df['b_require'], df['w_require'], df['new_p'], df['new_p_error'], df['comment']):
 
             balanced_black_win_rate = calculate_probability(
                 p=p,
-                H=b_point,
-                T=w_point)
+                H=b_require,
+                T=w_require)
 
             # 誤差
             error = balanced_black_win_rate - 0.5
@@ -51,7 +51,7 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先取本数　先手：後手＝{b_point:>2}：{w_point:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
+                text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先取本数　先手：後手＝{b_require:>2}：{w_require:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
