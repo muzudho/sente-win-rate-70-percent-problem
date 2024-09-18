@@ -73,7 +73,6 @@ if __name__ == '__main__':
                     #
                     #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
                     #
-                    #max_bout_count = b_point + w_point - 1
                     max_bout_count = (b_point-1) + (w_point-1) + 1
 
 
