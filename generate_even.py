@@ -97,6 +97,9 @@ if __name__ == '__main__':
             best_round_count=rule[3]
             best_w_point=rule[4]
 
+            # 黒の必要先取数は計算で求めます
+            best_b_point = best_max_bout_count-best_w_point+1
+
             is_automatic = best_black_win_error >= LIMIT or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_point == 0
 
             # 途中の計算式
@@ -104,9 +107,6 @@ if __name__ == '__main__':
 
             # アルゴリズムで求めるケース
             if is_automatic:
-
-                # 黒の必要先取数は計算で求めます
-                best_black_win_count = best_max_bout_count-best_w_point+1
 
                 is_cutoff = False
 
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                         if black_win_error < best_black_win_error:
                             best_black_win_error = black_win_error
                             best_max_bout_count = max_bout_count
-                            best_black_win_count = black_win_count
+                            best_b_point = black_win_count
                             best_w_point = w_point
                         
                             # 進捗バー（更新時）
@@ -163,38 +163,47 @@ if __name__ == '__main__':
 
 
             with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
-                # 文言作成
-                # -------
 
-                # 自動計算
-                if is_automatic:
-                    # 未完了
-                    if best_black_win_error == OUT_OF_ERROR:
-                        text = f"先手勝率：{black_win_rate:4.02f}"
-
-                    # 満了
-                    else:
-                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{best_black_win_count * 100 / best_round_count:>7.04f} ％"
-                
-                # 手動設定
+                # 自動計算未完了
+                if is_automatic and best_black_win_error == OUT_OF_ERROR:
+                    text = f"先手勝率：{black_win_rate:4.02f}"                
                 else:
-                    text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％"
+
+                    # DO 通分したい。最小公倍数を求める
+                    lcm = math.lcm(best_b_point, best_w_point)
+                    # 先手一本の価値
+                    b_unit = lcm / best_b_point
+                    # 後手一本の価値
+                    w_unit = lcm / best_w_point
+                    # 先手勝ち、後手勝ちの共通ゴール
+                    b_win_value_goal = best_w_point * w_unit
+                    w_win_value_goal = best_b_point * b_unit
+                    if b_win_value_goal != w_win_value_goal:
+                        raise ValueError(f"{b_win_value_goal=}  {w_win_value_goal=}")
+
+                    # 自動計算満了
+                    if is_automatic:
+                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{best_b_point * 100 / best_round_count:>7.04f} ％  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
+                    
+                    # 手動設定
+                    else:
+                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
 
 
                 # 計算過程を付けずに表示
                 # --------------------
 
-                # 自動計算
-                if is_automatic:
-                    # 未完了
-                    if best_black_win_error == OUT_OF_ERROR:
-                        print(f"{text}  （自動計算未完了）")
-                    # 満了
-                    else:
-                        print(f"{text}  （自動計算満了）")
-                # 手動設定
+                # 自動計算未完了
+                if is_automatic and best_black_win_error == OUT_OF_ERROR:
+                    print(f"{text}  （自動計算未完了）")
+
                 else:
-                    print(f"{text}  （手動設定）")
+                    # 自動計算満了
+                    if is_automatic:
+                        print(f"{text}  （自動計算満了）")
+                    # 手動設定
+                    else:
+                        print(f"{text}  （手動設定）")
 
 
                 # 計算過程と改行を付けてファイルへ出力
