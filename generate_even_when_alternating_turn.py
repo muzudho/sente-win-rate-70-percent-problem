@@ -17,7 +17,8 @@ import traceback
 import random
 import math
 
-from library import BLACK, WHITE, coin, n_bout_when_frozen_turn, n_round_when_frozen_turn, round_letro, PointRuleDescription
+from library import BLACK, WHITE, coin, n_bout_when_frozen_turn, n_round_when_frozen_turn, round_letro, PointsConfiguration
+from views import print_when_generate_even_when_alternating_turn
 
 
 LOG_FILE_PATH = 'output/generate_even_when_alternating_turn.log'
@@ -206,14 +207,10 @@ def iteration_deeping(df, limit_of_error):
 
         else:
 
-            # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
-            point_rule_description = PointRuleDescription.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+            # ［勝ち点ルール］の構成
+            points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  最長対局数{best_max_bout_count:2} {best_round_count:6}回  先手勝ち{point_rule_description.b_step:2.0f}点、後手勝ち{point_rule_description.w_step:2.0f}点　目標{point_rule_description.target_point:3.0f}点（先後固定制）")
-            if is_automatic:
-                print(f"{text}  （自動計算満了）")
-            else:
-                print(f"{text}  （対象外。誤差十分）")
+            print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration)
 
 
             # データフレーム更新

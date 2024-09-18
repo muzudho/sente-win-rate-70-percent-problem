@@ -391,8 +391,8 @@ def calculate_probability(p, H, T):
     return probability
 
 
-class PointRuleDescription():
-    """勝ち点ルールの説明"""
+class PointsConfiguration():
+    """勝ち点の構成［勝ち点ルール］"""
 
 
     def __init__(self, b_step, w_step, span_when_frozen_turn):
@@ -444,7 +444,7 @@ class PointRuleDescription():
 
     @staticmethod
     def let_points_from_require(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
-        """先手の勝ち点、後手の勝ち点、目標の勝ち点を求める"""
+        """先後固定制での［黒だけでの反復数］と［白だけでの反復数］が分かれば、［勝ち点ルール］を分析して返す"""
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
         # 先手勝ちの点
@@ -457,4 +457,4 @@ class PointRuleDescription():
         if span_when_frozen_turn != span_when_frozen_turn_w:
             raise ValueError(f"{span_when_frozen_turn=}  {span_when_frozen_turn_w=}")
 
-        return PointRuleDescription(b_step, w_step, span_when_frozen_turn)
+        return PointsConfiguration(b_step, w_step, span_when_frozen_turn)

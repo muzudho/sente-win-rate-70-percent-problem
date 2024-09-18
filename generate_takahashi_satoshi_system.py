@@ -12,7 +12,8 @@ import random
 import math
 import pandas as pd
 
-from library import round_letro, calculate_probability, PointRuleDescription
+from library import round_letro, calculate_probability, PointsConfiguration
+from views import stringify_when_generate_takahashi_satoshi_system
 
 
 LOG_FILE_PATH = 'output/generate_takahashi_satoshi_system.log'
@@ -222,14 +223,10 @@ if __name__ == '__main__':
                 #
                 max_number_of_bout_when_frozen_turn = best_b_repeat_when_frozen_turn + best_w_repeat_when_frozen_turn - 1
 
-                # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
-                point_rule_description = PointRuleDescription.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+                # ［勝ち点ルール］の構成
+                points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
-                text = ""
-                #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）    最長対局数 {max_number_of_bout_when_frozen_turn:>2}    先手勝ち{point_rule_description.b_step:2.0f}点、後手勝ち{point_rule_description.w_step:2.0f}点　目標{point_rule_description.target_point:3.0f}点（先後固定制）"
-
+                text = stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, max_number_of_bout_when_frozen_turn, points_configuration)
 
                 print(text) # 表示
 

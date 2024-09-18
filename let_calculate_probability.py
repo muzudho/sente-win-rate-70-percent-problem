@@ -11,6 +11,7 @@ import random
 import math
 
 from library import calculate_probability
+from views import stringify_when_let_calculate_probability
 
 
 LOG_FILE_PATH = 'output/let_calculate_probability.log'
@@ -51,7 +52,8 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先後固定制での反復数　先手だけ：後手だけ＝{b_repeat_when_frozen_turn:>2}：{w_repeat_when_frozen_turn:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
+                text = stringify_when_let_calculate_probability(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, balanced_black_win_rate, error)
+
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 

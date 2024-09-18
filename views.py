@@ -1,6 +1,43 @@
 import datetime
 
 
+def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, max_number_of_bout_when_frozen_turn, points_configuration):
+    text = ""
+    #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
+    text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）    最長対局数 {max_number_of_bout_when_frozen_turn:>2}    先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.target_point:3.0f}点（先後固定制）"
+    return text
+
+
+def stringify_when_let_calculate_probability(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, balanced_black_win_rate, error):
+    text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先後固定制での反復数　先手だけ：後手だけ＝{b_repeat_when_frozen_turn:>2}：{w_repeat_when_frozen_turn:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
+    return text
+
+
+def print_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, best_error, max_number_of_bout_when_frozen_turn, points_configuration):
+    text = ""
+    #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
+    text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  対局数ｍ～{max_number_of_bout_when_frozen_turn:>3}  先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.span_when_frozen_turn:3.0f}点（先後固定制）"
+    print(text) # 表示
+
+
+def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):
+    if is_automatic:
+        tail = f"  （自動計算満了）"
+    else:
+        tail = f"  （対象外。誤差十分）"
+
+    print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  最長対局数{best_max_bout_count:2} {best_round_count:6}回  先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.target_point:3.0f}点（先後固定制）{tail}")
+
+
+def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):
+    if is_automatic:
+        tail = f"  （自動計算満了）"
+    else:
+        tail = f"  （対象外。誤差十分）"
+
+    print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  最長対局数{best_max_bout_count:2} {best_round_count:6}回  先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.span_when_frozen_turn:3.0f}点（先後固定制）{tail}", end='')
+
+
 def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, round_total, black_wons):
     """ログ出力
     
