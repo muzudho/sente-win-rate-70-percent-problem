@@ -15,7 +15,7 @@ import math
 from library import BLACK, round_letro, black_win_rate_to_b_w_targets, CoinToss
 
 
-SUMMARY_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
+LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
 
 
 INPUT_DATA = [
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     try:
         for input_datum in INPUT_DATA:
-            coin_toss = CoinToss(output_file_path=SUMMARY_FILE_PATH)
+            coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # 先手勝率
             black_win_rate=input_datum[0]
@@ -171,7 +171,7 @@ if __name__ == '__main__':
             # 均等からの誤差
             error = abs(black_won_rate - 0.5)
 
-            with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
+            with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  実用的な先手{practical_b_point:2}本先取／後手{practical_w_point:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
                 print(text)
                 f.write(f"{text}\n")

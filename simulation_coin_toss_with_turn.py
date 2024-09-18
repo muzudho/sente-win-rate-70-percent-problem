@@ -17,7 +17,7 @@ from library import ALICE, CoinToss
 from views import write_coin_toss_log
 
 
-SUMMARY_FILE_PATH = 'output/simulation_coin_toss_with_turn.log'
+LOG_FILE_PATH = 'output/simulation_coin_toss_with_turn.log'
 
 
 ########################################
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
         for p, b_point, w_point in zip(df['p'], df['b_point'], df['w_point']):
-            coin_toss = CoinToss(output_file_path=SUMMARY_FILE_PATH)
+            coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # Ａさんが勝った回数
             alice_wons = 0

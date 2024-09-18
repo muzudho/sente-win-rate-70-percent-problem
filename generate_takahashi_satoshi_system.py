@@ -15,7 +15,7 @@ import pandas as pd
 from library import round_letro, calculate_probability
 
 
-SUMMARY_FILE_PATH = 'output/generate_takahashi_satoshi_system.log'
+LOG_FILE_PATH = 'output/generate_takahashi_satoshi_system.log'
 
 
 OUT_OF_ERROR = 0.51
@@ -210,7 +210,7 @@ if __name__ == '__main__':
             print() # 改行
 
 
-            with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
+            with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 

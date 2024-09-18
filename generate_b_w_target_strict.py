@@ -14,7 +14,7 @@ import pandas as pd
 from library import calculate_probability
 
 
-SUMMARY_FILE_PATH = 'output/generate_b_w_target_strict.log'
+LOG_FILE_PATH = 'output/generate_b_w_target_strict.log'
 
 # 後手が勝つのに必要な先取本数の上限
 MAX_W_POINT = 6 # 99999
@@ -78,7 +78,7 @@ if __name__ == '__main__':
             print() # 改行
 
 
-            with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
+            with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［最大ｎ本勝負］
                 #

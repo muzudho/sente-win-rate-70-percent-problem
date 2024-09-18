@@ -16,7 +16,7 @@ import pandas as pd
 from library import black_win_rate_to_b_w_targets
 
 
-SUMMARY_FILE_PATH = 'output/let_b_w_target_rough.log'
+LOG_FILE_PATH = 'output/let_b_w_target_rough.log'
 
 # 下の式になるような、先手先取本数、後手先取本数を求めたい。
 #
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         for p in df['p']:
             b_point, w_point = black_win_rate_to_b_w_targets(p=p)
 
-            with open(SUMMARY_FILE_PATH, 'a', encoding='utf8') as f:
+            with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
