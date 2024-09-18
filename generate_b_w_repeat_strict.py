@@ -1,8 +1,8 @@
 #
 # 生成
-# python generate_b_w_target_strict.py
+# python generate_b_w_repeat_strict.py
 #
-#   先手先取本数、後手先取本数を求める（厳密）
+#   先後固定制で、先手勝ち点だけで勝つのに必要な数［反復数］、後手勝ち点だけで勝つのに必要な数［反復数］を求める（厳密）
 #
 
 import traceback
@@ -14,10 +14,10 @@ import pandas as pd
 from library import calculate_probability, PointRuleDescription
 
 
-LOG_FILE_PATH = 'output/generate_b_w_target_strict.log'
+LOG_FILE_PATH = 'output/generate_b_w_repeat_strict.log'
 
-# 後手が勝つのに必要な先取本数の上限
-MAX_W_POINT = 6 # 99999
+# 先後固定制で、後手勝ち点だけで勝つのに必要な数［反復数］の上限
+MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
 
 OUT_OF_ERROR = 0.51
 
@@ -47,10 +47,10 @@ if __name__ == '__main__':
             # p=0.5 は計算の対象外とします
             for b_repeat_when_frozen_turn in range(1, 101):
 
-                # 後手が勝つのに必要な先取本数の上限
+                # 先後固定制で、後手勝ち点だけで勝つのに必要な数［反復数］の上限
                 max_w_repeat_when_frozen_turn = b_repeat_when_frozen_turn
-                if MAX_W_POINT < max_w_repeat_when_frozen_turn:
-                    max_w_repeat_when_frozen_turn = MAX_W_POINT                
+                if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_w_repeat_when_frozen_turn:
+                    max_w_repeat_when_frozen_turn = MAX_W_REPEAT_WHEN_FROZEN_TURN                
 
                 for w_repeat_when_frozen_turn in range (1, max_w_repeat_when_frozen_turn+1):
 

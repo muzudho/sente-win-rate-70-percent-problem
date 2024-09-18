@@ -432,13 +432,13 @@ class PointRuleDescription():
 
     @property
     def b_repeat_when_frozen_turn(self):
-        """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な回数"""
+        """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な数［反復数］"""
         return self._span_when_frozen_turn / self._b_step
 
 
     @property
     def w_repeat_when_frozen_turn(self):
-        """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な回数"""
+        """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な数［反復数］"""
         return self._span_when_frozen_turn / self._w_step
 
 

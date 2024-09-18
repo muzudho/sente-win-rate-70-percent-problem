@@ -35,7 +35,7 @@ def iteration_deeping(df, limit_of_error):
     for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_repeat_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['max_number_of_bout_when_frozen_turn'], df['round_count'], df['w_repeat_when_frozen_turn'], df['process']):
         #print(f"{p=}  {best_new_p_error=}  {best_max_bout_count=}  {best_round_count=}  {best_w_repeat_when_frozen_turn=}  {process=}  {type(process)=}")
 
-        # 黒の必要先取数は計算で求めます
+        # 黒の［反復数］は計算で求めます
         best_b_repeat_when_frozen_turn = best_max_bout_count-(best_w_repeat_when_frozen_turn-1)
 
         is_automatic = best_new_p_error >= limit_of_error or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_repeat_when_frozen_turn == 0
@@ -56,7 +56,7 @@ def iteration_deeping(df, limit_of_error):
 
                 for w_repeat_when_frozen_turn in range(1, end_w_repeat_when_frozen_turn):
 
-                    # FIXME 黒の必要先取数は計算で求めます
+                    # FIXME 黒の［反復数］は計算で求めます
                     b_repeat_when_frozen_turn = max_number_of_bout_when_frozen_turn-(w_repeat_when_frozen_turn-1)
 
                     black_win_count = n_round_when_frozen_turn(
