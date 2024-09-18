@@ -60,19 +60,6 @@ if __name__ == '__main__':
                     # # 先手が勝つのに必要な先取本数　＞＝　後手が勝つのに必要な先取本数。かつ、後手が勝つのに必要な先取本数が１の場合は特別
                     # if b_point <= w_point and 1 < w_point:
                     #     continue
-                    
-                    # # NOTE strict の方で ration 使ってないので合わせる
-                    # # NOTE ［先手が勝つのに必要な先取本数が４，後手が勝つのに必要な先取本数が２］というのは、［先手が勝つのに必要な先取本数が２，後手が勝つのに必要な先取本数が１］と同じように見えるが、均等に近づく精度が上がる
-                    # #
-                    # #   同じ比はスキップ。１００００倍（１００×１００程度を想定）して小数点以下四捨五入
-                    # #
-                    # ration = round_letro(w_point / b_point * 10000)
-
-                    # if ration in ration_set:
-                    #     continue
-
-                    # ration_set.add(ration)
-
 
                     balanced_black_win_rate = calculate_probability(
                         p=p,
@@ -238,9 +225,21 @@ if __name__ == '__main__':
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
+                # DO 通分したい。最小公倍数を求める
+                lcm = math.lcm(best_b_point, best_w_point)
+                # 先手一本の価値
+                b_unit = lcm / best_b_point
+                # 後手一本の価値
+                w_unit = lcm / best_w_point
+                # 先手勝ち、後手勝ちの共通ゴール
+                b_win_value_goal = best_w_point * w_unit
+                w_win_value_goal = best_b_point * b_unit
+                if b_win_value_goal != w_win_value_goal:
+                    raise ValueError(f"{b_win_value_goal=}  {w_win_value_goal=}")
+
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合

@@ -120,28 +120,6 @@ def black_win_rate_to_b_w_targets(p):
     return fraction.numerator, fraction.denominator
 
 
-# def black_win_value(white_win_rate):
-#     """先手の勝ちの価値
-#
-#     Parameters
-#     ----------
-#     white_win_rate : float
-#         後手勝率
-#     """
-#     return white_win_rate / (1 - white_win_rate)
-
-
-# def white_win_value(black_win_rate):
-#     """後手の勝ちの価値
-#
-#     Parameters
-#     ----------
-#     black_win_rate : float
-#         先手勝率
-#     """
-#     return black_win_rate / (1 - black_win_rate)
-
-
 def coin(black_rate):
     """表が黒、裏が白のコイン
 

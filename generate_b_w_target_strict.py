@@ -91,23 +91,21 @@ if __name__ == '__main__':
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
-                # TODO 通分したい
-                # TODO 最小公倍数を求める
+                # DO 通分したい。最小公倍数を求める
                 lcm = math.lcm(best_b_point, best_w_point)
-                # 先手勝ちの価値は後手勝ちの何個分 {best_w_point:>2}／{best_b_point:>3}
+                # 先手一本の価値
                 b_unit = lcm / best_b_point
-                # 後手勝ちの価値は先手勝ちの何個分 {best_b_point:>2}／{best_w_point:>3}
+                # 後手一本の価値
                 w_unit = lcm / best_w_point
-                # 先手の勝ちのゴール
+                # 先手勝ち、後手勝ちの共通ゴール
                 b_win_value_goal = best_w_point * w_unit
-                # 後手の勝ちのゴール
                 w_win_value_goal = best_b_point * b_unit
                 if b_win_value_goal != w_win_value_goal:
                     raise ValueError(f"{b_win_value_goal=}  {w_win_value_goal=}")
 
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>3}本勝負（ただし、{best_b_point:>3}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）  先手勝ちの価値{b_unit}  後手勝ちの価値{w_unit}  ゴール{b_win_value_goal}  {lcm=}"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>3}本勝負（ただし、{best_b_point:>3}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合
