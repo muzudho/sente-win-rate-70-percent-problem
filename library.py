@@ -155,7 +155,7 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout(n, black_rate, white_require):
+def n_bout(n, black_rate, w_point):
     """ｎ本勝負
     
     n はコインを振る回数。全部黒が出たら黒の勝ち、white_require 回白が出れば白の勝ち。
@@ -171,7 +171,7 @@ def n_bout(n, black_rate, white_require):
         ｎ本勝負
     black_rate : float
         黒番の勝率。例： 黒番の勝率が７割なら 0.7
-    white_require : int
+    w_point : int
         白が勝つのに必要な番数
     
     Returns
@@ -179,7 +179,7 @@ def n_bout(n, black_rate, white_require):
     winner_color : int
         勝った方の色
     """
-    white_count_down = white_require
+    white_count_down = w_point
 
     for i in range(0, n):
         if coin(black_rate) == WHITE:
@@ -190,7 +190,7 @@ def n_bout(n, black_rate, white_require):
     return BLACK
 
 
-def n_round(black_win_rate, bout_count, white_require, round_count):
+def n_round(black_win_rate, bout_count, w_point, round_count):
     """ｎ回対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -201,7 +201,7 @@ def n_round(black_win_rate, bout_count, white_require, round_count):
         黒番の勝率。例： 黒番が７割勝つなら 0.7
     bout_count : int
         ｎ本勝負。例： ３本勝負なら 3
-    white_require : int
+    w_point : int
         白が勝つのに必要な番数
     round_count : int
         ｎ回対局
@@ -214,7 +214,7 @@ def n_round(black_win_rate, bout_count, white_require, round_count):
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout(bout_count, black_win_rate, white_require) == BLACK:
+        if n_bout(bout_count, black_win_rate, w_point) == BLACK:
             black_win_count += 1
 
     return black_win_count

@@ -22,7 +22,7 @@ OUT_OF_ERROR = 0.51
 
 # 先手勝率 0.50 ～ 0.99 まで試算
 INPUT_DATA = [
-    # 項目   black_win_rate, best_black_win_error, best_max_bout_count, best_round_count, best_white_require
+    # 項目   black_win_rate, best_black_win_error, best_max_bout_count, best_round_count, best_w_point
     # 初期値             --,         OUT_OF_ERROR,                   1,                1,                  0
     # ------------------------------------------------------------------------------------------------------
     # これを初期値にして、続きからアルゴリズムを使った自動計算を行います
@@ -95,9 +95,9 @@ if __name__ == '__main__':
             best_black_win_error=rule[1]
             best_max_bout_count=rule[2]
             best_round_count=rule[3]
-            best_white_require=rule[4]
+            best_w_point=rule[4]
 
-            is_automatic = best_black_win_error >= LIMIT or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_white_require == 0
+            is_automatic = best_black_win_error >= LIMIT or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_point == 0
 
             # 途中の計算式
             calculation_list = []
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             if is_automatic:
 
                 # 黒の必要先取数は計算で求めます
-                best_black_win_count = best_max_bout_count-best_white_require+1
+                best_black_win_count = best_max_bout_count-best_w_point+1
 
                 is_cutoff = False
 
@@ -119,12 +119,12 @@ if __name__ == '__main__':
                     else:
                         end_white_require = max_bout_count
 
-                    for white_require in range(1, end_white_require):
+                    for w_point in range(1, end_white_require):
 
                         black_win_count = n_round(
                             black_win_rate=black_win_rate,
                             bout_count=max_bout_count,
-                            white_require=white_require,
+                            w_point=w_point,
                             round_count=best_round_count)
                         
                         #print(f"{black_win_count=}  {best_round_count=}  {black_win_count / best_round_count=}")
@@ -134,10 +134,10 @@ if __name__ == '__main__':
                             best_black_win_error = black_win_error
                             best_max_bout_count = max_bout_count
                             best_black_win_count = black_win_count
-                            best_white_require = white_require
+                            best_w_point = w_point
                         
                             # 進捗バー（更新時）
-                            text = f'[{best_black_win_error:6.4f} {best_max_bout_count:2}本 {best_max_bout_count-best_white_require+1:2}黒 {best_white_require:2}白]'
+                            text = f'[{best_black_win_error:6.4f} {best_max_bout_count:2}本 {best_max_bout_count-best_w_point+1:2}黒 {best_w_point:2}白]'
                             print(text, end='', flush=True) # すぐ表示
                             calculation_list.append(text)
 
@@ -174,11 +174,11 @@ if __name__ == '__main__':
 
                     # 満了
                     else:
-                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_white_require+1:2}本先取/後手{best_white_require:2}本先取制  調整先手勝率：{best_black_win_count * 100 / best_round_count:>7.04f} ％"
+                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{best_black_win_count * 100 / best_round_count:>7.04f} ％"
                 
                 # 手動設定
                 else:
-                    text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_white_require+1:2}本先取/後手{best_white_require:2}本先取制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％"
+                    text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％"
 
 
                 # 計算過程を付けずに表示

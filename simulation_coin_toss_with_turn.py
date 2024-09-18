@@ -1,6 +1,5 @@
 #
 # シミュレーション 手番を交互にするパターン
-# NOTE まだできてない
 # python simulation_coin_toss_with_turn.py
 #
 #   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_bout_count）投げる

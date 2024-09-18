@@ -1,6 +1,6 @@
 #
-# 探索
-# python search_b_w_target_strict.py
+# 生成
+# python generate_b_w_target_strict.py
 #
 #   先手先取本数、後手先取本数を求める（厳密）
 #
@@ -14,10 +14,10 @@ import pandas as pd
 from library import calculate_probability
 
 
-SUMMARY_FILE_PATH = 'output/search_b_w_target_strict.log'
+SUMMARY_FILE_PATH = 'output/generate_b_w_target_strict.log'
 
 # 後手が勝つのに必要な先取本数の上限
-MAX_W_POINT = 99999
+MAX_W_POINT = 6 # 99999
 
 OUT_OF_ERROR = 0.51
 
@@ -91,9 +91,23 @@ if __name__ == '__main__':
                 # 後手がアドバンテージを持っているという表記に変更
                 w_advantage = best_b_point - best_w_point
 
+                # TODO 通分したい
+                # TODO 最小公倍数を求める
+                lcm = math.lcm(best_b_point, best_w_point)
+                # 先手勝ちの価値は後手勝ちの何個分 {best_w_point:>2}／{best_b_point:>3}
+                b_unit = lcm / best_b_point
+                # 後手勝ちの価値は先手勝ちの何個分 {best_b_point:>2}／{best_w_point:>3}
+                w_unit = lcm / best_w_point
+                # 先手の勝ちのゴール
+                b_win_value_goal = best_w_point * w_unit
+                # 後手の勝ちのゴール
+                w_win_value_goal = best_b_point * b_unit
+                if b_win_value_goal != w_win_value_goal:
+                    raise ValueError(f"{b_win_value_goal=}  {w_win_value_goal=}")
+
                 text = ""
                 #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>2}本勝負（ただし、{best_b_point:>2}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）"
+                text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）  {max_bout_count:>3}本勝負（ただし、{best_b_point:>3}本先取制。後手は最初から {w_advantage:>2} 本持つアドバンテージ）  先手勝ちの価値{b_unit}  後手勝ちの価値{w_unit}  ゴール{b_win_value_goal}  {lcm=}"
                 print(text) # 表示
 
                 # # 計算過程を追加する場合
