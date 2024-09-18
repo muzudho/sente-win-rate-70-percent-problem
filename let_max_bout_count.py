@@ -137,8 +137,8 @@ if __name__ == '__main__':
 
 
         # # （仮説）何本勝負にするかは、以下の式で求まる ----> 合ってなかった
-        # max_number_of_bout_in_frozen_turn = round_letro(1/(1-expected_black_win_rate)-1)    # ※小数点以下四捨五入
-        # print(f"[{datetime.datetime.now()}] {expected_black_win_rate=}  {max_number_of_bout_in_frozen_turn=}")
+        # max_number_of_bout_when_frozen_turn = round_letro(1/(1-expected_black_win_rate)-1)    # ※小数点以下四捨五入
+        # print(f"[{datetime.datetime.now()}] {expected_black_win_rate=}  {max_number_of_bout_when_frozen_turn=}")
 
         # # これが有力そう ----> ダメだった
         # print(f"[{datetime.datetime.now()}] {round_letro(math.sqrt(0.65)*10+1)} ＝ sqrt(0.65)*10+1 四捨五入")

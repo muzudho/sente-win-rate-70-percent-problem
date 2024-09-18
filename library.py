@@ -134,7 +134,7 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_in_frozen_turn(black_rate, max_number_of_bout, b_require, w_require):
+def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_require, w_require):
     """先後固定制で、最長で max_number_of_bout 回の対局を行い、勝った方の手番を返します
 
     NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
@@ -178,7 +178,7 @@ def n_bout_in_frozen_turn(black_rate, max_number_of_bout, b_require, w_require):
     raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_require=}  {w_require=}")
 
 
-def n_round_in_frozen_turn(black_win_rate, max_number_of_bout_in_frozen_turn, b_require, w_require, round_count):
+def n_round_when_frozen_turn(black_win_rate, max_number_of_bout_when_frozen_turn, b_require, w_require, round_count):
     """［最長対局数（先後固定制）］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -187,7 +187,7 @@ def n_round_in_frozen_turn(black_win_rate, max_number_of_bout_in_frozen_turn, b_
     ----------
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
-    max_number_of_bout_in_frozen_turn : int
+    max_number_of_bout_when_frozen_turn : int
         ［最長対局数（先後固定制）］。例： ３本勝負なら 3
     b_require : int
         黒が勝つのに必要な一本の数
@@ -204,7 +204,7 @@ def n_round_in_frozen_turn(black_win_rate, max_number_of_bout_in_frozen_turn, b_
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_in_frozen_turn(black_win_rate, max_number_of_bout_in_frozen_turn, b_require, w_require) == BLACK:
+        if n_bout_when_frozen_turn(black_win_rate, max_number_of_bout_when_frozen_turn, b_require, w_require) == BLACK:
             black_win_count += 1
 
     return black_win_count
@@ -275,7 +275,7 @@ class CoinToss():
             # 続行
 
 
-    def coin_toss_in_round_in_alternating_turn(self, black_win_rate, b_require, w_require):
+    def coin_toss_in_round_when_alternating_turn(self, black_win_rate, b_require, w_require):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
 
         手番を交互にするパターン
@@ -395,7 +395,7 @@ class PointRuleDescription():
     """勝ち点ルールの説明"""
 
 
-    def __init__(self, b_step, w_step, target_point):
+    def __init__(self, b_step, w_step, span_when_frozen_turn):
         """初期化
         
         Parameters
@@ -404,12 +404,12 @@ class PointRuleDescription():
             先手勝ちの点
         w_step : int
             後手勝ちの点
-        target_point : int
+        span_when_frozen_turn : int
             先後固定制での目標の点
         """
         self._b_step = b_step
         self._w_step = w_step
-        self._target_point = target_point
+        self._span_when_frozen_turn = span_when_frozen_turn
 
 
     @property
@@ -425,9 +425,9 @@ class PointRuleDescription():
 
 
     @property
-    def target_point(self):
-        """目標の点"""
-        return self._target_point
+    def span_when_frozen_turn(self):
+        """先後固定制での目標の点"""
+        return self._span_when_frozen_turn
 
 
     @staticmethod
@@ -435,14 +435,14 @@ class PointRuleDescription():
         """先手の勝ち点、後手の勝ち点、目標の勝ち点を求める"""
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_require, w_require)
-        # 先手一本の価値
+        # 先手勝ちの点
         b_step = lcm / b_require
-        # 後手一本の価値
+        # 後手勝ちの点
         w_step = lcm / w_require
-        # ［ｎ点先取制］先手、後手共通
-        target_point = w_require * w_step
-        target_point_w = b_require * b_step
-        if target_point != target_point_w:
-            raise ValueError(f"{target_point=}  {target_point_w=}")
+        # 先後固定制での目標の点
+        span_when_frozen_turn = w_require * w_step
+        span_when_frozen_turn_w = b_require * b_step
+        if span_when_frozen_turn != span_when_frozen_turn_w:
+            raise ValueError(f"{span_when_frozen_turn=}  {span_when_frozen_turn_w=}")
 
-        return PointRuleDescription(b_step, w_step, target_point)
+        return PointRuleDescription(b_step, w_step, span_when_frozen_turn)
