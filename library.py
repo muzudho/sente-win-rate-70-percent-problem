@@ -401,9 +401,9 @@ class PointRuleDescription():
         Parameters
         ----------
         b_step : int
-            先手勝ちの点
+            先手勝ちの点（先手＝Black）
         w_step : int
-            後手勝ちの点
+            後手勝ちの点（後手＝White）
         span_when_frozen_turn : int
             先後固定制での目標の点
         """
@@ -428,6 +428,18 @@ class PointRuleDescription():
     def span_when_frozen_turn(self):
         """先後固定制での目標の点"""
         return self._span_when_frozen_turn
+
+
+    @property
+    def b_repeat_when_frozen_turn(self):
+        """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な回数"""
+        return self._span_when_frozen_turn / self._b_step
+
+
+    @property
+    def w_repeat_when_frozen_turn(self):
+        """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な回数"""
+        return self._span_when_frozen_turn / self._w_step
 
 
     @staticmethod
