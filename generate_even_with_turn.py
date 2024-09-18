@@ -40,8 +40,8 @@ OUT_OF_ERROR = 0.51
 #
 #
 INPUT_DATA = [
-    # 項目   p , best_alice_win_error, best_max_bout_count, best_round_count, best_w_point
-    # 初期値 --,         OUT_OF_ERROR,                   1,                1,            1
+    # 項目            p, best_alice_win_error, best_max_bout_count, best_round_count, best_w_point
+    # 初期値 0.50～0.99,         OUT_OF_ERROR,                   1,                1,            1
     # ------------------------------------------------------------------------------------
     # これを初期値にして、続きからアルゴリズムを使った自動計算を行います
     [0.50, OUT_OF_ERROR, 1, 2_000_000, 1],  #
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
         for rule in INPUT_DATA:
             # 初期値
-            black_win_rate=rule[0]
+            p=rule[0]
             best_black_win_error=rule[1]
             best_max_bout_count=rule[2]
             best_round_count=rule[3]
@@ -146,16 +146,18 @@ if __name__ == '__main__':
                         b_point = max_bout_count-(w_point-1)
 
                         black_win_count = n_round_without_turn(
-                            black_win_rate=black_win_rate,
+                            black_win_rate=p,
                             max_bout_count=max_bout_count,
                             b_point=b_point,
                             w_point=w_point,
                             round_count=best_round_count)
                         
                         #print(f"{black_win_count=}  {best_round_count=}  {black_win_count / best_round_count=}")
-                        black_win_error = abs(black_win_count / best_round_count - 0.5)
+                        new_black_win_rate = black_win_count / best_round_count
+                        black_win_error = abs(new_black_win_rate - 0.5)
 
                         if black_win_error < best_black_win_error:
+                            best_black_win_rate = new_black_win_rate
                             best_black_win_error = black_win_error
                             best_max_bout_count = max_bout_count
                             best_b_point = b_point
@@ -191,7 +193,7 @@ if __name__ == '__main__':
 
                 # 自動計算未完了
                 if is_automatic and best_black_win_error == OUT_OF_ERROR:
-                    text = f"先手勝率：{black_win_rate:4.02f}"
+                    text = f"先手勝率：{p*100:2} ％"
                 else:
 
                     # DO 通分したい。最小公倍数を求める
@@ -206,13 +208,7 @@ if __name__ == '__main__':
                     if b_win_value_goal != w_win_value_goal:
                         raise ValueError(f"{b_win_value_goal=}  {w_win_value_goal=}")
 
-                    # 自動計算満了
-                    if is_automatic:
-                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{best_b_point * 100 / best_round_count:>7.04f} ％  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
-                
-                    # 手動設定
-                    else:
-                        text = f"先手勝率：{black_win_rate:4.02f}  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  調整先手勝率：{(best_black_win_error + 0.5) * 100:7.04f} ％  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
+                    text = f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_black_win_rate * 100:>7.04f} ％（± {best_black_win_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_point+1:2}本先取/後手{best_w_point:2}本先取制  つまり、先手一本の価値{b_unit:2.0f}  後手一本の価値{w_unit:2.0f}  ゴール{b_win_value_goal:3.0f}"
 
 
                 # 計算過程を付けずに表示
