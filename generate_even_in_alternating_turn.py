@@ -209,7 +209,7 @@ def iteration_deeping(df, limit_of_error):
             # 先手の勝ち点、後手の勝ち点、目標の勝ち点を求める
             b_point, w_point, target_point = let_points_from_require(best_b_require, best_w_require)
 
-            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手{best_max_bout_count-best_w_require+1:2}本先取/後手{best_w_require:2}本先取制  先手勝ち{b_point:2.0f}点、後手勝ち{w_point:2.0f}点の{target_point:3.0f}点先取制")
+            print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  {best_max_bout_count:2}本勝負×{best_round_count:6}回  先手勝ち{b_point:2.0f}点、後手勝ち{w_point:2.0f}点の{target_point:3.0f}点先取制")
 
             # 自動計算満了
             if is_automatic:

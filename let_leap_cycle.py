@@ -3,8 +3,9 @@
 #
 #   閏対局の周期の算出
 #
-#   計算上、先手勝率７０％の場合、先手２本先取、後手２本先取ルールで行い、
-#   ３対局毎に１回は、先手３本先取、後手２本先取ルールを行う閏対局を入れると、先後勝率が均等になるはず
+#   NOTE 閏対局は没案。累積二項分布を使うのが正しい。
+#   // 計算上、先手勝率７０％の場合、先手勝ち１点、後手勝ち２点ルールで行い、
+#   // ３対局毎に１回は、先手勝ち１点、後手勝ち３点ルールを行う閏対局を入れると、先後勝率が均等になるはず
 #
 
 import traceback
@@ -18,27 +19,27 @@ class LeapRoundCalculate():
     """閏対局計算"""
 
 
-    def __init__(self, black_win_rate, strict_b_point, strict_w_require, practical_b_point, practical_w_require):
+    def __init__(self, black_win_rate, strict_b_require, strict_w_require, practical_b_require, practical_w_require):
         """初期化
         
         Parameters
         ----------
         black_win_rate : float
             表が出る確率
-        strict_b_point : int
+        strict_b_require : int
             表が出る確率の厳密な整数比
         strict_w_require : int
             裏が出る確率の厳密な整数比
-        practical_b_point : int
+        practical_b_require : int
             表が出る確率の実用的な整数比
         practical_w_require : int
             裏が出る確率の実用的な整数比
         """
 
         self._black_win_rate = black_win_rate
-        self._strict_b_point = strict_b_point
+        self._strict_b_require = strict_b_require
         self._strict_w_require = strict_w_require
-        self._practical_b_point = practical_b_point
+        self._practical_b_require = practical_b_require
         self._practical_w_require = practical_w_require
 
 
@@ -49,9 +50,9 @@ class LeapRoundCalculate():
 
 
     @property
-    def strict_b_point(self):
+    def strict_b_require(self):
         """表が出る確率の厳密な整数比"""
-        return self._strict_b_point
+        return self._strict_b_require
 
 
     @property
@@ -61,9 +62,9 @@ class LeapRoundCalculate():
 
 
     @property
-    def practical_b_point(self):
+    def practical_b_require(self):
         """表が出る確率の実用的な整数比"""
-        return self._practical_b_point
+        return self._practical_b_require
 
 
     @property
@@ -95,20 +96,20 @@ if __name__ == '__main__':
             # -------------------
 
             # 厳密な値
-            strict_b_point, strict_w_require = black_win_rate_to_b_w_targets(p=p)
-            print(f"厳密な先取本数  先手：後手＝{strict_b_point:>2}：{strict_w_require:>2}  ", end='')
+            strict_b_require, strict_w_require = black_win_rate_to_b_w_targets(p=p)
+            print(f"厳密な先取本数  先手：後手＝{strict_b_require:>2}：{strict_w_require:>2}  ", end='')
 
             # 実用的な値（後手取得本数が１になるよう丸めたもの）
-            practical_b_point = round_letro(strict_b_point / strict_w_require) # 小数点以下四捨五入
+            practical_b_require = round_letro(strict_b_require / strict_w_require) # 小数点以下四捨五入
             practical_w_require = 1
-            print(f"実用的な先取本数  先手：後手＝{practical_b_point:>2}：{practical_w_require:>2}  ", end='')
+            print(f"実用的な先取本数  先手：後手＝{practical_b_require:>2}：{practical_w_require:>2}  ", end='')
 
 
             # 説明４　表がまだ多めに出る得
             # --------------------------
 
             # 剰余（remainder）。繰り上がり先手勝率点
-            strict_carried = strict_b_point % strict_w_require            
+            strict_carried = strict_b_require % strict_w_require            
             print(f"割り切れない先手得{strict_carried:2}  ", end='')
 
 
@@ -124,7 +125,7 @@ if __name__ == '__main__':
             # ---------------------------------
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            carryover_strict_b_point = strict_b_point + strict_carried
+            carryover_strict_b_require = strict_b_require + strict_carried
 
 
             # 繰り上がりがある場合
@@ -161,7 +162,7 @@ if __name__ == '__main__':
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点
-                            strict_carried = strict_b_point % strict_carried
+                            strict_carried = strict_b_require % strict_carried
                             #print(f"  次の繰り上がり先手勝率点{strict_carried}")
                             print(f"[第{next_leap:2}](新得{strict_carried:2}) ", end='')
 
@@ -171,8 +172,8 @@ if __name__ == '__main__':
                                 break
 
                             # 繰り上がり込み先手勝率点
-                            carryover_strict_b_point = strict_b_point + strict_carried
-                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_b_point}")
+                            carryover_strict_b_require = strict_b_require + strict_carried
+                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_b_require}")
 
                     countdown -= 1
 
@@ -187,11 +188,11 @@ if __name__ == '__main__':
                 # 表が出る確率
                 black_win_rate=p,
                 # 先手勝率の厳密な整数比
-                strict_b_point=strict_b_point,
+                strict_b_require=strict_b_require,
                 # 後手勝率の厳密な整数比
                 strict_w_require=strict_w_require,
                 # 先手勝率の実用的な整数比
-                practical_b_point=practical_b_point,
+                practical_b_require=practical_b_require,
                 # 後手勝率の実用的な整数比
                 practical_w_require=practical_w_require)
 
