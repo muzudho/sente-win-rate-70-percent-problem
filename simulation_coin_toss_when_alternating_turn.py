@@ -18,6 +18,7 @@ from library import ALICE, CoinToss
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'
+CSV_FILE_PATH = './data/takahashi_satoshi_system.csv'
 
 
 ########################################
@@ -29,11 +30,11 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        
         # 対局数
         round_total = 2_000_000 # 十分多いケース
         #round_total = 200
-
-        df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
         for p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn in zip(df['p'], df['b_repeat_when_frozen_turn'], df['w_repeat_when_frozen_turn']):

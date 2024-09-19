@@ -17,6 +17,8 @@ from views import stringify_when_generate_takahashi_satoshi_system
 
 
 LOG_FILE_PATH = 'output/generate_takahashi_satoshi_system.log'
+CSV_FILE_PATH_P = "./data/p.csv"
+CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
 
 
 OUT_OF_ERROR = 0.51
@@ -33,7 +35,8 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv("./data/p.csv", encoding="utf8")
+        df = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
+        df_tss = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
 
         # 先手勝率
         for p in df['p']:
@@ -43,9 +46,6 @@ if __name__ == '__main__':
             best_balanced_black_win_rate = None
             best_b_repeat_when_frozen_turn = 0
             best_w_repeat_when_frozen_turn = 0
-
-            # # 比が同じになるｎ本勝負と白のｍ勝先取のペアはスキップしたい
-            # ration_set = set()
 
             # 計算過程
             process_list = []
@@ -220,7 +220,24 @@ if __name__ == '__main__':
                 # # 計算過程を追加する場合
                 # text += f"  {''.join(process_list)}"
 
-                f.write(f"{text}\n")    # ファイルへ出力
+                f.write(f"{text}\n")    # ログファイルへ出力
+
+
+            # データフレーム更新
+            # -----------------
+
+            # ［黒だけでの反復数（先後固定制）］列を更新
+            df_tss['b_repeat_when_frozen_turn'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df_tss.loc[df['p']==p, ['b_repeat_when_frozen_turn']] = best_b_repeat_when_frozen_turn
+
+            # ［白だけでの反復数（先後固定制）］列を更新
+            df_tss['w_repeat_when_frozen_turn'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df_tss.loc[df['p']==p, ['w_repeat_when_frozen_turn']] = best_w_repeat_when_frozen_turn
+
+
+        # CSV保存
+        df_tss.to_csv(CSV_FILE_PATH_TSS,
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
     except Exception as err:
