@@ -158,11 +158,11 @@ def iteration_deeping(df, limit_of_error):
                     b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
 
                     black_win_count = n_round_when_frozen_turn(
-                        black_win_rate=p,
-                        number_of_longest_bout_when_frozen_turn=number_of_longest_bout_when_frozen_turn,
-                        b_time=b_time,
-                        w_time=w_time,
-                        round_count=best_round_count)
+                            p=p,
+                            number_of_longest_bout_when_frozen_turn=number_of_longest_bout_when_frozen_turn,
+                            b_time=b_time,
+                            w_time=w_time,
+                            round_count=best_round_count)
                     
                     #print(f"{black_win_count=}  {best_round_count=}  {black_win_count / best_round_count=}")
                     new_p_rate = black_win_count / best_round_count

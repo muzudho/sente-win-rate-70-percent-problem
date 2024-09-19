@@ -12,66 +12,68 @@ import datetime
 import random
 import math
 
-from library import BLACK, round_letro, black_win_rate_to_b_w_targets, CoinToss
+from library import BLACK, round_letro, p_to_b_w_times, CoinToss
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
 
 
 INPUT_DATA = [
-    # black_win_rate  leap_th_list
-    # 先手勝率         閏対局リスト
-    # --------------  ------------
-    [           0.50, []],
-    [           0.51, [25, 74]],
-    [           0.52, [12]],
-    [           0.53, [8, 18, 34,58, 105]],
-    [           0.54, [6, 14]],
-    [           0.55, [5, 14]],
-    [           0.56, [4, 10]],
-    [           0.57, [4, 47]],
-    [           0.58, [3, 8, 14, 35]],
-    [           0.59, [5, 8, 14, 35]],
-    [           0.60, [2]],
-    [           0.61, [2, 5, 9, 48]],
-    [           0.62, [2, 5, 12, 31]],
-    [           0.63, [2, 6, 11, 17]],
-    [           0.64, [2, 7]],
-    [           0.65, [2, 9]],
-    [           0.66, [2, 19]],
-    [           0.67, [33]],
-    [           0.68, [8]],
-    [           0.69, [5, 11, 22]],
-    [           0.70, [3]],
-    [           0.71, [3, 8, 14, 43]],
-    [           0.72, [2, 6]],
-    [           0.73, [2, 4, 7, 34]],
-    [           0.74, [2, 6, 19]],
-    [           0.75, []],
-    [           0.76, [6]],
-    [           0.77, [3, 8, 20, 43]],
-    [           0.78, [2, 6]],
-    [           0.79, [2, 4, 10, 17, 38]],
-    [           0.80, []],
-    [           0.81, [4, 23]],
-    [           0.82, [2, 11]],
-    [           0.83, [2, 5, 11, 37]],
-    [           0.84, [4]],
-    [           0.85, [2, 5]],
-    [           0.86, [7]],
-    [           0.87, [2, 5, 10]],
-    [           0.88, [3]],
-    [           0.89, [11]],
-    [           0.90, []],
-    [           0.91, [9]],
-    [           0.92, [2]],
-    [           0.93, [4, 11]],
-    [           0.94, [2, 5]],
-    [           0.95, []],
-    [           0.96, []],
-    [           0.97, [3]],
-    [           0.98, []],
-    [           0.99, []],
+    # `p` - ［表が出る確率］
+    # `leap_th_list` - 閏対局リスト
+    #
+    # p      leap_th_list
+    # -----  ----------------------
+    [ 0.50,  []],
+    [ 0.51,  [25, 74]],
+    [ 0.52,  [12]],
+    [ 0.53,  [8, 18, 34,58, 105]],
+    [ 0.54,  [6, 14]],
+    [ 0.55,  [5, 14]],
+    [ 0.56,  [4, 10]],
+    [ 0.57,  [4, 47]],
+    [ 0.58,  [3, 8, 14, 35]],
+    [ 0.59,  [5, 8, 14, 35]],
+    [ 0.60,  [2]],
+    [ 0.61,  [2, 5, 9, 48]],
+    [ 0.62,  [2, 5, 12, 31]],
+    [ 0.63,  [2, 6, 11, 17]],
+    [ 0.64,  [2, 7]],
+    [ 0.65,  [2, 9]],
+    [ 0.66,  [2, 19]],
+    [ 0.67,  [33]],
+    [ 0.68,  [8]],
+    [ 0.69,  [5, 11, 22]],
+    [ 0.70,  [3]],
+    [ 0.71,  [3, 8, 14, 43]],
+    [ 0.72,  [2, 6]],
+    [ 0.73,  [2, 4, 7, 34]],
+    [ 0.74,  [2, 6, 19]],
+    [ 0.75,  []],
+    [ 0.76,  [6]],
+    [ 0.77,  [3, 8, 20, 43]],
+    [ 0.78,  [2, 6]],
+    [ 0.79,  [2, 4, 10, 17, 38]],
+    [ 0.80,  []],
+    [ 0.81,  [4, 23]],
+    [ 0.82,  [2, 11]],
+    [ 0.83,  [2, 5, 11, 37]],
+    [ 0.84,  [4]],
+    [ 0.85,  [2, 5]],
+    [ 0.86,  [7]],
+    [ 0.87,  [2, 5, 10]],
+    [ 0.88,  [3]],
+    [ 0.89,  [11]],
+    [ 0.90,  []],
+    [ 0.91,  [9]],
+    [ 0.92,  [2]],
+    [ 0.93,  [4, 11]],
+    [ 0.94,  [2, 5]],
+    [ 0.95,  []],
+    [ 0.96,  []],
+    [ 0.97,  [3]],
+    [ 0.98,  []],
+    [ 0.99,  []],
 ]
 
 
@@ -88,8 +90,8 @@ if __name__ == '__main__':
             coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # 先手勝率
-            black_win_rate=input_datum[0]
-            print(f"先手勝率{black_win_rate:4.2f}  ")
+            p=input_datum[0]
+            print(f"先手勝率{p:4.2f}  ")
 
             # 閏対局のリスト
             leap_th_list = input_datum[1]
@@ -105,7 +107,7 @@ if __name__ == '__main__':
 
 
             # 厳密な値
-            strict_b_time, strict_w_time = black_win_rate_to_b_w_targets(p=black_win_rate)
+            strict_b_time, strict_w_time = p_to_b_w_times(p=p)
             print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_b_time:>2}：{strict_w_time:>2}  ", end='')
 
             # 実用的な値（［白だけでの回数］が１になるよう丸めたもの）
@@ -134,7 +136,7 @@ if __name__ == '__main__':
                         # 勝った方の手番を返す
                         if BLACK == coin_toss.coin_toss_in_round(
                                 # 先手勝率
-                                black_win_rate=black_win_rate,
+                                p=p,
                                 # 先手の何本先取制
                                 b_time=practical_b_time + 1,
                                 # 後手の何本先取制
@@ -146,7 +148,7 @@ if __name__ == '__main__':
                         # 勝った方の手番を返す
                         if BLACK == coin_toss.coin_toss_in_round(
                                 # 先手勝率
-                                black_win_rate=black_win_rate,
+                                p=p,
                                 # 先手の何本先取制
                                 b_time=practical_b_time,
                                 # 後手の何本先取制
@@ -158,7 +160,7 @@ if __name__ == '__main__':
                     # 勝った方の手番を返す
                     if BLACK == coin_toss.coin_toss_in_round(
                             # 先手勝率
-                            black_win_rate=black_win_rate,
+                            p=p,
                             # 先手の何本先取制
                             b_time=practical_b_time,
                             # 後手の何本先取制
@@ -172,7 +174,7 @@ if __name__ == '__main__':
             error = abs(black_won_rate - 0.5)
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  実用的な先手{practical_b_time:2}本先取／後手{practical_w_time:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.02f}  実用的な先手{practical_b_time:2}本先取／後手{practical_w_time:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
                 print(text)
                 f.write(f"{text}\n")
 

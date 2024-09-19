@@ -12,19 +12,19 @@ import traceback
 import math
 import pandas as pd
 
-from library import round_letro, scale_for_float_to_int, black_win_rate_to_b_w_targets
+from library import round_letro, scale_for_float_to_int, p_to_b_w_times
 
 
 class LeapRoundCalculate():
     """閏対局計算"""
 
 
-    def __init__(self, black_win_rate, strict_b_time, strict_w_time, practical_b_time, practical_w_time):
+    def __init__(self, p, strict_b_time, strict_w_time, practical_b_time, practical_w_time):
         """初期化
         
         Parameters
         ----------
-        black_win_rate : float
+        p : float
             表が出る確率
         strict_b_time : int
             表が出る確率の厳密な整数比
@@ -36,7 +36,7 @@ class LeapRoundCalculate():
             裏が出る確率の実用的な整数比
         """
 
-        self._black_win_rate = black_win_rate
+        self._p = p
         self._strict_b_time = strict_b_time
         self._strict_w_time = strict_w_time
         self._practical_b_time = practical_b_time
@@ -44,9 +44,9 @@ class LeapRoundCalculate():
 
 
     @property
-    def black_win_rate(self):
-        """表が出る確率"""
-        return self._black_win_rate
+    def p(self):
+        """［表が出る確率］"""
+        return self._p
 
 
     @property
@@ -96,7 +96,7 @@ if __name__ == '__main__':
             # -------------------
 
             # 厳密な値
-            strict_b_time, strict_w_time = black_win_rate_to_b_w_targets(p=p)
+            strict_b_time, strict_w_time = p_to_b_w_times(p=p)
             print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_b_time:>2}：{strict_w_time:>2}  ", end='')
 
             # 実用的な値（［白だけでの回数］が１になるよう丸めたもの）
@@ -185,16 +185,16 @@ if __name__ == '__main__':
             print() # 改行
 
             LeapRoundCalculate(
-                # 表が出る確率
-                black_win_rate=p,
-                # 先手勝率の厳密な整数比
-                strict_b_time=strict_b_time,
-                # 後手勝率の厳密な整数比
-                strict_w_time=strict_w_time,
-                # 先手勝率の実用的な整数比
-                practical_b_time=practical_b_time,
-                # 後手勝率の実用的な整数比
-                practical_w_time=practical_w_time)
+                    # 表が出る確率
+                    p=p,
+                    # 先手勝率の厳密な整数比
+                    strict_b_time=strict_b_time,
+                    # 後手勝率の厳密な整数比
+                    strict_w_time=strict_w_time,
+                    # 先手勝率の実用的な整数比
+                    practical_b_time=practical_b_time,
+                    # 後手勝率の実用的な整数比
+                    practical_w_time=practical_w_time)
 
 
     except Exception as err:

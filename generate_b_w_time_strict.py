@@ -37,8 +37,8 @@ if __name__ == '__main__':
         for p in df['p']:
 
             # ベストな調整後の先手勝率と、その誤差
-            best_balanced_black_win_rate = None
-            best_error = OUT_OF_ERROR
+            best_new_p = None
+            best_new_p_error = OUT_OF_ERROR
             best_b_time = 0
             best_w_time = 0
 
@@ -55,22 +55,22 @@ if __name__ == '__main__':
 
                 for w_time in range (1, max_w_time+1):
 
-                    balanced_black_win_rate = calculate_probability(
-                        p=p,
-                        H=b_time,
-                        T=w_time)
+                    new_p = calculate_probability(
+                            p=p,
+                            H=b_time,
+                            T=w_time)
 
                     # 誤差
-                    error = abs(balanced_black_win_rate - 0.5)
+                    error = abs(new_p - 0.5)
 
-                    if error < best_error:
-                        best_error = error
-                        best_balanced_black_win_rate = balanced_black_win_rate
+                    if error < best_new_p_error:
+                        best_new_p_error = error
+                        best_new_p = new_p
                         best_b_time = b_time
                         best_w_time = w_time
 
                         # 計算過程
-                        process = f"[{best_error:6.4f} 黒{best_b_time:>3} 白{best_w_time:>2}]"
+                        process = f"[{best_new_p_error:6.4f} 黒{best_b_time:>3} 白{best_w_time:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                 # ［勝ち点ルール］の構成
                 points_configuration = PointsConfiguration.let_points_from_repeat(best_b_time, best_w_time)
 
-                text = stringify_when_generate_b_w_time_strict(p, best_balanced_black_win_rate, best_error, points_configuration, process_list)
+                text = stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, points_configuration, process_list)
                 print(text) # 表示
 
                 f.write(f"{text}\n")    # ファイルへ出力

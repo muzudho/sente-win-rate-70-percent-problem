@@ -74,21 +74,21 @@ def scale_for_float_to_int(value):
     return 10**dp_len
 
 
-# def white_win_rate(black_win_rate):
-#     """後手勝率
+# def white_win_rate(p):
+#     """［裏が出る確率］（後手勝率）
 #
 #     NOTE 0.11 が 0.10999999999999999 になっていたり、想定した結果を返さないことがあるから使わないほうがいい
 #
 #     Parameters
 #     ----------
-#     black_win_rate : float
-#         先手勝率
+#     p : float
+#         ［表が出る確率］
 #     """
-#     return 1 - black_win_rate
+#     return 1 - p
 
 
-def black_win_rate_to_b_w_targets(p):
-    """表が出る確率 p を与えると、［黒だけでの回数］、［白だけでの回数］を返す
+def p_to_b_w_times(p):
+    """［表が出る確率］ p を与えると、［黒だけでの回数］、［白だけでの回数］を返す
     
     Parameters
     ----------
@@ -178,15 +178,15 @@ def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_time, w_time):
     raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_time=}  {w_time=}")
 
 
-def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_time, w_time, round_count):
+def n_round_when_frozen_turn(p, number_of_longest_bout_when_frozen_turn, b_time, w_time, round_count):
     """［最長対局数（先後固定制）］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
     
     Parameters
     ----------
-    black_win_rate : float
-        黒番の勝率。例： 黒番が７割勝つなら 0.7
+    p : float
+        ［表が出る確率］（先手勝率）  例： 黒番が７割勝つなら 0.7
     number_of_longest_bout_when_frozen_turn : int
         ［最長対局数（先後固定制）］。例： ３本勝負なら 3
     b_time : int
@@ -204,7 +204,7 @@ def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_time, w_time) == BLACK:
+        if n_bout_when_frozen_turn(p, number_of_longest_bout_when_frozen_turn, b_time, w_time) == BLACK:
             black_win_count += 1
 
     return black_win_count
@@ -231,13 +231,13 @@ class CoinToss():
         return self._output_file_path
 
 
-    def coin_toss_in_round(self, black_win_rate, b_time, w_time):
+    def coin_toss_in_round(self, p, b_time, w_time):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
         ----------
-        black_win_rate : float
-            黒が出る確率（先手勝率）
+        p : float
+            ［表が出る確率］（先手勝率）
         b_time : int
             先手の何本先取制
         w_time : int
@@ -257,7 +257,7 @@ class CoinToss():
         while True:
 
             # 黒が出た
-            if coin(black_win_rate) == BLACK:
+            if coin(p) == BLACK:
                 b_got += 1
 
                 # ［黒だけでの回数］を取った（黒が勝った）
@@ -275,19 +275,17 @@ class CoinToss():
             # 続行
 
 
-    def coin_toss_in_round_when_alternating_turn(self, black_win_rate, b_time, w_time):
+    def coin_toss_in_round_when_alternating_turn(self, p, points_configuration):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
 
         手番を交互にするパターン
         
         Parameters
         ----------
-        black_win_rate : float
-            黒が出る確率（先手勝率）
-        b_time : int
-            先手の何本先取制
-        w_time : int
-            後手の何本先取制
+        p : float
+            ［表が出る確率］（先手勝率）
+        points_configuration : PointsConfiguration
+            ［勝ち点ルール］の構成
         
         Returns
         -------
@@ -303,7 +301,7 @@ class CoinToss():
         for bout_th in range(1, 2_147_483_647):
 
             # 黒が出た
-            if coin(black_win_rate) == BLACK:
+            if coin(p) == BLACK:
 
                 # 奇数本で黒番のプレイヤーはＡさん
                 if bout_th % 2 == 1:
@@ -316,7 +314,7 @@ class CoinToss():
                 b_got[successful_player] += 1
 
                 # ［黒だけでの回数］を取った（黒で、勝利条件を満たした）
-                if b_time <= b_got[successful_player]:
+                if points_configuration.b_time <= b_got[successful_player]:
                     return successful_player
 
             # 白が出た
@@ -333,7 +331,7 @@ class CoinToss():
                 w_got[successful_player] += 1
 
                 # ［白だけでの回数］を取った（白で、勝利条件を満たした）
-                if w_time <= w_got[successful_player]:
+                if points_configuration.w_time <= w_got[successful_player]:
                     return successful_player
 
             # 続行
@@ -369,7 +367,8 @@ def calculate_probability(p, H, T):
         ［裏側を持っているプレイヤー］が必要な、裏の先取回数
     
     Returns
-    black_win_rate : float
+    -------
+    probability : float
         ［表側を持っているプレイヤー］が勝つ確率
     """
 

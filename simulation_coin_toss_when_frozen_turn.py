@@ -52,8 +52,8 @@ if __name__ == '__main__':
             text = stringify_log_when_simulation_coin_toss_when_frozen_turn(
                     # 出力先ファイルへのパス
                     output_file_path=coin_toss.output_file_path,
-                    # 先手勝率
-                    black_win_rate=p,
+                    # ［表が出る確率］（先手勝率）
+                    p=p,
                     # 先手の何本先取制
                     b_time=b_time,
                     # 後手の何本先取制

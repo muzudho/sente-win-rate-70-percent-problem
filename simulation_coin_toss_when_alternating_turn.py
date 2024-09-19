@@ -4,7 +4,7 @@
 #
 #   ［先後交互制］
 #   引き分けは考慮していない。
-#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_when_alternating_turn）投げる
+#   ［表の出る確率］ p が偏ったコインを、指定回数（max_number_of_bout_when_alternating_turn）投げる
 #   Ａさん（Alice）が最初に先手を持ち、１局毎にＢさん（Bob）と先後を交代する。
 #
 
@@ -14,7 +14,8 @@ import math
 import datetime
 import pandas as pd
 
-from library import ALICE, CoinToss
+from fractions import Fraction
+from library import ALICE, CoinToss, PointsConfiguration
 from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
@@ -37,9 +38,26 @@ if __name__ == '__main__':
         round_total = 2_000_000 # 十分多いケース
         #round_total = 200
 
+        coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
+
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
         for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
-            coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
+
+            # ［勝ち点ルール］の構成
+            points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+
+            # NOTE ［先後固定制］での［勝ち点ルール］の構成をそのまま使うと、先手勝率が 37% ～ 63% にぶれてしまう
+
+            # # NOTE ［先後交互制］では、さらに確率の調整を入れる。 b_time を 4 倍、 w_time を 2 倍にし、さらに約分する ----> さすがに先手勝率が 37% ～ 53% ぐらいに下がってしまう
+            #b_time *= 4
+            #w_time *= 2
+            #fraction = Fraction(w_time, b_time)
+            #w_time = fraction.numerator
+            #b_time = fraction.denominator
+
+            # # NOTE ［先後交互制］では、さらに確率の調整を入れる。 b_time を 1 増やす ----> 先手勝率が 37% ～ 63% にぶれてしまう
+            #b_time += 1
+
 
             # Ａさんが勝った回数
             alice_wons = 0
@@ -48,7 +66,7 @@ if __name__ == '__main__':
                 round_th = round + 1
 
                 # 勝ったプレイヤーを返す
-                if coin_toss.coin_toss_in_round_when_alternating_turn(p, b_time, w_time) == ALICE:
+                if coin_toss.coin_toss_in_round_when_alternating_turn(p, points_configuration) == ALICE:
                     alice_wons += 1
 
 
