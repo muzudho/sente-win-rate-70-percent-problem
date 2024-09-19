@@ -44,8 +44,6 @@ def iteration_deeping(df, limit_of_error):
     """
     for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_time, process in zip(df['p'], df['new_p'], df['new_p_error'], df['number_of_longest_bout_when_frozen_turn'], df['round_count'], df['w_time'], df['process']):
 
-        # ［黒勝ちだけでの対局数］は計算で求めます
-        #
         #   交互に手番を替えるか、変えないかに関わらず、先手と後手の重要さは p で決まっている。
         #
         #   ［黒勝ちだけでの対局数］も、
@@ -130,6 +128,8 @@ def iteration_deeping(df, limit_of_error):
         #
         #   FIXME 合ってるか、あとで確認
         #
+
+        # ［黒勝ちだけでの対局数］は計算で求めます
         best_b_time = (best_max_bout_count-2*(best_w_time-1))/2
 
         is_automatic = best_new_p_error >= limit_of_error or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_time == 0
@@ -164,11 +164,11 @@ def iteration_deeping(df, limit_of_error):
                             round_count=best_round_count)
                     
                     #print(f"{black_win_count=}  {best_round_count=}  {black_win_count / best_round_count=}")
-                    new_p_rate = black_win_count / best_round_count
-                    new_p_error = abs(new_p_rate - 0.5)
+                    new_p = black_win_count / best_round_count
+                    new_p_error = abs(new_p - 0.5)
 
                     if new_p_error < best_new_p_error:
-                        best_new_p = new_p_rate
+                        best_new_p = new_p
                         best_new_p_error = new_p_error
                         best_max_bout_count = number_of_longest_bout_when_frozen_turn
                         best_b_time = b_time

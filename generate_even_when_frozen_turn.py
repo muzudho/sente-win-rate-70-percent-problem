@@ -34,7 +34,6 @@ def iteration_deeping(df, limit_of_error):
         リミット
     """
     for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_time, process in zip(df['p'], df['new_p'], df['new_p_error'], df['number_of_longest_bout_when_frozen_turn'], df['round_count'], df['w_time'], df['process']):
-        #print(f"{p=}  {best_new_p_error=}  {best_max_bout_count=}  {best_round_count=}  {best_w_time=}  {process=}  {type(process)=}")
 
         # ［黒勝ちだけでの対局数］は計算で求めます
         best_b_time = best_max_bout_count-(best_w_time-1)
