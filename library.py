@@ -414,13 +414,13 @@ class PointsConfiguration():
 
     @property
     def b_step(self):
-        """先手勝ちの点"""
+        """先手勝ちの点［黒勝ちの価値］"""
         return self._b_step
 
 
     @property
     def w_step(self):
-        """後手勝ちの点"""
+        """後手勝ちの点［白勝ちの価値］"""
         return self._w_step
 
 
@@ -472,15 +472,58 @@ class PointsConfiguration():
 
 
     def let_number_of_shortest_bout_when_frozen_turn(self):
-        """［最短対局数（先後固定制）］"""
+        """［最短対局数（先後固定制）］
+        
+        白が全勝したときの回数と同じ
+        """
         return self.w_repeat_when_frozen_turn
 
 
     def let_number_of_longest_bout_when_frozen_turn(self):
         """［最長対局数（先後固定制）］
 
+        黒があと１つで勝てるところで止まり、白が全勝したときの回数と同じ
+
         NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
         NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
         NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
         """
         return  (self.b_repeat_when_frozen_turn-1) + (self.w_repeat_when_frozen_turn-1) + 1
+
+
+    def let_number_of_shortest_bout_when_alternating_turn(self):
+        """［最短対局数（先後交代制）］
+        
+        Ｂさんが全勝したときの回数と同じ。Ｂさんは後手番から始まるので、Ａさんより速い。
+
+        まず、［目標の点］が［黒勝ちの価値］＋［白勝ちの価値］より上回っているなら、［目標の点］から［黒勝ちの価値］＋［白勝ちの価値］を順に引いていく（２回分を加算していく）。
+        端数が出たら［黒勝ちの価値］（１回分）を加算するような、［目標の点］に達するまでの回数。
+        """
+
+        remainder = self._span_when_frozen_turn
+
+        if self._b_step + self._w_step < remainder:
+            count = math.floor(self._span_when_frozen_turn / (self._b_step + self._w_step)) * 2
+            remainder = self._span_when_frozen_turn % (self._b_step + self._w_step)
+        else:
+            count = 0
+
+        # 端数があれば［黒勝ちの価値］を引く（１回分を加算）
+        if 0 < remainder:
+            count += 1
+            remainder -= self._b_step
+
+            # まだ端数があれば［白勝ちの価値］を引く（１回分を加算）
+            if 0 < remainder:
+                count += 1
+                remainder -= self._w_step
+
+                # remainder は負数になっているはず
+                if 0 <= remainder:
+                    raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
+            
+            # remainder は零か負数になっているはず
+            elif 0 < remainder:
+                raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
+
+        return count
