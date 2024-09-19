@@ -433,13 +433,21 @@ class PointsConfiguration():
     @property
     def b_repeat_when_frozen_turn(self):
         """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な数［黒だけでの反復数］"""
-        return self._span_when_frozen_turn / self._b_step
+
+        #
+        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
+        #
+        return round_letro(self._span_when_frozen_turn / self._b_step)
 
 
     @property
     def w_repeat_when_frozen_turn(self):
         """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な数［白だけでの反復数］"""
-        return self._span_when_frozen_turn / self._w_step
+
+        #
+        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
+        #
+        return round_letro(self._span_when_frozen_turn / self._w_step)
 
 
     @staticmethod
@@ -448,13 +456,31 @@ class PointsConfiguration():
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
         # 先手勝ちの点
-        b_step = lcm / b_repeat_when_frozen_turn
+        #
+        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
+        #
+        b_step = round_letro(lcm / b_repeat_when_frozen_turn)
         # 後手勝ちの点
-        w_step = lcm / w_repeat_when_frozen_turn
+        w_step = round_letro(lcm / w_repeat_when_frozen_turn)
         # 先後固定制での目標の点
-        span_when_frozen_turn = w_repeat_when_frozen_turn * w_step
-        span_when_frozen_turn_w = b_repeat_when_frozen_turn * b_step
+        span_when_frozen_turn = round_letro(w_repeat_when_frozen_turn * w_step)
+        span_when_frozen_turn_w = round_letro(b_repeat_when_frozen_turn * b_step)
         if span_when_frozen_turn != span_when_frozen_turn_w:
             raise ValueError(f"{span_when_frozen_turn=}  {span_when_frozen_turn_w=}")
 
         return PointsConfiguration(b_step, w_step, span_when_frozen_turn)
+
+
+    def let_number_of_shortest_bout_when_frozen_turn(self):
+        """［最短対局数（先後固定制）］"""
+        return self.w_repeat_when_frozen_turn
+
+
+    def let_number_of_longest_bout_when_frozen_turn(self):
+        """［最長対局数（先後固定制）］
+
+        NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
+        NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
+        NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
+        """
+        return  (self.b_repeat_when_frozen_turn-1) + (self.w_repeat_when_frozen_turn-1) + 1

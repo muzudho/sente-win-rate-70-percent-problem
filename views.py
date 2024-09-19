@@ -1,10 +1,36 @@
 import datetime
 
+from library import PointsConfiguration
 
-def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, max_number_of_bout_when_frozen_turn, points_configuration):
+
+def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn):
+    """文言の作成"""
+
+    # ［勝ち点ルール］の構成
+    points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+
+    # ［表が出る確率（％）］
+    seg_1 = p*100
+
+    # ［調整後の表が出る確率（％）］
+    seg_2 = best_balanced_black_win_rate*100
+
+    # ［最長対局数（先後固定制）］
+    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
+    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
+
+    # ［白勝ちの価値］
+    seg_4 = points_configuration.b_step
+
+    # ［黒勝ちの価値］
+    seg_5 = points_configuration.w_step
+
+    # ［目標の点］
+    seg_6 = points_configuration.span_when_frozen_turn
+
     text = ""
     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-    text += f"先手勝率 {p*100:2.0f} ％ --調整後--> {best_balanced_black_win_rate*100:6.4f} ％ （± {best_error*100:>7.4f}）    最長対局数 {max_number_of_bout_when_frozen_turn:>2}    先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.target_point:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_2:6.4f} ％ （± {best_error*100:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}    先手勝ち{seg_4:2.0f}点、後手勝ち{seg_5:2.0f}点　目標{seg_6:3.0f}点（先後固定制）"
     return text
 
 
@@ -26,7 +52,7 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     else:
         tail = f"  （対象外。誤差十分）"
 
-    print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  最長対局数{best_max_bout_count:2} {best_round_count:6}回  先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.target_point:3.0f}点（先後固定制）{tail}")
+    print(f"先手勝率：{p*100:2.0f} ％ --調整後--> {best_new_p * 100:>7.04f} ％（± {best_new_p_error * 100:>7.04f}）  最長対局数{best_max_bout_count:2} {best_round_count:6}回  先手勝ち{points_configuration.b_step:2.0f}点、後手勝ち{points_configuration.w_step:2.0f}点　目標{points_configuration.span_when_frozen_turn:3.0f}点（先後固定制）{tail}")
 
 
 def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):

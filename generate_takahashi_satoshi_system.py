@@ -212,21 +212,8 @@ if __name__ == '__main__':
 
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                # 文言作成
-                # -------
-
-                # ［最長対局数（先後固定制）］
-                #
-                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
-                #   NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
-                #   NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
-                #
-                max_number_of_bout_when_frozen_turn = best_b_repeat_when_frozen_turn + best_w_repeat_when_frozen_turn - 1
-
-                # ［勝ち点ルール］の構成
-                points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
-
-                text = stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, max_number_of_bout_when_frozen_turn, points_configuration)
+                # 文言の作成
+                text = stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
                 print(text) # 表示
 
