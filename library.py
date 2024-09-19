@@ -134,7 +134,7 @@ def coin(black_rate):
     return WHITE
 
 
-def play_game_when_frozen_turn_as_step(p, b_step, w_step, span):
+def play_game_when_frozen_turn(p, b_step, w_step, span):
     """［先後固定制］で対局を行います。勝った方の色を返します
 
     Parameters
@@ -152,6 +152,8 @@ def play_game_when_frozen_turn_as_step(p, b_step, w_step, span):
     -------
     winner_color : int
         勝った方の色
+    bout_th : int
+        対局数
     """
 
     # 点数のリスト。要素は、未使用、黒番、白番
@@ -171,7 +173,7 @@ def play_game_when_frozen_turn_as_step(p, b_step, w_step, span):
         point_list[successful_color] += step
 
         if span <= point_list[successful_color]:
-            return successful_color     # 勝ち抜け
+            return successful_color, bout_th    # 勝ち抜け
 
 
     raise ValueError(f"決着が付かずにループを抜けた  {p=}  {p_step=}  {w_step=}  {span=}")
@@ -255,56 +257,6 @@ class CoinToss():
     def output_file_path(self):
         """出力先ファイルへのパス"""
         return self._output_file_path
-
-
-    def play_game_when_frozen_turn_as_time(self, p, b_time, w_time):
-        """［先後固定制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
-        
-        Parameters
-        ----------
-        p : float
-            ［表が出る確率］（先手勝率）
-        b_time : int
-            先手の何本先取制
-        w_time : int
-            後手の何本先取制
-        
-        Returns
-        -------
-        winner_color : int
-            黒か白
-        bout_th : int
-            対局本数
-        """
-
-        # 一本を取った数
-        b_got = 0
-        w_got = 0
-
-        # 勝ち負けが出るまでやる
-        for bout_th in range(1, 2_147_483_647):
-
-            successful_color = coin(p)
-
-            # 黒が出た
-            if successful_color == BLACK:
-                b_got += 1
-
-                # ［黒勝ちだけでの対局数］を取った（黒が勝った）
-                if b_time <= b_got:
-                    return BLACK, bout_th
-
-            # 白が出た
-            else:
-                w_got += 1
-
-                # ［白勝ちだけでの対局数］を取った（白が勝った）
-                if w_time <= w_got:
-                    return WHITE, bout_th
-
-            # 続行
-
-        raise ValueError("設定している回数で、決着が付かなかった")
 
 
 def calculate_probability(p, H, T):

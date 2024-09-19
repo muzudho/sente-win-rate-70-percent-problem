@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import BLACK, round_letro, p_to_b_w_times, CoinToss
+from library import BLACK, round_letro, p_to_b_w_times, CoinToss, PointsConfiguration, points_configuration
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
@@ -131,40 +131,58 @@ if __name__ == '__main__':
                     else:
                         round_in_cycle = round % cycle
 
+
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
-                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(
-                                # 先手勝率
-                                p=p,
+                        points_configuration = PointsConfiguration.let_points_from_repeat(
                                 # 先手の何本先取制
-                                b_time=practical_b_time + 1,
+                                b_time=practical_b_time + 1,    # 閏の + 1
                                 # 後手の何本先取制
                                 w_time=practical_w_time)
+
+                        winner_color, bout_th = points_configuration(
+                                p=p,
+                                b_time=points_configuration.b_time,
+                                w_time=points_configuration.w_time,
+                                span=points_configuration.span)
+                        
                         if winner_color == BLACK:
                             black_wons += 1
 
-                    else:
+                    else:                        
                         # 閏対局を使わないパターン
-                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(
-                                # 先手勝率
-                                p=p,
+
+                        points_configuration = PointsConfiguration.let_points_from_repeat(
                                 # 先手の何本先取制
                                 b_time=practical_b_time,
                                 # 後手の何本先取制
                                 w_time=practical_w_time)
+
+                        winner_color, bout_th = points_configuration(
+                                p=p,
+                                b_time=points_configuration.b_time,
+                                w_time=points_configuration.w_time,
+                                span=points_configuration.span)
+                        
                         if winner_color == BLACK:
                             black_wons += 1
 
                 # 閏対局を使わないパターン
                 else:
                     # 勝った方の手番を返す
-                    winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(
-                            # 先手勝率
-                            p=p,
+
+                    points_configuration = PointsConfiguration.let_points_from_repeat(
                             # 先手の何本先取制
                             b_time=practical_b_time,
                             # 後手の何本先取制
                             w_time=practical_w_time)
+
+                    winner_color, bout_th = points_configuration(
+                            p=p,
+                            b_time=points_configuration.b_time,
+                            w_time=points_configuration.w_time,
+                            span=points_configuration.span)
+                    
                     if winner_color == BLACK:
                         black_wons += 1
 

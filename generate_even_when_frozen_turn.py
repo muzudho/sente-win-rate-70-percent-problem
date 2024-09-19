@@ -12,7 +12,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, coin, play_game_when_frozen_turn_as_step, round_letro, PointsConfiguration
+from library import BLACK, WHITE, coin, play_game_when_frozen_turn, round_letro, PointsConfiguration
 from views import print_when_generate_when_frozen_turn
 
 
@@ -29,6 +29,37 @@ OUT_OF_ERROR = 0.51
 LIMIT_SPAN = 1000
 LIMIT_W_STEP = LIMIT_SPAN
 LIMIT_B_STEP = LIMIT_W_STEP
+
+
+def update_dataframe(df, p, new_p, new_p_error, round_count, all_processes_text, points_configuration):
+    """データフレーム更新"""
+
+    # 表示
+    print_when_generate_when_frozen_turn(p, new_p, new_p_error, round_count, points_configuration)
+
+    # ［調整後の表が出る確率］列を更新
+    df.loc[df['p']==p, ['new_p']] = new_p
+
+    # ［調整後の表が出る確率の５割との誤差］列を更新
+    df.loc[df['p']==p, ['new_p_error']] = new_p_error
+
+    # ［黒勝ち１つの点数］列を更新
+    df.loc[df['p']==p, ['b_step']] = points_configuration.b_step
+
+    # ［白勝ち１つの点数］列を更新
+    df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
+
+    # ［目標の点数］列を更新 
+    df.loc[df['p']==p, ['span']] = points_configuration.span
+
+    # ［計算過程］列を更新
+    df.loc[df['p']==p, ['process']] = all_processes_text
+
+    # CSV保存
+    df.to_csv(CSV_FILE_PATH,
+            # ［計算過程］列は長くなるので末尾に置きたい
+            columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'process'],
+            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 def iteration_deeping(df, limit_of_error):
@@ -65,18 +96,20 @@ def iteration_deeping(df, limit_of_error):
 
                     for cur_b_step in range(start_b_step, LIMIT_B_STEP):
                         start_b_step = 1
-                        
+
                         # ［勝ち点ルール］の構成
                         points_configuration = PointsConfiguration(b_step=cur_b_step, w_step=cur_w_step, span=cur_span)
 
                         # 先手が勝った回数
                         black_win_count = 0
                         for i in range(0, round_count):
-                            if play_game_when_frozen_turn_as_step(
+                            winner_color, bout_th = play_game_when_frozen_turn(
                                     p=p,
                                     b_step=points_configuration.b_step,
                                     w_step=points_configuration.w_step,
-                                    span=points_configuration.span) == BLACK:
+                                    span=points_configuration.span)
+                            
+                            if winner_color == BLACK:
                                 black_win_count += 1
 
                     
@@ -101,15 +134,16 @@ def iteration_deeping(df, limit_of_error):
                                 all_processes_text = f"{process} {one_process_text}"
                             else:
                                 all_processes_text = one_process_text
-                            # ［計算過程］列を更新
-                            df.loc[df['p']==p, ['process']] = all_processes_text
+
+                            # 表示とデータフレーム更新
+                            update_dataframe(df, p, best_new_p, best_new_p_error, round_count, all_processes_text, best_points_configuration)
 
                             # 十分な答えが出たので探索を打ち切ります
                             if best_new_p_error < limit_of_error:
                                 is_cutoff = True
 
                                 # 進捗バー
-                                print('x', end='', flush=True)
+                                print('cutoff', flush=True)
 
                                 break
 
@@ -132,34 +166,6 @@ def iteration_deeping(df, limit_of_error):
 
         elif not is_update:
             print(f"先手勝率：{p*100:2} ％  （更新なし）")
-
-        else:
-            print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, round_count, best_points_configuration)
-
-
-            # データフレーム更新
-            # -----------------
-
-            # ［調整後の表が出る確率］列を更新
-            df.loc[df['p']==p, ['new_p']] = best_new_p
-
-            # ［調整後の表が出る確率の５割との誤差］列を更新
-            df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
-
-            # ［黒勝ち１つの点数］列を更新
-            df.loc[df['p']==p, ['b_step']] = points_configuration.b_step
-
-            # ［白勝ち１つの点数］列を更新
-            df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
-
-            # ［目標の点数］列を更新 
-            df.loc[df['p']==p, ['span']] = points_configuration.span
-
-            # CSV保存
-            df.to_csv(CSV_FILE_PATH,
-                    # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'process'],
-                    index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 ########################################

@@ -42,6 +42,37 @@ LIMIT_B_STEP = LIMIT_W_STEP
 #
 
 
+def update_dataframe(df, p, new_p, new_p_error, round_count, points_configuration, all_processes_text):
+    """データフレーム更新"""
+
+    # 表示
+    print_when_generate_even_when_alternating_turn(p, new_p, new_p_error, round_count, points_configuration)
+
+    # ［調整後の表が出る確率］列を更新
+    df.loc[df['p']==p, ['new_p']] = new_p
+
+    # ［調整後の表が出る確率の５割との誤差］列を更新
+    df.loc[df['p']==p, ['new_p_error']] = new_p_error
+
+    # ［黒勝ち１つの点数］列を更新
+    df.loc[df['p']==p, ['b_step']] = points_configuration.b_step
+
+    # ［白勝ち１つの点数］列を更新
+    df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
+
+    # ［目標の点数］列を更新 
+    df.loc[df['p']==p, ['span']] = points_configuration.span
+
+    # ［計算過程］列を更新
+    df.loc[df['p']==p, ['process']] = all_processes_text
+
+    # CSV保存
+    df.to_csv(CSV_FILE_PATH,
+            # ［計算過程］列は長くなるので末尾に置きたい
+            columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'process'],
+            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+
 def iteration_deeping(df, limit_of_error):
     """反復深化探索の１セット
 
@@ -198,15 +229,16 @@ def iteration_deeping(df, limit_of_error):
                                 all_processes_text = f"{process} {one_process_text}"
                             else:
                                 all_processes_text = one_process_text
-                            # ［計算過程］列を更新
-                            df.loc[df['p']==p, ['process']] = all_processes_text
+
+                            # 表示とデータフレーム更新
+                            update_dataframe(df, p, best_new_p, best_new_p_error, round_count, best_points_configuration, all_processes_text)
 
                             # 十分な答えが出たので探索を打ち切ります
                             if best_new_p_error < limit_of_error:
                                 is_cutoff = True
 
                                 # 進捗バー
-                                print('x', end='', flush=True)
+                                print('cutoff', flush=True)
 
                                 break
 
@@ -233,35 +265,6 @@ def iteration_deeping(df, limit_of_error):
 
         elif not is_update:
             print(f"先手勝率：{p*100:2} ％  （更新なし）")
-
-        else:
-            print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_error, round_count, best_points_configuration)
-
-
-            # データフレーム更新
-            # -----------------
-
-            # ［調整後の表が出る確率］列を更新
-            df.loc[df['p']==p, ['new_p']] = best_new_p
-
-            # ［調整後の表が出る確率の５割との誤差］列を更新
-            df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
-
-            # ［黒勝ち１つの点数］列を更新
-            df.loc[df['p']==p, ['b_step']] = points_configuration.b_step
-
-            # ［白勝ち１つの点数］列を更新
-            df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
-
-            # ［目標の点数］列を更新 
-            df.loc[df['p']==p, ['span']] = points_configuration.span
-
-
-            # CSV保存
-            df.to_csv(CSV_FILE_PATH,
-                    # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'process'],
-                    index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 ########################################

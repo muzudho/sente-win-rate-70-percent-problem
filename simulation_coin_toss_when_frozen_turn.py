@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, ALICE, CoinToss, PointsConfiguration
+from library import BLACK, ALICE, CoinToss, PointsConfiguration, play_game_when_frozen_turn
 from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
@@ -34,7 +34,17 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     for round in range(0, round_total):
         # ［先後固定制］で、勝った方の手番を返す
-        winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(p, b_time, w_time)
+
+        points_configuration = PointsConfiguration.let_points_from_repeat(
+                b_time=b_time,
+                w_time=w_time)
+
+        winner_color, bout_th = play_game_when_frozen_turn(
+            p=p,
+            b_time=points_configuration.b_time,
+            w_time=points_configuration.w_time,
+            span=points_configuration.span)
+        
         if winner_color == BLACK:
             black_wons += 1
 
