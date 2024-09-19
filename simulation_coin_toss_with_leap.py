@@ -105,13 +105,13 @@ if __name__ == '__main__':
 
 
             # 厳密な値
-            strict_b_repeat_when_frozen_turn, strict_w_repeat_when_frozen_turn = black_win_rate_to_b_w_targets(p=black_win_rate)
-            print(f"厳密な、先後固定制での反復数  先手だけ：後手だけ＝{strict_b_repeat_when_frozen_turn:>2}：{strict_w_repeat_when_frozen_turn:>2}  ", end='')
+            strict_b_repeat, strict_w_repeat = black_win_rate_to_b_w_targets(p=black_win_rate)
+            print(f"厳密な、先後固定制での反復数  先手だけ：後手だけ＝{strict_b_repeat:>2}：{strict_w_repeat:>2}  ", end='')
 
             # 実用的な値（［白だけでの反復数］が１になるよう丸めたもの）
-            practical_b_repeat_when_frozen_turn = round_letro(strict_b_repeat_when_frozen_turn / strict_w_repeat_when_frozen_turn) # 小数点以下四捨五入
-            practical_w_repeat_when_frozen_turn = 1
-            print(f"実用的な、先後固定制での反復数  先手だけ：後手だけ＝{practical_b_repeat_when_frozen_turn:>2}：{practical_w_repeat_when_frozen_turn:>2}  ", end='')
+            practical_b_repeat = round_letro(strict_b_repeat / strict_w_repeat) # 小数点以下四捨五入
+            practical_w_repeat = 1
+            print(f"実用的な、先後固定制での反復数  先手だけ：後手だけ＝{practical_b_repeat:>2}：{practical_w_repeat:>2}  ", end='')
 
             print() # 改行
 
@@ -136,9 +136,9 @@ if __name__ == '__main__':
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
                                 # 先手の何本先取制
-                                b_repeat_when_frozen_turn=practical_b_repeat_when_frozen_turn + 1,
+                                b_repeat=practical_b_repeat + 1,
                                 # 後手の何本先取制
-                                w_repeat_when_frozen_turn=practical_w_repeat_when_frozen_turn):
+                                w_repeat=practical_w_repeat):
                             black_wons += 1
 
                     else:
@@ -148,9 +148,9 @@ if __name__ == '__main__':
                                 # 先手勝率
                                 black_win_rate=black_win_rate,
                                 # 先手の何本先取制
-                                b_repeat_when_frozen_turn=practical_b_repeat_when_frozen_turn,
+                                b_repeat=practical_b_repeat,
                                 # 後手の何本先取制
-                                w_repeat_when_frozen_turn=practical_w_repeat_when_frozen_turn):
+                                w_repeat=practical_w_repeat):
                             black_wons += 1
 
                 # 閏対局を使わないパターン
@@ -160,9 +160,9 @@ if __name__ == '__main__':
                             # 先手勝率
                             black_win_rate=black_win_rate,
                             # 先手の何本先取制
-                            b_repeat_when_frozen_turn=practical_b_repeat_when_frozen_turn,
+                            b_repeat=practical_b_repeat,
                             # 後手の何本先取制
-                            w_repeat_when_frozen_turn=practical_w_repeat_when_frozen_turn):
+                            w_repeat=practical_w_repeat):
                         black_wons += 1
 
             # 黒が勝った確率
@@ -172,7 +172,7 @@ if __name__ == '__main__':
             error = abs(black_won_rate - 0.5)
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  実用的な先手{practical_b_repeat_when_frozen_turn:2}本先取／後手{practical_w_repeat_when_frozen_turn:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{black_win_rate:4.02f}  実用的な先手{practical_b_repeat:2}本先取／後手{practical_w_repeat:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
                 print(text)
                 f.write(f"{text}\n")
 

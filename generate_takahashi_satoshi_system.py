@@ -44,32 +44,32 @@ if __name__ == '__main__':
             # ベストな調整後の先手勝率と、その誤差
             best_new_p_error = OUT_OF_ERROR
             best_new_p = None
-            best_b_repeat_when_frozen_turn = 0
-            best_w_repeat_when_frozen_turn = 0
+            best_b_repeat = 0
+            best_w_repeat = 0
 
             # 計算過程
             process_list = []
 
             is_cutoff = False
 
-            # ［黒だけでの反復数（先後固定制）］
-            for b_repeat_when_frozen_turn in range(1, 101):
+            # ［黒だけでの反復数］
+            for b_repeat in range(1, 101):
                 
-                # ［白だけでの反復数（先後固定制）］
-                for w_repeat_when_frozen_turn in range (1, b_repeat_when_frozen_turn + 1):
-                #for w_repeat_when_frozen_turn in range (1, 2): # ［黒だけでの反復数］を 1 に固定する場合
+                # ［白だけでの反復数］
+                for w_repeat in range (1, b_repeat + 1):
+                #for w_repeat in range (1, 2): # ［黒だけでの反復数］を 1 に固定する場合
 
                     # # ［白だけでの反復数］　＞＝　［黒だけでの反復数］。かつ、［白だけでの反復数］が１の場合は特別
-                    # if b_repeat_when_frozen_turn <= w_repeat_when_frozen_turn and 1 < w_repeat_when_frozen_turn:
+                    # if b_repeat <= w_repeat and 1 < w_repeat:
                     #     continue
 
-                    points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
+                    points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat, w_repeat)
 
                     # ［調整後の表が出る確率（％）］
                     new_p = calculate_probability(      # 表側のプレイヤー（Ａさん）の、勝つ確率
-                        p=p,                            # 表が出る割合
-                        H=b_repeat_when_frozen_turn,    # 表側のプレイヤーの、これだけ表が出れば勝ち、という数
-                        T=w_repeat_when_frozen_turn)    # 裏側のプレイヤーの、これだけ裏が出れば勝ち、という数
+                            p=p,                        # 表が出る割合
+                            H=b_repeat,                 # 表側のプレイヤーの、これだけ表が出れば勝ち、という数
+                            T=w_repeat)                 # 裏側のプレイヤーの、これだけ裏が出れば勝ち、という数
 
                     #
                     # NOTE ［先後交互制］での H と T はどう考える？ ----> ［表が出る確率］というのは変わらない。ＡさんとＢさんたちが先後を入れ替えて回ってるだけで。
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                             # elif 0.76 <= p and p < 0.78:
                             #     # ７本勝負で調整できなければ諦める
                             #     if 7 < number_of_longest_bout_when_frozen_turn:
-                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn} 黒{b_repeat_when_frozen_turn} 白{w_repeat_when_frozen_turn}）は、調整を諦めます]"
+                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn} 黒{b_repeat} 白{w_repeat}）は、調整を諦めます]"
                             #         print(message)
                             #         process_list.append(f"{message}\n")
                             #         continue
@@ -196,11 +196,11 @@ if __name__ == '__main__':
 
                         best_new_p_error = new_p_error
                         best_new_p = new_p
-                        best_b_repeat_when_frozen_turn = b_repeat_when_frozen_turn
-                        best_w_repeat_when_frozen_turn = w_repeat_when_frozen_turn
+                        best_b_repeat = b_repeat
+                        best_w_repeat = w_repeat
 
                         # 計算過程
-                        process = f"[{best_new_p_error:6.4f} 黒{best_b_repeat_when_frozen_turn:>3} 白{best_w_repeat_when_frozen_turn:>2}]"
+                        process = f"[{best_new_p_error:6.4f} 黒{best_b_repeat:>3} 白{best_w_repeat:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
@@ -218,7 +218,7 @@ if __name__ == '__main__':
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言の作成
-                text = stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_error, best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+                text = stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_error, best_b_repeat, best_w_repeat)
 
                 print(text) # 表示
 
@@ -232,12 +232,12 @@ if __name__ == '__main__':
             # -----------------
 
             # ［黒だけでの反復数（先後固定制）］列を更新
-            df_tss['b_repeat_when_frozen_turn'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df_tss.loc[df['p']==p, ['b_repeat_when_frozen_turn']] = best_b_repeat_when_frozen_turn
+            df_tss['b_repeat'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df_tss.loc[df['p']==p, ['b_repeat']] = best_b_repeat
 
             # ［白だけでの反復数（先後固定制）］列を更新
-            df_tss['w_repeat_when_frozen_turn'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df_tss.loc[df['p']==p, ['w_repeat_when_frozen_turn']] = best_w_repeat_when_frozen_turn
+            df_tss['w_repeat'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df_tss.loc[df['p']==p, ['w_repeat']] = best_w_repeat
 
 
         # CSV保存

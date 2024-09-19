@@ -111,13 +111,13 @@ def black_win_rate_to_b_w_targets(p):
     #
     #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
     #
-    b_repeat_when_frozen_turn = round_letro(p * scale)
+    b_repeat = round_letro(p * scale)
 
     # ［白だけでの反復数］基礎
-    w_repeat_when_frozen_turn = scale - b_repeat_when_frozen_turn
+    w_repeat = scale - b_repeat
 
     # 約分する
-    fraction = Fraction(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
+    fraction = Fraction(b_repeat, w_repeat)
     return fraction.numerator, fraction.denominator
 
 
@@ -134,12 +134,12 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
+def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_repeat, w_repeat):
     """先後固定制で、最長で max_number_of_bout 回の対局を行い、勝った方の手番を返します
 
     NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
 
-    max_number_of_bout はコインを振る回数。全部黒が出たら黒の勝ち、 w_repeat_when_frozen_turn 回白が出れば白の勝ち。
+    max_number_of_bout はコインを振る回数。全部黒が出たら黒の勝ち、 w_repeat 回白が出れば白の勝ち。
 
     例えば n=1 なら、コインを最大１回振る。１勝先取で勝ち。
     n=2 なら、コインを最大２回振る。２勝先取で勝ち。白は１勝のアドバンテージが付いている。
@@ -152,9 +152,9 @@ def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_repeat_when_frozen
         黒番の勝率。例： 黒番の勝率が７割なら 0.7
     max_number_of_bout : int
         最長の対局数
-    b_repeat_when_frozen_turn : int
+    b_repeat : int
         黒が勝つのに必要な一本の数
-    w_repeat_when_frozen_turn : int
+    w_repeat : int
         白が勝つのに必要な一本の数
     
     Returns
@@ -162,8 +162,8 @@ def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_repeat_when_frozen
     winner_color : int
         勝った方の色
     """
-    black_count_down = b_repeat_when_frozen_turn
-    white_count_down = w_repeat_when_frozen_turn
+    black_count_down = b_repeat
+    white_count_down = w_repeat
 
     for i in range(0, max_number_of_bout):
         if coin(black_rate) == WHITE:
@@ -175,10 +175,10 @@ def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_repeat_when_frozen
             if black_count_down < 1:
                 return BLACK    # 黒が勝ちぬけ
 
-    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_repeat_when_frozen_turn=}  {w_repeat_when_frozen_turn=}")
+    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_repeat=}  {w_repeat=}")
 
 
-def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, round_count):
+def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_repeat, w_repeat, round_count):
     """［最長対局数（先後固定制）］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -189,9 +189,9 @@ def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_
         黒番の勝率。例： 黒番が７割勝つなら 0.7
     number_of_longest_bout_when_frozen_turn : int
         ［最長対局数（先後固定制）］。例： ３本勝負なら 3
-    b_repeat_when_frozen_turn : int
+    b_repeat : int
         黒が勝つのに必要な一本の数
-    w_repeat_when_frozen_turn : int
+    w_repeat : int
         白が勝つのに必要な一本の数
     round_count : int
         ｎ回対局
@@ -204,7 +204,7 @@ def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn) == BLACK:
+        if n_bout_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_repeat, w_repeat) == BLACK:
             black_win_count += 1
 
     return black_win_count
@@ -231,16 +231,16 @@ class CoinToss():
         return self._output_file_path
 
 
-    def coin_toss_in_round(self, black_win_rate, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
+    def coin_toss_in_round(self, black_win_rate, b_repeat, w_repeat):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
         ----------
         black_win_rate : float
             黒が出る確率（先手勝率）
-        b_repeat_when_frozen_turn : int
+        b_repeat : int
             先手の何本先取制
-        w_repeat_when_frozen_turn : int
+        w_repeat : int
             後手の何本先取制
         
         Returns
@@ -261,7 +261,7 @@ class CoinToss():
                 b_got += 1
 
                 # ［黒だけでの反復数］を取った（黒が勝った）
-                if b_repeat_when_frozen_turn <= b_got:
+                if b_repeat <= b_got:
                     return BLACK
 
             # 白が出た
@@ -269,13 +269,13 @@ class CoinToss():
                 w_got += 1
 
                 # ［白だけでの反復数］を取った（白が勝った）
-                if w_repeat_when_frozen_turn <= w_got:
+                if w_repeat <= w_got:
                     return WHITE
 
             # 続行
 
 
-    def coin_toss_in_round_when_alternating_turn(self, black_win_rate, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
+    def coin_toss_in_round_when_alternating_turn(self, black_win_rate, b_repeat, w_repeat):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
 
         手番を交互にするパターン
@@ -284,9 +284,9 @@ class CoinToss():
         ----------
         black_win_rate : float
             黒が出る確率（先手勝率）
-        b_repeat_when_frozen_turn : int
+        b_repeat : int
             先手の何本先取制
-        w_repeat_when_frozen_turn : int
+        w_repeat : int
             後手の何本先取制
         
         Returns
@@ -316,7 +316,7 @@ class CoinToss():
                 b_got[successful_player] += 1
 
                 # ［黒だけでの反復数］を取った（黒で、勝利条件を満たした）
-                if b_repeat_when_frozen_turn <= b_got[successful_player]:
+                if b_repeat <= b_got[successful_player]:
                     return successful_player
 
             # 白が出た
@@ -333,7 +333,7 @@ class CoinToss():
                 w_got[successful_player] += 1
 
                 # ［白だけでの反復数］を取った（白で、勝利条件を満たした）
-                if w_repeat_when_frozen_turn <= w_got[successful_player]:
+                if w_repeat <= w_got[successful_player]:
                     return successful_player
 
             # 続行
@@ -432,7 +432,7 @@ class PointsConfiguration():
 
 
     @property
-    def b_repeat_when_frozen_turn(self):
+    def b_repeat(self):
         """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な数［黒だけでの反復数］"""
 
         #
@@ -442,7 +442,7 @@ class PointsConfiguration():
 
 
     @property
-    def w_repeat_when_frozen_turn(self):
+    def w_repeat(self):
         """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な数［白だけでの反復数］"""
 
         #
@@ -452,28 +452,28 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
+    def let_points_from_repeat(b_repeat, w_repeat):
         """先後固定制での［黒だけでの反復数］と［白だけでの反復数］が分かれば、［勝ち点ルール］を分析して返す
         
         Parameters
         ----------
-        b_repeat_when_frozen_turn : int
+        b_repeat : int
             ［黒だけでの反復数］
-        w_repeat_when_frozen_turn : int
+        w_repeat : int
             ［白だけでの反復数］
         """
         # DO 通分したい。最小公倍数を求める
-        lcm = math.lcm(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
+        lcm = math.lcm(b_repeat, w_repeat)
         # 先手勝ちの点
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        b_step = round_letro(lcm / b_repeat_when_frozen_turn)
+        b_step = round_letro(lcm / b_repeat)
         # 後手勝ちの点
-        w_step = round_letro(lcm / w_repeat_when_frozen_turn)
+        w_step = round_letro(lcm / w_repeat)
         # 先後固定制での目標の点
-        span_when_frozen_turn = round_letro(w_repeat_when_frozen_turn * w_step)
-        span_when_frozen_turn_w = round_letro(b_repeat_when_frozen_turn * b_step)
+        span_when_frozen_turn = round_letro(w_repeat * w_step)
+        span_when_frozen_turn_w = round_letro(b_repeat * b_step)
         if span_when_frozen_turn != span_when_frozen_turn_w:
             raise ValueError(f"{span_when_frozen_turn=}  {span_when_frozen_turn_w=}")
 
@@ -491,7 +491,7 @@ class PointsConfiguration():
         10  10  10  10 10  10
         10   8   6   4  2   0
         """
-        return self.w_repeat_when_frozen_turn
+        return self.w_repeat
 
 
     def let_number_of_longest_bout_when_frozen_turn(self):
@@ -509,7 +509,7 @@ class PointsConfiguration():
         10   9   8   7   6   5  4   3   2   1  1   1   1   1   1
         10  10  10  10  10  10 10  10  10  10  8   6   4   2   0
         """
-        return  (self.b_repeat_when_frozen_turn-1) + (self.w_repeat_when_frozen_turn-1) + 1
+        return  (self.b_repeat-1) + (self.w_repeat-1) + 1
 
 
     def let_number_of_shortest_bout_when_alternating_turn(self):
@@ -586,4 +586,4 @@ class PointsConfiguration():
         """
 
         # FIXME 先後交互制用の変数を使いたい
-        return  (self.b_repeat_when_frozen_turn-1) + (self.b_repeat_when_frozen_turn-1) + 1
+        return  (self.b_repeat-1) + (self.b_repeat-1) + 1

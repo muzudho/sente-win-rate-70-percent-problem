@@ -37,7 +37,7 @@ if __name__ == '__main__':
         #round_total = 10 # 少なすぎるケース
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
-        for p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn in zip(df['p'], df['b_repeat_when_frozen_turn'], df['w_repeat_when_frozen_turn']):
+        for p, b_repeat, w_repeat in zip(df['p'], df['b_repeat'], df['w_repeat']):
             coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # 黒が勝った回数
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
             for round in range(0, round_total):
                 # 勝った方の手番を返す
-                if coin_toss.coin_toss_in_round(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn) == BLACK:
+                if coin_toss.coin_toss_in_round(p, b_repeat, w_repeat) == BLACK:
                     black_wons += 1
 
 
@@ -56,9 +56,9 @@ if __name__ == '__main__':
                     # 先手勝率
                     black_win_rate=p,
                     # 先手の何本先取制
-                    b_repeat_when_frozen_turn=b_repeat_when_frozen_turn,
+                    b_repeat=b_repeat,
                     # 後手の何本先取制
-                    w_repeat_when_frozen_turn=w_repeat_when_frozen_turn,
+                    w_repeat=w_repeat,
                     # 対局数
                     round_total=round_total,
                     # 黒が勝った回数

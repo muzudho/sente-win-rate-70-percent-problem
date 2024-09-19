@@ -23,8 +23,8 @@ if __name__ == '__main__':
             print(f"{column_name=}")
 
 
-        for p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn in zip(df['p'], df['b_repeat_when_frozen_turn'], df['w_repeat_when_frozen_turn']):
-            print(f"{p=}  {b_repeat_when_frozen_turn=}  {w_repeat_when_frozen_turn}")
+        for p, b_repeat, w_repeat in zip(df['p'], df['b_repeat'], df['w_repeat']):
+            print(f"{p=}  {b_repeat=}  {w_repeat}")
 
 
     except Exception as err:

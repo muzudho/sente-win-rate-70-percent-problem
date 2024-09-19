@@ -3,11 +3,11 @@ import datetime
 from library import PointsConfiguration
 
 
-def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn):
+def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_repeat, best_w_repeat):
     """文言の作成"""
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+    points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat, best_w_repeat)
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -39,7 +39,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_
     return text
 
 
-def stringify_when_let_calculate_probability(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, balanced_black_win_rate, error):
+def stringify_when_let_calculate_probability(p, b_repeat, w_repeat, balanced_black_win_rate, error):
     """文言の作成"""
 
     # ［タイムスタンプ］
@@ -52,10 +52,10 @@ def stringify_when_let_calculate_probability(p, b_repeat_when_frozen_turn, w_rep
     seg_1b = balanced_black_win_rate
 
     # ［黒だけでの反復数］
-    seg_2 = b_repeat_when_frozen_turn
+    seg_2 = b_repeat
 
     # ［白だけでの反復数］
-    seg_3 = w_repeat_when_frozen_turn
+    seg_3 = w_repeat
 
     # # 計算過程を追加する場合
     # text += f"  {''.join(process_list)}"
@@ -170,7 +170,7 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
-def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, round_total, black_wons):
+def write_coin_toss_log(output_file_path, black_win_rate, b_repeat, w_repeat, round_total, black_wons):
     """ログ出力
     
     Parameters
@@ -179,9 +179,9 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_t
         出力先ファイルへのパス
     black_win_rate : float
         黒が出る確率（先手勝率）
-    b_repeat_when_frozen_turn : int
+    b_repeat : int
         先手の何本先取制
-    w_repeat_when_frozen_turn : int
+    w_repeat : int
         後手の何本先取制
     round_total : int
         対局数
@@ -195,7 +195,7 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_t
     #
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
+    points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat, w_repeat)
 
     # 黒が勝った確率
     black_won_rate = black_wons / round_total

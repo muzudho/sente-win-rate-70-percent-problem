@@ -39,26 +39,26 @@ if __name__ == '__main__':
             # ベストな調整後の先手勝率と、その誤差
             best_balanced_black_win_rate = None
             best_error = OUT_OF_ERROR
-            best_b_repeat_when_frozen_turn = 0
-            best_w_repeat_when_frozen_turn = 0
+            best_b_repeat = 0
+            best_w_repeat = 0
 
             # 計算過程
             process_list = []
 
             # p=0.5 は計算の対象外とします
-            for b_repeat_when_frozen_turn in range(1, 101):
+            for b_repeat in range(1, 101):
 
                 # 先後固定制で、後手勝ち点だけで勝つのに必要な数［反復数］の上限
-                max_w_repeat_when_frozen_turn = b_repeat_when_frozen_turn
-                if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_w_repeat_when_frozen_turn:
-                    max_w_repeat_when_frozen_turn = MAX_W_REPEAT_WHEN_FROZEN_TURN                
+                max_w_repeat = b_repeat
+                if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_w_repeat:
+                    max_w_repeat = MAX_W_REPEAT_WHEN_FROZEN_TURN                
 
-                for w_repeat_when_frozen_turn in range (1, max_w_repeat_when_frozen_turn+1):
+                for w_repeat in range (1, max_w_repeat+1):
 
                     balanced_black_win_rate = calculate_probability(
                         p=p,
-                        H=b_repeat_when_frozen_turn,
-                        T=w_repeat_when_frozen_turn)
+                        H=b_repeat,
+                        T=w_repeat)
 
                     # 誤差
                     error = abs(balanced_black_win_rate - 0.5)
@@ -66,11 +66,11 @@ if __name__ == '__main__':
                     if error < best_error:
                         best_error = error
                         best_balanced_black_win_rate = balanced_black_win_rate
-                        best_b_repeat_when_frozen_turn = b_repeat_when_frozen_turn
-                        best_w_repeat_when_frozen_turn = w_repeat_when_frozen_turn
+                        best_b_repeat = b_repeat
+                        best_w_repeat = w_repeat
 
                         # 計算過程
-                        process = f"[{best_error:6.4f} 黒{best_b_repeat_when_frozen_turn:>3} 白{best_w_repeat_when_frozen_turn:>2}]"
+                        process = f"[{best_error:6.4f} 黒{best_b_repeat:>3} 白{best_w_repeat:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［勝ち点ルール］の構成
-                points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+                points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat, best_w_repeat)
 
                 text = stringify_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, best_error, points_configuration, process_list)
                 print(text) # 表示
