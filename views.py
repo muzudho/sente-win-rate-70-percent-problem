@@ -239,6 +239,19 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_4_3a = shortest_bout_th_when_alternating_turn
     seg_4_3b = longest_bout_th_when_alternating_turn
 
+    if seg_2_3a < seg_1_3a:
+        raise ValueError(f"［先後固定制］の最短対局数の実際値 {seg_2_3a} が理論値 {seg_1_3a} を下回った")
+
+    if seg_1_3b < seg_2_3b:
+        raise ValueError(f"［先後固定制］の最長対局数の実際値 {seg_2_3b} が理論値 {seg_1_3b} を上回った")
+
+    if seg_4_3a < seg_3_3a:
+        raise ValueError(f"［先後交互制］の最短対局数の実際値 {seg_4_3a} が理論値 {seg_3_3a} を下回った")
+
+    if seg_3_3b < seg_4_3b:
+        raise ValueError(f"［先後交互制］の最長対局数の実際値 {seg_4_3b} が理論値 {seg_3_3b} を上回った")
+
+
     # ［黒勝ちの価値］
     seg_4a = points_configuration.b_step
 
@@ -253,9 +266,9 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
 
     return f"""\
 [{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --先後固定制--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{black_wons:7}／{round_total:7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
-                                             --xxxxxxxxxx--> xxxxxxxx xx    xxxxxxx      xxxxxxxxxxyyyyyyyzzxxxxxxxyyyyyyyy    実際   {seg_2_3a:>2}～{seg_2_3b:>2}
+                                                                                                                               実際   {seg_2_3a:>2}～{seg_2_3b:>2}
                                              --先後交互制--> {          seg_2_1a:8.4f} ％（± {seg_2_1b:7.4f}）    Ａ氏勝ち数{alice_wons:7}／{round_total:7}対局試行    対局数 {seg_3_3a:>2}～{seg_3_3b:>2}
-                                             --xxxxxxxxxx--> xxxxxxxx xx    xxxxxxx      xxxxxxxxxxyyyyyyyzzxxxxxxxyyyyyyyy    実際   {seg_2_3a:>2}～{seg_2_3b:>2}
+                                                                                                                               実際   {seg_4_3a:>2}～{seg_4_3b:>2}
 """
     #                                        --
 
