@@ -14,7 +14,6 @@ import datetime
 import pandas as pd
 
 from library import ALICE, CoinToss
-from views import write_coin_toss_log
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'

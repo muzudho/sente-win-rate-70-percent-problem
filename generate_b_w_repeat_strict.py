@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import calculate_probability, PointsConfiguration
-from views import print_when_generate_b_w_repeat_strict
+from views import stringify_when_generate_b_w_repeat_strict
 
 
 LOG_FILE_PATH = 'output/generate_b_w_repeat_strict.log'
@@ -81,19 +81,11 @@ if __name__ == '__main__':
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
-                # ［最長対局数（先後固定制）］
-                #
-                #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
-                #
-                max_number_of_bout_when_frozen_turn = (best_b_repeat_when_frozen_turn-1) + (best_w_repeat_when_frozen_turn-1) + 1
-
                 # ［勝ち点ルール］の構成
                 points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
-                print_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, best_error, max_number_of_bout_when_frozen_turn, points_configuration)
-
-                # # 計算過程を追加する場合
-                # text += f"  {''.join(process_list)}"
+                text = stringify_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, best_error, points_configuration, process_list)
+                print(text) # 表示
 
                 f.write(f"{text}\n")    # ファイルへ出力
 
