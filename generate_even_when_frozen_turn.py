@@ -122,16 +122,18 @@ def iteration_deeping(df, limit_of_error):
 
 
         # 自動計算未完了
-        if not is_update or (is_automatic and best_new_p_error == OUT_OF_ERROR):
+        if is_automatic and best_new_p_error == OUT_OF_ERROR:
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
 
+        elif not is_update:
+            print(f"先手勝率：{p*100:2} ％  （更新なし）")
+
         else:
-            print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_round_count, best_points_configuration)
+            print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, best_round_count, best_points_configuration)
 
             # データチェック
             if best_points_configuration.let_number_of_longest_bout_when_frozen_turn() != best_number_of_longest_bout_when_frozen_turn:
                 raise ValueError(f"実践値と理論値が異なる {best_points_configuration.let_number_of_longest_bout_when_frozen_turn()=}  {best_number_of_longest_bout_when_frozen_turn=}")
-
 
             # データフレーム更新
             # -----------------
@@ -163,12 +165,11 @@ def iteration_deeping(df, limit_of_error):
             #
             df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_number_of_longest_bout_when_frozen_turn
 
-
-        # CSV保存
-        df.to_csv(CSV_FILE_PATH,
-                # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'b_time', 'w_time', 'number_of_longest_bout_when_frozen_turn', 'process'],
-                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+            # CSV保存
+            df.to_csv(CSV_FILE_PATH,
+                    # ［計算過程］列は長くなるので末尾に置きたい
+                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'b_time', 'w_time', 'number_of_longest_bout_when_frozen_turn', 'process'],
+                    index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 ########################################
