@@ -35,7 +35,24 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_
 
 
 def stringify_when_let_calculate_probability(p, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, balanced_black_win_rate, error):
-    text = f"[{datetime.datetime.now()}]  先手勝率 {p:4.2f}  先後固定制での反復数　先手だけ：後手だけ＝{b_repeat_when_frozen_turn:>2}：{w_repeat_when_frozen_turn:>2}  調整後の先手勝率 {balanced_black_win_rate:6.4f}  誤差{error:7.4f}"
+    """文言の作成"""
+
+    # ［タイムスタンプ］
+    seg_0 = datetime.datetime.now()
+
+    # ［表が出る確率（％）］
+    seg_1 = p*100
+
+    # ［調整後の表が出る確率（％）］
+    seg_1b = balanced_black_win_rate
+
+    # ［黒だけでの反復数］
+    seg_2 = b_repeat_when_frozen_turn
+
+    # ［白だけでの反復数］
+    seg_3 = w_repeat_when_frozen_turn
+
+    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {error:7.4f}）    先後固定制での反復数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
     return text
 
 

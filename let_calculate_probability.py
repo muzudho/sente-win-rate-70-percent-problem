@@ -9,13 +9,14 @@ import traceback
 import datetime
 import random
 import math
+import pandas as pd
 
 from library import calculate_probability
 from views import stringify_when_let_calculate_probability
 
 
 LOG_FILE_PATH = 'output/let_calculate_probability.log'
-CSV_FILE_PATH = './data/let_calculate_probability.csv.csv'
+CSV_FILE_PATH = './data/let_calculate_probability.csv'
 
 
 ########################################
