@@ -170,7 +170,10 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
-def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, b_time, w_time, round_total, black_wons, alice_wons, points_configuration, comment):
+def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,
+        black_wons, shortest_bout_th_when_frozen_turn, longest_bout_th_when_frozen_turn,
+        alice_wons, shortest_bout_th_when_alternating_turn, longest_bout_th_when_alternating_turn,
+        points_configuration, comment):
     """ログ出力
     
     Parameters
@@ -179,16 +182,20 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
         出力先ファイルへのパス
     p : float
         ［表が出る確率］（先手勝率）
-    b_time : int
-        先手の何本先取制
-    w_time : int
-        後手の何本先取制
     round_total : int
         対局数
     black_wons : int
         ［先後固定制］で、黒が勝った回数
+    shortest_bout_th_when_frozen_turn : int
+
+    longest_bout_th_when_frozen_turn : int
+
     alice_wons : int
         ［先後交互制］で、Ａさんが勝った回数
+    shortest_bout_th_when_alternating_turn : int
+
+    longest_bout_th_when_alternating_turn : int
+
     points_configuration : PointsConfiguration
         ［勝ち点ルール］の構成
     comment : str
@@ -222,11 +229,15 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_1_1b = new_p_error_when_frozen_turn*100
     seg_2_1b = new_p_error_when_alternating_turn*100
 
-    # 対局数
-    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    # 対局数（理論値と実際値）
+    seg_1_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
+    seg_1_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
+    seg_2_3a = shortest_bout_th_when_frozen_turn
+    seg_2_3b = longest_bout_th_when_frozen_turn
+    seg_3_3a = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3_3b = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    seg_4_3a = shortest_bout_th_when_alternating_turn
+    seg_4_3b = longest_bout_th_when_alternating_turn
 
     # ［黒勝ちの価値］
     seg_4a = points_configuration.b_step
@@ -241,8 +252,12 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_5 = comment
 
     return f"""\
-[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --先後固定制--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{black_wons:7}／{round_total:7}対局試行    対局数 {seg_3a:>2}～{seg_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点
-[                          ]  -------- -- -- --先後交互制--> {          seg_2_1a:8.4f} ％（± {seg_2_1b:7.4f}）    Ａ氏勝ち数{alice_wons:7}／{round_total:7}対局試行    対局数 --～--    {seg_5}"""
+[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --先後固定制--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{black_wons:7}／{round_total:7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
+                                             --xxxxxxxxxx--> xxxxxxxx xx    xxxxxxx      xxxxxxxxxxyyyyyyyzzxxxxxxxyyyyyyyy    実際   {seg_2_3a:>2}～{seg_2_3b:>2}
+                                             --先後交互制--> {          seg_2_1a:8.4f} ％（± {seg_2_1b:7.4f}）    Ａ氏勝ち数{alice_wons:7}／{round_total:7}対局試行    対局数 {seg_3_3a:>2}～{seg_3_3b:>2}
+                                             --xxxxxxxxxx--> xxxxxxxx xx    xxxxxxx      xxxxxxxxxxyyyyyyyzzxxxxxxxyyyyyyyy    実際   {seg_2_3a:>2}～{seg_2_3b:>2}
+"""
+    #                                        --
 
 
 def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, new_p_error, b_time, round_total):

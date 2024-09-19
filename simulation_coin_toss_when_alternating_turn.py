@@ -66,7 +66,8 @@ if __name__ == '__main__':
                 round_th = round + 1
 
                 # 勝ったプレイヤーを返す
-                if coin_toss.coin_toss_in_round_when_alternating_turn(p, points_configuration) == ALICE:
+                winner_player, bout_th = coin_toss.play_game_when_alternating_turn(p, points_configuration)
+                if winner_player == ALICE:
                     alice_wons += 1
 
 

@@ -29,20 +29,38 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     # ［先後固定制］で、黒が勝った回数
     black_wons = 0
+    shortest_bout_th_when_frozen_turn = 2_147_483_647
+    longest_bout_th_when_frozen_turn = 0
 
     for round in range(0, round_total):
         # ［先後固定制］で、勝った方の手番を返す
-        if coin_toss.coin_toss_in_round(p, b_time, w_time) == BLACK:
+        winner_color, bout_th = coin_toss.play_game_when_frozen_turn(p, b_time, w_time)
+        if winner_color == BLACK:
             black_wons += 1
+
+        if bout_th < shortest_bout_th_when_frozen_turn:
+            shortest_bout_th_when_frozen_turn = bout_th
+        
+        if longest_bout_th_when_frozen_turn < bout_th:
+            longest_bout_th_when_frozen_turn = bout_th
 
 
     # ［先後交互制］で、Ａさんが勝った回数
     alice_wons = 0
+    shortest_bout_th_when_alternating_turn = 2_147_483_647
+    longest_bout_th_when_alternating_turn = 0
 
     for round in range(0, round_total):
         # ［先後交互制］で、勝った方のプレイヤーを返す
-        if coin_toss.coin_toss_in_round_when_alternating_turn(p, points_configuration) == ALICE:
+        winner_player, bout_th = coin_toss.play_game_when_alternating_turn(p, points_configuration)
+        if winner_player == ALICE:
             alice_wons += 1
+
+        if bout_th < shortest_bout_th_when_alternating_turn:
+            shortest_bout_th_when_alternating_turn = bout_th
+        
+        if longest_bout_th_when_alternating_turn < bout_th:
+            longest_bout_th_when_alternating_turn = bout_th
 
 
     text = stringify_log_when_simulation_coin_toss_when_frozen_turn(
@@ -50,16 +68,16 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
             output_file_path=coin_toss.output_file_path,
             # ［表が出る確率］（先手勝率）
             p=p,
-            # 先手の何本先取制
-            b_time=b_time,
-            # 後手の何本先取制
-            w_time=w_time,
             # 対局数
             round_total=round_total,
             # ［先後固定制］で、黒が勝った回数
             black_wons=black_wons,
+            shortest_bout_th_when_frozen_turn=shortest_bout_th_when_frozen_turn,
+            longest_bout_th_when_frozen_turn=longest_bout_th_when_frozen_turn,
             # ［先後交互制］で、Ａさんが勝った回数
             alice_wons=alice_wons,
+            shortest_bout_th_when_alternating_turn=shortest_bout_th_when_alternating_turn,
+            longest_bout_th_when_alternating_turn=longest_bout_th_when_alternating_turn,
             # ［勝ち点ルール］の構成
             points_configuration=points_configuration,
             # コメント

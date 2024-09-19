@@ -133,38 +133,39 @@ if __name__ == '__main__':
 
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
-                        # 勝った方の手番を返す
-                        if BLACK == coin_toss.coin_toss_in_round(
+                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn(
                                 # 先手勝率
                                 p=p,
                                 # 先手の何本先取制
                                 b_time=practical_b_time + 1,
                                 # 後手の何本先取制
-                                w_time=practical_w_time):
+                                w_time=practical_w_time)
+                        if winner_color == BLACK:
                             black_wons += 1
 
                     else:
                         # 閏対局を使わないパターン
-                        # 勝った方の手番を返す
-                        if BLACK == coin_toss.coin_toss_in_round(
+                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn(
                                 # 先手勝率
                                 p=p,
                                 # 先手の何本先取制
                                 b_time=practical_b_time,
                                 # 後手の何本先取制
-                                w_time=practical_w_time):
+                                w_time=practical_w_time)
+                        if winner_color == BLACK:
                             black_wons += 1
 
                 # 閏対局を使わないパターン
                 else:
                     # 勝った方の手番を返す
-                    if BLACK == coin_toss.coin_toss_in_round(
+                    winner_color, bout_th = coin_toss.play_game_when_frozen_turn(
                             # 先手勝率
                             p=p,
                             # 先手の何本先取制
                             b_time=practical_b_time,
                             # 後手の何本先取制
-                            w_time=practical_w_time):
+                            w_time=practical_w_time)
+                    if winner_color == BLACK:
                         black_wons += 1
 
             # 黒が勝った確率

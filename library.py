@@ -231,8 +231,8 @@ class CoinToss():
         return self._output_file_path
 
 
-    def coin_toss_in_round(self, p, b_time, w_time):
-        """１対局行う（どちらの勝ちが出るまでコイントスを行う）
+    def play_game_when_frozen_turn(self, p, b_time, w_time):
+        """［先後固定制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
         ----------
@@ -247,14 +247,16 @@ class CoinToss():
         -------
         winner_color : int
             黒か白
+        bout_th : int
+            対局本数
         """
 
-        # 新しい本目（Bout）
+        # 一本を取った数
         b_got = 0
         w_got = 0
 
         # ｎ本勝負で勝ち負けが出るまでやる
-        while True:
+        for bout_th in range(1, 2_147_483_647):
 
             # 黒が出た
             if coin(p) == BLACK:
@@ -262,7 +264,7 @@ class CoinToss():
 
                 # ［黒だけでの回数］を取った（黒が勝った）
                 if b_time <= b_got:
-                    return BLACK
+                    return BLACK, bout_th
 
             # 白が出た
             else:
@@ -270,15 +272,15 @@ class CoinToss():
 
                 # ［白だけでの回数］を取った（白が勝った）
                 if w_time <= w_got:
-                    return WHITE
+                    return WHITE, bout_th
 
             # 続行
 
+        raise ValueError("設定している回数で、決着が付かなかった")
 
-    def coin_toss_in_round_when_alternating_turn(self, p, points_configuration):
-        """１対局行う（どちらの勝ちが出るまでコイントスを行う）
 
-        先後交互制
+    def play_game_when_alternating_turn(self, p, points_configuration):
+        """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
         ----------
@@ -291,6 +293,8 @@ class CoinToss():
         -------
         winner_player : int
             ＡさんかＢさん
+        bout_th : int
+            対局本数
         """
 
         # ［得点］の配列。要素は、未使用、Ａさん、Ｂさんの順
@@ -327,11 +331,11 @@ class CoinToss():
             point_list[successful_player] += step
 
             if points_configuration.span_when_frozen_turn <= point_list[successful_player]:
-                return successful_player
+                return successful_player, bout_th
 
             # 続行
 
-        raise ValueError("設定している回数で、決着が付かなかった？")
+        raise ValueError("設定している回数で、決着が付かなかった")
 
 
 def calculate_probability(p, H, T):
