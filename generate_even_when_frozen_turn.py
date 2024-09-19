@@ -4,7 +4,7 @@
 #
 #   引き分けは考慮していない。
 #   手番を交代しない方式。
-#   先後固定制での、［黒だけでの回数］と、［白だけでの回数］を探索する。
+#   先後固定制での、［黒勝ちだけでの対局数］と、［白勝ちだけでの対局数］を探索する。
 #
 
 import traceback
@@ -36,7 +36,7 @@ def iteration_deeping(df, limit_of_error):
     for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_time, process in zip(df['p'], df['new_p'], df['new_p_error'], df['number_of_longest_bout_when_frozen_turn'], df['round_count'], df['w_time'], df['process']):
         #print(f"{p=}  {best_new_p_error=}  {best_max_bout_count=}  {best_round_count=}  {best_w_time=}  {process=}  {type(process)=}")
 
-        # ［黒だけでの回数］は計算で求めます
+        # ［黒勝ちだけでの対局数］は計算で求めます
         best_b_time = best_max_bout_count-(best_w_time-1)
 
         is_automatic = best_new_p_error >= limit_of_error or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_time == 0
@@ -57,7 +57,7 @@ def iteration_deeping(df, limit_of_error):
 
                 for w_time in range(1, end_w_time):
 
-                    # FIXME ［黒だけでの回数］は計算で求めます。計算合ってる？
+                    # FIXME ［黒勝ちだけでの対局数］は計算で求めます。計算合ってる？
                     b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
 
                     # ［勝ち点ルール］の構成
@@ -139,10 +139,10 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
-            # ［黒だけでの回数］列を更新
+            # ［黒勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['b_time']] = best_b_time
 
-            # ［白だけでの回数］列を更新
+            # ［白勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['w_time']] = best_w_time
 
             # ［目標の点（先後固定制）］列を更新 

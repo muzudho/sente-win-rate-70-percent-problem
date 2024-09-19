@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
         # 精度が高いデータを基にしている
         for p, number_of_longest_bout_when_frozen_turn, w_time in zip(df_even['p'], df_even['number_of_longest_bout_when_frozen_turn'], df_even['w_time']):
-            # ［黒だけでの回数］は計算で求めます
+            # ［黒勝ちだけでの対局数］は計算で求めます
             b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
 
             perform_p(coin_toss, p, round_total, b_time, w_time, comment='精度を求めた元データ')

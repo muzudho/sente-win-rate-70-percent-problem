@@ -51,10 +51,10 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, new_p, new_p_err
     # ［調整後の表が出る確率（％）］
     seg_1b = new_p
 
-    # ［黒だけでの回数］
+    # ［黒勝ちだけでの対局数］
     seg_2 = b_time
 
-    # ［白だけでの回数］
+    # ［白勝ちだけでの対局数］
     seg_3 = w_time
 
     # # 計算過程を追加する場合

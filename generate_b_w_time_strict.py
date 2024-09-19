@@ -2,7 +2,7 @@
 # 生成
 # python generate_b_w_time_strict.py
 #
-#   先後固定制で、［黒だけでの回数］、［白だけでの回数］を求める（厳密）
+#   先後固定制で、［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を求める（厳密）
 #
 
 import traceback
@@ -17,7 +17,7 @@ from views import stringify_when_generate_b_w_time_strict
 
 LOG_FILE_PATH = 'output/generate_b_w_time_strict.log'
 
-# 先後固定制で、［白だけでの回数］の上限
+# ［先後固定制］で、［白勝ちだけでの対局数］の上限
 MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
 
 OUT_OF_ERROR = 0.51
@@ -48,7 +48,7 @@ if __name__ == '__main__':
             # p=0.5 は計算の対象外とします
             for b_time in range(1, 101):
 
-                # 先後固定制で、［白だけでの回数］の上限
+                # ［先後固定制］で、［白勝ちだけでの対局数］の上限
                 max_w_time = b_time
                 if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_w_time:
                     max_w_time = MAX_W_REPEAT_WHEN_FROZEN_TURN                

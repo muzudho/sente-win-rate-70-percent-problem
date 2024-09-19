@@ -88,7 +88,7 @@ def scale_for_float_to_int(value):
 
 
 def p_to_b_w_times(p):
-    """［表が出る確率］ p を与えると、［黒だけでの回数］、［白だけでの回数］を返す
+    """［表が出る確率］ p を与えると、［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を返す
     
     Parameters
     ----------
@@ -98,22 +98,22 @@ def p_to_b_w_times(p):
     Returns
     -------
     b_time : int
-        ［黒だけでの回数］
+        ［黒勝ちだけでの対局数］
     w_time : int
-        ［白だけでの回数］
+        ［白勝ちだけでの対局数］
     """
 
     # 説明２  コインの表裏の確率の整数化
     # --------------------------------
     scale = scale_for_float_to_int(p)
 
-    # ［黒だけでの回数］基礎
+    # ［黒勝ちだけでの対局数］基礎
     #
     #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
     #
     b_time = round_letro(p * scale)
 
-    # ［白だけでの回数］基礎
+    # ［白勝ちだけでの対局数］基礎
     w_time = scale - b_time
 
     # 約分する
@@ -262,7 +262,7 @@ class CoinToss():
             if coin(p) == BLACK:
                 b_got += 1
 
-                # ［黒だけでの回数］を取った（黒が勝った）
+                # ［黒勝ちだけでの対局数］を取った（黒が勝った）
                 if b_time <= b_got:
                     return BLACK, bout_th
 
@@ -270,7 +270,7 @@ class CoinToss():
             else:
                 w_got += 1
 
-                # ［白だけでの回数］を取った（白が勝った）
+                # ［白勝ちだけでの対局数］を取った（白が勝った）
                 if w_time <= w_got:
                     return WHITE, bout_th
 
@@ -433,7 +433,7 @@ class PointsConfiguration():
 
     @property
     def b_time(self):
-        """先後固定制で、先手勝ちの点だけで目標の点に到達するのに必要な数［黒だけでの回数］"""
+        """［先後固定制］での［黒勝ちだけでの対局数］"""
 
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
@@ -443,7 +443,7 @@ class PointsConfiguration():
 
     @property
     def w_time(self):
-        """先後固定制で、後手勝ちの点だけで目標の点に到達するのに必要な数［白だけでの回数］"""
+        """［先後固定制］での［白勝ちだけでの対局数］"""
 
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
@@ -453,14 +453,14 @@ class PointsConfiguration():
 
     @staticmethod
     def let_points_from_repeat(b_time, w_time):
-        """先後固定制での［黒だけでの回数］と［白だけでの回数］が分かれば、［勝ち点ルール］を分析して返す
+        """［先後固定制］での［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［勝ち点ルール］を分析して返す
         
         Parameters
         ----------
         b_time : int
-            ［黒だけでの回数］
+            ［黒勝ちだけでの対局数］
         w_time : int
-            ［白だけでの回数］
+            ［白勝ちだけでの対局数］
         """
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_time, w_time)

@@ -3,7 +3,7 @@
 # python generate_takahashi_satoshi_system.py
 #
 #   ［高橋智史システム］ジェネレーター。
-#   実用的な、先後固定制での［黒だけでの回数］、［白だけでの回数］を求める。
+#   実用的な、先後固定制での［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を求める。
 #
 
 import traceback
@@ -52,14 +52,14 @@ if __name__ == '__main__':
 
             is_cutoff = False
 
-            # ［黒だけでの回数］
+            # ［黒勝ちだけでの対局数］
             for b_time in range(1, 101):
                 
-                # ［白だけでの回数］
+                # ［白勝ちだけでの対局数］
                 for w_time in range (1, b_time + 1):
-                #for w_time in range (1, 2): # ［黒だけでの回数］を 1 に固定する場合
+                #for w_time in range (1, 2): # ［黒勝ちだけでの対局数］を 1 に固定する場合
 
-                    # # ［黒だけでの回数］　＞＝　［白だけでの回数］。かつ、［白だけでの回数］が１の場合は特別
+                    # # ［黒勝ちだけでの対局数］　＞＝　［白勝ちだけでの対局数］。かつ、［白勝ちだけでの対局数］が１の場合は特別
                     # if b_time <= w_time and 1 < w_time:
                     #     continue
 
@@ -231,11 +231,11 @@ if __name__ == '__main__':
             # データフレーム更新
             # -----------------
 
-            # ［黒だけでの回数（先後固定制）］列を更新
+            # ［黒勝ちだけでの対局数（先後固定制）］列を更新
             df_tss['b_time'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
             df_tss.loc[df['p']==p, ['b_time']] = best_b_time
 
-            # ［白だけでの回数（先後固定制）］列を更新
+            # ［白勝ちだけでの対局数（先後固定制）］列を更新
             df_tss['w_time'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
             df_tss.loc[df['p']==p, ['w_time']] = best_w_time
 
