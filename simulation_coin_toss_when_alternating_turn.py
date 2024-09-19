@@ -1,10 +1,11 @@
 #
-# シミュレーション 手番を交互にするパターン
+# シミュレーション
 # python simulation_coin_toss_when_alternating_turn.py
 #
-#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_when_frozen_turn）投げる
-#   Ａさん（Alice）とＢさん（Bob）の勝率を五分五分にする。Ａさんの先手から始める。
+#   ［先後交互制］
 #   引き分けは考慮していない。
+#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_when_alternating_turn）投げる
+#   Ａさん（Alice）が最初に先手を持ち、１局毎にＢさん（Bob）と先後を交代する。
 #
 
 import traceback
@@ -29,7 +30,8 @@ if __name__ == '__main__':
 
     try:
         # 対局数
-        round_total = 200
+        round_total = 2_000_000 # 十分多いケース
+        #round_total = 200
 
         df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
 

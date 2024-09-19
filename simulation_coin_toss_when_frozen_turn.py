@@ -2,12 +2,15 @@
 # シミュレーション
 # python simulation_coin_toss_when_frozen_turn.py
 #
-#   表の出る確率（black_win_rate）が偏ったコインを、指定回数（max_number_of_bout_when_frozen_turn）投げる
+#   ［先後固定制］
+#   引き分けは考慮していない。
+#   表が出る確率（p）が偏ったコインを、指定回数（max_number_of_bout_when_frozen_turn）投げる
 #
 
 import traceback
 import random
 import math
+
 import pandas as pd
 
 from library import BLACK, CoinToss
