@@ -99,16 +99,16 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
             comment=comment)
 
     if actual_shortest_bout_th_when_frozen_turn < expected_shortest_bout_th_when_frozen_turn:
-        raise ValueError(f"{P=} ［先後固定制］の最短対局数の実際値 {actual_shortest_bout_th_when_frozen_turn} が理論値 {expected_shortest_bout_th_when_frozen_turn} を下回った")
+        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {actual_shortest_bout_th_when_frozen_turn} が理論値 {expected_shortest_bout_th_when_frozen_turn} を下回った")
 
     if expected_longest_bout_th_when_frozen_turn < actual_longest_bout_th_when_frozen_turn:
-        raise ValueError(f"{P=} ［先後固定制］の最長対局数の実際値 {actual_longest_bout_th_when_frozen_turn} が理論値 {expected_longest_bout_th_when_frozen_turn} を上回った")
+        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {actual_longest_bout_th_when_frozen_turn} が理論値 {expected_longest_bout_th_when_frozen_turn} を上回った")
 
     if actual_shortest_bout_th_when_alternating_turn < expected_shortest_bout_th_when_alternating_turn:
-        raise ValueError(f"{P=} ［先後交互制］の最短対局数の実際値 {actual_shortest_bout_th_when_alternating_turn} が理論値 {expected_shortest_bout_th_when_alternating_turn} を下回った")
+        raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {actual_shortest_bout_th_when_alternating_turn} が理論値 {expected_shortest_bout_th_when_alternating_turn} を下回った")
 
     if expected_longest_bout_th_when_alternating_turn < actual_longest_bout_th_when_alternating_turn:
-        raise ValueError(f"{P=} ［先後交互制］の最長対局数の実際値 {actual_longest_bout_th_when_alternating_turn} が理論値 {expected_longest_bout_th_when_alternating_turn} を上回った")
+        raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {actual_longest_bout_th_when_alternating_turn} が理論値 {expected_longest_bout_th_when_alternating_turn} を上回った")
 
 
     print(text) # 表示
