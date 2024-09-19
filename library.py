@@ -515,9 +515,10 @@ class PointsConfiguration():
     def let_number_of_shortest_bout_when_alternating_turn(self):
         """［最短対局数（先後交互制）］
         
-        どちらかのプレイヤーだけが勝ったときの回数と同じ。
+        Ｂさんだけが勝ったときの回数と同じ。
         
         FIXME ＡさんとＢさんで、どちらかがもう片方より短く終わることがあるだろうか？
+        NOTE 両者が後手番で勝ち続けるとどうなるか？
 
         まず、［目標の点］が［黒勝ちの価値］＋［白勝ちの価値］より上回っているなら、［目標の点］から［黒勝ちの価値］＋［白勝ちの価値］を順に引いていく（２回分を加算していく）。
         端数が出たら［黒勝ちの価値］（１回分）を加算するような、［目標の点］に達するまでの回数。
@@ -540,25 +541,36 @@ class PointsConfiguration():
 
             ・  ｂ  Ｂ  ｂ  Ｂ  ｂ  Ｂ  ｂ  で、最短７対局
             10   8  7   5   4   2   1  -1
+        
+        `先手勝ち10点、後手勝ち19点　目標190点` のとき、理論値は `対局数 14～37` だが、実際には `実際   13～37` となったことがあった
+        先後交互制で最短は？
+            ・   Ａ   ａ   Ａ    ａ   Ａ   ａ   Ａ  ａ  Ａ   ａ  Ａ  ａ  Ａ   ａ  で14局
+            190  180  161  151  132  122  103  93  74  64  45  35  16   6  -13
+
+            ・   ｂ   Ｂ   ｂ    Ｂ   ｂ   Ｂ   ｂ  Ｂ  ｂ   Ｂ  ｂ  Ｂ  ｂ  で最短13局
+            190  171  161  142  132  113  103  84  74  55  45  26  16  -3
         """
 
+        # FIXME 先後交互制用の変数を使いたい
         remainder = self._span_when_frozen_turn
 
         if self._b_step + self._w_step <= remainder:
-            # FIXME 先後交互制用の変数を使いたい
-            count = math.floor(self._span_when_frozen_turn / (self._b_step + self._w_step)) * 2
-            remainder = self._span_when_frozen_turn % (self._b_step + self._w_step)
+            # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
+            new_remainder = self._span_when_frozen_turn % (self._b_step + self._w_step)
+            bout = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
+            remainder = new_remainder
+
         else:
-            count = 0
+            bout = 0
 
         # 端数があれば［黒勝ちの価値］を引く（１回分を加算）
         if 0 < remainder:
-            count += 1
+            bout += 1
             remainder -= self._b_step
 
             # まだ端数があれば［白勝ちの価値］を引く（１回分を加算）
             if 0 < remainder:
-                count += 1
+                bout += 1
                 remainder -= self._w_step
 
                 # remainder は負数になっているはず（割り切れないはず）
@@ -569,7 +581,7 @@ class PointsConfiguration():
             elif 0 < remainder:
                 raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
 
-        return count
+        return bout
 
 
     def let_number_of_longest_bout_when_alternating_turn(self):

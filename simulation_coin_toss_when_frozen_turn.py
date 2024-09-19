@@ -98,6 +98,15 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
             # コメント
             comment=comment)
 
+
+    print(text) # 表示
+
+    # ログ出力
+    with open(coin_toss.output_file_path, 'a', encoding='utf8') as f:
+        f.write(f"{text}\n")    # ファイルへ出力
+
+
+    # 表示とログ出力を終えた後でテスト
     if actual_shortest_bout_th_when_frozen_turn < expected_shortest_bout_th_when_frozen_turn:
         raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {actual_shortest_bout_th_when_frozen_turn} が理論値 {expected_shortest_bout_th_when_frozen_turn} を下回った")
 
@@ -109,13 +118,6 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     if expected_longest_bout_th_when_alternating_turn < actual_longest_bout_th_when_alternating_turn:
         raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {actual_longest_bout_th_when_alternating_turn} が理論値 {expected_longest_bout_th_when_alternating_turn} を上回った")
-
-
-    print(text) # 表示
-
-    # ログ出力
-    with open(coin_toss.output_file_path, 'a', encoding='utf8') as f:
-        f.write(f"{text}\n")    # ファイルへ出力
 
 
 ########################################
