@@ -498,11 +498,14 @@ class PointsConfiguration():
 
         まず、［目標の点］が［黒勝ちの価値］＋［白勝ちの価値］より上回っているなら、［目標の点］から［黒勝ちの価値］＋［白勝ちの価値］を順に引いていく（２回分を加算していく）。
         端数が出たら［黒勝ちの価値］（１回分）を加算するような、［目標の点］に達するまでの回数。
+
+        FIXME そんなにうまく手番が回るだろうか？
         """
 
         remainder = self._span_when_frozen_turn
 
-        if self._b_step + self._w_step < remainder:
+        if self._b_step + self._w_step <= remainder:
+            # FIXME 先後交代制用の変数を使いたい
             count = math.floor(self._span_when_frozen_turn / (self._b_step + self._w_step)) * 2
             remainder = self._span_when_frozen_turn % (self._b_step + self._w_step)
         else:
@@ -518,7 +521,7 @@ class PointsConfiguration():
                 count += 1
                 remainder -= self._w_step
 
-                # remainder は負数になっているはず
+                # remainder は負数になっているはず（割り切れないはず）
                 if 0 <= remainder:
                     raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
             
@@ -527,3 +530,15 @@ class PointsConfiguration():
                 raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
 
         return count
+
+
+    def let_number_of_longest_bout_when_alternating_turn(self):
+        """［最長対局数（先後交代制）］
+
+        ＡさんとＢさんの両者あと１つで勝てるところで止まり、最終局を足した回数と同じ
+
+        FIXME そんなにうまく手番が回るだろうか？
+        """
+
+        # FIXME 先後交代制用の変数を使いたい
+        return  (self.b_repeat_when_frozen_turn-1) + (self.w_repeat_when_frozen_turn-1) + 1

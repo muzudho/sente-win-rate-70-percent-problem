@@ -22,6 +22,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     # ［白勝ちの価値］
     seg_4 = points_configuration.b_step
@@ -34,7 +35,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～（先後交代制）    先手勝ち{seg_4:2.0f}点、後手勝ち{seg_5:2.0f}点　目標{seg_6:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～～{seg_3d:>2}（先後交代制）    先手勝ち{seg_4:2.0f}点、後手勝ち{seg_5:2.0f}点　目標{seg_6:3.0f}点（先後固定制）"
     return text
 
 
@@ -78,6 +79,7 @@ def stringify_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, b
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     # ［黒勝ちの価値］
     seg_4a = points_configuration.b_step
@@ -90,7 +92,7 @@ def stringify_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, b
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {seg_1c:>7.4f}）  対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {seg_1c:>7.4f}）  対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"
     return text
 
 
@@ -109,6 +111,7 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     if seg_3b != best_max_bout_count:
         raise ValueError(f"実践値と理論値が異なる {seg_3a=}  {best_max_bout_count=}")
@@ -127,7 +130,7 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     else:
         seg_5 = f"  （対象外。誤差十分）"
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
 def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):
@@ -145,6 +148,7 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     if seg_3b != best_max_bout_count:
         raise ValueError(f"実践値と理論値が異なる {seg_3a=}  {best_max_bout_count=}")
@@ -163,7 +167,7 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     else:
         seg_5 = f"  （対象外。誤差十分）"
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
 def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, round_total, black_wons):
@@ -215,6 +219,7 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_t
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     # ［黒勝ちの価値］
     seg_4a = points_configuration.b_step
@@ -227,6 +232,6 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_t
 
 
     with open(output_file_path, 'a', encoding='utf8') as f:
-        text = f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --実際--> {seg_1b:8.4f} ％（± {seg_1c:7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
+        text = f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --実際--> {seg_1b:8.4f} ％（± {seg_1c:7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交代制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
         print(text) # 表示
         f.write(f"{text}\n")    # ファイルへ出力
