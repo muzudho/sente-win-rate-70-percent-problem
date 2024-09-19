@@ -11,6 +11,6 @@
 * `span` - ［目標の数］ 初期値は 1
 * `b_time` - ［黒勝ちだけでの対局数］ 初期値は 1
 * `w_time` - ［白勝ちだけでの対局数］ 初期値は 1
-* `number_of_longest_bout_when_frozen_turn` - ［最長対局数（先後固定制）］です。初期値は 1
+* `number_of_longest_bout` - ［最長対局数］です。初期値は 1
 * `process` - 計算過程を文字列で記述します。初期値は "" ですが、 pandas では警告が出るようです
 

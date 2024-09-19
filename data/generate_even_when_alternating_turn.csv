@@ -1,4 +1,4 @@
-p,new_p,new_p_error,round_count,b_step,w_step,span,b_time,w_time,number_of_longest_bout_when_frozen_turn,process
+p,new_p,new_p_error,round_count,b_step,w_step,span,b_time,w_time,number_of_longest_bout,process
 0.5,0.499852,0.00014799999999998148,2000000,1,1,1,1,1,1,[0.0001 1黒 1白 1目]
 0.5,0.499852,0.00014799999999998148,2000000,1,1,1,1,1,1,[0.0001 1黒 1白 1目]
 0.51,0.5099155,0.009915499999999966,2000000,1,1,1,1,1,1,[0.0099 1黒 1白 1目]

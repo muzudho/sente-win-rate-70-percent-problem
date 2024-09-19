@@ -78,8 +78,8 @@ if __name__ == '__main__':
                     # 誤差
                     new_p_error = abs(new_p - 0.5)
 
-                    # ［最長対局数（先後固定制）］
-                    number_of_longest_bout_when_frozen_turn = points_configuration.let_number_of_longest_bout_when_frozen_turn()
+                    # ［最長対局数］
+                    number_of_longest_bout = points_configuration.let_number_of_longest_bout_when_frozen_turn()
 
 
                     # より誤差が小さい組み合わせが見つかった
@@ -95,8 +95,8 @@ if __name__ == '__main__':
                             #
                             if 0.5 <= p and p < 0.57:
                                 # ４本勝負で調整できなければ諦める
-                                if 4 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［５０％～５７％）（{p}）なら、４本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 4 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［５０％～５７％）（{p}）なら、４本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -104,8 +104,8 @@ if __name__ == '__main__':
                             # 先手勝率が［５７％～６１％）なら
                             elif 0.57 <= p and p < 0.61:
                                 # ５本勝負で調整できなければ諦める
-                                if 5 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［５７％～６１％）（{p}）なら、５本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 5 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［５７％～６１％）（{p}）なら、５本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -119,8 +119,8 @@ if __name__ == '__main__':
                             #
                             elif 0.66 <= p and p < 0.67:
                                 # １０本勝負で調整できなければ諦める
-                                if 10 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［６６％～６７％）（{p}）なら、１０本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 10 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［６６％～６７％）（{p}）なら、１０本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -132,8 +132,8 @@ if __name__ == '__main__':
                             #
                             elif 0.67 <= p and p < 0.68:
                                 # ５本勝負で調整できなければ諦める
-                                if 5 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［６７％～６８％）（{p}）なら、５本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 5 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［６７％～６８％）（{p}）なら、５本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -144,8 +144,8 @@ if __name__ == '__main__':
                             # # 先手勝率が［７６％～７８％）なら
                             # elif 0.76 <= p and p < 0.78:
                             #     # ７本勝負で調整できなければ諦める
-                            #     if 7 < number_of_longest_bout_when_frozen_turn:
-                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn} 黒{b_time} 白{w_time}）は、調整を諦めます]"
+                            #     if 7 < number_of_longest_bout:
+                            #         message = f"[▲！先手勝率が［７６％～７８％）（{p}）なら、７本勝負を超えるケース（{number_of_longest_bout} 黒{b_time} 白{w_time}）は、調整を諦めます]"
                             #         print(message)
                             #         process_list.append(f"{message}\n")
                             #         continue
@@ -153,8 +153,8 @@ if __name__ == '__main__':
                             # 先手勝率が［６１％～８２％）なら
                             elif 0.61 <= p and p < 0.82:
                                 # ７本勝負で調整できなければ諦める
-                                if 7 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［６１％～８２％）（{p}）なら、７本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 7 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［６１％～８２％）（{p}）なら、７本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -173,8 +173,8 @@ if __name__ == '__main__':
                             #
                             elif 0.82 <= p and p < 0.83:
                                 # ９本勝負で調整できなければ諦める
-                                if 9 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［８２％～８３％）（{p}）なら、９本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 9 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［８２％～８３％）（{p}）なら、９本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue
@@ -182,8 +182,8 @@ if __name__ == '__main__':
                             # 先手勝率が［８３％～９０％）なら
                             elif 0.83 <= p and p < 0.90:
                                 # １０本勝負で調整できなければ諦める
-                                if 10 < number_of_longest_bout_when_frozen_turn:
-                                    message = f"[▲！先手勝率が［８３％～９０％）（{p}）なら、１０本勝負を超えるケース（{number_of_longest_bout_when_frozen_turn}）は、調整を諦めます]"
+                                if 10 < number_of_longest_bout:
+                                    message = f"[▲！先手勝率が［８３％～９０％）（{p}）なら、１０本勝負を超えるケース（{number_of_longest_bout}）は、調整を諦めます]"
                                     print(message)
                                     process_list.append(f"{message}\n")
                                     continue

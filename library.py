@@ -178,8 +178,8 @@ def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_time, w_time):
     raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_time=}  {w_time=}")
 
 
-def n_round_when_frozen_turn(p, number_of_longest_bout_when_frozen_turn, b_time, w_time, round_count):
-    """［最長対局数（先後固定制）］の中で対局
+def n_round_when_frozen_turn(p, number_of_longest_bout, b_time, w_time, round_count):
+    """［最長対局数］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
     
@@ -187,8 +187,8 @@ def n_round_when_frozen_turn(p, number_of_longest_bout_when_frozen_turn, b_time,
     ----------
     p : float
         ［表が出る確率］（先手勝率）  例： 黒番が７割勝つなら 0.7
-    number_of_longest_bout_when_frozen_turn : int
-        ［最長対局数（先後固定制）］。例： ３本勝負なら 3
+    number_of_longest_bout : int
+        ［最長対局数］。例： ３本勝負なら 3
     b_time : int
         黒が勝つのに必要な一本の数
     w_time : int
@@ -204,7 +204,7 @@ def n_round_when_frozen_turn(p, number_of_longest_bout_when_frozen_turn, b_time,
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_when_frozen_turn(p, number_of_longest_bout_when_frozen_turn, b_time, w_time) == BLACK:
+        if n_bout_when_frozen_turn(p, number_of_longest_bout, b_time, w_time) == BLACK:
             black_win_count += 1
 
     return black_win_count

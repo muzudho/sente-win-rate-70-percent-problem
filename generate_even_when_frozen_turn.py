@@ -33,40 +33,40 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_round_count, best_b_step, best_w_step, best_span, best_w_time, best_number_of_longest_bout_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['w_time'], df['number_of_longest_bout_when_frozen_turn'], df['process']):
+    for p, best_new_p, best_new_p_error, best_round_count, best_b_step, best_w_step, best_span, best_w_time, best_number_of_longest_bout, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['w_time'], df['number_of_longest_bout'], df['process']):
 
         is_update = False
 
         # ［黒勝ちだけでの対局数］は計算で求めます
-        best_b_time = best_number_of_longest_bout_when_frozen_turn-(best_w_time-1)
+        best_b_time = best_number_of_longest_bout-(best_w_time-1)
 
-        is_automatic = best_new_p_error >= limit_of_error or best_number_of_longest_bout_when_frozen_turn == 0 or best_round_count < 2_000_000 or best_w_time == 0
+        is_automatic = best_new_p_error >= limit_of_error or best_number_of_longest_bout == 0 or best_round_count < 2_000_000 or best_w_time == 0
 
         # アルゴリズムで求めるケース
         if is_automatic:
 
             is_cutoff = False
 
-            # ［最長対局数（先後固定制）］
-            for number_of_longest_bout_when_frozen_turn in range(best_number_of_longest_bout_when_frozen_turn, 101):
+            # ［最長対局数］
+            for number_of_longest_bout in range(best_number_of_longest_bout, 101):
 
                 # １本勝負のときだけ、白はｎ本－１ではない
-                if number_of_longest_bout_when_frozen_turn == 1:
+                if number_of_longest_bout == 1:
                     end_w_time = 2
                 else:
-                    end_w_time = number_of_longest_bout_when_frozen_turn
+                    end_w_time = number_of_longest_bout
 
                 for w_time in range(1, end_w_time):
 
                     # FIXME ［黒勝ちだけでの対局数］は計算で求めます。計算合ってる？
-                    b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
+                    b_time = number_of_longest_bout-(w_time-1)
 
                     # ［勝ち点ルール］の構成
                     points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
 
                     black_win_count = n_round_when_frozen_turn(
                             p=p,
-                            number_of_longest_bout_when_frozen_turn=number_of_longest_bout_when_frozen_turn,
+                            number_of_longest_bout=number_of_longest_bout,
                             b_time=b_time,
                             w_time=w_time,
                             round_count=best_round_count)
@@ -82,7 +82,7 @@ def iteration_deeping(df, limit_of_error):
                         best_points_configuration = points_configuration
                         best_b_time = b_time
                         best_w_time = w_time
-                        best_number_of_longest_bout_when_frozen_turn = number_of_longest_bout_when_frozen_turn
+                        best_number_of_longest_bout = number_of_longest_bout
                     
                         # 計算過程
                         one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目]'
@@ -132,8 +132,8 @@ def iteration_deeping(df, limit_of_error):
             print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, best_round_count, best_points_configuration)
 
             # データチェック
-            if best_points_configuration.let_number_of_longest_bout_when_frozen_turn() != best_number_of_longest_bout_when_frozen_turn:
-                raise ValueError(f"実践値と理論値が異なる {best_points_configuration.let_number_of_longest_bout_when_frozen_turn()=}  {best_number_of_longest_bout_when_frozen_turn=}")
+            if best_points_configuration.let_number_of_longest_bout_when_frozen_turn() != best_number_of_longest_bout:
+                raise ValueError(f"実践値と理論値が異なる {best_points_configuration.let_number_of_longest_bout_when_frozen_turn()=}  {best_number_of_longest_bout=}")
 
             # データフレーム更新
             # -----------------
@@ -159,16 +159,16 @@ def iteration_deeping(df, limit_of_error):
             # ［白勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['w_time']] = best_w_time
 
-            # ［最長対局数（先後固定制）］列を更新
+            # ［最長対局数］列を更新
             #
             #   FIXME 削除方針。これを使うよりも、 b_step, w_step, span を使った方がシンプルになりそう
             #
-            df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_number_of_longest_bout_when_frozen_turn
+            df.loc[df['p']==p, ['number_of_longest_bout']] = best_number_of_longest_bout
 
             # CSV保存
             df.to_csv(CSV_FILE_PATH,
                     # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'b_time', 'w_time', 'number_of_longest_bout_when_frozen_turn', 'process'],
+                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'b_time', 'w_time', 'number_of_longest_bout', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -195,7 +195,7 @@ if __name__ == '__main__':
         df['span'].fillna(0).astype('int')
         df['b_time'].fillna(0).astype('int')
         df['w_time'].fillna(0).astype('int')
-        df['number_of_longest_bout_when_frozen_turn'].fillna(0).astype('int')
+        df['number_of_longest_bout'].fillna(0).astype('int')
         df['process'].fillna('').astype('string')
         print(df)
 
