@@ -1,4 +1,4 @@
-p,new_p,new_p_error,max_number_of_bout_when_frozen_turn,round_count,w_repeat_when_frozen_turn,process
+p,new_p,new_p_error,number_of_longest_bout_when_frozen_turn,round_count,w_repeat_when_frozen_turn,process
 0.50,0,0.51,1,2000000,1,""
 0.51,0,0.51,1,2000000,1,""
 0.52,0,0.51,1,2000000,1,""

@@ -7,7 +7,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_
     """文言の作成"""
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+    points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -195,7 +195,7 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_repeat_when_frozen_t
     #
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_require(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
+    points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
 
     # 黒が勝った確率
     black_won_rate = black_wons / round_total

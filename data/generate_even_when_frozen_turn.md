@@ -4,7 +4,7 @@
 
 * `p` - 表が出る確率です。初期値は 0.50 ～ 0.99
 * `new_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は 0.51
-* `max_number_of_bout_when_frozen_turn` - ［最長対局数（先後固定制）］のｎです。初期値は 1
+* `number_of_longest_bout_when_frozen_turn` - ［最長対局数（先後固定制）］のｎです。初期値は 1
 * `round_count` - 対局回数。初期値は 2000000
 * `w_repeat_when_frozen_turn` - 後手が勝つのに必要な一本の数です。初期値は 1
 * `process` - 計算過程を文字列で記述します

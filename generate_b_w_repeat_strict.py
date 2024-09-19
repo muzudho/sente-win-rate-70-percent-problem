@@ -82,7 +82,7 @@ if __name__ == '__main__':
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［勝ち点ルール］の構成
-                points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+                points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
                 text = stringify_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, best_error, points_configuration, process_list)
                 print(text) # 表示

@@ -178,7 +178,7 @@ def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_repeat_when_frozen
     raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_repeat_when_frozen_turn=}  {w_repeat_when_frozen_turn=}")
 
 
-def n_round_when_frozen_turn(black_win_rate, max_number_of_bout_when_frozen_turn, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, round_count):
+def n_round_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn, round_count):
     """［最長対局数（先後固定制）］の中で対局
 
     ｎ回対局して黒が勝った回数を返す。
@@ -187,7 +187,7 @@ def n_round_when_frozen_turn(black_win_rate, max_number_of_bout_when_frozen_turn
     ----------
     black_win_rate : float
         黒番の勝率。例： 黒番が７割勝つなら 0.7
-    max_number_of_bout_when_frozen_turn : int
+    number_of_longest_bout_when_frozen_turn : int
         ［最長対局数（先後固定制）］。例： ３本勝負なら 3
     b_repeat_when_frozen_turn : int
         黒が勝つのに必要な一本の数
@@ -204,7 +204,7 @@ def n_round_when_frozen_turn(black_win_rate, max_number_of_bout_when_frozen_turn
     black_win_count = 0
 
     for i in range(0, round_count):
-        if n_bout_when_frozen_turn(black_win_rate, max_number_of_bout_when_frozen_turn, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn) == BLACK:
+        if n_bout_when_frozen_turn(black_win_rate, number_of_longest_bout_when_frozen_turn, b_repeat_when_frozen_turn, w_repeat_when_frozen_turn) == BLACK:
             black_win_count += 1
 
     return black_win_count
@@ -451,7 +451,7 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_points_from_require(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
+    def let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
         """先後固定制での［黒だけでの反復数］と［白だけでの反復数］が分かれば、［勝ち点ルール］を分析して返す"""
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)

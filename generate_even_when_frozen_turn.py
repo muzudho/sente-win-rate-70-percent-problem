@@ -33,7 +33,7 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_repeat_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['max_number_of_bout_when_frozen_turn'], df['round_count'], df['w_repeat_when_frozen_turn'], df['process']):
+    for p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, best_w_repeat_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['number_of_longest_bout_when_frozen_turn'], df['round_count'], df['w_repeat_when_frozen_turn'], df['process']):
         #print(f"{p=}  {best_new_p_error=}  {best_max_bout_count=}  {best_round_count=}  {best_w_repeat_when_frozen_turn=}  {process=}  {type(process)=}")
 
         # 黒の［反復数］は計算で求めます
@@ -47,22 +47,22 @@ def iteration_deeping(df, limit_of_error):
             is_cutoff = False
 
             # ［最長対局数（先後固定制）］
-            for max_number_of_bout_when_frozen_turn in range(best_max_bout_count, 101):
+            for number_of_longest_bout_when_frozen_turn in range(best_max_bout_count, 101):
 
                 # １本勝負のときだけ、白はｎ本－１ではない
-                if max_number_of_bout_when_frozen_turn == 1:
+                if number_of_longest_bout_when_frozen_turn == 1:
                     end_w_repeat_when_frozen_turn = 2
                 else:
-                    end_w_repeat_when_frozen_turn = max_number_of_bout_when_frozen_turn
+                    end_w_repeat_when_frozen_turn = number_of_longest_bout_when_frozen_turn
 
                 for w_repeat_when_frozen_turn in range(1, end_w_repeat_when_frozen_turn):
 
                     # FIXME ［黒だけでの反復数］は計算で求めます
-                    b_repeat_when_frozen_turn = max_number_of_bout_when_frozen_turn-(w_repeat_when_frozen_turn-1)
+                    b_repeat_when_frozen_turn = number_of_longest_bout_when_frozen_turn-(w_repeat_when_frozen_turn-1)
 
                     black_win_count = n_round_when_frozen_turn(
                         black_win_rate=p,
-                        max_number_of_bout_when_frozen_turn=max_number_of_bout_when_frozen_turn,
+                        number_of_longest_bout_when_frozen_turn=number_of_longest_bout_when_frozen_turn,
                         b_repeat_when_frozen_turn=b_repeat_when_frozen_turn,
                         w_repeat_when_frozen_turn=w_repeat_when_frozen_turn,
                         round_count=best_round_count)
@@ -74,7 +74,7 @@ def iteration_deeping(df, limit_of_error):
                     if new_p_error < best_new_p_error:
                         best_new_p = new_p
                         best_new_p_error = new_p_error
-                        best_max_bout_count = max_number_of_bout_when_frozen_turn
+                        best_max_bout_count = number_of_longest_bout_when_frozen_turn
                         best_b_repeat_when_frozen_turn = b_repeat_when_frozen_turn
                         best_w_repeat_when_frozen_turn = w_repeat_when_frozen_turn
                     
@@ -120,7 +120,7 @@ def iteration_deeping(df, limit_of_error):
 
         else:
             # ［勝ち点ルール］の構成
-            points_configuration = PointsConfiguration.let_points_from_require(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+            points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
             print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration)
 
@@ -135,9 +135,9 @@ def iteration_deeping(df, limit_of_error):
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
             # ［最長対局数（先後固定制）］列を更新
-            df.loc[df['p']==p, ['max_number_of_bout_when_frozen_turn']] = best_max_bout_count
+            df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_max_bout_count
 
-            #best_b_repeat_when_frozen_turn は max_number_of_bout_when_frozen_turn と w_repeat_when_frozen_turn から求まる
+            #best_b_repeat_when_frozen_turn は number_of_longest_bout_when_frozen_turn と w_repeat_when_frozen_turn から求まる
 
             # ［白だけでの反復数］列を更新
             df.loc[df['p']==p, ['w_repeat_when_frozen_turn']] = best_w_repeat_when_frozen_turn
