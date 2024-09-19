@@ -57,7 +57,7 @@ def iteration_deeping(df, limit_of_error):
 
                 for w_time in range(1, end_w_time):
 
-                    # FIXME ［黒だけでの回数］は計算で求めます
+                    # FIXME ［黒だけでの回数］は計算で求めます。計算合ってる？
                     b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
 
                     black_win_count = n_round_when_frozen_turn(
@@ -136,7 +136,7 @@ def iteration_deeping(df, limit_of_error):
 
             # ［最長対局数（先後固定制）］列を更新
             #
-            #   FIXME 削除方針
+            #   FIXME 削除方針。これを使うよりも、 b_time, w_time, span_when_frozen_turn を使った方がシンプルになりそう
             #
             df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_max_bout_count
 

@@ -46,19 +46,6 @@ if __name__ == '__main__':
             # ［勝ち点ルール］の構成
             points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
 
-            # NOTE ［先後固定制］での［勝ち点ルール］の構成をそのまま使うと、先手勝率が 37% ～ 63% にぶれてしまう
-
-            # # NOTE ［先後交互制］では、さらに確率の調整を入れる。 b_time を 4 倍、 w_time を 2 倍にし、さらに約分する ----> さすがに先手勝率が 37% ～ 53% ぐらいに下がってしまう
-            #b_time *= 4
-            #w_time *= 2
-            #fraction = Fraction(w_time, b_time)
-            #w_time = fraction.numerator
-            #b_time = fraction.denominator
-
-            # # NOTE ［先後交互制］では、さらに確率の調整を入れる。 b_time を 1 増やす ----> 先手勝率が 37% ～ 63% にぶれてしまう
-            #b_time += 1
-
-
             # Ａさんが勝った回数
             alice_wons = 0
 
