@@ -43,7 +43,7 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_number_of_longest_bout_when_frozen_turn, best_round_count, best_w_time, process in zip(df['p'], df['new_p'], df['new_p_error'], df['number_of_longest_bout_when_frozen_turn'], df['round_count'], df['w_time'], df['process']):
+    for p, best_new_p, best_new_p_error, best_round_count, best_w_time, best_number_of_longest_bout_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['w_time'], df['number_of_longest_bout_when_frozen_turn'], df['process']):
 
         #   交互に手番を替えるか、変えないかに関わらず、先手と後手の重要さは p で決まっている。
         #
@@ -130,6 +130,8 @@ def iteration_deeping(df, limit_of_error):
         #   FIXME 合ってるか、あとで確認
         #
 
+        is_update = False
+
         # FIXME ［黒勝ちだけでの対局数］は計算で求めます。 float 型になってしまう？ time を使わず、 step だけでプログラムを書けないか？
         best_b_time = (best_number_of_longest_bout_when_frozen_turn-2*(best_w_time-1))/2
 
@@ -169,14 +171,16 @@ def iteration_deeping(df, limit_of_error):
                     new_p_error = abs(new_p - 0.5)
 
                     if new_p_error < best_new_p_error:
+                        is_update = True
                         best_new_p = new_p
                         best_new_p_error = new_p_error
-                        best_number_of_longest_bout_when_frozen_turn = number_of_longest_bout_when_frozen_turn
+                        best_points_configuration = points_configuration
                         best_b_time = b_time
                         best_w_time = w_time
+                        best_number_of_longest_bout_when_frozen_turn = number_of_longest_bout_when_frozen_turn
                     
                         # 計算過程
-                        one_process_text = f'[{best_new_p_error:6.4f} {points_configuration.b_step}黒 {points_configuration.w_step}白 {points_configuration.span_when_frozen_turn}目]'
+                        one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span_when_frozen_turn}目]'
                         print(one_process_text, end='', flush=True) # すぐ表示
 
                         # ［計算過程］列を更新
@@ -213,15 +217,15 @@ def iteration_deeping(df, limit_of_error):
 
 
         # 自動計算未完了
-        if is_automatic and best_new_p_error == OUT_OF_ERROR:
+        if not is_update or (is_automatic and best_new_p_error == OUT_OF_ERROR):
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
 
         else:
-            # ［勝ち点ルール］の構成
-            points_configuration = PointsConfiguration.let_points_from_repeat(best_b_time, best_w_time)
+            print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, best_new_p_error, best_round_count, best_points_configuration)
 
-            print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, best_new_p_error, best_number_of_longest_bout_when_frozen_turn, best_round_count, points_configuration)
-
+            # データチェック
+            if best_points_configuration.let_number_of_longest_bout_when_frozen_turn() != best_number_of_longest_bout_when_frozen_turn:
+                raise ValueError(f"実践値と理論値が異なる {best_points_configuration.let_number_of_longest_bout_when_frozen_turn()=}  {best_number_of_longest_bout_when_frozen_turn=}")
 
             # データフレーム更新
             # -----------------
@@ -232,18 +236,24 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
+            # ［黒勝ちの価値］列を更新
+            df.loc[df['p']==p, ['b_step']] = points_configuration.b_step
+
+            # ［白勝ちの価値］列を更新
+            df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
+
+            # ［目標の点（先後固定制）］列を更新 
+            df.loc[df['p']==p, ['span']] = points_configuration.span_when_frozen_turn
+
             # ［黒勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['b_time']] = best_b_time
 
             # ［白勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['w_time']] = best_w_time
 
-            # ［目標の点（先後固定制）］列を更新 
-            df.loc[df['p']==p, ['span_when_frozen_turn']] = points_configuration.span_when_frozen_turn
-
             # ［最長対局数（先後固定制）］列を更新
             #
-            #   FIXME 削除方針。これを使うよりも、 b_time, w_time, span_when_frozen_turn を使った方がシンプルになりそう
+            #   FIXME 削除方針。これを使うよりも、 b_step, w_step, span を使った方がシンプルになりそう
             #
             df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_number_of_longest_bout_when_frozen_turn
 
@@ -251,7 +261,7 @@ def iteration_deeping(df, limit_of_error):
         # CSV保存
         df.to_csv(CSV_FILE_PATH,
                 # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_time', 'w_time', 'span_when_frozen_turn', 'number_of_longest_bout_when_frozen_turn', 'process'],
+                columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'b_time', 'w_time', 'number_of_longest_bout_when_frozen_turn', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -273,9 +283,11 @@ if __name__ == '__main__':
         df['new_p'].fillna(0.0).astype('float')
         df['new_p_error'].fillna(0.0).astype('float')
         df['round_count'].fillna(0).astype('int')
+        df['b_step'].fillna(0).astype('int')
+        df['w_step'].fillna(0).astype('int')
+        df['span'].fillna(0).astype('int')
         df['b_time'].fillna(0).astype('int')
         df['w_time'].fillna(0).astype('int')
-        df['span_when_frozen_turn'].fillna(0).astype('int')
         df['number_of_longest_bout_when_frozen_turn'].fillna(0).astype('int')
         df['process'].fillna('').astype('string')
         print(df)
