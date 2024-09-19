@@ -42,8 +42,8 @@ if __name__ == '__main__':
         for p in df['p']:
 
             # ベストな調整後の先手勝率と、その誤差
-            best_error = OUT_OF_ERROR
-            best_balanced_black_win_rate = None
+            best_new_p_error = OUT_OF_ERROR
+            best_new_p = None
             best_b_repeat_when_frozen_turn = 0
             best_w_repeat_when_frozen_turn = 0
 
@@ -62,13 +62,13 @@ if __name__ == '__main__':
                     # if b_repeat_when_frozen_turn <= w_repeat_when_frozen_turn and 1 < w_repeat_when_frozen_turn:
                     #     continue
 
-                    balanced_black_win_rate = calculate_probability(
+                    new_p = calculate_probability(
                         p=p,
                         H=b_repeat_when_frozen_turn,
                         T=w_repeat_when_frozen_turn)
 
                     # 誤差
-                    error = abs(balanced_black_win_rate - 0.5)
+                    new_p_error = abs(new_p - 0.5)
 
                     # ［最長対局数（先後固定制）］
                     #
@@ -78,11 +78,11 @@ if __name__ == '__main__':
 
 
                     # より誤差が小さい組み合わせが見つかった
-                    if error < best_error:
+                    if new_p_error < best_new_p_error:
 
                         # しかし
                         #
-                        if best_error != OUT_OF_ERROR:
+                        if best_new_p_error != OUT_OF_ERROR:
 
                             # 先手勝率が［５０％～５４％）なら
                             #
@@ -189,17 +189,17 @@ if __name__ == '__main__':
                                 pass
 
 
-                        best_error = error
-                        best_balanced_black_win_rate = balanced_black_win_rate
+                        best_new_p_error = new_p_error
+                        best_new_p = new_p
                         best_b_repeat_when_frozen_turn = b_repeat_when_frozen_turn
                         best_w_repeat_when_frozen_turn = w_repeat_when_frozen_turn
 
                         # 計算過程
-                        process = f"[{best_error:6.4f} 黒{best_b_repeat_when_frozen_turn:>3} 白{best_w_repeat_when_frozen_turn:>2}]"
+                        process = f"[{best_new_p_error:6.4f} 黒{best_b_repeat_when_frozen_turn:>3} 白{best_w_repeat_when_frozen_turn:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 
-                        if best_error < LIMIT_ERROR:
+                        if best_new_p_error < LIMIT_ERROR:
                             is_cutoff = True
                             print("x", end='', flush=True)
                             break
@@ -213,7 +213,7 @@ if __name__ == '__main__':
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言の作成
-                text = stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
+                text = stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_error, best_b_repeat_when_frozen_turn, best_w_repeat_when_frozen_turn)
 
                 print(text) # 表示
 
