@@ -340,34 +340,35 @@ class CoinToss():
 
 
 def calculate_probability(p, H, T):
-    """TODO このコードは検証中
-    Ａさんが勝つ確率を返します
+    """［表側を持っているプレイヤー］が勝つ確率を返します
 
-    Ａさんが勝つ条件：　表が H 回出る前に裏が T 回出ないこと
+    NOTE ＡさんとＢさんは、表、裏を入れ替えて持つことがあるので、［表側を持っているプレイヤー］が必ずＡさんとは限らない
+
+    ［表側を持っているプレイヤー］が勝つ条件：　表が H 回出る前に裏が T 回出ないこと
     試行回数の考え方：　ゲームは最小で H 回、最大で N = H + T - 1 回のコイン投げで終了します
     確率の計算：　総試行回数 N 回で、表が H 回以上出る確率を計算します
 
     # パラメータの設定例
     p = 0.7  # 表が出る確率
-    H = 7    # Aさんが必要な表の回数
-    T = 3    # Bさんが必要な裏の回数
+    H = 7    # ［表側を持っているプレイヤー］が必要な表の回数
+    T = 3    # ［裏側を持っているプレイヤー］が必要な裏の回数
 
     # 計算の実行例
     probability = calculate_probability(p, H, T)
-    print(f"Aさんが勝つ確率: {probability * 100:.2f}%")
+    print(f"［表側を持っているプレイヤー］が勝つ確率: {probability * 100:.2f}%")
 
     Parameters
     ----------
     p : float
         表が出る確率
     H : int
-        表側のプレイヤー（Ａさん）が必要な、表の先取回数
+        ［表側を持っているプレイヤー］が必要な、表の先取回数
     T : int
-        裏側のプレイヤー（Ｂさん）が必要な、裏の先取回数
+        ［裏側を持っているプレイヤー］が必要な、裏の先取回数
     
     Returns
     black_win_rate : float
-        Ａさんが勝つ確率
+        ［表側を持っているプレイヤー］が勝つ確率
     """
 
     from math import comb
@@ -452,7 +453,15 @@ class PointsConfiguration():
 
     @staticmethod
     def let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn):
-        """先後固定制での［黒だけでの反復数］と［白だけでの反復数］が分かれば、［勝ち点ルール］を分析して返す"""
+        """先後固定制での［黒だけでの反復数］と［白だけでの反復数］が分かれば、［勝ち点ルール］を分析して返す
+        
+        Parameters
+        ----------
+        b_repeat_when_frozen_turn : int
+            ［黒だけでの反復数］
+        w_repeat_when_frozen_turn : int
+            ［白だけでの反復数］
+        """
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
         # 先手勝ちの点

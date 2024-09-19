@@ -66,10 +66,14 @@ if __name__ == '__main__':
                     points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat_when_frozen_turn, w_repeat_when_frozen_turn)
 
                     # ［調整後の表が出る確率（％）］
-                    new_p = calculate_probability(
-                        p=p,
-                        H=b_repeat_when_frozen_turn,
-                        T=w_repeat_when_frozen_turn)
+                    new_p = calculate_probability(      # 表側のプレイヤー（Ａさん）の、勝つ確率
+                        p=p,                            # 表が出る割合
+                        H=b_repeat_when_frozen_turn,    # 表側のプレイヤーの、これだけ表が出れば勝ち、という数
+                        T=w_repeat_when_frozen_turn)    # 裏側のプレイヤーの、これだけ裏が出れば勝ち、という数
+
+                    #
+                    # NOTE ［先後交互制］での H と T はどう考える？ ----> ［表が出る確率］というのは変わらない。ＡさんとＢさんたちが先後を入れ替えて回ってるだけで。
+                    #
 
                     # 誤差
                     new_p_error = abs(new_p - 0.5)
