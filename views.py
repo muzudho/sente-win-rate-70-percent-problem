@@ -171,8 +171,8 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
 
 
 def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,
-        black_wons, shortest_bout_th_when_frozen_turn, longest_bout_th_when_frozen_turn,
-        alice_wons, shortest_bout_th_when_alternating_turn, longest_bout_th_when_alternating_turn,
+        black_wons, expected_shortest_bout_th_when_frozen_turn, actual_shortest_bout_th_when_frozen_turn, expected_longest_bout_th_when_frozen_turn, actual_longest_bout_th_when_frozen_turn,
+        alice_wons, expected_shortest_bout_th_when_alternating_turn, actual_shortest_bout_th_when_alternating_turn, expected_longest_bout_th_when_alternating_turn, actual_longest_bout_th_when_alternating_turn,
         points_configuration, comment):
     """ログ出力
     
@@ -186,15 +186,23 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
         対局数
     black_wons : int
         ［先後固定制］で、黒が勝った回数
-    shortest_bout_th_when_frozen_turn : int
+    expected_shortest_bout_th_when_frozen_turn : int
 
-    longest_bout_th_when_frozen_turn : int
+    actual_shortest_bout_th_when_frozen_turn : int
+
+    expected_longest_bout_th_when_frozen_turn : int
+
+    actual_longest_bout_th_when_frozen_turn : int
 
     alice_wons : int
         ［先後交互制］で、Ａさんが勝った回数
-    shortest_bout_th_when_alternating_turn : int
+    expected_shortest_bout_th_when_alternating_turn : int
 
-    longest_bout_th_when_alternating_turn : int
+    actual_shortest_bout_th_when_alternating_turn : int
+
+    expected_longest_bout_th_when_alternating_turn : int
+
+    actual_longest_bout_th_when_alternating_turn : int
 
     points_configuration : PointsConfiguration
         ［勝ち点ルール］の構成
@@ -230,26 +238,14 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_2_1b = new_p_error_when_alternating_turn*100
 
     # 対局数（理論値と実際値）
-    seg_1_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_1_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_2_3a = shortest_bout_th_when_frozen_turn
-    seg_2_3b = longest_bout_th_when_frozen_turn
-    seg_3_3a = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3_3b = points_configuration.let_number_of_longest_bout_when_alternating_turn()
-    seg_4_3a = shortest_bout_th_when_alternating_turn
-    seg_4_3b = longest_bout_th_when_alternating_turn
-
-    if seg_2_3a < seg_1_3a:
-        raise ValueError(f"［先後固定制］の最短対局数の実際値 {seg_2_3a} が理論値 {seg_1_3a} を下回った")
-
-    if seg_1_3b < seg_2_3b:
-        raise ValueError(f"［先後固定制］の最長対局数の実際値 {seg_2_3b} が理論値 {seg_1_3b} を上回った")
-
-    if seg_4_3a < seg_3_3a:
-        raise ValueError(f"［先後交互制］の最短対局数の実際値 {seg_4_3a} が理論値 {seg_3_3a} を下回った")
-
-    if seg_3_3b < seg_4_3b:
-        raise ValueError(f"［先後交互制］の最長対局数の実際値 {seg_4_3b} が理論値 {seg_3_3b} を上回った")
+    seg_1_3a = expected_shortest_bout_th_when_frozen_turn
+    seg_1_3b = expected_longest_bout_th_when_frozen_turn
+    seg_2_3a = actual_shortest_bout_th_when_frozen_turn
+    seg_2_3b = actual_longest_bout_th_when_frozen_turn
+    seg_3_3a = expected_shortest_bout_th_when_alternating_turn
+    seg_3_3b = expected_longest_bout_th_when_alternating_turn
+    seg_4_3a = actual_shortest_bout_th_when_alternating_turn
+    seg_4_3b = actual_longest_bout_th_when_alternating_turn
 
 
     # ［黒勝ちの価値］
