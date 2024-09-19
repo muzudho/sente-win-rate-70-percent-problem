@@ -278,7 +278,7 @@ class CoinToss():
     def coin_toss_in_round_when_alternating_turn(self, p, points_configuration):
         """１対局行う（どちらの勝ちが出るまでコイントスを行う）
 
-        手番を交互にするパターン
+        先後交互制
         
         Parameters
         ----------
@@ -293,15 +293,15 @@ class CoinToss():
             ＡさんかＢさん
         """
 
-        # 新しい本目（Bout）。未使用、Ａさん、Ｂさんの順
-        b_got = [0, 0, 0]
-        w_got = [0, 0, 0]
+        # ［得点］の配列。要素は、未使用、Ａさん、Ｂさんの順
+        point_list = [0, 0, 0]
 
         # ｎ本勝負で勝ち負けが出るまでやる
         for bout_th in range(1, 2_147_483_647):
 
             # 黒が出た
             if coin(p) == BLACK:
+                step = points_configuration.b_step
 
                 # 奇数本で黒番のプレイヤーはＡさん
                 if bout_th % 2 == 1:
@@ -311,14 +311,9 @@ class CoinToss():
                 else:
                     successful_player = BOB
 
-                b_got[successful_player] += 1
-
-                # ［黒だけでの回数］を取った（黒で、勝利条件を満たした）
-                if points_configuration.b_time <= b_got[successful_player]:
-                    return successful_player
-
             # 白が出た
             else:
+                step = points_configuration.w_step
 
                 # 奇数本で白番のプレイヤーはＢさん
                 if bout_th % 2 == 1:
@@ -328,11 +323,11 @@ class CoinToss():
                 else:
                     successful_player = ALICE
 
-                w_got[successful_player] += 1
 
-                # ［白だけでの回数］を取った（白で、勝利条件を満たした）
-                if points_configuration.w_time <= w_got[successful_player]:
-                    return successful_player
+            point_list[successful_player] += step
+
+            if points_configuration.span_when_frozen_turn <= point_list[successful_player]:
+                return successful_player
 
             # 続行
 
