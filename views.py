@@ -35,7 +35,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_e
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4:2.0f}点、後手勝ち{seg_5:2.0f}点　目標{seg_6:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4:2.0f}点、後手勝ち{seg_5:2.0f}点　目標{seg_6:3.0f}点（先後固定制）"
     return text
 
 
@@ -60,7 +60,7 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, new_p, new_p_err
     # # 計算過程を追加する場合
     # text += f"  {''.join(process_list)}"
 
-    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {new_p_error:7.4f}）    先後固定制での回数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
+    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {new_p_error:7.4f}）    先後固定制での回数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
     return text
 
 
@@ -92,7 +92,7 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {seg_1c:>7.4f}）  対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {seg_1c:>7.4f}）  対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"
     return text
 
 
@@ -130,7 +130,7 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     else:
         seg_5 = f"  （対象外。誤差十分）"
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
 def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):
@@ -167,10 +167,10 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     else:
         seg_5 = f"  （対象外。誤差十分）"
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
-def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, b_time, w_time, round_total, black_wons):
+def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, b_time, w_time, round_total, black_wons, alice_wons, points_configuration, comment):
     """ログ出力
     
     Parameters
@@ -186,7 +186,13 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     round_total : int
         対局数
     black_wons : int
-        黒が勝った回数
+        ［先後固定制］で、黒が勝った回数
+    alice_wons : int
+        ［先後交互制］で、Ａさんが勝った回数
+    points_configuration : PointsConfiguration
+        ［勝ち点ルール］の構成
+    comment : str
+        コメント
     """
 
     # ［最長対局数（先後固定制）］
@@ -194,26 +200,27 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
     #
 
-    # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+    # ［先後固定制］で、黒の勝率
+    new_p_when_frozen_turn = black_wons / round_total
+    new_p_when_alternating_turn = alice_wons / round_total
 
-    # 黒が勝った確率
-    black_won_rate = black_wons / round_total
-
-    # 均等からの誤差
-    new_p_error = abs(black_won_rate - 0.5)
+    # ［先後固定制］で、黒の勝率と、五分五分との誤差
+    new_p_error_when_frozen_turn = abs(new_p_when_frozen_turn - 0.5)
+    new_p_error_when_alternating_turn = abs(new_p_when_alternating_turn - 0.5)
 
     # ［タイムスタンプ］
-    seg_0 = datetime.datetime.now()
+    seg_0a = datetime.datetime.now()
 
     # ［表が出る確率（％）］
-    seg_1a = p*100
+    seg_0b = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = black_won_rate*100
+    seg_1_1a = new_p_when_frozen_turn*100
+    seg_2_1a = new_p_when_alternating_turn*100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = new_p_error*100
+    seg_1_1b = new_p_error_when_frozen_turn*100
+    seg_2_1b = new_p_error_when_alternating_turn*100
 
     # 対局数
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
@@ -230,7 +237,12 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     # ［目標の点］
     seg_4c = points_configuration.span_when_frozen_turn
 
-    return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --試行後--> {seg_1b:8.4f} ％（± {seg_1c:7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
+    # コメント
+    seg_5 = comment
+
+    return f"""\
+[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --先後固定制--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{black_wons:7}／{round_total:7}対局試行    対局数 {seg_3a:>2}～{seg_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点
+[                          ]  -------- -- -- --先後交互制--> {          seg_2_1a:8.4f} ％（± {seg_2_1b:7.4f}）    Ａ氏勝ち数{alice_wons:7}／{round_total:7}対局試行    対局数 --～--    {seg_5}"""
 
 
 def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, new_p_error, b_time, round_total):
@@ -253,4 +265,4 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
     # 対局試行
     seg_4 = round_total
 
-    return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --試行後--> 先後交互制でＡさんが勝った確率{seg_2:8.4f} ％（± {seg_2b:7.4f}）  {seg_4:7}対局試行"
+    return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --調整--> {seg_2:8.4f} ％（± {seg_2b:7.4f}）（先後交互制でＡさんが勝った確率）  コイントス{seg_4:7}回試行"

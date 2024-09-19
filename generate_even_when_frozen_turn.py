@@ -135,16 +135,27 @@ def iteration_deeping(df, limit_of_error):
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
             # ［最長対局数（先後固定制）］列を更新
+            #
+            #   FIXME 削除方針
+            #
             df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_max_bout_count
 
-            #best_b_time は number_of_longest_bout_when_frozen_turn と w_time から求まる
+            # ［黒だけでの回数］列を更新
+            df['b_time'].fillna(0).astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df.loc[df['p']==p, ['b_time']] = best_b_time
 
             # ［白だけでの回数］列を更新
+            df['w_time'].fillna(0).astype('int')   # NOTE 初期値が float なので、 int 型へ変更
             df.loc[df['p']==p, ['w_time']] = best_w_time
 
+            # ［目標の点（先後固定制）］列を更新 
+            df['span_when_frozen_turn'].fillna(0).astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df.loc[df['p']==p, ['span_when_frozen_turn']] = points_configuration.span_when_frozen_turn
         
         # CSV保存
         df.to_csv(CSV_FILE_PATH,
+                # ［計算過程］列は長くなるので末尾に置きたい
+                columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_time', 'w_time', 'span_when_frozen_turn', 'number_of_longest_bout_when_frozen_turn', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
