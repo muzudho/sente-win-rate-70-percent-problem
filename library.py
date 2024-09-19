@@ -330,7 +330,7 @@ class CoinToss():
 
             point_list[successful_player] += step
 
-            if points_configuration.span_when_frozen_turn <= point_list[successful_player]:
+            if points_configuration.span <= point_list[successful_player]:
                 return successful_player, bout_th
 
             # 続行
@@ -396,64 +396,64 @@ class PointsConfiguration():
     """勝ち点の構成［勝ち点ルール］"""
 
 
-    def __init__(self, b_step, w_step, span_when_frozen_turn):
+    def __init__(self, b_step, w_step, span):
         """初期化
         
         Parameters
         ----------
         b_step : int
-            先手勝ちの点（先手＝Black）
+            ［黒勝ちの価値］
         w_step : int
-            後手勝ちの点（後手＝White）
-        span_when_frozen_turn : int
-            先後固定制での目標の点
+            ［白勝ちの価値］
+        span : int
+            ［目標の点］
         """
         self._b_step = b_step
         self._w_step = w_step
-        self._span_when_frozen_turn = span_when_frozen_turn
+        self._span = span
 
 
     @property
     def b_step(self):
-        """先手勝ちの点［黒勝ちの価値］"""
+        """［黒勝ちの価値］"""
         return self._b_step
 
 
     @property
     def w_step(self):
-        """後手勝ちの点［白勝ちの価値］"""
+        """［白勝ちの価値］"""
         return self._w_step
 
 
     @property
-    def span_when_frozen_turn(self):
-        """先後固定制での目標の点"""
-        return self._span_when_frozen_turn
+    def span(self):
+        """［目標の点］"""
+        return self._span
 
 
     @property
     def b_time(self):
-        """［先後固定制］での［黒勝ちだけでの対局数］"""
+        """［黒勝ちだけでの対局数］"""
 
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        return round_letro(self._span_when_frozen_turn / self._b_step)
+        return round_letro(self._span / self._b_step)
 
 
     @property
     def w_time(self):
-        """［先後固定制］での［白勝ちだけでの対局数］"""
+        """［白勝ちだけでの対局数］"""
 
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        return round_letro(self._span_when_frozen_turn / self._w_step)
+        return round_letro(self._span / self._w_step)
 
 
     @staticmethod
     def let_points_from_repeat(b_time, w_time):
-        """［先後固定制］での［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［勝ち点ルール］を分析して返す
+        """［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［勝ち点ルール］を分析して返す
         
         Parameters
         ----------
@@ -464,20 +464,22 @@ class PointsConfiguration():
         """
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_time, w_time)
-        # 先手勝ちの点
+        # ［黒勝ちの価値］
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
         b_step = round_letro(lcm / b_time)
-        # 後手勝ちの点
+        # ［白勝ちの価値］
         w_step = round_letro(lcm / w_time)
-        # 先後固定制での目標の点
-        span_when_frozen_turn = round_letro(w_time * w_step)
-        span_when_frozen_turn_w = round_letro(b_time * b_step)
-        if span_when_frozen_turn != span_when_frozen_turn_w:
-            raise ValueError(f"{span_when_frozen_turn=}  {span_when_frozen_turn_w=}")
+        # ［目標の点］
+        span = round_letro(w_time * w_step)
 
-        return PointsConfiguration(b_step, w_step, span_when_frozen_turn)
+        # データチェック
+        span_w = round_letro(b_time * b_step)
+        if span != span_w:
+            raise ValueError(f"{span=}  {span_w=}")
+
+        return PointsConfiguration(b_step, w_step, span)
 
 
     def let_number_of_shortest_bout_when_frozen_turn(self):
@@ -551,12 +553,11 @@ class PointsConfiguration():
                 190  171  161  142  132  113  103  84  74  55  45  26  16  -3
         """
 
-        # FIXME 先後交互制用の変数を使いたい
-        remainder = self._span_when_frozen_turn
+        remainder = self._span
 
         if self._b_step + self._w_step <= remainder:
             # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
-            new_remainder = self._span_when_frozen_turn % (self._b_step + self._w_step)
+            new_remainder = self._span % (self._b_step + self._w_step)
             bout = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
             remainder = new_remainder
 
@@ -578,11 +579,11 @@ class PointsConfiguration():
 
                 # remainder は負数になっているはず（割り切れないはず）
                 if 0 <= remainder:
-                    raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
+                    raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
             
             # remainder は零か負数になっているはず
             elif 0 < remainder:
-                raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span_when_frozen_turn=}  {self._b_step=}  {self._w_step=}")
+                raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
 
         return bout
 

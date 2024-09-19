@@ -28,7 +28,7 @@ if __name__ == '__main__':
                     points_configuration = PointsConfiguration(
                         b_step=b_step,
                         w_step=w_step,
-                        span_when_frozen_turn=span)
+                        span=span)
 
                     # 対局数
                     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()

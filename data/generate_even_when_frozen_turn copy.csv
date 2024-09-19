@@ -1,4 +1,4 @@
-p,new_p,new_p_error,round_count,b_time,w_time,span_when_frozen_turn,number_of_longest_bout_when_frozen_turn,process
+p,new_p,new_p_error,round_count,b_time,w_time,span,number_of_longest_bout_when_frozen_turn,process
 0.5,0.4997725,0.0002274999999999,2000000,1.0,1,1.0,1,[0.0002  1本  1黒  1白]
 0.51,0.4932875,0.0067125,2000000,23.0,22,506.0,44,[0.0100  1本  1黒  1白] [0.0094 最長対局数42 22黒 21白] [0.0067 最長対局数44 23黒 22白]
 0.52,0.4974865,0.0025135,2000000,13.0,12,156.0,24,[0.0202  1本  1黒  1白] [0.0169 20本 11黒 10白] [0.0086 22本 12黒 11白] [0.0025 最長対局数24 13黒 12白]

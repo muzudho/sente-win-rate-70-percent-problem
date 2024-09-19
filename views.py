@@ -31,7 +31,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_e
     seg_5 = points_configuration.w_step
 
     # ［目標の点］
-    seg_6 = points_configuration.span_when_frozen_turn
+    seg_6 = points_configuration.span
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
@@ -88,7 +88,7 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
     seg_4b = points_configuration.w_step
 
     # ［目標の点］
-    seg_4c = points_configuration.span_when_frozen_turn
+    seg_4c = points_configuration.span
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
@@ -120,7 +120,7 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     seg_4b = points_configuration.w_step
 
     # ［目標の点］
-    seg_4c = points_configuration.span_when_frozen_turn
+    seg_4c = points_configuration.span
 
     if is_automatic:
         seg_5 = f"  （自動計算満了）"
@@ -154,7 +154,7 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     seg_4b = points_configuration.w_step
 
     # ［目標の点］
-    seg_4c = points_configuration.span_when_frozen_turn
+    seg_4c = points_configuration.span
 
     if is_automatic:
         seg_5 = f"  （自動計算満了）"
@@ -249,7 +249,7 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_4b = points_configuration.w_step
 
     # ［目標の点］
-    seg_4c = points_configuration.span_when_frozen_turn
+    seg_4c = points_configuration.span
 
     # コメント
     seg_5 = comment

@@ -1,6 +1,6 @@
 #
 # 生成 手番を交互にするパターン
-# NOTE まだできてない
+# FIXME まだできてない
 # python generate_even_when_alternating_turn.py
 #
 #   引き分けは考慮していない。
@@ -43,7 +43,7 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_round_count, best_w_time, best_number_of_longest_bout_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['w_time'], df['number_of_longest_bout_when_frozen_turn'], df['process']):
+    for p, best_new_p, best_new_p_error, best_round_count, best_b_step, best_w_step, best_span, best_w_time, best_number_of_longest_bout_when_frozen_turn, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['w_time'], df['number_of_longest_bout_when_frozen_turn'], df['process']):
 
         #   交互に手番を替えるか、変えないかに関わらず、先手と後手の重要さは p で決まっている。
         #
@@ -180,7 +180,7 @@ def iteration_deeping(df, limit_of_error):
                         best_number_of_longest_bout_when_frozen_turn = number_of_longest_bout_when_frozen_turn
                     
                         # 計算過程
-                        one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span_when_frozen_turn}目]'
+                        one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目]'
                         print(one_process_text, end='', flush=True) # すぐ表示
 
                         # ［計算過程］列を更新
@@ -243,7 +243,7 @@ def iteration_deeping(df, limit_of_error):
             df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
 
             # ［目標の点（先後固定制）］列を更新 
-            df.loc[df['p']==p, ['span']] = points_configuration.span_when_frozen_turn
+            df.loc[df['p']==p, ['span']] = points_configuration.span
 
             # ［黒勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['b_time']] = best_b_time
