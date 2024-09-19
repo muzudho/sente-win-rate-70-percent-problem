@@ -3,11 +3,11 @@ import datetime
 from library import PointsConfiguration
 
 
-def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_repeat, best_w_repeat):
+def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_rate, best_error, best_b_time, best_w_time):
     """文言の作成"""
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(best_b_repeat, best_w_repeat)
+    points_configuration = PointsConfiguration.let_points_from_repeat(best_b_time, best_w_time)
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -39,7 +39,7 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_balanced_black_win_
     return text
 
 
-def stringify_when_let_calculate_probability(p, b_repeat, w_repeat, balanced_black_win_rate, error):
+def stringify_when_let_calculate_probability(p, b_time, w_time, balanced_black_win_rate, error):
     """文言の作成"""
 
     # ［タイムスタンプ］
@@ -51,20 +51,20 @@ def stringify_when_let_calculate_probability(p, b_repeat, w_repeat, balanced_bla
     # ［調整後の表が出る確率（％）］
     seg_1b = balanced_black_win_rate
 
-    # ［黒だけでの反復数］
-    seg_2 = b_repeat
+    # ［黒だけでの回数］
+    seg_2 = b_time
 
-    # ［白だけでの反復数］
-    seg_3 = w_repeat
+    # ［白だけでの回数］
+    seg_3 = w_time
 
     # # 計算過程を追加する場合
     # text += f"  {''.join(process_list)}"
 
-    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {error:7.4f}）    先後固定制での反復数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
+    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_1b:6.4f} ％ （± {error:7.4f}）    先後固定制での回数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
     return text
 
 
-def stringify_when_generate_b_w_repeat_strict(p, best_balanced_black_win_rate, best_error, points_configuration, process_list):
+def stringify_when_generate_b_w_time_strict(p, best_balanced_black_win_rate, best_error, points_configuration, process_list):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -170,7 +170,7 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
-def stringify_coin_write_log_when_simulation_coin_toss_when_frozen_turntoss_log(output_file_path, black_win_rate, b_repeat, w_repeat, round_total, black_wons):
+def stringify_coin_write_log_when_simulation_coin_toss_when_frozen_turntoss_log(output_file_path, black_win_rate, b_time, w_time, round_total, black_wons):
     """ログ出力
     
     Parameters
@@ -179,9 +179,9 @@ def stringify_coin_write_log_when_simulation_coin_toss_when_frozen_turntoss_log(
         出力先ファイルへのパス
     black_win_rate : float
         黒が出る確率（先手勝率）
-    b_repeat : int
+    b_time : int
         先手の何本先取制
-    w_repeat : int
+    w_time : int
         後手の何本先取制
     round_total : int
         対局数
@@ -195,7 +195,7 @@ def stringify_coin_write_log_when_simulation_coin_toss_when_frozen_turntoss_log(
     #
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(b_repeat, w_repeat)
+    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
 
     # 黒が勝った確率
     black_won_rate = black_wons / round_total
@@ -233,7 +233,7 @@ def stringify_coin_write_log_when_simulation_coin_toss_when_frozen_turntoss_log(
     return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --試行後--> {seg_1b:8.4f} ％（± {seg_1c:7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
 
 
-def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_repeat, round_total):
+def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_time, round_total):
 
     # ［タイムスタンプ］
     seg_0 = datetime.datetime.now()
@@ -248,7 +248,7 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
     seg_2b = error*100
 
     # # ｎ本勝負
-    # seg_3 = b_repeat
+    # seg_3 = b_time
 
     # 対局試行
     seg_4 = round_total

@@ -74,16 +74,16 @@ p != 0.5    … イカサマコインの確率。 "!=" はノットイコール�
 確率の小数部（Decimal places）の桁が消えるほど 10^n を掛けると、整数（Integer）になる
 
 ```
-scale   = 10^n
-p_point = scale * p
+scale  = 10^n
+p_time = scale * p
 ```
 
 例：  
 
 ```
-scale   = 10
-p       =  0.7
-p_point =  7
+scale  = 10
+p      =  0.7
+p_time =  7
 ```
 
 
@@ -102,7 +102,7 @@ p_target = floor(p / (1 - p))
 表が出る確率を、裏が出る確率で割り、その小数部を取り出す。この小数部も、表が出る確率だ  
 
 ```
-carried = p_point % (scale - p_point)
+carried = p_time % (scale - p_time)
 ```
 
 
@@ -111,7 +111,7 @@ carried = p_point % (scale - p_point)
 表のポイントに、表の得を加算する  
 
 ```
-carryover_p_point = p_point + carried
+carryover_p_time = p_time + carried
 ```
 
 
@@ -121,7 +121,7 @@ carryover_p_point = p_point + carried
 
 ```
 ※ ceil(x) は x の小数点以下切り上げ
-fill_bouts = ceil((scale - p_point) / carried)
+fill_bouts = ceil((scale - p_time) / carried)
 ```
 
 

@@ -38,7 +38,7 @@ if __name__ == '__main__':
         #round_total = 200
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
-        for p, b_repeat, w_repeat in zip(df['p'], df['b_repeat'], df['w_repeat']):
+        for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
             coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
 
             # Ａさんが勝った回数
@@ -48,7 +48,7 @@ if __name__ == '__main__':
                 round_th = round + 1
 
                 # 勝ったプレイヤーを返す
-                if coin_toss.coin_toss_in_round_when_alternating_turn(p, b_repeat, w_repeat) == ALICE:
+                if coin_toss.coin_toss_in_round_when_alternating_turn(p, b_time, w_time) == ALICE:
                     alice_wons += 1
 
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             # 均等からの誤差
             error = abs(alice_won_rate - 0.5)
 
-            text = stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_repeat, round_total)
+            text = stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_time, round_total)
             print(text) # 表示
 
             # ログ出力

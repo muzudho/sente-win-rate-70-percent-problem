@@ -23,8 +23,8 @@ if __name__ == '__main__':
             print(f"{column_name=}")
 
 
-        for p, b_repeat, w_repeat in zip(df['p'], df['b_repeat'], df['w_repeat']):
-            print(f"{p=}  {b_repeat=}  {w_repeat}")
+        for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
+            print(f"{p=}  {b_time=}  {w_time}")
 
 
     except Exception as err:

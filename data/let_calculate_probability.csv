@@ -1,4 +1,4 @@
-p,b_repeat,w_repeat,new_p,new_p_error,comment
+p,b_time,w_time,new_p,new_p_error,comment
 0.65,65,35,0.4916,-0.0084,'単純分数'
 0.65,13,5,0.2348,-0.2652,'実践値'
 0.7,7,3,0.4628,-0.0372,'単純分数'
