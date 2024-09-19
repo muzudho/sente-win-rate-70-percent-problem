@@ -338,6 +338,8 @@ class CoinToss():
 
             # 続行
 
+        raise ValueError("設定している回数で、決着が付かなかった？")
+
 
 def calculate_probability(p, H, T):
     """［表側を持っているプレイヤー］が勝つ確率を返します
