@@ -134,9 +134,6 @@ def iteration_deeping(df, limit_of_error):
 
         is_automatic = best_new_p_error >= limit_of_error or best_max_bout_count == 0 or best_round_count < 2_000_000 or best_w_time == 0
 
-        # 途中の計算式
-        calculation_list = []
-
         # アルゴリズムで求めるケース
         if is_automatic:
 
@@ -156,6 +153,9 @@ def iteration_deeping(df, limit_of_error):
                     # FIXME ［黒だけでの回数］は計算で求めます。計算合ってる？
                     b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
 
+                    # ［勝ち点ルール］の構成
+                    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+
                     black_win_count = n_round_when_frozen_turn(
                             p=p,
                             number_of_longest_bout_when_frozen_turn=number_of_longest_bout_when_frozen_turn,
@@ -174,10 +174,20 @@ def iteration_deeping(df, limit_of_error):
                         best_b_time = b_time
                         best_w_time = w_time
                     
-                        # 進捗バー（更新時）
-                        text = f'[{best_new_p_error:6.4f} 最長対局数{best_max_bout_count:2} {best_max_bout_count-best_w_time+1:2}黒 {best_w_time:2}白]'
-                        print(text, end='', flush=True) # すぐ表示
-                        calculation_list.append(text)
+                        # 計算過程
+                        one_process_text = f'[{best_new_p_error:6.4f} {points_configuration.b_step}黒 {points_configuration.w_step}白 {points_configuration.span_when_frozen_turn}目]'
+                        print(one_process_text, end='', flush=True) # すぐ表示
+
+                        # ［計算過程］列を更新
+                        #
+                        #   途中の計算式。半角空白区切り
+                        #
+                        if isinstance(process, str):
+                            all_processes_text = f"{process} {one_process_text}"
+                        else:
+                            all_processes_text = one_process_text
+                        # ［計算過程］列を更新
+                        df.loc[df['p']==p, ['process']] = all_processes_text
 
                         # 十分な答えが出たので探索を打ち切ります
                         if best_new_p < limit_of_error:
@@ -221,17 +231,26 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
-            # ［最長対局数（先後固定制）］列を更新
-            df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_max_bout_count
-
-            #best_b_time は number_of_longest_bout_when_frozen_turn と w_time から求まる
+            # ［黒だけでの回数］列を更新
+            df.loc[df['p']==p, ['b_time']] = best_b_time
 
             # ［白だけの回数］列を更新
             df.loc[df['p']==p, ['w_time']] = best_w_time
 
+            # ［目標の点（先後固定制）］列を更新 
+            df.loc[df['p']==p, ['span_when_frozen_turn']] = points_configuration.span_when_frozen_turn
+
+            # ［最長対局数（先後固定制）］列を更新
+            #
+            #   FIXME 削除方針。これを使うよりも、 b_time, w_time, span_when_frozen_turn を使った方がシンプルになりそう
+            #
+            df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_max_bout_count
+
 
         # CSV保存
         df.to_csv(CSV_FILE_PATH,
+                # ［計算過程］列は長くなるので末尾に置きたい
+                columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_time', 'w_time', 'span_when_frozen_turn', 'number_of_longest_bout_when_frozen_turn', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -246,6 +265,18 @@ if __name__ == '__main__':
     try:
 
         df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['p'].astype('float')
+        df['new_p'].fillna(0.0).astype('float')
+        df['new_p_error'].fillna(0.0).astype('float')
+        df['round_count'].fillna(0).astype('int')
+        df['b_time'].fillna(0).astype('int')
+        df['w_time'].fillna(0).astype('int')
+        df['span_when_frozen_turn'].fillna(0).astype('int')
+        df['number_of_longest_bout_when_frozen_turn'].fillna(0).astype('int')
+        df['process'].fillna('').astype('string')
         print(df)
 
 

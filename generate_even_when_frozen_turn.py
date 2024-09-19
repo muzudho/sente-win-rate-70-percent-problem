@@ -60,6 +60,9 @@ def iteration_deeping(df, limit_of_error):
                     # FIXME ［黒だけでの回数］は計算で求めます。計算合ってる？
                     b_time = number_of_longest_bout_when_frozen_turn-(w_time-1)
 
+                    # ［勝ち点ルール］の構成
+                    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+
                     black_win_count = n_round_when_frozen_turn(
                             p=p,
                             number_of_longest_bout_when_frozen_turn=number_of_longest_bout_when_frozen_turn,
@@ -78,8 +81,8 @@ def iteration_deeping(df, limit_of_error):
                         best_b_time = b_time
                         best_w_time = w_time
                     
-                        # 進捗バー（更新時）
-                        one_process_text = f'[{best_new_p_error:6.4f} 最長対局数{best_max_bout_count:2} {best_max_bout_count-best_w_time+1:2}黒 {best_w_time:2}白]'
+                        # 計算過程
+                        one_process_text = f'[{best_new_p_error:6.4f} {points_configuration.b_step}黒 {points_configuration.w_step}白 {points_configuration.span_when_frozen_turn}目]'
                         print(one_process_text, end='', flush=True) # すぐ表示
 
                         # ［計算過程］列を更新
