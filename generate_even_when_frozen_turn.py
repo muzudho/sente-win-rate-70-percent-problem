@@ -118,7 +118,6 @@ def iteration_deeping(df, limit_of_error):
             pass
 
 
-
         # 自動計算未完了
         if is_automatic and best_new_p_error == OUT_OF_ERROR:
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
@@ -203,8 +202,8 @@ if __name__ == '__main__':
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            worst_nwe_p_error = df['new_p_error'].max()
-            print(f"{worst_nwe_p_error=}")
+            worst_new_p_error = df['new_p_error'].max()
+            print(f"{worst_new_p_error=}")
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
             #
@@ -212,7 +211,7 @@ if __name__ == '__main__':
             #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
             #
             # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-            limit_of_error = worst_nwe_p_error * 9 / 10
+            limit_of_error = worst_new_p_error * 9 / 10
 
             iteration_deeping(df, limit_of_error)
 

@@ -190,7 +190,7 @@ def iteration_deeping(df, limit_of_error):
                         df.loc[df['p']==p, ['process']] = all_processes_text
 
                         # 十分な答えが出たので探索を打ち切ります
-                        if best_new_p < limit_of_error:
+                        if best_new_p_error < limit_of_error:
                             is_cutoff = True
 
                             # 進捗バー
@@ -203,6 +203,7 @@ def iteration_deeping(df, limit_of_error):
 
                 # 進捗バー（ｎ本目）
                 print('.', end='', flush=True)
+
             print() # 改行
 
         # 結果が設定されていれば、そのまま表示
@@ -215,7 +216,6 @@ def iteration_deeping(df, limit_of_error):
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
 
         else:
-
             # ［勝ち点ルール］の構成
             points_configuration = PointsConfiguration.let_points_from_repeat(best_b_time, best_w_time)
 
@@ -234,7 +234,7 @@ def iteration_deeping(df, limit_of_error):
             # ［黒勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['b_time']] = best_b_time
 
-            # ［白だけの回数］列を更新
+            # ［白勝ちだけでの対局数］列を更新
             df.loc[df['p']==p, ['w_time']] = best_w_time
 
             # ［目標の点（先後固定制）］列を更新 
