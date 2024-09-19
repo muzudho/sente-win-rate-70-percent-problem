@@ -563,15 +563,18 @@ class PointsConfiguration():
         else:
             bout = 0
 
-        # 端数があれば［黒勝ちの価値］を引く（１回分を加算）
+        # 端数があれば［白勝ちの価値］を引く（１回分を加算）
+        #
+        #   NOTE 白（後手）の方が step 値が黒（先手）より大きいか、等しいです。［白勝ちの価値］の方から先に引きます
+        #
         if 0 < remainder:
             bout += 1
-            remainder -= self._b_step
+            remainder -= self._w_step
 
-            # まだ端数があれば［白勝ちの価値］を引く（１回分を加算）
+            # まだ端数があれば［黒勝ちの価値］を引く（１回分を加算）
             if 0 < remainder:
                 bout += 1
-                remainder -= self._w_step
+                remainder -= self._b_step
 
                 # remainder は負数になっているはず（割り切れないはず）
                 if 0 <= remainder:
