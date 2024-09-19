@@ -24,13 +24,13 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_e
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    # ［白勝ちの価値］
+    # ［白勝ち１つの点数］
     seg_4 = points_configuration.b_step
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_5 = points_configuration.w_step
 
-    # ［目標の点］
+    # ［目標の点数］
     seg_6 = points_configuration.span
 
     text = ""
@@ -81,13 +81,13 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4a = points_configuration.b_step
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4b = points_configuration.w_step
 
-    # ［目標の点］
+    # ［目標の点数］
     seg_4c = points_configuration.span
 
     text = ""
@@ -113,13 +113,13 @@ def print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_err
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4a = points_configuration.b_step
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4b = points_configuration.w_step
 
-    # ［目標の点］
+    # ［目標の点数］
     seg_4c = points_configuration.span
 
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）")
@@ -142,13 +142,13 @@ def print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, best_r
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4a = points_configuration.b_step
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4b = points_configuration.w_step
 
-    # ［目標の点］
+    # ［目標の点数］
     seg_4c = points_configuration.span
 
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）")
@@ -232,13 +232,13 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_4_3b = actual_longest_bout_th_when_alternating_turn
 
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4a = points_configuration.b_step
 
-    # ［黒勝ちの価値］
+    # ［黒勝ち１つの点数］
     seg_4b = points_configuration.w_step
 
-    # ［目標の点］
+    # ［目標の点数］
     seg_4c = points_configuration.span
 
     # コメント

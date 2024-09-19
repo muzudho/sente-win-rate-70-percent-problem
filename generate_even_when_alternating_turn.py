@@ -25,6 +25,9 @@ from views import print_when_generate_even_when_alternating_turn
 LOG_FILE_PATH = 'output/generate_even_when_alternating_turn.log'
 CSV_FILE_PATH = './data/generate_even_when_alternating_turn.csv'
 
+# このラウンド数を満たさないデータは、再探索します
+REQUIRED_ROUND_COUNT = 2_000_000
+
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 OUT_OF_ERROR = 0.51
 
@@ -43,7 +46,7 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_round_count, best_b_step, best_w_step, best_span, best_w_time, best_number_of_longest_bout, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['w_time'], df['number_of_longest_bout'], df['process']):
+    for p, best_new_p, best_new_p_error, best_round_count, best_b_step, best_w_step, best_span, best_b_time, best_w_time, best_number_of_longest_bout, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['b_time'], df['w_time'], df['number_of_longest_bout'], df['process']):
 
         #   交互に手番を替えるか、変えないかに関わらず、先手と後手の重要さは p で決まっている。
         #
@@ -132,10 +135,7 @@ def iteration_deeping(df, limit_of_error):
 
         is_update = False
 
-        # FIXME ［黒勝ちだけでの対局数］は計算で求めます。 float 型になってしまう？ time を使わず、 step だけでプログラムを書けないか？
-        best_b_time = (best_number_of_longest_bout-2*(best_w_time-1))/2
-
-        is_automatic = best_new_p_error >= limit_of_error or best_number_of_longest_bout == 0 or best_round_count < 2_000_000 or best_w_time == 0
+        is_automatic = best_new_p_error >= limit_of_error or best_round_count < REQUIRED_ROUND_COUNT
 
         # アルゴリズムで求めるケース
         if is_automatic:
@@ -143,6 +143,9 @@ def iteration_deeping(df, limit_of_error):
             is_cutoff = False
 
             # ［最長対局数］
+            #
+            #   FIXME ［目標の点数］にした方が分かりやすくないか？
+            #
             for number_of_longest_bout in range(best_number_of_longest_bout, 101):
 
                 # １本勝負のときだけ、白はｎ本－１ではない
@@ -239,13 +242,13 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
-            # ［黒勝ちの価値］列を更新
+            # ［黒勝ち１つの点数］列を更新
             df.loc[df['p']==p, ['b_step']] = points_configuration.b_step
 
-            # ［白勝ちの価値］列を更新
+            # ［白勝ち１つの点数］列を更新
             df.loc[df['p']==p, ['w_step']] = points_configuration.w_step
 
-            # ［目標の点（先後固定制）］列を更新 
+            # ［目標の点数］列を更新 
             df.loc[df['p']==p, ['span']] = points_configuration.span
 
             # ［黒勝ちだけでの対局数］列を更新

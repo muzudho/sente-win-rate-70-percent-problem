@@ -19,11 +19,11 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［目標の点］
+        # ［目標の点数］
         for span in range(1,101):
-            # ［白勝ちの価値］
+            # ［白勝ち１つの点数］
             for w_step in range(1, span):
-                # ［黒勝ちの価値］
+                # ［黒勝ち１つの点数］
                 for b_step in range(1, w_step):
                     points_configuration = PointsConfiguration(
                         b_step=b_step,
