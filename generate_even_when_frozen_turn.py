@@ -79,17 +79,19 @@ def iteration_deeping(df, limit_of_error):
                         best_w_time = w_time
                     
                         # 進捗バー（更新時）
-                        text = f'[{best_new_p_error:6.4f} 最長対局数{best_max_bout_count:2} {best_max_bout_count-best_w_time+1:2}黒 {best_w_time:2}白]'
-                        print(text, end='', flush=True) # すぐ表示
+                        one_process_text = f'[{best_new_p_error:6.4f} 最長対局数{best_max_bout_count:2} {best_max_bout_count-best_w_time+1:2}黒 {best_w_time:2}白]'
+                        print(one_process_text, end='', flush=True) # すぐ表示
 
-                        # process 列を更新
+                        # ［計算過程］列を更新
                         #
                         #   途中の計算式。半角空白区切り
                         #
                         if isinstance(process, str):
-                            df.loc[df['p']==p, ['process']] = f"{process} {text}"
+                            all_processes_text = f"{process} {one_process_text}"
                         else:
-                            df.loc[df['p']==p, ['process']] = text
+                            all_processes_text = one_process_text
+                        # ［計算過程］列を更新
+                        df.loc[df['p']==p, ['process']] = all_processes_text
 
                         # 十分な答えが出たので探索を打ち切ります
                         if best_new_p_error < limit_of_error:
@@ -134,24 +136,22 @@ def iteration_deeping(df, limit_of_error):
             # ［調整後の表が出る確率の５割との誤差］列を更新
             df.loc[df['p']==p, ['new_p_error']] = best_new_p_error
 
+            # ［黒だけでの回数］列を更新
+            df.loc[df['p']==p, ['b_time']] = best_b_time
+
+            # ［白だけでの回数］列を更新
+            df.loc[df['p']==p, ['w_time']] = best_w_time
+
+            # ［目標の点（先後固定制）］列を更新 
+            df.loc[df['p']==p, ['span_when_frozen_turn']] = points_configuration.span_when_frozen_turn
+
             # ［最長対局数（先後固定制）］列を更新
             #
             #   FIXME 削除方針。これを使うよりも、 b_time, w_time, span_when_frozen_turn を使った方がシンプルになりそう
             #
             df.loc[df['p']==p, ['number_of_longest_bout_when_frozen_turn']] = best_max_bout_count
 
-            # ［黒だけでの回数］列を更新
-            df['b_time'].fillna(0).astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df.loc[df['p']==p, ['b_time']] = best_b_time
 
-            # ［白だけでの回数］列を更新
-            df['w_time'].fillna(0).astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df.loc[df['p']==p, ['w_time']] = best_w_time
-
-            # ［目標の点（先後固定制）］列を更新 
-            df['span_when_frozen_turn'].fillna(0).astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df.loc[df['p']==p, ['span_when_frozen_turn']] = points_configuration.span_when_frozen_turn
-        
         # CSV保存
         df.to_csv(CSV_FILE_PATH,
                 # ［計算過程］列は長くなるので末尾に置きたい
@@ -170,6 +170,18 @@ if __name__ == '__main__':
     try:
 
         df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['p'].astype('float')
+        df['new_p'].fillna(0.0).astype('float')
+        df['new_p_error'].fillna(0.0).astype('float')
+        df['round_count'].fillna(0).astype('int')
+        df['b_time'].fillna(0).astype('int')
+        df['w_time'].fillna(0).astype('int')
+        df['span_when_frozen_turn'].fillna(0).astype('int')
+        df['number_of_longest_bout_when_frozen_turn'].fillna(0).astype('int')
+        df['process'].fillna('').astype('string')
         print(df)
 
 
