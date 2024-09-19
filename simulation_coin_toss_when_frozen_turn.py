@@ -14,11 +14,11 @@ import math
 import pandas as pd
 
 from library import BLACK, CoinToss
-from views import write_coin_toss_log
+from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_frozen_turn.log'
-CSV_FILE_PATH = './data/takahashi_satoshi_system.csv'
+CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
 
 
 ########################################
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        df = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース
@@ -49,8 +49,7 @@ if __name__ == '__main__':
                     black_wons += 1
 
 
-            # ログ出力
-            write_coin_toss_log(
+            text = stringify_log_when_simulation_coin_toss_when_frozen_turn(
                     # 出力先ファイルへのパス
                     output_file_path=coin_toss.output_file_path,
                     # 先手勝率
@@ -63,6 +62,13 @@ if __name__ == '__main__':
                     round_total=round_total,
                     # 黒が勝った回数
                     black_wons=black_wons)
+
+            print(text) # 表示
+
+            # ログ出力
+            with open(output_file_path, 'a', encoding='utf8') as f:
+                f.write(f"{text}\n")    # ファイルへ出力
+
 
     except Exception as err:
         print(f"[unexpected error] {err=}  {type(err)=}")

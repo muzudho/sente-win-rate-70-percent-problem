@@ -170,7 +170,7 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整後--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
-def write_coin_toss_log(output_file_path, black_win_rate, b_repeat, w_repeat, round_total, black_wons):
+def stringify_coin_write_log_when_simulation_coin_toss_when_frozen_turntoss_log(output_file_path, black_win_rate, b_repeat, w_repeat, round_total, black_wons):
     """ログ出力
     
     Parameters
@@ -230,8 +230,27 @@ def write_coin_toss_log(output_file_path, black_win_rate, b_repeat, w_repeat, ro
     # ［目標の点］
     seg_4c = points_configuration.span_when_frozen_turn
 
+    return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --実際--> {seg_1b:8.4f} ％（± {seg_1c:7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
 
-    with open(output_file_path, 'a', encoding='utf8') as f:
-        text = f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --実際--> {seg_1b:8.4f} ％（± {seg_1c:7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）  先手勝ち数{black_wons:7}／{round_total:7}対局試行"
-        print(text) # 表示
-        f.write(f"{text}\n")    # ファイルへ出力
+
+def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_repeat, round_total):
+
+    # ［タイムスタンプ］
+    seg_0 = datetime.datetime.now()
+
+    # ［表が出る確率（％）］
+    seg_1a = p*100
+
+    # Ａさんが勝った確率
+    seg_2 = alice_won_rate*100
+
+    # 誤差
+    seg_2b = error*100
+
+    # # ｎ本勝負
+    # seg_3 = b_repeat
+
+    # 対局試行
+    seg_4 = round_total
+
+    return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --実際--> 先後交互制でＡさんが勝った確率{seg_2:8.4f} ％（± {seg_2b:7.4f}）  {seg_4:7}対局試行"

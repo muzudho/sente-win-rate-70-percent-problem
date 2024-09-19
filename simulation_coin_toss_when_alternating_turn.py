@@ -15,10 +15,11 @@ import datetime
 import pandas as pd
 
 from library import ALICE, CoinToss
+from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'
-CSV_FILE_PATH = './data/takahashi_satoshi_system.csv'
+CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
 
 
 ########################################
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        df = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース
@@ -51,17 +52,17 @@ if __name__ == '__main__':
                     alice_wons += 1
 
 
+            # Ａさんが勝った確率
+            alice_won_rate = alice_wons / round_total
+
+            # 均等からの誤差
+            error = abs(alice_won_rate - 0.5)
+
+            text = stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_repeat, round_total)
+            print(text) # 表示
+
             # ログ出力
             with open(coin_toss.output_file_path, 'a', encoding='utf8') as f:
-
-                # Ａさんが勝った確率
-                alice_won_rate = alice_wons / round_total
-
-                # 均等からの誤差
-                error = abs(alice_won_rate - 0.5)
-
-                text = f"[{datetime.datetime.now()}]  先手勝率 {p*100:2.0f} ％ --調整後--> Ａさんが勝った確率{alice_won_rate*100:8.4f} ％（± {error*100:7.4f}）  {b_repeat:2}本勝負  {round_total:7}対局試行"
-                print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
 
 
