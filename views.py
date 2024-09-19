@@ -96,7 +96,7 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
     return text
 
 
-def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):
+def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, best_new_p_error, best_number_of_longest_bout_when_frozen_turn, best_round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -113,8 +113,8 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    if seg_3b != best_max_bout_count:
-        raise ValueError(f"実践値と理論値が異なる {seg_3a=}  {best_max_bout_count=}")
+    if seg_3b != best_number_of_longest_bout_when_frozen_turn:
+        raise ValueError(f"実践値と理論値が異なる {seg_3a=}  {best_number_of_longest_bout_when_frozen_turn=}")
 
     # ［黒勝ちの価値］
     seg_4a = points_configuration.b_step
@@ -133,7 +133,7 @@ def print_when_generate_even_when_alternating_turn(is_automatic, p, best_new_p, 
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）{seg_5}")
 
 
-def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_max_bout_count, best_round_count, points_configuration):
+def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p_error, best_number_of_longest_bout_when_frozen_turn, best_round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -150,8 +150,8 @@ def print_when_generate_when_frozen_turn(is_automatic, p, best_new_p, best_new_p
     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    if seg_3b != best_max_bout_count:
-        raise ValueError(f"実践値と理論値が異なる {seg_3a=}  {best_max_bout_count=}")
+    if seg_3b != best_number_of_longest_bout_when_frozen_turn:
+        raise ValueError(f"実践値と理論値が異なる {seg_3a=}  {best_number_of_longest_bout_when_frozen_turn=}")
 
     # ［黒勝ちの価値］
     seg_4a = points_configuration.b_step
