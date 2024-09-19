@@ -96,7 +96,7 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
     return text
 
 
-def print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_error, best_round_count, points_configuration):
+def print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_error, round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -122,10 +122,10 @@ def print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_err
     # ［目標の点数］
     seg_4c = points_configuration.span
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）")
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点")
 
 
-def print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, best_round_count, points_configuration):
+def print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -151,7 +151,7 @@ def print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, best_r
     # ［目標の点数］
     seg_4c = points_configuration.span
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）")
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点")
 
 
 def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,

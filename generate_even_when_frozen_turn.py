@@ -12,7 +12,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, coin, n_bout_when_frozen_turn, n_round_when_frozen_turn, round_letro, PointsConfiguration
+from library import BLACK, WHITE, coin, play_game_when_frozen_turn_as_step, round_letro, PointsConfiguration
 from views import print_when_generate_when_frozen_turn
 
 
@@ -25,6 +25,11 @@ REQUIRED_ROUND_COUNT = 2_000_000
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 OUT_OF_ERROR = 0.51
 
+# 探索の上限
+LIMIT_SPAN = 1000
+LIMIT_W_STEP = LIMIT_SPAN
+LIMIT_B_STEP = LIMIT_W_STEP
+
 
 def iteration_deeping(df, limit_of_error):
     """反復深化探索の１セット
@@ -36,92 +41,89 @@ def iteration_deeping(df, limit_of_error):
     limit_of_error : float
         リミット
     """
-    for p, best_new_p, best_new_p_error, best_round_count, best_b_step, best_w_step, best_span, best_b_time, best_w_time, best_number_of_longest_bout, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['b_time'], df['w_time'], df['number_of_longest_bout'], df['process']):
+    for p, best_new_p, best_new_p_error, round_count, best_b_step, best_w_step, best_span, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['process']):
 
         is_update = False
 
-        is_automatic = best_new_p_error >= limit_of_error or best_round_count < REQUIRED_ROUND_COUNT
+        is_automatic = best_new_p_error >= limit_of_error or round_count < REQUIRED_ROUND_COUNT
 
         # アルゴリズムで求めるケース
         if is_automatic:
 
             is_cutoff = False
 
-            # ［最長対局数］
             #
-            #   FIXME ［目標の点数］にした方が分かりやすくないか？
+            # ［目標の点数］、［白勝ち１つの点数］、［黒勝ち１つの点数］を１つずつ進めていく探索です。
             #
-            for number_of_longest_bout in range(best_number_of_longest_bout, 101):
+            # ［目標の点数］＞＝［白勝ち１つの点数］＞＝［黒勝ち１つの点数］という関係があります。
+            #
+            start_w_step = best_w_step
+            start_b_step = best_w_step
+            for cur_span in range(best_span, LIMIT_SPAN):
+                for cur_w_step in range(start_w_step, LIMIT_W_STEP):
+                    start_w_step = 1
 
-                # １本勝負のときだけ、白はｎ本－１ではない
-                if number_of_longest_bout == 1:
-                    end_w_time = 2
-                else:
-                    end_w_time = number_of_longest_bout
+                    for cur_b_step in range(start_b_step, LIMIT_B_STEP):
+                        start_b_step = 1
+                        
+                        # ［勝ち点ルール］の構成
+                        points_configuration = PointsConfiguration(b_step=cur_b_step, w_step=cur_w_step, span=cur_span)
 
-                for w_time in range(1, end_w_time):
+                        # 先手が勝った回数
+                        black_win_count = 0
+                        for i in range(0, round_count):
+                            if play_game_when_frozen_turn_as_step(
+                                    p=p,
+                                    b_step=points_configuration.b_step,
+                                    w_step=points_configuration.w_step,
+                                    span=points_configuration.span) == BLACK:
+                                black_win_count += 1
 
-                    # FIXME ［黒勝ちだけでの対局数］は計算で求めます。計算合ってる？
-                    b_time = number_of_longest_bout-(w_time-1)
-
-                    # ［勝ち点ルール］の構成
-                    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
-
-                    black_win_count = n_round_when_frozen_turn(
-                            p=p,
-                            number_of_longest_bout=number_of_longest_bout,
-                            b_time=b_time,
-                            w_time=w_time,
-                            round_count=best_round_count)
                     
-                    #print(f"{black_win_count=}  {best_round_count=}  {black_win_count / best_round_count=}")
-                    new_p = black_win_count / best_round_count
-                    new_p_error = abs(new_p - 0.5)
+                        new_p = black_win_count / round_count
+                        new_p_error = abs(new_p - 0.5)
 
-                    if new_p_error < best_new_p_error:
-                        is_update = True
-                        best_new_p = new_p
-                        best_new_p_error = new_p_error
-                        best_points_configuration = points_configuration
-                        best_b_time = b_time
-                        best_w_time = w_time
-                        best_number_of_longest_bout = number_of_longest_bout
-                    
-                        # 計算過程
-                        one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目]'
-                        print(one_process_text, end='', flush=True) # すぐ表示
+                        if new_p_error < best_new_p_error:
+                            is_update = True
+                            best_new_p = new_p
+                            best_new_p_error = new_p_error
+                            best_points_configuration = points_configuration
+                        
+                            # 計算過程
+                            one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目]'
+                            print(one_process_text, end='', flush=True) # すぐ表示
 
-                        # ［計算過程］列を更新
-                        #
-                        #   途中の計算式。半角空白区切り
-                        #
-                        if isinstance(process, str):
-                            all_processes_text = f"{process} {one_process_text}"
-                        else:
-                            all_processes_text = one_process_text
-                        # ［計算過程］列を更新
-                        df.loc[df['p']==p, ['process']] = all_processes_text
+                            # ［計算過程］列を更新
+                            #
+                            #   途中の計算式。半角空白区切り
+                            #
+                            if isinstance(process, str):
+                                all_processes_text = f"{process} {one_process_text}"
+                            else:
+                                all_processes_text = one_process_text
+                            # ［計算過程］列を更新
+                            df.loc[df['p']==p, ['process']] = all_processes_text
 
-                        # 十分な答えが出たので探索を打ち切ります
-                        if best_new_p_error < limit_of_error:
-                            is_cutoff = True
+                            # 十分な答えが出たので探索を打ち切ります
+                            if best_new_p_error < limit_of_error:
+                                is_cutoff = True
 
-                            # 進捗バー
-                            print('x', end='', flush=True)
+                                # 進捗バー
+                                print('x', end='', flush=True)
 
-                            break
+                                break
+
+                    if is_cutoff:
+                        break
 
                 if is_cutoff:
                     break
 
-                # 進捗バー（ｎ本目）
+
+                # ［目標の点数］進捗バー
                 print('.', end='', flush=True)
 
             print() # 改行
-
-        # 結果が設定されていれば、そのまま表示
-        else:
-            pass
 
 
         # 自動計算未完了
@@ -132,11 +134,8 @@ def iteration_deeping(df, limit_of_error):
             print(f"先手勝率：{p*100:2} ％  （更新なし）")
 
         else:
-            print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, best_round_count, best_points_configuration)
+            print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, round_count, best_points_configuration)
 
-            # データチェック
-            if best_points_configuration.let_number_of_longest_bout_when_frozen_turn() != best_number_of_longest_bout:
-                raise ValueError(f"実践値と理論値が異なる {best_points_configuration.let_number_of_longest_bout_when_frozen_turn()=}  {best_number_of_longest_bout=}")
 
             # データフレーム更新
             # -----------------
@@ -156,22 +155,10 @@ def iteration_deeping(df, limit_of_error):
             # ［目標の点数］列を更新 
             df.loc[df['p']==p, ['span']] = points_configuration.span
 
-            # ［黒勝ちだけでの対局数］列を更新
-            df.loc[df['p']==p, ['b_time']] = best_b_time
-
-            # ［白勝ちだけでの対局数］列を更新
-            df.loc[df['p']==p, ['w_time']] = best_w_time
-
-            # ［最長対局数］列を更新
-            #
-            #   FIXME 削除方針。これを使うよりも、 b_step, w_step, span を使った方がシンプルになりそう
-            #
-            df.loc[df['p']==p, ['number_of_longest_bout']] = best_number_of_longest_bout
-
             # CSV保存
             df.to_csv(CSV_FILE_PATH,
                     # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'b_time', 'w_time', 'number_of_longest_bout', 'process'],
+                    columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -196,9 +183,6 @@ if __name__ == '__main__':
         df['b_step'].fillna(0).astype('int')
         df['w_step'].fillna(0).astype('int')
         df['span'].fillna(0).astype('int')
-        df['b_time'].fillna(0).astype('int')
-        df['w_time'].fillna(0).astype('int')
-        df['number_of_longest_bout'].fillna(0).astype('int')
         df['process'].fillna('').astype('string')
         print(df)
 

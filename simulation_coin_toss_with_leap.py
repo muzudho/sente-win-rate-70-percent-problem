@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
-                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn(
+                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(
                                 # 先手勝率
                                 p=p,
                                 # 先手の何本先取制
@@ -145,7 +145,7 @@ if __name__ == '__main__':
 
                     else:
                         # 閏対局を使わないパターン
-                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn(
+                        winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(
                                 # 先手勝率
                                 p=p,
                                 # 先手の何本先取制
@@ -158,7 +158,7 @@ if __name__ == '__main__':
                 # 閏対局を使わないパターン
                 else:
                     # 勝った方の手番を返す
-                    winner_color, bout_th = coin_toss.play_game_when_frozen_turn(
+                    winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(
                             # 先手勝率
                             p=p,
                             # 先手の何本先取制

@@ -12,10 +12,10 @@ from fractions import Fraction
 from decimal import Decimal, ROUND_HALF_UP
 
 
-# 黒。表。先手
+# 黒。表。先手。配列のインデックスに使う
 BLACK = 1
 
-# 白。裏。後手
+# 白。裏。後手。配列のインデックスに使う
 WHITE = 2
 
 # Ａさん。配列のインデックスに使う    NOTE 黒白と混同しないように注意
@@ -134,80 +134,106 @@ def coin(black_rate):
     return WHITE
 
 
-def n_bout_when_frozen_turn(black_rate, max_number_of_bout, b_time, w_time):
-    """先後固定制で、最長で max_number_of_bout 回の対局を行い、勝った方の手番を返します
-
-    NOTE 白番はずっと白番、黒番はずっと黒番とします。手番を交代しません
-
-    max_number_of_bout はコインを振る回数。全部黒が出たら黒の勝ち、 w_time 回白が出れば白の勝ち。
-
-    例えば n=1 なら、コインを最大１回振る。１勝先取で勝ち。
-    n=2 なら、コインを最大２回振る。２勝先取で勝ち。白は１勝のアドバンテージが付いている。
-    n=3 なら、コインを最大３回振る。３勝先取で勝ち。白は２勝のアドバンテージが付いている。
-    以下同様。
+def play_game_when_frozen_turn_as_step(p, b_step, w_step, span):
+    """［先後固定制］で対局を行います。勝った方の色を返します
 
     Parameters
     ----------
-    black_rate : float
-        黒番の勝率。例： 黒番の勝率が７割なら 0.7
-    max_number_of_bout : int
-        最長の対局数
-    b_time : int
-        黒が勝つのに必要な一本の数
-    w_time : int
-        白が勝つのに必要な一本の数
+    p : float
+        ［表が出る確率］ 例： ７割なら 0.7
+    b_step : int
+        ［黒勝ち１つの点数］
+    w_step : int
+        ［白勝ち１つの点数］
+    span : int
+        ［目標点］
     
     Returns
     -------
     winner_color : int
         勝った方の色
     """
-    black_count_down = b_time
-    white_count_down = w_time
 
-    for i in range(0, max_number_of_bout):
-        if coin(black_rate) == WHITE:
-            white_count_down -= 1
-            if white_count_down < 1:
-                return WHITE    # 白が勝ちぬけ
+    # 点数のリスト。要素は、未使用、黒番、白番
+    point_list = [0, 0, 0]
+
+    # 勝ち負けが出るまでやる
+    for bout_th in range(1, 2_147_483_647):
+
+        successful_color = coin(p)
+
+        if successful_color == BLACK:
+            step = b_step
+
         else:
-            black_count_down -= 1
-            if black_count_down < 1:
-                return BLACK    # 黒が勝ちぬけ
+            step = w_step
 
-    raise ValueError(f"決着が付かずにループを抜けたからエラー  {black_rate=}  {max_number_of_bout=}  {b_time=}  {w_time=}")
+        point_list[successful_color] += step
+
+        if span <= point_list[successful_color]:
+            return successful_color     # 勝ち抜け
 
 
-def n_round_when_frozen_turn(p, number_of_longest_bout, b_time, w_time, round_count):
-    """［最長対局数］の中で対局
+    raise ValueError(f"決着が付かずにループを抜けた  {p=}  {p_step=}  {w_step=}  {span=}")
 
-    ｎ回対局して黒が勝った回数を返す。
+
+def play_game_when_alternating_turn(p, points_configuration):
+    """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
     
     Parameters
     ----------
     p : float
-        ［表が出る確率］（先手勝率）  例： 黒番が７割勝つなら 0.7
-    number_of_longest_bout : int
-        ［最長対局数］。例： ３本勝負なら 3
-    b_time : int
-        黒が勝つのに必要な一本の数
-    w_time : int
-        白が勝つのに必要な一本の数
-    round_count : int
-        ｎ回対局
+        ［表が出る確率］（先手勝率）
+    points_configuration : PointsConfiguration
+        ［勝ち点ルール］の構成
     
     Returns
     -------
-    black_win_count : int
-        黒の勝った数
+    winner_player : int
+        ＡさんかＢさん
+    bout_th : int
+        対局本数
     """
-    black_win_count = 0
 
-    for i in range(0, round_count):
-        if n_bout_when_frozen_turn(p, number_of_longest_bout, b_time, w_time) == BLACK:
-            black_win_count += 1
+    # ［得点］の配列。要素は、未使用、Ａさん、Ｂさんの順
+    point_list = [0, 0, 0]
 
-    return black_win_count
+    # 勝ち負けが出るまでやる
+    for bout_th in range(1, 2_147_483_647):
+
+        # 黒が出た
+        if coin(p) == BLACK:
+            step = points_configuration.b_step
+
+            # 奇数本で黒番のプレイヤーはＡさん
+            if bout_th % 2 == 1:
+                successful_player = ALICE
+
+            # 偶数本で黒番のプレイヤーはＢさん
+            else:
+                successful_player = BOB
+
+        # 白が出た
+        else:
+            step = points_configuration.w_step
+
+            # 奇数本で白番のプレイヤーはＢさん
+            if bout_th % 2 == 1:
+                successful_player = BOB
+
+            # 偶数本で白番のプレイヤーはＡさん
+            else:
+                successful_player = ALICE
+
+
+        point_list[successful_player] += step
+
+        if points_configuration.span <= point_list[successful_player]:
+            return successful_player, bout_th
+
+        # 続行
+
+    raise ValueError("設定している回数で、決着が付かなかった")
 
 
 class CoinToss():
@@ -231,7 +257,7 @@ class CoinToss():
         return self._output_file_path
 
 
-    def play_game_when_frozen_turn(self, p, b_time, w_time):
+    def play_game_when_frozen_turn_as_time(self, p, b_time, w_time):
         """［先後固定制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
@@ -255,11 +281,13 @@ class CoinToss():
         b_got = 0
         w_got = 0
 
-        # ｎ本勝負で勝ち負けが出るまでやる
+        # 勝ち負けが出るまでやる
         for bout_th in range(1, 2_147_483_647):
 
+            successful_color = coin(p)
+
             # 黒が出た
-            if coin(p) == BLACK:
+            if successful_color == BLACK:
                 b_got += 1
 
                 # ［黒勝ちだけでの対局数］を取った（黒が勝った）
@@ -273,65 +301,6 @@ class CoinToss():
                 # ［白勝ちだけでの対局数］を取った（白が勝った）
                 if w_time <= w_got:
                     return WHITE, bout_th
-
-            # 続行
-
-        raise ValueError("設定している回数で、決着が付かなかった")
-
-
-    def play_game_when_alternating_turn(self, p, points_configuration):
-        """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
-        
-        Parameters
-        ----------
-        p : float
-            ［表が出る確率］（先手勝率）
-        points_configuration : PointsConfiguration
-            ［勝ち点ルール］の構成
-        
-        Returns
-        -------
-        winner_player : int
-            ＡさんかＢさん
-        bout_th : int
-            対局本数
-        """
-
-        # ［得点］の配列。要素は、未使用、Ａさん、Ｂさんの順
-        point_list = [0, 0, 0]
-
-        # ｎ本勝負で勝ち負けが出るまでやる
-        for bout_th in range(1, 2_147_483_647):
-
-            # 黒が出た
-            if coin(p) == BLACK:
-                step = points_configuration.b_step
-
-                # 奇数本で黒番のプレイヤーはＡさん
-                if bout_th % 2 == 1:
-                    successful_player = ALICE
-
-                # 偶数本で黒番のプレイヤーはＢさん
-                else:
-                    successful_player = BOB
-
-            # 白が出た
-            else:
-                step = points_configuration.w_step
-
-                # 奇数本で白番のプレイヤーはＢさん
-                if bout_th % 2 == 1:
-                    successful_player = BOB
-
-                # 偶数本で白番のプレイヤーはＡさん
-                else:
-                    successful_player = ALICE
-
-
-            point_list[successful_player] += step
-
-            if points_configuration.span <= point_list[successful_player]:
-                return successful_player, bout_th
 
             # 続行
 

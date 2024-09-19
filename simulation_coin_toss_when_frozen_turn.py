@@ -34,7 +34,7 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     for round in range(0, round_total):
         # ［先後固定制］で、勝った方の手番を返す
-        winner_color, bout_th = coin_toss.play_game_when_frozen_turn(p, b_time, w_time)
+        winner_color, bout_th = coin_toss.play_game_when_frozen_turn_as_time(p, b_time, w_time)
         if winner_color == BLACK:
             black_wons += 1
 
