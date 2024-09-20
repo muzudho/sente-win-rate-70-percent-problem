@@ -15,7 +15,7 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, CoinToss, PointsConfiguration
+from library import ALICE, PointsConfiguration, play_game_when_alternating_turn
 from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
@@ -38,8 +38,6 @@ if __name__ == '__main__':
         round_total = 2_000_000 # 十分多いケース
         #round_total = 200
 
-        coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
-
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
         for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
 
@@ -55,7 +53,7 @@ if __name__ == '__main__':
                 round_th = round + 1
 
                 # 勝ったプレイヤーを返す
-                winner_player, bout_th = coin_toss.play_game_when_alternating_turn(p, points_configuration)
+                winner_player, bout_th = play_game_when_alternating_turn(p, points_configuration)
                 if winner_player == ALICE:
                     alice_wons += 1
 
@@ -70,7 +68,7 @@ if __name__ == '__main__':
             print(text) # 表示
 
             # ログ出力
-            with open(coin_toss.output_file_path, 'a', encoding='utf8') as f:
+            with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 f.write(f"{text}\n")    # ファイルへ出力
 
 

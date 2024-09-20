@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import BLACK, round_letro, p_to_b_w_times, CoinToss, PointsConfiguration, play_game_when_frozen_turn
+from library import BLACK, round_letro, p_to_b_w_times, PointsConfiguration, play_game_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
@@ -87,8 +87,6 @@ if __name__ == '__main__':
 
     try:
         for input_datum in INPUT_DATA:
-            coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
-
             # 先手勝率
             p=input_datum[0]
             print(f"先手勝率{p:4.2f}  ")

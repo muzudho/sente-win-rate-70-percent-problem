@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, ALICE, CoinToss, PointsConfiguration, play_game_when_frozen_turn
+from library import BLACK, ALICE, PointsConfiguration, play_game_when_frozen_turn, play_game_when_alternating_turn
 from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
@@ -22,7 +22,7 @@ CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
 CSV_FILE_PATH_EVEN = './data/generate_even_when_frozen_turn.csv'
 
 
-def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
+def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
 
     # ［勝ち点ルール］の構成
     points_configuration = PointsConfiguration.let_points_from_repeat(
@@ -62,7 +62,7 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     for round in range(0, round_total):
         # ［先後交互制］で、勝った方のプレイヤーを返す
-        winner_player, bout_th = coin_toss.play_game_when_alternating_turn(p, points_configuration)
+        winner_player, bout_th = play_game_when_alternating_turn(p, points_configuration)
         if winner_player == ALICE:
             alice_wons += 1
 
@@ -86,7 +86,7 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     text = stringify_log_when_simulation_coin_toss_when_frozen_turn(
             # 出力先ファイルへのパス
-            output_file_path=coin_toss.output_file_path,
+            output_file_path=output_file_path,
             # ［表が出る確率］（先手勝率）
             p=p,
             # 対局数
@@ -112,7 +112,7 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
     print(text) # 表示
 
     # ログ出力
-    with open(coin_toss.output_file_path, 'a', encoding='utf8') as f:
+    with open(output_file_path, 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 
@@ -142,8 +142,6 @@ if __name__ == '__main__':
         df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
         df_tss = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
 
-        coin_toss = CoinToss(output_file_path=LOG_FILE_PATH)
-
         # 対局数
         round_total = 2_000_000 # 十分多いケース
         #round_total = 10 # 少なすぎるケース
@@ -154,12 +152,12 @@ if __name__ == '__main__':
             # ［黒勝ちだけでの対局数］は計算で求めます
             b_time = number_of_longest_bout-(w_time-1)
 
-            perform_p(coin_toss, p, round_total, b_time, w_time, comment='精度を求めた元データ')
+            perform_p(output_file_path=LOG_FILE_PATH, p, round_total, b_time, w_time, comment='精度を求めた元データ')
 
 
         # 実用的なデータを基にしている
         for p, b_time, w_time in zip(df_tss['p'], df_tss['b_time'], df_tss['w_time']):
-            perform_p(coin_toss, p, round_total, b_time, w_time, comment='実用的な元データ')
+            perform_p(output_file_path=LOG_FILE_PATH, p, round_total, b_time, w_time, comment='実用的な元データ')
 
 
     except Exception as err:

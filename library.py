@@ -240,27 +240,6 @@ def play_game_when_alternating_turn(p, points_configuration):
     raise ValueError("設定している回数で、決着が付かなかった")
 
 
-class CoinToss():
-    """コイントスの試行"""
-
-
-    def __init__(self, output_file_path):
-        """初期化
-        
-        Parameters
-        ----------
-        output_file_path : str
-            出力先ファイルへのパス
-        """
-        self._output_file_path = output_file_path
-
-
-    @property
-    def output_file_path(self):
-        """出力先ファイルへのパス"""
-        return self._output_file_path
-
-
 def calculate_probability(p, H, T):
     """［表側を持っているプレイヤー］が勝つ確率を返します
 

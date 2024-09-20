@@ -1,4 +1,6 @@
 #
+# NOTE 使ってない
+#
 # 生成
 # python generate_b_w_time_strict.py
 #
