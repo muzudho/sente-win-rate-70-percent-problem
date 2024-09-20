@@ -90,6 +90,7 @@ def iteration_deeping(df, abs_limit_of_error):
 
         # アルゴリズムで求めるケース
         else:
+            print(f"[p={p}]", end='', flush=True)
             is_automatic = True
             is_cutoff = False
 
@@ -170,8 +171,11 @@ def iteration_deeping(df, abs_limit_of_error):
                             latest_points_configuration = points_configuration
                             latest_process = process
 
+                            # 進捗バー
+                            print('.', end='', flush=True)
+
                             # 空振りが多いとき、探索を打ち切ります
-                            if 100 < passage_count:
+                            if 30 < passage_count:
                                 is_cutoff = True
                                 # 進捗バー
                                 print('cutoff (procrastinate)', flush=True)
@@ -186,10 +190,6 @@ def iteration_deeping(df, abs_limit_of_error):
 
                 if is_cutoff:
                     break
-
-
-                # ［目標の点数］進捗バー
-                print('.', end='', flush=True)
 
             print() # 改行
 
