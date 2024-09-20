@@ -20,6 +20,8 @@ REPORT_FILE_PATH = 'reports/report_evenizer_system.log'
 
 #CSV_FILE_PATH_P = "./data/p.csv"
 #CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
+CSV_FILE_PATH_SP_FT = './data/specified_points_when_frozen_turn.csv'
+CSV_FILE_PATH_SP_AT = './data/specified_points_when_alternating_turn.csv'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 CSV_FILE_PATH_AT = './data/generate_even_when_alternating_turn.csv'
 
@@ -39,6 +41,8 @@ if __name__ == '__main__':
 
     try:
         #df_p = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
+        df_sp_at = pd.read_csv(CSV_FILE_PATH_SP_AT, encoding="utf8")
+        df_sp_ft = pd.read_csv(CSV_FILE_PATH_SP_FT, encoding="utf8")
         df_at = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
         df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
         #df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
@@ -46,28 +50,42 @@ if __name__ == '__main__':
         # ［先後交互制］
         for p, new_p, new_p_error, round_count, b_step, w_step, span, process in zip(df_at['p'], df_at['new_p'], df_at['new_p_error'], df_at['round_count'], df_at['b_step'], df_at['w_step'], df_at['span'], df_at['process']):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
-                # ［勝ち点ルール］の構成
+
+                # ［勝ち点ルール］の構成。任意に指定します
                 points_configuration = PointsConfiguration(
-                        b_step=b_step,
-                        w_step=w_step,
-                        span=span)
+                        b_step=df_sp_at.loc[df_sp_at['p']==p, ['b_step']],
+                        w_step=df_sp_at.loc[df_sp_at['p']==p, ['w_step']],
+                        span=df_sp_at.loc[df_sp_at['p']==p, ['span']])
 
                 # 文言の作成
-                text = stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, points_configuration, process)
+                text = stringify_when_report_evenizer_system_at(
+                        p=p,
+                        new_p=new_p,
+                        new_p_error=new_p_error,
+                        round_count=round_count,
+                        specified_points_configuration=points_configuration,    # TODO 任意のポイントを指定したい
+                        process=process)
                 print(text) # 表示
                 f.write(f"{text}\n")    # ログファイルへ出力
 
         # ［先後固定制］
         for p, new_p, new_p_error, round_count, b_step, w_step, span, process in zip(df_ft['p'], df_ft['new_p'], df_ft['new_p_error'], df_ft['round_count'], df_ft['b_step'], df_ft['w_step'], df_ft['span'], df_ft['process']):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
-                # ［勝ち点ルール］の構成
+
+                # ［勝ち点ルール］の構成。任意に指定します
                 points_configuration = PointsConfiguration(
-                        b_step=b_step,
-                        w_step=w_step,
-                        span=span)
+                        b_step=df_sp_ft.loc[df_sp_ft['p']==p, ['b_step']],
+                        w_step=df_sp_ft.loc[df_sp_ft['p']==p, ['w_step']],
+                        span=df_sp_ft.loc[df_sp_ft['p']==p, ['span']])
 
                 # 文言の作成
-                text = stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, points_configuration, process)
+                text = stringify_when_report_evenizer_system_ft(
+                        p=p,
+                        new_p=new_p,
+                        new_p_error=new_p_error,
+                        round_count=round_count,
+                        specified_points_configuration=points_configuration,    # TODO 任意のポイントを指定したい
+                        process=process)
                 print(text) # 表示
                 f.write(f"{text}\n")    # ログファイルへ出力
 

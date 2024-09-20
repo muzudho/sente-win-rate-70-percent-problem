@@ -4,22 +4,8 @@ import re
 from library import PointsConfiguration
 
 
-def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, points_configuration, process):
-    # ［表が出る確率（％）］
-    seg_1 = p*100
-
-    # 試行回数
-    seg_2c = round_count
-
-    # ［計算過程］
-    process_list = process[1:-1].split('] [')
-
-    # TODO 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
-
-    # 高い精度のもの
-    high_accuracy = process_list[-1]
-
-    result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', high_accuracy)
+def parse_process_element(process_element):
+    result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', process_element)
     if result:
         high_accuracy_p_error = float(result.group(1))*100
         high_accuracy_p = high_accuracy_p_error + 50
@@ -29,14 +15,40 @@ def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count,
         span = result.group(4)
         shortest = result.group(5)
         longest = result.group(6)
-        seg_5 = f"{high_accuracy_p:7.4f} ％（{high_accuracy_p_error:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
+
+        return high_accuracy_p_error, black, white, span, shortest, longest
+
+    else:
+        return None
+
+
+def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+    # ［表が出る確率（％）］
+    seg_1 = p*100
+
+    # 試行回数
+    seg_2c = round_count
+
+    # ［計算過程］
+    process_list = process[1:-1].split('] [')
+
+    # # TODO 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+    # for process_element in process_list:
+    #     if 
+
+    # 高い精度のもの
+    high_accuracy = process_list[-1]
+
+    high_accuracy_p_error, black, white, span, shortest, longest = parse_process_element(high_accuracy)
+    if high_accuracy_p_error is not None:
+        seg_5 = f"{high_accuracy_p_error+50:7.4f} ％（{high_accuracy_p_error:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
     else:
         seg_5 = ""
 
     return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_5}  試行{seg_2c}回"""
 
 
-def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, points_configuration, process):
+def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, specified_points_configuration, process):
     # ［表が出る確率（％）］
     seg_1 = p*100
 
@@ -51,17 +63,9 @@ def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count,
     # 高い精度のもの
     high_accuracy = process_list[-1]
 
-    result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', high_accuracy)
-    if result:
-        high_accuracy_p_error = float(result.group(1))*100
-        high_accuracy_p = high_accuracy_p_error + 50
-
-        black = result.group(2)
-        white = result.group(3)
-        span = result.group(4)
-        shortest = result.group(5)
-        longest = result.group(6)
-        seg_5 = f"{high_accuracy_p:7.4f} ％（{high_accuracy_p_error:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
+    high_accuracy_p_error, black, white, span, shortest, longest = parse_process_element(high_accuracy)
+    if high_accuracy_p_error is not None:
+        seg_5 = f"{high_accuracy_p_error+50:7.4f} ％（{high_accuracy_p_error:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
     else:
         seg_5 = ""
 
