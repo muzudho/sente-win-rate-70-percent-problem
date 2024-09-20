@@ -89,13 +89,10 @@ def iteration_deeping(df, limit_of_error):
             # ［目標の点数］＞＝［白勝ち１つの点数］＞＝［黒勝ち１つの点数］という関係があります。
             #
             start_w_step = best_w_step
-            start_b_step = best_w_step
+            start_b_step = best_b_step + 1      # 終わっているところの次から始める      NOTE b_step の初期値は 0 であること
             for cur_span in range(best_span, LIMIT_SPAN):
                 for cur_w_step in range(start_w_step, cur_span + 1):
-                    start_w_step = 1
-
                     for cur_b_step in range(start_b_step, cur_w_step + 1):
-                        start_b_step = 1
 
                         # ［勝ち点ルール］の構成
                         points_configuration = PointsConfiguration(
@@ -152,8 +149,12 @@ def iteration_deeping(df, limit_of_error):
 
                                 break
 
+                    start_b_step = 1
+
                     if is_cutoff:
                         break
+
+                start_w_step = 1
 
                 if is_cutoff:
                     break
