@@ -7,69 +7,78 @@ from library import PointsConfiguration
 def parse_process_element(process_element):
     result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', process_element)
     if result:
-        high_accuracy_p_error = float(result.group(1))*100
-        high_accuracy_p = high_accuracy_p_error + 50
+        new_p_error = float(result.group(1))
+        black = int(result.group(2))
+        white = int(result.group(3))
+        span = int(result.group(4))
+        shortest = int(result.group(5))
+        longest = int(result.group(6))
 
-        black = result.group(2)
-        white = result.group(3)
-        span = result.group(4)
-        shortest = result.group(5)
-        longest = result.group(6)
+        return new_p_error, black, white, span, shortest, longest
 
-        return high_accuracy_p_error, black, white, span, shortest, longest
-
-    else:
-        return None
+    return None, None, None, None, None, None
 
 
 def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # 試行回数
     seg_2c = round_count
 
+    text = f"先手勝率 {seg_1:2.0f} ％ 試行{seg_2c}回\n"
+
     # ［計算過程］
     process_list = process[1:-1].split('] [')
 
-    # # TODO 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
-    # for process_element in process_list:
-    #     if 
+    # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+    for process_element in process_list:
+        new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+        if new_p_error is not None:
+            if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
+                text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）\n"
+                break
 
     # 高い精度のもの
-    high_accuracy = process_list[-1]
+    process_element = process_list[-1]
 
-    high_accuracy_p_error, black, white, span, shortest, longest = parse_process_element(high_accuracy)
-    if high_accuracy_p_error is not None:
-        seg_5 = f"{high_accuracy_p_error+50:7.4f} ％（{high_accuracy_p_error:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
-    else:
-        seg_5 = ""
+    new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+    if new_p_error is not None:
+        text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
 
-    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_5}  試行{seg_2c}回"""
+    return text
 
 
 def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # 試行回数
     seg_2c = round_count
 
+    text = f"""先手勝率 {seg_1:2.0f} ％ 試行{seg_2c}回\n"""
+
     # ［計算過程］
     process_list = process[1:-1].split('] [')
 
-    # TODO 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+    # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+    for process_element in process_list:
+        new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+        if new_p_error is not None:
+            if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
+                text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）\n"
+                break
 
     # 高い精度のもの
-    high_accuracy = process_list[-1]
+    process_element = process_list[-1]
 
-    high_accuracy_p_error, black, white, span, shortest, longest = parse_process_element(high_accuracy)
-    if high_accuracy_p_error is not None:
-        seg_5 = f"{high_accuracy_p_error+50:7.4f} ％（{high_accuracy_p_error:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
-    else:
-        seg_5 = ""
+    new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+    if new_p_error is not None:
+        text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
 
-    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_5}  試行{seg_2c}回"""
+    return text
 
 
 def stringify_when_report_evenizer_system(p, new_p, new_p_error, points_configuration):

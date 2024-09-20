@@ -53,9 +53,9 @@ if __name__ == '__main__':
 
                 # ［勝ち点ルール］の構成。任意に指定します
                 points_configuration = PointsConfiguration(
-                        b_step=df_sp_at.loc[df_sp_at['p']==p, ['b_step']],
-                        w_step=df_sp_at.loc[df_sp_at['p']==p, ['w_step']],
-                        span=df_sp_at.loc[df_sp_at['p']==p, ['span']])
+                        b_step=df_sp_at.loc[df_sp_at['p']==p, ['b_step']].iat[0,0],
+                        w_step=df_sp_at.loc[df_sp_at['p']==p, ['w_step']].iat[0,0],
+                        span=df_sp_at.loc[df_sp_at['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
                 text = stringify_when_report_evenizer_system_at(
@@ -74,9 +74,9 @@ if __name__ == '__main__':
 
                 # ［勝ち点ルール］の構成。任意に指定します
                 points_configuration = PointsConfiguration(
-                        b_step=df_sp_ft.loc[df_sp_ft['p']==p, ['b_step']],
-                        w_step=df_sp_ft.loc[df_sp_ft['p']==p, ['w_step']],
-                        span=df_sp_ft.loc[df_sp_ft['p']==p, ['span']])
+                        b_step=df_sp_ft.loc[df_sp_ft['p']==p, ['b_step']].iat[0,0],
+                        w_step=df_sp_ft.loc[df_sp_ft['p']==p, ['w_step']].iat[0,0],
+                        span=df_sp_ft.loc[df_sp_ft['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
                 text = stringify_when_report_evenizer_system_ft(
