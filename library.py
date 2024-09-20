@@ -304,6 +304,22 @@ class PointsConfiguration():
         span : int
             ［目標の点数］
         """
+
+        if b_step < 1:
+            raise ValueError(f"正の整数であることが必要 {b_step=}")
+
+        if w_step < 1:
+            raise ValueError(f"正の整数であることが必要 {w_step=}")
+
+        if span < 1:
+            raise ValueError(f"正の整数であることが必要 {span=}")
+
+        if w_step < b_step:
+            raise ValueError(f"{b_step=} <= {w_step}")
+
+        if span < w_step:
+            raise ValueError(f"{w_step=} <= {span}")
+
         self._b_step = b_step
         self._w_step = w_step
         self._span = span

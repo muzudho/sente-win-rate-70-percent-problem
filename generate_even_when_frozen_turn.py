@@ -14,7 +14,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, coin, play_game_when_frozen_turn, round_letro, PointsConfiguration
+from library import BLACK, WHITE, coin, play_game_when_frozen_turn, round_letro, PointsConfiguration, calculate_probability
 from views import print_when_generate_when_frozen_turn
 
 
@@ -95,8 +95,12 @@ def iteration_deeping(df, abs_limit_of_error):
         zip(df['p'], df['best_p'], df['best_p_error'], df['best_round_count'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_round_count'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
 
         # ［かくきんシステムのｐの構成］
+        if 0 < best_b_step:
+            temp_best_b_step = best_b_step
+        else:
+            temp_best_b_step = 1
         best_points_configuration = PointsConfiguration(
-                b_step=best_b_step,
+                b_step=temp_best_b_step,
                 w_step=best_w_step,
                 span=best_span)
 
@@ -134,11 +138,11 @@ def iteration_deeping(df, abs_limit_of_error):
 
 
                         # NOTE 理論値の場合
-                        latest_theoretical_p = calculate_probability(
+                        latest_p = calculate_probability(
                                 p=p,
                                 H=latest_points_configuration.b_time,
                                 T=latest_points_configuration.w_time)
-                        latest_theoretical_p_error = latest_theoretical_p - 0.5
+                        latest_p_error = latest_p - 0.5
 
 
                         # # NOTE 実際値の場合

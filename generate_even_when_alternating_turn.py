@@ -188,8 +188,12 @@ def iteration_deeping(df, abs_limit_of_error):
         #
 
         # ［かくきんシステムのｐの構成］
+        if 0 < best_b_step:
+            temp_best_b_step = best_b_step
+        else:
+            temp_best_b_step = 1
         best_points_configuration = PointsConfiguration(
-                b_step=best_b_step,
+                b_step=temp_best_b_step,
                 w_step=best_w_step,
                 span=best_span)
 
