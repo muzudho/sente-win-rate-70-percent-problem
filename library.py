@@ -497,8 +497,8 @@ class PointsConfiguration():
         
             `0.014715 10黒 12白 14目 1～1局（先後交互制）`
                 ・  Ａ  Ｂ  Ａ  で、最長３局
-                 0  10  0  20
-                 0   0 10   0
+                14   4   4  -6
+                14  14   4   4
         """
 
         return  (self.b_time-1) + (self.w_time-1) + 1
