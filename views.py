@@ -58,7 +58,7 @@ def stringify_report_muzudho_recommends_points_at(p, best_round_count, latest_th
                 # 試行回数
                 seg_9 = best_round_count
 
-                return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）    試行{seg_9}回"
+                return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回"
 
 
     return f"先手勝率 {seg_1:2.0f} ％ --試行後--> （該当なし）"
