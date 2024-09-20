@@ -1,6 +1,6 @@
 #
 # レポート作成
-# python report_evenizing_system.py
+# python report_muzudho_recommends_points.py
 #
 #   ［黒勝ち１つの点数］、［白勝ち１つの点数］、［目標の点数］をテキストにまとめる。
 #
@@ -16,12 +16,10 @@ from views import stringify_when_report_evenizing_system_ft, stringify_when_repo
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
-REPORT_FILE_PATH = 'reports/report_evenizing_system.log'
+REPORT_FILE_PATH = 'reports/report_muzudho_recommends_points.log'
 
-#CSV_FILE_PATH_P = "./data/p.csv"
-#CSV_FILE_PATH_EVEN = './data/report_evenizing_system.csv'
-CSV_FILE_PATH_SP_FT = './data/specified_points_when_frozen_turn.csv'
-CSV_FILE_PATH_SP_AT = './data/specified_points_when_alternating_turn.csv'
+CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
+CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 CSV_FILE_PATH_AT = './data/generate_even_when_alternating_turn.csv'
 
@@ -40,12 +38,10 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        #df_p = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
-        df_sp_at = pd.read_csv(CSV_FILE_PATH_SP_AT, encoding="utf8")
-        df_sp_ft = pd.read_csv(CSV_FILE_PATH_SP_FT, encoding="utf8")
+        df_mr_at = pd.read_csv(CSV_FILE_PATH_MR_AT, encoding="utf8")
+        df_mr_ft = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
         df_at = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
         df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
-        #df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
 
         # ［先後交互制］
         for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
@@ -54,9 +50,9 @@ if __name__ == '__main__':
 
                 # ［勝ち点ルール］の構成。任意に指定します
                 points_configuration = PointsConfiguration(
-                        b_step=df_sp_at.loc[df_sp_at['p']==p, ['b_step']].iat[0,0],
-                        w_step=df_sp_at.loc[df_sp_at['p']==p, ['w_step']].iat[0,0],
-                        span=df_sp_at.loc[df_sp_at['p']==p, ['span']].iat[0,0])
+                        b_step=df_mr_at.loc[df_mr_at['p']==p, ['b_step']].iat[0,0],
+                        w_step=df_mr_at.loc[df_mr_at['p']==p, ['w_step']].iat[0,0],
+                        span=df_mr_at.loc[df_mr_at['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
                 text = stringify_when_report_evenizing_system_at(
@@ -76,9 +72,9 @@ if __name__ == '__main__':
 
                 # ［勝ち点ルール］の構成。任意に指定します
                 points_configuration = PointsConfiguration(
-                        b_step=df_sp_ft.loc[df_sp_ft['p']==p, ['b_step']].iat[0,0],
-                        w_step=df_sp_ft.loc[df_sp_ft['p']==p, ['w_step']].iat[0,0],
-                        span=df_sp_ft.loc[df_sp_ft['p']==p, ['span']].iat[0,0])
+                        b_step=df_mr_ft.loc[df_mr_ft['p']==p, ['b_step']].iat[0,0],
+                        w_step=df_mr_ft.loc[df_mr_ft['p']==p, ['w_step']].iat[0,0],
+                        span=df_mr_ft.loc[df_mr_ft['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
                 text = stringify_when_report_evenizing_system_ft(

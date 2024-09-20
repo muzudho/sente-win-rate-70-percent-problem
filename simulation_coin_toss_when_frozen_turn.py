@@ -18,7 +18,7 @@ from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_frozen_turn.log'
-CSV_FILE_PATH_EVEN = './data/report_evenizing_system.csv'
+CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
 
     try:
         df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
-        df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
+        df_mrp = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース
@@ -163,8 +163,8 @@ if __name__ == '__main__':
 
 
         # 実用的なデータを基にしている
-        for              p,            b_time,            w_time in\
-            zip(df_even['p'], df_even['b_time'], df_even['w_time']):
+        for             p,           b_time,           w_time in\
+            zip(df_mrp['p'], df_mrp['b_time'], df_mrp['w_time']):
             perform_p(
                     output_file_path=LOG_FILE_PATH,
                     p=p,
