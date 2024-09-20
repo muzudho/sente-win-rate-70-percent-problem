@@ -27,8 +27,6 @@ OUT_OF_ERROR = 0.51
 
 # 探索の上限
 LIMIT_SPAN = 1000
-LIMIT_W_STEP = LIMIT_SPAN
-LIMIT_B_STEP = LIMIT_W_STEP
 
 
 def update_dataframe(df, p, new_p, new_p_error, round_count, all_processes_text, points_configuration):
@@ -91,23 +89,24 @@ def iteration_deeping(df, limit_of_error):
             start_w_step = best_w_step
             start_b_step = best_w_step
             for cur_span in range(best_span, LIMIT_SPAN):
-                for cur_w_step in range(start_w_step, LIMIT_W_STEP):
+                for cur_w_step in range(start_w_step, cur_span + 1):
                     start_w_step = 1
 
-                    for cur_b_step in range(start_b_step, LIMIT_B_STEP):
+                    for cur_b_step in range(start_b_step, cur_w_step + 1):
                         start_b_step = 1
 
                         # ［勝ち点ルール］の構成
-                        points_configuration = PointsConfiguration(b_step=cur_b_step, w_step=cur_w_step, span=cur_span)
+                        points_configuration = PointsConfiguration(
+                                b_step=cur_b_step,
+                                w_step=cur_w_step,
+                                span=cur_span)
 
                         # 先手が勝った回数
                         black_win_count = 0
                         for i in range(0, round_count):
                             winner_color, bout_th = play_game_when_frozen_turn(
                                     p=p,
-                                    b_step=points_configuration.b_step,
-                                    w_step=points_configuration.w_step,
-                                    span=points_configuration.span)
+                                    points_configuration=points_configuration)
                             
                             if winner_color == BLACK:
                                 black_win_count += 1

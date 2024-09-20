@@ -82,7 +82,9 @@ if __name__ == '__main__':
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［勝ち点ルール］の構成
-                points_configuration = PointsConfiguration.let_points_from_repeat(best_b_time, best_w_time)
+                points_configuration = PointsConfiguration.let_points_from_repeat(
+                    b_time=best_b_time,
+                    w_time=best_w_time)
 
                 text = stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, points_configuration, process_list)
                 print(text) # 表示

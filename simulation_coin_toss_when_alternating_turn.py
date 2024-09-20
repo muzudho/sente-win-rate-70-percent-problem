@@ -44,7 +44,9 @@ if __name__ == '__main__':
         for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
 
             # ［勝ち点ルール］の構成
-            points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+            points_configuration = PointsConfiguration.let_points_from_repeat(
+                    b_time=b_time,
+                    w_time=w_time)
 
             # Ａさんが勝った回数
             alice_wons = 0

@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import BLACK, round_letro, p_to_b_w_times, CoinToss, PointsConfiguration, points_configuration
+from library import BLACK, round_letro, p_to_b_w_times, CoinToss, PointsConfiguration, play_game_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
@@ -135,16 +135,12 @@ if __name__ == '__main__':
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
                         points_configuration = PointsConfiguration.let_points_from_repeat(
-                                # 先手の何本先取制
                                 b_time=practical_b_time + 1,    # 閏の + 1
-                                # 後手の何本先取制
                                 w_time=practical_w_time)
 
-                        winner_color, bout_th = points_configuration(
+                        winner_color, bout_th = play_game_when_frozen_turn(
                                 p=p,
-                                b_time=points_configuration.b_time,
-                                w_time=points_configuration.w_time,
-                                span=points_configuration.span)
+                                points_configuration=points_configuration)
                         
                         if winner_color == BLACK:
                             black_wons += 1
@@ -153,16 +149,12 @@ if __name__ == '__main__':
                         # 閏対局を使わないパターン
 
                         points_configuration = PointsConfiguration.let_points_from_repeat(
-                                # 先手の何本先取制
                                 b_time=practical_b_time,
-                                # 後手の何本先取制
                                 w_time=practical_w_time)
 
-                        winner_color, bout_th = points_configuration(
+                        winner_color, bout_th = play_game_when_frozen_turn(
                                 p=p,
-                                b_time=points_configuration.b_time,
-                                w_time=points_configuration.w_time,
-                                span=points_configuration.span)
+                                points_configuration=points_configuration)
                         
                         if winner_color == BLACK:
                             black_wons += 1
@@ -172,16 +164,12 @@ if __name__ == '__main__':
                     # 勝った方の手番を返す
 
                     points_configuration = PointsConfiguration.let_points_from_repeat(
-                            # 先手の何本先取制
                             b_time=practical_b_time,
-                            # 後手の何本先取制
                             w_time=practical_w_time)
 
-                    winner_color, bout_th = points_configuration(
+                    winner_color, bout_th = play_game_when_frozen_turn(
                             p=p,
-                            b_time=points_configuration.b_time,
-                            w_time=points_configuration.w_time,
-                            span=points_configuration.span)
+                            points_configuration=points_configuration)
                     
                     if winner_color == BLACK:
                         black_wons += 1

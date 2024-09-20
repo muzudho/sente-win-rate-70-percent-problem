@@ -134,13 +134,15 @@ def coin(black_rate):
     return WHITE
 
 
-def play_game_when_frozen_turn(p, b_step, w_step, span):
+def play_game_when_frozen_turn(p, points_configuration):
     """［先後固定制］で対局を行います。勝った方の色を返します
 
     Parameters
     ----------
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
+    points_configuration : PointsConfiguration
+        ［勝ち点ルール］の構成
     b_step : int
         ［黒勝ち１つの点数］
     w_step : int
@@ -165,18 +167,18 @@ def play_game_when_frozen_turn(p, b_step, w_step, span):
         successful_color = coin(p)
 
         if successful_color == BLACK:
-            step = b_step
+            step = points_configuration.b_step
 
         else:
-            step = w_step
+            step = points_configuration.w_step
 
         point_list[successful_color] += step
 
-        if span <= point_list[successful_color]:
+        if points_configuration.span <= point_list[successful_color]:
             return successful_color, bout_th    # 勝ち抜け
 
 
-    raise ValueError(f"決着が付かずにループを抜けた  {p=}  {p_step=}  {w_step=}  {span=}")
+    raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
 
 
 def play_game_when_alternating_turn(p, points_configuration):
@@ -314,7 +316,7 @@ def calculate_probability(p, H, T):
 
 
 class PointsConfiguration():
-    """勝ち点の構成［勝ち点ルール］"""
+    """［勝ち点ルール］の構成"""
 
 
     def __init__(self, b_step, w_step, span):
@@ -400,7 +402,10 @@ class PointsConfiguration():
         if span != span_w:
             raise ValueError(f"{span=}  {span_w=}")
 
-        return PointsConfiguration(b_step, w_step, span)
+        return PointsConfiguration(
+                b_step=b_step,
+                w_step=w_step,
+                span=span)
 
 
     def let_number_of_shortest_bout_when_frozen_turn(self):

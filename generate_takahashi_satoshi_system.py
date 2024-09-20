@@ -63,7 +63,9 @@ if __name__ == '__main__':
                     # if b_time <= w_time and 1 < w_time:
                     #     continue
 
-                    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+                    points_configuration = PointsConfiguration.let_points_from_repeat(
+                            b_time=b_time,
+                            w_time=w_time)
 
                     # ［調整後の表が出る確率（％）］
                     new_p = calculate_probability(      # 表側のプレイヤー（Ａさん）の、勝つ確率

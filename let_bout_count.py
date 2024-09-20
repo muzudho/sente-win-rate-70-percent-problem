@@ -26,9 +26,9 @@ if __name__ == '__main__':
                 # ［黒勝ち１つの点数］
                 for b_step in range(1, w_step):
                     points_configuration = PointsConfiguration(
-                        b_step=b_step,
-                        w_step=w_step,
-                        span=span)
+                            b_step=b_step,
+                            w_step=w_step,
+                            span=span)
 
                     # 対局数
                     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()

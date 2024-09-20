@@ -25,7 +25,9 @@ CSV_FILE_PATH_EVEN = './data/generate_even_when_frozen_turn.csv'
 def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(b_time, w_time)
+    points_configuration = PointsConfiguration.let_points_from_repeat(
+            b_time=b_time,
+            w_time=w_time)
 
     # ［先後固定制］で、黒が勝った回数
     black_wons = 0
@@ -40,10 +42,8 @@ def perform_p(coin_toss, p, round_total, b_time, w_time, comment):
                 w_time=w_time)
 
         winner_color, bout_th = play_game_when_frozen_turn(
-            p=p,
-            b_time=points_configuration.b_time,
-            w_time=points_configuration.w_time,
-            span=points_configuration.span)
+                p=p,
+                points_configuration=points_configuration)
         
         if winner_color == BLACK:
             black_wons += 1

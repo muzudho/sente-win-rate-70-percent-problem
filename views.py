@@ -7,7 +7,9 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_e
     """文言の作成"""
 
     # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(best_b_time, best_w_time)
+    points_configuration = PointsConfiguration.let_points_from_repeat(
+            b_time=best_b_time,
+            w_time=best_w_time)
 
     # ［表が出る確率（％）］
     seg_1 = p*100
