@@ -120,9 +120,13 @@ def iteration_deeping(df, limit_of_error):
                             best_new_p = new_p
                             best_new_p_error = new_p_error
                             best_points_configuration = points_configuration
-                        
+
+                            # 対局数
+                            shortest_bout = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
+                            longest_bout = points_configuration.let_number_of_longest_bout_when_frozen_turn()
+
                             # 計算過程
-                            one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目]'
+                            one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_bout}～{longest_bout}局]'
                             print(one_process_text, end='', flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
