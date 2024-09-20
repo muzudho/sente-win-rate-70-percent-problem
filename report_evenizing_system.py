@@ -70,8 +70,8 @@ if __name__ == '__main__':
                 f.write(f"{text}\n")    # ログファイルへ出力
 
         # ［先後固定制］
-        for            p,          best_p,          best_p_error,          best_round_count,          latest_p,          latest_p_error,          latest_round_count,          b_step,          w_step,          span,          process in\
-            zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_round_count'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_round_count'], df_ft['b_step'], df_ft['w_step'], df_ft['span'], df_ft['process']):
+        for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
+            zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_round_count'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_round_count'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［勝ち点ルール］の構成。任意に指定します
