@@ -19,7 +19,7 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+def stringify_when_report_evenizing_system_ft(p, new_p, new_p_error, round_count, specified_points_configuration, process):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -50,7 +50,7 @@ def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count,
     return text
 
 
-def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+def stringify_when_report_evenizing_system_at(p, new_p, new_p_error, round_count, specified_points_configuration, process):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -81,7 +81,7 @@ def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count,
     return text
 
 
-def stringify_when_report_evenizer_system(p, new_p, new_p_error, points_configuration):
+def stringify_when_report_evenizing_system(p, new_p, new_p_error, points_configuration):
     """文言の作成"""
 
     # ［勝ち点ルール］の構成

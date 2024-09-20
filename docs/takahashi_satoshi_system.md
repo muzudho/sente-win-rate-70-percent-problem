@@ -1,10 +1,15 @@
 # 確率的イーブナイジング・システム ～Probablistic Evenizing System～
 
+```
+The least common multiple with equal probability of winning, as determined by the cumulative binomial distribution.  
+累積二項分布によって決定される、当選確率が等しい最小公倍数。
+```
+
 将棋のような、（定跡が整備されることにより）先手の勝率が６割にも、７割にも偏ってきた成熟したゲームについて、  
 先手と後手の勝率を再び均等な５割に近づけたくなります。  
 
 ここではその方法を示します。  
-まだ良い呼称が定まっていませんが、仮にこの方法を　**確率的イーブナイジング・システム（Probablistic Evenizer System）** 、平等化システムとでも呼ぶとしましょう。  
+まだ良い呼称が定まっていませんが、仮にこの方法を　**確率的イーブナイジング・システム（Probablistic Evenizing System）** 、平等化システムとでも呼ぶとしましょう。  
 
 やり方は、先手と後手で異なる勝ち点を設定し、そして両者に共通する目標の点数を設定し、その目標の点数を先に達成した方を勝ちにする方法です。  
 

@@ -20,7 +20,7 @@ from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'
-CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
+CSV_FILE_PATH_EVEN = './data/report_evenizing_system.csv'
 
 
 ########################################

@@ -18,7 +18,7 @@ from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_frozen_turn.log'
-CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
+CSV_FILE_PATH_EVEN = './data/report_evenizing_system.csv'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 

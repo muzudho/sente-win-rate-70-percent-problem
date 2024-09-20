@@ -1,6 +1,6 @@
 #
 # レポート作成
-# python report_evenizer_system.py
+# python report_evenizing_system.py
 #
 #   ［黒勝ち１つの点数］、［白勝ち１つの点数］、［目標の点数］をテキストにまとめる。
 #
@@ -12,14 +12,14 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from views import stringify_when_report_evenizer_system_ft, stringify_when_report_evenizer_system_at, stringify_when_report_evenizer_system
+from views import stringify_when_report_evenizing_system_ft, stringify_when_report_evenizing_system_at, stringify_when_report_evenizing_system
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
-REPORT_FILE_PATH = 'reports/report_evenizer_system.log'
+REPORT_FILE_PATH = 'reports/report_evenizing_system.log'
 
 #CSV_FILE_PATH_P = "./data/p.csv"
-#CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
+#CSV_FILE_PATH_EVEN = './data/report_evenizing_system.csv'
 CSV_FILE_PATH_SP_FT = './data/specified_points_when_frozen_turn.csv'
 CSV_FILE_PATH_SP_AT = './data/specified_points_when_alternating_turn.csv'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
@@ -58,7 +58,7 @@ if __name__ == '__main__':
                         span=df_sp_at.loc[df_sp_at['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
-                text = stringify_when_report_evenizer_system_at(
+                text = stringify_when_report_evenizing_system_at(
                         p=p,
                         new_p=new_p,
                         new_p_error=new_p_error,
@@ -79,7 +79,7 @@ if __name__ == '__main__':
                         span=df_sp_ft.loc[df_sp_ft['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
-                text = stringify_when_report_evenizer_system_ft(
+                text = stringify_when_report_evenizing_system_ft(
                         p=p,
                         new_p=new_p,
                         new_p_error=new_p_error,
@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
         #     with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
         #         # 文言の作成
-        #         text = stringify_when_report_evenizer_system(p, best_new_p, best_new_p_error, best_b_time, best_w_time)
+        #         text = stringify_when_report_evenizing_system(p, best_new_p, best_new_p_error, best_b_time, best_w_time)
 
         #         print(text) # 表示
 

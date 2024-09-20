@@ -14,7 +14,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_even = pd.read_csv("./data/report_evenizer_system.csv", encoding="utf8")
+        df_even = pd.read_csv("./data/report_evenizing_system.csv", encoding="utf8")
 
         print(df_even)
 
