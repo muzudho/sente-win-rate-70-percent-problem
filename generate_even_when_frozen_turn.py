@@ -23,10 +23,10 @@ CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 REQUIRED_ROUND_COUNT = 2_000_000
 
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
-OUT_OF_ERROR = 0.51
+ABS_OUT_OF_ERROR = 0.51
 
 # 十分小さいエラー
-SMALL_ERROR = 0.00009
+ABS_SMALL_ERROR = 0.00009
 
 # 探索の上限
 LIMIT_SPAN = 1001
@@ -63,14 +63,14 @@ def update_dataframe(df, p, new_p, new_p_error, round_count, process, points_con
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
-def iteration_deeping(df, limit_of_error):
+def iteration_deeping(df, abs_limit_of_error):
     """反復深化探索の１セット
 
     Parameters
     ----------
     df : DataFrame
         データフレーム
-    limit_of_error : float
+    abs_limit_of_error : float
         リミット
     """
     for p, best_new_p, best_new_p_error, round_count, best_b_step, best_w_step, best_span, process in zip(df['p'], df['new_p'], df['new_p_error'], df['round_count'], df['b_step'], df['w_step'], df['span'], df['process']):
@@ -79,7 +79,7 @@ def iteration_deeping(df, limit_of_error):
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if REQUIRED_ROUND_COUNT < round_count or best_new_p_error <= SMALL_ERROR:
+        if REQUIRED_ROUND_COUNT < round_count or abs(best_new_p_error) <= ABS_SMALL_ERROR:
             is_automatic = False
 
         # アルゴリズムで求めるケース
@@ -116,9 +116,9 @@ def iteration_deeping(df, limit_of_error):
 
                     
                         new_p = black_win_count / REQUIRED_ROUND_COUNT
-                        new_p_error = abs(new_p - 0.5)
+                        new_p_error = new_p - 0.5
 
-                        if new_p_error < best_new_p_error:
+                        if abs(new_p_error) < abs(best_new_p_error):
                             update_count += 1
                             best_new_p = new_p
                             best_new_p_error = new_p_error
@@ -129,7 +129,7 @@ def iteration_deeping(df, limit_of_error):
                             longest_bout = points_configuration.let_number_of_longest_bout_when_frozen_turn()
 
                             # 計算過程
-                            one_process_text = f'[{best_new_p_error:6.4f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_bout}～{longest_bout}局]'
+                            one_process_text = f'[{best_new_p_error:.6f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_bout}～{longest_bout}局]'
                             print(one_process_text, end='', flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
@@ -145,7 +145,7 @@ def iteration_deeping(df, limit_of_error):
                             update_dataframe(df, p, best_new_p, best_new_p_error, REQUIRED_ROUND_COUNT, process, best_points_configuration)
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
-                            if best_new_p_error < limit_of_error or 2 < update_count:
+                            if abs(best_new_p_error) < abs_limit_of_error or 2 < update_count:
                                 is_cutoff = True
 
                                 # 進捗バー
@@ -171,7 +171,7 @@ def iteration_deeping(df, limit_of_error):
 
 
         # 自動計算未完了
-        if is_automatic and best_new_p_error == OUT_OF_ERROR:
+        if is_automatic and best_new_p_error == ABS_OUT_OF_ERROR:
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
 
         elif update_count < 1:
@@ -211,15 +211,15 @@ if __name__ == '__main__':
         #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
         #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
         #
-        limit_of_error = OUT_OF_ERROR
+        abs_limit_of_error = ABS_OUT_OF_ERROR
 
-        while SMALL_ERROR < limit_of_error:
+        while ABS_SMALL_ERROR < abs_limit_of_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            worst_new_p_error = df_ft['new_p_error'].max()
-            print(f"{worst_new_p_error=}")
+            worst_abs_new_p_error = max(abs(df_ft['new_p_error'].min()), abs(df_ft['new_p_error'].max()))
+            print(f"{worst_abs_new_p_error=}")
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
             #
@@ -227,9 +227,9 @@ if __name__ == '__main__':
             #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
             #
             # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-            limit_of_error = worst_new_p_error * 9 / 10
+            abs_limit_of_error = worst_abs_new_p_error * 9 / 10
 
-            iteration_deeping(df_ft, limit_of_error)
+            iteration_deeping(df_ft, abs_limit_of_error)
 
 
     except Exception as err:

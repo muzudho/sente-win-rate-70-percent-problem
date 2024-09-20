@@ -8,12 +8,6 @@ def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count,
     # ［表が出る確率（％）］
     seg_1 = p*100
 
-    # ［調整後の表が出る確率（％）］
-    seg_2 = new_p*100
-
-    # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_2b = new_p_error*100
-
     # 試行回数
     seg_2c = round_count
 
@@ -23,31 +17,25 @@ def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count,
 
     result = re.match(r'([0-9.]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', high_accuracy)
     if result:
-        high_accuracy_p_error = result.group(1)
-        # high_accuracy_p = 
+        high_accuracy_p_error = float(result.group(1))*100
+        high_accuracy_p = high_accuracy_p_error + 50
 
         black = result.group(2)
         white = result.group(3)
         span = result.group(4)
         shortest = result.group(5)
         longest = result.group(6)
-        seg_5 = f"    （± {high_accuracy_p_error}）先手勝ち{black}点、後手勝ち{white}点、目標{span}点（先後固定制） {shortest}～{longest}局"
+        seg_5 = f"{high_accuracy_p:.4f} ％（± {high_accuracy_p_error:.4f}）先手勝ち{black}点、後手勝ち{white}点、目標{span}点（先後固定制） {shortest}～{longest}局"
     else:
         seg_5 = ""
 
-    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}） 試行{seg_2c}回    {seg_5}"""
+    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_5}  試行{seg_2c}回"""
 
 
 def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, points_configuration, process):
     # ［表が出る確率（％）］
     seg_1 = p*100
 
-    # ［調整後の表が出る確率（％）］
-    seg_2 = new_p*100
-
-    # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_2b = new_p_error*100
-
     # 試行回数
     seg_2c = round_count
 
@@ -57,19 +45,19 @@ def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count,
 
     result = re.match(r'([0-9.]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', high_accuracy)
     if result:
-        high_accuracy_p_error = result.group(1)
-        # high_accuracy_p = 
+        high_accuracy_p_error = float(result.group(1))*100
+        high_accuracy_p = high_accuracy_p_error + 50
 
         black = result.group(2)
         white = result.group(3)
         span = result.group(4)
         shortest = result.group(5)
         longest = result.group(6)
-        seg_5 = f"    （± {high_accuracy_p_error}）先手勝ち{black}点、後手勝ち{white}点、目標{span}点（先後固定制） {shortest}～{longest}局"
+        seg_5 = f"{high_accuracy_p:.4f} ％（± {high_accuracy_p_error:.4f}）先手勝ち{black}点、後手勝ち{white}点、目標{span}点（先後交互制） {shortest}～{longest}局"
     else:
         seg_5 = ""
 
-    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}）試行{seg_2c}回    {seg_5}"""
+    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_5}  試行{seg_2c}回"""
 
 
 def stringify_when_report_evenizer_system(p, new_p, new_p_error, points_configuration):
