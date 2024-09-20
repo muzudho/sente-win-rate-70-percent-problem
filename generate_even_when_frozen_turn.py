@@ -26,7 +26,7 @@ REQUIRED_ROUND_COUNT = 2_000_000
 OUT_OF_ERROR = 0.51
 
 # 探索の上限
-LIMIT_SPAN = 1000
+LIMIT_SPAN = 1001
 
 
 def update_dataframe(df, p, new_p, new_p_error, round_count, process, points_configuration):
