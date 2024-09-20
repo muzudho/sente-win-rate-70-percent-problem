@@ -40,16 +40,22 @@ def generate_when_alternating_turn():
         zip(df_at['p'], df_at['best_p'], df_at['best_p_error'], df_at['best_round_count'], df_at['best_b_step'], df_at['best_w_step'], df_at['best_span'], df_at['latest_p'], df_at['latest_p_error'], df_at['latest_round_count'], df_at['latest_b_step'], df_at['latest_w_step'], df_at['latest_span'], df_at['process']):
 
         # ［かくきんシステムのｐの構成］。任意に指定します
-        points_configuration = PointsConfiguration(
+        specified_points_configuration = PointsConfiguration(
                 b_step=df_mr_at.loc[df_mr_at['p']==p, ['b_step']].iat[0,0],
                 w_step=df_mr_at.loc[df_mr_at['p']==p, ['w_step']].iat[0,0],
                 span=df_mr_at.loc[df_mr_at['p']==p, ['span']].iat[0,0])
 
+        # NOTE 実際値ではなく、理論値を出力する
+        latest_theoretical_p = calculate_probability(
+                p=p,
+                H=specified_points_configuration.b_time,
+                T=specified_points_configuration.w_time)
+
         # 文言の作成
         text = stringify_report_muzudho_recommends_points_at(
                 p=p,
-                best_round_count=best_round_count,
-                specified_points_configuration=points_configuration,    # TODO 任意のポイントを指定したい
+                latest_theoretical_p=latest_theoretical_p,
+                specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                 process=process)
         print(text) # 表示
 
@@ -67,16 +73,22 @@ def generate_when_frozen_turn():
         zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_round_count'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_round_count'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
 
         # ［かくきんシステムのｐの構成］。任意に指定します
-        points_configuration = PointsConfiguration(
+        specified_points_configuration = PointsConfiguration(
                 b_step=df_mr_ft.loc[df_mr_ft['p']==p, ['b_step']].iat[0,0],
                 w_step=df_mr_ft.loc[df_mr_ft['p']==p, ['w_step']].iat[0,0],
                 span=df_mr_ft.loc[df_mr_ft['p']==p, ['span']].iat[0,0])
 
+        # NOTE 実際値ではなく、理論値を出力する
+        latest_theoretical_p = calculate_probability(
+                p=p,
+                H=specified_points_configuration.b_time,
+                T=specified_points_configuration.w_time)
+
         # 文言の作成
         text = stringify_report_muzudho_recommends_points_ft(
                 p=p,
-                best_round_count=best_round_count,
-                specified_points_configuration=points_configuration,    # TODO 任意のポイントを指定したい
+                latest_theoretical_p=latest_theoretical_p,
+                specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                 process=process)
         print(text) # 表示
 

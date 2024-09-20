@@ -19,48 +19,84 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_muzudho_recommends_points_ft(p, best_round_count, specified_points_configuration, process):
+def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, specified_points_configuration, process):
     """［先後固定制］での、むずでょが推奨する［かくきんシステムのｐの構成］"""
 
     # ［表が出る確率（％）］
-    seg_1 = p*100
+    seg_1 = p * 100
 
-    # 試行回数
-    seg_2c = best_round_count
+    # ［調整後の表が出る確率（％）］    NOTE 実際値ではなく、理論値を出力する
+    seg_2 = latest_theoretical_p * 100
 
-    # ［計算過程］
-    process_list = process[1:-1].split('] [')
+    # 誤差（％）
+    seg_3 = (latest_theoretical_p - 0.5) * 100
 
-    # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
-    for process_element in process_list:
-        p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-        if p_error is not None:
-            if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
-                return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後固定制）    試行{seg_2c}回"
+    # ［黒勝ち１つの点数］
+    seg_4 = specified_points_configuration.b_step
 
-    return f"先手勝率 {seg_1:2.0f} ％ --調整後--> （該当なし）"
+    # ［白勝ち１つの点数］
+    seg_5 = specified_points_configuration.w_step
+
+    # ［目標の点数］
+    seg_6 = specified_points_configuration.span
+
+    # ［先後交互制］での［最短対局数］
+    seg_7 = specified_points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+
+    # ［先後交互制］での［最長対局数］
+    seg_8 = specified_points_configuration.let_number_of_longest_bout_when_alternating_turn()
+
+    return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）"
+
+    # NOTE 実際値を出すケース
+    #
+    # # ［表が出る確率（％）］
+    # seg_1 = p*100
+    #
+    # # 試行回数
+    # seg_2c = best_round_count
+    #
+    # # ［計算過程］
+    # process_list = process[1:-1].split('] [')
+    #
+    # # 指定した精度のもの。［黒勝ち１つの点数］、［白勝ち１つの点数］、［目標の点数］を指定。
+    # for process_element in process_list:
+    #     p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+    #     if p_error is not None:
+    #         if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
+    #             return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後固定制）    試行{seg_2c}回"
+    #
+    # return f"先手勝率 {seg_1:2.0f} ％ --調整後--> （該当なし）"
 
 
-def stringify_report_muzudho_recommends_points_at(p, best_round_count, specified_points_configuration, process):
+def stringify_report_muzudho_recommends_points_at(p, latest_theoretical_p, specified_points_configuration, process):
     """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］"""
 
     # ［表が出る確率（％）］
-    seg_1 = p*100
+    seg_1 = p * 100
 
-    # 試行回数
-    seg_2c = best_round_count
+    # ［調整後の表が出る確率（％）］    NOTE 実際値ではなく、理論値を出力する
+    seg_2 = latest_theoretical_p * 100
 
-    # ［計算過程］
-    process_list = process[1:-1].split('] [')
+    # 誤差（％）
+    seg_3 = (latest_theoretical_p - 0.5) * 100
 
-    # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
-    for process_element in process_list:
-        p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-        if p_error is not None:
-            if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
-                return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後交互制）    試行{seg_2c}回"
+    # ［黒勝ち１つの点数］
+    seg_4 = specified_points_configuration.b_step
 
-    return f"先手勝率 {seg_1:2.0f} ％ --調整後--> （該当なし）"
+    # ［白勝ち１つの点数］
+    seg_5 = specified_points_configuration.w_step
+
+    # ［目標の点数］
+    seg_6 = specified_points_configuration.span
+
+    # ［先後交互制］での［最短対局数］
+    seg_7 = specified_points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+
+    # ［先後交互制］での［最長対局数］
+    seg_8 = specified_points_configuration.let_number_of_longest_bout_when_alternating_turn()
+
+    return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）"
 
 
 # def stringify_when_report_evenizing_system(p, specified_p, specified_p_error, points_configuration):

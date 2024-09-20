@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from views import parse_process_element, stringify_report_muzudho_recommends_points_ft, stringify_report_muzudho_recommends_points_at
+from views import parse_process_element
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください

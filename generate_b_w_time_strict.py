@@ -57,17 +57,18 @@ if __name__ == '__main__':
 
                 for w_time in range (1, max_w_time+1):
 
-                    latest_p = calculate_probability(
+                    # 理論値
+                    latest_theoretical_p = calculate_probability(
                             p=p,
                             H=b_time,
                             T=w_time)
 
                     # 誤差
-                    latest_p_error = abs(latest_p - 0.5)
+                    latest_theoretical_p_error = abs(latest_theoretical_p - 0.5)
 
                     if latest_error < best_p_error:
-                        best_p_error = latest_p_error
-                        best_p = latest_p
+                        best_p_error = latest_theoretical_p_error
+                        best_p = latest_theoretical_p
                         best_b_time = b_time
                         best_w_time = w_time
 
