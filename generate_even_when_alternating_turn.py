@@ -40,7 +40,7 @@ LIMIT_SPAN = 1000
 #
 
 
-def update_dataframe(df, p, new_p, new_p_error, round_count, points_configuration, all_processes_text):
+def update_dataframe(df, p, new_p, new_p_error, round_count, points_configuration, process):
     """データフレーム更新"""
 
     # 表示
@@ -62,7 +62,7 @@ def update_dataframe(df, p, new_p, new_p_error, round_count, points_configuratio
     df.loc[df['p']==p, ['span']] = points_configuration.span
 
     # ［計算過程］列を更新
-    df.loc[df['p']==p, ['process']] = all_processes_text
+    df.loc[df['p']==p, ['process']] = process
 
     # CSV保存
     df.to_csv(CSV_FILE_PATH,
@@ -168,13 +168,15 @@ def iteration_deeping(df, limit_of_error):
         #   FIXME 合ってるか、あとで確認
         #
 
-        is_update = False
+        update_count = 0
 
-        is_automatic = best_new_p_error >= limit_of_error or round_count < REQUIRED_ROUND_COUNT
+        # 既存データの方が信用のおけるデータだった場合、スキップ
+        if REQUIRED_ROUND_COUNT < round_count:
+            is_automatic = False
 
         # アルゴリズムで求めるケース
-        if is_automatic:
-
+        else:
+            is_automatic = True
             is_cutoff = False
 
             #
@@ -200,7 +202,7 @@ def iteration_deeping(df, limit_of_error):
 
                         # FIXME Ａさんが勝った回数
                         alice_win_count = 0
-                        for i in range(0, round_count):
+                        for i in range(0, REQUIRED_ROUND_COUNT):
                             winner_player, bout_th = play_game_when_alternating_turn(
                                     p=p,
                                     points_configuration=points_configuration)
@@ -209,11 +211,11 @@ def iteration_deeping(df, limit_of_error):
                                 alice_win_count += 1
 
                         
-                        new_p = alice_win_count / round_count
+                        new_p = alice_win_count / REQUIRED_ROUND_COUNT
                         new_p_error = abs(new_p - 0.5)
 
                         if new_p_error < best_new_p_error:
-                            is_update = True
+                            update_count += 1
                             best_new_p = new_p
                             best_new_p_error = new_p_error
                             best_points_configuration = points_configuration
@@ -231,15 +233,15 @@ def iteration_deeping(df, limit_of_error):
                             #   途中の計算式。半角空白区切り
                             #
                             if isinstance(process, str):
-                                all_processes_text = f"{process} {one_process_text}"
+                                process = f"{process} {one_process_text}"
                             else:
-                                all_processes_text = one_process_text
+                                process = one_process_text
 
                             # 表示とデータフレーム更新
-                            update_dataframe(df, p, best_new_p, best_new_p_error, round_count, best_points_configuration, all_processes_text)
+                            update_dataframe(df, p, best_new_p, best_new_p_error, REQUIRED_ROUND_COUNT, best_points_configuration, process)
 
-                            # 十分な答えが出たので探索を打ち切ります
-                            if best_new_p_error < limit_of_error:
+                            # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
+                            if best_new_p_error < limit_of_error or 2 < update_count:
                                 is_cutoff = True
 
                                 # 進捗バー
@@ -259,16 +261,12 @@ def iteration_deeping(df, limit_of_error):
 
             print() # 改行
 
-        # 結果が設定されていれば、そのまま表示
-        else:
-            pass
-
 
         # 自動計算未完了
         if is_automatic and best_new_p_error == OUT_OF_ERROR:
             print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
 
-        elif not is_update:
+        elif update_count < 1:
             print(f"先手勝率：{p*100:2} ％  （更新なし）")
 
 
