@@ -148,16 +148,30 @@ if __name__ == '__main__':
 
 
         # 精度が高いデータを基にしている
-        for p, number_of_longest_bout, w_time in zip(df_ft['p'], df_ft['number_of_longest_bout'], df_ft['w_time']):
+        for            p,          number_of_longest_bout,          w_time in\
+            zip(df_ft['p'], df_ft['number_of_longest_bout'], df_ft['w_time']):
             # ［黒勝ちだけでの対局数］は計算で求めます
             b_time = number_of_longest_bout-(w_time-1)
 
-            perform_p(output_file_path=LOG_FILE_PATH, p, round_total, b_time, w_time, comment='精度を求めた元データ')
+            perform_p(
+                    output_file_path=LOG_FILE_PATH,
+                    p=p,
+                    round_total=round_total,
+                    b_time=b_time,
+                    w_time=w_time,
+                    comment='精度を求めた元データ')
 
 
         # 実用的なデータを基にしている
-        for p, b_time, w_time in zip(df_even['p'], df_even['b_time'], df_even['w_time']):
-            perform_p(output_file_path=LOG_FILE_PATH, p, round_total, b_time, w_time, comment='実用的な元データ')
+        for              p,            b_time,            w_time in\
+            zip(df_even['p'], df_even['b_time'], df_even['w_time']):
+            perform_p(
+                    output_file_path=LOG_FILE_PATH,
+                    p=p,
+                    round_total=round_total,
+                    b_time=b_time,
+                    w_time=w_time,
+                    comment='実用的な元データ')
 
 
     except Exception as err:

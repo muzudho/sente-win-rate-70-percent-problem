@@ -39,7 +39,8 @@ if __name__ == '__main__':
         #round_total = 200
 
         # 先手勝率, 先手の何本先取制, 後手の何本先取制
-        for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
+        for         p,       b_time,       w_time in\
+            zip(df['p'], df['b_time'], df['w_time']):
 
             # ［勝ち点ルール］の構成
             points_configuration = PointsConfiguration.let_points_from_repeat(
@@ -64,7 +65,13 @@ if __name__ == '__main__':
             # 均等からの誤差
             error = abs(alice_won_rate - 0.5)
 
-            text = stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, error, b_time, round_total)
+            text = stringify_log_when_simulation_coin_toss_when_alternating_turn(
+                    p=p,
+                    alice_won_rate=alice_won_rate,
+                    specified_p_error=error,
+                    b_time=b_time,
+                    round_total=round_total)
+
             print(text) # 表示
 
             # ログ出力

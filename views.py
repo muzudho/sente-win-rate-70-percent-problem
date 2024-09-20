@@ -7,25 +7,25 @@ from library import PointsConfiguration
 def parse_process_element(process_element):
     result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', process_element)
     if result:
-        new_p_error = float(result.group(1))
+        p_error = float(result.group(1))
         black = int(result.group(2))
         white = int(result.group(3))
         span = int(result.group(4))
         shortest = int(result.group(5))
         longest = int(result.group(6))
 
-        return new_p_error, black, white, span, shortest, longest
+        return p_error, black, white, span, shortest, longest
 
     return None, None, None, None, None, None
 
 
-def stringify_when_report_evenizing_system_ft(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+def stringify_when_report_evenizing_system_ft(p, best_p, best_p_error, best_round_count, specified_points_configuration, process):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # 試行回数
-    seg_2c = round_count
+    seg_2c = best_round_count
 
     text = f"先手勝率 {seg_1:2.0f} ％ 試行{seg_2c}回\n"
 
@@ -34,29 +34,29 @@ def stringify_when_report_evenizing_system_ft(p, new_p, new_p_error, round_count
 
     # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
     for process_element in process_list:
-        new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-        if new_p_error is not None:
+        p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+        if p_error is not None:
             if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
-                text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）\n"
+                text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）\n"
                 break
 
     # 高い精度のもの
     process_element = process_list[-1]
 
-    new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-    if new_p_error is not None:
-        text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
+    p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+    if p_error is not None:
+        text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
 
     return text
 
 
-def stringify_when_report_evenizing_system_at(p, new_p, new_p_error, round_count, specified_points_configuration, process):
+def stringify_when_report_evenizing_system_at(p, best_p, best_p_error, best_round_count, specified_points_configuration, process):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # 試行回数
-    seg_2c = round_count
+    seg_2c = best_round_count
 
     text = f"""先手勝率 {seg_1:2.0f} ％ 試行{seg_2c}回\n"""
 
@@ -65,61 +65,61 @@ def stringify_when_report_evenizing_system_at(p, new_p, new_p_error, round_count
 
     # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
     for process_element in process_list:
-        new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-        if new_p_error is not None:
+        p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+        if p_error is not None:
             if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
-                text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）\n"
+                text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）\n"
                 break
 
     # 高い精度のもの
     process_element = process_list[-1]
 
-    new_p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-    if new_p_error is not None:
-        text += f"         {new_p_error*100+50:7.4f} ％（{new_p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
+    p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+    if p_error is not None:
+        text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
 
     return text
 
 
-def stringify_when_report_evenizing_system(p, new_p, new_p_error, points_configuration):
-    """文言の作成"""
+# def stringify_when_report_evenizing_system(p, specified_p, specified_p_error, points_configuration):
+#     """文言の作成"""
 
-    # ［勝ち点ルール］の構成
-    points_configuration = PointsConfiguration.let_points_from_repeat(
-            b_time=b_time,
-            w_time=w_time)
+#     # ［勝ち点ルール］の構成
+#     points_configuration = PointsConfiguration.let_points_from_repeat(
+#             b_time=b_time,
+#             w_time=w_time)
 
-    # ［表が出る確率（％）］
-    seg_1 = p*100
+#     # ［表が出る確率（％）］
+#     seg_1 = p*100
 
-    # ［調整後の表が出る確率（％）］
-    seg_2 = new_p*100
+#     # ［調整後の表が出る確率（％）］
+#     seg_2 = specified_p*100
 
-    # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_2b = new_p_error*100
+#     # ［調整後の表が出る確率（％）と 0.5 との誤差］
+#     seg_2b = specified_p_error*100
 
-    # 対局数
-    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+#     # 対局数
+#     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
+#     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
+#     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+#     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
-    # ［白勝ち１つの点数］
-    seg_4a = points_configuration.b_step
+#     # ［白勝ち１つの点数］
+#     seg_4a = points_configuration.b_step
 
-    # ［黒勝ち１つの点数］
-    seg_4b = points_configuration.w_step
+#     # ［黒勝ち１つの点数］
+#     seg_4b = points_configuration.w_step
 
-    # ［目標の点数］
-    seg_4c = points_configuration.span
+#     # ［目標の点数］
+#     seg_4c = points_configuration.span
 
-    text = ""
-    #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点"
-    return text
+#     text = ""
+#     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
+#     text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点"
+#     return text
 
 
-def stringify_when_let_calculate_probability(p, b_time, w_time, new_p, new_p_error):
+def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_error):
     """文言の作成"""
 
     # ［タイムスタンプ］
@@ -129,7 +129,7 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, new_p, new_p_err
     seg_1 = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = new_p
+    seg_1b = best_p
 
     # ［黒勝ちだけでの対局数］
     seg_2 = b_time
@@ -140,20 +140,20 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, new_p, new_p_err
     # # 計算過程を追加する場合
     # text += f"  {''.join(process_list)}"
 
-    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {new_p_error:7.4f}）    先後固定制での回数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
+    text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {best_p_error:7.4f}）    先後固定制での回数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
     return text
 
 
-def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, points_configuration, process_list):
+def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_configuration, process_list):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = best_new_p*100
+    seg_1b = best_p*100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = best_new_p_error*100
+    seg_1c = best_p_error*100
 
     # 対局数
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
@@ -176,16 +176,16 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
     return text
 
 
-def print_when_generate_even_when_alternating_turn(p, new_p, new_p_error, round_count, points_configuration):
+def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best_round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = new_p * 100
+    seg_1b = best_p * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = new_p_error * 100
+    seg_1c = best_p_error * 100
 
     # 対局数
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
@@ -202,36 +202,36 @@ def print_when_generate_even_when_alternating_turn(p, new_p, new_p_error, round_
     # ［目標の点数］
     seg_4c = points_configuration.span
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def print_when_generate_when_frozen_turn(p, new_p, new_p_error, round_count, points_configuration):
+def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, specified_round_count, specified_points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = new_p * 100
+    seg_1b = specified_p * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = new_p_error * 100
+    seg_1c = specified_p_error * 100
 
     # 対局数
-    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    seg_3a = specified_points_configuration.let_number_of_shortest_bout_when_frozen_turn()
+    seg_3b = specified_points_configuration.let_number_of_longest_bout_when_frozen_turn()
+    seg_3c = specified_points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_3d = specified_points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     # ［黒勝ち１つの点数］
-    seg_4a = points_configuration.b_step
+    seg_4a = specified_points_configuration.b_step
 
     # ［黒勝ち１つの点数］
-    seg_4b = points_configuration.w_step
+    seg_4b = specified_points_configuration.w_step
 
     # ［目標の点数］
-    seg_4c = points_configuration.span
+    seg_4c = specified_points_configuration.span
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
 def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,
@@ -280,12 +280,12 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     #
 
     # ［先後固定制］で、黒の勝率
-    new_p_when_frozen_turn = black_wons / round_total
-    new_p_when_alternating_turn = alice_wons / round_total
+    specified_p_when_frozen_turn = black_wons / round_total
+    specified_p_when_alternating_turn = alice_wons / round_total
 
     # ［先後固定制］で、黒の勝率と、五分五分との誤差
-    new_p_error_when_frozen_turn = abs(new_p_when_frozen_turn - 0.5)
-    new_p_error_when_alternating_turn = abs(new_p_when_alternating_turn - 0.5)
+    specified_p_error_when_frozen_turn = abs(specified_p_when_frozen_turn - 0.5)
+    specified_p_error_when_alternating_turn = abs(specified_p_when_alternating_turn - 0.5)
 
     # ［タイムスタンプ］
     seg_0a = datetime.datetime.now()
@@ -294,12 +294,12 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_0b = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1_1a = new_p_when_frozen_turn*100
-    seg_2_1a = new_p_when_alternating_turn*100
+    seg_1_1a = specified_p_when_frozen_turn*100
+    seg_2_1a = specified_p_when_alternating_turn*100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1_1b = new_p_error_when_frozen_turn*100
-    seg_2_1b = new_p_error_when_alternating_turn*100
+    seg_1_1b = specified_p_error_when_frozen_turn*100
+    seg_2_1b = specified_p_error_when_alternating_turn*100
 
     # 対局数（理論値と実際値）
     seg_1_3a = expected_shortest_bout_th_when_frozen_turn
@@ -333,7 +333,7 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     #                                        --
 
 
-def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, new_p_error, b_time, round_total):
+def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, specified_p_error, b_time, round_total):
 
     # ［タイムスタンプ］
     seg_0 = datetime.datetime.now()
@@ -345,7 +345,7 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
     seg_2 = alice_won_rate*100
 
     # 誤差
-    seg_2b = new_p_error*100
+    seg_2b = specified_p_error*100
 
     # # ｎ本勝負
     # seg_3 = b_time

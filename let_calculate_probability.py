@@ -34,26 +34,32 @@ if __name__ == '__main__':
         # * `p` - 先手が勝つ確率
         # * `b_time` - ［黒勝ちだけでの対局数］
         # * `w_time` - ［白勝ちだけでの対局数］
-        # * `new_p` - 調整後の先手が勝つ確率
-        # * `new_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は 0.51
+        # * `best_p` - 調整後の先手が勝つ確率
+        # * `best_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は 0.51
         # * `comment` - この行データの説明
         # 
-        for p, b_time, w_time, new_p, new_p_error, comment in zip(df['p'], df['b_time'], df['w_time'], df['new_p'], df['new_p_error'], df['comment']):
+        for         p,       b_time,       w_time,       best_p,       best_p_error,       comment in\
+            zip(df['p'], df['b_time'], df['w_time'], df['best_p'], df['best_p_error'], df['comment']):
 
-            temp_new_p = calculate_probability(
+            temp_best_p = calculate_probability(
                     p=p,
                     H=b_time,
                     T=w_time)
 
             # 誤差
-            temp_new_p_error = temp_new_p - 0.5
+            temp_best_p_error = temp_best_p - 0.5
 
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 # 文言作成
                 # -------
 
-                text = stringify_when_let_calculate_probability(p, b_time, w_time, temp_new_p, temp_new_p_error)
+                text = stringify_when_let_calculate_probability(
+                        p=p,
+                        b_time=b_time,
+                        w_time=w_time,
+                        best_p=temp_best_p,
+                        best_p_error=temp_best_p_error)
 
                 print(text) # 表示
                 f.write(f"{text}\n")    # ファイルへ出力
