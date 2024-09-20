@@ -1,8 +1,8 @@
 #
-# レポート作成
-# python report_muzudho_recommends_points.py
+# 生成
+# python generate_muzudho_recommends_points_data.py
 #
-#   ［黒勝ち１つの点数］、［白勝ち１つの点数］、［目標の点数］をテキストにまとめる。
+#   TODO むずでょが推奨する［かくきんシステムのｐの構成］一覧の各種 CSV を生成する。
 #
 
 import traceback
@@ -38,6 +38,19 @@ def generate_when_alternating_turn():
 
     for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
         zip(df_at['p'], df_at['best_p'], df_at['best_p_error'], df_at['best_round_count'], df_at['best_b_step'], df_at['best_w_step'], df_at['best_span'], df_at['latest_p'], df_at['latest_p_error'], df_at['latest_round_count'], df_at['latest_b_step'], df_at['latest_w_step'], df_at['latest_span'], df_at['process']):
+
+        # ［計算過程］
+        process_list = process[1:-1].split('] [')
+
+        #   NOTE ［計算過程］リストの後ろの方のデータの方が精度が高い
+        #   NOTE ［最長対局数］を気にする。長すぎるものは採用しづらい
+        # 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+        for process_element in process_list:
+            p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+            if p_error is not None:
+                    if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
+                            return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後交互制）    試行{seg_2c}回"
+
 
         # ［かくきんシステムのｐの構成］。任意に指定します
         points_configuration = PointsConfiguration(
