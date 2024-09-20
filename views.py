@@ -3,22 +3,74 @@ import datetime
 from library import PointsConfiguration
 
 
-def stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_error, best_b_time, best_w_time):
+def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, points_configuration, process):
+    # ［表が出る確率（％）］
+    seg_1 = p*100
+
+    # ［調整後の表が出る確率（％）］
+    seg_2 = new_p*100
+
+    # ［調整後の表が出る確率（％）と 0.5 との誤差］
+    seg_2b = new_p_error*100
+
+    # 試行回数
+    seg_2c = round_count
+
+    # ［白勝ち１つの点数］
+    seg_4a = points_configuration.b_step
+
+    # ［黒勝ち１つの点数］
+    seg_4b = points_configuration.w_step
+
+    # ［目標の点数］
+    seg_4c = points_configuration.span
+
+    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}） 試行{seg_2c}回    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点
+FT={process}"""
+
+
+def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, points_configuration, process):
+    # ［表が出る確率（％）］
+    seg_1 = p*100
+
+    # ［調整後の表が出る確率（％）］
+    seg_2 = new_p*100
+
+    # ［調整後の表が出る確率（％）と 0.5 との誤差］
+    seg_2b = new_p_error*100
+
+    # 試行回数
+    seg_2c = round_count
+
+    # ［白勝ち１つの点数］
+    seg_4a = points_configuration.b_step
+
+    # ［黒勝ち１つの点数］
+    seg_4b = points_configuration.w_step
+
+    # ［目標の点数］
+    seg_4c = points_configuration.span
+
+    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}）試行{seg_2c}回    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点
+AT={process}"""
+
+
+def stringify_when_report_evenizer_system(p, new_p, new_p_error, points_configuration):
     """文言の作成"""
 
     # ［勝ち点ルール］の構成
     points_configuration = PointsConfiguration.let_points_from_repeat(
-            b_time=best_b_time,
-            w_time=best_w_time)
+            b_time=b_time,
+            w_time=w_time)
 
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_2 = best_new_p*100
+    seg_2 = new_p*100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_2b = best_new_p_error*100
+    seg_2b = new_p_error*100
 
     # 対局数
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
@@ -27,17 +79,17 @@ def stringify_when_generate_takahashi_satoshi_system(p, best_new_p, best_new_p_e
     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     # ［白勝ち１つの点数］
-    seg_4 = points_configuration.b_step
+    seg_4a = points_configuration.b_step
 
     # ［黒勝ち１つの点数］
-    seg_5 = points_configuration.w_step
+    seg_4b = points_configuration.w_step
 
     # ［目標の点数］
-    seg_6 = points_configuration.span
+    seg_4c = points_configuration.span
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4:2.0f}点、後手勝ち{seg_5:2.0f}点　目標{seg_6:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点"
     return text
 
 

@@ -16,8 +16,8 @@ from library import BLACK, WHITE, coin, play_game_when_frozen_turn, round_letro,
 from views import print_when_generate_when_frozen_turn
 
 
-LOG_FILE_PATH = 'output/generate_even_when_frozen_turn.log'
-CSV_FILE_PATH = './data/generate_even_when_frozen_turn.csv'
+LOG_FILE_PATH_FT = 'output/generate_even_when_frozen_turn.log'
+CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 # このラウンド数を満たさないデータは、再探索します
 REQUIRED_ROUND_COUNT = 2_000_000
@@ -57,7 +57,7 @@ def update_dataframe(df, p, new_p, new_p_error, round_count, process, points_con
     df.loc[df['p']==p, ['process']] = process
 
     # CSV保存
-    df.to_csv(CSV_FILE_PATH,
+    df.to_csv(CSV_FILE_PATH_FT,
             # ［計算過程］列は長くなるので末尾に置きたい
             columns=['p', 'new_p', 'new_p_error', 'round_count', 'b_step', 'w_step', 'span', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
@@ -188,19 +188,19 @@ if __name__ == '__main__':
 
     try:
 
-        df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
         #
         # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
         #
-        df['p'].astype('float')
-        df['new_p'].fillna(0.0).astype('float')
-        df['new_p_error'].fillna(0.0).astype('float')
-        df['round_count'].fillna(0).astype('int')
-        df['b_step'].fillna(0).astype('int')
-        df['w_step'].fillna(0).astype('int')
-        df['span'].fillna(0).astype('int')
-        df['process'].fillna('').astype('string')
-        print(df)
+        df_ft['p'].astype('float')
+        df_ft['new_p'].fillna(0.0).astype('float')
+        df_ft['new_p_error'].fillna(0.0).astype('float')
+        df_ft['round_count'].fillna(0).astype('int')
+        df_ft['b_step'].fillna(0).astype('int')
+        df_ft['w_step'].fillna(0).astype('int')
+        df_ft['span'].fillna(0).astype('int')
+        df_ft['process'].fillna('').astype('string')
+        print(df_ft)
 
 
         # 反復深化探索
@@ -218,7 +218,7 @@ if __name__ == '__main__':
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            worst_new_p_error = df['new_p_error'].max()
+            worst_new_p_error = df_ft['new_p_error'].max()
             print(f"{worst_new_p_error=}")
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
@@ -229,7 +229,7 @@ if __name__ == '__main__':
             # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
             limit_of_error = worst_new_p_error * 9 / 10
 
-            iteration_deeping(df, limit_of_error)
+            iteration_deeping(df_ft, limit_of_error)
 
 
     except Exception as err:

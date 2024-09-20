@@ -143,12 +143,6 @@ def play_game_when_frozen_turn(p, points_configuration):
         ［表が出る確率］ 例： ７割なら 0.7
     points_configuration : PointsConfiguration
         ［勝ち点ルール］の構成
-    b_step : int
-        ［黒勝ち１つの点数］
-    w_step : int
-        ［白勝ち１つの点数］
-    span : int
-        ［目標点］
     
     Returns
     -------
