@@ -39,25 +39,11 @@ if __name__ == '__main__':
 
     try:
         #df_p = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
-        df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
         df_at = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
+        df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
         #df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
 
-        # ft
-        for p, new_p, new_p_error, round_count, b_step, w_step, span, process in zip(df_ft['p'], df_ft['new_p'], df_ft['new_p_error'], df_ft['round_count'], df_ft['b_step'], df_ft['w_step'], df_ft['span'], df_ft['process']):
-            with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
-                # ［勝ち点ルール］の構成
-                points_configuration = PointsConfiguration(
-                        b_step=b_step,
-                        w_step=w_step,
-                        span=span)
-
-                # 文言の作成
-                text = stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, points_configuration, process)
-                print(text) # 表示
-                f.write(f"{text}\n")    # ログファイルへ出力
-
-        # at
+        # ［先後交互制］
         for p, new_p, new_p_error, round_count, b_step, w_step, span, process in zip(df_at['p'], df_at['new_p'], df_at['new_p_error'], df_at['round_count'], df_at['b_step'], df_at['w_step'], df_at['span'], df_at['process']):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
                 # ［勝ち点ルール］の構成
@@ -68,6 +54,20 @@ if __name__ == '__main__':
 
                 # 文言の作成
                 text = stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, points_configuration, process)
+                print(text) # 表示
+                f.write(f"{text}\n")    # ログファイルへ出力
+
+        # ［先後固定制］
+        for p, new_p, new_p_error, round_count, b_step, w_step, span, process in zip(df_ft['p'], df_ft['new_p'], df_ft['new_p_error'], df_ft['round_count'], df_ft['b_step'], df_ft['w_step'], df_ft['span'], df_ft['process']):
+            with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
+                # ［勝ち点ルール］の構成
+                points_configuration = PointsConfiguration(
+                        b_step=b_step,
+                        w_step=w_step,
+                        span=span)
+
+                # 文言の作成
+                text = stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count, points_configuration, process)
                 print(text) # 表示
                 f.write(f"{text}\n")    # ログファイルへ出力
 
