@@ -2,7 +2,7 @@
 
 先手勝率７０％問題を解決する方法を考えます  
 
-📖 [確率的イーブナイジング・システム](./docs/takahashi_satoshi_system.md)  
+📖 [かくきんシステム ～Probablistic Evenizing System～](./docs/takahashi_satoshi_system.md)  
 📖 [用語集](./docs/terms.md)  
 
 
