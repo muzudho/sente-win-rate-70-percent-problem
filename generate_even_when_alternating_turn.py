@@ -172,6 +172,7 @@ def iteration_deeping(df, abs_limit_of_error):
         #
 
         update_count = 0
+        passage_count = 0
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
@@ -242,11 +243,22 @@ def iteration_deeping(df, abs_limit_of_error):
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
                             if abs(best_new_p_error) < abs_limit_of_error or 2 < update_count:
-                                is_cutoff = True
-
                                 # 進捗バー
-                                print('cutoff', flush=True)
+                                print('cutoff (good)', flush=True)
+                                return
 
+                        else:
+                            passage_count += 1
+                            latest_new_p = new_p
+                            latest_new_p_error = new_p_error
+                            latest_points_configuration = points_configuration
+                            latest_process = process
+
+                            # 空振りが多いとき、探索を打ち切ります
+                            if 100 < passage_count:
+                                is_cutoff = True
+                                # 進捗バー
+                                print('cutoff (procrastinate)', flush=True)
                                 break
 
                     start_b_step = 1
@@ -272,6 +284,11 @@ def iteration_deeping(df, abs_limit_of_error):
 
         elif update_count < 1:
             print(f"先手勝率：{p*100:2} ％  （更新なし）")
+
+        # 空振りが１回でもあれば、途中状態を保存
+        if 0 < passage_count:
+            # 表示とデータフレーム更新
+            update_dataframe(df, p, latest_new_p, latest_new_p_error, REQUIRED_ROUND_COUNT, latest_process, latest_points_configuration)
 
 
 ########################################
