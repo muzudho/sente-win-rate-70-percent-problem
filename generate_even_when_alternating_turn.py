@@ -178,6 +178,8 @@ def iteration_deeping(df, abs_limit_of_error):
 
         update_count = 0
         passage_count = 0
+        is_cutoff = False
+        is_good = False
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
@@ -188,7 +190,6 @@ def iteration_deeping(df, abs_limit_of_error):
         else:
             print(f"[p={p}]", end='', flush=True)
             is_automatic = True
-            is_cutoff = False
 
             #
             # ［目標の点数］、［白勝ち１つの点数］、［黒勝ち１つの点数］を１つずつ進めていく探索です。
@@ -256,9 +257,11 @@ def iteration_deeping(df, abs_limit_of_error):
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
                             if abs(best_new_p_error) < abs_limit_of_error or 2 < update_count:
+                                is_good = True
+                                is_cutoff = True
                                 # 進捗バー
                                 print('cutoff (good)', flush=True)
-                                return
+                                break
 
                         else:
                             passage_count += 1
@@ -289,6 +292,9 @@ def iteration_deeping(df, abs_limit_of_error):
 
             print() # 改行
 
+
+        if is_good:
+            continue
 
         # 自動計算未完了
         if is_automatic and best_new_p_error == ABS_OUT_OF_ERROR:
