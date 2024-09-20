@@ -47,7 +47,12 @@ def update_dataframe(df, p, new_p, new_p_error, round_count, points_configuratio
     """データフレーム更新"""
 
     # 表示
-    print_when_generate_even_when_alternating_turn(p, new_p, new_p_error, round_count, points_configuration)
+    print_when_generate_even_when_alternating_turn(
+            p=p,
+            new_p=new_p,
+            new_p_error=new_p_error,
+            round_count=round_count,
+            points_configuration=points_configuration)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['new_p']] = new_p
@@ -239,7 +244,14 @@ def iteration_deeping(df, abs_limit_of_error):
                                 process = one_process_text
 
                             # 表示とデータフレーム更新
-                            update_dataframe(df, p, best_new_p, best_new_p_error, REQUIRED_ROUND_COUNT, best_points_configuration, process)
+                            update_dataframe(
+                                    df=df,
+                                    p=p,
+                                    new_p=best_new_p,
+                                    new_p_error=best_new_p_error,
+                                    round_count=REQUIRED_ROUND_COUNT,
+                                    points_configuration=best_points_configuration,
+                                    process=process)
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
                             if abs(best_new_p_error) < abs_limit_of_error or 2 < update_count:
@@ -288,7 +300,14 @@ def iteration_deeping(df, abs_limit_of_error):
         # 空振りが１回でもあれば、途中状態を保存
         if 0 < passage_count:
             # 表示とデータフレーム更新
-            update_dataframe(df, p, latest_new_p, latest_new_p_error, REQUIRED_ROUND_COUNT, latest_process, latest_points_configuration)
+            update_dataframe(
+                    df=df,
+                    p=p,
+                    new_p=latest_new_p,
+                    new_p_error=latest_new_p_error,
+                    round_count=REQUIRED_ROUND_COUNT,
+                    points_configuration=latest_points_configuration,
+                    process=latest_process)
 
 
 ########################################

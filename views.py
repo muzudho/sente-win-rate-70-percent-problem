@@ -155,16 +155,16 @@ def stringify_when_generate_b_w_time_strict(p, best_new_p, best_new_p_error, poi
     return text
 
 
-def print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_error, round_count, points_configuration):
+def print_when_generate_even_when_alternating_turn(p, new_p, new_p_error, round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = best_new_p * 100
+    seg_1b = new_p * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = best_new_p_error * 100
+    seg_1c = new_p_error * 100
 
     # 対局数
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
@@ -184,16 +184,16 @@ def print_when_generate_even_when_alternating_turn(p, best_new_p, best_new_p_err
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def print_when_generate_when_frozen_turn(p, best_new_p, best_new_p_error, round_count, points_configuration):
+def print_when_generate_when_frozen_turn(p, new_p, new_p_error, round_count, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
 
     # ［調整後の表が出る確率（％）］
-    seg_1b = best_new_p * 100
+    seg_1b = new_p * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = best_new_p_error * 100
+    seg_1c = new_p_error * 100
 
     # 対局数
     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
