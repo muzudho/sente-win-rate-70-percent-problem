@@ -38,7 +38,7 @@ def stringify_report_muzudho_recommends_points_ft(p, best_round_count, specified
             if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
                 return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後固定制）    試行{seg_2c}回"
 
-    return ""
+    return f"先手勝率 {seg_1:2.0f} ％ --調整後--> （該当なし）"
 
 
 def stringify_report_muzudho_recommends_points_at(p, best_round_count, specified_points_configuration, process):
@@ -60,7 +60,7 @@ def stringify_report_muzudho_recommends_points_at(p, best_round_count, specified
             if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
                 return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後交互制）    試行{seg_2c}回"
 
-    return ""
+    return f"先手勝率 {seg_1:2.0f} ％ --調整後--> （該当なし）"
 
 
 # def stringify_when_report_evenizing_system(p, specified_p, specified_p_error, points_configuration):
