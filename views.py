@@ -25,8 +25,11 @@ def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count,
     # ［目標の点数］
     seg_4c = points_configuration.span
 
-    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}） 試行{seg_2c}回    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点
-FT={process}"""
+    # ［計算過程］
+    process_list = process[1:-1].split('] [')
+    high_accuracy = process_list[-1]
+
+    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}） 試行{seg_2c}回    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    FT={high_accuracy}"""
 
 
 def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count, points_configuration, process):
@@ -51,8 +54,11 @@ def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count,
     # ［目標の点数］
     seg_4c = points_configuration.span
 
-    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}）試行{seg_2c}回    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点
-AT={process}"""
+    # ［計算過程］
+    process_list = process[1:-1].split('] [')
+    high_accuracy = process_list[-1]
+
+    return f"""先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％（± {seg_2b:>7.4f}）試行{seg_2c}回    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    AT={high_accuracy}"""
 
 
 def stringify_when_report_evenizer_system(p, new_p, new_p_error, points_configuration):
