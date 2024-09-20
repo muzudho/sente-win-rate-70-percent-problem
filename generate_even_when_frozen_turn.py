@@ -2,6 +2,8 @@
 # 生成
 # python generate_even_when_frozen_turn.py
 #
+#   TODO 実際値ではなく、理論値を記録したい
+#
 #   引き分けは考慮していない。
 #   手番を交代しない方式。
 #   先後固定制での、［黒勝ちだけでの対局数］と、［白勝ちだけでの対局数］を探索する。
@@ -130,19 +132,30 @@ def iteration_deeping(df, abs_limit_of_error):
                                 w_step=cur_w_step,
                                 span=cur_span)
 
-                        # 先手が勝った回数
-                        black_win_count = 0
-                        for i in range(0, REQUIRED_ROUND_COUNT):
-                            winner_color, bout_th = play_game_when_frozen_turn(
-                                    p=p,
-                                    points_configuration=latest_points_configuration)
-                            
-                            if winner_color == BLACK:
-                                black_win_count += 1
 
+                        # NOTE 理論値の場合
+                        latest_theoretical_p = calculate_probability(
+                                p=p,
+                                H=latest_points_configuration.b_time,
+                                T=latest_points_configuration.w_time)
+                        latest_theoretical_p_error = latest_theoretical_p - 0.5
+
+
+                        # # NOTE 実際値の場合
+                        # #
+                        # # 先手が勝った回数
+                        # black_win_count = 0
+                        # for i in range(0, REQUIRED_ROUND_COUNT):
+                        #     winner_color, bout_th = play_game_when_frozen_turn(
+                        #             p=p,
+                        #             points_configuration=latest_points_configuration)
+                            
+                        #     if winner_color == BLACK:
+                        #         black_win_count += 1
                     
-                        latest_p = black_win_count / REQUIRED_ROUND_COUNT
-                        latest_p_error = latest_p - 0.5
+                        # latest_p = black_win_count / REQUIRED_ROUND_COUNT
+                        # latest_p_error = latest_p - 0.5
+
 
                         if abs(latest_p_error) < abs(best_p_error):
                             update_count += 1

@@ -45,7 +45,7 @@ def generate_when_alternating_turn():
                 w_step=df_mr_at.loc[df_mr_at['p']==p, ['w_step']].iat[0,0],
                 span=df_mr_at.loc[df_mr_at['p']==p, ['span']].iat[0,0])
 
-        # NOTE 実際値ではなく、理論値を出力する
+        # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
         latest_theoretical_p = calculate_probability(
                 p=p,
                 H=specified_points_configuration.b_time,
@@ -54,6 +54,7 @@ def generate_when_alternating_turn():
         # 文言の作成
         text = stringify_report_muzudho_recommends_points_at(
                 p=p,
+                best_round_count=best_round_count,
                 latest_theoretical_p=latest_theoretical_p,
                 specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                 process=process)

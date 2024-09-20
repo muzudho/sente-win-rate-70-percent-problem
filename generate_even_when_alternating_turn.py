@@ -224,8 +224,12 @@ def iteration_deeping(df, abs_limit_of_error):
                                 w_step=cur_w_step,
                                 span=cur_span)
 
+                        # FIXME ［先後交互制］での、理論値の求め方が分からん
 
-                        # FIXME Ａさんが勝った回数
+                        # Ａさんが勝った回数
+                        #
+                        #   NOTE 実際値の場合
+                        #
                         alice_win_count = 0
                         for i in range(0, REQUIRED_ROUND_COUNT):
                             winner_player, bout_th = play_game_when_alternating_turn(
@@ -234,10 +238,10 @@ def iteration_deeping(df, abs_limit_of_error):
                             
                             if winner_player == ALICE:
                                 alice_win_count += 1
-
                         
                         latest_p = alice_win_count / REQUIRED_ROUND_COUNT
                         latest_p_error = latest_p - 0.5
+
 
                         if abs(latest_p_error) < abs(best_p_error):
                             update_count += 1
