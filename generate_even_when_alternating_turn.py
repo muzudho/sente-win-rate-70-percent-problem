@@ -31,6 +31,9 @@ REQUIRED_ROUND_COUNT = 2_000_000
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 OUT_OF_ERROR = 0.51
 
+# 十分小さいエラー
+SMALL_ERROR = 0.00009
+
 # 探索の上限
 LIMIT_SPAN = 1001
 
@@ -171,7 +174,8 @@ def iteration_deeping(df, limit_of_error):
         update_count = 0
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
-        if REQUIRED_ROUND_COUNT < round_count:
+        # エラーが十分小さければスキップ
+        if REQUIRED_ROUND_COUNT < round_count or best_new_p_error <= SMALL_ERROR:
             is_automatic = False
 
         # アルゴリズムで求めるケース
@@ -305,7 +309,7 @@ if __name__ == '__main__':
         #
         limit_of_error = OUT_OF_ERROR
 
-        while 0.00009 < limit_of_error:
+        while SMALL_ERROR < limit_of_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
