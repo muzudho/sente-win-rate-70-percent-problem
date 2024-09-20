@@ -19,15 +19,14 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_when_report_evenizing_system_ft(p, best_p, best_p_error, best_round_count, specified_points_configuration, process):
+def stringify_report_muzudho_recommends_points_ft(p, best_round_count, specified_points_configuration, process):
+    """［先後固定制］での、むずでょが推奨する［かくきんシステムのｐの構成］"""
 
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # 試行回数
     seg_2c = best_round_count
-
-    text = f"先手勝率 {seg_1:2.0f} ％ 試行{seg_2c}回\n"
 
     # ［計算過程］
     process_list = process[1:-1].split('] [')
@@ -37,28 +36,19 @@ def stringify_when_report_evenizing_system_ft(p, best_p, best_p_error, best_roun
         p_error, black, white, span, shortest, longest = parse_process_element(process_element)
         if p_error is not None:
             if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
-                text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）\n"
-                break
+                return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後固定制）    試行{seg_2c}回"
 
-    # 高い精度のもの
-    process_element = process_list[-1]
-
-    p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-    if p_error is not None:
-        text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後固定制）"
-
-    return text
+    return ""
 
 
-def stringify_when_report_evenizing_system_at(p, best_p, best_p_error, best_round_count, specified_points_configuration, process):
+def stringify_report_muzudho_recommends_points_at(p, best_round_count, specified_points_configuration, process):
+    """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］"""
 
     # ［表が出る確率（％）］
     seg_1 = p*100
 
     # 試行回数
     seg_2c = best_round_count
-
-    text = f"""先手勝率 {seg_1:2.0f} ％ 試行{seg_2c}回\n"""
 
     # ［計算過程］
     process_list = process[1:-1].split('] [')
@@ -68,23 +58,15 @@ def stringify_when_report_evenizing_system_at(p, best_p, best_p_error, best_roun
         p_error, black, white, span, shortest, longest = parse_process_element(process_element)
         if p_error is not None:
             if black == specified_points_configuration.b_step and white == specified_points_configuration.w_step and span == specified_points_configuration.span:
-                text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）\n"
-                break
+                return f"先手勝率 {seg_1:2.0f} ％ --調整後--> {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）   先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点    {shortest:>3}～{longest:>3}局（先後交互制）    試行{seg_2c}回"
 
-    # 高い精度のもの
-    process_element = process_list[-1]
-
-    p_error, black, white, span, shortest, longest = parse_process_element(process_element)
-    if p_error is not None:
-        text += f"         {p_error*100+50:7.4f} ％（{p_error*100:+8.4f}）先手勝ち{black:>3}点、後手勝ち{white:>3}点、目標{span:>3}点 {shortest:>3}～{longest:>3}局（先後交互制）"
-
-    return text
+    return ""
 
 
 # def stringify_when_report_evenizing_system(p, specified_p, specified_p_error, points_configuration):
 #     """文言の作成"""
 
-#     # ［勝ち点ルール］の構成
+#     # ［かくきんシステムのｐの構成］
 #     points_configuration = PointsConfiguration.let_points_from_repeat(
 #             b_time=b_time,
 #             w_time=w_time)
@@ -269,7 +251,7 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     actual_longest_bout_th_when_alternating_turn : int
 
     points_configuration : PointsConfiguration
-        ［勝ち点ルール］の構成
+        ［かくきんシステムのｐの構成］
     comment : str
         コメント
     """

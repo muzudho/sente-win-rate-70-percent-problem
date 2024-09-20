@@ -187,7 +187,7 @@ def iteration_deeping(df, abs_limit_of_error):
         #   FIXME 合ってるか、あとで確認
         #
 
-        # ［勝ち点ルール］の構成
+        # ［かくきんシステムのｐの構成］
         best_points_configuration = PointsConfiguration(
                 b_step=best_b_step,
                 w_step=best_w_step,
@@ -218,7 +218,7 @@ def iteration_deeping(df, abs_limit_of_error):
             for cur_span in range(latest_span, LIMIT_SPAN):
                 for cur_w_step in range(start_w_step, cur_span + 1):
                     for cur_b_step in range(start_b_step, cur_w_step + 1):
-                        # ［勝ち点ルール］の構成
+                        # ［かくきんシステムのｐの構成］
                         latest_points_configuration = PointsConfiguration(
                                 b_step=cur_b_step,
                                 w_step=cur_w_step,

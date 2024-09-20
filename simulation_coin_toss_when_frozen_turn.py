@@ -24,7 +24,7 @@ CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
 
-    # ［勝ち点ルール］の構成
+    # ［かくきんシステムのｐの構成］
     points_configuration = PointsConfiguration.let_points_from_repeat(
             b_time=b_time,
             w_time=w_time)
@@ -103,7 +103,7 @@ def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
             actual_shortest_bout_th_when_alternating_turn=actual_shortest_bout_th_when_alternating_turn,
             expected_longest_bout_th_when_alternating_turn=expected_longest_bout_th_when_alternating_turn,
             actual_longest_bout_th_when_alternating_turn=actual_longest_bout_th_when_alternating_turn,
-            # ［勝ち点ルール］の構成
+            # ［かくきんシステムのｐの構成］
             points_configuration=points_configuration,
             # コメント
             comment=comment)

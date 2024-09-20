@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
-                # ［勝ち点ルール］の構成
+                # ［かくきんシステムのｐの構成］
                 points_configuration = PointsConfiguration.let_points_from_repeat(
                     b_time=best_b_time,
                     w_time=best_w_time)

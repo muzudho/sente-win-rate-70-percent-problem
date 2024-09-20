@@ -92,7 +92,7 @@ def iteration_deeping(df, abs_limit_of_error):
     for         p,       best_p,       best_p_error,       best_round_count,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_round_count,       latest_b_step,       latest_w_step,       latest_span,       process in \
         zip(df['p'], df['best_p'], df['best_p_error'], df['best_round_count'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_round_count'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
 
-        # ［勝ち点ルール］の構成
+        # ［かくきんシステムのｐの構成］
         best_points_configuration = PointsConfiguration(
                 b_step=best_b_step,
                 w_step=best_w_step,
@@ -124,7 +124,7 @@ def iteration_deeping(df, abs_limit_of_error):
                 for cur_w_step in range(start_w_step, cur_span + 1):
                     for cur_b_step in range(start_b_step, cur_w_step + 1):
 
-                        # ［勝ち点ルール］の構成
+                        # ［かくきんシステムのｐの構成］
                         latest_points_configuration = PointsConfiguration(
                                 b_step=cur_b_step,
                                 w_step=cur_w_step,

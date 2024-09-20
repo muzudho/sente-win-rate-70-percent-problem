@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from views import stringify_when_report_evenizing_system_ft, stringify_when_report_evenizing_system_at
+from views import stringify_report_muzudho_recommends_points_ft, stringify_report_muzudho_recommends_points_at
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -48,17 +48,15 @@ if __name__ == '__main__':
             zip(df_at['p'], df_at['best_p'], df_at['best_p_error'], df_at['best_round_count'], df_at['best_b_step'], df_at['best_w_step'], df_at['best_span'], df_at['latest_p'], df_at['latest_p_error'], df_at['latest_round_count'], df_at['latest_b_step'], df_at['latest_w_step'], df_at['latest_span'], df_at['process']):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
 
-                # ［勝ち点ルール］の構成。任意に指定します
+                # ［かくきんシステムのｐの構成］。任意に指定します
                 points_configuration = PointsConfiguration(
                         b_step=df_mr_at.loc[df_mr_at['p']==p, ['b_step']].iat[0,0],
                         w_step=df_mr_at.loc[df_mr_at['p']==p, ['w_step']].iat[0,0],
                         span=df_mr_at.loc[df_mr_at['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
-                text = stringify_when_report_evenizing_system_at(
+                text = stringify_report_muzudho_recommends_points_at(
                         p=p,
-                        best_p=best_p,
-                        best_p_error=best_p_error,
                         best_round_count=best_round_count,
                         specified_points_configuration=points_configuration,    # TODO 任意のポイントを指定したい
                         process=process)
@@ -70,17 +68,15 @@ if __name__ == '__main__':
             zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_round_count'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_round_count'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
 
-                # ［勝ち点ルール］の構成。任意に指定します
+                # ［かくきんシステムのｐの構成］。任意に指定します
                 points_configuration = PointsConfiguration(
                         b_step=df_mr_ft.loc[df_mr_ft['p']==p, ['b_step']].iat[0,0],
                         w_step=df_mr_ft.loc[df_mr_ft['p']==p, ['w_step']].iat[0,0],
                         span=df_mr_ft.loc[df_mr_ft['p']==p, ['span']].iat[0,0])
 
                 # 文言の作成
-                text = stringify_when_report_evenizing_system_ft(
+                text = stringify_report_muzudho_recommends_points_ft(
                         p=p,
-                        best_p=best_p,
-                        best_p_error=best_p_error,
                         best_round_count=best_round_count,
                         specified_points_configuration=points_configuration,    # TODO 任意のポイントを指定したい
                         process=process)

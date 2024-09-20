@@ -142,7 +142,7 @@ def play_game_when_frozen_turn(p, points_configuration):
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
     points_configuration : PointsConfiguration
-        ［勝ち点ルール］の構成
+        ［かくきんシステムのｐの構成］
     
     Returns
     -------
@@ -183,7 +183,7 @@ def play_game_when_alternating_turn(p, points_configuration):
     p : float
         ［表が出る確率］（先手勝率）
     points_configuration : PointsConfiguration
-        ［勝ち点ルール］の構成
+        ［かくきんシステムのｐの構成］
     
     Returns
     -------
@@ -289,7 +289,7 @@ def calculate_probability(p, H, T):
 
 
 class PointsConfiguration():
-    """［勝ち点ルール］の構成"""
+    """［かくきんシステムのｐの構成］"""
 
 
     def __init__(self, b_step, w_step, span):
@@ -365,7 +365,7 @@ class PointsConfiguration():
 
     @staticmethod
     def let_points_from_repeat(b_time, w_time):
-        """［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［勝ち点ルール］を分析して返す
+        """［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
