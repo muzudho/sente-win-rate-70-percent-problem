@@ -13,6 +13,10 @@ def stringify_when_report_evenizer_system_ft(p, new_p, new_p_error, round_count,
 
     # ［計算過程］
     process_list = process[1:-1].split('] [')
+
+    # TODO 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+
+    # 高い精度のもの
     high_accuracy = process_list[-1]
 
     result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', high_accuracy)
@@ -41,6 +45,10 @@ def stringify_when_report_evenizer_system_at(p, new_p, new_p_error, round_count,
 
     # ［計算過程］
     process_list = process[1:-1].split('] [')
+
+    # TODO 指定した精度のもの。［先手勝ち１つの点数］、［後手勝ち１つの点数］、［目標の点数］を指定。
+
+    # 高い精度のもの
     high_accuracy = process_list[-1]
 
     result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', high_accuracy)
