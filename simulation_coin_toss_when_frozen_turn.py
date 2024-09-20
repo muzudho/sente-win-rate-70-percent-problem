@@ -18,8 +18,8 @@ from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_frozen_turn.log'
-CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
-CSV_FILE_PATH_EVEN = './data/generate_even_when_frozen_turn.csv'
+CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
+CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 
 def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
@@ -139,8 +139,8 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
         df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
-        df_tss = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
 
         # 精度が高いデータを基にしている
-        for p, number_of_longest_bout, w_time in zip(df_even['p'], df_even['number_of_longest_bout'], df_even['w_time']):
+        for p, number_of_longest_bout, w_time in zip(df_ft['p'], df_ft['number_of_longest_bout'], df_ft['w_time']):
             # ［黒勝ちだけでの対局数］は計算で求めます
             b_time = number_of_longest_bout-(w_time-1)
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
 
         # 実用的なデータを基にしている
-        for p, b_time, w_time in zip(df_tss['p'], df_tss['b_time'], df_tss['w_time']):
+        for p, b_time, w_time in zip(df_even['p'], df_even['b_time'], df_even['w_time']):
             perform_p(output_file_path=LOG_FILE_PATH, p, round_total, b_time, w_time, comment='実用的な元データ')
 
 

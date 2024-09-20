@@ -20,7 +20,7 @@ from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'
-CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
+CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
 
 
 ########################################
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
+        df = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース

@@ -14,16 +14,16 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv("./data/takahashi_satoshi_system.csv", encoding="utf8")
+        df_even = pd.read_csv("./data/report_evenizer_system.csv", encoding="utf8")
 
-        print(df)
+        print(df_even)
 
 
-        for column_name in df:
+        for column_name in df_even:
             print(f"{column_name=}")
 
 
-        for p, b_time, w_time in zip(df['p'], df['b_time'], df['w_time']):
+        for p, b_time, w_time in zip(df_even['p'], df_even['b_time'], df_even['w_time']):
             print(f"{p=}  {b_time=}  {w_time}")
 
 

@@ -1,6 +1,6 @@
 #
 # 探索
-# python generate_takahashi_satoshi_system.py
+# python report_evenizer_system.py
 #
 #   ［イブナイザー・システム］ジェネレーター。
 #   実用的な、先後固定制での［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を求める。
@@ -16,9 +16,9 @@ from library import round_letro, calculate_probability, PointsConfiguration
 from views import stringify_when_generate_takahashi_satoshi_system
 
 
-LOG_FILE_PATH = 'output/generate_takahashi_satoshi_system.log'
+LOG_FILE_PATH = 'output/report_evenizer_system.log'
 CSV_FILE_PATH_P = "./data/p.csv"
-CSV_FILE_PATH_TSS = './data/takahashi_satoshi_system.csv'
+CSV_FILE_PATH_EVEN = './data/report_evenizer_system.csv'
 
 
 OUT_OF_ERROR = 0.51
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     try:
         df = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
-        df_tss = pd.read_csv(CSV_FILE_PATH_TSS, encoding="utf8")
+        df_even = pd.read_csv(CSV_FILE_PATH_EVEN, encoding="utf8")
 
         # 先手勝率
         for p in df['p']:
@@ -234,16 +234,16 @@ if __name__ == '__main__':
             # -----------------
 
             # ［黒勝ちだけでの対局数（先後固定制）］列を更新
-            df_tss['b_time'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df_tss.loc[df['p']==p, ['b_time']] = best_b_time
+            df_even['b_time'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df_even.loc[df['p']==p, ['b_time']] = best_b_time
 
             # ［白勝ちだけでの対局数（先後固定制）］列を更新
-            df_tss['w_time'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
-            df_tss.loc[df['p']==p, ['w_time']] = best_w_time
+            df_even['w_time'].astype('int')   # NOTE 初期値が float なので、 int 型へ変更
+            df_even.loc[df['p']==p, ['w_time']] = best_w_time
 
 
         # CSV保存
-        df_tss.to_csv(CSV_FILE_PATH_TSS,
+        df_even.to_csv(CSV_FILE_PATH_EVEN,
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
