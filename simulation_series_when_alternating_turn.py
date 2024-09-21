@@ -51,11 +51,11 @@ def simulate(p, number_of_series, points_configuration):
         f.write(f"{text}\n")    # ファイルへ出力
 
     # # 表示とログ出力を終えた後でテスト
-    # if simulation_result.shortest_time_th < expected_shortest_time_th_when_alternating_turn:
-    #     raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {expected_shortest_time_th_when_alternating_turn} を下回った")
+    # if simulation_result_at.shortest_time_th < expected_shortest_time_th_when_alternating_turn:
+    #     raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {simulation_result_at.shortest_time_th} が理論値 {expected_shortest_time_th_when_alternating_turn} を下回った")
 
-    # if expected_longest_time_th_when_alternating_turn < simulation_result.longest_time_th:
-    #     raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {expected_longest_time_th_when_alternating_turn} を上回った")
+    # if expected_longest_time_th_when_alternating_turn < simulation_result_at.longest_time_th:
+    #     raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {simulation_result_at.longest_time_th} が理論値 {expected_longest_time_th_when_alternating_turn} を上回った")
 
 
 ########################################

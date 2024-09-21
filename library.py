@@ -746,20 +746,20 @@ class SeriesResultWhenFrozenTurn(BaseSeriesResult):
 
     @property
     def is_black_points_won(self):
-        """黒が［目標の点数］の過半数の［勝ち点］を集めており、さらに白の［勝ち点］より多くて黒の勝ち"""
+        """黒の［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらに白の［勝ち点］より多くて黒の勝ち"""
         if self._is_black_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_black_points_won = half < self._point_list[BLACK] and self._point_list[WHITE] < self._point_list[BLACK]
+            self._is_black_points_won = half < self._point_list[BLACK] and self._point_list[BLACK] < self._span and self._point_list[WHITE] < self._point_list[BLACK]
 
         return self._is_black_points_won
 
 
     @property
     def is_white_points_won(self):
-        """白が［目標の点数］の過半数の［勝ち点］を集めており、さらに黒の［勝ち点］より多くて白の勝ち"""
+        """白の［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらに黒の［勝ち点］より多くて白の勝ち"""
         if self._is_white_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_white_points_won = half < self._point_list[WHITE] and self._point_list[BLACK] < self._point_list[WHITE]
+            self._is_white_points_won = half < self._point_list[WHITE] and self._point_list[WHITE] < self._span and self._point_list[BLACK] < self._point_list[WHITE]
 
         return self._is_white_points_won
 
@@ -825,20 +825,20 @@ class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
 
     @property
     def is_alice_points_won(self):
-        """Ａさんが［目標の点数］の過半数の［勝ち点］を集めており、さらにＢさんの［勝ち点］より多くてＡさんの勝ち"""
+        """Ａさんの［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらにＢさんの［勝ち点］より多くてＡさんの勝ち"""
         if self._is_alice_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_alice_points_won = half < self._point_list[ALICE] and self._point_list[BOB] < self._point_list[ALICE]
+            self._is_alice_points_won = half < self._point_list[ALICE] and self._point_list[ALICE] < self._span and self._point_list[BOB] < self._point_list[ALICE]
 
         return self._is_alice_points_won
 
 
     @property
     def is_bob_points_won(self):
-        """Ｂさんが［目標の点数］の過半数の［勝ち点］を集めており、さらにＡさんの［勝ち点］より多くてＢさんの勝ち"""
+        """Ｂさんの［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらにＡさんの［勝ち点］より多くてＢさんの勝ち"""
         if self._is_bob_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_bob_points_won = half < self._point_list[BOB] and self._point_list[ALICE] < self._point_list[BOB]
+            self._is_bob_points_won = half < self._point_list[BOB] and self._point_list[BOB] < self._span and self._point_list[ALICE] < self._point_list[BOB]
 
         return self._is_bob_points_won
 

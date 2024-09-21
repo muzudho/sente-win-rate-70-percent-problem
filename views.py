@@ -302,7 +302,7 @@ def stringify_log_when_simulation_series_when_alternating_turn(p, points_configu
     return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --調整--> {seg_2:8.4f} ％（± {seg_2b:7.4f}）（先後交互制でＡさんが勝った確率）  コイントス{seg_4:7}回試行"
 
 
-def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, points_configuration, comment, simulation_result):
+def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, points_configuration, simulation_result_ft, comment):
     """［先後固定制］で［引き分けを１局として数えないケース］での［シリーズ］での結果の文言を作成
     
     Parameters
@@ -315,54 +315,52 @@ def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, p
         ［かくきんシステムのｐの構成］
     comment : str
         コメント
-    simulation_result : SimulationResultWhenFrozenTurn
+    simulation_result_ft : SimulationResultWhenFrozenTurn
         シミュレーションの結果
     """
 
-    # 黒の勝率
-    trial_p = simulation_result.trial_p_error_without_draw
-
-    # 黒の勝率と、五分五分との誤差
-    trial_p_error = simulation_result.trial_p_error_without_draw
-
     # ［タイムスタンプ］
-    seg_0a = datetime.datetime.now()
+    time1 = datetime.datetime.now()
 
-    # ［表が出る確率（％）］
-    seg_0b = p * 100
+    # 先手勝率
+    # --------
+    w1 = p * 100    # ［表が出る確率（％）］    
+    w2 = simulation_result_ft.trial_p_without_draw * 100  # ［調整後の表が出る確率（％）］
+    w2e = simulation_result_ft.trial_p_error_without_draw * 100    # ［調整後の表が出る確率（％）と 0.5 との誤差］
 
-    # ［調整後の表が出る確率（％）］
-    seg_1_1a = trial_p * 100
-
-    # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1_1b = trial_p_error * 100
-
-    # 対局数（理論値と実際値）
-    seg_1_3a = points_configuration.count_shortest_time_when_frozen_turn()
-    seg_1_3b = points_configuration.count_longest_time_when_frozen_turn()
-    seg_2_3a = simulation_result.shortest_time_th
-    seg_2_3b = simulation_result.longest_time_th
-
-
-    # ［黒勝ち１つの点数］
-    seg_4a = points_configuration.b_step
-
-    # ［黒勝ち１つの点数］
-    seg_4b = points_configuration.w_step
-
-    # ［目標の点数］
-    seg_4c = points_configuration.span
+    # 対局数
+    # ------
+    tm10 = points_configuration.count_shortest_time_when_frozen_turn()  # ［最短対局数］理論値
+    tm11 = points_configuration.count_longest_time_when_frozen_turn()   # ［最長対局数］
+    tm20 = simulation_result_ft.shortest_time_th    # ［最短対局数］実践値
+    tm21 = simulation_result_ft.longest_time_th     # ［最長対局数］
 
     # コメント
-    seg_5 = comment
+    cm1 = comment
+
+    # シリーズ数
+    # ---------
+    sr0 = simulation_result_ft.number_of_series             # 全
+    sr1 = simulation_result_ft.number_of_black_fully_wons   # 先手勝ち
+    sr2 = simulation_result_ft.number_of_black_points_wons  # 先手判定勝ち（引分けがなければ零です）
+
+    # 勝ち点構成
+    # ---------
+    pt1 = points_configuration.b_step    # ［黒勝ち１つの点数］
+    pt2 = points_configuration.w_step    # ［白勝ち１つの点数］
+    pt3 = points_configuration.span      # ［目標の点数］
+
 
     return f"""\
-[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --試行後--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{simulation_result.number_of_black_all_wons:>7}／{simulation_result.number_of_series:>7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
-                                                                                                                       実際   {seg_2_3a:>2}～{seg_2_3b:>2} 局（先後固定制）
+[{time1                   }] （先後固定制）    {cm1}
+                                       先手勝率     誤差          シリーズ         対局数      | 勝ち点設定
+                              指定   |  {w1:2.0f} ％                      {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
+                              試行後 | {w2:8.4f} ％（± {w2e:7.4f}）    {    sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
+                                                                   {       sr2:>7}先判勝               | {pt3:3.0f}目
 """
 
 
-def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_path, p, draw_rate, points_configuration, comment, simulation_result):
+def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_path, p, draw_rate, points_configuration, comment, simulation_result_ft):
     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     
     Parameters
@@ -377,7 +375,7 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
         ［かくきんシステムのｐの構成］
     comment : str
         コメント
-    simulation_result : SimulationResultWhenFrozenTurn
+    simulation_result_ft : SimulationResultWhenFrozenTurn
         シミュレーションの結果
     """
 
@@ -388,16 +386,16 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
     seg_0b = p * 100
 
     # ［調整後の表が出る確率（％）］
-    seg_1_1a = simulation_result.trial_p_without_draw * 100
+    seg_1_1a = simulation_result_ft.trial_p_without_draw * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1_1b = simulation_result.trial_p_error_without_draw * 100
+    seg_1_1b = simulation_result_ft.trial_p_error_without_draw * 100
 
     # 対局数（理論値と実際値）
     seg_1_3a = points_configuration.count_shortest_time_when_frozen_turn()
     seg_1_3b = points_configuration.count_longest_time_when_frozen_turn()
-    seg_2_3a = simulation_result.shortest_time_th
-    seg_2_3b = simulation_result.longest_time_th
+    seg_2_3a = simulation_result_ft.shortest_time_th
+    seg_2_3b = simulation_result_ft.longest_time_th
 
 
     # ［黒勝ち１つの点数］
@@ -416,26 +414,26 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
     seg_7 = draw_rate * 100
 
     # 引分け率（％） 実際値
-    seg_7b = (simulation_result.number_of_draw_series / simulation_result.number_of_series) * 100
+    seg_7b = (simulation_result_ft.number_of_draw_series / simulation_result_ft.number_of_series) * 100
 
     # ［勝ち点差黒勝率（％）］
-    if simulation_result.number_of_black_points_wons == 0:
+    if simulation_result_ft.number_of_black_points_wons == 0:
         seg_8 = "なし"
     else:
-        seg_8 = f"{(simulation_result.number_of_black_points_wons / simulation_result.number_of_black_points_wons) * 100:8.4f} ％"
+        seg_8 = f"{(simulation_result_ft.number_of_black_points_wons / simulation_result_ft.number_of_black_points_wons) * 100:8.4f} ％"
 
     # シリーズ数
-    seg_9 = simulation_result.number_of_series
+    seg_9 = simulation_result_ft.number_of_series
 
     # 引分けシリーズ数
-    seg_10 = simulation_result.number_of_draw_series
+    seg_10 = simulation_result_ft.number_of_draw_series
 
     # 黒勝ち数
-    seg_11 = simulation_result.number_of_black_all_wons
+    seg_11 = simulation_result_ft.number_of_black_all_wons
 
     return f"""\
 [{seg_0a                  }]           先手勝率      誤差        引分け率        対局数（先後固定制）
-                              指定   |  {seg_0b  :>3.0f} ％                    {  seg_7 :2.0f}      ％  {seg_1_3a:>2}～{seg_1_3b:>2} 局   先手勝ち数{seg_11:>7}，引分{seg_10:>7}（詳細{simulation_result.number_of_draw_times:>7}），{seg_9:>7}シリーズ試行      先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
+                              指定   |  {seg_0b  :>3.0f} ％                    {  seg_7 :2.0f}      ％  {seg_1_3a:>2}～{seg_1_3b:>2} 局   先手勝ち数{seg_11:>7}，引分{seg_10:>7}（詳細{simulation_result_ft.number_of_draw_times:>7}），{seg_9:>7}シリーズ試行      先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
                               試行後 |                           {                seg_7b     :8.4f} ％  {seg_2_3a:>2}～{seg_2_3b:>2} 局   勝ち点差黒勝率 {seg_8}
                               結果   |  {seg_1_1a: 8.4f} ％（± {seg_1_1b:7.4f}）
 """
