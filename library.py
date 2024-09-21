@@ -915,6 +915,12 @@ class BaseSimulationResult():
         return self._number_of_draw_times
 
 
+    @property
+    def trial_draw_rate(self):
+        """試行した結果、［引き分ける確率］"""
+        return self.number_of_draw_series / self.number_of_series
+
+
 class SimulationResultWhenFrozenTurn(BaseSimulationResult):
     """［先後固定制］でのシミュレーションの結果"""
 
@@ -1018,12 +1024,6 @@ class SimulationResultWhenFrozenTurn(BaseSimulationResult):
         return self.trial_black_win_rate_without_draw - 0.5
 
 
-    @property
-    def trial_draw_rate(self):
-        """試行した結果、［引き分ける確率］"""
-        return self.number_of_draw_series / self.number_of_series
-
-
 class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
     """［先後交互制］でのシミュレーションの結果"""
 
@@ -1110,7 +1110,7 @@ class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
 
 
     @property
-    def trial_alice_won_without_draw(self):
+    def trial_alice_win_rate_without_draw(self):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
@@ -1118,9 +1118,9 @@ class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
         return self.number_of_alice_all_wons / (self.number_of_series - self.number_of_draw_series)
 
     @property
-    def trial_alice_won_error_without_draw(self):
+    def trial_alice_win_rate_error_without_draw(self):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
         """
-        return self.trial_alice_won_without_draw - 0.5
+        return self.trial_alice_win_rate_without_draw - 0.5

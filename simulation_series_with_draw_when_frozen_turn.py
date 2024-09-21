@@ -59,8 +59,6 @@ def simulate(p, number_of_series, points_configuration, comment):
             series_result_list=series_result_list)
 
     text = stringify_log_when_simulation_series_with_draw_when_frozen_turn(
-            # 出力先ファイルへのパス
-            output_file_path=LOG_FILE_PATH,
             # ［表が出る確率］（指定値）
             p=p,
             # ［引き分ける確率］

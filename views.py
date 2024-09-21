@@ -271,45 +271,81 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def stringify_log_when_simulation_series_when_alternating_turn(p, points_configuration, simulation_result_at):
+def stringify_simulation_log_at(
+        p, draw_rate, points_configuration, simulation_result_at, title):
     """［先後交互制］
 
     Parameters
     ----------
     p : float
-        ［表が出る確率］
-    alice_won_rate : float
-        ［Ａさんが勝った確率］
-    specified_p_error : float
-        誤差率
+        ［表が出る確率］（先手勝率）
+    draw_rate : float
+        ［引き分ける確率］
+    points_configuration : PointsConfiguration
+        ［かくきんシステムのｐの構成］
+    simulation_result_at : SimulationResultWhenAlternatingTurn
+        シミュレーションの結果
+    title : str
+        タイトル
     """
 
-    # ［タイムスタンプ］
-    seg_0 = datetime.datetime.now()
+    # ヘッダー
+    # --------
+    time1 = datetime.datetime.now() # ［タイムスタンプ］
+    ti1 = title                     # タイトル
 
-    # ［表が出る確率（％）］
-    seg_1a = p * 100
+    # ［将棋の先手勝率］とＡさんの勝率
+    # ------------------------------
+    shw1 = p * 100                                                              # ［将棋の先手勝率（％）］指定値
+    aw1 = simulation_result_at.trial_alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
+    aw1e = simulation_result_at.trial_alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
 
-    # ［Ａさんが勝った確率］
-    seg_2 = simulation_result_at.trial_alice_won_without_draw * 100
+    # 引分け率
+    # --------
+    d1 = draw_rate * 100
+    d2 = simulation_result_at.trial_draw_rate * 100
+    d2e = d2 - d1
 
-    # 誤差
-    seg_2b = simulation_result_at.trial_alice_won_error_without_draw * 100
+    # 引分け率
+    # --------
+    d1 = draw_rate * 100    # ［将棋の引分け率］指定値
+    d2 = (simulation_result_at.number_of_draw_series / simulation_result_at.number_of_series) * 100     # ［将棋の引分け率］実践値
 
-    # 対局試行
-    seg_4 = simulation_result_at.number_of_series
+    # 対局数
+    # ------
+    tm10 = points_configuration.count_shortest_time_when_frozen_turn()  # ［最短対局数］理論値
+    tm11 = points_configuration.count_longest_time_when_frozen_turn()   # ［最長対局数］
+    tm20 = simulation_result_at.shortest_time_th    # ［最短対局数］実践値
+    tm21 = simulation_result_at.longest_time_th     # ［最長対局数］
 
-    return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --調整--> {seg_2:8.4f} ％（± {seg_2b:7.4f}）（先後交互制でＡさんが勝った確率）  コイントス{seg_4:7}回試行"
+    # シリーズ数
+    # ---------
+    sr0 = simulation_result_at.number_of_series             # 全
+    sr1 = simulation_result_at.number_of_alice_fully_wons   # Ａさん勝ち
+    sr2 = simulation_result_at.number_of_alice_points_wons  # Ａさん判定勝ち（引分けがなければ零です）
+
+    # 勝ち点構成
+    # ---------
+    pt1 = points_configuration.b_step    # ［黒勝ち１つの点数］
+    pt2 = points_configuration.w_step    # ［白勝ち１つの点数］
+    pt3 = points_configuration.span      # ［目標の点数］
 
 
-def stringify_simulation_log(
-        output_file_path, p, draw_rate, points_configuration, simulation_result_ft, title):
+    return f"""\
+[{time1                   }] {ti1}
+                                    将棋の先手勝率  Ａさんの勝率    引分け率       シリーズ         対局数      | 勝ち点設定
+                              指定   |   {shw1:2.0f} ％                       {d1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
+                              試行後 |               {aw1:8.4f} ％    {d2        :8.4f} ％     {      sr1:>7}Ａ満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
+                                                   （ {aw1e:7.4f}）   （ {d2e    :7.4f}）      {    sr2:>7}Ａ判勝               | {pt3:3.0f}目
+"""
+
+
+def stringify_simulation_log_ft(
+        p, draw_rate, points_configuration, simulation_result_ft, title):
     """シミュレーションのログの文言作成
     
     Parameters
     ----------
-    output_file_path : str
-        出力先ファイルへのパス
     p : float
         ［表が出る確率］（先手勝率）
     draw_rate : float
@@ -373,14 +409,13 @@ def stringify_simulation_log(
 """
 
 
+# TODO 廃止予定
 def stringify_log_when_simulation_series_with_draw_when_frozen_turn(
-        output_file_path, p, draw_rate, points_configuration, simulation_result_ft, title):
+        p, draw_rate, points_configuration, simulation_result_ft, title):
     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     
     Parameters
     ----------
-    output_file_path : str
-        出力先ファイルへのパス
     p : float
         ［表が出る確率］（先手勝率）
     draw_rate : float
