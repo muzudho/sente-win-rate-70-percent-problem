@@ -18,6 +18,7 @@ import math
 import pandas as pd
 
 from library import BLACK, WHITE, ALICE, round_letro, coin, play_game_when_alternating_turn, PointsConfiguration
+from database import get_df_generate_even_when_alternating_turn
 from views import print_when_generate_even_when_alternating_turn
 
 
@@ -356,24 +357,7 @@ if __name__ == '__main__':
 
     try:
 
-        df_at = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df_at['p'].astype('float')
-        df_at['best_p'].fillna(0.0).astype('float')
-        df_at['best_p_error'].fillna(0.0).astype('float')
-        df_at['best_round_count'].fillna(0).astype('int')
-        df_at['best_b_step'].fillna(0).astype('int')
-        df_at['best_w_step'].fillna(0).astype('int')
-        df_at['best_span'].fillna(0).astype('int')
-        df_at['latest_p'].fillna(0.0).astype('float')
-        df_at['latest_p_error'].fillna(0.0).astype('float')
-        df_at['latest_round_count'].fillna(0).astype('int')
-        df_at['latest_b_step'].fillna(0).astype('int')
-        df_at['latest_w_step'].fillna(0).astype('int')
-        df_at['latest_span'].fillna(0).astype('int')
-        df_at['process'].fillna('').astype('string')
+        df_at = get_df_generate_even_when_alternating_turn()
         print(df_at)
 
 

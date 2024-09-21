@@ -19,7 +19,7 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_muzudho_recommends_points_at(p, best_round_count, latest_theoretical_p, specified_points_configuration, process):
+def stringify_report_muzudho_recommends_points_at(p, round_count, latest_theoretical_p, specified_points_configuration, process):
     """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］"""
 
     # ［表が出る確率（％）］
@@ -55,8 +55,8 @@ def stringify_report_muzudho_recommends_points_at(p, best_round_count, latest_th
                 # ［先後交互制］での［最長対局数］
                 seg_8 = longest
 
-                # 試行回数
-                seg_9 = best_round_count
+                # ［試行回数］
+                seg_9 = round_count
 
                 return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回"
 

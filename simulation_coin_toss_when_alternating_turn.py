@@ -16,11 +16,11 @@ import pandas as pd
 
 from fractions import Fraction
 from library import ALICE, PointsConfiguration, play_game_when_alternating_turn
+from database import get_def_report_muzudho_recommends_points
 from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'
-CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
 
 
 ########################################
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mrp = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
+        df_mrp = get_def_report_muzudho_recommends_points()
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース

@@ -14,12 +14,11 @@ import math
 import pandas as pd
 
 from library import BLACK, ALICE, PointsConfiguration, play_game_when_frozen_turn, play_game_when_alternating_turn
+from database import get_df_generate_even_when_frozen_turn, get_def_report_muzudho_recommends_points
 from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_frozen_turn.log'
-CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
-CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 
 def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
@@ -139,8 +138,8 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
-        df_mrp = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
+        df_ft = get_df_generate_even_when_frozen_turn()
+        df_mrp = get_def_report_muzudho_recommends_points()
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース

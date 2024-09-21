@@ -305,6 +305,16 @@ class PointsConfiguration():
             ［目標の点数］
         """
 
+        # NOTE numpy.int64 型は、 float NaN が入っていることがある？
+        if not isinstance(b_step, int):
+            raise ValueError(f"int 型であることが必要 {type(b_step)=}")
+
+        if not isinstance(w_step, int):
+            raise ValueError(f"int 型であることが必要 {type(w_step)=}")
+
+        if not isinstance(span, int):
+            raise ValueError(f"int 型であることが必要 {type(span)=}")
+
         if b_step < 1:
             raise ValueError(f"正の整数であることが必要 {b_step=}")
 

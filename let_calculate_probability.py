@@ -12,11 +12,12 @@ import math
 import pandas as pd
 
 from library import calculate_probability
+from database import get_def_let_calculate_probability
 from views import stringify_when_let_calculate_probability
 
 
 LOG_FILE_PATH = 'output/let_calculate_probability.log'
-CSV_FILE_PATH = './data/let_calculate_probability.csv'
+CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
 ########################################
@@ -28,7 +29,7 @@ if __name__ == '__main__':
 
     try:
 
-        df = pd.read_csv(CSV_FILE_PATH, encoding="utf8")
+        df = get_def_let_calculate_probability()
         print(df)
 
         # * `p` - 先手が勝つ確率

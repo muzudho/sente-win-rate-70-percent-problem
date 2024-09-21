@@ -14,6 +14,7 @@ import math
 import pandas as pd
 
 from library import calculate_probability, PointsConfiguration
+from database import get_df_p
 from views import stringify_when_generate_b_w_time_strict
 
 
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv("./data/p.csv", encoding="utf8")
+        df = get_df_p()
 
         # 先手勝率
         for p in df['p']:

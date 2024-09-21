@@ -15,6 +15,7 @@ import math
 import pandas as pd
 
 from library import BLACK, WHITE, coin, play_game_when_frozen_turn, round_letro, PointsConfiguration, calculate_probability
+from database import get_df_generate_even_when_frozen_turn
 from views import print_when_generate_when_frozen_turn
 
 
@@ -269,24 +270,7 @@ if __name__ == '__main__':
 
     try:
 
-        df_ft = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df_ft['p'].astype('float')
-        df_ft['best_p'].fillna(0.0).astype('float')
-        df_ft['best_p_error'].fillna(0.0).astype('float')
-        df_ft['best_round_count'].fillna(0).astype('int')
-        df_ft['best_b_step'].fillna(0).astype('int')
-        df_ft['best_w_step'].fillna(0).astype('int')
-        df_ft['best_span'].fillna(0).astype('int')
-        df_ft['latest_p'].fillna(0.0).astype('float')
-        df_ft['latest_p_error'].fillna(0.0).astype('float')
-        df_ft['latest_round_count'].fillna(0).astype('int')
-        df_ft['latest_b_step'].fillna(0).astype('int')
-        df_ft['latest_w_step'].fillna(0).astype('int')
-        df_ft['latest_span'].fillna(0).astype('int')
-        df_ft['process'].fillna('').astype('string')
+        df_ft = get_df_generate_even_when_frozen_turn()
         print(df_ft)
 
 

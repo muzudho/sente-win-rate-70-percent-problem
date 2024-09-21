@@ -13,6 +13,7 @@ import math
 import pandas as pd
 
 from library import round_letro, scale_for_float_to_int, p_to_b_w_times
+from database import get_df_p
 
 
 class LeapRoundCalculate():
@@ -81,7 +82,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df = pd.read_csv("./data/p.csv", encoding="utf8")
+        df = get_df_p()
 
         # 先手勝率（表が出る確率）
         for p in df['p']:

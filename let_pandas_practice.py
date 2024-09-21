@@ -4,6 +4,8 @@
 import traceback
 import pandas as pd
 
+from database import get_def_report_muzudho_recommends_points
+
 
 ########################################
 # コマンドから実行時
@@ -14,16 +16,15 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_even = pd.read_csv("./data/report_muzudho_recommends_points.csv", encoding="utf8")
+        df_mrp = get_def_report_muzudho_recommends_points()
+        print(df_mrp)
 
-        print(df_even)
 
-
-        for column_name in df_even:
+        for column_name in df_mrp:
             print(f"{column_name=}")
 
 
-        for p, b_time, w_time in zip(df_even['p'], df_even['b_time'], df_even['w_time']):
+        for p, b_time, w_time in zip(df_mrp['p'], df_mrp['b_time'], df_mrp['w_time']):
             print(f"{p=}  {b_time=}  {w_time}")
 
 
