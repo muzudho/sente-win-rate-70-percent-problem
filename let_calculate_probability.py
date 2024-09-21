@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import calculate_probability
-from database import get_def_let_calculate_probability
+from database import get_df_let_calculate_probability
 from views import stringify_when_let_calculate_probability
 
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     try:
 
-        df = get_def_let_calculate_probability()
+        df = get_df_let_calculate_probability()
         print(df)
 
         # * `p` - 先手が勝つ確率

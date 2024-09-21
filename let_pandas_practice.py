@@ -4,7 +4,7 @@
 import traceback
 import pandas as pd
 
-from database import get_def_report_muzudho_recommends_points
+from database import get_df_report_muzudho_recommends_points
 
 
 ########################################
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mrp = get_def_report_muzudho_recommends_points()
+        df_mrp = get_df_report_muzudho_recommends_points()
         print(df_mrp)
 
 

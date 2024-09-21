@@ -16,7 +16,7 @@ import pandas as pd
 
 from fractions import Fraction
 from library import ALICE, PointsConfiguration, play_game_when_alternating_turn
-from database import get_def_muzudho_recommends_points_when_alternating_turn
+from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
 
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_at = get_def_muzudho_recommends_points_when_alternating_turn()
+        df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
         # 対局数
         round_total = 2_000_000 # 十分多いケース

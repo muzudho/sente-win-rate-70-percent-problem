@@ -14,7 +14,7 @@ import math
 import pandas as pd
 
 from library import BLACK, ALICE, PointsConfiguration, play_game_when_frozen_turn, play_game_when_alternating_turn
-from database import get_def_muzudho_recommends_points_when_frozen_turn
+from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_ft = get_def_muzudho_recommends_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
 
         # 対局数
         round_count = 2_000_000 # 十分多いケース

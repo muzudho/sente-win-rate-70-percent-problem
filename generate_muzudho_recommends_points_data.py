@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from database import get_df_generate_even_when_alternating_turn, get_df_generate_even_when_frozen_turn, get_def_muzudho_recommends_points_when_alternating_turn, muzudho_recommends_points_when_frozen_turn
+from database import get_df_generate_even_when_alternating_turn, get_df_generate_even_when_frozen_turn, get_df_muzudho_recommends_points_when_alternating_turn, get_df_muzudho_recommends_points_when_frozen_turn
 from views import parse_process_element
 
 
@@ -33,7 +33,7 @@ def generate_when_alternating_turn():
     """［先後交互制］"""
 
     df_at = get_df_generate_even_when_alternating_turn()
-    df_mr_at = get_def_muzudho_recommends_points_when_alternating_turn()
+    df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
     for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
         zip(df_at['p'], df_at['best_p'], df_at['best_p_error'], df_at['best_round_count'], df_at['best_b_step'], df_at['best_w_step'], df_at['best_span'], df_at['latest_p'], df_at['latest_p_error'], df_at['latest_round_count'], df_at['latest_b_step'], df_at['latest_w_step'], df_at['latest_span'], df_at['process']):
@@ -79,7 +79,7 @@ def generate_when_frozen_turn():
     """［先後固定制］"""
 
     df_ft = get_df_generate_even_when_frozen_turn()
-    df_mr_ft = muzudho_recommends_points_when_frozen_turn()
+    df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
 
     for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
         zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_round_count'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_round_count'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):

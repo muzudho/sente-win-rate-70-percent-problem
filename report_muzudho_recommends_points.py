@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from database import get_def_muzudho_recommends_points_when_frozen_turn, get_def_muzudho_recommends_points_when_alternating_turn
+from database import get_df_muzudho_recommends_points_when_frozen_turn, get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_report_muzudho_recommends_points_ft, stringify_report_muzudho_recommends_points_at
 
 
@@ -32,7 +32,7 @@ LIMIT_ERROR = 0.03
 def generate_when_alternating_turn():
     """［先後交互制］"""
 
-    df_mr_at = get_def_muzudho_recommends_points_when_alternating_turn()
+    df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
     for               p,             round_count,             b_step,             w_step,             span,             presentable,             comment,             process in\
         zip(df_mr_at['p'], df_mr_at['round_count'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
@@ -66,7 +66,7 @@ def generate_when_alternating_turn():
 def generate_when_frozen_turn():
     """［先後固定制］"""
 
-    df_mr_ft = get_def_muzudho_recommends_points_when_frozen_turn()
+    df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
 
     for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
         zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
