@@ -376,8 +376,9 @@ def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, r
 """
 
 
-def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_path, p, draw_rate, round_total,
-        black_wons, black_wons_in_tie_break, number_of_ties, sum_number_of_ties_throughout_series, expected_shortest_time_th, actual_shortest_time_th, expected_longest_time_th, actual_longest_time_th,
+def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_path, p, draw_rate,
+        round_total, number_of_judge_in_points,
+        black_wons, black_wons_in_points, black_wons_in_tie_break, number_of_ties, sum_number_of_ties_throughout_series, expected_shortest_time_th, actual_shortest_time_th, expected_longest_time_th, actual_longest_time_th,
         points_configuration, comment):
     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     
@@ -391,8 +392,12 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
         ［引き分ける確率］
     round_total : int
         対局数
+    number_of_judge_in_points : int
+        ［勝ち点差判定が行われた回数］
     black_wons : int
         ［先後固定制］で、黒が勝った回数
+    black_wons_in_points : int
+        ［勝ち点差で黒が勝った回数］
     black_wons_in_tie_break : int
         ［タイブレークで黒が勝った回数］
     number_of_ties : int
@@ -413,8 +418,12 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
         コメント
     """
 
-    # 黒の勝率（全体の数から引き分けの数を引いて計算する）
-    trial_p = black_wons / (round_total - number_of_ties)
+    # 黒の勝率（全体の数から、シリーズが引き分けに終わった数を引いて計算する）
+    #
+    #   NOTE タイブレークを行う場合は、単純に分母を round_total とする。タイブレークを行わない場合の分母は round_total から number_of_ties を引いてください
+    #
+    trial_p = black_wons / round_total
+    #trial_p = black_wons / (round_total - number_of_ties)
 
     # 黒の勝率と、五分五分との誤差
     trial_p_error = abs(trial_p - 0.5)
@@ -450,7 +459,7 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
     # コメント
     seg_5 = comment
 
-    # ［タイブレークで黒が勝った勝率（％）］
+    # ［タイブレーク黒勝率（％）］
     if number_of_ties == 0:
         seg_6 = "なし"
     else:
@@ -462,8 +471,14 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
     # 引分け率（％） 実際値
     seg_7b = (number_of_ties / round_total) * 100
 
+    # ［勝ち点差黒勝率（％）］
+    if number_of_judge_in_points == 0:
+        seg_8 = "なし"
+    else:
+        seg_8 = f"{(black_wons_in_points / number_of_judge_in_points) * 100:8.4f} ％"
+
     return f"""\
 [{seg_0a                  }]           先手勝率      誤差        引分け率        対局数（先後固定制）
-                              理論値 |  {seg_0b  :>3.0f} ％                    {  seg_7 :2.0f}      ％  {seg_1_3a:>2}～{seg_1_3b:>2} 局   先手勝ち数{black_wons:>7}，引分{number_of_ties:>7}（詳細{sum_number_of_ties_throughout_series:>7}），{round_total:>7}対局試行      先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
-                              実際値 |  {seg_1_1a: 8.4f} ％（± {seg_1_1b:7.4f}） {seg_7b     :8.4f} ％  {seg_2_3a:>2}～{seg_2_3b:>2} 局   タイブレーク黒勝率 {seg_6}
+                              指定   |  {seg_0b  :>3.0f} ％                    {  seg_7 :2.0f}      ％  {seg_1_3a:>2}～{seg_1_3b:>2} 局   先手勝ち数{black_wons:>7}，引分{number_of_ties:>7}（詳細{sum_number_of_ties_throughout_series:>7}），{round_total:>7}対局試行      先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
+                              試行後 |  {seg_1_1a: 8.4f} ％（± {seg_1_1b:7.4f}） {seg_7b     :8.4f} ％  {seg_2_3a:>2}～{seg_2_3b:>2} 局   勝ち点差黒勝率 {seg_8}  タイブレーク黒勝率 {seg_6}
 """

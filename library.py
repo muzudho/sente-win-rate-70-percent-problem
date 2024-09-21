@@ -214,6 +214,8 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
         対局数
     number_of_ties_throughout_series : int
         ［シリーズ全体を通して引き分けた数］
+    reason : str
+        決着の理由。 'achievement', 'points', 'same_points'
     """
 
     # ［シリーズ全体を通して引き分けた数］
@@ -247,17 +249,17 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
             point_list[successful_color] += step
 
             if points_configuration.span <= point_list[successful_color]:
-                return successful_color, time_th, number_of_ties_throughout_series    # 勝ち抜け
+                return successful_color, time_th, number_of_ties_throughout_series, 'achievement'    # 勝ち抜け
 
     # 引き分けを１局と数えると、シリーズの中で点数が足らず、決着が付かず、シリーズ全体としての引き分けが増えるので、対応が必要です
 
     # 黒の方が点数が多かったら、黒の勝ちとします
     if point_list[WHITE] < point_list[BLACK]:
-        return BLACK, time_th, number_of_ties_throughout_series
+        return BLACK, time_th, number_of_ties_throughout_series, 'points'
 
     # 白の方が点数が多かったら、白の勝ちとします
     elif point_list[BLACK] < point_list[WHITE]:
-        return WHITE, time_th, number_of_ties_throughout_series
+        return WHITE, time_th, number_of_ties_throughout_series, 'points'
 
     # # NOTE ルールとして、引き分けを廃止することはできるか？ ----> 両者の実力が等しく、先手後手の有利も等しいとき、真の結果は引き分けがふさわしい。引き分けを消すことはできない
     # #
@@ -269,7 +271,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     # # NOTE 引き分けは、［黒勝ち１つの点数］が小さい黒番の方に大きく響く？
 
     # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ。タイブレークをするかどうかは、この関数の呼び出し側に任せます
-    return EMPTY, time_th, number_of_ties_throughout_series
+    return EMPTY, time_th, number_of_ties_throughout_series, 'same_points'
 
 
 def play_tie_break(p, draw_rate):

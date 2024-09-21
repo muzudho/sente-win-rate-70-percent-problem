@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_series_with_draw_when_frozen_turn
 
@@ -21,13 +21,20 @@ from views import stringify_log_when_simulation_series_with_draw_when_frozen_tur
 LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
 
 # 引き分けになる確率
-DRAW_RATE = 0.1
+#DRAW_RATE = 0.1
+DRAW_RATE = 0.9
 
 
 def simulate(p, round_total, points_configuration, comment):
 
     # 黒が勝った回数
     black_wons = 0
+
+    # ［勝ち点差判定が行われた回数］
+    number_of_judge_in_points = 0
+
+    # ［勝ち点差で黒が勝った回数］
+    black_wons_in_points = 0
 
     # ［タイブレークで黒が勝った回数］
     black_wons_in_tie_break = 0
@@ -43,17 +50,30 @@ def simulate(p, round_total, points_configuration, comment):
     for round in range(0, round_total):
 
         # ［先後固定制］で、勝った方の手番を返す。引き分けを１局と数える
-        winner_color, time_th, new_number_of_ties_throughout_series = play_series_with_draw_when_frozen_turn(
+        winner_color, time_th, new_number_of_ties_throughout_series, reason = play_series_with_draw_when_frozen_turn(
                 p=p,
                 draw_rate=DRAW_RATE,
                 points_configuration=points_configuration)
         
         sum_number_of_ties_throughout_series += new_number_of_ties_throughout_series
 
+        # 勝ち点による決着
+        if reason == 'points':
+            number_of_judge_in_points += 1
+
+            if winner_color == BLACK:
+                black_wons_in_points += 1
+
+        # 黒勝ち
         if winner_color == BLACK:
             black_wons += 1
 
-        elif winner_color == EMPTY:
+        # 白勝ち        
+        elif winner_color == WHITE:
+            pass
+
+        # 引分け（勝ち点が同点）
+        else:
             number_of_ties_throughout_trial += 1
 
             # 引き分けならタイブレークを行う場合
@@ -64,8 +84,11 @@ def simulate(p, round_total, points_configuration, comment):
                 p=p,
                 draw_rate=DRAW_RATE)
             
+            # タイブレークによる決着
             if winner_color == BLACK:
+                black_wons += 1
                 black_wons_in_tie_break += 1
+
 
         if time_th < shortest_time_th:
             shortest_time_th = time_th
@@ -89,8 +112,12 @@ def simulate(p, round_total, points_configuration, comment):
             draw_rate=DRAW_RATE,
             # 対局数
             round_total=round_total,
+            # ［勝ち点差判定が行われた回数］
+            number_of_judge_in_points=number_of_judge_in_points,
             # 黒が勝った回数
             black_wons=black_wons,
+            # ［勝ち点差で黒が勝った回数］
+            black_wons_in_points=black_wons_in_points,
             # ［タイブレークで黒が勝った回数］
             black_wons_in_tie_break=black_wons_in_tie_break,
             # ［引き分けた回数］
