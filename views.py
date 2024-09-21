@@ -463,6 +463,7 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
     seg_7b = (number_of_ties / round_total) * 100
 
     return f"""\
-[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --試行後--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）（引分けは別勘定）    先手勝ち数{black_wons:>7}，引分{number_of_ties:>7}（詳細{sum_number_of_ties_throughout_series:>7}），{round_total:>7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
-                              引分け率 {seg_7 :2.0f} ％             {seg_7b  :8.4f} ％ タイブレーク黒勝率 {seg_6}           実際   {seg_2_3a:>2}～{seg_2_3b:>2} 局（先後固定制）
+[{seg_0a                  }]           先手勝率      誤差        引分け率        対局数（先後固定制）
+                              理論値 |  {seg_0b  :>3.0f} ％                    {  seg_7 :2.0f}      ％  {seg_1_3a:>2}～{seg_1_3b:>2} 局   先手勝ち数{black_wons:>7}，引分{number_of_ties:>7}（詳細{sum_number_of_ties_throughout_series:>7}），{round_total:>7}対局試行      先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
+                              実際値 |  {seg_1_1a: 8.4f} ％（± {seg_1_1b:7.4f}） {seg_7b     :8.4f} ％  {seg_2_3a:>2}～{seg_2_3b:>2} 局   タイブレーク黒勝率 {seg_6}
 """

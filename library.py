@@ -145,9 +145,7 @@ def draw(draw_rate):
     draw_rate : float
         引き分けになる確率。例： １割が引き分けなら 0.1
     """
-    if random.random() < draw_rate:
-        return True
-    return False
+    return random.random() < draw_rate
 
 
 def play_series_when_frozen_turn(p, points_configuration):
@@ -231,6 +229,9 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     for time_th in range(0, max_time):
 
         # 引き分けを１局と数えるケース
+        #
+        #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
+        #
         if draw(draw_rate):
             number_of_ties_throughout_series += 1
 
@@ -248,15 +249,15 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
             if points_configuration.span <= point_list[successful_color]:
                 return successful_color, time_th, number_of_ties_throughout_series    # 勝ち抜け
 
-    # 引き分けを１局と数えると、決着が付かないケースがあります
+    # 引き分けを１局と数えると、シリーズの中で点数が足らず、決着が付かず、シリーズ全体としての引き分けが増えるので、対応が必要です
 
-    # # 黒の方が点数が多かったら、黒の勝ちとします
-    # if point_list[WHITE] < point_list[BLACK]:
-    #     return BLACK, time_th, number_of_ties_throughout_series
+    # 黒の方が点数が多かったら、黒の勝ちとします
+    if point_list[WHITE] < point_list[BLACK]:
+        return BLACK, time_th, number_of_ties_throughout_series
 
-    # # 白の方が点数が多かったら、白の勝ちとします
-    # elif point_list[BLACK] < point_list[WHITE]:
-    #     return WHITE, time_th, number_of_ties_throughout_series
+    # 白の方が点数が多かったら、白の勝ちとします
+    elif point_list[BLACK] < point_list[WHITE]:
+        return WHITE, time_th, number_of_ties_throughout_series
 
     # # NOTE ルールとして、引き分けを廃止することはできるか？ ----> 両者の実力が等しく、先手後手の有利も等しいとき、真の結果は引き分けがふさわしい。引き分けを消すことはできない
     # #
@@ -267,7 +268,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     # # NOTE 引き分けは［両者得点］にし、かつ、引き分けが奇数回なら後手勝ち、偶数回なら先手勝ちにしたらどうか？ ----> 対局数が１のときの影響がでかい
     # # NOTE 引き分けは、［黒勝ち１つの点数］が小さい黒番の方に大きく響く？
 
-    # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ
+    # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ。タイブレークをするかどうかは、この関数の呼び出し側に任せます
     return EMPTY, time_th, number_of_ties_throughout_series
 
 
