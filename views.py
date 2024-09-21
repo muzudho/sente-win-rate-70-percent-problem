@@ -32,10 +32,10 @@ def stringify_report_muzudho_recommends_points_at(p, round_count, latest_theoret
     seg_1 = p * 100
 
     # 表示用の説明文
-    if presentable == '':
-        seg_10 = ''
-    else:
+    if isinstance(presentable, str):    # float NaN が入っていることがある
         seg_10 = f"    {presentable}"
+    else:
+        seg_10 = ''
 
     # NOTE ［先後交互制］では、理論値を出すのが難しいので、理論値ではなく、実際値を出力する
     #
@@ -110,10 +110,10 @@ def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, speci
     seg_8 = specified_points_configuration.let_number_of_longest_bout_when_alternating_turn()
 
     # 表示用の説明文
-    if presentable == '':
-        seg_9 = ''
-    else:
+    if isinstance(presentable, str):    # float NaN が入っていることがある
         seg_9 = f"    {presentable}"
+    else:
+        seg_9 = ''
 
     return f"先手勝率 {seg_1:2.0f} ％ --理論値--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）{seg_9}"
 
