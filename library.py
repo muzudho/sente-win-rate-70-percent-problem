@@ -1001,20 +1001,27 @@ class SimulationResultWhenFrozenTurn(BaseSimulationResult):
 
 
     @property
-    def trial_p_without_draw(self):
-        """試行した結果、［表が出る確率］
+    def trial_black_win_rate_without_draw(self):
+        """試行した結果、［黒が勝つ確率］
         
         引分けを除いて計算する
         """
         return self.number_of_black_all_wons / (self.number_of_series - self.number_of_draw_series)
 
+
     @property
-    def trial_p_error_without_draw(self):
-        """試行した結果、［表が出る確率］
+    def trial_black_win_rate_error_without_draw(self):
+        """試行した結果、［黒が勝つ確率と0.5との誤差］
         
         引分けを除いて計算する
         """
-        return self.trial_p_without_draw - 0.5
+        return self.trial_black_win_rate_without_draw - 0.5
+
+
+    @property
+    def trial_draw_rate(self):
+        """試行した結果、［引き分ける確率］"""
+        return self.number_of_draw_series / self.number_of_series
 
 
 class SimulationResultWhenAlternatingTurn(BaseSimulationResult):

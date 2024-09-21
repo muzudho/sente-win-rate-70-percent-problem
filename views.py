@@ -329,9 +329,20 @@ def stringify_simulation_log(
 
     # 先手勝率
     # --------
-    w1 = p * 100    # ［表が出る確率（％）］    
-    w2 = simulation_result_ft.trial_p_without_draw * 100  # ［調整後の表が出る確率（％）］
-    w2e = simulation_result_ft.trial_p_error_without_draw * 100    # ［調整後の表が出る確率（％）と 0.5 との誤差］
+    w1 = p * 100                                                                # ［黒が勝つ確率（％）］指定値
+    w2 = simulation_result_ft.trial_black_win_rate_without_draw * 100           # ［黒が勝つ確率（％）］実践値
+    w2e = simulation_result_ft.trial_black_win_rate_error_without_draw * 100    # ［黒が勝つ確率（％）と 0.5 との誤差］実践値
+
+    # 引分け率
+    # --------
+    d1 = draw_rate * 100
+    d2 = simulation_result_ft.trial_draw_rate * 100
+    d2e = d2 - d1
+
+    # 引分け率
+    # --------
+    d1 = draw_rate * 100    # ［将棋の引分け率］指定値
+    d2 = (simulation_result_ft.number_of_draw_series / simulation_result_ft.number_of_series) * 100     # ［将棋の引分け率］実践値
 
     # 対局数
     # ------
@@ -355,10 +366,10 @@ def stringify_simulation_log(
 
     return f"""\
 [{time1                   }] {ti1}
-                                         先手勝率        シリーズ        対局数      | 勝ち点設定
-                              指定   |    {w1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
-                              試行後 |   {w2:8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
-                                      （± {w2e:7.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
+                                        先手勝率       引分け率       シリーズ         対局数      | 勝ち点設定
+                              指定   |   {w1:2.0f} ％          {d1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
+                              試行後 |  {w2:8.4f} ％    {d2       :8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
+                                      （ {w2e:7.4f}）   （ {d2e   :7.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
 """
 
 
@@ -389,10 +400,10 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(
     seg_0b = p * 100
 
     # ［調整後の表が出る確率（％）］
-    seg_1_1a = simulation_result_ft.trial_p_without_draw * 100
+    seg_1_1a = simulation_result_ft.trial_black_win_rate_without_draw * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1_1b = simulation_result_ft.trial_p_error_without_draw * 100
+    seg_1_1b = simulation_result_ft.trial_black_win_rate_error_without_draw * 100
 
     # 対局数（理論値と実際値）
     seg_1_3a = points_configuration.count_shortest_time_when_frozen_turn()
