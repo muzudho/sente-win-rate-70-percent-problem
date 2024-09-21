@@ -53,7 +53,7 @@ def simulate(p, round_total, b_time, w_time, comment):
     expected_shortest_time_th=points_configuration.count_shortest_time_when_frozen_turn()
     actual_shortest_time_th=shortest_time_th
     expected_longest_time_th=points_configuration.count_longest_time_when_frozen_turn()
-    actual_longest_time_th=longest_time_th_when_frozen_turn
+    actual_longest_time_th=longest_time_th
 
     text = stringify_log_when_simulation_series_when_frozen_turn(
             # 出力先ファイルへのパス

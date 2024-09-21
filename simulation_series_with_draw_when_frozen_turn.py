@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break, SeriesResult
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_series_with_draw_when_frozen_turn
 
@@ -50,44 +50,79 @@ def simulate(p, round_total, points_configuration, comment):
     for round in range(0, round_total):
 
         # ［先後固定制］で、勝った方の手番を返す。引き分けを１局と数える
-        winner_color, time_th, new_number_of_ties_throughout_series, reason = play_series_with_draw_when_frozen_turn(
+        winner_color, time_th, new_number_of_ties_throughout_series, point_list = play_series_with_draw_when_frozen_turn(
                 p=p,
                 draw_rate=DRAW_RATE,
                 points_configuration=points_configuration)
         
+        series_result = SeriesResult(
+            all_times=time_th,
+            span=points_configuration.span,
+            point_list=point_list)
+
         sum_number_of_ties_throughout_series += new_number_of_ties_throughout_series
 
-        # 勝ち点による決着
-        if reason == 'points':
-            number_of_judge_in_points += 1
-
-            if winner_color == BLACK:
-                black_wons_in_points += 1
-
-        # 黒勝ち
+        # 黒が［目標の点数］に達して、黒勝ちでシリーズが決着したとき
         if winner_color == BLACK:
+            # 黒勝ち
             black_wons += 1
-
-        # 白勝ち        
+        
+        # 白が［目標の点数］に達して、白勝ちでシリーズが決着したとき
         elif winner_color == WHITE:
             pass
 
-        # 引分け（勝ち点が同点）
+        # シリーズが決着していないとき。［勝ち点］は全く入っていないか、入っているかのどちらもあります
         else:
-            number_of_ties_throughout_trial += 1
-
-            # 引き分けならタイブレークを行う場合
-            #
-            #   FIXME 当然、引き分け率が上がるほど白有利になる
-            #
-            winner_color = play_tie_break(
-                p=p,
-                draw_rate=DRAW_RATE)
+            # TODO 両者のどちらも［勝ち点］が［目標の点数］の過半数に達していなければ引き分けとする、でいいかも？
+            half_span = round_letro(points_configuration.span)
+            if not (half_span < point_list[BLACK] and half_span < point_list[WHITE]):
+                # 勝者無し、引き分け
+                # FIXME
+                number_of_ties_throughout_trial += 1
             
-            # タイブレークによる決着
-            if winner_color == BLACK:
-                black_wons += 1
-                black_wons_in_tie_break += 1
+                # NOTE タイブレークは、［将棋の引分け率］が上がってきたとき調整が困難
+                #
+                # # 引き分けならタイブレークを行う場合
+                # #
+                # #   FIXME 当然、引き分け率が上がるほど白有利になる
+                # #
+                # winner_color = play_tie_break(
+                #     p=p,
+                #     draw_rate=DRAW_RATE)
+                
+                # # タイブレークによる決着
+                # if winner_color == BLACK:
+                #     black_wons += 1
+                #     black_wons_in_tie_break += 1
+
+            else:
+                # FIXME
+                number_of_judge_in_points += 1
+
+                # ［黒の勝ち点差判定勝ち］
+                if point_list[WHITE] < point_list[BLACK]:
+                    # 黒勝ち
+                    black_wons += 1
+                    black_wons_in_points += 1
+                
+                # ［白の勝ち点差判定勝ち］
+                else:
+                    pass
+
+
+            # 引き分けを１局と数えると、シリーズの中で点数が足らず、決着が付かず、シリーズ全体としての引き分けが増えるので、対応が必要です
+            #
+            # # # NOTE ルールとして、引き分けを廃止することはできるか？ ----> 両者の実力が等しく、先手後手の有利も等しいとき、真の結果は引き分けがふさわしい。引き分けを消すことはできない
+            # # #
+            # # # NOTE その場合、先手勝利でいいのでは？ ----> 引き分け率１０％のとき、先手にしろ後手にしろ、そっちの勝率が５％上がってしまった。［目標の点数］を２倍にしてもだいたい同じ
+            # # # NOTE 点数が引き分けということは、［最長対局数］を全部引き分けだったということです。引き分けが先手勝ちとか、後手勝ちと決めてしまうと、対局数が１のとき、影響がもろに出てしまう
+            # # # NOTE 点数が引き分けのとき、最後に勝った方の勝ちとすればどうなる？ ----> 先手の方が勝つ機会が多いのでは？
+            # # # NOTE 引き分けは［両者得点］にしたらどうか？ ----> step を足すのは白番に有利すぎる。１点を足すのは数学的に意味がない。
+            # # # NOTE 引き分けは［両者得点］にし、かつ、引き分けが奇数回なら後手勝ち、偶数回なら先手勝ちにしたらどうか？ ----> 対局数が１のときの影響がでかい
+            # # # NOTE 引き分けは、［黒勝ち１つの点数］が小さい黒番の方に大きく響く？
+            # # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ
+
+
 
 
         if time_th < shortest_time_th:

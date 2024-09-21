@@ -195,14 +195,14 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します
 
     ［引き分けを１局として数えるケース］です。
-    ［タイブレーク］は含みません
+    ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
 
     Parameters
     ----------
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
     draw_rate : float
-        ［引き分けになる率】 例： １割の確率で引き分けになるのなら 0.1
+        ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
     
@@ -214,14 +214,14 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
         対局数
     number_of_ties_throughout_series : int
         ［シリーズ全体を通して引き分けた数］
-    reason : str
-        決着の理由。 'achievement', 'points', 'same_points'
+    point_list : list
+        ［勝ち点］のリスト。要素は、未使用、黒番、白番
     """
 
     # ［シリーズ全体を通して引き分けた数］
     number_of_ties_throughout_series = 0
 
-    # 点数のリスト。要素は、未使用、黒番、白番
+    # ［勝ち点］のリスト。要素は、未使用、黒番、白番
     point_list = [0, 0, 0]
 
     # ［先後固定制］での対局の上限数は計算で求められます
@@ -249,29 +249,10 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
             point_list[successful_color] += step
 
             if points_configuration.span <= point_list[successful_color]:
-                return successful_color, time_th, number_of_ties_throughout_series, 'achievement'    # 勝ち抜け
-
-    # 引き分けを１局と数えると、シリーズの中で点数が足らず、決着が付かず、シリーズ全体としての引き分けが増えるので、対応が必要です
-
-    # 黒の方が点数が多かったら、黒の勝ちとします
-    if point_list[WHITE] < point_list[BLACK]:
-        return BLACK, time_th, number_of_ties_throughout_series, 'points'
-
-    # 白の方が点数が多かったら、白の勝ちとします
-    elif point_list[BLACK] < point_list[WHITE]:
-        return WHITE, time_th, number_of_ties_throughout_series, 'points'
-
-    # # NOTE ルールとして、引き分けを廃止することはできるか？ ----> 両者の実力が等しく、先手後手の有利も等しいとき、真の結果は引き分けがふさわしい。引き分けを消すことはできない
-    # #
-    # # NOTE その場合、先手勝利でいいのでは？ ----> 引き分け率１０％のとき、先手にしろ後手にしろ、そっちの勝率が５％上がってしまった。［目標の点数］を２倍にしてもだいたい同じ
-    # # NOTE 点数が引き分けということは、［最長対局数］を全部引き分けだったということです。引き分けが先手勝ちとか、後手勝ちと決めてしまうと、対局数が１のとき、影響がもろに出てしまう
-    # # NOTE 点数が引き分けのとき、最後に勝った方の勝ちとすればどうなる？ ----> 先手の方が勝つ機会が多いのでは？
-    # # NOTE 引き分けは［両者得点］にしたらどうか？ ----> step を足すのは白番に有利すぎる。１点を足すのは数学的に意味がない。
-    # # NOTE 引き分けは［両者得点］にし、かつ、引き分けが奇数回なら後手勝ち、偶数回なら先手勝ちにしたらどうか？ ----> 対局数が１のときの影響がでかい
-    # # NOTE 引き分けは、［黒勝ち１つの点数］が小さい黒番の方に大きく響く？
-
-    # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ。タイブレークをするかどうかは、この関数の呼び出し側に任せます
-    return EMPTY, time_th, number_of_ties_throughout_series, 'same_points'
+                return successful_color, time_th, number_of_ties_throughout_series, point_list    # 勝ち抜け
+    
+    # タイブレークをするかどうかは、この関数の呼び出し側に任せます
+    return EMPTY, time_th, number_of_ties_throughout_series, point_list
 
 
 def play_tie_break(p, draw_rate):
@@ -282,7 +263,7 @@ def play_tie_break(p, draw_rate):
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
     draw_rate : float
-        ［引き分けになる率】 例： １割の確率で引き分けになるのなら 0.1
+        ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
     
     Returns
     -------
@@ -672,3 +653,52 @@ class PointsConfiguration():
         """
 
         return  (self.b_time-1) + (self.w_time-1) + 1
+
+
+class SeriesResult():
+    """シリーズの結果"""
+
+
+    def __init__(self, all_times, span, point_list):
+        """初期化
+
+        Parameters
+        ----------
+        all_times : int
+            行われた対局数
+        span : int
+            ［目標の点数］
+        point_list : list
+            点数のリスト。要素は、未使用、黒番、白番
+        """
+        self._all_times = all_times
+        self._span = span
+        self._point_list = point_list
+
+
+    def is_no_won(self):
+        """勝者なし。黒白ともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
+        half = math.floor(self._span / 2)
+        return (self._point_list[BLACK] <= half and self._point_list[WHITE] <= half) or self._point_list[BLACK] == self._point_list[WHITE]
+
+
+    def is_black_fully_won(self):
+        """黒が［目標の点数］を集めて黒の勝ち"""
+        return self._span <= self._point_list[BLACK]
+
+
+    def is_white_fully_won(self):
+        """白が［目標の点数］を集めて白の勝ち"""
+        return self._span <= self._point_list[WHITE]
+
+
+    def is_black_points_won(self):
+        """黒が［目標の点数］の過半数の［勝ち点］を集めており、さらに白の［勝ち点］より多くて黒の勝ち"""
+        half = math.floor(self._span / 2)
+        return half < self._point_list[BLACK] and self._point_list[WHITE] < self._point_list[BLACK]
+
+
+    def is_white_points_won(self):
+        """白が［目標の点数］の過半数の［勝ち点］を集めており、さらに黒の［勝ち点］より多くて白の勝ち"""
+        half = math.floor(self._span / 2)
+        return half < self._point_list[WHITE] and self._point_list[BLACK] < self._point_list[WHITE]
