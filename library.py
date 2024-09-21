@@ -150,8 +150,8 @@ def draw(draw_rate):
     return False
 
 
-def play_game_when_frozen_turn(p, points_configuration):
-    """［先後固定制］で対局を行います。勝った方の色を返します
+def play_series_when_frozen_turn(p, points_configuration):
+    """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します
 
     引き分けはありません
 
@@ -193,8 +193,8 @@ def play_game_when_frozen_turn(p, points_configuration):
     raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
 
 
-def play_game_when_frozen_turn_with_draw(p, draw_rate, points_configuration):
-    """［先後固定制］で対局を行います。勝った方の色を返します
+def play_series_when_frozen_turn_with_draw(p, draw_rate, points_configuration):
+    """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します１
 
     引き分けを考慮します
 

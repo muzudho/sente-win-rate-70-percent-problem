@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, ALICE, PointsConfiguration, play_game_when_frozen_turn, play_game_when_alternating_turn
+from library import BLACK, ALICE, PointsConfiguration, play_series_when_frozen_turn, play_game_when_alternating_turn
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
@@ -43,7 +43,7 @@ def simulate(p, round_total, b_time, w_time, comment):
                 w_time=w_time)
 
         # ［先後固定制］で、勝った方の手番を返す
-        winner_color, time_th = play_game_when_frozen_turn(
+        winner_color, time_th = play_series_when_frozen_turn(
                 p=p,
                 points_configuration=points_configuration)
         

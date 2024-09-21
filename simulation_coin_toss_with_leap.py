@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import BLACK, round_letro, p_to_b_w_times, PointsConfiguration, play_game_when_frozen_turn
+from library import BLACK, round_letro, p_to_b_w_times, PointsConfiguration, play_series_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
@@ -136,7 +136,7 @@ if __name__ == '__main__':
                                 b_time=practical_b_time + 1,    # 閏の + 1
                                 w_time=practical_w_time)
 
-                        winner_color, time_th = play_game_when_frozen_turn(
+                        winner_color, time_th = play_series_when_frozen_turn(
                                 p=p,
                                 points_configuration=points_configuration)
                         
@@ -150,7 +150,7 @@ if __name__ == '__main__':
                                 b_time=practical_b_time,
                                 w_time=practical_w_time)
 
-                        winner_color, time_th = play_game_when_frozen_turn(
+                        winner_color, time_th = play_series_when_frozen_turn(
                                 p=p,
                                 points_configuration=points_configuration)
                         
@@ -165,7 +165,7 @@ if __name__ == '__main__':
                             b_time=practical_b_time,
                             w_time=practical_w_time)
 
-                    winner_color, time_th = play_game_when_frozen_turn(
+                    winner_color, time_th = play_series_when_frozen_turn(
                             p=p,
                             points_configuration=points_configuration)
                     
