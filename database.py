@@ -71,18 +71,34 @@ def get_df_p():
 
 def get_def_muzudho_recommends_points_when_alternating_turn():
     df = pd.read_csv(CSV_FILE_PATH_MR_AT, encoding="utf8")
+    df['p'].astype('float')
+    df['round_count'].fillna(0).astype('int')
+    df['b_step'].fillna(0).astype('int')
+    df['w_step'].fillna(1).astype('int')
+    df['span'].fillna(1).astype('int')
+    df['comment'].astype('string')
+    df['process'].astype('string')
 
     return df
 
 
 def get_def_muzudho_recommends_points_when_frozen_turn():
     df = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
+    df['p'].astype('float')
+    df['b_step'].fillna(0).astype('int')
+    df['w_step'].fillna(1).astype('int')
+    df['span'].fillna(1).astype('int')
+    df['comment'].astype('string')
+    df['process'].astype('string')
 
     return df
 
 
 def get_def_report_muzudho_recommends_points():
     df = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
+    df['p'].astype('float')
+    df['b_time'].fillna(0).astype('int')
+    df['w_time'].fillna(0).astype('int')
 
     return df
 
