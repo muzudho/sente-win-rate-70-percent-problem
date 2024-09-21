@@ -271,7 +271,7 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, specified_p_error, b_time, round_total):
+def stringify_log_when_simulation_series_when_alternating_turn(p, alice_won_rate, specified_p_error, b_time, round_total):
     """［先後交互制］
 
     Parameters
@@ -304,10 +304,10 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
     return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --調整--> {seg_2:8.4f} ％（± {seg_2b:7.4f}）（先後交互制でＡさんが勝った確率）  コイントス{seg_4:7}回試行"
 
 
-def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,
-        black_wons, expected_shortest_time_th, actual_shortest_time_th, expected_longest_time_th_when_frozen_turn, actual_longest_time_th,
+def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, round_total,
+        black_wons, expected_shortest_time_th, actual_shortest_time_th, expected_longest_time_th, actual_longest_time_th,
         points_configuration, comment):
-    """ログ出力
+    """［先後固定制］で［引き分けを１局として数えないケース］での［シリーズ］での結果の文言を作成
     
     Parameters
     ----------
@@ -333,28 +333,23 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
         コメント
     """
 
-    # ［最長対局数（先後固定制）］
-    #
-    #   NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
-    #
+    # 黒の勝率
+    trial_p = black_wons / round_total
 
-    # ［先後固定制］で、黒の勝率
-    specified_p_when_frozen_turn = black_wons / round_total
-
-    # ［先後固定制］で、黒の勝率と、五分五分との誤差
-    specified_p_error_when_frozen_turn = abs(specified_p_when_frozen_turn - 0.5)
+    # 黒の勝率と、五分五分との誤差
+    trial_p_error = abs(trial_p - 0.5)
 
     # ［タイムスタンプ］
     seg_0a = datetime.datetime.now()
 
     # ［表が出る確率（％）］
-    seg_0b = p*100
+    seg_0b = p * 100
 
     # ［調整後の表が出る確率（％）］
-    seg_1_1a = specified_p_when_frozen_turn*100
+    seg_1_1a = trial_p * 100
 
     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1_1b = specified_p_error_when_frozen_turn*100
+    seg_1_1b = trial_p_error * 100
 
     # 対局数（理論値と実際値）
     seg_1_3a = expected_shortest_time_th
@@ -376,6 +371,98 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_5 = comment
 
     return f"""\
-[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --試行後--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{black_wons:7}／{round_total:7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
+[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --試行後--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）    先手勝ち数{black_wons:>7}／{round_total:>7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
                                                                                                                        実際   {seg_2_3a:>2}～{seg_2_3b:>2} 局（先後固定制）
+"""
+
+
+def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_path, p, draw_rate, round_total,
+        black_wons, black_wons_in_tie_break, number_of_ties, sum_number_of_ties_throughout_series, expected_shortest_time_th, actual_shortest_time_th, expected_longest_time_th, actual_longest_time_th,
+        points_configuration, comment):
+    """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
+    
+    Parameters
+    ----------
+    output_file_path : str
+        出力先ファイルへのパス
+    p : float
+        ［表が出る確率］（先手勝率）
+    draw_rate : float
+        ［引き分ける確率］
+    round_total : int
+        対局数
+    black_wons : int
+        ［先後固定制］で、黒が勝った回数
+    black_wons_in_tie_break : int
+        ［タイブレークで黒が勝った回数］
+    number_of_ties : int
+        ［引き分けた回数］
+    sum_number_of_ties_throughout_series : int
+
+    expected_shortest_time_th : int
+
+    actual_shortest_time_th : int
+
+    expected_longest_time_th : int
+
+    actual_longest_time_th : int
+
+    points_configuration : PointsConfiguration
+        ［かくきんシステムのｐの構成］
+    comment : str
+        コメント
+    """
+
+    # 黒の勝率（全体の数から引き分けの数を引いて計算する）
+    trial_p = black_wons / (round_total - number_of_ties)
+
+    # 黒の勝率と、五分五分との誤差
+    trial_p_error = abs(trial_p - 0.5)
+
+    # ［タイムスタンプ］
+    seg_0a = datetime.datetime.now()
+
+    # ［表が出る確率（％）］
+    seg_0b = p * 100
+
+    # ［調整後の表が出る確率（％）］
+    seg_1_1a = trial_p * 100
+
+    # ［調整後の表が出る確率（％）と 0.5 との誤差］
+    seg_1_1b = trial_p_error * 100
+
+    # 対局数（理論値と実際値）
+    seg_1_3a = expected_shortest_time_th
+    seg_1_3b = expected_longest_time_th
+    seg_2_3a = actual_shortest_time_th
+    seg_2_3b = actual_longest_time_th
+
+
+    # ［黒勝ち１つの点数］
+    seg_4a = points_configuration.b_step
+
+    # ［黒勝ち１つの点数］
+    seg_4b = points_configuration.w_step
+
+    # ［目標の点数］
+    seg_4c = points_configuration.span
+
+    # コメント
+    seg_5 = comment
+
+    # ［タイブレークで黒が勝った勝率（％）］
+    if number_of_ties == 0:
+        seg_6 = "なし"
+    else:
+        seg_6 = f"{(black_wons_in_tie_break / number_of_ties) * 100:8.4f} ％"
+
+    # 引分け率（％） 理論値
+    seg_7 = draw_rate * 100
+
+    # 引分け率（％） 実際値
+    seg_7b = (number_of_ties / round_total) * 100
+
+    return f"""\
+[{seg_0a                  }]  先手勝率 {seg_0b:2.0f} ％ --試行後--> {seg_1_1a:8.4f} ％（± {seg_1_1b:7.4f}）（引分けは別勘定）    先手勝ち数{black_wons:>7}，引分{number_of_ties:>7}（詳細{sum_number_of_ties_throughout_series:>7}），{round_total:>7}対局試行    対局数 {seg_1_3a:>2}～{seg_1_3b:>2}  先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点    {seg_5}
+                              引分け率 {seg_7 :2.0f} ％             {seg_7b  :8.4f} ％ タイブレーク黒勝率 {seg_6}           実際   {seg_2_3a:>2}～{seg_2_3b:>2} 局（先後固定制）
 """

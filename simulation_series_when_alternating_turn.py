@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_coin_toss_when_alternating_turn.py
+# python simulation_series_when_alternating_turn.py
 #
 #   ［先後交互制］
 #   引き分けは考慮していない。
@@ -17,10 +17,10 @@ import pandas as pd
 from fractions import Fraction
 from library import ALICE, PointsConfiguration, play_game_when_alternating_turn
 from database import get_df_muzudho_recommends_points_when_alternating_turn
-from views import stringify_log_when_simulation_coin_toss_when_alternating_turn
+from views import stringify_log_when_simulation_series_when_alternating_turn
 
 
-LOG_FILE_PATH = 'output/simulation_coin_toss_when_alternating_turn.log'
+LOG_FILE_PATH = 'output/simulation_series_when_alternating_turn.log'
 
 
 def simulate(p, round_total, b_time, w_time):
@@ -55,7 +55,7 @@ def simulate(p, round_total, b_time, w_time):
     # 均等からの誤差
     error = abs(alice_won_rate - 0.5)
 
-    text = stringify_log_when_simulation_coin_toss_when_alternating_turn(
+    text = stringify_log_when_simulation_series_when_alternating_turn(
             p=p,
             alice_won_rate=alice_won_rate,
             specified_p_error=error,

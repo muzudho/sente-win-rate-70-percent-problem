@@ -153,7 +153,7 @@ def draw(draw_rate):
 def play_series_when_frozen_turn(p, points_configuration):
     """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します
 
-    引き分けはありません
+    引き分けはありません。あるいは、［引き分けを１局として数えないケース］です
 
     Parameters
     ----------
@@ -193,10 +193,11 @@ def play_series_when_frozen_turn(p, points_configuration):
     raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
 
 
-def play_series_when_frozen_turn_with_draw(p, draw_rate, points_configuration):
-    """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します１
+def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
+    """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します
 
-    引き分けを考慮します
+    ［引き分けを１局として数えるケース］です。
+    ［タイブレーク］は含みません
 
     Parameters
     ----------
@@ -213,16 +214,25 @@ def play_series_when_frozen_turn_with_draw(p, draw_rate, points_configuration):
         勝った方の色。引き分け（Empty）も含む
     time_th : int
         対局数
+    number_of_ties_throughout_series : int
+        ［シリーズ全体を通して引き分けた数］
     """
+
+    # ［シリーズ全体を通して引き分けた数］
+    number_of_ties_throughout_series = 0
 
     # 点数のリスト。要素は、未使用、黒番、白番
     point_list = [0, 0, 0]
 
-    # 勝ち負けが出るまでやる
-    for time_th in range(1, 2_147_483_647):
+    # ［先後固定制］での対局の上限数は計算で求められます
+    max_time = points_configuration.count_longest_time_when_frozen_turn()
 
+    # 対局の上限数までやる
+    for time_th in range(0, max_time):
+
+        # 引き分けを１局と数えるケース
         if draw(draw_rate):
-            pass
+            number_of_ties_throughout_series += 1
 
         else:
             successful_color = coin(p)
@@ -236,10 +246,53 @@ def play_series_when_frozen_turn_with_draw(p, draw_rate, points_configuration):
             point_list[successful_color] += step
 
             if points_configuration.span <= point_list[successful_color]:
-                return successful_color, time_th    # 勝ち抜け
+                return successful_color, time_th, number_of_ties_throughout_series    # 勝ち抜け
+
+    # 引き分けを１局と数えると、決着が付かないケースがあります
+
+    # # 黒の方が点数が多かったら、黒の勝ちとします
+    # if point_list[WHITE] < point_list[BLACK]:
+    #     return BLACK, time_th, number_of_ties_throughout_series
+
+    # # 白の方が点数が多かったら、白の勝ちとします
+    # elif point_list[BLACK] < point_list[WHITE]:
+    #     return WHITE, time_th, number_of_ties_throughout_series
+
+    # # NOTE ルールとして、引き分けを廃止することはできるか？ ----> 両者の実力が等しく、先手後手の有利も等しいとき、真の結果は引き分けがふさわしい。引き分けを消すことはできない
+    # #
+    # # NOTE その場合、先手勝利でいいのでは？ ----> 引き分け率１０％のとき、先手にしろ後手にしろ、そっちの勝率が５％上がってしまった。［目標の点数］を２倍にしてもだいたい同じ
+    # # NOTE 点数が引き分けということは、［最長対局数］を全部引き分けだったということです。引き分けが先手勝ちとか、後手勝ちと決めてしまうと、対局数が１のとき、影響がもろに出てしまう
+    # # NOTE 点数が引き分けのとき、最後に勝った方の勝ちとすればどうなる？ ----> 先手の方が勝つ機会が多いのでは？
+    # # NOTE 引き分けは［両者得点］にしたらどうか？ ----> step を足すのは白番に有利すぎる。１点を足すのは数学的に意味がない。
+    # # NOTE 引き分けは［両者得点］にし、かつ、引き分けが奇数回なら後手勝ち、偶数回なら先手勝ちにしたらどうか？ ----> 対局数が１のときの影響がでかい
+    # # NOTE 引き分けは、［黒勝ち１つの点数］が小さい黒番の方に大きく響く？
+
+    # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ
+    return EMPTY, time_th, number_of_ties_throughout_series
 
 
-    raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
+def play_tie_break(p, draw_rate):
+    """［タイブレーク］を行います。１局勝負で、引き分けの場合は白勝ちです。
+
+    Parameters
+    ----------
+    p : float
+        ［表が出る確率］ 例： ７割なら 0.7
+    draw_rate : float
+        ［引き分けになる率】 例： １割の確率で引き分けになるのなら 0.1
+    
+    Returns
+    -------
+    winner_color : int
+        勝った方の色。引き分けなら白勝ち
+    """
+
+    # 引き分けなら白勝ち
+    if draw(draw_rate):
+        return WHITE
+
+    else:
+        return coin(p)
 
 
 def play_game_when_alternating_turn(p, points_configuration):

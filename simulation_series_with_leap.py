@@ -2,7 +2,7 @@
 # NOTE ［閏対局］は今のところ没案
 #
 # シミュレーション
-# python simulation_coin_toss_with_leap.py
+# python simulation_series_with_leap.py
 #
 #   閏対局のシミュレーション
 #
@@ -15,7 +15,7 @@ import math
 from library import BLACK, round_letro, p_to_b_w_times, PointsConfiguration, play_series_when_frozen_turn
 
 
-LOG_FILE_PATH = 'output/simulation_coin_toss_with_leap.log'
+LOG_FILE_PATH = 'output/simulation_series_with_leap.log'
 
 
 INPUT_DATA = [
