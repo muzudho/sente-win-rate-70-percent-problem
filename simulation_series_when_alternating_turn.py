@@ -23,7 +23,7 @@ from views import stringify_log_when_simulation_series_when_alternating_turn
 LOG_FILE_PATH = 'output/simulation_series_when_alternating_turn.log'
 
 
-def simulate(p, round_total, b_time, w_time):
+def simulate(p, number_of_series, b_time, w_time):
 
     # ［かくきんシステムのｐの構成］
     points_configuration = PointsConfiguration.let_points_from_repeat(
@@ -35,7 +35,7 @@ def simulate(p, round_total, b_time, w_time):
     shortest_time_th = 2_147_483_647
     longest_time_th = 0
 
-    for round in range(0, round_total):
+    for round in range(0, number_of_series):
 
         # ［先後交互制］で、勝ったプレイヤーを返す
         winner_player, time_th = play_game_when_alternating_turn(p, points_configuration)
@@ -50,7 +50,7 @@ def simulate(p, round_total, b_time, w_time):
 
 
     # Ａさんが勝った確率
-    alice_won_rate = alice_wons / round_total
+    alice_won_rate = alice_wons / number_of_series
 
     # 均等からの誤差
     error = abs(alice_won_rate - 0.5)
@@ -60,7 +60,7 @@ def simulate(p, round_total, b_time, w_time):
             alice_won_rate=alice_won_rate,
             specified_p_error=error,
             b_time=b_time,
-            round_total=round_total)
+            number_of_series=number_of_series)
 
     print(text) # 表示
 
@@ -69,11 +69,11 @@ def simulate(p, round_total, b_time, w_time):
         f.write(f"{text}\n")    # ファイルへ出力
 
     # # 表示とログ出力を終えた後でテスト
-    # if actual_shortest_time_th_when_alternating_turn < expected_shortest_time_th_when_alternating_turn:
-    #     raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {actual_shortest_time_th_when_alternating_turn} が理論値 {expected_shortest_time_th_when_alternating_turn} を下回った")
+    # if simulation_result.shortest_time_th < expected_shortest_time_th_when_alternating_turn:
+    #     raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {expected_shortest_time_th_when_alternating_turn} を下回った")
 
-    # if expected_longest_time_th_when_alternating_turn < actual_longest_time_th_when_alternating_turn:
-    #     raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {actual_longest_time_th_when_alternating_turn} が理論値 {expected_longest_time_th_when_alternating_turn} を上回った")
+    # if expected_longest_time_th_when_alternating_turn < simulation_result.longest_time_th:
+    #     raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {expected_longest_time_th_when_alternating_turn} を上回った")
 
 
 ########################################
@@ -88,8 +88,8 @@ if __name__ == '__main__':
         df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
         # 対局数
-        round_total = 2_000_000 # 十分多いケース
-        #round_total = 200
+        number_of_series = 2_000_000 # 十分多いケース
+        #number_of_series = 200
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_at['p'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
@@ -102,7 +102,7 @@ if __name__ == '__main__':
 
             simulate(
                     p=p,
-                    round_total=round_total,
+                    number_of_series=number_of_series,
                     b_time=specified_points_configuration.b_time,
                     w_time=specified_points_configuration.w_time)
 

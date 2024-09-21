@@ -151,7 +151,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         # # 先手が勝った回数
                         # black_win_count = 0
                         # for i in range(0, REQUIRED_ROUND_COUNT):
-                        #     winner_color, time_th = play_series_when_frozen_turn(
+                        #     series_result = play_series_when_frozen_turn(
                         #             p=p,
                         #             points_configuration=latest_points_configuration)
                             

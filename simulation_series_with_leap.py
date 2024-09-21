@@ -115,13 +115,13 @@ if __name__ == '__main__':
 
             print() # 改行
 
-            # 対局数
-            round_total = 1_000
+            # シリーズ数
+            number_of_series = 1_000
 
             # 黒が勝った回数
             black_wons = 0
 
-            for round in range(0, round_total):
+            for round in range(0, number_of_series):
                 # TODO 閏対局を入れたパターンと、入れないパターンの比較
                 if True:
                     if cycle == 0:
@@ -173,13 +173,13 @@ if __name__ == '__main__':
                         black_wons += 1
 
             # 黒が勝った確率
-            black_won_rate = black_wons / round_total
+            black_won_rate = black_wons / number_of_series
 
             # 均等からの誤差
             error = abs(black_won_rate - 0.5)
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.02f}  実用的な先手{practical_b_time:2}本先取／後手{practical_w_time:2}本先取制  先手勝ち数{black_wons:7}／{round_total:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.02f}  実用的な先手{practical_b_time:2}本先取／後手{practical_w_time:2}本先取制  先手勝ち数{black_wons:7}／{number_of_series:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
                 print(text)
                 f.write(f"{text}\n")
 

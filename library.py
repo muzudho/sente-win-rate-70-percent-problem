@@ -162,10 +162,8 @@ def play_series_when_frozen_turn(p, points_configuration):
     
     Returns
     -------
-    winner_color : int
-        勝った方の色。引き分けはありません
-    time_th : int
-        対局数
+    series_result : SeriesResult
+        ［シリーズ］の結果
     """
 
     # 点数のリスト。要素は、未使用、黒番、白番
@@ -184,8 +182,13 @@ def play_series_when_frozen_turn(p, points_configuration):
 
         point_list[successful_color] += step
 
+        # 勝ち抜け
         if points_configuration.span <= point_list[successful_color]:
-            return successful_color, time_th    # 勝ち抜け
+            return SeriesResult(
+                    number_of_all_times=time_th,
+                    number_of_draw_times=0, # 引分けはありません
+                    span=points_configuration.span,
+                    point_list=point_list)
 
 
     raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
@@ -208,18 +211,12 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     
     Returns
     -------
-    winner_color : int
-        勝った方の色。引き分け（Empty）も含む
-    time_th : int
-        対局数
-    number_of_ties_throughout_series : int
-        ［シリーズ全体を通して引き分けた数］
-    point_list : list
-        ［勝ち点］のリスト。要素は、未使用、黒番、白番
+    series_result : SeriesResult
+        ［シリーズ］の結果
     """
 
     # ［シリーズ全体を通して引き分けた数］
-    number_of_ties_throughout_series = 0
+    number_of_draw_times = 0
 
     # ［勝ち点］のリスト。要素は、未使用、黒番、白番
     point_list = [0, 0, 0]
@@ -235,7 +232,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
         #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
         #
         if draw(draw_rate):
-            number_of_ties_throughout_series += 1
+            number_of_draw_times += 1
 
         else:
             successful_color = coin(p)
@@ -249,10 +246,21 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
             point_list[successful_color] += step
 
             if points_configuration.span <= point_list[successful_color]:
-                return successful_color, time_th, number_of_ties_throughout_series, point_list    # 勝ち抜け
+                series_result = SeriesResult(
+                        number_of_all_times=time_th,
+                        number_of_draw_times=number_of_draw_times,
+                        span=points_configuration.span,
+                        point_list=point_list)
+
+                return series_result    # 勝ち抜け
     
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
-    return EMPTY, time_th, number_of_ties_throughout_series, point_list
+    series_result = SeriesResult(
+            number_of_all_times=time_th,
+            number_of_draw_times=number_of_draw_times,
+            span=points_configuration.span,
+            point_list=point_list)
+    return series_result
 
 
 def play_tie_break(p, draw_rate):
@@ -656,49 +664,244 @@ class PointsConfiguration():
 
 
 class SeriesResult():
-    """シリーズの結果"""
+    """［シリーズ］の結果"""
 
 
-    def __init__(self, all_times, span, point_list):
+    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list):
         """初期化
 
         Parameters
         ----------
-        all_times : int
+        number_of_all_times : int
             行われた対局数
+        number_of_draw_times : int
+            引分けだった対局数
         span : int
             ［目標の点数］
         point_list : list
-            点数のリスト。要素は、未使用、黒番、白番
+            ［勝ち点］のリスト。要素は、未使用、黒番、白番
         """
-        self._all_times = all_times
+        self._number_of_all_times = number_of_all_times
+        self._number_of_draw_times = number_of_draw_times
         self._span = span
         self._point_list = point_list
+        self._is_no_won = None
+        self._is_black_points_won = None
+        self._is_white_points_won = None
+        self._winner_color = None
 
 
+    @property
+    def number_of_all_times(self):
+        """行われた対局数"""
+        return self._number_of_all_times
+
+
+    @property
+    def number_of_draw_times(self):
+        """引分けだった対局数"""
+        return self._number_of_draw_times
+
+
+    @property
     def is_no_won(self):
         """勝者なし。黒白ともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
-        half = math.floor(self._span / 2)
-        return (self._point_list[BLACK] <= half and self._point_list[WHITE] <= half) or self._point_list[BLACK] == self._point_list[WHITE]
+        if self._is_no_won is None:
+            half = math.floor(self._span / 2)
+            self._is_no_won = (self._point_list[BLACK] <= half and self._point_list[WHITE] <= half) or self._point_list[BLACK] == self._point_list[WHITE]
+
+        return self._is_no_won
 
 
+    @property
     def is_black_fully_won(self):
         """黒が［目標の点数］を集めて黒の勝ち"""
         return self._span <= self._point_list[BLACK]
 
 
+    @property
     def is_white_fully_won(self):
         """白が［目標の点数］を集めて白の勝ち"""
         return self._span <= self._point_list[WHITE]
 
 
+    @property
     def is_black_points_won(self):
         """黒が［目標の点数］の過半数の［勝ち点］を集めており、さらに白の［勝ち点］より多くて黒の勝ち"""
-        half = math.floor(self._span / 2)
-        return half < self._point_list[BLACK] and self._point_list[WHITE] < self._point_list[BLACK]
+        if self._is_black_points_won is None:
+            half = math.floor(self._span / 2)
+            self._is_black_points_won = half < self._point_list[BLACK] and self._point_list[WHITE] < self._point_list[BLACK]
+
+        return self._is_black_points_won
 
 
+    @property
     def is_white_points_won(self):
         """白が［目標の点数］の過半数の［勝ち点］を集めており、さらに黒の［勝ち点］より多くて白の勝ち"""
-        half = math.floor(self._span / 2)
-        return half < self._point_list[WHITE] and self._point_list[BLACK] < self._point_list[WHITE]
+        if self._is_white_points_won is None:
+            half = math.floor(self._span / 2)
+            self._is_white_points_won = half < self._point_list[WHITE] and self._point_list[BLACK] < self._point_list[WHITE]
+
+        return self._is_white_points_won
+
+
+    @property
+    def winner_color(self):
+        """勝った方の色。引き分け（Empty）も含む"""
+        if self._winner_color is None:
+            if self.is_black_fully_won() or self.is_black_points_won:
+                self._winner_color = BLACK
+            elif self.is_white_fully_won() or self.is_white_points_won:
+                self._winner_color = WHITE
+            else:
+                self._winner_color = EMPTY
+        
+        return self._winner_color
+            
+
+
+class SimulationResult():
+    """シミュレーションの結果"""
+
+
+    def __init__(self, series_result_list):
+        """初期化
+        
+        Parameters
+        ----------
+        series_result_list : list
+            ［シリーズ］の結果のリスト
+        """
+        self._series_result_list = series_result_list
+        self._shortest_time_th = None
+        self._longest_time_th = None
+        self._number_of_black_fully_wons = None
+        self._number_of_white_fully_wons = None
+        self._number_of_black_points_wons = None
+        self._number_of_white_points_wons = None
+        self._number_of_draw_times = None
+
+
+    @property
+    def number_of_series(self):
+        """シリーズ数"""
+        return len(self._series_result_list)
+
+
+    @property
+    def shortest_time_th(self):
+        """［最短対局数］"""
+        if self._shortest_time_th is None:
+            self._shortest_time_th = 2_147_483_647
+            for series_result in self._series_result_list:
+                if series_result.number_of_all_times < self._shortest_time_th:
+                    self._shortest_time_th = series_result.number_of_all_times
+
+        return self._shortest_time_th
+
+
+    @property
+    def longest_time_th(self):
+        """［最長対局数］"""
+        if self._longest_time_th is None:
+            self._longest_time_th = 0
+            for series_result in self._series_result_list:
+                if self._longest_time_th < series_result.number_of_all_times:
+                    self._longest_time_th = series_result.number_of_all_times
+
+        return self._shortest_time_th
+
+
+    @property
+    def number_of_black_fully_wons(self):
+        """黒が［目標の点数］を集めて勝った回数"""
+        if self._number_of_black_fully_wons is None:
+            self._number_of_black_fully_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_black_fully_won:
+                    self._number_of_black_fully_wons += 1
+
+        return self._number_of_black_fully_wons
+
+
+    @property
+    def number_of_white_fully_wons(self):
+        """白が［目標の点数］を集めて勝った回数"""
+        if self._number_of_white_fully_wons is None:
+            self._number_of_white_fully_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_white_fully_won:
+                    self._number_of_white_fully_wons += 1
+
+        return self._number_of_white_fully_wons
+
+
+    @property
+    def number_of_black_points_wons(self):
+        """黒が［勝ち点差判定］で勝った回数"""
+        if self._number_of_black_points_wons is None:
+            self._number_of_black_points_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_black_points_won:
+                    self._number_of_black_points_wons += 1
+
+        return self._number_of_black_points_wons
+
+
+    @property
+    def number_of_white_points_wons(self):
+        """白が［勝ち点差判定］で勝った回数"""
+        if self._number_of_white_points_wons is None:
+            self._number_of_white_points_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_white_points_won:
+                    self._number_of_white_points_wons += 1
+
+        return self._number_of_white_points_wons
+
+
+    @property
+    def number_of_draw_times(self):
+        """全シリーズ通算の引分けの対局数"""
+        if self._number_of_draw_times is None:
+            self._number_of_draw_times = 0
+            for series_result in self._series_result_list:
+                if series_result.number_of_draw_times:
+                    self._number_of_draw_times += 1
+
+        return self._number_of_draw_times
+
+
+    @property
+    def number_of_black_all_wons(self):
+        """黒の勝利数"""
+        return self.number_of_black_fully_wons + self.number_of_black_points_wons
+
+
+    @property
+    def number_of_white_all_wons(self):
+        """白の勝利数"""
+        return self.number_of_white_fully_wons + self.number_of_white_points_wons
+
+
+    @property
+    def number_of_draw_series(self):
+        """引分けで終わったシリーズ数"""
+        return self.number_of_series - self.number_of_black_all_wons - self.number_of_white_all_wons
+
+
+    @property
+    def trial_p_without_draw(self):
+        """試行した結果、［表が出る確率］
+        
+        引分けを除いて計算する
+        """
+        return self.number_of_black_all_wons / (self.number_of_series - self.number_of_draw_series)
+
+    @property
+    def trial_p_error_without_draw(self):
+        """試行した結果、［表が出る確率］
+        
+        引分けを除いて計算する
+        """
+        return self.trial_p_without_draw - 0.5
