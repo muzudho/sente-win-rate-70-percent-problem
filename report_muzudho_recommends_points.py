@@ -34,8 +34,8 @@ def generate_when_alternating_turn():
 
     df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
-    for               p,             round_count,             b_step,             w_step,             span,             presentable,             comment,             process in\
-        zip(df_mr_at['p'], df_mr_at['round_count'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
+    for               p,             number_of_series,             b_step,             w_step,             span,             presentable,             comment,             process in\
+        zip(df_mr_at['p'], df_mr_at['number_of_series'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
 
         # ［かくきんシステムのｐの構成］。任意に指定します
         specified_points_configuration = PointsConfiguration(
@@ -52,7 +52,7 @@ def generate_when_alternating_turn():
         # 文言の作成
         text = stringify_report_muzudho_recommends_points_at(
                 p=p,
-                round_count=round_count,
+                number_of_series=number_of_series,
                 latest_theoretical_p=latest_theoretical_p,
                 specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                 presentable=presentable,

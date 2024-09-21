@@ -26,7 +26,7 @@ LOG_FILE_PATH_AT = 'output/generate_even_when_alternating_turn.log'
 CSV_FILE_PATH_AT = './data/generate_even_when_alternating_turn.csv'
 
 # このラウンド数を満たさないデータは、再探索します
-REQUIRED_ROUND_COUNT = 2_000_000
+REQUIRED_MUMBER_OF_SERIES = 2_000_000
 
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 ABS_OUT_OF_ERROR = 0.51
@@ -44,8 +44,8 @@ LIMIT_SPAN = 1001
 
 
 def update_dataframe(df, p,
-        best_p, best_p_error, best_round_count, best_points_configuration,
-        latest_p, latest_p_error, latest_round_count, latest_points_configuration, process):
+        best_p, best_p_error, best_number_of_series, best_points_configuration,
+        latest_p, latest_p_error, latest_number_of_series, latest_points_configuration, process):
     """データフレーム更新"""
 
     # 表示
@@ -53,7 +53,7 @@ def update_dataframe(df, p,
             p=p,
             best_p=best_p,
             best_p_error=best_p_error,
-            best_round_count=best_round_count,
+            best_number_of_series=best_number_of_series,
             points_configuration=best_points_configuration)
 
     # ［調整後の表が出る確率］列を更新
@@ -65,8 +65,8 @@ def update_dataframe(df, p,
     df.loc[df['p']==p, ['latest_p_error']] = latest_p_error
 
     # ［試行回数］列を更新
-    df.loc[df['p']==p, ['best_round_count']] = best_round_count
-    df.loc[df['p']==p, ['latest_round_count']] = latest_round_count
+    df.loc[df['p']==p, ['best_number_of_series']] = best_number_of_series
+    df.loc[df['p']==p, ['latest_number_of_series']] = latest_number_of_series
 
     # ［黒勝ち１つの点数］列を更新
     df.loc[df['p']==p, ['best_b_step']] = best_points_configuration.b_step
@@ -86,7 +86,7 @@ def update_dataframe(df, p,
     # CSV保存
     df.to_csv(CSV_FILE_PATH_AT,
             # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'best_p', 'best_p_error', 'best_round_count', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_round_count', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
+            columns=['p', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -100,8 +100,8 @@ def iteration_deeping(df, abs_limit_of_error):
     abs_limit_of_error : float
         リミット
     """
-    for         p,       best_p,       best_p_error,       best_round_count,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_round_count,       latest_b_step,       latest_w_step,       latest_span,       process in\
-        zip(df['p'], df['best_p'], df['best_p_error'], df['best_round_count'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_round_count'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
+    for         p,       best_p,       best_p_error,       best_number_of_series,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_b_step,       latest_w_step,       latest_span,       process in\
+        zip(df['p'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
 
         #   交互に手番を替えるか、変えないかに関わらず、先手と後手の重要さは p で決まっている。
         #
@@ -205,7 +205,7 @@ def iteration_deeping(df, abs_limit_of_error):
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if REQUIRED_ROUND_COUNT < best_round_count or best_p_error <= ABS_SMALL_ERROR:
+        if REQUIRED_MUMBER_OF_SERIES < best_number_of_series or best_p_error <= ABS_SMALL_ERROR:
             is_automatic = False
 
         # アルゴリズムで求めるケース
@@ -236,7 +236,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         #   NOTE 実際値の場合
                         #
                         alice_win_count = 0
-                        for i in range(0, REQUIRED_ROUND_COUNT):
+                        for i in range(0, REQUIRED_MUMBER_OF_SERIES):
                             winner_player, time_th = play_game_when_alternating_turn(
                                     p=p,
                                     points_configuration=latest_points_configuration)
@@ -244,7 +244,7 @@ def iteration_deeping(df, abs_limit_of_error):
                             if winner_player == ALICE:
                                 alice_win_count += 1
                         
-                        latest_p = alice_win_count / REQUIRED_ROUND_COUNT
+                        latest_p = alice_win_count / REQUIRED_MUMBER_OF_SERIES
                         latest_p_error = latest_p - 0.5
 
 
@@ -277,11 +277,11 @@ def iteration_deeping(df, abs_limit_of_error):
                                     p=p,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
-                                    best_round_count=REQUIRED_ROUND_COUNT,
+                                    best_number_of_series=REQUIRED_MUMBER_OF_SERIES,
                                     best_points_configuration=best_points_configuration,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
-                                    latest_round_count=REQUIRED_ROUND_COUNT,
+                                    latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
                                     latest_points_configuration=latest_points_configuration,
                                     process=process)
 
@@ -338,11 +338,11 @@ def iteration_deeping(df, abs_limit_of_error):
                     p=p,
                     best_p=latest_p,
                     best_p_error=latest_p_error,
-                    best_round_count=REQUIRED_ROUND_COUNT,
+                    best_number_of_series=REQUIRED_MUMBER_OF_SERIES,
                     best_points_configuration=best_points_configuration,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
-                    latest_round_count=REQUIRED_ROUND_COUNT,
+                    latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
                     latest_points_configuration=latest_points_configuration,
                     process=latest_process)
 

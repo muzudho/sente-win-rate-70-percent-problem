@@ -162,7 +162,7 @@ def play_series_when_frozen_turn(p, points_configuration):
     
     Returns
     -------
-    series_result : SeriesResult
+    series_result_ft : SeriesResultWhenFrozenTurn
         ［シリーズ］の結果
     """
 
@@ -184,7 +184,7 @@ def play_series_when_frozen_turn(p, points_configuration):
 
         # 勝ち抜け
         if points_configuration.span <= point_list[successful_color]:
-            return SeriesResult(
+            return SeriesResultWhenFrozenTurn(
                     number_of_all_times=time_th,
                     number_of_draw_times=0, # 引分けはありません
                     span=points_configuration.span,
@@ -211,7 +211,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     
     Returns
     -------
-    series_result : SeriesResult
+    series_result_ft : SeriesResultWhenFrozenTurn
         ［シリーズ］の結果
     """
 
@@ -245,22 +245,21 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
 
             point_list[successful_color] += step
 
+            # 勝ち抜け
             if points_configuration.span <= point_list[successful_color]:
-                series_result = SeriesResult(
+                return SeriesResultWhenFrozenTurn(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
                         point_list=point_list)
 
-                return series_result    # 勝ち抜け
-    
+
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
-    series_result = SeriesResult(
+    return SeriesResultWhenFrozenTurn(
             number_of_all_times=time_th,
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
             point_list=point_list)
-    return series_result
 
 
 def play_tie_break(p, draw_rate):
@@ -299,10 +298,8 @@ def play_game_when_alternating_turn(p, points_configuration):
     
     Returns
     -------
-    winner_player : int
-        ＡさんかＢさん
-    time_th : int
-        対局本数
+    series_result : SeriesResultWhenAlternatingTurn
+        ［シリーズ］の結果
     """
 
     # ［得点］の配列。要素は、未使用、Ａさん、Ｂさんの順
@@ -339,7 +336,11 @@ def play_game_when_alternating_turn(p, points_configuration):
         point_list[successful_player] += step
 
         if points_configuration.span <= point_list[successful_player]:
-            return successful_player, time_th
+            return SeriesResultWhenAlternatingTurn(
+                    number_of_all_times=time_th,
+                    number_of_draw_times=0,     # 引分けはありません
+                    span=points_configuration.span,
+                    point_list=point_list)
 
         # 続行
 
@@ -663,8 +664,41 @@ class PointsConfiguration():
         return  (self.b_time-1) + (self.w_time-1) + 1
 
 
-class SeriesResult():
-    """［シリーズ］の結果"""
+class BaseSeriesResult():
+    """［シリーズ］の結果のベース"""
+
+
+    def __init__(self, number_of_all_times, number_of_draw_times, span):
+        """初期化
+    
+        Parameters
+        ----------
+            number_of_all_times : int
+                行われた対局数
+            number_of_draw_times : int
+                引分けだった対局数
+            span : int
+                ［目標の点数］
+        """
+        self._number_of_all_times = number_of_all_times
+        self._number_of_draw_times = number_of_draw_times
+        self._span = span
+
+
+    @property
+    def number_of_all_times(self):
+        """行われた対局数"""
+        return self._number_of_all_times
+
+
+    @property
+    def number_of_draw_times(self):
+        """引分けだった対局数"""
+        return self._number_of_draw_times
+
+
+class SeriesResultWhenFrozenTurn(BaseSeriesResult):
+    """［先後固定制］での［シリーズ］の結果"""
 
 
     def __init__(self, number_of_all_times, number_of_draw_times, span, point_list):
@@ -681,26 +715,11 @@ class SeriesResult():
         point_list : list
             ［勝ち点］のリスト。要素は、未使用、黒番、白番
         """
-        self._number_of_all_times = number_of_all_times
-        self._number_of_draw_times = number_of_draw_times
-        self._span = span
+        super().__init__(number_of_all_times, number_of_draw_times, span)
         self._point_list = point_list
         self._is_no_won = None
         self._is_black_points_won = None
         self._is_white_points_won = None
-        self._winner_color = None
-
-
-    @property
-    def number_of_all_times(self):
-        """行われた対局数"""
-        return self._number_of_all_times
-
-
-    @property
-    def number_of_draw_times(self):
-        """引分けだった対局数"""
-        return self._number_of_draw_times
 
 
     @property
@@ -746,22 +765,98 @@ class SeriesResult():
 
 
     @property
-    def winner_color(self):
-        """勝った方の色。引き分け（Empty）も含む"""
-        if self._winner_color is None:
-            if self.is_black_fully_won() or self.is_black_points_won:
-                self._winner_color = BLACK
-            elif self.is_white_fully_won() or self.is_white_points_won:
-                self._winner_color = WHITE
-            else:
-                self._winner_color = EMPTY
-        
-        return self._winner_color
-            
+    def is_black_won(self):
+        """黒勝ち"""
+        return self.is_black_fully_won() or self.is_black_points_won
 
 
-class SimulationResult():
-    """シミュレーションの結果"""
+    @property
+    def is_white_won(self):
+        """白勝ち"""
+        return self.is_white_fully_won() or self.is_white_points_won
+
+
+class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
+    """［先後交互制］での［シリーズ］の結果"""
+
+
+    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list):
+        """初期化
+
+        Parameters
+        ----------
+        number_of_all_times : int
+            行われた対局数
+        number_of_draw_times : int
+            引分けだった対局数
+        span : int
+            ［目標の点数］
+        point_list : list
+            ［勝ち点］のリスト。要素は、未使用、黒番、白番
+        """
+        super().__init__(number_of_all_times, number_of_draw_times, span)
+        self._point_list = point_list
+        self._is_no_won = None
+        self._is_alice_points_won = None
+        self._is_bob_points_won = None
+
+
+    @property
+    def is_no_won(self):
+        """勝者なし。ＡさんＢさんともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
+        if self._is_no_won is None:
+            half = math.floor(self._span / 2)
+            self._is_no_won = (self._point_list[ALICE] <= half and self._point_list[BOB] <= half) or self._point_list[ALICE] == self._point_list[BOB]
+
+        return self._is_no_won
+
+
+    @property
+    def is_alice_fully_won(self):
+        """Ａさんが［目標の点数］を集めて黒の勝ち"""
+        return self._span <= self._point_list[ALICE]
+
+
+    @property
+    def is_bob_fully_won(self):
+        """Ｂさんが［目標の点数］を集めて白の勝ち"""
+        return self._span <= self._point_list[BOB]
+
+
+    @property
+    def is_alice_points_won(self):
+        """Ａさんが［目標の点数］の過半数の［勝ち点］を集めており、さらにＢさんの［勝ち点］より多くてＡさんの勝ち"""
+        if self._is_alice_points_won is None:
+            half = math.floor(self._span / 2)
+            self._is_alice_points_won = half < self._point_list[ALICE] and self._point_list[BOB] < self._point_list[ALICE]
+
+        return self._is_alice_points_won
+
+
+    @property
+    def is_bob_points_won(self):
+        """Ｂさんが［目標の点数］の過半数の［勝ち点］を集めており、さらにＡさんの［勝ち点］より多くてＢさんの勝ち"""
+        if self._is_bob_points_won is None:
+            half = math.floor(self._span / 2)
+            self._is_bob_points_won = half < self._point_list[BOB] and self._point_list[ALICE] < self._point_list[BOB]
+
+        return self._is_bob_points_won
+
+
+    @property
+    def is_alice_won(self):
+        """Ａさんの勝ち"""
+        return self.is_alice_fully_won() or self.is_alice_points_won
+
+
+    @property
+    def is_bob_won(self):
+        """Ｂさんの勝ち"""
+        return self.is_bob_fully_won() or self.is_bob_points_won
+
+
+class BaseSimulationResult():
+    """シミュレーションの結果のベース"""
 
 
     def __init__(self, series_result_list):
@@ -775,10 +870,6 @@ class SimulationResult():
         self._series_result_list = series_result_list
         self._shortest_time_th = None
         self._longest_time_th = None
-        self._number_of_black_fully_wons = None
-        self._number_of_white_fully_wons = None
-        self._number_of_black_points_wons = None
-        self._number_of_white_points_wons = None
         self._number_of_draw_times = None
 
 
@@ -810,6 +901,37 @@ class SimulationResult():
                     self._longest_time_th = series_result.number_of_all_times
 
         return self._shortest_time_th
+
+
+    @property
+    def number_of_draw_times(self):
+        """全シリーズ通算の引分けの対局数"""
+        if self._number_of_draw_times is None:
+            self._number_of_draw_times = 0
+            for series_result in self._series_result_list:
+                if series_result.number_of_draw_times:
+                    self._number_of_draw_times += 1
+
+        return self._number_of_draw_times
+
+
+class SimulationResultWhenFrozenTurn(BaseSimulationResult):
+    """［先後固定制］でのシミュレーションの結果"""
+
+
+    def __init__(self, series_result_ft_list):
+        """初期化
+        
+        Parameters
+        ----------
+        series_result_ft_list : list
+            ［シリーズ］の結果のリスト
+        """
+        super().__init__(series_result_ft_list)
+        self._number_of_black_fully_wons = None
+        self._number_of_white_fully_wons = None
+        self._number_of_black_points_wons = None
+        self._number_of_white_points_wons = None
 
 
     @property
@@ -861,18 +983,6 @@ class SimulationResult():
 
 
     @property
-    def number_of_draw_times(self):
-        """全シリーズ通算の引分けの対局数"""
-        if self._number_of_draw_times is None:
-            self._number_of_draw_times = 0
-            for series_result in self._series_result_list:
-                if series_result.number_of_draw_times:
-                    self._number_of_draw_times += 1
-
-        return self._number_of_draw_times
-
-
-    @property
     def number_of_black_all_wons(self):
         """黒の勝利数"""
         return self.number_of_black_fully_wons + self.number_of_black_points_wons
@@ -905,3 +1015,105 @@ class SimulationResult():
         引分けを除いて計算する
         """
         return self.trial_p_without_draw - 0.5
+
+
+class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
+    """［先後交互制］でのシミュレーションの結果"""
+
+
+    def __init__(self, series_result_at_list):
+        """初期化
+        
+        Parameters
+        ----------
+        series_result_at_list : list
+            ［シリーズ］の結果のリスト
+        """
+        super().__init__(series_result_list=series_result_at_list)
+        self._number_of_alice_fully_wons = None
+        self._number_of_bob_fully_wons = None
+        self._number_of_alice_points_wons = None
+        self._number_of_bob_points_wons = None
+
+
+    @property
+    def number_of_alice_fully_wons(self):
+        """Ａさんが［目標の点数］を集めて勝った回数"""
+        if self._number_of_alice_fully_wons is None:
+            self._number_of_alice_fully_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_alice_fully_won:
+                    self._number_of_alice_fully_wons += 1
+
+        return self._number_of_alice_fully_wons
+
+
+    @property
+    def number_of_bob_fully_wons(self):
+        """Ｂさんが［目標の点数］を集めて勝った回数"""
+        if self._number_of_bob_fully_wons is None:
+            self._number_of_bob_fully_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_bob_fully_won:
+                    self._number_of_bob_fully_wons += 1
+
+        return self._number_of_bob_fully_wons
+
+
+    @property
+    def number_of_alice_points_wons(self):
+        """Ａさんが［勝ち点差判定］で勝った回数"""
+        if self._number_of_alice_points_wons is None:
+            self._number_of_alice_points_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_alice_points_won:
+                    self._number_of_alice_points_wons += 1
+
+        return self._number_of_alice_points_wons
+
+
+    @property
+    def number_of_bob_points_wons(self):
+        """Ｂさんが［勝ち点差判定］で勝った回数"""
+        if self._number_of_bob_points_wons is None:
+            self._number_of_bob_points_wons = 0
+            for series_result in self._series_result_list:
+                if series_result.is_bob_points_won:
+                    self._number_of_bob_points_wons += 1
+
+        return self._number_of_bob_points_wons
+
+
+    @property
+    def number_of_alice_all_wons(self):
+        """Ａさんの勝利数"""
+        return self.number_of_alice_fully_wons + self.number_of_alice_points_wons
+
+
+    @property
+    def number_of_bob_all_wons(self):
+        """Ｂさんの勝利数"""
+        return self.number_of_bob_fully_wons + self.number_of_bob_points_wons
+
+
+    @property
+    def number_of_draw_series(self):
+        """引分けで終わったシリーズ数"""
+        return self.number_of_series - self.number_of_alice_all_wons - self.number_of_bob_all_wons
+
+
+    @property
+    def trial_alice_won_without_draw(self):
+        """試行した結果、［Ａさんが勝つ確率］
+        
+        引分けを除いて計算する
+        """
+        return self.number_of_alice_all_wons / (self.number_of_series - self.number_of_draw_series)
+
+    @property
+    def trial_alice_won_error_without_draw(self):
+        """試行した結果、［Ａさんが勝つ確率］
+        
+        引分けを除いて計算する
+        """
+        return self.trial_alice_won_without_draw - 0.5

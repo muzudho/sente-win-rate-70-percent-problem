@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, ALICE, PointsConfiguration, play_series_when_frozen_turn, SimulationResult
+from library import BLACK, ALICE, PointsConfiguration, play_series_when_frozen_turn, SimulationResultWhenFrozenTurn
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_series_when_frozen_turn
 
@@ -21,28 +21,23 @@ from views import stringify_log_when_simulation_series_when_frozen_turn
 LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
 
 
-def simulate(p, number_of_series, b_time, w_time, comment):
+def simulate(p, number_of_series, points_configuration, comment):
     """シミュレート"""
 
-    # ［かくきんシステムのｐの構成］
-    points_configuration = PointsConfiguration.let_points_from_repeat(
-            b_time=b_time,
-            w_time=w_time)
-
-    series_result_list = []
+    series_result_ft_list = []
 
     for round in range(0, number_of_series):
         # ［先後固定制］で、勝った方の手番を返す
-        series_result = play_series_when_frozen_turn(
+        series_result_ft = play_series_when_frozen_turn(
                 p=p,
                 points_configuration=points_configuration)
         
-        series_result_list.append(series_result)
+        series_result_ft_list.append(series_result_ft)
 
 
     # シミュレーションの結果
-    simulation_result = SimulationResult(
-            series_result_list=series_result_list)
+    simulation_result_ft = SimulationResultWhenFrozenTurn(
+            series_result_ft_list=series_result_ft_list)
 
     text = stringify_log_when_simulation_series_when_frozen_turn(
             # 出力先ファイルへのパス
@@ -84,8 +79,8 @@ if __name__ == '__main__':
         df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
 
         # 対局数
-        round_count = 2_000_000 # 十分多いケース
-        #round_count = 10 # 少なすぎるケース
+        number_of_series = 2_000_000 # 十分多いケース
+        #number_of_series = 10 # 少なすぎるケース
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
@@ -98,9 +93,8 @@ if __name__ == '__main__':
 
             simulate(
                     p=p,
-                    number_of_series=round_count,
-                    b_time=specified_points_configuration.b_time,
-                    w_time=specified_points_configuration.w_time,
+                    number_of_series=number_of_series,
+                    points_configuration=specified_points_configuration,
                     comment='むずでょセレクション')
 
 

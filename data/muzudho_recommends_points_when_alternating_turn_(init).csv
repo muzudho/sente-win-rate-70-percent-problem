@@ -1,4 +1,4 @@
-p,round_count,b_step,w_step,span,presentable,comment,process
+p,number_of_series,b_step,w_step,span,presentable,comment,process
 0.50,0,1,1,1,"","",""
 0.51,0,1,1,1,"","",""
 0.52,0,1,1,1,"","",""

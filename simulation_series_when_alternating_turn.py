@@ -15,7 +15,7 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, PointsConfiguration, play_game_when_alternating_turn
+from library import ALICE, PointsConfiguration, play_game_when_alternating_turn, SimulationResultWhenAlternatingTurn
 from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_log_when_simulation_series_when_alternating_turn
 
@@ -23,44 +23,26 @@ from views import stringify_log_when_simulation_series_when_alternating_turn
 LOG_FILE_PATH = 'output/simulation_series_when_alternating_turn.log'
 
 
-def simulate(p, number_of_series, b_time, w_time):
+def simulate(p, number_of_series, points_configuration):
+    """シミュレート"""
 
-    # ［かくきんシステムのｐの構成］
-    points_configuration = PointsConfiguration.let_points_from_repeat(
-            b_time=b_time,
-            w_time=w_time)
-
-    # Ａさんが勝った回数
-    alice_wons = 0
-    shortest_time_th = 2_147_483_647
-    longest_time_th = 0
+    series_result_at_list = []
 
     for round in range(0, number_of_series):
 
         # ［先後交互制］で、勝ったプレイヤーを返す
-        winner_player, time_th = play_game_when_alternating_turn(p, points_configuration)
-        if winner_player == ALICE:
-            alice_wons += 1
-
-        if time_th < shortest_time_th:
-            shortest_time_th = time_th
-        
-        if longest_time_th < time_th:
-            longest_time_th = time_th
+        series_result_at = play_game_when_alternating_turn(p, points_configuration)
+        series_result_at_list.append(series_result_at)
 
 
-    # Ａさんが勝った確率
-    alice_won_rate = alice_wons / number_of_series
-
-    # 均等からの誤差
-    error = abs(alice_won_rate - 0.5)
+    # シミュレーションの結果
+    simulation_result_at = SimulationResultWhenAlternatingTurn(
+            series_result_at_list=series_result_at_list)
 
     text = stringify_log_when_simulation_series_when_alternating_turn(
             p=p,
-            alice_won_rate=alice_won_rate,
-            specified_p_error=error,
-            b_time=b_time,
-            number_of_series=number_of_series)
+            points_configuration=points_configuration,
+            simulation_result_at=simulation_result_at)
 
     print(text) # 表示
 
@@ -103,8 +85,7 @@ if __name__ == '__main__':
             simulate(
                     p=p,
                     number_of_series=number_of_series,
-                    b_time=specified_points_configuration.b_time,
-                    w_time=specified_points_configuration.w_time)
+                    points_configuration=specified_points_configuration)
 
 
     except Exception as err:

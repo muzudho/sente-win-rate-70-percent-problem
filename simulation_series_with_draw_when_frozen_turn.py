@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break, SeriesResult, SimulationResult
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break, SimulationResultWhenFrozenTurn
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_series_with_draw_when_frozen_turn
 
@@ -55,7 +55,7 @@ def simulate(p, number_of_series, points_configuration, comment):
 
 
     # シミュレーションの結果
-    simulation_result = SimulationResult(
+    simulation_result = SimulationResultWhenFrozenTurn(
             series_result_list=series_result_list)
 
     text = stringify_log_when_simulation_series_with_draw_when_frozen_turn(

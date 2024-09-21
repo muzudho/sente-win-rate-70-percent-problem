@@ -35,8 +35,8 @@ def generate_when_alternating_turn():
     df_at = get_df_generate_even_when_alternating_turn()
     df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
-    for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
-        zip(df_at['p'], df_at['best_p'], df_at['best_p_error'], df_at['best_round_count'], df_at['best_b_step'], df_at['best_w_step'], df_at['best_span'], df_at['latest_p'], df_at['latest_p_error'], df_at['latest_round_count'], df_at['latest_b_step'], df_at['latest_w_step'], df_at['latest_span'], df_at['process']):
+    for            p,          best_p,          best_p_error,          best_number_of_series,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_b_step,          latest_w_step,          latest_span,          process in\
+        zip(df_at['p'], df_at['best_p'], df_at['best_p_error'], df_at['best_number_of_series'], df_at['best_b_step'], df_at['best_w_step'], df_at['best_span'], df_at['latest_p'], df_at['latest_p_error'], df_at['latest_number_of_series'], df_at['latest_b_step'], df_at['latest_w_step'], df_at['latest_span'], df_at['process']):
 
         # ［計算過程］一覧
         #
@@ -71,7 +71,7 @@ def generate_when_alternating_turn():
         # CSV保存
         df_mr_at.to_csv(CSV_FILE_PATH_MR_AT,
                 # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'round_count', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
+                columns=['p', 'number_of_series', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -81,8 +81,8 @@ def generate_when_frozen_turn():
     df_ft = get_df_generate_even_when_frozen_turn()
     df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
 
-    for            p,          best_p,          best_p_error,          best_round_count,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_round_count,          latest_b_step,          latest_w_step,          latest_span,          process in\
-        zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_round_count'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_round_count'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
+    for            p,          best_p,          best_p_error,          best_number_of_series,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_b_step,          latest_w_step,          latest_span,          process in\
+        zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_number_of_series'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_number_of_series'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
 
         # ［計算過程］一覧
         #

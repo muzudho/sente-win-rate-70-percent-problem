@@ -1,4 +1,4 @@
-p,best_p,best_p_error,best_round_count,best_b_step,best_w_step,best_span,latest_p,latest_p_error,latest_round_count,latest_b_step,latest_w_step,latest_span,process
+p,best_p,best_p_error,best_number_of_series,best_b_step,best_w_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_b_step,latest_w_step,latest_span,process
 0.5,0.5,0.0,2000000,1,1,2,0.5,0.0,2000000,1,1,2,[0.000354 1黒 1白 1目 1～1局] [0.000000 1黒 1白 2目 2～3局]
 0.51,0.349007,-0.150993,2000000,1,1,5,0.349007,-0.150993,2000000,2,6,6,[0.009984 1黒 1白 1目 1～1局] [0.004878 1黒 1白 2目 2～3局] [0.004166 1黒 1白 3目 3～5局] [0.003154 1黒 1白 4目 4～7局] [0.002700 1黒 1白 5目 5～9局]
 0.52,0.4973235,-0.0026765,2000000,2,3,7,0.4973235,-0.0026765,2000000,2,3,7,[0.020023 1黒 1白 1目 1～1局] [0.009610 1黒 1白 2目 2～3局] [0.007509 1黒 1白 3目 3～5局] [0.006068 1黒 1白 4目 4～7局] [0.005536 1黒 1白 5目 5～9局] [0.004648 1黒 1白 6目 6～11局] [0.004541 1黒 1白 7目 7～13局] [-0.002677 2黒 3白 7目 3～6局]

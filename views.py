@@ -19,7 +19,7 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_muzudho_recommends_points_at(p, round_count, latest_theoretical_p, specified_points_configuration, presentable, process):
+def stringify_report_muzudho_recommends_points_at(p, number_of_series, latest_theoretical_p, specified_points_configuration, presentable, process):
     """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
     Parameters
@@ -68,7 +68,7 @@ def stringify_report_muzudho_recommends_points_at(p, round_count, latest_theoret
                 seg_8 = longest
 
                 # ［試行回数］
-                seg_9 = round_count
+                seg_9 = number_of_series
 
                 return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回{seg_10}"
 
@@ -213,7 +213,7 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_conf
     return text
 
 
-def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best_round_count, points_configuration):
+def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best_number_of_series, points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -239,10 +239,10 @@ def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best
     # ［目標の点数］
     seg_4c = points_configuration.span
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, specified_round_count, specified_points_configuration):
+def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, specified_number_of_series, specified_points_configuration):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -268,10 +268,10 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     # ［目標の点数］
     seg_4c = specified_points_configuration.span
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_round_count:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def stringify_log_when_simulation_series_when_alternating_turn(p, alice_won_rate, specified_p_error, b_time, number_of_series):
+def stringify_log_when_simulation_series_when_alternating_turn(p, points_configuration, simulation_result_at):
     """［先後交互制］
 
     Parameters
@@ -282,24 +282,22 @@ def stringify_log_when_simulation_series_when_alternating_turn(p, alice_won_rate
         ［Ａさんが勝った確率］
     specified_p_error : float
         誤差率
-    b_time : int
-
     """
 
     # ［タイムスタンプ］
     seg_0 = datetime.datetime.now()
 
     # ［表が出る確率（％）］
-    seg_1a = p*100
+    seg_1a = p * 100
 
     # ［Ａさんが勝った確率］
-    seg_2 = alice_won_rate*100
+    seg_2 = simulation_result_at.trial_alice_won_without_draw * 100
 
     # 誤差
-    seg_2b = specified_p_error*100
+    seg_2b = simulation_result_at.trial_alice_won_error_without_draw * 100
 
     # 対局試行
-    seg_4 = number_of_series
+    seg_4 = simulation_result_at.number_of_series
 
     return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --調整--> {seg_2:8.4f} ％（± {seg_2b:7.4f}）（先後交互制でＡさんが勝った確率）  コイントス{seg_4:7}回試行"
 
@@ -317,7 +315,7 @@ def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, p
         ［かくきんシステムのｐの構成］
     comment : str
         コメント
-    simulation_result : SimulationResult
+    simulation_result : SimulationResultWhenFrozenTurn
         シミュレーションの結果
     """
 
@@ -379,7 +377,7 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
         ［かくきんシステムのｐの構成］
     comment : str
         コメント
-    simulation_result : SimulationResult
+    simulation_result : SimulationResultWhenFrozenTurn
         シミュレーションの結果
     """
 
