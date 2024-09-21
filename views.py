@@ -272,6 +272,19 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
 
 
 def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_rate, specified_p_error, b_time, round_total):
+    """［先後交互制］
+
+    Parameters
+    ----------
+    p : float
+        ［表が出る確率］
+    alice_won_rate : float
+        ［Ａさんが勝った確率］
+    specified_p_error : float
+        誤差率
+    b_time : int
+
+    """
 
     # ［タイムスタンプ］
     seg_0 = datetime.datetime.now()
@@ -279,14 +292,11 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
     # ［表が出る確率（％）］
     seg_1a = p*100
 
-    # Ａさんが勝った確率
+    # ［Ａさんが勝った確率］
     seg_2 = alice_won_rate*100
 
     # 誤差
     seg_2b = specified_p_error*100
-
-    # # ｎ本勝負
-    # seg_3 = b_time
 
     # 対局試行
     seg_4 = round_total
@@ -295,7 +305,7 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
 
 
 def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,
-        black_wons, expected_shortest_bout_th_when_frozen_turn, actual_shortest_bout_th_when_frozen_turn, expected_longest_bout_th_when_frozen_turn, actual_longest_bout_th_when_frozen_turn,
+        black_wons, expected_shortest_bout_th, actual_shortest_bout_th, expected_longest_bout_th_when_frozen_turn, actual_longest_bout_th,
         points_configuration, comment):
     """ログ出力
     
@@ -309,13 +319,13 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
         対局数
     black_wons : int
         ［先後固定制］で、黒が勝った回数
-    expected_shortest_bout_th_when_frozen_turn : int
+    expected_shortest_bout_th : int
 
-    actual_shortest_bout_th_when_frozen_turn : int
+    actual_shortest_bout_th : int
 
-    expected_longest_bout_th_when_frozen_turn : int
+    expected_longest_bout_th : int
 
-    actual_longest_bout_th_when_frozen_turn : int
+    actual_longest_bout_th : int
 
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
@@ -347,10 +357,10 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_1_1b = specified_p_error_when_frozen_turn*100
 
     # 対局数（理論値と実際値）
-    seg_1_3a = expected_shortest_bout_th_when_frozen_turn
-    seg_1_3b = expected_longest_bout_th_when_frozen_turn
-    seg_2_3a = actual_shortest_bout_th_when_frozen_turn
-    seg_2_3b = actual_longest_bout_th_when_frozen_turn
+    seg_1_3a = expected_shortest_bout_th
+    seg_1_3b = expected_longest_bout_th
+    seg_2_3a = actual_shortest_bout_th
+    seg_2_3b = actual_longest_bout_th
 
 
     # ［黒勝ち１つの点数］
