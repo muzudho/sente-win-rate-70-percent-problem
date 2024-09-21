@@ -78,6 +78,13 @@ if __name__ == '__main__':
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                 f.write(f"{text}\n")    # ファイルへ出力
 
+            # # 表示とログ出力を終えた後でテスト
+            # if actual_shortest_bout_th_when_alternating_turn < expected_shortest_bout_th_when_alternating_turn:
+            #     raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {actual_shortest_bout_th_when_alternating_turn} が理論値 {expected_shortest_bout_th_when_alternating_turn} を下回った")
+
+            # if expected_longest_bout_th_when_alternating_turn < actual_longest_bout_th_when_alternating_turn:
+            #     raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {actual_longest_bout_th_when_alternating_turn} が理論値 {expected_longest_bout_th_when_alternating_turn} を上回った")
+
 
     except Exception as err:
         print(f"[unexpected error] {err=}  {type(err)=}")

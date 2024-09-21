@@ -14,7 +14,7 @@ import math
 import pandas as pd
 
 from library import BLACK, ALICE, PointsConfiguration, play_game_when_frozen_turn, play_game_when_alternating_turn
-from database import get_df_generate_even_when_frozen_turn, get_def_report_muzudho_recommends_points
+from database import get_def_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
@@ -78,10 +78,6 @@ def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
     expected_longest_bout_th_when_frozen_turn=points_configuration.let_number_of_longest_bout_when_frozen_turn()
     actual_longest_bout_th_when_frozen_turn=longest_bout_th_when_frozen_turn
     alice_wons=alice_wons
-    expected_shortest_bout_th_when_alternating_turn=points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    actual_shortest_bout_th_when_alternating_turn=shortest_bout_th_when_alternating_turn
-    expected_longest_bout_th_when_alternating_turn=points_configuration.let_number_of_longest_bout_when_alternating_turn()
-    actual_longest_bout_th_when_alternating_turn=longest_bout_th_when_alternating_turn
 
     text = stringify_log_when_simulation_coin_toss_when_frozen_turn(
             # 出力先ファイルへのパス
@@ -96,12 +92,6 @@ def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
             actual_shortest_bout_th_when_frozen_turn=actual_shortest_bout_th_when_frozen_turn,
             expected_longest_bout_th_when_frozen_turn=expected_longest_bout_th_when_frozen_turn,
             actual_longest_bout_th_when_frozen_turn=actual_longest_bout_th_when_frozen_turn,
-            # ［先後交互制］で、Ａさんが勝った回数
-            alice_wons=alice_wons,
-            expected_shortest_bout_th_when_alternating_turn=expected_shortest_bout_th_when_alternating_turn,
-            actual_shortest_bout_th_when_alternating_turn=actual_shortest_bout_th_when_alternating_turn,
-            expected_longest_bout_th_when_alternating_turn=expected_longest_bout_th_when_alternating_turn,
-            actual_longest_bout_th_when_alternating_turn=actual_longest_bout_th_when_alternating_turn,
             # ［かくきんシステムのｐの構成］
             points_configuration=points_configuration,
             # コメント
@@ -122,12 +112,6 @@ def perform_p(output_file_path, p, round_total, b_time, w_time, comment):
     if expected_longest_bout_th_when_frozen_turn < actual_longest_bout_th_when_frozen_turn:
         raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {actual_longest_bout_th_when_frozen_turn} が理論値 {expected_longest_bout_th_when_frozen_turn} を上回った")
 
-    if actual_shortest_bout_th_when_alternating_turn < expected_shortest_bout_th_when_alternating_turn:
-        raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {actual_shortest_bout_th_when_alternating_turn} が理論値 {expected_shortest_bout_th_when_alternating_turn} を下回った")
-
-    if expected_longest_bout_th_when_alternating_turn < actual_longest_bout_th_when_alternating_turn:
-        raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {actual_longest_bout_th_when_alternating_turn} が理論値 {expected_longest_bout_th_when_alternating_turn} を上回った")
-
 
 ########################################
 # コマンドから実行時
@@ -138,39 +122,28 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_ft = get_df_generate_even_when_frozen_turn()
-        df_mrp = get_def_report_muzudho_recommends_points()
+        df_mr_ft = get_def_muzudho_recommends_points_when_frozen_turn()
 
         # 対局数
-        round_total = 2_000_000 # 十分多いケース
-        #round_total = 10 # 少なすぎるケース
+        round_count = 2_000_000 # 十分多いケース
+        #round_count = 10 # 少なすぎるケース
 
+        for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
+            zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
 
-        # 精度が高いデータを基にしている
-        for            p,          number_of_longest_bout,          w_time in\
-            zip(df_ft['p'], df_ft['number_of_longest_bout'], df_ft['w_time']):
-            # ［黒勝ちだけでの対局数］は計算で求めます
-            b_time = number_of_longest_bout-(w_time-1)
+            # ［かくきんシステムのｐの構成］。任意に指定します
+            specified_points_configuration = PointsConfiguration(
+                    b_step=b_step,
+                    w_step=w_step,
+                    span=span)
 
             perform_p(
                     output_file_path=LOG_FILE_PATH,
                     p=p,
-                    round_total=round_total,
-                    b_time=b_time,
-                    w_time=w_time,
-                    comment='精度を求めた元データ')
-
-
-        # 実用的なデータを基にしている
-        for             p,           b_time,           w_time in\
-            zip(df_mrp['p'], df_mrp['b_time'], df_mrp['w_time']):
-            perform_p(
-                    output_file_path=LOG_FILE_PATH,
-                    p=p,
-                    round_total=round_total,
-                    b_time=b_time,
-                    w_time=w_time,
-                    comment='実用的な元データ')
+                    round_total=round_count,
+                    b_time=specified_points_configuration.b_time,
+                    w_time=specified_points_configuration.w_time,
+                    comment='むずでょセレクション')
 
 
     except Exception as err:
