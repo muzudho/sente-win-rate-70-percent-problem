@@ -76,6 +76,7 @@ def get_def_muzudho_recommends_points_when_alternating_turn():
     df['b_step'].fillna(0).astype('int')
     df['w_step'].fillna(1).astype('int')
     df['span'].fillna(1).astype('int')
+    df['presentable'].astype('string')
     df['comment'].astype('string')
     df['process'].astype('string')
 
@@ -88,6 +89,7 @@ def get_def_muzudho_recommends_points_when_frozen_turn():
     df['b_step'].fillna(0).astype('int')
     df['w_step'].fillna(1).astype('int')
     df['span'].fillna(1).astype('int')
+    df['presentable'].astype('string')
     df['comment'].astype('string')
     df['process'].astype('string')
 

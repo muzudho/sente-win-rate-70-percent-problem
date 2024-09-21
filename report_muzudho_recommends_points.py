@@ -34,8 +34,8 @@ def generate_when_alternating_turn():
 
     df_mr_at = get_def_muzudho_recommends_points_when_alternating_turn()
 
-    for               p,             round_count,             b_step,             w_step,             span,             comment,             process in\
-        zip(df_mr_at['p'], df_mr_at['round_count'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['comment'], df_mr_at['process']):
+    for               p,             round_count,             b_step,             w_step,             span,             presentable,             comment,             process in\
+        zip(df_mr_at['p'], df_mr_at['round_count'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
 
         # ［かくきんシステムのｐの構成］。任意に指定します
         specified_points_configuration = PointsConfiguration(
@@ -55,6 +55,7 @@ def generate_when_alternating_turn():
                 round_count=round_count,
                 latest_theoretical_p=latest_theoretical_p,
                 specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
+                presentable=presentable,
                 process=process)
         print(text) # 表示
 
@@ -67,8 +68,8 @@ def generate_when_frozen_turn():
 
     df_mr_ft = get_def_muzudho_recommends_points_when_frozen_turn()
 
-    for               p,             b_step,             w_step,             span,             comment,             process in\
-        zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['comment'], df_mr_ft['process']):
+    for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
+        zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
 
         # ［かくきんシステムのｐの構成］。任意に指定します
         specified_points_configuration = PointsConfiguration(
@@ -88,6 +89,7 @@ def generate_when_frozen_turn():
                 p=p,
                 latest_theoretical_p=latest_theoretical_p,
                 specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
+                presentable=presentable,
                 process=process)
         print(text) # 表示
 

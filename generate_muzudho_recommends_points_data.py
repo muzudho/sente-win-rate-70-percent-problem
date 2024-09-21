@@ -71,7 +71,7 @@ def generate_when_alternating_turn():
         # CSV保存
         df_mr_at.to_csv(CSV_FILE_PATH_MR_AT,
                 # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'round_count', 'b_step', 'w_step', 'span', 'comment', 'process'],
+                columns=['p', 'round_count', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -117,7 +117,7 @@ def generate_when_frozen_turn():
         # CSV保存
         df_mr_ft.to_csv(CSV_FILE_PATH_MR_FT,
                 # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'b_step', 'w_step', 'span', 'comment', 'process'],
+                columns=['p', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
