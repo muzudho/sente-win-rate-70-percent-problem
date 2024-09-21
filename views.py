@@ -104,10 +104,10 @@ def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, speci
     seg_6 = specified_points_configuration.span
 
     # ［先後交互制］での［最短対局数］
-    seg_7 = specified_points_configuration.let_number_of_shortest_bout_when_alternating_turn()
+    seg_7 = specified_points_configuration.count_shortest_time_when_alternating_turn()
 
     # ［先後交互制］での［最長対局数］
-    seg_8 = specified_points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    seg_8 = specified_points_configuration.count_longest_time_when_alternating_turn()
 
     # 表示用の説明文
     if isinstance(presentable, str):    # float NaN が入っていることがある
@@ -136,10 +136,10 @@ def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, speci
 #     seg_2b = specified_p_error*100
 
 #     # 対局数
-#     seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-#     seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-#     seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-#     seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+#     seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
+#     seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+#     seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
+#     seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 
 #     # ［白勝ち１つの点数］
 #     seg_4a = points_configuration.b_step
@@ -193,10 +193,10 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_conf
     seg_1c = best_p_error*100
 
     # 対局数
-    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
+    seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+    seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
+    seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 
     # ［黒勝ち１つの点数］
     seg_4a = points_configuration.b_step
@@ -225,10 +225,10 @@ def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best
     seg_1c = best_p_error * 100
 
     # 対局数
-    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
+    seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+    seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
+    seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 
     # ［黒勝ち１つの点数］
     seg_4a = points_configuration.b_step
@@ -254,10 +254,10 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     seg_1c = specified_p_error * 100
 
     # 対局数
-    seg_3a = specified_points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-    seg_3b = specified_points_configuration.let_number_of_longest_bout_when_frozen_turn()
-    seg_3c = specified_points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-    seg_3d = specified_points_configuration.let_number_of_longest_bout_when_alternating_turn()
+    seg_3a = specified_points_configuration.count_shortest_time_when_frozen_turn()
+    seg_3b = specified_points_configuration.count_longest_time_when_frozen_turn()
+    seg_3c = specified_points_configuration.count_shortest_time_when_alternating_turn()
+    seg_3d = specified_points_configuration.count_longest_time_when_alternating_turn()
 
     # ［黒勝ち１つの点数］
     seg_4a = specified_points_configuration.b_step
@@ -305,7 +305,7 @@ def stringify_log_when_simulation_coin_toss_when_alternating_turn(p, alice_won_r
 
 
 def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p, round_total,
-        black_wons, expected_shortest_bout_th, actual_shortest_bout_th, expected_longest_bout_th_when_frozen_turn, actual_longest_bout_th,
+        black_wons, expected_shortest_time_th, actual_shortest_time_th, expected_longest_time_th_when_frozen_turn, actual_longest_time_th,
         points_configuration, comment):
     """ログ出力
     
@@ -319,13 +319,13 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
         対局数
     black_wons : int
         ［先後固定制］で、黒が勝った回数
-    expected_shortest_bout_th : int
+    expected_shortest_time_th : int
 
-    actual_shortest_bout_th : int
+    actual_shortest_time_th : int
 
-    expected_longest_bout_th : int
+    expected_longest_time_th : int
 
-    actual_longest_bout_th : int
+    actual_longest_time_th : int
 
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
@@ -357,10 +357,10 @@ def stringify_log_when_simulation_coin_toss_when_frozen_turn(output_file_path, p
     seg_1_1b = specified_p_error_when_frozen_turn*100
 
     # 対局数（理論値と実際値）
-    seg_1_3a = expected_shortest_bout_th
-    seg_1_3b = expected_longest_bout_th
-    seg_2_3a = actual_shortest_bout_th
-    seg_2_3b = actual_longest_bout_th
+    seg_1_3a = expected_shortest_time_th
+    seg_1_3b = expected_longest_time_th
+    seg_2_3a = actual_shortest_time_th
+    seg_2_3b = actual_longest_time_th
 
 
     # ［黒勝ち１つの点数］

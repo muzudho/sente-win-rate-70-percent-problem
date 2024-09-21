@@ -117,11 +117,11 @@ carryover_p_time = p_time + carried
 
 # 説明６　あと何回対局すると、表の得が、裏が出る確率の整数比を上回るか
 
-あと何回対局（fill_bouts）すると、表の得が、裏が出る確率の整数比を上回るか  
+あと何回対局（fill_times）すると、表の得が、裏が出る確率の整数比を上回るか  
 
 ```
 ※ ceil(x) は x の小数点以下切り上げ
-fill_bouts = ceil((scale - p_time) / carried)
+fill_times = ceil((scale - p_time) / carried)
 ```
 
 

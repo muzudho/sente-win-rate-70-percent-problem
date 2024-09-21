@@ -1,5 +1,5 @@
 # 対局数を算出
-# python let_bout_count.py
+# python let_count_time.py
 
 import traceback
 import datetime
@@ -7,7 +7,7 @@ import math
 
 from library import PointsConfiguration
 
-LOG_FILE_PATH = 'output/let_bout_count.log'
+LOG_FILE_PATH = 'output/let_count_time.log'
 
 
 ########################################
@@ -30,11 +30,11 @@ if __name__ == '__main__':
                             w_step=w_step,
                             span=span)
 
-                    # 対局数
-                    seg_3a = points_configuration.let_number_of_shortest_bout_when_frozen_turn()
-                    seg_3b = points_configuration.let_number_of_longest_bout_when_frozen_turn()
-                    seg_3c = points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-                    seg_3d = points_configuration.let_number_of_longest_bout_when_alternating_turn()
+                    # ［最短対局数］［最長対局数］
+                    seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
+                    seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+                    seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
+                    seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 
                     seg_4a = b_step
                     seg_4b = w_step

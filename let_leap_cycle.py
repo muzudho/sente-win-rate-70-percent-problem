@@ -150,16 +150,16 @@ if __name__ == '__main__':
                     # ---------------------------------------------------------------
 
                     # あと何対局すると、余りが後手の整数比を上回るか（次の閏対局までの長さ）
-                    fill_bouts = math.ceil(strict_w_time / strict_carried)
-                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_w_time}以上になるのが、次の閏対局までの長さ{fill_bouts:2}")
-                    print(f"(得{strict_carried:2}×{fill_bouts:2}局>=分子{strict_w_time:2})", end='')
+                    fill_times = math.ceil(strict_w_time / strict_carried)
+                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_w_time}以上になるのが、次の閏対局までの長さ{fill_times:2}")
+                    print(f"(得{strict_carried:2}×{fill_times:2}局>=分子{strict_w_time:2})", end='')
 
 
                     if strict_carried != 0:
                         for i in range(0, 1):
 
                             # 次に余りを解消できる閏対局
-                            next_leap += fill_bouts
+                            next_leap += fill_times
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点

@@ -1,9 +1,9 @@
 #
 # シミュレーション
-# python simulation_coin_toss_when_frozen_turn.py
+# python simulation_coin_toss_when_frozen_turn_with_draw.py
 #
 #   ［先後固定制］
-#   引き分けは考慮していない。
+#   引き分けを考慮する。
 #   表が出る確率（p）が偏ったコインを、指定回数投げる
 #
 
@@ -19,6 +19,9 @@ from views import stringify_log_when_simulation_coin_toss_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_coin_toss_when_frozen_turn.log'
+
+# 引き分けになる確率
+DRAW_RATE = 0.1
 
 
 def simulate(p, round_total, b_time, w_time, comment):

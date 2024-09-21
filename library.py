@@ -12,6 +12,9 @@ from fractions import Fraction
 from decimal import Decimal, ROUND_HALF_UP
 
 
+# 色は付いておらず、また、誰でもない。配列のインデックスに使う
+EMPTY = 0
+
 # 黒。表。先手。配列のインデックスに使う
 BLACK = 1
 
@@ -122,7 +125,7 @@ def p_to_b_w_times(p):
 
 
 def coin(black_rate):
-    """表が黒、裏が白のコイン
+    """表が黒、裏が白のコインを投げる
 
     Parameters
     ----------
@@ -134,8 +137,23 @@ def coin(black_rate):
     return WHITE
 
 
+def draw(draw_rate):
+    """確率的に引き分けになる
+
+    Parameters
+    ----------
+    draw_rate : float
+        引き分けになる確率。例： １割が引き分けなら 0.1
+    """
+    if random.random() < draw_rate:
+        return True
+    return False
+
+
 def play_game_when_frozen_turn(p, points_configuration):
     """［先後固定制］で対局を行います。勝った方の色を返します
+
+    引き分けはありません
 
     Parameters
     ----------
@@ -147,8 +165,8 @@ def play_game_when_frozen_turn(p, points_configuration):
     Returns
     -------
     winner_color : int
-        勝った方の色
-    bout_th : int
+        勝った方の色。引き分けはありません
+    time_th : int
         対局数
     """
 
@@ -156,7 +174,7 @@ def play_game_when_frozen_turn(p, points_configuration):
     point_list = [0, 0, 0]
 
     # 勝ち負けが出るまでやる
-    for bout_th in range(1, 2_147_483_647):
+    for time_th in range(1, 2_147_483_647):
 
         successful_color = coin(p)
 
@@ -169,7 +187,56 @@ def play_game_when_frozen_turn(p, points_configuration):
         point_list[successful_color] += step
 
         if points_configuration.span <= point_list[successful_color]:
-            return successful_color, bout_th    # 勝ち抜け
+            return successful_color, time_th    # 勝ち抜け
+
+
+    raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
+
+
+def play_game_when_frozen_turn_with_draw(p, draw_rate, points_configuration):
+    """［先後固定制］で対局を行います。勝った方の色を返します
+
+    引き分けを考慮します
+
+    Parameters
+    ----------
+    p : float
+        ［表が出る確率］ 例： ７割なら 0.7
+    draw_rate : float
+        ［引き分けになる率】 例： １割の確率で引き分けになるのなら 0.1
+    points_configuration : PointsConfiguration
+        ［かくきんシステムのｐの構成］
+    
+    Returns
+    -------
+    winner_color : int
+        勝った方の色。引き分け（Empty）も含む
+    time_th : int
+        対局数
+    """
+
+    # 点数のリスト。要素は、未使用、黒番、白番
+    point_list = [0, 0, 0]
+
+    # 勝ち負けが出るまでやる
+    for time_th in range(1, 2_147_483_647):
+
+        if draw(draw_rate):
+            pass
+
+        else:
+            successful_color = coin(p)
+
+            if successful_color == BLACK:
+                step = points_configuration.b_step
+
+            else:
+                step = points_configuration.w_step
+
+            point_list[successful_color] += step
+
+            if points_configuration.span <= point_list[successful_color]:
+                return successful_color, time_th    # 勝ち抜け
 
 
     raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
@@ -189,7 +256,7 @@ def play_game_when_alternating_turn(p, points_configuration):
     -------
     winner_player : int
         ＡさんかＢさん
-    bout_th : int
+    time_th : int
         対局本数
     """
 
@@ -197,14 +264,14 @@ def play_game_when_alternating_turn(p, points_configuration):
     point_list = [0, 0, 0]
 
     # 勝ち負けが出るまでやる
-    for bout_th in range(1, 2_147_483_647):
+    for time_th in range(1, 2_147_483_647):
 
         # 黒が出た
         if coin(p) == BLACK:
             step = points_configuration.b_step
 
             # 奇数本で黒番のプレイヤーはＡさん
-            if bout_th % 2 == 1:
+            if time_th % 2 == 1:
                 successful_player = ALICE
 
             # 偶数本で黒番のプレイヤーはＢさん
@@ -216,7 +283,7 @@ def play_game_when_alternating_turn(p, points_configuration):
             step = points_configuration.w_step
 
             # 奇数本で白番のプレイヤーはＢさん
-            if bout_th % 2 == 1:
+            if time_th % 2 == 1:
                 successful_player = BOB
 
             # 偶数本で白番のプレイヤーはＡさん
@@ -227,7 +294,7 @@ def play_game_when_alternating_turn(p, points_configuration):
         point_list[successful_player] += step
 
         if points_configuration.span <= point_list[successful_player]:
-            return successful_player, bout_th
+            return successful_player, time_th
 
         # 続行
 
@@ -423,7 +490,7 @@ class PointsConfiguration():
                 span=span)
 
 
-    def let_number_of_shortest_bout_when_frozen_turn(self):
+    def count_shortest_time_when_frozen_turn(self):
         """［先後固定制］での［最短対局数］
         
         白が全勝したときの回数と同じ
@@ -436,7 +503,7 @@ class PointsConfiguration():
         return self.w_time
 
 
-    def let_number_of_longest_bout_when_frozen_turn(self):
+    def count_longest_time_when_frozen_turn(self):
         """［先後固定制］での［最長対局数］
 
         白があと１つで勝てるところで止まり、黒が全勝したときの回数と同じ
@@ -458,7 +525,7 @@ class PointsConfiguration():
         return  (self.b_time-1) + (self.w_time-1) + 1
 
 
-    def let_number_of_shortest_bout_when_alternating_turn(self):
+    def count_shortest_time_when_alternating_turn(self):
         """［先後交互制］での［最短対局数］
         
         Ｂさんだけが勝ったときの回数と同じ。
@@ -499,23 +566,23 @@ class PointsConfiguration():
         if self._b_step + self._w_step <= remainder:
             # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
             new_remainder = self._span % (self._b_step + self._w_step)
-            bout = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
+            time = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
             remainder = new_remainder
 
         else:
-            bout = 0
+            time = 0
 
         # 端数があれば［白勝ち１つの点数］を引く（１回分を加算）
         #
         #   NOTE 白（後手）の方が step 値が黒（先手）より大きいか、等しいです。［白勝ち１つの点数］の方から先に引きます
         #
         if 0 < remainder:
-            bout += 1
+            time += 1
             remainder -= self._w_step
 
             # まだ端数があれば［黒勝ち１つの点数］を引く（１回分を加算）
             if 0 < remainder:
-                bout += 1
+                time += 1
                 remainder -= self._b_step
 
                 # remainder は負数になっているはず（割り切れないはず）
@@ -526,10 +593,10 @@ class PointsConfiguration():
             elif 0 < remainder:
                 raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
 
-        return bout
+        return time
 
 
-    def let_number_of_longest_bout_when_alternating_turn(self):
+    def count_longest_time_when_alternating_turn(self):
         """［先後交互制］での［最長対局数］
 
         ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ

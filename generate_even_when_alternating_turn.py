@@ -237,7 +237,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         #
                         alice_win_count = 0
                         for i in range(0, REQUIRED_ROUND_COUNT):
-                            winner_player, bout_th = play_game_when_alternating_turn(
+                            winner_player, time_th = play_game_when_alternating_turn(
                                     p=p,
                                     points_configuration=latest_points_configuration)
                             
@@ -254,12 +254,12 @@ def iteration_deeping(df, abs_limit_of_error):
                             best_p_error = latest_p_error
                             best_points_configuration = latest_points_configuration
 
-                            # 対局数
-                            shortest_bout = best_points_configuration.let_number_of_shortest_bout_when_alternating_turn()
-                            longest_bout = best_points_configuration.let_number_of_longest_bout_when_alternating_turn()
+                            # ［最短対局数］［最長対局数］
+                            shortest_time = best_points_configuration.count_shortest_time_when_alternating_turn()
+                            longest_time = best_points_configuration.count_longest_time_when_alternating_turn()
 
                             # 計算過程
-                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_bout}～{longest_bout}局]'
+                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'
                             print(one_process_text, end='', flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
