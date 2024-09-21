@@ -15,13 +15,13 @@ import pandas as pd
 
 from library import BLACK, ALICE, PointsConfiguration, play_series_when_frozen_turn, SimulationResultWhenFrozenTurn
 from database import get_df_muzudho_recommends_points_when_frozen_turn
-from views import stringify_log_when_simulation_series_when_frozen_turn
+from views import stringify_simulation_log
 
 
 LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
 
 
-def simulate(p, number_of_series, points_configuration, comment):
+def simulate(p, number_of_series, points_configuration, title):
     """シミュレート"""
 
     series_result_ft_list = []
@@ -39,17 +39,18 @@ def simulate(p, number_of_series, points_configuration, comment):
     simulation_result_ft = SimulationResultWhenFrozenTurn(
             series_result_ft_list=series_result_ft_list)
 
-    text = stringify_log_when_simulation_series_when_frozen_turn(
+    text = stringify_simulation_log(
             # 出力先ファイルへのパス
             output_file_path=LOG_FILE_PATH,
             # ［表が出る確率］（指定値）
             p=p,
+            draw_rate=0,
             # ［かくきんシステムのｐの構成］
             points_configuration=points_configuration,
             # シミュレーションの結果
             simulation_result_ft=simulation_result_ft,
-            # コメント
-            comment=comment)
+            # タイトル
+            title=title)
 
 
     print(text) # 表示
@@ -95,7 +96,7 @@ if __name__ == '__main__':
                     p=p,
                     number_of_series=number_of_series,
                     points_configuration=specified_points_configuration,
-                    comment='むずでょセレクション')
+                    title='（先後固定制）    むずでょセレクション')
 
 
     except Exception as err:

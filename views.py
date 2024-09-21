@@ -302,8 +302,9 @@ def stringify_log_when_simulation_series_when_alternating_turn(p, points_configu
     return f"[{seg_0}]  先手勝率 {seg_1a:2.0f} ％ --調整--> {seg_2:8.4f} ％（± {seg_2b:7.4f}）（先後交互制でＡさんが勝った確率）  コイントス{seg_4:7}回試行"
 
 
-def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, points_configuration, simulation_result_ft, comment):
-    """［先後固定制］で［引き分けを１局として数えないケース］での［シリーズ］での結果の文言を作成
+def stringify_simulation_log(
+        output_file_path, p, draw_rate, points_configuration, simulation_result_ft, title):
+    """シミュレーションのログの文言作成
     
     Parameters
     ----------
@@ -311,16 +312,20 @@ def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, p
         出力先ファイルへのパス
     p : float
         ［表が出る確率］（先手勝率）
+    draw_rate : float
+        ［引き分ける確率］
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
-    comment : str
-        コメント
     simulation_result_ft : SimulationResultWhenFrozenTurn
         シミュレーションの結果
+    title : str
+        タイトル
     """
 
-    # ［タイムスタンプ］
-    time1 = datetime.datetime.now()
+    # ヘッダー
+    # --------
+    time1 = datetime.datetime.now() # ［タイムスタンプ］
+    ti1 = title                     # タイトル
 
     # 先手勝率
     # --------
@@ -334,9 +339,6 @@ def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, p
     tm11 = points_configuration.count_longest_time_when_frozen_turn()   # ［最長対局数］
     tm20 = simulation_result_ft.shortest_time_th    # ［最短対局数］実践値
     tm21 = simulation_result_ft.longest_time_th     # ［最長対局数］
-
-    # コメント
-    cm1 = comment
 
     # シリーズ数
     # ---------
@@ -352,15 +354,16 @@ def stringify_log_when_simulation_series_when_frozen_turn(output_file_path, p, p
 
 
     return f"""\
-[{time1                   }] （先後固定制）    {cm1}
-                                       先手勝率     誤差          シリーズ         対局数      | 勝ち点設定
-                              指定   |  {w1:2.0f} ％                      {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
-                              試行後 | {w2:8.4f} ％（± {w2e:7.4f}）    {    sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
-                                                                   {       sr2:>7}先判勝               | {pt3:3.0f}目
+[{time1                   }] {ti1}
+                                         先手勝率        シリーズ        対局数      | 勝ち点設定
+                              指定   |    {w1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
+                              試行後 |   {w2:8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
+                                      （± {w2e:7.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
 """
 
 
-def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_path, p, draw_rate, points_configuration, comment, simulation_result_ft):
+def stringify_log_when_simulation_series_with_draw_when_frozen_turn(
+        output_file_path, p, draw_rate, points_configuration, simulation_result_ft, title):
     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     
     Parameters
@@ -373,10 +376,10 @@ def stringify_log_when_simulation_series_with_draw_when_frozen_turn(output_file_
         ［引き分ける確率］
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
-    comment : str
-        コメント
     simulation_result_ft : SimulationResultWhenFrozenTurn
         シミュレーションの結果
+    title : str
+        タイトル
     """
 
     # ［タイムスタンプ］
