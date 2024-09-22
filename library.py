@@ -148,35 +148,94 @@ def draw(draw_rate):
     return random.random() < draw_rate
 
 
-def make_cointoss_list(p, draw_rate, longest_times):
-    """コイントスした結果のリストを生成
-
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］
-    draw_rate : float
-        ［引き分ける確率］
-    longest_times : int
-        ［最長対局数］
-    """
-    cointoss_list = []
-
-    # ［最長対局数］までやる
-    for time_th in range(1, longest_times + 1):
-
-        # 引分け
-        if draw(draw_rate):
-            cointoss_list.append(EMPTY)
-
-        # 黒勝ち、または白勝ちのどちらか
-        else:
-            cointoss_list.append(coin(p))
-
-    return cointoss_list
+class CointossResultInSeries():
+    """シリーズのコイントスした結果"""
 
 
-def play_series_when_frozen_turn(cointoss_list, p, draw_rate, points_configuration):
+    def __init__(self, p, draw_rate, longest_times, successful_color_list):
+        """初期化
+
+        Parameters
+        ----------
+        p : float
+            ［表が出る確率］
+        draw_rate : float
+            ［引き分ける確率］
+        longest_times : int
+            ［最長対局数］
+        successful_color_list : list
+            コイントスした結果のリスト。引き分けは EMPTY
+        """
+        self._p = p,
+        self._draw_rate = draw_rate
+        self._longest_times = longest_times
+        self._successful_color_list = successful_color_list
+
+
+    @property
+    def p(self):
+        """［表が出る確率］"""
+        return self._p
+
+
+    @property
+    def draw_rate(self):
+        """［引き分ける確率］"""
+        return self._draw_rate
+
+
+    @property
+    def longest_times(self):
+        """最長対局数］"""
+        return self._longest_times
+
+
+    @property
+    def successful_color_list(self):
+        """コイントスした結果のリスト。引き分けは EMPTY"""
+        return self._successful_color_list
+
+
+    def make_cointoss_result_in_series(p, draw_rate, longest_times):
+        """コイントスした結果のリストを生成
+
+        Parameters
+        ----------
+        p : float
+            ［表が出る確率］
+        draw_rate : float
+            ［引き分ける確率］
+        longest_times : int
+            ［最長対局数］
+        """
+
+        successful_color_list = []
+
+        # ［最長対局数］までやる
+        for time_th in range(1, longest_times + 1):
+
+            # 引分け
+            if draw(draw_rate):
+                successful_color_list.append(EMPTY)
+
+            # 黒勝ち、または白勝ちのどちらか
+            else:
+                successful_color_list.append(coin(p))
+
+
+        return CointossResultInSeries(
+                p=p,
+                draw_rate=draw_rate,
+                longest_times=longest_times,
+                successful_color_list=successful_color_list)
+
+
+    def stringify_dump(self):
+        """ダンプ"""
+        return f"{self._p=}  {self._draw_rate=}  {self._longest_times=}  {self._successful_color_list}"
+
+
+def play_series_when_frozen_turn(cointoss_result_in_series, p, draw_rate, points_configuration):
     """［先後固定制］で１シリーズ分の対局を行います。
 
     ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
@@ -184,8 +243,8 @@ def play_series_when_frozen_turn(cointoss_list, p, draw_rate, points_configurati
 
     Parameters
     ----------
-    cointoss_list : list
-        勝った方の色の記録。引き分けなら Empty
+    cointoss_result_in_series : CointossResultInSeries
+        コイントス・リスト
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
     draw_rate : float
@@ -208,7 +267,7 @@ def play_series_when_frozen_turn(cointoss_list, p, draw_rate, points_configurati
     time_th = 0
 
     # 対局の上限数までやる
-    for successful_color in cointoss_list:
+    for successful_color in cointoss_result_in_series.successful_color_list:
         time_th += 1
 
         # 引き分けを１局と数えるケース
@@ -233,15 +292,15 @@ def play_series_when_frozen_turn(cointoss_list, p, draw_rate, points_configurati
             # 勝ち抜け
             if points_configuration.span <= point_list[successful_color]:
 
-                if time_th != len(cointoss_list):
-                    raise ValueError(f"{time_th=}  !=  {len(cointoss_list)=}")
+                if time_th != len(cointoss_result_in_series.successful_color_list):
+                    raise ValueError(f"{time_th=}  !=  {len(cointoss_result_in_series.successful_color_list)=}  {cointoss_result_in_series.stringify_dump()=}")
 
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
                         point_list=point_list,
-                        winner_color_game_record=cointoss_list)
+                        winner_color_game_record=cointoss_result_in_series.successful_color_list)
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -250,7 +309,7 @@ def play_series_when_frozen_turn(cointoss_list, p, draw_rate, points_configurati
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
             point_list=point_list,
-            winner_color_game_record=cointoss_list)
+            winner_color_game_record=cointoss_result_in_series.successful_color_list)
 
 
 def play_tie_break(p, draw_rate):
@@ -1111,3 +1170,4 @@ class SimulationResult():
     def trial_draw_rate_at(self):
         """試行した結果、［引き分ける確率］"""
         return self.number_of_draw_series_at / self.number_of_series
+

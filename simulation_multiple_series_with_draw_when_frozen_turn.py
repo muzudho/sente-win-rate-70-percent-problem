@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, make_cointoss_list, play_series_when_frozen_turn, play_tie_break, SimulationResult
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, CointossResultInSeries, play_series_when_frozen_turn, play_tie_break, SimulationResult
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -34,14 +34,14 @@ def simulate(p, number_of_series, points_configuration, title):
     longest_times = points_configuration.count_longest_time_when_frozen_turn()
 
     for round in range(0, number_of_series):
-        cointoss_list = make_cointoss_list(
+        cointoss_result_in_series = CointossResultInSeries.make_cointoss_result_in_series(
                 p=p,
                 draw_rate=DRAW_RATE,
                 longest_times=longest_times)
 
         # ［先後固定制］で、シリーズを勝った方の手番を返す。引き分けを１局と数える
         series_result = play_series_when_frozen_turn(
-                cointoss_list=cointoss_list,
+                cointoss_result_in_series=cointoss_result_in_series,
                 p=p,
                 draw_rate=DRAW_RATE,
                 points_configuration=points_configuration)

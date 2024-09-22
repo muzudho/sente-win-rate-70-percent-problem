@@ -14,7 +14,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, make_cointoss_list, play_series_when_frozen_turn, round_letro, PointsConfiguration, calculate_probability
+from library import BLACK, WHITE, round_letro, PointsConfiguration, calculate_probability
 from database import get_df_generate_even_when_frozen_turn
 from views import print_when_generate_when_frozen_turn
 
