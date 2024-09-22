@@ -289,8 +289,6 @@ def stringify_series_log(
         タイトル
     """
 
-    print(f"{len(series_result.pseudo_series_result.successful_color_list)=}")
-
     b_step = points_configuration.b_step
     w_step = points_configuration.w_step
     span = points_configuration.span

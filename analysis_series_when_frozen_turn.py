@@ -21,7 +21,8 @@ from views import stringify_series_log
 LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 
 # 引き分けになる確率
-DRAW_RATE = 0.0
+#DRAW_RATE = 0.0     # 引分けなし
+DRAW_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
 def analysis_series(series_result, p, points_configuration, title):
@@ -75,6 +76,8 @@ if __name__ == '__main__':
                     span=span)
 
 
+            series_result_list = []
+
             # FIXME 動作テスト
             stats_result_data = make_all_pseudo_series_results_when_frozen_turn(
                     can_draw=False,
@@ -117,11 +120,59 @@ if __name__ == '__main__':
                     pass
 
                 else:
-                    analysis_series(
-                            series_result=series_result,
-                            p=p,
-                            points_configuration=specified_points_configuration,
-                            title='（先後固定制）    むずでょセレクション')
+                    series_result_list.append(series_result)
+
+
+            # 集計
+            black_wons = 0
+            no_wons_color = 0
+            white_wons = 0
+            for series_result in series_result_list:
+                if series_result.is_black_won:
+                    black_wons += 1
+                elif series_result.is_white_won:
+                    white_wons += 1
+                elif series_result.is_no_won_color:
+                    no_wons_color += 1
+            
+            # 結果としての黒の勝率
+            result_black_wons_without_draw = black_wons / (len(series_result_list) - no_wons_color)
+            result_black_wons_with_draw = black_wons / len(series_result_list)
+
+            # 結果としての引分け率
+            result_no_wons_color_with_draw = no_wons_color / len(series_result_list)
+
+            # 結果としての白の勝率
+            result_white_wons_without_draw = white_wons / (len(series_result_list) - no_wons_color)
+            result_white_wons_with_draw = white_wons / len(series_result_list)
+
+            shw1 = p * 100
+            shd1 = DRAW_RATE
+            shl1 = (1 - p) * 100
+
+            bw1 = result_black_wons_without_draw * 100
+            bw2 = result_black_wons_with_draw * 100
+
+            bd2 = result_no_wons_color_with_draw * 100
+
+            ww1 = result_white_wons_without_draw * 100
+            ww2 = result_white_wons_with_draw * 100
+
+            print(f"""\
+指定     |  将棋の先手勝率        将棋の引分け率        将棋の後手勝率
+         |  {shw1:8.4f} ％           {shd1:8.4f} ％           {shl1:8.4f} ％
+         |  以下、［かくきんシステム］が設定したハンディキャップ
+         |  先手勝率              引分け率              後手勝率
+引分除く |  {bw1:8.4f} ％                                 {  ww1:8.4f} ％
+引分込み |  {bw2:8.4f} ％           {bd2:8.4f} ％           {ww2:8.4f} ％
+""")
+
+            for series_result in series_result_list:
+                analysis_series(
+                        series_result=series_result,
+                        p=p,
+                        points_configuration=specified_points_configuration,
+                        title='（先後固定制）    むずでょセレクション')
 
 
     except Exception as err:
