@@ -25,16 +25,16 @@ if __name__ == '__main__':
             for w_step in range(1, span):
                 # ［黒勝ち１つの点数］
                 for b_step in range(1, w_step):
-                    points_configuration = PointsConfiguration(
+                    pts_conf = PointsConfiguration(
                             b_step=b_step,
                             w_step=w_step,
                             span=span)
 
                     # ［最短対局数］［最長対局数］
-                    seg_3a = points_configuration.number_shortest_time_when_frozen_turn
-                    seg_3b = points_configuration.number_longest_time_when_frozen_turn
-                    seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
-                    seg_3d = points_configuration.count_longest_time_when_alternating_turn()
+                    seg_3a = pts_conf.number_shortest_time_when_frozen_turn
+                    seg_3b = pts_conf.number_longest_time_when_frozen_turn
+                    seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
+                    seg_3d = pts_conf.count_longest_time_when_alternating_turn()
 
                     seg_4a = b_step
                     seg_4b = w_step

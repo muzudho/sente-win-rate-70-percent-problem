@@ -25,13 +25,13 @@ LOG_FILE_PATH = 'output/simulation_stats_when_frozen_turn.log'
 DRAW_RATE = 0.9
 
 
-def simulate_stats(p, number_of_series, points_configuration, title):
+def simulate_stats(p, number_of_series, pts_conf, title):
     """大量のシリーズをシミュレートします"""
 
     series_result_list = []
 
     # ［最長対局数］は計算で求められます
-    longest_times = points_configuration.number_longest_time_when_frozen_turn
+    longest_times = pts_conf.number_longest_time_when_frozen_turn
 
     for round in range(0, number_of_series):
 
@@ -44,7 +44,7 @@ def simulate_stats(p, number_of_series, points_configuration, title):
         # ［先後固定制］で、シリーズを勝った方の手番を返す。引き分けを１局と数える
         series_result = judge_series_when_frozen_turn(
                 pseudo_series_result=pseudo_series_result,
-                points_configuration=points_configuration)
+                pts_conf=pts_conf)
         
         series_result_list.append(series_result)
 
@@ -72,7 +72,7 @@ def simulate_stats(p, number_of_series, points_configuration, title):
             # ［引き分ける確率］
             draw_rate=DRAW_RATE,
             # ［かくきんシステムのｐの構成］
-            points_configuration=points_configuration,
+            pts_conf=pts_conf,
             # シミュレーションの結果
             simulation_result=simulation_result,
             # タイトル
@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
             # ［かくきんシステムのｐの構成］           
             print("確率調整中")  # FIXME
-            points_configuration = PointsConfiguration(
+            pts_conf = PointsConfiguration(
                     b_step=b_step,
                     w_step=w_step,
                     span=span)
@@ -125,7 +125,7 @@ if __name__ == '__main__':
             simulate_stats(
                     p=p,
                     number_of_series=number_of_series,
-                    points_configuration=points_configuration,
+                    pts_conf=pts_conf,
                     title='むずでょセレクション')
 
 

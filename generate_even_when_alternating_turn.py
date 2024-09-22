@@ -57,7 +57,7 @@ def update_dataframe(df, p,
             best_p=best_p,
             best_p_error=best_p_error,
             best_number_of_series=best_number_of_series,
-            points_configuration=best_points_configuration)
+            pts_conf=best_points_configuration)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['best_p']] = best_p
@@ -252,7 +252,7 @@ def iteration_deeping(df, abs_limit_of_error):
 
                             series_result = play_game_when_alternating_turn(
                                     pseudo_series_result=pseudo_series_result,
-                                    points_configuration=latest_points_configuration)
+                                    pts_conf=latest_points_configuration)
                             series_result_list.append(series_result)
                         
                         # シミュレーションの結果

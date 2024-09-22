@@ -242,13 +242,15 @@ class PseudoSeriesResult():
         return f"{self._p=}  {self._draw_rate=}  {self._longest_times=}  {self._successful_color_list}"
 
 
-def make_all_pseudo_series_results_when_frozen_turn(can_draw, points_configuration):
+def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
     """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
     
     １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
 
     Returns
     -------
+    pts_conf : PointsConfiguration
+        ［勝ち点ルール］の構成
     power_set_list : list
         勝った方の色（引き分けなら EMPTY）のリストが全パターン入っているリスト
     """
@@ -262,7 +264,7 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, points_configurati
         elements = [BLACK, WHITE]
 
     # 桁数
-    depth = points_configuration.number_longest_time_when_frozen_turn
+    depth = pts_conf.number_longest_time_when_frozen_turn
 
     # １シーズン分のコイントスの全ての結果
     stats = []
@@ -319,7 +321,7 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, points_configurati
     return stats
 
 
-def judge_series_when_frozen_turn(pseudo_series_result, points_configuration):
+def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
     """１シリーズ分の疑似対局結果を読み取ります。［先後固定制］で判定します。
 
     ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
@@ -329,7 +331,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, points_configuration):
     ----------
     pseudo_series_result : PseudoSeriesResult
         コイントス・リスト
-    points_configuration : PointsConfiguration
+    pts_conf : PointsConfiguration
         ［かくきんシステムのｐの構成］
     
     Returns
@@ -360,17 +362,17 @@ def judge_series_when_frozen_turn(pseudo_series_result, points_configuration):
         else:
             if successful_color == BLACK:
                 successful_player = ALICE
-                step = points_configuration.b_step
+                step = pts_conf.b_step
 
             else:
                 successful_player = BOB
-                step = points_configuration.w_step
+                step = pts_conf.w_step
 
             point_list[successful_color] += step
             point_list[successful_player] += step
 
             # 勝ち抜け
-            if points_configuration.span <= point_list[successful_color]:
+            if pts_conf.span <= point_list[successful_color]:
 
                 # コイントスの結果のリストの長さを切ります。
                 # 対局は必ずしも［最長対局数］になるわけではありません
@@ -379,7 +381,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, points_configuration):
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
-                        span=points_configuration.span,
+                        span=pts_conf.span,
                         point_list=point_list,
                         pseudo_series_result=pseudo_series_result)
 
@@ -388,7 +390,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, points_configuration):
     return SeriesResult(
             number_of_all_times=time_th,
             number_of_draw_times=number_of_draw_times,
-            span=points_configuration.span,
+            span=pts_conf.span,
             point_list=point_list,
             pseudo_series_result=pseudo_series_result)
 
@@ -417,12 +419,12 @@ def play_tie_break(p, draw_rate):
         return coin(p)
 
 
-def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
+def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
     """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
     
     Parameters
     ----------
-    points_configuration : PointsConfiguration
+    pts_conf : PointsConfiguration
         ［かくきんシステムのｐの構成］
     
     Returns
@@ -453,7 +455,7 @@ def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
         else:
             # 黒が出た
             if successful_color == BLACK:
-                step = points_configuration.b_step
+                step = pts_conf.b_step
 
                 # 奇数本で黒番のプレイヤーはＡさん
                 if time_th % 2 == 1:
@@ -465,7 +467,7 @@ def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
 
             # 白が出た
             else:
-                step = points_configuration.w_step
+                step = pts_conf.w_step
 
                 # 奇数本で白番のプレイヤーはＢさん
                 if time_th % 2 == 1:
@@ -479,7 +481,7 @@ def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
             point_list[successful_color] += step
             point_list[successful_player] += step
 
-            if points_configuration.span <= point_list[successful_player]:
+            if pts_conf.span <= point_list[successful_player]:
 
                 # コイントスの結果のリストの長さを切ります。
                 # 対局は必ずしも［最長対局数］になるわけではありません
@@ -488,7 +490,7 @@ def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
-                        span=points_configuration.span,
+                        span=pts_conf.span,
                         point_list=point_list,
                         pseudo_series_result=pseudo_series_result)
 
@@ -497,7 +499,7 @@ def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
     return SeriesResult(
             number_of_all_times=time_th,
             number_of_draw_times=number_of_draw_times,
-            span=points_configuration.span,
+            span=pts_conf.span,
             point_list=point_list,
             pseudo_series_result=pseudo_series_result)
 

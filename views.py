@@ -143,7 +143,7 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_e
     return text
 
 
-def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_configuration, process_list):
+def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, process_list):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -155,19 +155,19 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_conf
     seg_1c = best_p_error*100
 
     # 対局数
-    seg_3a = points_configuration.number_shortest_time_when_frozen_turn
-    seg_3b = points_configuration.number_longest_time_when_frozen_turn
-    seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
-    seg_3d = points_configuration.count_longest_time_when_alternating_turn()
+    seg_3a = pts_conf.number_shortest_time_when_frozen_turn
+    seg_3b = pts_conf.number_longest_time_when_frozen_turn
+    seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
+    seg_3d = pts_conf.count_longest_time_when_alternating_turn()
 
     # ［黒勝ち１つの点数］
-    seg_4a = points_configuration.b_step
+    seg_4a = pts_conf.b_step
 
     # ［黒勝ち１つの点数］
-    seg_4b = points_configuration.w_step
+    seg_4b = pts_conf.w_step
 
     # ［目標の点数］
-    seg_4c = points_configuration.span
+    seg_4c = pts_conf.span
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
@@ -175,7 +175,7 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_conf
     return text
 
 
-def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best_number_of_series, points_configuration):
+def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best_number_of_series, pts_conf):
 
     # ［表が出る確率（％）］
     seg_1a = p*100
@@ -187,19 +187,19 @@ def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best
     seg_1c = best_p_error * 100
 
     # 対局数
-    seg_3a = points_configuration.number_shortest_time_when_frozen_turn
-    seg_3b = points_configuration.number_longest_time_when_frozen_turn
-    seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
-    seg_3d = points_configuration.count_longest_time_when_alternating_turn()
+    seg_3a = pts_conf.number_shortest_time_when_frozen_turn
+    seg_3b = pts_conf.number_longest_time_when_frozen_turn
+    seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
+    seg_3d = pts_conf.count_longest_time_when_alternating_turn()
 
     # ［黒勝ち１つの点数］
-    seg_4a = points_configuration.b_step
+    seg_4a = pts_conf.b_step
 
     # ［黒勝ち１つの点数］
-    seg_4b = points_configuration.w_step
+    seg_4b = pts_conf.w_step
 
     # ［目標の点数］
-    seg_4c = points_configuration.span
+    seg_4c = pts_conf.span
 
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
@@ -234,7 +234,7 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
 
 
 def stringify_series_log(
-        p, draw_rate, points_configuration, series_result, title):
+        p, draw_rate, pts_conf, series_result, title):
     """シリーズのログの文言作成
     
     Parameters
@@ -243,7 +243,7 @@ def stringify_series_log(
         ［表が出る確率］（先手勝率）
     draw_rate : float
         ［引き分ける確率］
-    points_configuration : PointsConfiguration
+    pts_conf : PointsConfiguration
         ［かくきんシステムのｐの構成］
     series_result : SeriesResult
         シリーズの結果
@@ -251,9 +251,9 @@ def stringify_series_log(
         タイトル
     """
 
-    b_step = points_configuration.b_step
-    w_step = points_configuration.w_step
-    span = points_configuration.span
+    b_step = pts_conf.b_step
+    w_step = pts_conf.w_step
+    span = pts_conf.span
     b_rest = span
     w_rest = span
     line_1_list = ['   S']
@@ -314,15 +314,15 @@ def stringify_series_log(
 
     # 対局数
     # ------
-    tm10 = points_configuration.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
-    tm11 = points_configuration.number_longest_time_when_frozen_turn   # ［最長対局数］
+    tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
+    tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
     tm20 = series_result.number_of_all_times    # ［対局数］実践値
 
     # 勝ち点構成
     # ---------
-    pt1 = points_configuration.b_step    # ［黒勝ち１つの点数］
-    pt2 = points_configuration.w_step    # ［白勝ち１つの点数］
-    pt3 = points_configuration.span      # ［目標の点数］
+    pt1 = pts_conf.b_step    # ［黒勝ち１つの点数］
+    pt2 = pts_conf.w_step    # ［白勝ち１つの点数］
+    pt3 = pts_conf.span      # ［目標の点数］
 
 
     return f"""\
@@ -335,7 +335,7 @@ def stringify_series_log(
 
 
 def stringify_simulation_log(
-        p, draw_rate, points_configuration, simulation_result, title):
+        p, draw_rate, pts_conf, simulation_result, title):
     """シミュレーションのログの文言作成
     
     Parameters
@@ -344,7 +344,7 @@ def stringify_simulation_log(
         ［表が出る確率］（先手勝率）
     draw_rate : float
         ［引き分ける確率］
-    points_configuration : PointsConfiguration
+    pts_conf : PointsConfiguration
         ［かくきんシステムのｐの構成］
     simulation_result : SimulationResult
         シミュレーションの結果
@@ -391,8 +391,8 @@ def stringify_simulation_log(
 
     # 対局数
     # ------
-    tm10 = points_configuration.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
-    tm11 = points_configuration.number_longest_time_when_frozen_turn   # ［最長対局数］
+    tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
+    tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
     tm20 = simulation_result.shortest_time_th    # ［最短対局数］実践値
     tm21 = simulation_result.longest_time_th     # ［最長対局数］
 
@@ -404,9 +404,9 @@ def stringify_simulation_log(
 
     # 勝ち点構成
     # ---------
-    pt1 = points_configuration.b_step    # ［黒勝ち１つの点数］
-    pt2 = points_configuration.w_step    # ［白勝ち１つの点数］
-    pt3 = points_configuration.span      # ［目標の点数］
+    pt1 = pts_conf.b_step    # ［黒勝ち１つの点数］
+    pt2 = pts_conf.w_step    # ［白勝ち１つの点数］
+    pt3 = pts_conf.span      # ［目標の点数］
 
     # FIXME 勝ちの内訳を［満点勝ち］［判定勝ち］で表示したい
     # FIXME ［引分除く］［引分込み］でも表示したい
@@ -442,7 +442,7 @@ def stringify_simulation_log(
 
 # # TODO 廃止予定
 # def stringify_log_when_simulation_stats_with_draw_when_frozen_turn(
-#         p, draw_rate, points_configuration, simulation_result, title):
+#         p, draw_rate, pts_conf, simulation_result, title):
 #     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     
 #     Parameters
@@ -451,7 +451,7 @@ def stringify_simulation_log(
 #         ［表が出る確率］（先手勝率）
 #     draw_rate : float
 #         ［引き分ける確率］
-#     points_configuration : PointsConfiguration
+#     pts_conf : PointsConfiguration
 #         ［かくきんシステムのｐの構成］
 #     simulation_result : SimulationResult
 #         シミュレーションの結果

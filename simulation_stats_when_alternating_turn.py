@@ -26,7 +26,7 @@ LOG_FILE_PATH = 'output/simulation_stats_when_alternating_turn.log'
 DRAW_RATE = 0.0
 
 
-def simulate_stats(p, number_of_series, points_configuration):
+def simulate_stats(p, number_of_series, pts_conf):
     """大量のシリーズをシミュレートします"""
 
     series_result_list = []
@@ -37,12 +37,12 @@ def simulate_stats(p, number_of_series, points_configuration):
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=p,
                 draw_rate=DRAW_RATE,
-                longest_times=points_configuration.count_longest_time_when_alternating_turn())
+                longest_times=pts_conf.count_longest_time_when_alternating_turn())
 
         # ［先後交互制］で、勝ったプレイヤーを返す
         series_result = play_game_when_alternating_turn(
                 pseudo_series_result=pseudo_series_result,
-                points_configuration=points_configuration)
+                pts_conf=pts_conf)
 
         series_result_list.append(series_result)
 
@@ -54,7 +54,7 @@ def simulate_stats(p, number_of_series, points_configuration):
     text = stringify_simulation_log(
             p=p,
             draw_rate=0,    # 引分けはありません
-            points_configuration=points_configuration,
+            pts_conf=pts_conf,
             simulation_result=simulation_result,
             title="（先後交互制でＡさんが勝った確率）")
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
             simulate_stats(
                     p=p,
                     number_of_series=number_of_series,
-                    points_configuration=specified_points_configuration)
+                    pts_conf=specified_points_configuration)
 
 
     except Exception as err:

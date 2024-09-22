@@ -132,13 +132,13 @@ if __name__ == '__main__':
 
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
-                        points_configuration = PointsConfiguration.let_points_from_repeat(
+                        pts_conf = PointsConfiguration.let_points_from_repeat(
                                 b_time=practical_b_time + 1,    # 閏の + 1
                                 w_time=practical_w_time)
 
                         series_result = ...(
                                 p=p,
-                                points_configuration=points_configuration)
+                                pts_conf=pts_conf)
                         
                         if winner_color == BLACK:
                             black_wons += 1
@@ -146,13 +146,13 @@ if __name__ == '__main__':
                     else:                        
                         # 閏対局を使わないパターン
 
-                        points_configuration = PointsConfiguration.let_points_from_repeat(
+                        pts_conf = PointsConfiguration.let_points_from_repeat(
                                 b_time=practical_b_time,
                                 w_time=practical_w_time)
 
                         series_result = ...(
                                 p=p,
-                                points_configuration=points_configuration)
+                                pts_conf=pts_conf)
                         
                         if winner_color == BLACK:
                             black_wons += 1
@@ -161,13 +161,13 @@ if __name__ == '__main__':
                 else:
                     # 勝った方の手番を返す
 
-                    points_configuration = PointsConfiguration.let_points_from_repeat(
+                    pts_conf = PointsConfiguration.let_points_from_repeat(
                             b_time=practical_b_time,
                             w_time=practical_w_time)
 
                     series_result = ...(
                             p=p,
-                            points_configuration=points_configuration)
+                            pts_conf=pts_conf)
                     
                     if winner_color == BLACK:
                         black_wons += 1

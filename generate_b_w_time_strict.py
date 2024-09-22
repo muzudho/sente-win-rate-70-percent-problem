@@ -86,7 +86,7 @@ if __name__ == '__main__':
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［かくきんシステムのｐの構成］
-                points_configuration = PointsConfiguration.let_points_from_repeat(
+                pts_conf = PointsConfiguration.let_points_from_repeat(
                     b_time=best_b_time,
                     w_time=best_w_time)
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
                         p=p,
                         best_p=best_p,
                         best_p_error=best_p_error,
-                        points_configuration=points_configuration,
+                        pts_conf=pts_conf,
                         process_list=process_list)
 
                 print(text) # 表示

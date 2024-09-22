@@ -25,15 +25,21 @@ LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 DRAW_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
-def analysis_series(series_result, p, points_configuration, title):
-    """シリーズ１つを分析します"""
+def analysis_series(series_result, p, pts_conf, title):
+    """シリーズ１つを分析します
+    
+    Parameters
+    ----------
+    pts_conf : PointsConfiguration
+        ［勝ち点ルール］の構成
+    """
 
     text = stringify_series_log(
             # ［表が出る確率］（指定値）
             p=p,
             draw_rate=DRAW_RATE,
             # ［かくきんシステムのｐの構成］
-            points_configuration=points_configuration,
+            pts_conf=pts_conf,
             # シリーズの結果
             series_result=series_result,
             # タイトル
@@ -73,7 +79,7 @@ if __name__ == '__main__':
             # FIXME 動作テスト
             stats_result_data = make_all_pseudo_series_results_when_frozen_turn(
                     can_draw=False,
-                    points_configuration=specified_points_configuration)
+                    pts_conf=specified_points_configuration)
             for successful_color_list in stats_result_data:
                 #print(f"動作テスト {successful_color_list=}")
 
@@ -92,7 +98,7 @@ if __name__ == '__main__':
                 # ［先後固定制］で、シリーズを勝った方の手番を返す
                 series_result = judge_series_when_frozen_turn(
                         pseudo_series_result=pseudo_series_result,
-                        points_configuration=specified_points_configuration)
+                        pts_conf=specified_points_configuration)
 
                 if series_result.number_of_all_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
@@ -124,7 +130,7 @@ if __name__ == '__main__':
                 analysis_series(
                         series_result=series_result,
                         p=p,
-                        points_configuration=specified_points_configuration,
+                        pts_conf=specified_points_configuration,
                         title='（先後固定制）    むずでょセレクション')
 
 
