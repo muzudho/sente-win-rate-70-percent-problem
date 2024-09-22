@@ -262,7 +262,7 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, points_configurati
         elements = [BLACK, WHITE]
 
     # 桁数
-    depth = points_configuration.count_longest_time_when_frozen_turn()
+    depth = points_configuration.number_longest_time_when_frozen_turn
 
     # １シーズン分のコイントスの全ての結果
     stats = []
@@ -691,7 +691,8 @@ class PointsConfiguration():
                 span=span)
 
 
-    def count_shortest_time_when_frozen_turn(self):
+    @property
+    def number_shortest_time_when_frozen_turn(self):
         """［先後固定制］での［最短対局数］
         
         白が全勝したときの回数と同じ
@@ -704,7 +705,8 @@ class PointsConfiguration():
         return self.w_time
 
 
-    def count_longest_time_when_frozen_turn(self):
+    @property
+    def number_longest_time_when_frozen_turn(self):
         """［先後固定制］での［最長対局数］
 
         白があと１つで勝てるところで止まり、黒が全勝したときの回数と同じ

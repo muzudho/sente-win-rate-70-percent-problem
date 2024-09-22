@@ -118,44 +118,6 @@ def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, speci
     return f"先手勝率 {seg_1:2.0f} ％ --理論値--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）{seg_9}"
 
 
-# def stringify_when_report_evenizing_system(p, specified_p, specified_p_error, points_configuration):
-#     """文言の作成"""
-
-#     # ［かくきんシステムのｐの構成］
-#     points_configuration = PointsConfiguration.let_points_from_repeat(
-#             b_time=b_time,
-#             w_time=w_time)
-
-#     # ［表が出る確率（％）］
-#     seg_1 = p*100
-
-#     # ［調整後の表が出る確率（％）］
-#     seg_2 = specified_p*100
-
-#     # ［調整後の表が出る確率（％）と 0.5 との誤差］
-#     seg_2b = specified_p_error*100
-
-#     # 対局数
-#     seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
-#     seg_3b = points_configuration.count_longest_time_when_frozen_turn()
-#     seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
-#     seg_3d = points_configuration.count_longest_time_when_alternating_turn()
-
-#     # ［白勝ち１つの点数］
-#     seg_4a = points_configuration.b_step
-
-#     # ［黒勝ち１つの点数］
-#     seg_4b = points_configuration.w_step
-
-#     # ［目標の点数］
-#     seg_4c = points_configuration.span
-
-#     text = ""
-#     #text += f"[{datetime.datetime.now()}]  " # タイムスタンプ
-#     text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_2:6.4f} ％ （± {seg_2b:>7.4f}）    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点"
-#     return text
-
-
 def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_error):
     """文言の作成"""
 
@@ -193,8 +155,8 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, points_conf
     seg_1c = best_p_error*100
 
     # 対局数
-    seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
-    seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+    seg_3a = points_configuration.number_shortest_time_when_frozen_turn
+    seg_3b = points_configuration.number_longest_time_when_frozen_turn
     seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
     seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 
@@ -225,8 +187,8 @@ def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best
     seg_1c = best_p_error * 100
 
     # 対局数
-    seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
-    seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+    seg_3a = points_configuration.number_shortest_time_when_frozen_turn
+    seg_3b = points_configuration.number_longest_time_when_frozen_turn
     seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
     seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 
@@ -254,8 +216,8 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     seg_1c = specified_p_error * 100
 
     # 対局数
-    seg_3a = specified_points_configuration.count_shortest_time_when_frozen_turn()
-    seg_3b = specified_points_configuration.count_longest_time_when_frozen_turn()
+    seg_3a = specified_points_configuration.number_shortest_time_when_frozen_turn
+    seg_3b = specified_points_configuration.number_longest_time_when_frozen_turn
     seg_3c = specified_points_configuration.count_shortest_time_when_alternating_turn()
     seg_3d = specified_points_configuration.count_longest_time_when_alternating_turn()
 
@@ -352,8 +314,8 @@ def stringify_series_log(
 
     # 対局数
     # ------
-    tm10 = points_configuration.count_shortest_time_when_frozen_turn()  # ［最短対局数］理論値
-    tm11 = points_configuration.count_longest_time_when_frozen_turn()   # ［最長対局数］
+    tm10 = points_configuration.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
+    tm11 = points_configuration.number_longest_time_when_frozen_turn   # ［最長対局数］
     tm20 = series_result.number_of_all_times    # ［対局数］実践値
 
     # 勝ち点構成
@@ -423,8 +385,8 @@ def stringify_simulation_log(
 
     # 対局数
     # ------
-    tm10 = points_configuration.count_shortest_time_when_frozen_turn()  # ［最短対局数］理論値
-    tm11 = points_configuration.count_longest_time_when_frozen_turn()   # ［最長対局数］
+    tm10 = points_configuration.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
+    tm11 = points_configuration.number_longest_time_when_frozen_turn   # ［最長対局数］
     tm20 = simulation_result.shortest_time_th    # ［最短対局数］実践値
     tm21 = simulation_result.longest_time_th     # ［最長対局数］
 

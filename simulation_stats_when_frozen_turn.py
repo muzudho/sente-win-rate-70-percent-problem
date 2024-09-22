@@ -30,7 +30,7 @@ def simulate_stats(p, number_of_series, points_configuration, title):
     series_result_list = []
 
     # ［最長対局数］は計算で求められます
-    longest_times = points_configuration.count_longest_time_when_frozen_turn()
+    longest_times = points_configuration.number_longest_time_when_frozen_turn
 
     for round in range(0, number_of_series):
 
@@ -72,11 +72,11 @@ def simulate_stats(p, number_of_series, points_configuration, title):
 
 
     # 表示とログ出力を終えた後でテスト
-    if simulation_result.shortest_time_th < points_configuration.count_shortest_time_when_frozen_turn():
-        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {points_configuration.count_shortest_time_when_frozen_turn()} を下回った")
+    if simulation_result.shortest_time_th < points_configuration.number_shortest_time_when_frozen_turn:
+        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {points_configuration.number_shortest_time_when_frozen_turn} を下回った")
 
-    if points_configuration.count_longest_time_when_frozen_turn() < simulation_result.longest_time_th:
-        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {points_configuration.count_longest_time_when_frozen_turn()} を上回った")
+    if points_configuration.number_longest_time_when_frozen_turn < simulation_result.longest_time_th:
+        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {points_configuration.number_longest_time_when_frozen_turn} を上回った")
 
 
 ########################################

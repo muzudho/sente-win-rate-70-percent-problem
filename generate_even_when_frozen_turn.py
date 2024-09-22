@@ -153,8 +153,8 @@ def iteration_deeping(df, abs_limit_of_error):
                             best_points_configuration = latest_points_configuration
 
                             # ［最短対局数］［最長対局数］
-                            shortest_time = best_points_configuration.count_shortest_time_when_frozen_turn()
-                            longest_time = best_points_configuration.count_longest_time_when_frozen_turn()
+                            shortest_time = best_points_configuration.number_shortest_time_when_frozen_turn
+                            longest_time = best_points_configuration.number_longest_time_when_frozen_turn
 
                             # 計算過程
                             one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'

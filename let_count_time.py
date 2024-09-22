@@ -31,8 +31,8 @@ if __name__ == '__main__':
                             span=span)
 
                     # ［最短対局数］［最長対局数］
-                    seg_3a = points_configuration.count_shortest_time_when_frozen_turn()
-                    seg_3b = points_configuration.count_longest_time_when_frozen_turn()
+                    seg_3a = points_configuration.number_shortest_time_when_frozen_turn
+                    seg_3b = points_configuration.number_longest_time_when_frozen_turn
                     seg_3c = points_configuration.count_shortest_time_when_alternating_turn()
                     seg_3d = points_configuration.count_longest_time_when_alternating_turn()
 

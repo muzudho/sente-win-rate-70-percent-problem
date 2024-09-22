@@ -47,14 +47,6 @@ def analysis_series(series_result, p, points_configuration, title):
         f.write(f"{text}\n")    # ファイルへ出力
 
 
-    # # TODO 表示とログ出力を終えた後でテスト
-    # if simulation_result.shortest_time_th < points_configuration.count_shortest_time_when_frozen_turn():
-    #     raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {points_configuration.count_shortest_time_when_frozen_turn()} を下回った")
-
-    # if points_configuration.count_longest_time_when_frozen_turn() < simulation_result.longest_time_th:
-    #     raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {points_configuration.count_longest_time_when_frozen_turn()} を上回った")
-
-
 ########################################
 # コマンドから実行時
 ########################################
@@ -88,7 +80,7 @@ if __name__ == '__main__':
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
                         draw_rate=DRAW_RATE,
-                        longest_times=specified_points_configuration.count_longest_time_when_frozen_turn(),
+                        longest_times=specified_points_configuration.number_longest_time_when_frozen_turn,
                         successful_color_list=successful_color_list)
 
                 #
@@ -107,9 +99,9 @@ if __name__ == '__main__':
                     #print(f"到達できない棋譜を除去 {series_result.number_of_all_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_points_configuration.count_shortest_time_when_frozen_turn():
+                elif old_number_of_times < specified_points_configuration.number_shortest_time_when_frozen_turn:
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.count_shortest_time_when_frozen_turn()=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.number_shortest_time_when_frozen_turn=}")
                     pass
 
                 #
