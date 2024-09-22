@@ -975,20 +975,16 @@ class SeriesResult():
     # ［先後交互制］
     # -------------
 
-
-    @property
     def is_no_won(self, x, y):
         """勝者なし。 x 、 y の［勝ち点］が等しいとき"""
         return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
 
 
-    @property
     def is_points_won(self, winner, loser):
         """winner の［勝ち点］は［目標の点数］に達していないが、 loser の［勝ち点］より多くて winner さんの勝ち"""
         return not self._point_calculation.is_fully_won(winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
-    @property
     def is_won(self, winner, loser):
         """winner さんの勝ち"""
         return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner, loser=loser)
