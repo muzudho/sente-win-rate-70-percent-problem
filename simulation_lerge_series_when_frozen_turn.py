@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_stats_when_frozen_turn.py
+# python simulation_lerge_series_when_frozen_turn.py
 #
 #   ［先後固定制］
 #   引き分けは考慮していない。
@@ -18,10 +18,11 @@ from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
 
-LOG_FILE_PATH = 'output/simulation_stats_when_frozen_turn.log'
+LOG_FILE_PATH = 'output/simulation_lerge_series_when_frozen_turn.log'
 
 # 引き分けになる確率
-DRAW_RATE = 0.0
+#DRAW_RATE = 0.0
+DRAW_RATE = 0.1
 
 
 def simulate_stats(p, number_of_series, pts_conf, title):

@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_stats_when_alternating_turn.py
+# python simulation_large_series_when_alternating_turn.py
 #
 #   ［先後交互制］
 #   引き分けは考慮していない。
@@ -20,7 +20,7 @@ from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_simulation_log
 
 
-LOG_FILE_PATH = 'output/simulation_stats_when_alternating_turn.log'
+LOG_FILE_PATH = 'output/simulation_large_series_when_alternating_turn.log'
 
 # ［将棋の引分け率］
 DRAW_RATE = 0.0
