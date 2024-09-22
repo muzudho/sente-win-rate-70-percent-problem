@@ -158,9 +158,9 @@ class CointossResultInSeries():
         Parameters
         ----------
         p : float
-            ［表が出る確率］
+            ［表が出る確率］ 例： ７割なら 0.7
         draw_rate : float
-            ［引き分ける確率］
+            ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
         longest_times : int
             ［最長対局数］
         successful_color_list : list
@@ -196,6 +196,7 @@ class CointossResultInSeries():
         return self._successful_color_list
 
 
+    @staticmethod
     def make_cointoss_result_in_series(p, draw_rate, longest_times):
         """コイントスした結果のリストを生成
 
@@ -230,12 +231,18 @@ class CointossResultInSeries():
                 successful_color_list=successful_color_list)
 
 
+    def cut_down(self, number_of_times):
+        """コイントスの結果のリストの長さを切ります。
+        対局は必ずしも［最長対局数］になるわけではありません"""
+        self._successful_color_list = self._successful_color_list[0:number_of_times]
+
+
     def stringify_dump(self):
         """ダンプ"""
         return f"{self._p=}  {self._draw_rate=}  {self._longest_times=}  {self._successful_color_list}"
 
 
-def play_series_when_frozen_turn(cointoss_result_in_series, p, draw_rate, points_configuration):
+def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration):
     """［先後固定制］で１シリーズ分の対局を行います。
 
     ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
@@ -245,10 +252,6 @@ def play_series_when_frozen_turn(cointoss_result_in_series, p, draw_rate, points
     ----------
     cointoss_result_in_series : CointossResultInSeries
         コイントス・リスト
-    p : float
-        ［表が出る確率］ 例： ７割なら 0.7
-    draw_rate : float
-        ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
     
@@ -292,8 +295,9 @@ def play_series_when_frozen_turn(cointoss_result_in_series, p, draw_rate, points
             # 勝ち抜け
             if points_configuration.span <= point_list[successful_color]:
 
-                if time_th != len(cointoss_result_in_series.successful_color_list):
-                    raise ValueError(f"{time_th=}  !=  {len(cointoss_result_in_series.successful_color_list)=}  {cointoss_result_in_series.stringify_dump()=}")
+                # コイントスの結果のリストの長さを切ります。
+                # 対局は必ずしも［最長対局数］になるわけではありません
+                cointoss_result_in_series.cut_down(time_th)
 
                 return SeriesResult(
                         number_of_all_times=time_th,

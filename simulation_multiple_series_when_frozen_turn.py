@@ -42,8 +42,6 @@ def simulate(p, number_of_series, points_configuration, title):
         # ［先後固定制］で、シリーズを勝った方の手番を返す
         series_result = play_series_when_frozen_turn(
                 cointoss_result_in_series=cointoss_result_in_series,
-                p=p,
-                draw_rate=DRAW_RATE,
                 points_configuration=points_configuration)
         
         series_result_list.append(series_result)
