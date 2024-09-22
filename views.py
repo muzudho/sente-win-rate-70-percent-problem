@@ -355,8 +355,10 @@ def stringify_simulation_log(
     # 変数名を短くする
     S = large_series_trial_summary  # Summary
 
-    # 引分けない確率
+    # 将棋の引分けない率（指定値）
     undraw_rate = 1 - draw_rate
+    # 将棋の引分け率（試行値）
+    trial_draw_rate = S.number_of_draw_series_ft / S.number_of_series
 
     # ヘッダー
     # --------
@@ -388,7 +390,7 @@ def stringify_simulation_log(
     b_pt3 = pts_conf.span      # ［目標の点数］
 
 
-    # ［以下、［かくきんシステム］を使って試行］１行目
+    # ［以下、［かくきんシステム］を使って試行］１ブロック目（色、引分除く）
     # ---------------------------------------------
     c1_shw = trial_p * 100           # ［将棋の先手勝率（％）］実践値（引分除く）
     c1_shwe = trial_p_error * 100    # ［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
@@ -396,26 +398,28 @@ def stringify_simulation_log(
     c1_shle = trial_q_error * 100    # ［将棋の後手勝率（％）と 0.5 との誤差］実践値
 
 
-    # ［以下、［かくきんシステム］を使って試行］２行目
+    # ［以下、［かくきんシステム］を使って試行］２ブロック目（色、引分込み）
     # ---------------------------------------------
     c2_shw = undraw_rate * trial_p * 100            # ［将棋の先手勝率］（引分込み）
     c2_shwe = undraw_rate * trial_p_error * 100     # ［将棋の先手勝率］（引分込み） 誤差
+    c2_d = trial_draw_rate * 100                    # ［将棋の引分け率］実践値
+    c2_de = (trial_draw_rate - draw_rate) * 100     # ［将棋の引分け率］実践値と指定値の誤差
     c2_shl = undraw_rate * trial_q * 100            # ［将棋の後手勝率］（引分込み）
     c2_shle = undraw_rate * trial_q_error * 100     # ［将棋の後手勝率］（引分込み） 誤差
 
 
-    # TODO［将棋の後手勝率］（引分込み）
-    # -----------------
+    # TODO ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
+    # ---------------------------------------------
+
+
+    # TODO ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分含む）
+    # ---------------------------------------------
+
 
     # ［Ａさんの勝率］
     # ---------------
     aw1 = S.trial_alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
     aw1e = S.trial_alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-
-    # 将棋の引分け
-    # ------------
-    d2 = (S.number_of_draw_series_ft / S.number_of_series) * 100     # ［将棋の引分け率］実践値
-    d2e = d2 - a_d1
 
     # 対局数
     # ------
@@ -448,8 +452,8 @@ def stringify_simulation_log(
               |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .                   対局数                   |
     引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .    {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                |
               |   （{c1_shwe:+9.4f}）              （{c1_shle:+9.4f}）     .    {    sr2:>7}先判勝                           |
-    引分込み  |      {  c2_shw:8.4f} ％  {d2       :8.4f} ％   {  c2_shl:8.4f} ％    .                                            |
-              |   （{c2_shwe:+9.4f}）（{d2e   :+9.4f}） （{c2_shle:+9.4f}）     .                                            |
+    引分込み  |      {  c2_shw:8.4f} ％  {c2_d       :8.4f} ％   {  c2_shl:8.4f} ％    .                                            |
+              |   （{c2_shwe:+9.4f}）（{c2_de   :+9.4f}） （{c2_shle:+9.4f}）     .                                            |
               |  Ａさんの勝ち                                  .                                            |
     引分除く  |      {aw1:8.4f} ％                               .                                            |
               |   （{aw1e:+9.4f}）                                .                                            |
