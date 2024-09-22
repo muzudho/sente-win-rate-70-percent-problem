@@ -488,7 +488,7 @@ def stringify_analysis_series_when_frozen_turn(p, draw_rate, series_result_list)
             black_wons += 1
         elif series_result.is_white_won:
             white_wons += 1
-        elif series_result.is_no_won_color:
+        elif series_result.is_no_won(BLACK, WHITE):
             no_wons_color += 1
     
     # 結果としての黒の勝率

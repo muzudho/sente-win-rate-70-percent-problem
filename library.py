@@ -364,7 +364,7 @@ class PointCalculation():
         self._point_list[successful_player] += step
 
 
-    def get_point_of(index):
+    def get_point_of(self, index):
         return self._point_list[index]
 
 
@@ -908,14 +908,8 @@ class SeriesResult():
         self._pseudo_series_result = pseudo_series_result
 
         # ［先後固定制］
-        self._is_no_won_color = None
         self._is_black_points_won = None
         self._is_white_points_won = None
-
-        # ［先後交互制］
-        self._is_no_won_player = None
-        self._is_alice_points_won = None
-        self._is_bob_points_won = None
 
 
     # 共通
@@ -948,33 +942,20 @@ class SeriesResult():
     # ［先後固定制］
     # -------------
 
-
-    @property
-    def is_no_won_color(self):
-        """勝者なし。黒白ともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
-        if self._is_no_won_color is None:
-            half = math.floor(self._span / 2)
-            self._is_no_won_color = (self._point_calculation.get_point_of(BLACK) <= half and self._point_calculation.get_point_of(WHITE) <= half) or self._point_calculation.get_point_of(BLACK) == self._point_calculation.get_point_of(WHITE)
-
-        return self._is_no_won_color
-
-
     @property
     def is_black_points_won(self):
-        """黒の［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらに白の［勝ち点］より多くて黒の勝ち"""
+        """黒の［勝ち点］は［目標の点数］に達していないが、白の［勝ち点］より多くて黒の勝ち"""
         if self._is_black_points_won is None:
-            half = math.floor(self._span / 2)
-            self._is_black_points_won = half < self._point_calculation.get_point_of(BLACK) and self._point_calculation.get_point_of(BLACK) < self._span and self._point_calculation.x_has_more_than_y(BLACK, WHITE)
+            self._is_black_points_won = not self._point_calculation.is_fully_won(BLACK) and self._point_calculation.x_has_more_than_y(BLACK, WHITE)
 
         return self._is_black_points_won
 
 
     @property
     def is_white_points_won(self):
-        """白の［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらに黒の［勝ち点］より多くて白の勝ち"""
+        """白の［勝ち点］は［目標の点数］に達していないが、黒の［勝ち点］より多くて白の勝ち"""
         if self._is_white_points_won is None:
-            half = math.floor(self._span / 2)
-            self._is_white_points_won = half < self._point_calculation.get_point_of(WHITE) and self._point_calculation.get_point_of(WHITE) < self._span and self._point_calculation.x_has_more_than_y(WHITE, BLACK)
+            self._is_white_points_won = not self._point_calculation.is_fully_won(WHITE) and self._point_calculation.x_has_more_than_y(WHITE, BLACK)
 
         return self._is_white_points_won
 
@@ -996,45 +977,21 @@ class SeriesResult():
 
 
     @property
-    def is_no_won_player(self):
-        """勝者なし。ＡさんＢさんともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
-        if self._is_no_won_player is None:
-            half = math.floor(self._span / 2)
-            self._is_no_won_player = (self._point_calculation.get_point_of(ALICE) <= half and self._point_calculation.get_point_of(BOB) <= half) or self._point_calculation.get_point_of(ALICE) == self._point_calculation.get_point_of(BOB)
-
-        return self._is_no_won_player
+    def is_no_won(self, x, y):
+        """勝者なし。 x 、 y の［勝ち点］が等しいとき"""
+        return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
 
 
     @property
-    def is_alice_points_won(self):
-        """Ａさんの［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらにＢさんの［勝ち点］より多くてＡさんの勝ち"""
-        if self._is_alice_points_won is None:
-            half = math.floor(self._span / 2)
-            self._is_alice_points_won = half < self._point_calculation.get_point_of(ALICE) and self._point_calculation.get_point_of(ALICE) < self._span and self._point_calculation.x_has_more_than_y(ALICE, BOB)
-
-        return self._is_alice_points_won
+    def is_points_won(self, winner, loser):
+        """winner の［勝ち点］は［目標の点数］に達していないが、 loser の［勝ち点］より多くて winner さんの勝ち"""
+        return not self._point_calculation.is_fully_won(winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
     @property
-    def is_bob_points_won(self):
-        """Ｂさんの［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらにＡさんの［勝ち点］より多くてＢさんの勝ち"""
-        if self._is_bob_points_won is None:
-            half = math.floor(self._span / 2)
-            self._is_bob_points_won = half < self._point_calculation.get_point_of(BOB) and self._point_calculation.get_point_of(BOB) < self._span and self._point_calculation.x_has_more_than_y(BOB, ALICE)
-
-        return self._is_bob_points_won
-
-
-    @property
-    def is_alice_won(self):
-        """Ａさんの勝ち"""
-        return self.point_calculation.is_fully_won(ALICE) or self.is_alice_points_won
-
-
-    @property
-    def is_bob_won(self):
-        """Ｂさんの勝ち"""
-        return self.point_calculation.is_fully_won(BOB) or self.is_bob_points_won
+    def is_won(self, winner, loser):
+        """winner さんの勝ち"""
+        return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner, loser=loser)
 
 
 class LargeSeriesTrialSummary():
@@ -1133,7 +1090,7 @@ class LargeSeriesTrialSummary():
         if self._number_of_no_wons_color is None:
             self._number_of_no_wons_color = 0
             for series_result in self._series_result_list:
-                if series_result.is_no_won_color:
+                if series_result.is_no_won(BLACK, WHITE):
                     self._number_of_no_wons_color += 1
 
         return self._number_of_no_wons_color
@@ -1257,7 +1214,7 @@ class LargeSeriesTrialSummary():
         if self._number_of_no_wons_player is None:
             self._number_of_no_wons_player = 0
             for series_result in self._series_result_list:
-                if series_result.is_no_won_player:
+                if series_result.is_no_won(ALICE, BOB):
                     self._number_of_no_wons_player += 1
 
         return self._number_of_no_wons_player
@@ -1293,7 +1250,7 @@ class LargeSeriesTrialSummary():
         if self._number_of_alice_points_wons is None:
             self._number_of_alice_points_wons = 0
             for series_result in self._series_result_list:
-                if series_result.is_alice_points_won:
+                if series_result.is_points_won(winner=ALICE, loser=BOB):
                     self._number_of_alice_points_wons += 1
 
         return self._number_of_alice_points_wons
@@ -1305,7 +1262,7 @@ class LargeSeriesTrialSummary():
         if self._number_of_bob_points_wons is None:
             self._number_of_bob_points_wons = 0
             for series_result in self._series_result_list:
-                if series_result.is_bob_points_won:
+                if series_result.is_points_won(winner=BOB, loser=ALICE):
                     self._number_of_bob_points_wons += 1
 
         return self._number_of_bob_points_wons

@@ -112,8 +112,8 @@ if __name__ == '__main__':
                 #
                 # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
-                elif DRAW_RATE == 0.0 and series_result.is_no_won_color:
-                    #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {DRAW_RATE=}  {series_result.is_no_won_color=}")
+                elif DRAW_RATE == 0.0 and series_result.is_no_won(BLACK, WHITE):
+                    #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {DRAW_RATE=}")
                     pass
 
                 else:
