@@ -321,6 +321,39 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
     return stats
 
 
+class PointCalculation():
+    """勝ち点計算に使う"""
+
+
+    def __init__(self):
+        # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
+        self._point_list = [0, 0, 0, 0, 0]
+
+
+    @property
+    def point_list(self):
+        """［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん"""
+        return self._point_list
+
+
+    def append(self, successful_color, successful_player, step):
+        """加点
+
+        Parameters
+        ----------
+        step : int
+            ［黒の勝ち点］か［白の勝ち点］のいずれか
+        """
+        self._point_list[successful_color] += step
+        self._point_list[successful_player] += step
+
+
+    def get_by_color(successful_color):
+        return self._point_list[successful_color]
+
+
+
+
 def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
     """１シリーズ分の疑似対局結果を読み取ります。［先後固定制］で判定します。
 
@@ -340,8 +373,8 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
         ［シリーズ］の結果
     """
 
-    # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
-    point_list = [0, 0, 0, 0, 0]
+    # ［勝ち点計算］
+    point_calculation = PointCalculation()
 
     # ［このシリーズで引き分けた対局数］
     number_of_draw_times = 0
@@ -368,11 +401,10 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
                 successful_player = BOB
                 step = pts_conf.w_step
 
-            point_list[successful_color] += step
-            point_list[successful_player] += step
+            point_calculation.append(successful_color, successful_player, step)
 
             # 勝ち抜け
-            if pts_conf.span <= point_list[successful_color]:
+            if pts_conf.span <= point_calculation.get_by_color(successful_color):
 
                 # コイントスの結果のリストの長さを切ります。
                 # 対局は必ずしも［最長対局数］になるわけではありません
@@ -382,7 +414,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=pts_conf.span,
-                        point_list=point_list,
+                        point_list=point_calculation.point_list,
                         pseudo_series_result=pseudo_series_result)
 
 
@@ -391,7 +423,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
             number_of_all_times=time_th,
             number_of_draw_times=number_of_draw_times,
             span=pts_conf.span,
-            point_list=point_list,
+            point_list=point_calculation.point_list,
             pseudo_series_result=pseudo_series_result)
 
 

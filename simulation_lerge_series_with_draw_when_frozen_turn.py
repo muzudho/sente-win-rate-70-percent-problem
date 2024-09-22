@@ -2,9 +2,7 @@
 # シミュレーション
 # python simulation_lerge_series_with_draw_when_frozen_turn.py
 #
-#   ［先後固定制］
-#   引き分けを考慮する。
-#   表が出る確率（p）が偏ったコインを、指定回数投げる
+#   引分けルールを考えるのに使っている
 #
 
 import traceback
@@ -33,7 +31,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
     # ［最長対局数］は計算で求められます
     longest_times = pts_conf.number_longest_time_when_frozen_turn
 
-    for round in range(0, number_of_series):
+    for series_num in range(0, number_of_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
