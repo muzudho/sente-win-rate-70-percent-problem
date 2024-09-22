@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_multiple_series_when_alternating_turn.py
+# python simulation_stats_when_alternating_turn.py
 #
 #   ［先後交互制］
 #   引き分けは考慮していない。
@@ -20,11 +20,11 @@ from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_simulation_log
 
 
-LOG_FILE_PATH = 'output/simulation_multiple_series_when_alternating_turn.log'
+LOG_FILE_PATH = 'output/simulation_stats_when_alternating_turn.log'
 
 
-def simulate(p, number_of_series, points_configuration):
-    """シミュレート"""
+def simulate_stats(p, number_of_series, points_configuration):
+    """大量のシリーズをシミュレートします"""
 
     series_result_list = []
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                     w_step=w_step,
                     span=span)
 
-            simulate(
+            simulate_stats(
                     p=p,
                     number_of_series=number_of_series,
                     points_configuration=specified_points_configuration)

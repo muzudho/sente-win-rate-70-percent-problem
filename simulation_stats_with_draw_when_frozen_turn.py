@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_multiple_series_with_draw_when_frozen_turn.py
+# python simulation_stats_with_draw_when_frozen_turn.py
 #
 #   ［先後固定制］
 #   引き分けを考慮する。
@@ -18,15 +18,15 @@ from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
 
-LOG_FILE_PATH = 'output/simulation_multiple_series_when_frozen_turn.log'
+LOG_FILE_PATH = 'output/simulation_stats_when_frozen_turn.log'
 
 # 引き分けになる確率
 #DRAW_RATE = 0.1
 DRAW_RATE = 0.9
 
 
-def simulate(p, number_of_series, points_configuration, title):
-    """シミュレート"""
+def simulate_stats(p, number_of_series, points_configuration, title):
+    """大量のシリーズをシミュレートします"""
 
     series_result_list = []
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                     w_step=w_step,
                     span=span)
 
-            simulate(
+            simulate_stats(
                     p=p,
                     number_of_series=number_of_series,
                     points_configuration=points_configuration,

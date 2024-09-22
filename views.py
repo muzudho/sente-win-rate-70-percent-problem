@@ -409,7 +409,7 @@ def stringify_simulation_log(
 
 
 # # TODO 廃止予定
-# def stringify_log_when_simulation_multiple_series_with_draw_when_frozen_turn(
+# def stringify_log_when_simulation_stats_with_draw_when_frozen_turn(
 #         p, draw_rate, points_configuration, simulation_result, title):
 #     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     

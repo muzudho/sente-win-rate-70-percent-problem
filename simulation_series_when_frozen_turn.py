@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_single_series_when_frozen_turn.py
+# python simulation_series_when_frozen_turn.py
 #
 #   ［先後固定制］
 #   引き分けは考慮していない。
@@ -18,14 +18,14 @@ from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log
 
 
-LOG_FILE_PATH = 'output/simulation_single_series_when_frozen_turn.log'
+LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
 
 # 引き分けになる確率
 DRAW_RATE = 0.0
 
 
-def simulate(p, points_configuration, title):
-    """シミュレート"""
+def simulate_series(p, points_configuration, title):
+    """シリーズをシミュレートする"""
 
     series_result_list = []
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                     w_step=w_step,
                     span=span)
 
-            simulate(
+            simulate_series(
                     p=p,
                     points_configuration=specified_points_configuration,
                     title='（先後固定制）    むずでょセレクション')
