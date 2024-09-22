@@ -153,6 +153,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         # for i in range(0, REQUIRED_MUMBER_OF_SERIES):
                         #     series_result = play_series_when_frozen_turn(
                         #             p=p,
+                        #             draw_rate=draw_rate,
                         #             points_configuration=latest_points_configuration)
                             
                         #     if series_result.is_black_won:

@@ -13,9 +13,9 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break, SimulationResult
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_when_frozen_turn, play_tie_break, SimulationResult
 from database import get_df_muzudho_recommends_points_when_frozen_turn
-from views import stringify_log_when_simulation_series_with_draw_when_frozen_turn
+from views import stringify_simulation_log
 
 
 LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
@@ -25,7 +25,7 @@ LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
 DRAW_RATE = 0.9
 
 
-def simulate(p, number_of_series, points_configuration, comment):
+def simulate(p, number_of_series, points_configuration, title):
     """シミュレート"""
 
     series_result_list = []
@@ -33,7 +33,7 @@ def simulate(p, number_of_series, points_configuration, comment):
     for round in range(0, number_of_series):
 
         # ［先後固定制］で、勝った方の手番を返す。引き分けを１局と数える
-        series_result = play_series_with_draw_when_frozen_turn(
+        series_result = play_series_when_frozen_turn(
                 p=p,
                 draw_rate=DRAW_RATE,
                 points_configuration=points_configuration)
@@ -58,17 +58,17 @@ def simulate(p, number_of_series, points_configuration, comment):
     simulation_result = SimulationResult(
             series_result_list=series_result_list)
 
-    text = stringify_log_when_simulation_series_with_draw_when_frozen_turn(
+    text = stringify_simulation_log(
             # ［表が出る確率］（指定値）
             p=p,
             # ［引き分ける確率］
             draw_rate=DRAW_RATE,
             # ［かくきんシステムのｐの構成］
             points_configuration=points_configuration,
-            # コメント
-            comment=comment,
             # シミュレーションの結果
-            simulation_result=simulation_result)
+            simulation_result=simulation_result,
+            # タイトル
+            title=title)
 
 
     print(text) # 表示
@@ -123,7 +123,7 @@ if __name__ == '__main__':
                     p=p,
                     number_of_series=number_of_series,
                     points_configuration=points_configuration,
-                    comment='むずでょセレクション')
+                    title='むずでょセレクション')
 
 
     except Exception as err:

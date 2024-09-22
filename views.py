@@ -345,43 +345,43 @@ def stringify_simulation_log(
 """
 
 
-# TODO 廃止予定
-def stringify_log_when_simulation_series_with_draw_when_frozen_turn(
-        p, draw_rate, points_configuration, simulation_result, title):
-    """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
+# # TODO 廃止予定
+# def stringify_log_when_simulation_series_with_draw_when_frozen_turn(
+#         p, draw_rate, points_configuration, simulation_result, title):
+#     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
     
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］（先手勝率）
-    draw_rate : float
-        ［引き分ける確率］
-    points_configuration : PointsConfiguration
-        ［かくきんシステムのｐの構成］
-    simulation_result : SimulationResult
-        シミュレーションの結果
-    title : str
-        タイトル
-    """
+#     Parameters
+#     ----------
+#     p : float
+#         ［表が出る確率］（先手勝率）
+#     draw_rate : float
+#         ［引き分ける確率］
+#     points_configuration : PointsConfiguration
+#         ［かくきんシステムのｐの構成］
+#     simulation_result : SimulationResult
+#         シミュレーションの結果
+#     title : str
+#         タイトル
+#     """
 
-    # 引分け率（％） 実際値
-    seg_7b = (simulation_result.number_of_draw_series_ft / simulation_result.number_of_series) * 100
+#     # 引分け率（％） 実際値
+#     seg_7b = (simulation_result.number_of_draw_series_ft / simulation_result.number_of_series) * 100
 
-    # ［勝ち点差黒勝率（％）］
-    if simulation_result.number_of_black_points_wons == 0:
-        seg_8 = "なし"
-    else:
-        seg_8 = f"{(simulation_result.number_of_black_points_wons / simulation_result.number_of_black_points_wons) * 100:8.4f} ％"
+#     # ［勝ち点差黒勝率（％）］
+#     if simulation_result.number_of_black_points_wons == 0:
+#         seg_8 = "なし"
+#     else:
+#         seg_8 = f"{(simulation_result.number_of_black_points_wons / simulation_result.number_of_black_points_wons) * 100:8.4f} ％"
 
-    # 引分けシリーズ数
-    seg_10 = simulation_result.number_of_draw_series_ft
+#     # 引分けシリーズ数
+#     seg_10 = simulation_result.number_of_draw_series_ft
 
-    # 黒勝ち数
-    seg_11 = simulation_result.number_of_black_all_wons
+#     # 黒勝ち数
+#     seg_11 = simulation_result.number_of_black_all_wons
 
-    return f"""\
-  引分け率        対局数（先後固定制）
-       先手勝ち数{seg_11:>7}，引分{seg_10:>7}（詳細{simulation_result.number_of_draw_times:>7}），
-        {                seg_7b     :8.4f} ％   勝ち点差黒勝率 {seg_8}
+#     return f"""\
+#   引分け率        対局数（先後固定制）
+#        先手勝ち数{seg_11:>7}，引分{seg_10:>7}（詳細{simulation_result.number_of_draw_times:>7}），
+#         {                seg_7b     :8.4f} ％   勝ち点差黒勝率 {seg_8}
 
-"""
+# """

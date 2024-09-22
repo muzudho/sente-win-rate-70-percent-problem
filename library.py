@@ -148,60 +148,11 @@ def draw(draw_rate):
     return random.random() < draw_rate
 
 
-def play_series_when_frozen_turn(p, points_configuration):
-    """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します
+def play_series_when_frozen_turn(p, draw_rate, points_configuration):
+    """［先後固定制］で１シリーズ分の対局を行います。
 
-    引き分けはありません。あるいは、［引き分けを１局として数えないケース］です
-
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］ 例： ７割なら 0.7
-    points_configuration : PointsConfiguration
-        ［かくきんシステムのｐの構成］
-    
-    Returns
-    -------
-    series_result : SeriesResult
-        ［シリーズ］の結果
-    """
-
-    # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
-    point_list = [0, 0, 0, 0, 0]
-
-    # 勝ち負けが出るまでやる
-    for time_th in range(1, 2_147_483_647):
-
-        successful_color = coin(p)
-
-        if successful_color == BLACK:
-            successful_player = ALICE
-            step = points_configuration.b_step
-
-        else:
-            successful_player = BOB
-            step = points_configuration.w_step
-
-        point_list[successful_color] += step
-        point_list[successful_player] += step
-
-        # 勝ち抜け
-        if points_configuration.span <= point_list[successful_color]:
-            return SeriesResult(
-                    number_of_all_times=time_th,
-                    number_of_draw_times=0, # 引分けはありません
-                    span=points_configuration.span,
-                    point_list=point_list)
-
-
-    raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
-
-
-def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
-    """［先後固定制］で１シリーズ分の対局を行います。勝った方の色を返します
-
-    ［引き分けを１局として数えるケース］です。
     ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
+    もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
 
     Parameters
     ----------
@@ -218,17 +169,17 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
         ［シリーズ］の結果
     """
 
-    # ［シリーズ全体を通して引き分けた数］
-    number_of_draw_times = 0
-
     # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
     point_list = [0, 0, 0, 0, 0]
+
+    # ［このシリーズで引き分けた対局数］
+    number_of_draw_times = 0
 
     # ［先後固定制］での対局の上限数は計算で求められます
     max_time = points_configuration.count_longest_time_when_frozen_turn()
 
     # 対局の上限数までやる
-    for time_th in range(0, max_time):
+    for time_th in range(1, max_time + 1):
 
         # 引き分けを１局と数えるケース
         #
@@ -236,7 +187,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
         #
         if draw(draw_rate):
             number_of_draw_times += 1
-
+        
         else:
             successful_color = coin(p)
 

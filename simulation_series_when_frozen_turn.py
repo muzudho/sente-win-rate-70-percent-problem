@@ -20,6 +20,9 @@ from views import stringify_simulation_log
 
 LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
 
+# 引き分けになる確率
+DRAW_RATE = 0.0
+
 
 def simulate(p, number_of_series, points_configuration, title):
     """シミュレート"""
@@ -30,6 +33,7 @@ def simulate(p, number_of_series, points_configuration, title):
         # ［先後固定制］で、勝った方の手番を返す
         series_result = play_series_when_frozen_turn(
                 p=p,
+                draw_rate=DRAW_RATE,
                 points_configuration=points_configuration)
         
         series_result_list.append(series_result)
@@ -42,7 +46,7 @@ def simulate(p, number_of_series, points_configuration, title):
     text = stringify_simulation_log(
             # ［表が出る確率］（指定値）
             p=p,
-            draw_rate=0,
+            draw_rate=DRAW_RATE,
             # ［かくきんシステムのｐの構成］
             points_configuration=points_configuration,
             # シミュレーションの結果
