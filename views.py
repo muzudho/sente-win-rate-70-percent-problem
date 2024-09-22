@@ -355,10 +355,10 @@ def stringify_simulation_log(
     # 変数名を短くする
     S = large_series_trial_summary  # Summary
 
-    # 将棋の引分けない率（指定値）
-    undraw_rate = 1 - draw_rate
-    # 将棋の引分け率（試行値）
-    trial_draw_rate = S.number_of_draw_series_ft / S.number_of_series
+    # ［先後固定制］での、将棋の引分け率（試行値）
+    trial_draw_rate_ft = S.number_of_draw_series_ft / S.number_of_series
+    # ［先後交互制］での、将棋の引分け率（試行値）
+    trial_draw_rate_at = S.number_of_draw_series_at / S.number_of_series
 
     # ヘッダー
     # --------
@@ -400,26 +400,31 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］を使って試行］２ブロック目（色、引分込み）
     # ---------------------------------------------
-    c2_shw = undraw_rate * trial_p * 100            # ［将棋の先手勝率］（引分込み）
-    c2_shwe = undraw_rate * trial_p_error * 100     # ［将棋の先手勝率］（引分込み） 誤差
-    c2_d = trial_draw_rate * 100                    # ［将棋の引分け率］実践値
-    c2_de = (trial_draw_rate - draw_rate) * 100     # ［将棋の引分け率］実践値と指定値の誤差
-    c2_shl = undraw_rate * trial_q * 100            # ［将棋の後手勝率］（引分込み）
-    c2_shle = undraw_rate * trial_q_error * 100     # ［将棋の後手勝率］（引分込み） 誤差
+    c2_shw = (1 - trial_draw_rate_ft) * trial_p * 100            # ［将棋の先手勝率］（引分込み）
+    c2_shwe = (1 - trial_draw_rate_ft) * trial_p_error * 100     # ［将棋の先手勝率］（引分込み） 誤差
+    c2_d = trial_draw_rate_ft * 100                 # ［将棋の引分け率］実践値            　［先後固定制］
+    c2_de = (trial_draw_rate_ft - draw_rate) * 100  # ［将棋の引分け率］実践値と指定値の誤差 ［先後固定制］
+    c2_shl = (1 - trial_draw_rate_ft) * trial_q * 100            # ［将棋の後手勝率］（引分込み）
+    c2_shle = (1 - trial_draw_rate_ft) * trial_q_error * 100     # ［将棋の後手勝率］（引分込み） 誤差
 
 
-    # TODO ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
+    # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
     # ---------------------------------------------
+    c3_aw = S.alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
+    c3_awe = S.alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c3_bw = S.bob_win_rate_without_draw * 100           # ［Ｂさんが勝つ確率（％）］実践値
+    c3_bwe = S.bob_win_rate_error_without_draw * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
 
     # TODO ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分含む）
     # ---------------------------------------------
+    c4_aw = (1 - trial_draw_rate_at) * S.alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
+    c4_awe = (1 - trial_draw_rate_at) * S.alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_d = trial_draw_rate_at * 100                 # ［将棋の引分け率］実践値            　［先後交互制］
+    c4_de = (trial_draw_rate_at - draw_rate) * 100  # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
+    c4_bw = (1 - trial_draw_rate_at) * S.bob_win_rate_without_draw * 100           # ［Ｂさんが勝つ確率（％）］実践値
+    c4_bwe = (1 - trial_draw_rate_at) * S.bob_win_rate_error_without_draw * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
-
-    # ［Ａさんの勝率］
-    # ---------------
-    aw1 = S.trial_alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
-    aw1e = S.trial_alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     # 対局数
     # ------
@@ -449,16 +454,16 @@ def stringify_simulation_log(
               |                                                                               {b_pt3:3.0f}目         |
               +---------------------------------------------------------------------------------------------+
               | 以下、［かくきんシステム］を使って試行                                                      |
-              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .                   対局数                   |
-    引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .    {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                |
-              |   （{c1_shwe:+9.4f}）              （{c1_shle:+9.4f}）     .    {    sr2:>7}先判勝                           |
+              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .   シリーズ        対局数                   |
+    引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .   {sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                 |
+              |   （{c1_shwe:+9.4f}）              （{c1_shle:+9.4f}）     .   {sr2:>7}先判勝                            |
     引分込み  |      {  c2_shw:8.4f} ％  {c2_d       :8.4f} ％   {  c2_shl:8.4f} ％    .                                            |
               |   （{c2_shwe:+9.4f}）（{c2_de   :+9.4f}） （{c2_shle:+9.4f}）     .                                            |
-              |  Ａさんの勝ち                                  .                                            |
-    引分除く  |      {aw1:8.4f} ％                               .                                            |
-              |   （{aw1e:+9.4f}）                                .                                            |
-    引分込み  |                                                .                                            |
-              |                                                .                                            |
+              |  Ａさんの勝ち                  Ｂさんの勝ち    .                                            |
+    引分除く  |      {c3_aw:8.4f} ％                {c3_bw:8.4f} ％    .                                            |
+              |   （{c3_awe:+9.4f}）              （{c3_bwe:+9.4f}）     .                                            |
+    引分込み  |      {  c4_aw:8.4f} ％  {c4_d       :8.4f} ％   {  c4_bw:8.4f} ％    .                                            |
+              |   （{c4_awe:+9.4f}）（{c4_de   :+9.4f}） （{c4_bwe:+9.4f}）     .                                            |
               +---------------------------------------------------------------------------------------------+
 """
 

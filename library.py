@@ -1192,7 +1192,7 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def trial_draw_rate_ft(self):
+    def draw_rate_ft(self):
         """試行した結果、［引き分ける確率］"""
         return self.number_of_draw_series_ft / self.number_of_series
 
@@ -1268,24 +1268,43 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def trial_alice_win_rate_without_draw(self):
+    def alice_win_rate_without_draw(self):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
         """
         return self.number_of_alice_all_wons / (self.number_of_series - self.number_of_draw_series_at)
 
+
     @property
-    def trial_alice_win_rate_error_without_draw(self):
+    def bob_win_rate_without_draw(self):
+        """試行した結果、［Ｂさんが勝つ確率］
+        
+        引分けを除いて計算する
+        """
+        return self.number_of_bob_all_wons / (self.number_of_series - self.number_of_draw_series_at)
+
+
+    @property
+    def alice_win_rate_error_without_draw(self):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
         """
-        return self.trial_alice_win_rate_without_draw - 0.5
+        return self.alice_win_rate_without_draw - 0.5
 
 
     @property
-    def trial_draw_rate_at(self):
+    def bob_win_rate_error_without_draw(self):
+        """試行した結果、［Ｂさんが勝つ確率］
+        
+        引分けを除いて計算する
+        """
+        return self.bob_win_rate_without_draw - 0.5
+
+
+    @property
+    def draw_rate_at(self):
         """試行した結果、［引き分ける確率］"""
         return self.number_of_draw_series_at / self.number_of_series
 
