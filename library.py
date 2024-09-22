@@ -162,12 +162,12 @@ def play_series_when_frozen_turn(p, points_configuration):
     
     Returns
     -------
-    series_result_ft : SeriesResultWhenFrozenTurn
+    series_result : SeriesResult
         ［シリーズ］の結果
     """
 
     # 点数のリスト。要素は、未使用、黒番、白番
-    point_list = [0, 0, 0]
+    point_list_ft = [0, 0, 0]
 
     # 勝ち負けが出るまでやる
     for time_th in range(1, 2_147_483_647):
@@ -180,15 +180,16 @@ def play_series_when_frozen_turn(p, points_configuration):
         else:
             step = points_configuration.w_step
 
-        point_list[successful_color] += step
+        point_list_ft[successful_color] += step
 
         # 勝ち抜け
-        if points_configuration.span <= point_list[successful_color]:
-            return SeriesResultWhenFrozenTurn(
+        if points_configuration.span <= point_list_ft[successful_color]:
+            return SeriesResult(
                     number_of_all_times=time_th,
                     number_of_draw_times=0, # 引分けはありません
                     span=points_configuration.span,
-                    point_list=point_list)
+                    point_list_ft=point_list_ft,
+                    point_list_at=[0, 0, 0])
 
 
     raise ValueError(f"決着が付かずにループを抜けた  {p=}  {points_configuration.b_step=}  {points_configuration.w_step=}  {points_configuration.span=}")
@@ -211,7 +212,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     
     Returns
     -------
-    series_result_ft : SeriesResultWhenFrozenTurn
+    series_result : SeriesResult
         ［シリーズ］の結果
     """
 
@@ -219,7 +220,7 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
     number_of_draw_times = 0
 
     # ［勝ち点］のリスト。要素は、未使用、黒番、白番
-    point_list = [0, 0, 0]
+    point_list_ft = [0, 0, 0]
 
     # ［先後固定制］での対局の上限数は計算で求められます
     max_time = points_configuration.count_longest_time_when_frozen_turn()
@@ -243,23 +244,25 @@ def play_series_with_draw_when_frozen_turn(p, draw_rate, points_configuration):
             else:
                 step = points_configuration.w_step
 
-            point_list[successful_color] += step
+            point_list_ft[successful_color] += step
 
             # 勝ち抜け
-            if points_configuration.span <= point_list[successful_color]:
-                return SeriesResultWhenFrozenTurn(
+            if points_configuration.span <= point_list_ft[successful_color]:
+                return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
-                        point_list=point_list)
+                        point_list_ft=point_list_ft,
+                        point_list_at=[0, 0, 0])
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
-    return SeriesResultWhenFrozenTurn(
+    return SeriesResult(
             number_of_all_times=time_th,
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
-            point_list=point_list)
+            point_list_ft=point_list_ft,
+            point_list_at=[0, 0, 0])
 
 
 def play_tie_break(p, draw_rate):
@@ -298,12 +301,12 @@ def play_game_when_alternating_turn(p, points_configuration):
     
     Returns
     -------
-    series_result : SeriesResultWhenAlternatingTurn
+    series_result : SeriesResult
         ［シリーズ］の結果
     """
 
     # ［得点］の配列。要素は、未使用、Ａさん、Ｂさんの順
-    point_list = [0, 0, 0]
+    point_list_at = [0, 0, 0]
 
     # 勝ち負けが出るまでやる
     for time_th in range(1, 2_147_483_647):
@@ -333,14 +336,15 @@ def play_game_when_alternating_turn(p, points_configuration):
                 successful_player = ALICE
 
 
-        point_list[successful_player] += step
+        point_list_at[successful_player] += step
 
-        if points_configuration.span <= point_list[successful_player]:
-            return SeriesResultWhenAlternatingTurn(
+        if points_configuration.span <= point_list_at[successful_player]:
+            return SeriesResult(
                     number_of_all_times=time_th,
                     number_of_draw_times=0,     # 引分けはありません
                     span=points_configuration.span,
-                    point_list=point_list)
+                    point_list_ft=[0, 0, 0],
+                    point_list_at=point_list_at)
 
         # 続行
 
@@ -664,26 +668,47 @@ class PointsConfiguration():
         return  (self.b_time-1) + (self.w_time-1) + 1
 
 
-class BaseSeriesResult():
-    """［シリーズ］の結果のベース"""
+class SeriesResult():
+    """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_all_times, number_of_draw_times, span):
+    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list_ft, point_list_at):
         """初期化
     
         Parameters
         ----------
-            number_of_all_times : int
-                行われた対局数
-            number_of_draw_times : int
-                引分けだった対局数
-            span : int
-                ［目標の点数］
+        number_of_all_times : int
+            行われた対局数
+        number_of_draw_times : int
+            引分けだった対局数
+        span : int
+            ［目標の点数］
+        point_list_ft : list
+            ［先後固定制］での［勝ち点］のリスト。要素は、未使用、黒番、白番
+        point_list_at : list
+            ［勝ち点］のリスト。要素は、未使用、黒番、白番
         """
+
+        # 共通
         self._number_of_all_times = number_of_all_times
         self._number_of_draw_times = number_of_draw_times
         self._span = span
 
+        # ［先後固定制］
+        self._point_list_ft = point_list_ft
+        self._is_no_won = None
+        self._is_black_points_won = None
+        self._is_white_points_won = None
+
+        # ［先後交互制］
+        self._point_list_at = point_list_at
+        self._is_no_won = None
+        self._is_alice_points_won = None
+        self._is_bob_points_won = None
+
+
+    # 共通
+    # ----
 
     @property
     def number_of_all_times(self):
@@ -697,37 +722,16 @@ class BaseSeriesResult():
         return self._number_of_draw_times
 
 
-class SeriesResultWhenFrozenTurn(BaseSeriesResult):
-    """［先後固定制］での［シリーズ］の結果"""
-
-
-    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list):
-        """初期化
-
-        Parameters
-        ----------
-        number_of_all_times : int
-            行われた対局数
-        number_of_draw_times : int
-            引分けだった対局数
-        span : int
-            ［目標の点数］
-        point_list : list
-            ［勝ち点］のリスト。要素は、未使用、黒番、白番
-        """
-        super().__init__(number_of_all_times, number_of_draw_times, span)
-        self._point_list = point_list
-        self._is_no_won = None
-        self._is_black_points_won = None
-        self._is_white_points_won = None
+    # ［先後固定制］
+    # -------------
 
 
     @property
-    def is_no_won(self):
+    def is_no_won_color(self):
         """勝者なし。黒白ともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
         if self._is_no_won is None:
             half = math.floor(self._span / 2)
-            self._is_no_won = (self._point_list[BLACK] <= half and self._point_list[WHITE] <= half) or self._point_list[BLACK] == self._point_list[WHITE]
+            self._is_no_won = (self._point_list_ft[BLACK] <= half and self._point_list_ft[WHITE] <= half) or self._point_list_ft[BLACK] == self._point_list_ft[WHITE]
 
         return self._is_no_won
 
@@ -735,13 +739,13 @@ class SeriesResultWhenFrozenTurn(BaseSeriesResult):
     @property
     def is_black_fully_won(self):
         """黒が［目標の点数］を集めて黒の勝ち"""
-        return self._span <= self._point_list[BLACK]
+        return self._span <= self._point_list_ft[BLACK]
 
 
     @property
     def is_white_fully_won(self):
         """白が［目標の点数］を集めて白の勝ち"""
-        return self._span <= self._point_list[WHITE]
+        return self._span <= self._point_list_ft[WHITE]
 
 
     @property
@@ -749,7 +753,7 @@ class SeriesResultWhenFrozenTurn(BaseSeriesResult):
         """黒の［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらに白の［勝ち点］より多くて黒の勝ち"""
         if self._is_black_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_black_points_won = half < self._point_list[BLACK] and self._point_list[BLACK] < self._span and self._point_list[WHITE] < self._point_list[BLACK]
+            self._is_black_points_won = half < self._point_list_ft[BLACK] and self._point_list_ft[BLACK] < self._span and self._point_list_ft[WHITE] < self._point_list_ft[BLACK]
 
         return self._is_black_points_won
 
@@ -759,7 +763,7 @@ class SeriesResultWhenFrozenTurn(BaseSeriesResult):
         """白の［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらに黒の［勝ち点］より多くて白の勝ち"""
         if self._is_white_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_white_points_won = half < self._point_list[WHITE] and self._point_list[WHITE] < self._span and self._point_list[BLACK] < self._point_list[WHITE]
+            self._is_white_points_won = half < self._point_list_ft[WHITE] and self._point_list_ft[WHITE] < self._span and self._point_list_ft[BLACK] < self._point_list_ft[WHITE]
 
         return self._is_white_points_won
 
@@ -776,37 +780,16 @@ class SeriesResultWhenFrozenTurn(BaseSeriesResult):
         return self.is_white_fully_won() or self.is_white_points_won
 
 
-class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
-    """［先後交互制］での［シリーズ］の結果"""
-
-
-    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list):
-        """初期化
-
-        Parameters
-        ----------
-        number_of_all_times : int
-            行われた対局数
-        number_of_draw_times : int
-            引分けだった対局数
-        span : int
-            ［目標の点数］
-        point_list : list
-            ［勝ち点］のリスト。要素は、未使用、黒番、白番
-        """
-        super().__init__(number_of_all_times, number_of_draw_times, span)
-        self._point_list = point_list
-        self._is_no_won = None
-        self._is_alice_points_won = None
-        self._is_bob_points_won = None
+    # ［先後交互制］
+    # -------------
 
 
     @property
-    def is_no_won(self):
+    def is_no_won_player(self):
         """勝者なし。ＡさんＢさんともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
         if self._is_no_won is None:
             half = math.floor(self._span / 2)
-            self._is_no_won = (self._point_list[ALICE] <= half and self._point_list[BOB] <= half) or self._point_list[ALICE] == self._point_list[BOB]
+            self._is_no_won = (self._point_list_at[ALICE] <= half and self._point_list_at[BOB] <= half) or self._point_list_at[ALICE] == self._point_list_at[BOB]
 
         return self._is_no_won
 
@@ -814,13 +797,13 @@ class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
     @property
     def is_alice_fully_won(self):
         """Ａさんが［目標の点数］を集めて黒の勝ち"""
-        return self._span <= self._point_list[ALICE]
+        return self._span <= self._point_list_at[ALICE]
 
 
     @property
     def is_bob_fully_won(self):
         """Ｂさんが［目標の点数］を集めて白の勝ち"""
-        return self._span <= self._point_list[BOB]
+        return self._span <= self._point_list_at[BOB]
 
 
     @property
@@ -828,7 +811,7 @@ class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
         """Ａさんの［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらにＢさんの［勝ち点］より多くてＡさんの勝ち"""
         if self._is_alice_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_alice_points_won = half < self._point_list[ALICE] and self._point_list[ALICE] < self._span and self._point_list[BOB] < self._point_list[ALICE]
+            self._is_alice_points_won = half < self._point_list_at[ALICE] and self._point_list_at[ALICE] < self._span and self._point_list_at[BOB] < self._point_list_at[ALICE]
 
         return self._is_alice_points_won
 
@@ -838,7 +821,7 @@ class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
         """Ｂさんの［勝ち点］は［目標の点数］に達していないが、過半数は集めており、さらにＡさんの［勝ち点］より多くてＢさんの勝ち"""
         if self._is_bob_points_won is None:
             half = math.floor(self._span / 2)
-            self._is_bob_points_won = half < self._point_list[BOB] and self._point_list[BOB] < self._span and self._point_list[ALICE] < self._point_list[BOB]
+            self._is_bob_points_won = half < self._point_list_at[BOB] and self._point_list_at[BOB] < self._span and self._point_list_at[ALICE] < self._point_list_at[BOB]
 
         return self._is_bob_points_won
 
@@ -855,8 +838,8 @@ class SeriesResultWhenAlternatingTurn(BaseSeriesResult):
         return self.is_bob_fully_won() or self.is_bob_points_won
 
 
-class BaseSimulationResult():
-    """シミュレーションの結果のベース"""
+class SimulationResult():
+    """シミュレーションの結果"""
 
 
     def __init__(self, series_result_list):
@@ -867,10 +850,37 @@ class BaseSimulationResult():
         series_result_list : list
             ［シリーズ］の結果のリスト
         """
+
+
+        # 共通
+        # ----
+
         self._series_result_list = series_result_list
         self._shortest_time_th = None
         self._longest_time_th = None
         self._number_of_draw_times = None
+
+
+        # 「先後固定制］
+        # -------------
+
+        self._number_of_black_fully_wons = None
+        self._number_of_white_fully_wons = None
+        self._number_of_black_points_wons = None
+        self._number_of_white_points_wons = None
+
+
+        # ［先後交互制］
+        # -------------
+
+        self._number_of_alice_fully_wons = None
+        self._number_of_bob_fully_wons = None
+        self._number_of_alice_points_wons = None
+        self._number_of_bob_points_wons = None
+
+
+    # 共通
+    # ----
 
 
     @property
@@ -915,29 +925,8 @@ class BaseSimulationResult():
         return self._number_of_draw_times
 
 
-    @property
-    def trial_draw_rate(self):
-        """試行した結果、［引き分ける確率］"""
-        return self.number_of_draw_series / self.number_of_series
-
-
-class SimulationResultWhenFrozenTurn(BaseSimulationResult):
-    """［先後固定制］でのシミュレーションの結果"""
-
-
-    def __init__(self, series_result_ft_list):
-        """初期化
-        
-        Parameters
-        ----------
-        series_result_ft_list : list
-            ［シリーズ］の結果のリスト
-        """
-        super().__init__(series_result_ft_list)
-        self._number_of_black_fully_wons = None
-        self._number_of_white_fully_wons = None
-        self._number_of_black_points_wons = None
-        self._number_of_white_points_wons = None
+    # 「先後固定制］
+    # -------------
 
 
     @property
@@ -1001,7 +990,7 @@ class SimulationResultWhenFrozenTurn(BaseSimulationResult):
 
 
     @property
-    def number_of_draw_series(self):
+    def number_of_draw_series_ft(self):
         """引分けで終わったシリーズ数"""
         return self.number_of_series - self.number_of_black_all_wons - self.number_of_white_all_wons
 
@@ -1012,7 +1001,7 @@ class SimulationResultWhenFrozenTurn(BaseSimulationResult):
         
         引分けを除いて計算する
         """
-        return self.number_of_black_all_wons / (self.number_of_series - self.number_of_draw_series)
+        return self.number_of_black_all_wons / (self.number_of_series - self.number_of_draw_series_ft)
 
 
     @property
@@ -1024,23 +1013,14 @@ class SimulationResultWhenFrozenTurn(BaseSimulationResult):
         return self.trial_black_win_rate_without_draw - 0.5
 
 
-class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
-    """［先後交互制］でのシミュレーションの結果"""
+    @property
+    def trial_draw_rate_ft(self):
+        """試行した結果、［引き分ける確率］"""
+        return self.number_of_draw_series_ft / self.number_of_series
 
 
-    def __init__(self, series_result_at_list):
-        """初期化
-        
-        Parameters
-        ----------
-        series_result_at_list : list
-            ［シリーズ］の結果のリスト
-        """
-        super().__init__(series_result_list=series_result_at_list)
-        self._number_of_alice_fully_wons = None
-        self._number_of_bob_fully_wons = None
-        self._number_of_alice_points_wons = None
-        self._number_of_bob_points_wons = None
+    # ［先後交互制］
+    # -------------
 
 
     @property
@@ -1104,7 +1084,7 @@ class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
 
 
     @property
-    def number_of_draw_series(self):
+    def number_of_draw_series_at(self):
         """引分けで終わったシリーズ数"""
         return self.number_of_series - self.number_of_alice_all_wons - self.number_of_bob_all_wons
 
@@ -1124,3 +1104,9 @@ class SimulationResultWhenAlternatingTurn(BaseSimulationResult):
         引分けを除いて計算する
         """
         return self.trial_alice_win_rate_without_draw - 0.5
+
+
+    @property
+    def trial_draw_rate_at(self):
+        """試行した結果、［引き分ける確率］"""
+        return self.number_of_draw_series_at / self.number_of_series

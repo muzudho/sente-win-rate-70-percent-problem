@@ -151,11 +151,11 @@ def iteration_deeping(df, abs_limit_of_error):
                         # # 先手が勝った回数
                         # black_win_count = 0
                         # for i in range(0, REQUIRED_MUMBER_OF_SERIES):
-                        #     series_result_ft = play_series_when_frozen_turn(
+                        #     series_result = play_series_when_frozen_turn(
                         #             p=p,
                         #             points_configuration=latest_points_configuration)
                             
-                        #     if series_result_ft.is_black_won:
+                        #     if series_result.is_black_won:
                         #         black_win_count += 1
                     
                         # latest_p = black_win_count / REQUIRED_MUMBER_OF_SERIES

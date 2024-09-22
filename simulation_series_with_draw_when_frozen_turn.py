@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break, SimulationResultWhenFrozenTurn
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, play_series_with_draw_when_frozen_turn, play_tie_break, SimulationResult
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_log_when_simulation_series_with_draw_when_frozen_turn
 
@@ -55,7 +55,7 @@ def simulate(p, number_of_series, points_configuration, comment):
 
 
     # シミュレーションの結果
-    simulation_result_ft = SimulationResultWhenFrozenTurn(
+    simulation_result = SimulationResult(
             series_result_list=series_result_list)
 
     text = stringify_log_when_simulation_series_with_draw_when_frozen_turn(
@@ -68,7 +68,7 @@ def simulate(p, number_of_series, points_configuration, comment):
             # コメント
             comment=comment,
             # シミュレーションの結果
-            simulation_result_ft=simulation_result_ft)
+            simulation_result=simulation_result)
 
 
     print(text) # 表示
@@ -83,11 +83,11 @@ def simulate(p, number_of_series, points_configuration, comment):
     #   FIXME ［引き分けを１局として数えるケース］では、対局数の計算がまだ実装できていません
     #
     print("［引き分けを１局として数えるケース］では、対局数の計算がまだ実装できていません")
-    # if simulation_result_ft.shortest_time_th < points_configuration.count_shortest_time_when_frozen_turn():
-    #     raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result_ft.shortest_time_th} が理論値 {points_configuration.count_shortest_time_when_frozen_turn()} を下回った")
+    # if simulation_result.shortest_time_th < points_configuration.count_shortest_time_when_frozen_turn():
+    #     raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {points_configuration.count_shortest_time_when_frozen_turn()} を下回った")
 
-    # if points_configuration.count_longest_time_when_frozen_turn() < simulation_result_ft.longest_time_th:
-    #     raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result_ft.longest_time_th} が理論値 {points_configuration.count_longest_time_when_frozen_turn()} を上回った")
+    # if points_configuration.count_longest_time_when_frozen_turn() < simulation_result.longest_time_th:
+    #     raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {points_configuration.count_longest_time_when_frozen_turn()} を上回った")
 
 
 ########################################
