@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, SimulationResult, make_all_results_of_cointoss_in_series_when_frozen_turn
+from library import BLACK, WHITE, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, SimulationResult, make_all_pseudo_series_results_when_frozen_turn
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
 
             # FIXME 動作テスト
-            stats_result_data = make_all_results_of_cointoss_in_series_when_frozen_turn(
+            stats_result_data = make_all_pseudo_series_results_when_frozen_turn(
                     can_draw=False,
                     points_configuration=specified_points_configuration)
             for successful_color_list in stats_result_data:
@@ -89,7 +89,7 @@ if __name__ == '__main__':
                         successful_color_list=successful_color_list)
 
                 #
-                # FIXME 到達できない棋譜は除去しておきたい
+                # 到達できない棋譜は除去しておきたい
                 #
 
                 old_number_of_times = len(successful_color_list)
@@ -101,19 +101,19 @@ if __name__ == '__main__':
 
                 if series_result.number_of_all_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
-                    print(f"到達できない棋譜を除去 {series_result.number_of_all_times=}  {old_number_of_times=}")
+                    #print(f"到達できない棋譜を除去 {series_result.number_of_all_times=}  {old_number_of_times=}")
                     pass
 
                 elif old_number_of_times < specified_points_configuration.count_shortest_time_when_frozen_turn():
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.count_shortest_time_when_frozen_turn()=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.count_shortest_time_when_frozen_turn()=}")
                     pass
 
                 #
-                # FIXME 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
+                # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
                 elif DRAW_RATE == 0.0 and series_result.is_no_won_color:
-                    print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {DRAW_RATE=}  {series_result.is_no_won_color=}")
+                    #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {DRAW_RATE=}  {series_result.is_no_won_color=}")
                     pass
 
                 else:

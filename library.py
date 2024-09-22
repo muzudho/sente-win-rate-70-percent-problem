@@ -242,7 +242,7 @@ class PseudoSeriesResult():
         return f"{self._p=}  {self._draw_rate=}  {self._longest_times=}  {self._successful_color_list}"
 
 
-def make_all_results_of_cointoss_in_series_when_frozen_turn(can_draw, points_configuration):
+def make_all_pseudo_series_results_when_frozen_turn(can_draw, points_configuration):
     """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
     
     １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
