@@ -3,7 +3,6 @@
 # python simulation_lerge_series_when_frozen_turn.py
 #
 #   ［先後固定制］
-#   引き分けは考慮していない。
 #   表が出る確率（p）が偏ったコインを、指定回数投げる
 #
 

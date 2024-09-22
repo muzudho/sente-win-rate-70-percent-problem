@@ -3,7 +3,6 @@
 # python simulation_large_series_when_alternating_turn.py
 #
 #   ［先後交互制］
-#   引き分けは考慮していない。
 #   ［表の出る確率］ p が偏ったコインを、指定回数投げる
 #   Ａさん（Alice）が最初に先手を持ち、１局毎にＢさん（Bob）と先後を交代する。
 #
@@ -15,7 +14,7 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary
+from library import ALICE, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
 from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_simulation_log
 
@@ -23,7 +22,8 @@ from views import stringify_simulation_log
 LOG_FILE_PATH = 'output/simulation_large_series_when_alternating_turn.log'
 
 # ［将棋の引分け率］
-DRAW_RATE = 0.0
+#DRAW_RATE = 0.0
+DRAW_RATE = 0.1
 
 
 def simulate_stats(p, number_of_series, pts_conf):
@@ -53,10 +53,10 @@ def simulate_stats(p, number_of_series, pts_conf):
 
     text = stringify_simulation_log(
             p=p,
-            draw_rate=0,    # 引分けはありません
+            draw_rate=DRAW_RATE,
             pts_conf=pts_conf,
             large_series_trial_summary=large_series_trial_summary,
-            title="（先後交互制でＡさんが勝った確率）")
+            title="（先後交互制）")
 
     print(text) # 表示
 
