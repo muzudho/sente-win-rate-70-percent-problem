@@ -197,7 +197,7 @@ class CointossResultInSeries():
 
 
     @staticmethod
-    def make_pseudo_cointoss_result_in_series(p, draw_rate, longest_times):
+    def make_pseudo_obj(p, draw_rate, longest_times):
         """１シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
 
         Parameters
@@ -240,6 +240,83 @@ class CointossResultInSeries():
     def stringify_dump(self):
         """ダンプ"""
         return f"{self._p=}  {self._draw_rate=}  {self._longest_times=}  {self._successful_color_list}"
+
+
+def make_all_results_of_cointoss_in_series_when_frozen_turn(can_draw, points_configuration):
+    """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
+    
+    １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
+
+    Returns
+    -------
+    power_set_list : list
+        勝った方の色（引き分けなら EMPTY）のリストが全パターン入っているリスト
+    """
+
+    # 要素数
+    if can_draw:
+        # 黒勝ち、白勝ち、勝者なしの３要素
+        elements = [BLACK, WHITE, EMPTY]
+    else:
+        # 黒勝ち、白勝ちけの２要素
+        elements = [BLACK, WHITE]
+
+    # 桁数
+    depth = points_configuration.count_longest_time_when_frozen_turn()
+
+    # １シーズン分のコイントスの全ての結果
+    stats = []
+
+    position = []
+
+
+    def search(depth, stats, position, can_draw):
+
+        # 黒勝ちを追加
+        position.append(BLACK)
+
+        # スタッツに、ポジションのコピーを追加
+        stats.append(list(position))
+
+        if 0 < depth:
+            search(depth - 1, stats, position, can_draw=False)
+
+        # 末尾の要素を削除
+        position.pop()
+
+
+        # 白勝ちを追加
+        position.append(WHITE)
+
+        # スタッツに、ポジションのコピーを追加
+        stats.append(list(position))
+
+        if 0 < depth:
+            search(depth - 1, stats, position, can_draw=False)
+
+        # 末尾の要素を削除
+        position.pop()
+
+
+        if can_draw:
+            # 引分けを追加
+            position.append(EMPTY)
+
+            # スタッツに、ポジションのコピーを追加
+            stats.append(list(position))
+
+            if 0 < depth:
+                search(depth - 1, stats, position, can_draw=False)
+
+            # 末尾の要素を削除
+            position.pop()
+
+
+
+    search(depth, stats, position, can_draw=False)
+
+
+    return stats
 
 
 def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration):

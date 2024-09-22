@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, PointsConfiguration, CointossResultInSeries, play_series_when_frozen_turn, SimulationResult
+from library import BLACK, WHITE, ALICE, PointsConfiguration, CointossResultInSeries, play_series_when_frozen_turn, SimulationResult, make_all_results_of_cointoss_in_series_when_frozen_turn
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log
 
@@ -34,7 +34,7 @@ def simulate_series(p, points_configuration, title):
     # -----------------
 
     # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-    cointoss_result_in_series = CointossResultInSeries.make_pseudo_cointoss_result_in_series(
+    cointoss_result_in_series = CointossResultInSeries.make_pseudo_obj(
             p=p,
             draw_rate=DRAW_RATE,
             longest_times=longest_times)
@@ -91,6 +91,15 @@ if __name__ == '__main__':
                     b_step=b_step,
                     w_step=w_step,
                     span=span)
+
+
+            # FIXME 動作テスト
+            power_set_list = make_all_results_of_cointoss_in_series_when_frozen_turn(
+                    can_draw=False,
+                    points_configuration=specified_points_configuration)
+            for successful_color_list in power_set_list:
+                print(f"動作テスト {successful_color_list=}")
+
 
             simulate_series(
                     p=p,

@@ -245,7 +245,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         for i in range(0, REQUIRED_MUMBER_OF_SERIES):
 
                             # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-                            cointoss_result_in_series = CointossResultInSeries.make_pseudo_cointoss_result_in_series(
+                            cointoss_result_in_series = CointossResultInSeries.make_pseudo_obj(
                                     p=p,
                                     draw_rate=DRAW_RATE,
                                     longest_times=latest_points_configuration.count_longest_time_when_alternating_turn())
