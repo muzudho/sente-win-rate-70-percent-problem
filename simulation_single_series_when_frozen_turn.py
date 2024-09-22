@@ -42,20 +42,38 @@ def simulate(p, points_configuration, title):
 
     print(f"{len(series_result.winner_color_game_record)=}")
 
+    b_step = points_configuration.b_step
+    w_step = points_configuration.w_step
+    span = points_configuration.span
+    b_rest = span
+    w_rest = span
+    line_1_list = ['   S']
+    line_2_list = [f'{b_rest:>4}']
+    line_3_list = [f'{w_rest:>4}']
+
     for winner_color in series_result.winner_color_game_record:
         # 黒石        
         if winner_color == BLACK:
-            print(f"x", end='')
+            line_1_list.append('   x')
+            b_rest -= b_step
         
         # 白石
         elif winner_color == WHITE:
-            print(f"o", end='')
+            line_1_list.append('   o')
+            w_rest -= w_step
         
         # 勝者なし
         else:
-            print(f".", end='')
+            line_1_list.append('   .')
+
+        line_2_list.append(f'{b_rest:>4}')
+        line_3_list.append(f'{w_rest:>4}')
 
     print() # 改行
+    print(' '.join(line_1_list))
+    print(' '.join(line_2_list))
+    print(' '.join(line_3_list))
+
 
     # シミュレーションの結果
     simulation_result = SimulationResult(
