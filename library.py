@@ -169,6 +169,9 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
         ［シリーズ］の結果
     """
 
+    # 勝った方の色の記録
+    winner_color_game_record = []
+
     # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
     point_list = [0, 0, 0, 0, 0]
 
@@ -187,6 +190,7 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
         #
         if draw(draw_rate):
             number_of_draw_times += 1
+            winner_color_game_record.append(EMPTY)
         
         else:
             successful_color = coin(p)
@@ -202,13 +206,16 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
             point_list[successful_color] += step
             point_list[successful_player] += step
 
+            winner_color_game_record.append(successful_color)
+
             # 勝ち抜け
             if points_configuration.span <= point_list[successful_color]:
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
-                        point_list=point_list)
+                        point_list=point_list,
+                        winner_color_game_record=winner_color_game_record)
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -216,7 +223,8 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
             number_of_all_times=time_th,
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
-            point_list=point_list)
+            point_list=point_list,
+            winner_color_game_record=winner_color_game_record)
 
 
 def play_tie_break(p, draw_rate):
@@ -259,6 +267,9 @@ def play_game_when_alternating_turn(p, points_configuration):
         ［シリーズ］の結果
     """
 
+    # 勝った方の色の記録
+    winner_color_game_record = []
+
     # ［勝ち点］の配列。要素は、未使用、黒、白、Ａさん、Ｂさんの順
     point_list = [0, 0, 0, 0, 0]
 
@@ -266,6 +277,8 @@ def play_game_when_alternating_turn(p, points_configuration):
     for time_th in range(1, 2_147_483_647):
 
         successful_color = coin(p)
+
+        winner_color_game_record.append(successful_color)
 
         # 黒が出た
         if successful_color == BLACK:
@@ -300,7 +313,8 @@ def play_game_when_alternating_turn(p, points_configuration):
                     number_of_all_times=time_th,
                     number_of_draw_times=0,     # 引分けはありません
                     span=points_configuration.span,
-                    point_list=point_list)
+                    point_list=point_list,
+                    winner_color_game_record=winner_color_game_record)
 
         # 続行
 
@@ -628,7 +642,7 @@ class SeriesResult():
     """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list):
+    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list, winner_color_game_record):
         """初期化
     
         Parameters
@@ -641,6 +655,8 @@ class SeriesResult():
             ［目標の点数］
         point_list : list
             ［先後固定制］での［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
+        winner_color_game_record : list
+            勝った方の色の記録
         """
 
         # 共通
@@ -648,6 +664,7 @@ class SeriesResult():
         self._number_of_draw_times = number_of_draw_times
         self._span = span
         self._point_list = point_list
+        self._winner_color_game_record = winner_color_game_record
 
         # ［先後固定制］
         self._is_no_won_color = None
@@ -674,6 +691,11 @@ class SeriesResult():
         """引分けだった対局数"""
         return self._number_of_draw_times
 
+
+    @property
+    def winner_color_game_record(self):
+        """勝った方の色の記録"""
+        return self._winner_color_game_record
 
     # ［先後固定制］
     # -------------
@@ -724,13 +746,13 @@ class SeriesResult():
     @property
     def is_black_won(self):
         """黒勝ち"""
-        return self.is_black_fully_won() or self.is_black_points_won
+        return self.is_black_fully_won or self.is_black_points_won
 
 
     @property
     def is_white_won(self):
         """白勝ち"""
-        return self.is_white_fully_won() or self.is_white_points_won
+        return self.is_white_fully_won or self.is_white_points_won
 
 
     # ［先後交互制］
