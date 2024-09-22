@@ -148,8 +148,8 @@ def draw(draw_rate):
     return random.random() < draw_rate
 
 
-class CointossResultInSeries():
-    """シリーズのコイントスした結果"""
+class PseudoSeriesResult():
+    """疑似的にシリーズのコイントスした結果"""
 
 
     def __init__(self, p, draw_rate, longest_times, successful_color_list):
@@ -197,7 +197,7 @@ class CointossResultInSeries():
 
 
     @staticmethod
-    def make_pseudo_obj(p, draw_rate, longest_times):
+    def playout_pseudo(p, draw_rate, longest_times):
         """１シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
 
         Parameters
@@ -224,7 +224,7 @@ class CointossResultInSeries():
                 successful_color_list.append(coin(p))
 
 
-        return CointossResultInSeries(
+        return PseudoSeriesResult(
                 p=p,
                 draw_rate=draw_rate,
                 longest_times=longest_times,
@@ -319,15 +319,15 @@ def make_all_results_of_cointoss_in_series_when_frozen_turn(can_draw, points_con
     return stats
 
 
-def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration):
-    """［先後固定制］で１シリーズ分の対局を行います。
+def judge_series_when_frozen_turn(pseudo_series_result, points_configuration):
+    """１シリーズ分の疑似対局結果を読み取ります。［先後固定制］で判定します。
 
     ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
     もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
 
     Parameters
     ----------
-    cointoss_result_in_series : CointossResultInSeries
+    pseudo_series_result : PseudoSeriesResult
         コイントス・リスト
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
@@ -347,7 +347,7 @@ def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration
     time_th = 0
 
     # 予め作った１シリーズ分の対局結果を読んでいく
-    for successful_color in cointoss_result_in_series.successful_color_list:
+    for successful_color in pseudo_series_result.successful_color_list:
         time_th += 1
 
         # 引き分けを１局と数えるケース
@@ -374,14 +374,14 @@ def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration
 
                 # コイントスの結果のリストの長さを切ります。
                 # 対局は必ずしも［最長対局数］になるわけではありません
-                cointoss_result_in_series.cut_down(time_th)
+                pseudo_series_result.cut_down(time_th)
 
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
                         point_list=point_list,
-                        cointoss_result_in_series=cointoss_result_in_series)
+                        pseudo_series_result=pseudo_series_result)
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -390,7 +390,7 @@ def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
             point_list=point_list,
-            cointoss_result_in_series=cointoss_result_in_series)
+            pseudo_series_result=pseudo_series_result)
 
 
 def play_tie_break(p, draw_rate):
@@ -417,7 +417,7 @@ def play_tie_break(p, draw_rate):
         return coin(p)
 
 
-def play_game_when_alternating_turn(cointoss_result_in_series, points_configuration):
+def play_game_when_alternating_turn(pseudo_series_result, points_configuration):
     """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
     
     Parameters
@@ -440,7 +440,7 @@ def play_game_when_alternating_turn(cointoss_result_in_series, points_configurat
     time_th = 0
 
     # 予め作った１シリーズ分の対局結果を読んでいく
-    for successful_color in cointoss_result_in_series.successful_color_list:
+    for successful_color in pseudo_series_result.successful_color_list:
         time_th += 1
 
         # 引き分けを１局と数えるケース
@@ -483,14 +483,14 @@ def play_game_when_alternating_turn(cointoss_result_in_series, points_configurat
 
                 # コイントスの結果のリストの長さを切ります。
                 # 対局は必ずしも［最長対局数］になるわけではありません
-                cointoss_result_in_series.cut_down(time_th)
+                pseudo_series_result.cut_down(time_th)
 
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
                         point_list=point_list,
-                        cointoss_result_in_series=cointoss_result_in_series)
+                        pseudo_series_result=pseudo_series_result)
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -499,7 +499,7 @@ def play_game_when_alternating_turn(cointoss_result_in_series, points_configurat
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
             point_list=point_list,
-            cointoss_result_in_series=cointoss_result_in_series)
+            pseudo_series_result=pseudo_series_result)
 
 
 def calculate_probability(p, H, T):
@@ -823,7 +823,7 @@ class SeriesResult():
     """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list, cointoss_result_in_series):
+    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list, pseudo_series_result):
         """初期化
     
         Parameters
@@ -836,7 +836,7 @@ class SeriesResult():
             ［目標の点数］
         point_list : list
             ［先後固定制］での［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
-        cointoss_result_in_series : CointossResultInSeries
+        pseudo_series_result : PseudoSeriesResult
             １シリーズ分をフルにコイントスした結果
         """
 
@@ -845,7 +845,7 @@ class SeriesResult():
         self._number_of_draw_times = number_of_draw_times
         self._span = span
         self._point_list = point_list
-        self._cointoss_result_in_series = cointoss_result_in_series
+        self._pseudo_series_result = pseudo_series_result
 
         # ［先後固定制］
         self._is_no_won_color = None
@@ -874,9 +874,9 @@ class SeriesResult():
 
 
     @property
-    def cointoss_result_in_series(self):
+    def pseudo_series_result(self):
         """１シリーズ分をフルにコイントスした結果"""
-        return self._cointoss_result_in_series
+        return self._pseudo_series_result
 
     # ［先後固定制］
     # -------------

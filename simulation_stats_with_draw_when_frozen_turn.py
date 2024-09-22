@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, CointossResultInSeries, play_series_when_frozen_turn, play_tie_break, SimulationResult
+from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, SimulationResult
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -36,14 +36,14 @@ def simulate_stats(p, number_of_series, points_configuration, title):
     for round in range(0, number_of_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-        cointoss_result_in_series = CointossResultInSeries.make_pseudo_obj(
+        pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=p,
                 draw_rate=DRAW_RATE,
                 longest_times=longest_times)
 
         # ［先後固定制］で、シリーズを勝った方の手番を返す。引き分けを１局と数える
-        series_result = play_series_when_frozen_turn(
-                cointoss_result_in_series=cointoss_result_in_series,
+        series_result = judge_series_when_frozen_turn(
+                pseudo_series_result=pseudo_series_result,
                 points_configuration=points_configuration)
         
         series_result_list.append(series_result)

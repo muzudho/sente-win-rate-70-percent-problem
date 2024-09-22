@@ -289,7 +289,7 @@ def stringify_series_log(
         タイトル
     """
 
-    print(f"{len(series_result.cointoss_result_in_series.successful_color_list)=}")
+    print(f"{len(series_result.pseudo_series_result.successful_color_list)=}")
 
     b_step = points_configuration.b_step
     w_step = points_configuration.w_step
@@ -300,7 +300,7 @@ def stringify_series_log(
     line_2_list = [f'{b_rest:>4}']
     line_3_list = [f'{w_rest:>4}']
 
-    for winner_color in series_result.cointoss_result_in_series.successful_color_list:
+    for winner_color in series_result.pseudo_series_result.successful_color_list:
         # 黒石        
         if winner_color == BLACK:
             line_1_list.append('   x')

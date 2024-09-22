@@ -1,6 +1,6 @@
 #
-# シミュレーション
-# python simulation_series_when_frozen_turn.py
+# 分析
+# python analysis_series_when_frozen_turn.py
 #
 #   ［先後固定制］
 #   引き分けは考慮していない。
@@ -13,35 +13,23 @@ import math
 
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, PointsConfiguration, CointossResultInSeries, play_series_when_frozen_turn, SimulationResult, make_all_results_of_cointoss_in_series_when_frozen_turn
+from library import BLACK, WHITE, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, SimulationResult, make_all_results_of_cointoss_in_series_when_frozen_turn
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log
 
 
-LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
+LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 
 # 引き分けになる確率
 DRAW_RATE = 0.0
 
 
-def simulate_series(p, points_configuration, title):
-    """シリーズを１つだけシミュレートします"""
-
-    # ［最長対局数］は計算で求められます
-    longest_times = points_configuration.count_longest_time_when_frozen_turn()
-
-    # １シリーズするだけ
-    # -----------------
-
-    # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-    cointoss_result_in_series = CointossResultInSeries.make_pseudo_obj(
-            p=p,
-            draw_rate=DRAW_RATE,
-            longest_times=longest_times)
+def analysis_series(pseudo_series_result, p, points_configuration, title):
+    """シリーズ１つを分析します"""
 
     # ［先後固定制］で、シリーズを勝った方の手番を返す
-    series_result = play_series_when_frozen_turn(
-            cointoss_result_in_series=cointoss_result_in_series,
+    series_result = judge_series_when_frozen_turn(
+            pseudo_series_result=pseudo_series_result,
             points_configuration=points_configuration)
 
 
@@ -94,17 +82,25 @@ if __name__ == '__main__':
 
 
             # FIXME 動作テスト
-            power_set_list = make_all_results_of_cointoss_in_series_when_frozen_turn(
+            stats_result_data = make_all_results_of_cointoss_in_series_when_frozen_turn(
                     can_draw=False,
                     points_configuration=specified_points_configuration)
-            for successful_color_list in power_set_list:
+            for successful_color_list in stats_result_data:
                 print(f"動作テスト {successful_color_list=}")
 
+                pseudo_series_result = PseudoSeriesResult(
+                        p=None,                 # FIXME 未設定
+                        draw_rate=DRAW_RATE,
+                        longest_times=specified_points_configuration.count_longest_time_when_frozen_turn(),
+                        successful_color_list=successful_color_list)
 
-            simulate_series(
-                    p=p,
-                    points_configuration=specified_points_configuration,
-                    title='（先後固定制）    むずでょセレクション')
+                # FIXME 到達できない棋譜は除去しておきたい
+                # FIXME 重複データは除去しておきたい
+                analysis_series(
+                        pseudo_series_result,
+                        p=p,
+                        points_configuration=specified_points_configuration,
+                        title='（先後固定制）    むずでょセレクション')
 
 
     except Exception as err:
