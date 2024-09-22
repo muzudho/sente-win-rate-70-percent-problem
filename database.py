@@ -10,6 +10,8 @@ CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
 CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
 
+CSV_FILE_PATH_SR_FT = './data/muzudho_single_points_when_frozen_turn.csv'
+
 CSV_FILE_PATH_P = './data/p.csv'
 CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
@@ -85,6 +87,19 @@ def get_df_muzudho_recommends_points_when_alternating_turn():
 
 def get_df_muzudho_recommends_points_when_frozen_turn():
     df = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
+    df['p'].astype('float')
+    df['b_step'].fillna(0).astype('int')
+    df['w_step'].fillna(1).astype('int')
+    df['span'].fillna(1).astype('int')
+    df['presentable'].astype('string')
+    df['comment'].astype('string')
+    df['process'].astype('string')
+
+    return df
+
+
+def get_df_muzudho_single_points_when_frozen_turn():
+    df = pd.read_csv(CSV_FILE_PATH_SR_FT, encoding="utf8")
     df['p'].astype('float')
     df['b_step'].fillna(0).astype('int')
     df['w_step'].fillna(1).astype('int')

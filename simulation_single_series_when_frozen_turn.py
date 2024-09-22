@@ -14,7 +14,7 @@ import math
 import pandas as pd
 
 from library import BLACK, WHITE, ALICE, PointsConfiguration, play_series_when_frozen_turn, SimulationResult
-from database import get_df_muzudho_recommends_points_when_frozen_turn
+from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_simulation_log
 
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_single_points_when_frozen_turn()
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
