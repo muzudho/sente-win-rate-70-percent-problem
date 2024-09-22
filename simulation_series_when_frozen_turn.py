@@ -15,7 +15,7 @@ import pandas as pd
 
 from library import BLACK, ALICE, PointsConfiguration, play_series_when_frozen_turn, SimulationResult
 from database import get_df_muzudho_recommends_points_when_frozen_turn
-from views import stringify_simulation_log_ft
+from views import stringify_simulation_log
 
 
 LOG_FILE_PATH = 'output/simulation_series_when_frozen_turn.log'
@@ -39,7 +39,7 @@ def simulate(p, number_of_series, points_configuration, title):
     simulation_result = SimulationResult(
             series_result_list=series_result_list)
 
-    text = stringify_simulation_log_ft(
+    text = stringify_simulation_log(
             # ［表が出る確率］（指定値）
             p=p,
             draw_rate=0,

@@ -17,7 +17,7 @@ import pandas as pd
 from fractions import Fraction
 from library import ALICE, PointsConfiguration, play_game_when_alternating_turn, SimulationResult
 from database import get_df_muzudho_recommends_points_when_alternating_turn
-from views import stringify_simulation_log_at
+from views import stringify_simulation_log
 
 
 LOG_FILE_PATH = 'output/simulation_series_when_alternating_turn.log'
@@ -39,7 +39,7 @@ def simulate(p, number_of_series, points_configuration):
     simulation_result = SimulationResult(
             series_result_list=series_result_list)
 
-    text = stringify_simulation_log_at(
+    text = stringify_simulation_log(
             p=p,
             draw_rate=0,    # 引分けはありません
             points_configuration=points_configuration,

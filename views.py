@@ -271,7 +271,7 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
 
 
-def stringify_simulation_log_ft(
+def stringify_simulation_log(
         p, draw_rate, points_configuration, simulation_result, title):
     """シミュレーションのログの文言作成
     
@@ -342,80 +342,6 @@ def stringify_simulation_log_ft(
                               指定   |   {shw1:2.0f} ％                        {d1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
                               試行後 |  {   shw2:8.4f} ％   {aw1:8.4f} ％    {d2       :8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
                                       （ {shw2e:7.4f}）  （ {aw1e:7.4f}）   （ {d2e   :7.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
-"""
-
-
-def stringify_simulation_log_at(
-        p, draw_rate, points_configuration, simulation_result, title):
-    """［先後交互制］
-
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］（先手勝率）
-    draw_rate : float
-        ［引き分ける確率］
-    points_configuration : PointsConfiguration
-        ［かくきんシステムのｐの構成］
-    simulation_result : SimulationResult
-        シミュレーションの結果
-    title : str
-        タイトル
-    """
-
-    # ヘッダー
-    # --------
-    time1 = datetime.datetime.now() # ［タイムスタンプ］
-    ti1 = title                     # タイトル
-
-    # ［将棋の先手勝率］
-    # ------------------------------
-    shw1 = p * 100                                                              # ［将棋の先手勝率（％）］指定値
-    shw2 = simulation_result.trial_black_win_rate_without_draw * 100           # ［将棋の先手勝率（％）］実践値
-    shw2e = simulation_result.trial_black_win_rate_error_without_draw * 100    # ［将棋の先手勝率（％）と 0.5 との誤差］実践値
-
-    # ［Ａさんの勝率］
-    # ---------------
-    aw1 = simulation_result.trial_alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
-    aw1e = simulation_result.trial_alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-
-    # 引分け率
-    # --------
-    d1 = draw_rate * 100
-    d2 = simulation_result.trial_draw_rate_at * 100
-    d2e = d2 - d1
-
-    # 引分け率
-    # --------
-    d1 = draw_rate * 100    # ［将棋の引分け率］指定値
-    d2 = (simulation_result.number_of_draw_series_at / simulation_result.number_of_series) * 100     # ［将棋の引分け率］実践値
-
-    # 対局数
-    # ------
-    tm10 = points_configuration.count_shortest_time_when_frozen_turn()  # ［最短対局数］理論値
-    tm11 = points_configuration.count_longest_time_when_frozen_turn()   # ［最長対局数］
-    tm20 = simulation_result.shortest_time_th    # ［最短対局数］実践値
-    tm21 = simulation_result.longest_time_th     # ［最長対局数］
-
-    # シリーズ数
-    # ---------
-    sr0 = simulation_result.number_of_series             # 全
-    sr1 = simulation_result.number_of_alice_fully_wons   # Ａさん勝ち
-    sr2 = simulation_result.number_of_alice_points_wons  # Ａさん判定勝ち（引分けがなければ零です）
-
-    # 勝ち点構成
-    # ---------
-    pt1 = points_configuration.b_step    # ［黒勝ち１つの点数］
-    pt2 = points_configuration.w_step    # ［白勝ち１つの点数］
-    pt3 = points_configuration.span      # ［目標の点数］
-
-
-    return f"""\
-[{time1                   }] {ti1}
-                                    将棋の先手勝率  Ａさんの勝率    引分け率       シリーズ         対局数      | 勝ち点設定
-                              指定   |   {shw1:2.0f} ％                       {d1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
-                              試行後 |  {shw2:8.4f} ％      {aw1:8.4f} ％    {d2        :8.4f} ％     {      sr1:>7}Ａ満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
-                                       （ {shw2e:7.4f}）    （ {aw1e:7.4f}）   （ {d2e    :7.4f}）      {    sr2:>7}Ａ判勝               | {pt3:3.0f}目
 """
 
 
