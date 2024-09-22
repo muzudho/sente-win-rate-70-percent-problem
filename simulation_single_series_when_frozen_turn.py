@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, PointsConfiguration, play_series_when_frozen_turn, SimulationResult
+from library import BLACK, WHITE, ALICE, PointsConfiguration, make_cointoss_list, play_series_when_frozen_turn, SimulationResult
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -29,11 +29,20 @@ def simulate(p, points_configuration, title):
 
     series_result_list = []
 
+    # ［最長対局数］は計算で求められます
+    longest_times = points_configuration.count_longest_time_when_frozen_turn()
+
     # １シリーズするだけ
     # -----------------
 
-    # ［先後固定制］で、勝った方の手番を返す
+    cointoss_list = make_cointoss_list(
+            p=p,
+            draw_rate=DRAW_RATE,
+            longest_times=longest_times)
+
+    # ［先後固定制］で、シリーズを勝った方の手番を返す
     series_result = play_series_when_frozen_turn(
+            cointoss_list=cointoss_list,
             p=p,
             draw_rate=DRAW_RATE,
             points_configuration=points_configuration)

@@ -14,7 +14,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, coin, play_series_when_frozen_turn, round_letro, PointsConfiguration, calculate_probability
+from library import BLACK, WHITE, make_cointoss_list, play_series_when_frozen_turn, round_letro, PointsConfiguration, calculate_probability
 from database import get_df_generate_even_when_frozen_turn
 from views import print_when_generate_when_frozen_turn
 
@@ -144,23 +144,6 @@ def iteration_deeping(df, abs_limit_of_error):
                                 H=latest_points_configuration.b_time,
                                 T=latest_points_configuration.w_time)
                         latest_p_error = latest_p - 0.5
-
-
-                        # # NOTE 実際値の場合
-                        # #
-                        # # 先手が勝った回数
-                        # black_win_count = 0
-                        # for i in range(0, REQUIRED_MUMBER_OF_SERIES):
-                        #     series_result = play_series_when_frozen_turn(
-                        #             p=p,
-                        #             draw_rate=draw_rate,
-                        #             points_configuration=latest_points_configuration)
-                            
-                        #     if series_result.is_black_won:
-                        #         black_win_count += 1
-                    
-                        # latest_p = black_win_count / REQUIRED_MUMBER_OF_SERIES
-                        # latest_p_error = latest_p - 0.5
 
 
                         if abs(latest_p_error) < abs(best_p_error):

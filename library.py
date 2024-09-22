@@ -148,7 +148,35 @@ def draw(draw_rate):
     return random.random() < draw_rate
 
 
-def play_series_when_frozen_turn(p, draw_rate, points_configuration):
+def make_cointoss_list(p, draw_rate, longest_times):
+    """コイントスした結果のリストを生成
+
+    Parameters
+    ----------
+    p : float
+        ［表が出る確率］
+    draw_rate : float
+        ［引き分ける確率］
+    longest_times : int
+        ［最長対局数］
+    """
+    cointoss_list = []
+
+    # ［最長対局数］までやる
+    for time_th in range(1, longest_times + 1):
+
+        # 引分け
+        if draw(draw_rate):
+            cointoss_list.append(EMPTY)
+
+        # 黒勝ち、または白勝ちのどちらか
+        else:
+            cointoss_list.append(coin(p))
+
+    return cointoss_list
+
+
+def play_series_when_frozen_turn(cointoss_list, p, draw_rate, points_configuration):
     """［先後固定制］で１シリーズ分の対局を行います。
 
     ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
@@ -156,6 +184,8 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
 
     Parameters
     ----------
+    cointoss_list : list
+        勝った方の色の記録。引き分けなら Empty
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
     draw_rate : float
@@ -169,32 +199,26 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
         ［シリーズ］の結果
     """
 
-    # 勝った方の色の記録
-    winner_color_game_record = []
-
     # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
     point_list = [0, 0, 0, 0, 0]
 
     # ［このシリーズで引き分けた対局数］
     number_of_draw_times = 0
 
-    # ［先後固定制］での対局の上限数は計算で求められます
-    max_time = points_configuration.count_longest_time_when_frozen_turn()
+    time_th = 0
 
     # 対局の上限数までやる
-    for time_th in range(1, max_time + 1):
+    for successful_color in cointoss_list:
+        time_th += 1
 
         # 引き分けを１局と数えるケース
         #
         #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
         #
-        if draw(draw_rate):
+        if successful_color == EMPTY:
             number_of_draw_times += 1
-            winner_color_game_record.append(EMPTY)
         
         else:
-            successful_color = coin(p)
-
             if successful_color == BLACK:
                 successful_player = ALICE
                 step = points_configuration.b_step
@@ -206,16 +230,18 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
             point_list[successful_color] += step
             point_list[successful_player] += step
 
-            winner_color_game_record.append(successful_color)
-
             # 勝ち抜け
             if points_configuration.span <= point_list[successful_color]:
+
+                if time_th != len(cointoss_list):
+                    raise ValueError(f"{time_th=}  !=  {len(cointoss_list)=}")
+
                 return SeriesResult(
                         number_of_all_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
                         point_list=point_list,
-                        winner_color_game_record=winner_color_game_record)
+                        winner_color_game_record=cointoss_list)
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -224,7 +250,7 @@ def play_series_when_frozen_turn(p, draw_rate, points_configuration):
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
             point_list=point_list,
-            winner_color_game_record=winner_color_game_record)
+            winner_color_game_record=cointoss_list)
 
 
 def play_tie_break(p, draw_rate):
