@@ -370,12 +370,12 @@ class PointCalculation():
 
     def is_fully_won(self, index):
         """点数を満たしているか？"""
-        return self._pts_conf.span <= self._point_calculation.get_point_of(index)
+        return self._pts_conf.span <= self.get_point_of(index)
 
 
     def x_has_more_than_y(self, x, y):
         """xの方がyより勝ち点が多いか？"""
-        return self._point_calculation.get_point_of(y) < self._point_calculation.get_point_of(x)
+        return self.get_point_of(y) < self.get_point_of(x)
 
 
 
