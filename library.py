@@ -885,11 +885,11 @@ class SeriesResult():
     @property
     def is_no_won_color(self):
         """勝者なし。黒白ともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
-        if self._is_no_won is None:
+        if self._is_no_won_color is None:
             half = math.floor(self._span / 2)
-            self._is_no_won = (self._point_list[BLACK] <= half and self._point_list[WHITE] <= half) or self._point_list[BLACK] == self._point_list[WHITE]
+            self._is_no_won_color = (self._point_list[BLACK] <= half and self._point_list[WHITE] <= half) or self._point_list[BLACK] == self._point_list[WHITE]
 
-        return self._is_no_won
+        return self._is_no_won_color
 
 
     @property
@@ -943,11 +943,11 @@ class SeriesResult():
     @property
     def is_no_won_player(self):
         """勝者なし。ＡさんＢさんともに［勝ち点］が［目標の点数］の半数（小数点以下切り捨て）以下か、または、両者の［勝ち点］が等しいとき"""
-        if self._is_no_won is None:
+        if self._is_no_won_player is None:
             half = math.floor(self._span / 2)
-            self._is_no_won = (self._point_list[ALICE] <= half and self._point_list[BOB] <= half) or self._point_list[ALICE] == self._point_list[BOB]
+            self._is_no_won_player = (self._point_list[ALICE] <= half and self._point_list[BOB] <= half) or self._point_list[ALICE] == self._point_list[BOB]
 
-        return self._is_no_won
+        return self._is_no_won_player
 
 
     @property
