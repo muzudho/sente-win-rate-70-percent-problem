@@ -427,14 +427,16 @@ def stringify_simulation_log(
 
     # シリーズ数
     # ---------
-    sr1 = S.number_of_black_fully_wons   # 先手満点勝ち
-    sr2 = S.number_of_black_points_wons  # 先手判定勝ち（引分けがなければ零です）
-    sr3 = S.number_of_white_fully_wons   # 後手満点勝ち
-    sr4 = S.number_of_white_points_wons  # 後手判定勝ち（引分けがなければ零です）
-    sr5 = S.number_of_alice_fully_wons   # Ａさん満点勝ち
-    sr6 = S.number_of_alice_points_wons  # Ａさん判定勝ち（引分けがなければ零です）
-    sr7 = S.number_of_bob_fully_wons     # Ｂさん満点勝ち
-    sr8 = S.number_of_bob_points_wons    # Ｂさん判定勝ち（引分けがなければ零です）
+    sr1 = S.number_of_no_wons_player        # 勝者なし
+    sr2 = S.number_of_black_fully_wons      # 先手満点勝ち
+    sr3 = S.number_of_white_fully_wons      # 後手満点勝ち
+    sr4 = S.number_of_black_points_wons     # 先手判定勝ち（引分けがなければ零です）
+    sr5 = S.number_of_white_points_wons     # 後手判定勝ち（引分けがなければ零です）
+    sr6 = S.number_of_no_wons_color         # 勝者なし
+    sr7 = S.number_of_alice_fully_wons      # Ａさん満点勝ち
+    sr8 = S.number_of_bob_fully_wons        # Ｂさん満点勝ち
+    sr9 = S.number_of_alice_points_wons     # Ａさん判定勝ち（引分けがなければ零です）
+    sr10 = S.number_of_bob_points_wons      # Ｂさん判定勝ち（引分けがなければ零です）
 
 
     # 対局数
@@ -460,16 +462,16 @@ def stringify_simulation_log(
               |                                                                               {b_pt3:3.0f}目         |
               +---------------------------------------------------------------------------------------------+
               | 以下、［かくきんシステム］を使って試行                                                      |
-              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .   シリーズ        対局数                   |
-    引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .   {sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                 |
-              |   （{c1_shwe:+9.4f}）              （{c1_shle:+9.4f}）     .   {sr2:>7}先判勝                            |
-    引分込み  |      {  c2_shw:8.4f} ％  {c2_d       :8.4f} ％   {  c2_shl:8.4f} ％    .   {sr3:>7}後満勝                            |
-              |   （{c2_shwe:+9.4f}）（{c2_de   :+9.4f}） （{c2_shle:+9.4f}）     .   {sr4:>7}後判勝                            |
-              |  Ａさんの勝ち                  Ｂさんの勝ち    .                                            |
-    引分除く  |      {c3_aw:8.4f} ％                {c3_bw:8.4f} ％    .   {sr5:>7}Ａ満勝                            |
-              |   （{c3_awe:+9.4f}）              （{c3_bwe:+9.4f}）     .   {sr6:>7}Ａ判勝                            |
-    引分込み  |      {  c4_aw:8.4f} ％  {c4_d       :8.4f} ％   {  c4_bw:8.4f} ％    .   {sr7:>7}Ｂ満勝                            |
-              |   （{c4_awe:+9.4f}）（{c4_de   :+9.4f}） （{c4_bwe:+9.4f}）     .   {sr8:>7}Ｂ判勝                            |
+              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .   {sr1:>7}  引分   対局数                   |
+    引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .   {sr2:>7}先満勝  {tm20:>2}～{tm21:>2} 局                 |
+              |   （{c1_shwe:+9.4f}）              （{c1_shle:+9.4f}）     .   {sr3:>7}後満勝                            |
+    引分込み  |      {  c2_shw:8.4f} ％  {c2_d       :8.4f} ％   {  c2_shl:8.4f} ％    .   {sr4:>7}先判勝                            |
+              |   （{c2_shwe:+9.4f}）（{c2_de   :+9.4f}） （{c2_shle:+9.4f}）     .   {sr5:>7}後判勝                            |
+              |  Ａさんの勝ち                  Ｂさんの勝ち    .   {sr6:>7}  引分                            |
+    引分除く  |      {c3_aw:8.4f} ％                {c3_bw:8.4f} ％    .   {sr7:>7}Ａ満勝                            |
+              |   （{c3_awe:+9.4f}）              （{c3_bwe:+9.4f}）     .   {sr8:>7}Ｂ満勝                            |
+    引分込み  |      {  c4_aw:8.4f} ％  {c4_d       :8.4f} ％   {  c4_bw:8.4f} ％    .   {sr9:>7}Ａ判勝                            |
+              |   （{c4_awe:+9.4f}）（{c4_de   :+9.4f}） （{c4_bwe:+9.4f}）     .   {sr10:>7}Ｂ判勝                            |
               +---------------------------------------------------------------------------------------------+
 """
 

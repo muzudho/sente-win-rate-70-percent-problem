@@ -1014,7 +1014,6 @@ class LargeSeriesTrialSummary():
 
         # 共通
         # ----
-
         self._series_result_list = series_result_list
         self._shortest_time_th = None
         self._longest_time_th = None
@@ -1023,7 +1022,7 @@ class LargeSeriesTrialSummary():
 
         # 「先後固定制］
         # -------------
-
+        self._number_of_no_wons_color = None
         self._number_of_black_fully_wons = None
         self._number_of_white_fully_wons = None
         self._number_of_black_points_wons = None
@@ -1032,7 +1031,7 @@ class LargeSeriesTrialSummary():
 
         # ［先後交互制］
         # -------------
-
+        self._number_of_no_wons_player = None
         self._number_of_alice_fully_wons = None
         self._number_of_bob_fully_wons = None
         self._number_of_alice_points_wons = None
@@ -1087,6 +1086,18 @@ class LargeSeriesTrialSummary():
 
     # 「先後固定制］
     # -------------
+
+
+    @property
+    def number_of_no_wons_color(self):
+        """［先後固定制］で勝者がなかった回数"""
+        if self._number_of_no_wons_color is None:
+            self._number_of_no_wons_color = 0
+            for series_result in self._series_result_list:
+                if series_result.is_no_won_color:
+                    self._number_of_no_wons_color += 1
+
+        return self._number_of_no_wons_color
 
 
     @property
@@ -1199,6 +1210,18 @@ class LargeSeriesTrialSummary():
 
     # ［先後交互制］
     # -------------
+
+
+    @property
+    def number_of_no_wons_player(self):
+        """［先後交代制］で勝者がなかった回数"""
+        if self._number_of_no_wons_player is None:
+            self._number_of_no_wons_player = 0
+            for series_result in self._series_result_list:
+                if series_result.is_no_won_player:
+                    self._number_of_no_wons_player += 1
+
+        return self._number_of_no_wons_player
 
 
     @property
