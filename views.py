@@ -311,8 +311,8 @@ def stringify_simulation_log(
     d2 = simulation_result.trial_draw_rate_ft * 100
     d2e = d2 - d1
 
-    # 引分け率
-    # --------
+    # 将棋の引分け率
+    # --------------
     d1 = draw_rate * 100    # ［将棋の引分け率］指定値
     d2 = (simulation_result.number_of_draw_series_ft / simulation_result.number_of_series) * 100     # ［将棋の引分け率］実践値
 
@@ -338,10 +338,10 @@ def stringify_simulation_log(
 
     return f"""\
 [{time1                   }] {ti1}
-                                    将棋の先手勝ち  将棋の引分け  Ａさんの勝ち     シリーズ         対局数      | 勝ち点設定
-                              指定   |   {shw1:2.0f} ％                        {d1:2.0f} ％          {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
+                                    将棋の先手勝ち  将棋の引分け  Ａさんの勝ち      シリーズ         対局数      | 勝ち点設定
+                              指定   |   {shw1:2.0f} ％          {d1:2.0f} ％                        {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
                               試行後 |  {   shw2:8.4f} ％    {d2       :8.4f} ％   {aw1:8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
-                                      （ {shw2e:7.4f}）   （ {d2e   :7.4f}）  （ {aw1e:7.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
+                                      （ {shw2e:7.4f}）   （ {d2e   :7.4f}）  （ { aw1e:7.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
 """
 
 
