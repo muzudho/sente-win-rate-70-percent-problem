@@ -1165,12 +1165,30 @@ class LargeSeriesTrialSummary():
 
 
     @property
+    def white_win_rate_without_draw(self):
+        """試行した結果、［白が勝つ確率］
+        
+        引分けを除いて計算する
+        """
+        return self.number_of_white_all_wons / (self.number_of_series - self.number_of_draw_series_ft)
+
+
+    @property
     def black_win_rate_error_without_draw(self):
         """試行した結果、［黒が勝つ確率と0.5との誤差］
         
         引分けを除いて計算する
         """
         return self.black_win_rate_without_draw - 0.5
+
+
+    @property
+    def white_win_rate_error_without_draw(self):
+        """試行した結果、［白が勝つ確率と0.5との誤差］
+        
+        引分けを除いて計算する
+        """
+        return self.white_win_rate_without_draw - 0.5
 
 
     @property
