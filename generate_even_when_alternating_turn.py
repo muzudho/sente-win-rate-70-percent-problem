@@ -17,7 +17,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, round_letro, coin, play_game_when_alternating_turn, PointsConfiguration
+from library import BLACK, WHITE, ALICE, round_letro, coin, play_game_when_alternating_turn, PointsConfiguration, SimulationResult
 from database import get_df_generate_even_when_alternating_turn
 from views import print_when_generate_even_when_alternating_turn
 
@@ -193,6 +193,7 @@ def iteration_deeping(df, abs_limit_of_error):
             temp_best_b_step = best_b_step
         else:
             temp_best_b_step = 1
+
         best_points_configuration = PointsConfiguration(
                 b_step=temp_best_b_step,
                 w_step=best_w_step,
@@ -223,6 +224,7 @@ def iteration_deeping(df, abs_limit_of_error):
             for cur_span in range(latest_span, LIMIT_SPAN):
                 for cur_w_step in range(start_w_step, cur_span + 1):
                     for cur_b_step in range(start_b_step, cur_w_step + 1):
+
                         # ［かくきんシステムのｐの構成］
                         latest_points_configuration = PointsConfiguration(
                                 b_step=cur_b_step,
@@ -230,6 +232,8 @@ def iteration_deeping(df, abs_limit_of_error):
                                 span=cur_span)
 
                         # FIXME ［先後交互制］での、理論値の求め方が分からん
+
+                        series_result_list = []
 
                         # Ａさんが勝った回数
                         #
@@ -239,8 +243,13 @@ def iteration_deeping(df, abs_limit_of_error):
                             series_result = play_game_when_alternating_turn(
                                     p=p,
                                     points_configuration=latest_points_configuration)
+                            series_result_list.append(series_result)
                         
-                        latest_p = series_result.number_of_alice_all_wons / REQUIRED_MUMBER_OF_SERIES
+                        # シミュレーションの結果
+                        simulation_result = SimulationResult(
+                                series_result_list=series_result_list)
+
+                        latest_p = simulation_result.number_of_alice_all_wons / REQUIRED_MUMBER_OF_SERIES
                         latest_p_error = latest_p - 0.5
 
 
