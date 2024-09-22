@@ -352,16 +352,73 @@ class PointCalculation():
         return self._point_list
 
 
-    def append(self, successful_color, successful_player, step):
+    @staticmethod
+    def get_successful_player(successful_color, time_th, is_alternating_turn):
+
+        # ［先後交互制］
+        if is_alternating_turn:
+            # 黒が出た
+            if successful_color == BLACK:
+
+                # 奇数本で黒番のプレイヤーはＡさん
+                if time_th % 2 == 1:
+                    return ALICE
+
+                # 偶数本で黒番のプレイヤーはＢさん
+                return BOB
+
+            # 白が出た
+
+            # 奇数本で白番のプレイヤーはＢさん
+            if time_th % 2 == 1:
+                return BOB
+
+            # 偶数本で白番のプレイヤーはＡさん
+            return ALICE
+
+        # ［先後固定制］
+        if successful_color == BLACK:
+            return ALICE
+
+        return BOB
+
+
+    def append_won(self, successful_color, time_th, is_alternating_turn):
         """加点
 
         Parameters
         ----------
-        step : int
-            ［黒の勝ち点］か［白の勝ち点］のいずれか
         """
+
+        successful_player = PointCalculation.get_successful_player(successful_color, time_th, is_alternating_turn)
+
+        # 黒が出た
+        if successful_color == BLACK:
+            step = self._pts_conf.b_step
+        # 白が出た
+        else:
+            step = self._pts_conf.w_step
+
+
         self._point_list[successful_color] += step
         self._point_list[successful_player] += step
+
+
+    def append_draw(self, time_th, is_alternating_turn):
+        """TODO 引分け。全員に［勝ち点］の半分を加点します（勝ち点が実数になります）"""
+
+        self._point_list[BLACK] += self._pts_conf.b_step / 2
+        self._point_list[WHITE] += self._pts_conf.w_step / 2
+
+        # 奇数回はＡさんが先手
+        if time_th % 2 == 1:
+            self._point_list[ALICE] += self._pts_conf.b_step / 2
+            self._point_list[BOB] += self._pts_conf.w_step / 2
+
+        # 偶数回はＢさんが先手
+        else:
+            self._point_list[BOB] += self._pts_conf.b_step / 2
+            self._point_list[ALICE] += self._pts_conf.w_step / 2
 
 
     def get_point_of(self, index):
@@ -416,17 +473,11 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
         #
         if successful_color == EMPTY:
             number_of_draw_times += 1
+
+            point_calculation.append_draw(time_th, is_alternating_turn=False)
         
         else:
-            if successful_color == BLACK:
-                successful_player = ALICE
-                step = pts_conf.b_step
-
-            else:
-                successful_player = BOB
-                step = pts_conf.w_step
-
-            point_calculation.append(successful_color, successful_player, step)
+            point_calculation.append_won(successful_color, time_th, is_alternating_turn=False)
 
             # 勝ち抜け
             if pts_conf.span <= point_calculation.get_point_of(successful_color):
@@ -508,35 +559,15 @@ def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
         #
         if successful_color == EMPTY:
             number_of_draw_times += 1
-        
+
+            point_calculation.append_draw(time_th, is_alternating_turn=True)
+
         else:
-            # 黒が出た
-            if successful_color == BLACK:
-                step = pts_conf.b_step
+            successful_player = PointCalculation.get_successful_player(successful_color, time_th, is_alternating_turn=True)
 
-                # 奇数本で黒番のプレイヤーはＡさん
-                if time_th % 2 == 1:
-                    successful_player = ALICE
+            point_calculation.append_won(successful_color, time_th, is_alternating_turn=True)
 
-                # 偶数本で黒番のプレイヤーはＢさん
-                else:
-                    successful_player = BOB
-
-            # 白が出た
-            else:
-                step = pts_conf.w_step
-
-                # 奇数本で白番のプレイヤーはＢさん
-                if time_th % 2 == 1:
-                    successful_player = BOB
-
-                # 偶数本で白番のプレイヤーはＡさん
-                else:
-                    successful_player = ALICE
-
-
-            point_calculation.append(successful_color, successful_player, step)
-
+            # 勝ち抜け
             if pts_conf.span <= point_calculation.get_point_of(successful_player):
 
                 # コイントスの結果のリストの長さを切ります。
