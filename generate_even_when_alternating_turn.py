@@ -235,16 +235,12 @@ def iteration_deeping(df, abs_limit_of_error):
                         #
                         #   NOTE 実際値の場合
                         #
-                        alice_win_count = 0
                         for i in range(0, REQUIRED_MUMBER_OF_SERIES):
-                            winner_player, time_th = play_game_when_alternating_turn(
+                            series_result = play_game_when_alternating_turn(
                                     p=p,
                                     points_configuration=latest_points_configuration)
-                            
-                            if winner_player == ALICE:
-                                alice_win_count += 1
                         
-                        latest_p = alice_win_count / REQUIRED_MUMBER_OF_SERIES
+                        latest_p = series_result.number_of_alice_all_wons / REQUIRED_MUMBER_OF_SERIES
                         latest_p_error = latest_p - 0.5
 
 
