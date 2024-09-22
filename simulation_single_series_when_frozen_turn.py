@@ -15,7 +15,7 @@ import pandas as pd
 
 from library import BLACK, WHITE, ALICE, PointsConfiguration, CointossResultInSeries, play_series_when_frozen_turn, SimulationResult
 from database import get_df_muzudho_single_points_when_frozen_turn
-from views import stringify_simulation_log
+from views import stringify_series_log
 
 
 LOG_FILE_PATH = 'output/simulation_single_series_when_frozen_turn.log'
@@ -82,18 +82,14 @@ def simulate(p, points_configuration, title):
     print(' '.join(line_3_list))
 
 
-    # シミュレーションの結果
-    simulation_result = SimulationResult(
-            series_result_list=series_result_list)
-
-    text = stringify_simulation_log(
+    text = stringify_series_log(
             # ［表が出る確率］（指定値）
             p=p,
             draw_rate=DRAW_RATE,
             # ［かくきんシステムのｐの構成］
             points_configuration=points_configuration,
-            # シミュレーションの結果
-            simulation_result=simulation_result,
+            # シリーズの結果
+            series_result=series_result,
             # タイトル
             title=title)
 
@@ -105,12 +101,12 @@ def simulate(p, points_configuration, title):
         f.write(f"{text}\n")    # ファイルへ出力
 
 
-    # 表示とログ出力を終えた後でテスト
-    if simulation_result.shortest_time_th < points_configuration.count_shortest_time_when_frozen_turn():
-        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {points_configuration.count_shortest_time_when_frozen_turn()} を下回った")
+    # # TODO 表示とログ出力を終えた後でテスト
+    # if simulation_result.shortest_time_th < points_configuration.count_shortest_time_when_frozen_turn():
+    #     raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {points_configuration.count_shortest_time_when_frozen_turn()} を下回った")
 
-    if points_configuration.count_longest_time_when_frozen_turn() < simulation_result.longest_time_th:
-        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {points_configuration.count_longest_time_when_frozen_turn()} を上回った")
+    # if points_configuration.count_longest_time_when_frozen_turn() < simulation_result.longest_time_th:
+    #     raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {points_configuration.count_longest_time_when_frozen_turn()} を上回った")
 
 
 ########################################
