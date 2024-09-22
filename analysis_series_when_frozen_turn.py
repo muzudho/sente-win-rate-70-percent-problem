@@ -24,14 +24,8 @@ LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 DRAW_RATE = 0.0
 
 
-def analysis_series(pseudo_series_result, p, points_configuration, title):
+def analysis_series(series_result, p, points_configuration, title):
     """シリーズ１つを分析します"""
-
-    # ［先後固定制］で、シリーズを勝った方の手番を返す
-    series_result = judge_series_when_frozen_turn(
-            pseudo_series_result=pseudo_series_result,
-            points_configuration=points_configuration)
-
 
     text = stringify_series_log(
             # ［表が出る確率］（指定値）
@@ -86,7 +80,7 @@ if __name__ == '__main__':
                     can_draw=False,
                     points_configuration=specified_points_configuration)
             for successful_color_list in stats_result_data:
-                print(f"動作テスト {successful_color_list=}")
+                #print(f"動作テスト {successful_color_list=}")
 
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
@@ -94,13 +88,37 @@ if __name__ == '__main__':
                         longest_times=specified_points_configuration.count_longest_time_when_frozen_turn(),
                         successful_color_list=successful_color_list)
 
+                #
                 # FIXME 到達できない棋譜は除去しておきたい
-                # FIXME 重複データは除去しておきたい
-                analysis_series(
-                        pseudo_series_result,
-                        p=p,
-                        points_configuration=specified_points_configuration,
-                        title='（先後固定制）    むずでょセレクション')
+                #
+
+                old_number_of_times = len(successful_color_list)
+
+                # ［先後固定制］で、シリーズを勝った方の手番を返す
+                series_result = judge_series_when_frozen_turn(
+                        pseudo_series_result=pseudo_series_result,
+                        points_configuration=specified_points_configuration)
+
+                if series_result.number_of_all_times < old_number_of_times:
+                    # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
+                    print(f"到達できない棋譜を除去 {series_result.number_of_all_times=}  {old_number_of_times=}")
+                    pass
+
+                elif old_number_of_times < specified_points_configuration.count_shortest_time_when_frozen_turn():
+                    # 棋譜の長さが足りていないということは、最後までプレイしていない
+                    print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.count_shortest_time_when_frozen_turn()=}")
+                    pass
+
+                #
+                # FIXME 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
+                #
+
+                else:
+                    analysis_series(
+                            series_result=series_result,
+                            p=p,
+                            points_configuration=specified_points_configuration,
+                            title='（先後固定制）    むずでょセレクション')
 
 
     except Exception as err:
