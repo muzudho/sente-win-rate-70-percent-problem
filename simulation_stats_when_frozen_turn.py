@@ -13,7 +13,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, SimulationResult
+from library import BLACK, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -49,7 +49,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
 
 
     # シミュレーションの結果
-    simulation_result = SimulationResult(
+    large_series_trial_summary = LargeSeriesTrialSummary(
             series_result_list=series_result_list)
 
     text = stringify_simulation_log(
@@ -59,7 +59,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
             # シミュレーションの結果
-            simulation_result=simulation_result,
+            large_series_trial_summary=large_series_trial_summary,
             # タイトル
             title=title)
 
@@ -72,11 +72,11 @@ def simulate_stats(p, number_of_series, pts_conf, title):
 
 
     # 表示とログ出力を終えた後でテスト
-    if simulation_result.shortest_time_th < pts_conf.number_shortest_time_when_frozen_turn:
-        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {simulation_result.shortest_time_th} が理論値 {pts_conf.number_shortest_time_when_frozen_turn} を下回った")
+    if large_series_trial_summary.shortest_time_th < pts_conf.number_shortest_time_when_frozen_turn:
+        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_shortest_time_when_frozen_turn} を下回った")
 
-    if pts_conf.number_longest_time_when_frozen_turn < simulation_result.longest_time_th:
-        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {simulation_result.longest_time_th} が理論値 {pts_conf.number_longest_time_when_frozen_turn} を上回った")
+    if pts_conf.number_longest_time_when_frozen_turn < large_series_trial_summary.longest_time_th:
+        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time_when_frozen_turn} を上回った")
 
 
 ########################################

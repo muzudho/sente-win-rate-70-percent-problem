@@ -998,8 +998,8 @@ class SeriesResult():
         return self.is_bob_fully_won() or self.is_bob_points_won
 
 
-class SimulationResult():
-    """シミュレーションの結果"""
+class LargeSeriesTrialSummary():
+    """大量のシリーズを試行した結果"""
 
 
     def __init__(self, series_result_list):
@@ -1156,7 +1156,7 @@ class SimulationResult():
 
 
     @property
-    def trial_black_win_rate_without_draw(self):
+    def black_win_rate_without_draw(self):
         """試行した結果、［黒が勝つ確率］
         
         引分けを除いて計算する
@@ -1165,12 +1165,12 @@ class SimulationResult():
 
 
     @property
-    def trial_black_win_rate_error_without_draw(self):
+    def black_win_rate_error_without_draw(self):
         """試行した結果、［黒が勝つ確率と0.5との誤差］
         
         引分けを除いて計算する
         """
-        return self.trial_black_win_rate_without_draw - 0.5
+        return self.black_win_rate_without_draw - 0.5
 
 
     @property

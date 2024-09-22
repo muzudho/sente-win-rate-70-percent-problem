@@ -335,7 +335,7 @@ def stringify_series_log(
 
 
 def stringify_simulation_log(
-        p, draw_rate, pts_conf, simulation_result, title):
+        p, draw_rate, pts_conf, large_series_trial_summary, title):
     """シミュレーションのログの文言作成
     
     Parameters
@@ -346,30 +346,54 @@ def stringify_simulation_log(
         ［引き分ける確率］
     pts_conf : PointsConfiguration
         ［かくきんシステムのｐの構成］
-    simulation_result : SimulationResult
+    large_series_trial_summary : LargeSeriesTrialSummary
         シミュレーションの結果
     title : str
         タイトル
     """
+
+    # 変数名を短くする
+    S = large_series_trial_summary  # Summary
 
     # ヘッダー
     # --------
     time1 = datetime.datetime.now() # ［タイムスタンプ］
     ti1 = title                     # タイトル
 
-    trial_p = simulation_result.trial_black_win_rate_without_draw
-    trial_p_error = simulation_result.trial_black_win_rate_error_without_draw
+    trial_p = S.black_win_rate_without_draw
+    trial_p_error = S.black_win_rate_error_without_draw
+
+
+    # ［以下、指定したもの］
+    # ---------------------
+    a_shw1 = p * 100                # ［将棋の先手勝率（％）］指定値
+    a_d1 = draw_rate * 100          # ［将棋の引分け率］指定値
+    a_shl1 = (1 - p) * 100          # ［将棋の後手勝率（％）］指定値
+    a_sr0 = S.number_of_series      # 全シリーズ数
+
+
+    # ［以下、［かくきんシステム］が算出した設定］
+    # -----------------------------------------
+    b_tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
+    b_tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
+    # 勝ち点構成
+    b_pt1 = pts_conf.b_step    # ［黒勝ち１つの点数］
+    b_pt2 = pts_conf.w_step    # ［白勝ち１つの点数］
+    b_pt3 = pts_conf.span      # ［目標の点数］
+
+
+    # ［以下、［かくきんシステム］を使って試行］
+    # ---------------------------------------
+    c1_shw = trial_p * 100           # ［将棋の先手勝率（％）］実践値（引分除く）
+    c1_shl = (1- trial_p) * 100           # ［将棋の後手勝率（％）］実践値（引分除く）
+
 
     # ［将棋の先手勝率］（引分除く）
     # -----------------
-    shw1 = p * 100                                                             # ［将棋の先手勝率（％）］指定値
-    shw2 = trial_p * 100           # ［将棋の先手勝率（％）］実践値
     shw2e = trial_p_error * 100    # ［将棋の先手勝率（％）と 0.5 との誤差］実践値
 
     # ［将棋の後手勝率］（引分除く）
     # -----------------
-    shl1 = (1 - p) * 100                                                             # ［将棋の後手勝率（％）］指定値
-    shl2 = (1- trial_p) * 100           # ［将棋の後手勝率（％）］実践値
     shl2e = ((1- trial_p) - 0.5) * 100    # ［将棋の後手勝率（％）と 0.5 との誤差］実践値
 
     # TODO ［将棋の先手勝率］（引分込み）
@@ -380,33 +404,23 @@ def stringify_simulation_log(
 
     # ［Ａさんの勝率］
     # ---------------
-    aw1 = simulation_result.trial_alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
-    aw1e = simulation_result.trial_alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    aw1 = S.trial_alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
+    aw1e = S.trial_alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     # 将棋の引分け
     # ------------
-    d1 = draw_rate * 100    # ［将棋の引分け率］指定値
-    d2 = (simulation_result.number_of_draw_series_ft / simulation_result.number_of_series) * 100     # ［将棋の引分け率］実践値
-    d2e = d2 - d1
+    d2 = (S.number_of_draw_series_ft / S.number_of_series) * 100     # ［将棋の引分け率］実践値
+    d2e = d2 - a_d1
 
     # 対局数
     # ------
-    tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
-    tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
-    tm20 = simulation_result.shortest_time_th    # ［最短対局数］実践値
-    tm21 = simulation_result.longest_time_th     # ［最長対局数］
+    tm20 = S.shortest_time_th    # ［最短対局数］実践値
+    tm21 = S.longest_time_th     # ［最長対局数］
 
     # シリーズ数
     # ---------
-    sr0 = simulation_result.number_of_series             # 全
-    sr1 = simulation_result.number_of_black_fully_wons   # 先手勝ち
-    sr2 = simulation_result.number_of_black_points_wons  # 先手判定勝ち（引分けがなければ零です）
-
-    # 勝ち点構成
-    # ---------
-    pt1 = pts_conf.b_step    # ［黒勝ち１つの点数］
-    pt2 = pts_conf.w_step    # ［白勝ち１つの点数］
-    pt3 = pts_conf.span      # ［目標の点数］
+    sr1 = S.number_of_black_fully_wons   # 先手勝ち
+    sr2 = S.number_of_black_points_wons  # 先手判定勝ち（引分けがなければ零です）
 
     # FIXME 勝ちの内訳を［満点勝ち］［判定勝ち］で表示したい
     # FIXME ［引分除く］［引分込み］でも表示したい
@@ -414,72 +428,30 @@ def stringify_simulation_log(
 
     return f"""\
 [{time1                   }] {ti1}
-              +-----------------------------------------------------------------------------------------+
-              | 以下、指定したもの                                                                      |
-              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  シリーズ                                 |
-              |       {shw1:2.0f} ％        {d1:2.0f} ％         {shl1:2.0f} ％         {sr0:>7}回試行                            |
-              +-----------------------------------------------------------------------------------------+ 
-              | 以下、［かくきんシステム］が算出した設定                                                |
-              |                                                                対局数     勝ち点設定    |
-              |                                                               {tm10:>2}～{tm11:>2} 局   {pt1:3.0f}黒         |
-              |                                                                           {pt2:3.0f}白         |
-              |                                                                           {pt3:3.0f}目         |
-              +-----------------------------------------------------------------------------------------+
-              | 以下、［かくきんシステム］を使って試行                                                  |
-              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち                  対局数                   |
-    引分除く  |      {  shw2:8.4f} ％                {  shl2:8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                |
-              |   （{shw2e:+9.4f}）              （{shl2e:+9.4f}）      {    sr2:>7}先判勝                           |
-    引分込み  |                    {d2       :8.4f} ％                                                          |
-              |                 （{d2e   :+9.4f}）                                                           |
-              |  Ａさんの勝ち                                                                           |
-    引分除く  |      {aw1:8.4f} ％                                                                        |
-              |   （{aw1e:+9.4f}）                                                                         |
-    引分込み  |                                                                                         |
-              |                                                                                         |
-              +-----------------------------------------------------------------------------------------+
+              +---------------------------------------------------------------------------------------------+
+              | 以下、指定したもの                                                                          |
+              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .   シリーズ                                 |
+              |       {a_shw1:2.0f} ％        {a_d1:2.0f} ％             {a_shl1:2.0f} ％     .   {a_sr0:>7}回試行                            |
+              +---------------------------------------------------------------------------------------------+ 
+              | 以下、［かくきんシステム］が算出した設定                                                    |
+              |                                                                    対局数     勝ち点設定    |
+              |                                                                   {b_tm10:>2}～{b_tm11:>2} 局   {b_pt1:3.0f}黒         |
+              |                                                                               {b_pt2:3.0f}白         |
+              |                                                                               {b_pt3:3.0f}目         |
+              +---------------------------------------------------------------------------------------------+
+              | 以下、［かくきんシステム］を使って試行                                                      |
+              |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .                   対局数                   |
+    引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .    {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                |
+              |   （{shw2e:+9.4f}）              （{shl2e:+9.4f}）     .    {    sr2:>7}先判勝                           |
+    引分込み  |                    {d2       :8.4f} ％                 .                                            |
+              |                 （{d2e   :+9.4f}）                  .                                            |
+              |  Ａさんの勝ち                                  .                                            |
+    引分除く  |      {aw1:8.4f} ％                               .                                            |
+              |   （{aw1e:+9.4f}）                                .                                            |
+    引分込み  |                                                .                                            |
+              |                                                .                                            |
+              +---------------------------------------------------------------------------------------------+
 """
-
-
-# # TODO 廃止予定
-# def stringify_log_when_simulation_stats_with_draw_when_frozen_turn(
-#         p, draw_rate, pts_conf, simulation_result, title):
-#     """［先後固定制］で［引き分けを１局として数えるケース］での［シリーズ］での結果の文言を作成
-    
-#     Parameters
-#     ----------
-#     p : float
-#         ［表が出る確率］（先手勝率）
-#     draw_rate : float
-#         ［引き分ける確率］
-#     pts_conf : PointsConfiguration
-#         ［かくきんシステムのｐの構成］
-#     simulation_result : SimulationResult
-#         シミュレーションの結果
-#     title : str
-#         タイトル
-#     """
-
-#     # 引分け率（％） 実際値
-#     seg_7b = (simulation_result.number_of_draw_series_ft / simulation_result.number_of_series) * 100
-
-#     # ［勝ち点差黒勝率（％）］
-#     if simulation_result.number_of_black_points_wons == 0:
-#         seg_8 = "なし"
-#     else:
-#         seg_8 = f"{(simulation_result.number_of_black_points_wons / simulation_result.number_of_black_points_wons) * 100:8.4f} ％"
-
-#     # 引分けシリーズ数
-#     seg_10 = simulation_result.number_of_draw_series_ft
-
-#     # 黒勝ち数
-#     seg_11 = simulation_result.number_of_black_all_wons
-
-#     return f"""\
-#   引分け率        対局数（先後固定制）
-#        先手勝ち数{seg_11:>7}，引分{seg_10:>7}（詳細{simulation_result.number_of_draw_times:>7}），
-#         {                seg_7b     :8.4f} ％   勝ち点差黒勝率 {seg_8}
-
-# """
 
 
 def stringify_analysis_series_when_frozen_turn(p, draw_rate, series_result_list):

@@ -17,7 +17,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, round_letro, PseudoSeriesResult, play_game_when_alternating_turn, PointsConfiguration, SimulationResult
+from library import BLACK, WHITE, ALICE, round_letro, PseudoSeriesResult, play_game_when_alternating_turn, PointsConfiguration, LargeSeriesTrialSummary
 from database import get_df_generate_even_when_alternating_turn
 from views import print_when_generate_even_when_alternating_turn
 
@@ -256,10 +256,10 @@ def iteration_deeping(df, abs_limit_of_error):
                             series_result_list.append(series_result)
                         
                         # シミュレーションの結果
-                        simulation_result = SimulationResult(
+                        large_series_trial_summary = LargeSeriesTrialSummary(
                                 series_result_list=series_result_list)
 
-                        latest_p = simulation_result.number_of_alice_all_wons / REQUIRED_MUMBER_OF_SERIES
+                        latest_p = large_series_trial_summary.number_of_alice_all_wons / REQUIRED_MUMBER_OF_SERIES
                         latest_p_error = latest_p - 0.5
 
 
