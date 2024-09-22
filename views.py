@@ -416,7 +416,7 @@ def stringify_simulation_log(
     c3_bwe = S.bob_win_rate_error_without_draw * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
 
-    # TODO ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分含む）
+    # ［以下、［かくきんシステム］を使って試行］４ブロック目（プレイヤー、引分含む）
     # ---------------------------------------------
     c4_aw = (1 - trial_draw_rate_at) * S.alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
     c4_awe = (1 - trial_draw_rate_at) * S.alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
@@ -425,16 +425,22 @@ def stringify_simulation_log(
     c4_bw = (1 - trial_draw_rate_at) * S.bob_win_rate_without_draw * 100           # ［Ｂさんが勝つ確率（％）］実践値
     c4_bwe = (1 - trial_draw_rate_at) * S.bob_win_rate_error_without_draw * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
+    # シリーズ数
+    # ---------
+    sr1 = S.number_of_black_fully_wons   # 先手満点勝ち
+    sr2 = S.number_of_black_points_wons  # 先手判定勝ち（引分けがなければ零です）
+    sr3 = S.number_of_white_fully_wons   # 後手満点勝ち
+    sr4 = S.number_of_white_points_wons  # 後手判定勝ち（引分けがなければ零です）
+    sr5 = S.number_of_alice_fully_wons   # Ａさん満点勝ち
+    sr6 = S.number_of_alice_points_wons  # Ａさん判定勝ち（引分けがなければ零です）
+    sr7 = S.number_of_bob_fully_wons     # Ｂさん満点勝ち
+    sr8 = S.number_of_bob_points_wons    # Ｂさん判定勝ち（引分けがなければ零です）
+
 
     # 対局数
     # ------
     tm20 = S.shortest_time_th    # ［最短対局数］実践値
     tm21 = S.longest_time_th     # ［最長対局数］
-
-    # シリーズ数
-    # ---------
-    sr1 = S.number_of_black_fully_wons   # 先手勝ち
-    sr2 = S.number_of_black_points_wons  # 先手判定勝ち（引分けがなければ零です）
 
     # FIXME 勝ちの内訳を［満点勝ち］［判定勝ち］で表示したい
     # FIXME ［引分除く］［引分込み］でも表示したい
@@ -457,13 +463,13 @@ def stringify_simulation_log(
               |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .   シリーズ        対局数                   |
     引分除く  |      {  c1_shw:8.4f} ％                {  c1_shl:8.4f} ％    .   {sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局                 |
               |   （{c1_shwe:+9.4f}）              （{c1_shle:+9.4f}）     .   {sr2:>7}先判勝                            |
-    引分込み  |      {  c2_shw:8.4f} ％  {c2_d       :8.4f} ％   {  c2_shl:8.4f} ％    .                                            |
-              |   （{c2_shwe:+9.4f}）（{c2_de   :+9.4f}） （{c2_shle:+9.4f}）     .                                            |
+    引分込み  |      {  c2_shw:8.4f} ％  {c2_d       :8.4f} ％   {  c2_shl:8.4f} ％    .   {sr3:>7}後満勝                            |
+              |   （{c2_shwe:+9.4f}）（{c2_de   :+9.4f}） （{c2_shle:+9.4f}）     .   {sr4:>7}後判勝                            |
               |  Ａさんの勝ち                  Ｂさんの勝ち    .                                            |
-    引分除く  |      {c3_aw:8.4f} ％                {c3_bw:8.4f} ％    .                                            |
-              |   （{c3_awe:+9.4f}）              （{c3_bwe:+9.4f}）     .                                            |
-    引分込み  |      {  c4_aw:8.4f} ％  {c4_d       :8.4f} ％   {  c4_bw:8.4f} ％    .                                            |
-              |   （{c4_awe:+9.4f}）（{c4_de   :+9.4f}） （{c4_bwe:+9.4f}）     .                                            |
+    引分除く  |      {c3_aw:8.4f} ％                {c3_bw:8.4f} ％    .   {sr5:>7}Ａ満勝                            |
+              |   （{c3_awe:+9.4f}）              （{c3_bwe:+9.4f}）     .   {sr6:>7}Ａ判勝                            |
+    引分込み  |      {  c4_aw:8.4f} ％  {c4_d       :8.4f} ％   {  c4_bw:8.4f} ％    .   {sr7:>7}Ｂ満勝                            |
+              |   （{c4_awe:+9.4f}）（{c4_de   :+9.4f}） （{c4_bwe:+9.4f}）     .   {sr8:>7}Ｂ判勝                            |
               +---------------------------------------------------------------------------------------------+
 """
 
