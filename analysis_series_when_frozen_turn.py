@@ -68,6 +68,7 @@ if __name__ == '__main__':
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
+                    draw_rate=DRAW_RATE,
                     b_step=b_step,
                     w_step=w_step,
                     span=span)

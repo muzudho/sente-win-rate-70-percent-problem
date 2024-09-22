@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import BLACK, WHITE, PointsConfiguration
+from library import BLACK, WHITE, ALICE, BOB, PointsConfiguration
 
 
 def parse_process_element(process_element):
@@ -365,11 +365,11 @@ def stringify_simulation_log(
     time1 = datetime.datetime.now() # ［タイムスタンプ］
     ti1 = title                     # タイトル
 
-    trial_p = S.black_win_rate_without_draw
-    trial_p_error = S.black_win_rate_error_without_draw
+    trial_p = S.win_rate_without_draw_ft(winner=BLACK, loser=WHITE)
+    trial_p_error = S.win_rate_error_without_draw_ft(winner=BLACK, loser=WHITE)
 
-    trial_q = S.white_win_rate_without_draw
-    trial_q_error = S.white_win_rate_error_without_draw
+    trial_q = S.win_rate_without_draw_ft(winner=WHITE, loser=BLACK)
+    trial_q_error = S.win_rate_error_without_draw_ft(winner=WHITE, loser=BLACK)
 
 
     # ［以下、指定したもの］
@@ -410,20 +410,20 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
     # ---------------------------------------------
-    c3_aw = S.alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
-    c3_awe = S.alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c3_bw = S.bob_win_rate_without_draw * 100           # ［Ｂさんが勝つ確率（％）］実践値
-    c3_bwe = S.bob_win_rate_error_without_draw * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c3_aw = S.win_rate_without_draw_at(winner=ALICE, loser=BOB) * 100           # ［Ａさんが勝つ確率（％）］実践値
+    c3_awe = S.win_rate_error_without_draw_at(winner=ALICE, loser=BOB) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c3_bw = S.win_rate_without_draw_at(winner=BOB, loser=ALICE) * 100           # ［Ｂさんが勝つ確率（％）］実践値
+    c3_bwe = S.win_rate_error_without_draw_at(winner=BOB, loser=ALICE) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
 
     # ［以下、［かくきんシステム］を使って試行］４ブロック目（プレイヤー、引分含む）
     # ---------------------------------------------
-    c4_aw = (1 - trial_draw_rate_at) * S.alice_win_rate_without_draw * 100           # ［Ａさんが勝つ確率（％）］実践値
-    c4_awe = (1 - trial_draw_rate_at) * S.alice_win_rate_error_without_draw * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_aw = (1 - trial_draw_rate_at) * S.win_rate_without_draw_at(winner=ALICE, loser=BOB) * 100           # ［Ａさんが勝つ確率（％）］実践値
+    c4_awe = (1 - trial_draw_rate_at) * S.win_rate_error_without_draw_at(winner=ALICE, loser=BOB) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
     c4_d = trial_draw_rate_at * 100                 # ［将棋の引分け率］実践値            　［先後交互制］
     c4_de = (trial_draw_rate_at - draw_rate) * 100  # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
-    c4_bw = (1 - trial_draw_rate_at) * S.bob_win_rate_without_draw * 100           # ［Ｂさんが勝つ確率（％）］実践値
-    c4_bwe = (1 - trial_draw_rate_at) * S.bob_win_rate_error_without_draw * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_bw = (1 - trial_draw_rate_at) * S.win_rate_without_draw_at(winner=BOB, loser=ALICE) * 100           # ［Ｂさんが勝つ確率（％）］実践値
+    c4_bwe = (1 - trial_draw_rate_at) * S.win_rate_error_without_draw_at(winner=BOB, loser=ALICE) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     # シリーズ数
     # ---------

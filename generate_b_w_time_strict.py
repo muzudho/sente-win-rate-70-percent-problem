@@ -20,6 +20,8 @@ from views import stringify_when_generate_b_w_time_strict
 
 LOG_FILE_PATH = 'output/generate_b_w_time_strict.log'
 
+DRAW_RATE = 0.0
+
 # ［先後固定制］で、［白勝ちだけでの対局数］の上限
 MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
 
@@ -87,6 +89,7 @@ if __name__ == '__main__':
 
                 # ［かくきんシステムのｐの構成］
                 pts_conf = PointsConfiguration.let_points_from_repeat(
+                    draw_rate=DRAW_RATE,
                     b_time=best_b_time,
                     w_time=best_w_time)
 

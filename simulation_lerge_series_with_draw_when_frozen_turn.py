@@ -116,6 +116,7 @@ if __name__ == '__main__':
             # ［かくきんシステムのｐの構成］           
             print("確率調整中")  # FIXME
             pts_conf = PointsConfiguration(
+                    draw_rate=DRAW_RATE,
                     b_step=b_step,
                     w_step=w_step,
                     span=span)

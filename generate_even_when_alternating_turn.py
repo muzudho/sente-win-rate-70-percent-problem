@@ -196,6 +196,7 @@ def iteration_deeping(df, abs_limit_of_error):
             temp_best_b_step = 1
 
         best_points_configuration = PointsConfiguration(
+                draw_rate=DRAW_RATE,
                 b_step=temp_best_b_step,
                 w_step=best_w_step,
                 span=best_span)
@@ -228,6 +229,7 @@ def iteration_deeping(df, abs_limit_of_error):
 
                         # ［かくきんシステムのｐの構成］
                         latest_points_configuration = PointsConfiguration(
+                                draw_rate=DRAW_RATE,
                                 b_step=cur_b_step,
                                 w_step=cur_w_step,
                                 span=cur_span)
@@ -257,7 +259,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         large_series_trial_summary = LargeSeriesTrialSummary(
                                 series_result_list=series_result_list)
 
-                        latest_p = large_series_trial_summary.number_of_alice_all_wons / REQUIRED_MUMBER_OF_SERIES
+                        latest_p = large_series_trial_summary.number_of_all_wons(winner=ALICE, loser=BOB) / REQUIRED_MUMBER_OF_SERIES
                         latest_p_error = latest_p - 0.5
 
 

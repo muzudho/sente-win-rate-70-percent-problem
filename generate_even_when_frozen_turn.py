@@ -21,6 +21,9 @@ from views import print_when_generate_when_frozen_turn
 LOG_FILE_PATH_FT = 'output/generate_even_when_frozen_turn.log'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
+# ［将棋の引分け率］
+DRAW_RATE = 0.0
+
 # このラウンド数を満たさないデータは、再探索します
 REQUIRED_MUMBER_OF_SERIES = 2_000_000
 
@@ -100,6 +103,7 @@ def iteration_deeping(df, abs_limit_of_error):
         else:
             temp_best_b_step = 1
         best_points_configuration = PointsConfiguration(
+                draw_rate=DRAW_RATE,
                 b_step=temp_best_b_step,
                 w_step=best_w_step,
                 span=best_span)
@@ -132,6 +136,7 @@ def iteration_deeping(df, abs_limit_of_error):
 
                         # ［かくきんシステムのｐの構成］
                         latest_points_configuration = PointsConfiguration(
+                                draw_rate=DRAW_RATE,
                                 b_step=cur_b_step,
                                 w_step=cur_w_step,
                                 span=cur_span)

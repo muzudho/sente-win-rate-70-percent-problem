@@ -405,20 +405,29 @@ class PointCalculation():
 
 
     def append_draw(self, time_th, is_alternating_turn):
-        """TODO 引分け。全員に［勝ち点］の半分を加点します（勝ち点が実数になります）"""
+        """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
 
-        self._point_list[BLACK] += self._pts_conf.b_step / 2
-        self._point_list[WHITE] += self._pts_conf.w_step / 2
+        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 )
+
+        例： 勝ち点３で、将棋の引分け率を 0.1 と指定したとき、
+        引分け時の勝ち点 = 3 * ( 1 - 0.1 ) = 2.7
+
+        例： 勝ち点３で、将棋の引分け率を 0.9 と指定したとき、
+        引分け時の勝ち点 = 3 * ( 1 - 0.9 ) = 0.3
+        """
+
+        self._point_list[BLACK] += self._pts_conf.b_step * (1 - self._pts_conf.draw_rate)
+        self._point_list[WHITE] += self._pts_conf.w_step * (1 - self._pts_conf.draw_rate)
 
         # 奇数回はＡさんが先手
         if time_th % 2 == 1:
-            self._point_list[ALICE] += self._pts_conf.b_step / 2
-            self._point_list[BOB] += self._pts_conf.w_step / 2
+            self._point_list[ALICE] += self._pts_conf.b_step * (1 - self._pts_conf.draw_rate)
+            self._point_list[BOB] += self._pts_conf.w_step * (1 - self._pts_conf.draw_rate)
 
         # 偶数回はＢさんが先手
         else:
-            self._point_list[BOB] += self._pts_conf.b_step / 2
-            self._point_list[ALICE] += self._pts_conf.w_step / 2
+            self._point_list[BOB] += self._pts_conf.b_step * (1 - self._pts_conf.draw_rate)
+            self._point_list[ALICE] += self._pts_conf.w_step * (1 - self._pts_conf.draw_rate)
 
 
     def get_point_of(self, index):
@@ -649,11 +658,13 @@ class PointsConfiguration():
     """［かくきんシステムのｐの構成］"""
 
 
-    def __init__(self, b_step, w_step, span):
+    def __init__(self, draw_rate, b_step, w_step, span):
         """初期化
         
         Parameters
         ----------
+        draw_rate : float
+            ［将棋の引分け率］
         b_step : int
             ［黒勝ち１つの点数］
         w_step : int
@@ -687,9 +698,16 @@ class PointsConfiguration():
         if span < w_step:
             raise ValueError(f"{w_step=} <= {span}")
 
+        self._draw_rate = draw_rate
         self._b_step = b_step
         self._w_step = w_step
         self._span = span
+
+
+    @property
+    def draw_rate(self):
+        """［将棋の引分け率］"""
+        return self._draw_rate
 
 
     @property
@@ -747,11 +765,13 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_points_from_repeat(b_time, w_time):
+    def let_points_from_repeat(draw_rate, b_time, w_time):
         """［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
+        draw_rate : float
+            ［将棋の引分け率］
         b_time : int
             ［黒勝ちだけでの対局数］
         w_time : int
@@ -775,6 +795,7 @@ class PointsConfiguration():
             raise ValueError(f"{span=}  {span_w=}")
 
         return PointsConfiguration(
+                draw_rate=draw_rate,
                 b_step=b_step,
                 w_step=w_step,
                 span=span)
@@ -1094,7 +1115,6 @@ class LargeSeriesTrialSummary():
         return self._number_of_fully_wons[index]
 
 
-    @property
     def number_of_points_wons(self, winner, loser):
         """winner が［勝ち点差判定］で loser に勝った回数"""
         if self._number_of_points_wons[winner] is None:
@@ -1122,58 +1142,31 @@ class LargeSeriesTrialSummary():
         return self._number_of_no_wons_color
 
 
-    @property
-    def number_of_black_all_wons(self):
-        """黒の勝利数"""
-        return self.number_of_fully_wons(BLACK) + self.number_of_points_wons(winner=BLACK, loser=WHITE)
-
-
-    @property
-    def number_of_white_all_wons(self):
-        """白の勝利数"""
-        return self.number_of_fully_wons(WHITE) + self.number_of_points_wons(winner=WHITE, loser=BLACK)
+    def number_of_all_wons(self, winner, loser):
+        """winner が loser に勝った数"""
+        return self.number_of_fully_wons(winner) + self.number_of_points_wons(winner=winner, loser=loser)
 
 
     @property
     def number_of_draw_series_ft(self):
         """引分けで終わったシリーズ数"""
-        return self.number_of_series - self.number_of_black_all_wons - self.number_of_white_all_wons
+        return self.number_of_series - self.number_of_all_wons(winner=BLACK, loser=WHITE) - self.number_of_all_wons(winner=WHITE, loser=BLACK)
 
 
-    @property
-    def black_win_rate_without_draw(self):
-        """試行した結果、［黒が勝つ確率］
+    def win_rate_without_draw_ft(self, winner, loser):
+        """試行した結果、 winner が loser に勝つ確率
         
         引分けを除いて計算する
         """
-        return self.number_of_black_all_wons / (self.number_of_series - self.number_of_draw_series_ft)
+        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series_ft)
 
 
-    @property
-    def white_win_rate_without_draw(self):
-        """試行した結果、［白が勝つ確率］
+    def win_rate_error_without_draw_ft(self, winner, loser):
+        """試行した結果、 winner が loser に勝つ確率と0.5との誤差］
         
         引分けを除いて計算する
         """
-        return self.number_of_white_all_wons / (self.number_of_series - self.number_of_draw_series_ft)
-
-
-    @property
-    def black_win_rate_error_without_draw(self):
-        """試行した結果、［黒が勝つ確率と0.5との誤差］
-        
-        引分けを除いて計算する
-        """
-        return self.black_win_rate_without_draw - 0.5
-
-
-    @property
-    def white_win_rate_error_without_draw(self):
-        """試行した結果、［白が勝つ確率と0.5との誤差］
-        
-        引分けを除いて計算する
-        """
-        return self.white_win_rate_without_draw - 0.5
+        return self.win_rate_without_draw_ft(winner=winner, loser=loser) - 0.5
 
 
     @property
@@ -1199,57 +1192,25 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def number_of_alice_all_wons(self):
-        """Ａさんの勝利数"""
-        return self.number_of_fully_wons(ALICE) + self.number_of_points_wons(winner=ALICE, loser=BOB)
-
-
-    @property
-    def number_of_bob_all_wons(self):
-        """Ｂさんの勝利数"""
-        return self.number_of_fully_wons(BOB) + self.number_of_points_wons(winner=BOB, loser=ALICE)
-
-
-    @property
     def number_of_draw_series_at(self):
         """引分けで終わったシリーズ数"""
-        return self.number_of_series - self.number_of_alice_all_wons - self.number_of_bob_all_wons
+        return self.number_of_series - self.number_of_all_wons(winner=ALICE, loser=BOB) - self.number_of_all_wons(winner=BOB, loser=ALICE)
 
 
-    @property
-    def alice_win_rate_without_draw(self):
+    def win_rate_without_draw_at(self, winner, loser):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
         """
-        return self.number_of_alice_all_wons / (self.number_of_series - self.number_of_draw_series_at)
+        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series_at)
 
 
-    @property
-    def bob_win_rate_without_draw(self):
-        """試行した結果、［Ｂさんが勝つ確率］
-        
-        引分けを除いて計算する
-        """
-        return self.number_of_bob_all_wons / (self.number_of_series - self.number_of_draw_series_at)
-
-
-    @property
-    def alice_win_rate_error_without_draw(self):
+    def win_rate_error_without_draw_at(self, winner, loser):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
         """
-        return self.alice_win_rate_without_draw - 0.5
-
-
-    @property
-    def bob_win_rate_error_without_draw(self):
-        """試行した結果、［Ｂさんが勝つ確率］
-        
-        引分けを除いて計算する
-        """
-        return self.bob_win_rate_without_draw - 0.5
+        return self.win_rate_without_draw_at(winner=winner, loser=loser) - 0.5
 
 
     @property
