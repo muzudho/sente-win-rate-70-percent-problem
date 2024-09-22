@@ -22,6 +22,9 @@ from views import stringify_simulation_log
 
 LOG_FILE_PATH = 'output/simulation_stats_when_alternating_turn.log'
 
+# ［将棋の引分け率］
+DRAW_RATE = 0.0
+
 
 def simulate_stats(p, number_of_series, points_configuration):
     """大量のシリーズをシミュレートします"""
@@ -30,8 +33,17 @@ def simulate_stats(p, number_of_series, points_configuration):
 
     for round in range(0, number_of_series):
 
+        # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+        cointoss_result_in_series = CointossResultInSeries.make_pseudo_cointoss_result_in_series(
+                p=p,
+                draw_rate=DRAW_RATE,
+                longest_times=points_configuration.count_longest_time_when_alternating_turn())
+
         # ［先後交互制］で、勝ったプレイヤーを返す
-        series_result = play_game_when_alternating_turn(p, points_configuration)
+        series_result = play_game_when_alternating_turn(
+                cointoss_result_in_series=cointoss_result_in_series,
+                points_configuration=points_configuration)
+
         series_result_list.append(series_result)
 
 

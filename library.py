@@ -197,8 +197,8 @@ class CointossResultInSeries():
 
 
     @staticmethod
-    def make_cointoss_result_in_series(p, draw_rate, longest_times):
-        """コイントスした結果のリストを生成
+    def make_pseudo_cointoss_result_in_series(p, draw_rate, longest_times):
+        """１シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
 
         Parameters
         ----------
@@ -269,7 +269,7 @@ def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration
 
     time_th = 0
 
-    # 対局の上限数までやる
+    # 予め作った１シリーズ分の対局結果を読んでいく
     for successful_color in cointoss_result_in_series.successful_color_list:
         time_th += 1
 
@@ -304,7 +304,7 @@ def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration
                         number_of_draw_times=number_of_draw_times,
                         span=points_configuration.span,
                         point_list=point_list,
-                        winner_color_game_record=cointoss_result_in_series.successful_color_list)
+                        cointoss_result_in_series=cointoss_result_in_series)
 
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -313,7 +313,7 @@ def play_series_when_frozen_turn(cointoss_result_in_series, points_configuration
             number_of_draw_times=number_of_draw_times,
             span=points_configuration.span,
             point_list=point_list,
-            winner_color_game_record=cointoss_result_in_series.successful_color_list)
+            cointoss_result_in_series=cointoss_result_in_series)
 
 
 def play_tie_break(p, draw_rate):
@@ -340,13 +340,11 @@ def play_tie_break(p, draw_rate):
         return coin(p)
 
 
-def play_game_when_alternating_turn(p, points_configuration):
+def play_game_when_alternating_turn(cointoss_result_in_series, points_configuration):
     """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
     
     Parameters
     ----------
-    p : float
-        ［表が出る確率］（先手勝率）
     points_configuration : PointsConfiguration
         ［かくきんシステムのｐの構成］
     
@@ -356,58 +354,75 @@ def play_game_when_alternating_turn(p, points_configuration):
         ［シリーズ］の結果
     """
 
-    # 勝った方の色の記録
-    winner_color_game_record = []
-
     # ［勝ち点］の配列。要素は、未使用、黒、白、Ａさん、Ｂさんの順
     point_list = [0, 0, 0, 0, 0]
 
-    # 勝ち負けが出るまでやる
-    for time_th in range(1, 2_147_483_647):
+    # ［このシリーズで引き分けた対局数］
+    number_of_draw_times = 0
 
-        successful_color = coin(p)
+    time_th = 0
 
-        winner_color_game_record.append(successful_color)
+    # 予め作った１シリーズ分の対局結果を読んでいく
+    for successful_color in cointoss_result_in_series.successful_color_list:
+        time_th += 1
 
-        # 黒が出た
-        if successful_color == BLACK:
-            step = points_configuration.b_step
-
-            # 奇数本で黒番のプレイヤーはＡさん
-            if time_th % 2 == 1:
-                successful_player = ALICE
-
-            # 偶数本で黒番のプレイヤーはＢさん
-            else:
-                successful_player = BOB
-
-        # 白が出た
+        # 引き分けを１局と数えるケース
+        #
+        #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
+        #
+        if successful_color == EMPTY:
+            number_of_draw_times += 1
+        
         else:
-            step = points_configuration.w_step
+            # 黒が出た
+            if successful_color == BLACK:
+                step = points_configuration.b_step
 
-            # 奇数本で白番のプレイヤーはＢさん
-            if time_th % 2 == 1:
-                successful_player = BOB
+                # 奇数本で黒番のプレイヤーはＡさん
+                if time_th % 2 == 1:
+                    successful_player = ALICE
 
-            # 偶数本で白番のプレイヤーはＡさん
+                # 偶数本で黒番のプレイヤーはＢさん
+                else:
+                    successful_player = BOB
+
+            # 白が出た
             else:
-                successful_player = ALICE
+                step = points_configuration.w_step
+
+                # 奇数本で白番のプレイヤーはＢさん
+                if time_th % 2 == 1:
+                    successful_player = BOB
+
+                # 偶数本で白番のプレイヤーはＡさん
+                else:
+                    successful_player = ALICE
 
 
-        point_list[successful_color] += step
-        point_list[successful_player] += step
+            point_list[successful_color] += step
+            point_list[successful_player] += step
 
-        if points_configuration.span <= point_list[successful_player]:
-            return SeriesResult(
-                    number_of_all_times=time_th,
-                    number_of_draw_times=0,     # 引分けはありません
-                    span=points_configuration.span,
-                    point_list=point_list,
-                    winner_color_game_record=winner_color_game_record)
+            if points_configuration.span <= point_list[successful_player]:
 
-        # 続行
+                # コイントスの結果のリストの長さを切ります。
+                # 対局は必ずしも［最長対局数］になるわけではありません
+                cointoss_result_in_series.cut_down(time_th)
 
-    raise ValueError("設定している回数で、決着が付かなかった")
+                return SeriesResult(
+                        number_of_all_times=time_th,
+                        number_of_draw_times=number_of_draw_times,
+                        span=points_configuration.span,
+                        point_list=point_list,
+                        cointoss_result_in_series=cointoss_result_in_series)
+
+
+    # タイブレークをするかどうかは、この関数の呼び出し側に任せます
+    return SeriesResult(
+            number_of_all_times=time_th,
+            number_of_draw_times=number_of_draw_times,
+            span=points_configuration.span,
+            point_list=point_list,
+            cointoss_result_in_series=cointoss_result_in_series)
 
 
 def calculate_probability(p, H, T):
@@ -731,7 +746,7 @@ class SeriesResult():
     """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list, winner_color_game_record):
+    def __init__(self, number_of_all_times, number_of_draw_times, span, point_list, cointoss_result_in_series):
         """初期化
     
         Parameters
@@ -744,8 +759,8 @@ class SeriesResult():
             ［目標の点数］
         point_list : list
             ［先後固定制］での［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
-        winner_color_game_record : list
-            勝った方の色の記録
+        cointoss_result_in_series : CointossResultInSeries
+            １シリーズ分をフルにコイントスした結果
         """
 
         # 共通
@@ -753,7 +768,7 @@ class SeriesResult():
         self._number_of_draw_times = number_of_draw_times
         self._span = span
         self._point_list = point_list
-        self._winner_color_game_record = winner_color_game_record
+        self._cointoss_result_in_series = cointoss_result_in_series
 
         # ［先後固定制］
         self._is_no_won_color = None
@@ -782,9 +797,9 @@ class SeriesResult():
 
 
     @property
-    def winner_color_game_record(self):
-        """勝った方の色の記録"""
-        return self._winner_color_game_record
+    def cointoss_result_in_series(self):
+        """１シリーズ分をフルにコイントスした結果"""
+        return self._cointoss_result_in_series
 
     # ［先後固定制］
     # -------------

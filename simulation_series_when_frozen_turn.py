@@ -25,9 +25,7 @@ DRAW_RATE = 0.0
 
 
 def simulate_series(p, points_configuration, title):
-    """シリーズをシミュレートする"""
-
-    series_result_list = []
+    """シリーズを１つだけシミュレートします"""
 
     # ［最長対局数］は計算で求められます
     longest_times = points_configuration.count_longest_time_when_frozen_turn()
@@ -35,7 +33,8 @@ def simulate_series(p, points_configuration, title):
     # １シリーズするだけ
     # -----------------
 
-    cointoss_result_in_series = CointossResultInSeries.make_cointoss_result_in_series(
+    # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+    cointoss_result_in_series = CointossResultInSeries.make_pseudo_cointoss_result_in_series(
             p=p,
             draw_rate=DRAW_RATE,
             longest_times=longest_times)
@@ -44,42 +43,6 @@ def simulate_series(p, points_configuration, title):
     series_result = play_series_when_frozen_turn(
             cointoss_result_in_series=cointoss_result_in_series,
             points_configuration=points_configuration)
-
-    series_result_list.append(series_result)
-
-    print(f"{len(series_result.winner_color_game_record)=}")
-
-    b_step = points_configuration.b_step
-    w_step = points_configuration.w_step
-    span = points_configuration.span
-    b_rest = span
-    w_rest = span
-    line_1_list = ['   S']
-    line_2_list = [f'{b_rest:>4}']
-    line_3_list = [f'{w_rest:>4}']
-
-    for winner_color in series_result.winner_color_game_record:
-        # 黒石        
-        if winner_color == BLACK:
-            line_1_list.append('   x')
-            b_rest -= b_step
-        
-        # 白石
-        elif winner_color == WHITE:
-            line_1_list.append('   o')
-            w_rest -= w_step
-        
-        # 勝者なし
-        else:
-            line_1_list.append('   .')
-
-        line_2_list.append(f'{b_rest:>4}')
-        line_3_list.append(f'{w_rest:>4}')
-
-    print() # 改行
-    print(' '.join(line_1_list))
-    print(' '.join(line_2_list))
-    print(' '.join(line_3_list))
 
 
     text = stringify_series_log(

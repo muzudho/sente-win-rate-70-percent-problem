@@ -24,8 +24,8 @@ LOG_FILE_PATH = 'output/simulation_stats_when_frozen_turn.log'
 DRAW_RATE = 0.0
 
 
-def simulate(p, number_of_series, points_configuration, title):
-    """シミュレート"""
+def simulate_stats(p, number_of_series, points_configuration, title):
+    """大量のシリーズをシミュレートします"""
 
     series_result_list = []
 
@@ -34,7 +34,8 @@ def simulate(p, number_of_series, points_configuration, title):
 
     for round in range(0, number_of_series):
 
-        cointoss_result_in_series = CointossResultInSeries.make_cointoss_result_in_series(
+        # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+        cointoss_result_in_series = CointossResultInSeries.make_pseudo_cointoss_result_in_series(
                 p=p,
                 draw_rate=DRAW_RATE,
                 longest_times=longest_times)
@@ -102,7 +103,7 @@ if __name__ == '__main__':
                     w_step=w_step,
                     span=span)
 
-            simulate(
+            simulate_stats(
                     p=p,
                     number_of_series=number_of_series,
                     points_configuration=specified_points_configuration,

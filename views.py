@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import PointsConfiguration
+from library import BLACK, WHITE, PointsConfiguration
 
 
 def parse_process_element(process_element):
@@ -288,6 +288,41 @@ def stringify_series_log(
     title : str
         タイトル
     """
+
+    print(f"{len(series_result.cointoss_result_in_series.successful_color_list)=}")
+
+    b_step = points_configuration.b_step
+    w_step = points_configuration.w_step
+    span = points_configuration.span
+    b_rest = span
+    w_rest = span
+    line_1_list = ['   S']
+    line_2_list = [f'{b_rest:>4}']
+    line_3_list = [f'{w_rest:>4}']
+
+    for winner_color in series_result.cointoss_result_in_series.successful_color_list:
+        # 黒石        
+        if winner_color == BLACK:
+            line_1_list.append('   x')
+            b_rest -= b_step
+        
+        # 白石
+        elif winner_color == WHITE:
+            line_1_list.append('   o')
+            w_rest -= w_step
+        
+        # 勝者なし
+        else:
+            line_1_list.append('   .')
+
+        line_2_list.append(f'{b_rest:>4}')
+        line_3_list.append(f'{w_rest:>4}')
+
+    print() # 改行
+    print(' '.join(line_1_list))
+    print(' '.join(line_2_list))
+    print(' '.join(line_3_list))
+
 
     # ヘッダー
     # --------
