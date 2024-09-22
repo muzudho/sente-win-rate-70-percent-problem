@@ -428,15 +428,15 @@ def stringify_simulation_log(
     # シリーズ数
     # ---------
     sr1 = S.number_of_no_wons_player        # 勝者なし
-    sr2 = S.number_of_black_fully_wons      # 先手満点勝ち
-    sr3 = S.number_of_white_fully_wons      # 後手満点勝ち
-    sr4 = S.number_of_black_points_wons     # 先手判定勝ち（引分けがなければ零です）
-    sr5 = S.number_of_white_points_wons     # 後手判定勝ち（引分けがなければ零です）
+    sr2 = S.number_of_fully_wons(BLACK)     # 先手満点勝ち
+    sr3 = S.number_of_fully_wons(WHITE)     # 後手満点勝ち
+    sr4 = S.number_of_points_wons(winner=BLACK, loser=WHITE)     # 先手判定勝ち（引分けがなければ零です）
+    sr5 = S.number_of_points_wons(winner=WHITE, loser=BLACK)     # 後手判定勝ち（引分けがなければ零です）
     sr6 = S.number_of_no_wons_color         # 勝者なし
-    sr7 = S.number_of_alice_fully_wons      # Ａさん満点勝ち
-    sr8 = S.number_of_bob_fully_wons        # Ｂさん満点勝ち
-    sr9 = S.number_of_alice_points_wons     # Ａさん判定勝ち（引分けがなければ零です）
-    sr10 = S.number_of_bob_points_wons      # Ｂさん判定勝ち（引分けがなければ零です）
+    sr7 = S.number_of_fully_wons(ALICE)     # Ａさん満点勝ち
+    sr8 = S.number_of_fully_wons(BOB)       # Ｂさん満点勝ち
+    sr9 = S.number_of_points_wons(winner=ALICE, loser=BOB)     # Ａさん判定勝ち（引分けがなければ零です）
+    sr10 = S.number_of_points_wons(winner=BOB, loser=ALICE)    # Ｂさん判定勝ち（引分けがなければ零です）
 
 
     # 対局数
