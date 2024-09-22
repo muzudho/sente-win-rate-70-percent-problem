@@ -431,13 +431,18 @@ def stringify_simulation_log(
     pt2 = points_configuration.w_step    # ［白勝ち１つの点数］
     pt3 = points_configuration.span      # ［目標の点数］
 
+    # FIXME 勝ちの内訳を［満点勝ち］［判定勝ち］で表示したい
+    # FIXME ［引分除く］［引分込み］でも表示したい
+
 
     return f"""\
 [{time1                   }] {ti1}
-                                    将棋の先手勝ち  将棋の引分け  Ａさんの勝ち     シリーズ         対局数      | 勝ち点設定
-                              指定   |    {shw1:2.0f} ％        {d1:2.0f} ％                        {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
-                              試行後 |   {  shw2:8.4f} ％  {d2       :8.4f} ％   {aw1:8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    | {pt2:3.0f}白
-                                      （{shw2e:+9.4f}）（{d2e   :+9.4f}）（ {aw1e:+9.4f}）      {    sr2:>7}先判勝               | {pt3:3.0f}目
+         |  将棋の先手勝ち  将棋の引分け  Ａさんの勝ち    シリーズ         対局数      | 勝ち点設定
+  指定   |       {shw1:2.0f} ％        {d1:2.0f} ％                        {sr0:>7}全      {tm10:>2}～{tm11:>2} 局    | {pt1:3.0f}黒
+         +-----------------------------------------------------------------------------+ {pt2:3.0f}白
+         |     以下、［かくきんシステム］を使って試行                                  | {pt3:3.0f}目
+  試行後 |      {  shw2:8.4f} ％  {d2       :8.4f} ％   {aw1:8.4f} ％     {      sr1:>7}先満勝  {tm20:>2}～{tm21:>2} 局    |
+         |   （{shw2e:+9.4f}）（{d2e   :+9.4f}）（ {aw1e:+9.4f}）      {    sr2:>7}先判勝               |
 """
 
 
@@ -481,3 +486,53 @@ def stringify_simulation_log(
 #         {                seg_7b     :8.4f} ％   勝ち点差黒勝率 {seg_8}
 
 # """
+
+
+def stringify_analysis_series_when_frozen_turn(p, draw_rate, series_result_list):
+    """シリーズ分析中のログ"""
+
+    # 集計
+    black_wons = 0
+    no_wons_color = 0
+    white_wons = 0
+    for series_result in series_result_list:
+        if series_result.is_black_won:
+            black_wons += 1
+        elif series_result.is_white_won:
+            white_wons += 1
+        elif series_result.is_no_won_color:
+            no_wons_color += 1
+    
+    # 結果としての黒の勝率
+    result_black_wons_without_draw = black_wons / (len(series_result_list) - no_wons_color)
+    result_black_wons_with_draw = black_wons / len(series_result_list)
+
+    # 結果としての引分け率
+    result_no_wons_color_with_draw = no_wons_color / len(series_result_list)
+
+    # 結果としての白の勝率
+    result_white_wons_without_draw = white_wons / (len(series_result_list) - no_wons_color)
+    result_white_wons_with_draw = white_wons / len(series_result_list)
+
+    # 将棋の先手勝率など
+    shw1 = p * 100
+    shd1 = draw_rate
+    shl1 = (1 - p) * 100
+
+    bw1 = result_black_wons_without_draw * 100
+    bw2 = result_black_wons_with_draw * 100
+
+    bd2 = result_no_wons_color_with_draw * 100
+
+    ww1 = result_white_wons_without_draw * 100
+    ww2 = result_white_wons_with_draw * 100
+
+    print(f"""\
+指定     |  将棋の先手勝率        将棋の引分け率        将棋の後手勝率
+         |  {shw1:8.4f} ％           {shd1:8.4f} ％           {shl1:8.4f} ％
+         +--------------------------------------------------------------------
+         |  以下、［かくきんシステム］が設定したハンディキャップ
+         |  先手勝率              引分け率              後手勝率
+引分除く |  {bw1:8.4f} ％                                 {  ww1:8.4f} ％
+引分込み |  {bw2:8.4f} ％           {bd2:8.4f} ％           {ww2:8.4f} ％
+""")
