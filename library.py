@@ -404,30 +404,58 @@ class PointCalculation():
         self._point_list[successful_player] += step
 
 
+    @staticmethod
+    def let_draw_point(draw_rate, step):
+        """TODO 引分け時の勝ち点計算。
+
+        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
+
+        // ２で割ってるのは、両者が１つの勝ちを半分ずつに按分するから。
+
+        例： 勝ち点３で、将棋の引分け率を 0.1 と指定したとき、
+        引分け時の勝ち点 = 3 * ( 1 - 0.1 ) / 2 = 1.35
+
+        例： 勝ち点３で、将棋の引分け率を 0.9 と指定したとき、
+        引分け時の勝ち点 = 3 * ( 1 - 0.9 ) / 2 = 0.15
+        """
+
+        return step * (1 - draw_rate) / 2
+        #return step * draw_rate / 2
+
+
     def append_draw(self, time_th, is_alternating_turn):
         """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
 
-        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 )
-
-        例： 勝ち点３で、将棋の引分け率を 0.1 と指定したとき、
-        引分け時の勝ち点 = 3 * ( 1 - 0.1 ) = 2.7
-
-        例： 勝ち点３で、将棋の引分け率を 0.9 と指定したとき、
-        引分け時の勝ち点 = 3 * ( 1 - 0.9 ) = 0.3
+        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        self._point_list[BLACK] += self._pts_conf.b_step * (1 - self._pts_conf.draw_rate)
-        self._point_list[WHITE] += self._pts_conf.w_step * (1 - self._pts_conf.draw_rate)
+        self._point_list[BLACK] += PointCalculation.let_draw_point(
+                draw_rate=self._pts_conf.draw_rate,
+                step=self._pts_conf.b_step)
+
+        self._point_list[WHITE] += PointCalculation.let_draw_point(
+                draw_rate=self._pts_conf.draw_rate,
+                step=self._pts_conf.w_step)
 
         # 奇数回はＡさんが先手
         if time_th % 2 == 1:
-            self._point_list[ALICE] += self._pts_conf.b_step * (1 - self._pts_conf.draw_rate)
-            self._point_list[BOB] += self._pts_conf.w_step * (1 - self._pts_conf.draw_rate)
+            self._point_list[ALICE] += PointCalculation.let_draw_point(
+                    draw_rate=self._pts_conf.draw_rate,
+                    step=self._pts_conf.b_step)
+
+            self._point_list[BOB] += PointCalculation.let_draw_point(
+                    draw_rate=self._pts_conf.draw_rate,
+                    step=self._pts_conf.w_step)
 
         # 偶数回はＢさんが先手
         else:
-            self._point_list[BOB] += self._pts_conf.b_step * (1 - self._pts_conf.draw_rate)
-            self._point_list[ALICE] += self._pts_conf.w_step * (1 - self._pts_conf.draw_rate)
+            self._point_list[BOB] += PointCalculation.let_draw_point(
+                    draw_rate=self._pts_conf.draw_rate,
+                    step=self._pts_conf.b_step)
+
+            self._point_list[ALICE] += PointCalculation.let_draw_point(
+                    draw_rate=self._pts_conf.draw_rate,
+                    step=self._pts_conf.w_step)
 
 
     def get_point_of(self, index):
