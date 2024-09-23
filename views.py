@@ -365,11 +365,11 @@ def stringify_simulation_log(
     time1 = datetime.datetime.now() # ［タイムスタンプ］
     ti1 = title                     # タイトル
 
-    trial_p = S.win_rate_without_draw_ft(winner=HEAD, loser=TAIL)
-    trial_p_error = S.win_rate_error_without_draw_ft(winner=HEAD, loser=TAIL)
+    trial_p = S.win_rate_without_draw(winner=HEAD, loser=TAIL, turn_system=WHEN_FROZEN_TURN)
+    trial_p_error = S.win_rate_error_without_draw(winner=HEAD, loser=TAIL, turn_system=WHEN_FROZEN_TURN)
 
-    trial_q = S.win_rate_without_draw_ft(winner=TAIL, loser=HEAD)
-    trial_q_error = S.win_rate_error_without_draw_ft(winner=TAIL, loser=HEAD)
+    trial_q = S.win_rate_without_draw(winner=TAIL, loser=HEAD, turn_system=WHEN_FROZEN_TURN)
+    trial_q_error = S.win_rate_error_without_draw(winner=TAIL, loser=HEAD, turn_system=WHEN_FROZEN_TURN)
 
 
     # ［以下、指定したもの］
@@ -412,29 +412,29 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
     # ---------------------------------------------
-    c3_aw = S.win_rate_without_draw_at(winner=ALICE, loser=BOB) * 100           # ［Ａさんが勝つ確率（％）］実践値
-    c3_awe = S.win_rate_error_without_draw_at(winner=ALICE, loser=BOB) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c3_bw = S.win_rate_without_draw_at(winner=BOB, loser=ALICE) * 100           # ［Ｂさんが勝つ確率（％）］実践値
-    c3_bwe = S.win_rate_error_without_draw_at(winner=BOB, loser=ALICE) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c3_aw = S.win_rate_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ａさんが勝つ確率（％）］実践値
+    c3_awe = S.win_rate_error_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c3_bw = S.win_rate_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ｂさんが勝つ確率（％）］実践値
+    c3_bwe = S.win_rate_error_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
 
     # ［以下、［かくきんシステム］を使って試行］４ブロック目（プレイヤー、引分含む）
     # ---------------------------------------------
-    c4_aw = (1 - trial_failure_rate) * S.win_rate_without_draw_at(winner=ALICE, loser=BOB) * 100           # ［Ａさんが勝つ確率（％）］実践値
-    c4_awe = (1 - trial_failure_rate) * S.win_rate_error_without_draw_at(winner=ALICE, loser=BOB) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_aw = (1 - trial_failure_rate) * S.win_rate_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ａさんが勝つ確率（％）］実践値
+    c4_awe = (1 - trial_failure_rate) * S.win_rate_error_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
     c4_d = trial_failure_rate * 100                 # ［将棋の引分け率］実践値            　［先後交互制］
     c4_de = (trial_failure_rate - failure_rate) * 100  # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
-    c4_bw = (1 - trial_failure_rate) * S.win_rate_without_draw_at(winner=BOB, loser=ALICE) * 100           # ［Ｂさんが勝つ確率（％）］実践値
-    c4_bwe = (1 - trial_failure_rate) * S.win_rate_error_without_draw_at(winner=BOB, loser=ALICE) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_bw = (1 - trial_failure_rate) * S.win_rate_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ｂさんが勝つ確率（％）］実践値
+    c4_bwe = (1 - trial_failure_rate) * S.win_rate_error_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     # シリーズ数
     # ---------
-    sr1 = S.number_of_no_wons_player        # 勝者なし
+    sr1 = S.number_of_no_wons(opponent_pair=PLAYER_A_AND_B)        # 勝者なし
     sr2 = S.number_of_fully_wons(HEAD)     # 先手満点勝ち
     sr3 = S.number_of_fully_wons(TAIL)     # 後手満点勝ち
     sr4 = S.number_of_points_wons(winner=HEAD, loser=TAIL)     # 先手判定勝ち（引分けがなければ零です）
     sr5 = S.number_of_points_wons(winner=TAIL, loser=HEAD)     # 後手判定勝ち（引分けがなければ零です）
-    sr6 = S.number_of_no_wons_color         # 勝者なし
+    sr6 = S.number_of_no_wons(opponent_pair=COIN_HEAD_AND_TAIL)         # 勝者なし
     sr7 = S.number_of_fully_wons(ALICE)     # Ａさん満点勝ち
     sr8 = S.number_of_fully_wons(BOB)       # Ｂさん満点勝ち
     sr9 = S.number_of_points_wons(winner=ALICE, loser=BOB)     # Ａさん判定勝ち（引分けがなければ零です）
@@ -490,7 +490,7 @@ def stringify_analysis_series_when_frozen_turn(p, failure_rate, series_result_li
             black_wons += 1
         elif series_result.is_white_won:
             white_wons += 1
-        elif series_result.is_no_won(HEAD, TAIL):
+        elif series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
             no_wons_color += 1
     
     # 結果としての表の勝率

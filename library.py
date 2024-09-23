@@ -33,6 +33,12 @@ WHEN_FROZEN_TURN = 1
 # ［先後交互制］。配列のインデックスに使う
 WHEN_ALTERNATING_TURN = 2
 
+# ［コインの表と裏］。配列のインデックスに使う
+COIN_HEAD_AND_TAIL = 1
+
+# ［ＡさんとＢさん］。配列のインデックスに使う
+PLAYER_A_AND_B = 2
+
 
 def round_letro(number):
     """四捨五入
@@ -1045,8 +1051,18 @@ class SeriesResult():
     # ［先後交互制］
     # -------------
 
-    def is_no_won(self, x, y):
+    def is_no_won(self, opponent_pair):
         """勝者なし。 x 、 y の［勝ち点］が等しいとき"""
+
+        if opponent_pair == COIN_HEAD_AND_TAIL:
+            x = HEAD
+            y = TAIL
+        elif opponent_pair == PLAYER_A_AND_B:
+            x = ALICE
+            y = BOB
+        else:
+            raise ValueError(f"{opponent_pair=}")
+
         return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
 
 
@@ -1077,15 +1093,8 @@ class LargeSeriesTrialSummary():
         # ［勝ち点判定勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
         self._number_of_points_wons = [None, None, None, None, None]
 
-
-        # 「先後固定制］
-        # -------------
-        self._number_of_no_wons_color = None
-
-
-        # ［先後交互制］
-        # -------------
-        self._number_of_no_wons_player = None
+        # ［勝者がなかった回数］。未使用、コインの表と裏、ＡさんとＢさんの順
+        self._number_of_no_wons = [None, None, None]
 
 
     # 共通
@@ -1169,20 +1178,26 @@ class LargeSeriesTrialSummary():
             raise ValueError(f"{turn_system=}")
 
 
-    # 「先後固定制］
-    # -------------
+    def win_rate_without_draw(self, winner, loser, turn_system):
+        """試行した結果、 winner が loser に勝つ確率
+        
+        引分けを除いて計算する
+        """
+        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=turn_system))
+
+
+    def win_rate_error_without_draw(self, winner, loser, turn_system):
+        """試行した結果、 winner が loser に勝つ確率と0.5との誤差］
+        
+        引分けを除いて計算する
+        """
+        return self.win_rate_without_draw(winner=winner, loser=loser, turn_system=turn_system) - 0.5
 
 
     @property
-    def number_of_no_wons_color(self):
-        """［先後固定制］で勝者がなかった回数"""
-        if self._number_of_no_wons_color is None:
-            self._number_of_no_wons_color = 0
-            for series_result in self._series_result_list:
-                if series_result.is_no_won(HEAD, TAIL):
-                    self._number_of_no_wons_color += 1
-
-        return self._number_of_no_wons_color
+    def failure_rate(self, turn_system):
+        """試行した結果、［引き分ける確率］"""
+        return self.number_of_draw_series(turn_system=turn_system) / self.number_of_series
 
 
     def number_of_all_wons(self, winner, loser):
@@ -1190,62 +1205,12 @@ class LargeSeriesTrialSummary():
         return self.number_of_fully_wons(winner) + self.number_of_points_wons(winner=winner, loser=loser)
 
 
-    def win_rate_without_draw_ft(self, winner, loser):
-        """試行した結果、 winner が loser に勝つ確率
-        
-        引分けを除いて計算する
-        """
-        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=WHEN_FROZEN_TURN))
-
-
-    def win_rate_error_without_draw_ft(self, winner, loser):
-        """試行した結果、 winner が loser に勝つ確率と0.5との誤差］
-        
-        引分けを除いて計算する
-        """
-        return self.win_rate_without_draw_ft(winner=winner, loser=loser) - 0.5
-
-
-    @property
-    def failure_rate_ft(self):
-        """試行した結果、［引き分ける確率］"""
-        return self.number_of_draw_series(turn_system=WHEN_FROZEN_TURN) / self.number_of_series
-
-
-    # ［先後交互制］
-    # -------------
-
-
-    @property
-    def number_of_no_wons_player(self):
-        """［先後交代制］で勝者がなかった回数"""
-        if self._number_of_no_wons_player is None:
-            self._number_of_no_wons_player = 0
+    def number_of_no_wons(self, opponent_pair):
+        """［先後固定制］で勝者がなかった回数"""
+        if self._number_of_no_wons[opponent_pair] is None:
+            self._number_of_no_wons[opponent_pair] = 0
             for series_result in self._series_result_list:
-                if series_result.is_no_won(ALICE, BOB):
-                    self._number_of_no_wons_player += 1
+                if series_result.is_no_won(opponent_pair=opponent_pair):
+                    self._number_of_no_wons[opponent_pair] += 1
 
-        return self._number_of_no_wons_player
-
-
-    def win_rate_without_draw_at(self, winner, loser):
-        """試行した結果、［Ａさんが勝つ確率］
-        
-        引分けを除いて計算する
-        """
-        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=WHEN_ALTERNATING_TURN))
-
-
-    def win_rate_error_without_draw_at(self, winner, loser):
-        """試行した結果、［Ａさんが勝つ確率］
-        
-        引分けを除いて計算する
-        """
-        return self.win_rate_without_draw_at(winner=winner, loser=loser) - 0.5
-
-
-    @property
-    def failure_rate_at(self):
-        """試行した結果、［引き分ける確率］"""
-        return self.number_of_draw_series(turn_system=WHEN_ALTERNATING_TURN) / self.number_of_series
-
+        return self._number_of_no_wons[opponent_pair]

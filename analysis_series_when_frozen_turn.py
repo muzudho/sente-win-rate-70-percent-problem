@@ -113,7 +113,7 @@ if __name__ == '__main__':
                 #
                 # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
-                elif FAILURE_RATE == 0.0 and series_result.is_no_won(HEAD, TAIL):
+                elif FAILURE_RATE == 0.0 and series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
                     #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {FAILURE_RATE=}")
                     pass
 
