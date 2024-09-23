@@ -20,8 +20,8 @@ from views import stringify_series_log, stringify_analysis_series_when_frozen_tu
 LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 
 # 引き分けになる確率
-#DRAW_RATE = 0.0     # 引分けなし
-DRAW_RATE = 10.0     # １０％。コンピュータ将棋など
+DRAW_RATE = 0.0     # 引分けなし
+#DRAW_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
 def analysis_series(series_result, p, pts_conf, title):

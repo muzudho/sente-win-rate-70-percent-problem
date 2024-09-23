@@ -22,8 +22,8 @@ from views import stringify_simulation_log
 LOG_FILE_PATH = 'output/simulation_large_series_when_alternating_turn.log'
 
 # ［将棋の引分け率］
-#DRAW_RATE = 0.0
-DRAW_RATE = 0.1
+DRAW_RATE = 0.0
+#DRAW_RATE = 0.1
 
 
 def simulate_stats(p, number_of_series, pts_conf):
