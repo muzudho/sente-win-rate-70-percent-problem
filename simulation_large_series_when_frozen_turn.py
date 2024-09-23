@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
+from library import HEAD, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 

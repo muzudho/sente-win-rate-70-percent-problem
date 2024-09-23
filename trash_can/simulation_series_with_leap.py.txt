@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import BLACK, round_letro, p_to_b_w_times, PointsConfiguration, judge_series_when_frozen_turn
+from library import HEAD, round_letro, p_to_b_w_times, PointsConfiguration, judge_series_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/simulation_series_with_leap.log'
@@ -108,7 +108,7 @@ if __name__ == '__main__':
             strict_b_time, strict_w_time = p_to_b_w_times(p=p)
             print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_b_time:>2}：{strict_w_time:>2}  ", end='')
 
-            # 実用的な値（［白勝ちだけでの対局数］が１になるよう丸めたもの）
+            # 実用的な値（［裏勝ちだけでの対局数］が１になるよう丸めたもの）
             practical_b_time = round_letro(strict_b_time / strict_w_time) # 小数点以下四捨五入
             practical_w_time = 1
             print(f"実用的な、先後固定制での回数  先手だけ：後手だけ＝{practical_b_time:>2}：{practical_w_time:>2}  ", end='')
@@ -118,7 +118,7 @@ if __name__ == '__main__':
             # シリーズ数
             number_of_series = 1_000
 
-            # 黒が勝った回数
+            # 表が勝った回数
             black_wons = 0
 
             for round in range(0, number_of_series):
@@ -140,7 +140,7 @@ if __name__ == '__main__':
                                 p=p,
                                 pts_conf=pts_conf)
                         
-                        if winner_color == BLACK:
+                        if winner_color == HEAD:
                             black_wons += 1
 
                     else:                        
@@ -154,7 +154,7 @@ if __name__ == '__main__':
                                 p=p,
                                 pts_conf=pts_conf)
                         
-                        if winner_color == BLACK:
+                        if winner_color == HEAD:
                             black_wons += 1
 
                 # 閏対局を使わないパターン
@@ -169,10 +169,10 @@ if __name__ == '__main__':
                             p=p,
                             pts_conf=pts_conf)
                     
-                    if winner_color == BLACK:
+                    if winner_color == HEAD:
                         black_wons += 1
 
-            # 黒が勝った確率
+            # 表が勝った確率
             black_won_rate = black_wons / number_of_series
 
             # 均等からの誤差

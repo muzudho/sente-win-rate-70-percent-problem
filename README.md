@@ -14,3 +14,7 @@
 python -m pip install scipy
 python -m pip install pandas
 ```
+
+## 参考
+
+* 📖 [光学技術の基礎用語 ＞ 確率の英語表現](https://www.optics-words.com/english_for_science/probability.html) - 確率の英語表現一覧

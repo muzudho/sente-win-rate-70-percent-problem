@@ -25,9 +25,9 @@ if __name__ == '__main__':
     try:
         # ［目標の点数］
         for span in range(1,101):
-            # ［白勝ち１つの点数］
+            # ［裏勝ち１つの点数］
             for w_step in range(1, span):
-                # ［黒勝ち１つの点数］
+                # ［表勝ち１つの点数］
                 for b_step in range(1, w_step):
                     pts_conf = PointsConfiguration(
                             draw_rate=DRAW_RATE,

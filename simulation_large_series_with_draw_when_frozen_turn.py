@@ -11,7 +11,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, BLACK, WHITE, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
+from library import EMPTY, HEAD, TAIL, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -53,11 +53,11 @@ def simulate_stats(p, number_of_series, pts_conf, title):
         # # # NOTE その場合、先手勝利でいいのでは？ ----> 引き分け率１０％のとき、先手にしろ後手にしろ、そっちの勝率が５％上がってしまった。［目標の点数］を２倍にしてもだいたい同じ
         # # # NOTE 点数が引き分けということは、［最長対局数］を全部引き分けだったということです。引き分けが先手勝ちとか、後手勝ちと決めてしまうと、対局数が１のとき、影響がもろに出てしまう
         # # # NOTE 点数が引き分けのとき、最後に勝った方の勝ちとすればどうなる？ ----> 先手の方が勝つ機会が多いのでは？
-        # # # NOTE 引き分けは［両者得点］にしたらどうか？ ----> step を足すのは白番に有利すぎる。１点を足すのは数学的に意味がない。
+        # # # NOTE 引き分けは［両者得点］にしたらどうか？ ----> step を足すのは裏番に有利すぎる。１点を足すのは数学的に意味がない。
         # # # NOTE 引き分けは［両者得点］にし、かつ、引き分けが奇数回なら後手勝ち、偶数回なら先手勝ちにしたらどうか？ ----> 対局数が１のときの影響がでかい
-        # # # NOTE 引き分けは、［黒勝ち１つの点数］が小さい黒番の方に大きく響く？
+        # # # NOTE 引き分けは、［表勝ち１つの点数］が小さい表番の方に大きく響く？
         # # # NOTE 引き分けは減らせるが、ゼロにはできない、という感じ
-        # NOTE タイブレークは、［将棋の引分け率］が上がってきたとき調整が困難。当然、引き分け率が上がるほど白有利になる
+        # NOTE タイブレークは、［将棋の引分け率］が上がってきたとき調整が困難。当然、引き分け率が上がるほど裏有利になる
 
 
     # シミュレーションの結果

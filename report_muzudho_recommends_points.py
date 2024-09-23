@@ -2,7 +2,7 @@
 # レポート作成
 # python report_muzudho_recommends_points.py
 #
-#   ［黒勝ち１つの点数］、［白勝ち１つの点数］、［目標の点数］をテキストにまとめる。
+#   ［表勝ち１つの点数］、［裏勝ち１つの点数］、［目標の点数］をテキストにまとめる。
 #
 
 import traceback

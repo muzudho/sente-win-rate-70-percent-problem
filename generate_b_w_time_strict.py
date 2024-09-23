@@ -4,7 +4,7 @@
 # 生成
 # python generate_b_w_time_strict.py
 #
-#   先後固定制で、［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を求める（厳密）
+#   先後固定制で、［表勝ちだけでの対局数］、［裏勝ちだけでの対局数］を求める（厳密）
 #
 
 import traceback
@@ -22,7 +22,7 @@ LOG_FILE_PATH = 'output/generate_b_w_time_strict.log'
 
 DRAW_RATE = 0.0
 
-# ［先後固定制］で、［白勝ちだけでの対局数］の上限
+# ［先後固定制］で、［裏勝ちだけでの対局数］の上限
 MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
 
 OUT_OF_ERROR = 0.51
@@ -53,7 +53,7 @@ if __name__ == '__main__':
             # p=0.5 は計算の対象外とします
             for b_time in range(1, 101):
 
-                # ［先後固定制］で、［白勝ちだけでの対局数］の上限
+                # ［先後固定制］で、［裏勝ちだけでの対局数］の上限
                 max_w_time = b_time
                 if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_w_time:
                     max_w_time = MAX_W_REPEAT_WHEN_FROZEN_TURN                
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                         best_w_time = w_time
 
                         # 計算過程
-                        process = f"[{best_p_error:6.4f} 黒{best_b_time:>3} 白{best_w_time:>2}]"
+                        process = f"[{best_p_error:6.4f} 表{best_b_time:>3} 裏{best_w_time:>2}]"
                         process_list.append(process)
                         print(process, end='', flush=True) # すぐ表示
 

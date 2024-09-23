@@ -15,11 +15,11 @@ from decimal import Decimal, ROUND_HALF_UP
 # 配列の未使用インデックスに使う
 EMPTY = 0
 
-# 黒。表。先手。配列のインデックスに使う
-BLACK = 1
+# 表。表。先手。配列のインデックスに使う
+HEAD = 1
 
-# 白。裏。後手。配列のインデックスに使う
-WHITE = 2
+# 裏。裏。後手。配列のインデックスに使う
+TAIL = 2
 
 # Ａさん。配列のインデックスに使う
 ALICE = 3
@@ -78,7 +78,7 @@ def scale_for_float_to_int(value):
 
 
 def p_to_b_w_times(p):
-    """［表が出る確率］ p を与えると、［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を返す
+    """［表が出る確率］ p を与えると、［表勝ちだけでの対局数］、［裏勝ちだけでの対局数］を返す
     
     Parameters
     ----------
@@ -88,22 +88,22 @@ def p_to_b_w_times(p):
     Returns
     -------
     b_time : int
-        ［黒勝ちだけでの対局数］
+        ［表勝ちだけでの対局数］
     w_time : int
-        ［白勝ちだけでの対局数］
+        ［裏勝ちだけでの対局数］
     """
 
     # 説明２  コインの表裏の確率の整数化
     # --------------------------------
     scale = scale_for_float_to_int(p)
 
-    # ［黒勝ちだけでの対局数］基礎
+    # ［表勝ちだけでの対局数］基礎
     #
     #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
     #
     b_time = round_letro(p * scale)
 
-    # ［白勝ちだけでの対局数］基礎
+    # ［裏勝ちだけでの対局数］基礎
     w_time = scale - b_time
 
     # 約分する
@@ -113,7 +113,7 @@ def p_to_b_w_times(p):
 
 def coin(p, draw_rate=0.0):
     """コインを投げて、表が出るか、裏が出るか、表も裏も出なかったかのいずれかを返す。
-    このコインは表が黒く（BLACK）塗られており、裏は白く（WHITE）塗られている。
+    このコインは表が表く（BLACK）塗られており、裏は裏く（WHITE）塗られている。
     表も裏もでない（EMPTY）ケースも確率で指定することができる。
 
     Parameters
@@ -126,9 +126,9 @@ def coin(p, draw_rate=0.0):
     
     Returns
     -------
-    BLACK : int
+    HEAD : int
         表が出た
-    WHITE : int
+    TAIL : int
         裏が出た
     EMPTY : int
         表も裏も出なかった
@@ -139,9 +139,9 @@ def coin(p, draw_rate=0.0):
         return EMPTY
 
     if random.random() < p:
-        return BLACK
+        return HEAD
 
-    return WHITE
+    return TAIL
 
 
 class PseudoSeriesResult():
@@ -217,7 +217,7 @@ class PseudoSeriesResult():
             if color == EMPTY:
                 successful_color_list.append(EMPTY)
 
-            # 黒勝ち、または白勝ちのどちらか
+            # 表勝ち、または裏勝ちのどちらか
             else:
                 successful_color_list.append(color)
 
@@ -255,11 +255,11 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
 
     # 要素数
     if can_draw:
-        # 黒勝ち、白勝ち、勝者なしの３要素
-        elements = [BLACK, WHITE, EMPTY]
+        # 表勝ち、裏勝ち、勝者なしの３要素
+        elements = [HEAD, TAIL, EMPTY]
     else:
-        # 黒勝ち、白勝ちけの２要素
-        elements = [BLACK, WHITE]
+        # 表勝ち、裏勝ちけの２要素
+        elements = [HEAD, TAIL]
 
     # 桁数
     depth = pts_conf.number_longest_time_when_frozen_turn
@@ -272,8 +272,8 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
 
     def search(depth, stats, position, can_draw):
 
-        # 黒勝ちを追加
-        position.append(BLACK)
+        # 表勝ちを追加
+        position.append(HEAD)
 
         # スタッツに、ポジションのコピーを追加
         stats.append(list(position))
@@ -285,8 +285,8 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
         position.pop()
 
 
-        # 白勝ちを追加
-        position.append(WHITE)
+        # 裏勝ちを追加
+        position.append(TAIL)
 
         # スタッツに、ポジションのコピーを追加
         stats.append(list(position))
@@ -334,7 +334,7 @@ class PointCalculation():
 
         self._pts_conf = pts_conf
 
-        # ［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん
+        # ［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん
         self._point_list = [0, 0, 0, 0, 0]
 
 
@@ -346,7 +346,7 @@ class PointCalculation():
 
     @property
     def point_list(self):
-        """［勝ち点］のリスト。要素は、未使用、黒番、白番、Ａさん、Ｂさん"""
+        """［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん"""
         return self._point_list
 
 
@@ -355,27 +355,27 @@ class PointCalculation():
 
         # ［先後交互制］
         if is_alternating_turn:
-            # 黒が出た
-            if successful_color == BLACK:
+            # 表が出た
+            if successful_color == HEAD:
 
-                # 奇数本で黒番のプレイヤーはＡさん
+                # 奇数本で表番のプレイヤーはＡさん
                 if time_th % 2 == 1:
                     return ALICE
 
-                # 偶数本で黒番のプレイヤーはＢさん
+                # 偶数本で表番のプレイヤーはＢさん
                 return BOB
 
-            # 白が出た
+            # 裏が出た
 
-            # 奇数本で白番のプレイヤーはＢさん
+            # 奇数本で裏番のプレイヤーはＢさん
             if time_th % 2 == 1:
                 return BOB
 
-            # 偶数本で白番のプレイヤーはＡさん
+            # 偶数本で裏番のプレイヤーはＡさん
             return ALICE
 
         # ［先後固定制］
-        if successful_color == BLACK:
+        if successful_color == HEAD:
             return ALICE
 
         return BOB
@@ -390,10 +390,10 @@ class PointCalculation():
 
         successful_player = PointCalculation.get_successful_player(successful_color, time_th, is_alternating_turn)
 
-        # 黒が出た
-        if successful_color == BLACK:
+        # 表が出た
+        if successful_color == HEAD:
             step = self._pts_conf.b_step
-        # 白が出た
+        # 裏が出た
         else:
             step = self._pts_conf.w_step
 
@@ -408,8 +408,8 @@ class PointCalculation():
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        self._point_list[BLACK] += self._pts_conf.b_step_when_draw
-        self._point_list[WHITE] += self._pts_conf.w_step_when_draw
+        self._point_list[HEAD] += self._pts_conf.b_step_when_draw
+        self._point_list[TAIL] += self._pts_conf.w_step_when_draw
 
         # 奇数回はＡさんが先手
         if time_th % 2 == 1:
@@ -505,7 +505,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
 
 
 def play_tie_break(p, draw_rate):
-    """［タイブレーク］を行います。１局勝負で、引き分けの場合は白勝ちです。
+    """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
 
     Parameters
     ----------
@@ -517,14 +517,14 @@ def play_tie_break(p, draw_rate):
     Returns
     -------
     winner_color : int
-        勝った方の色。引き分けなら白勝ち
+        勝った方の色。引き分けなら裏勝ち
     """
 
     color = coin(p, draw_rate) 
 
-    # 引き分けなら白勝ち
+    # 引き分けなら裏勝ち
     if color == EMPTY:
-        return WHITE
+        return TAIL
 
     else:
         return color
@@ -678,9 +678,9 @@ class PointsConfiguration():
         draw_rate : float
             ［将棋の引分け率］
         b_step : int
-            ［黒勝ち１つの点数］
+            ［表勝ち１つの点数］
         w_step : int
-            ［白勝ち１つの点数］
+            ［裏勝ち１つの点数］
         span : int
             ［目標の点数］
         """
@@ -715,12 +715,12 @@ class PointsConfiguration():
         self._w_step = w_step
         self._span = span
 
-        # 黒番の［引分け時の黒勝ち１つの点数］
+        # 表番の［引分け時の表勝ち１つの点数］
         self._b_step_when_draw = PointsConfiguration.let_draw_point(
                 draw_rate=draw_rate,
                 step=b_step)
 
-        # 白番の［引分け時の白勝ち１つの点数］
+        # 裏番の［引分け時の裏勝ち１つの点数］
         self._w_step_when_draw = PointsConfiguration.let_draw_point(
                 draw_rate=draw_rate,
                 step=w_step)
@@ -734,25 +734,25 @@ class PointsConfiguration():
 
     @property
     def b_step(self):
-        """［黒勝ち１つの点数］"""
+        """［表勝ち１つの点数］"""
         return self._b_step
 
 
     @property
     def w_step(self):
-        """［白勝ち１つの点数］"""
+        """［裏勝ち１つの点数］"""
         return self._w_step
 
 
     @property
     def b_step_when_draw(self):
-        """［引分け時の黒勝ち１つの点数］"""
+        """［引分け時の表勝ち１つの点数］"""
         return self._b_step_when_draw
 
 
     @property
     def w_step_when_draw(self):
-        """［引分け時の白勝ち１つの点数］"""
+        """［引分け時の裏勝ち１つの点数］"""
         return self._w_step_when_draw
 
 
@@ -764,12 +764,12 @@ class PointsConfiguration():
 
     @property
     def b_time(self):
-        """［黒勝ちだけでの対局数］
+        """［表勝ちだけでの対局数］
 
         筆算
         ----
-        `10黒 12白 14目（先後固定制）`
-            ・  黒  黒  で最長２局
+        `10表 12裏 14目（先後固定制）`
+            ・  表  表  で最長２局
             14  14  14
             14   4  -6
         """
@@ -782,12 +782,12 @@ class PointsConfiguration():
 
     @property
     def w_time(self):
-        """［白勝ちだけでの対局数］
+        """［裏勝ちだけでの対局数］
 
         筆算
         ----
-        `10黒 12白 14目（先後固定制）`
-            ・  白  で最長１局
+        `10表 12裏 14目（先後固定制）`
+            ・  裏  で最長１局
             14   0
             14  14
         """
@@ -800,25 +800,25 @@ class PointsConfiguration():
 
     @staticmethod
     def let_points_from_repeat(draw_rate, b_time, w_time):
-        """［黒勝ちだけでの対局数］と［白勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
+        """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
         draw_rate : float
             ［将棋の引分け率］
         b_time : int
-            ［黒勝ちだけでの対局数］
+            ［表勝ちだけでの対局数］
         w_time : int
-            ［白勝ちだけでの対局数］
+            ［裏勝ちだけでの対局数］
         """
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(b_time, w_time)
-        # ［黒勝ち１つの点数］
+        # ［表勝ち１つの点数］
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
         b_step = round_letro(lcm / b_time)
-        # ［白勝ち１つの点数］
+        # ［裏勝ち１つの点数］
         w_step = round_letro(lcm / w_time)
         # ［目標の点数］
         span = round_letro(w_time * w_step)
@@ -839,10 +839,10 @@ class PointsConfiguration():
     def number_shortest_time_when_frozen_turn(self):
         """［先後固定制］での［最短対局数］
         
-        白が全勝したときの回数と同じ
+        裏が全勝したときの回数と同じ
 
         `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
-            ・  白  白  白  白  白  で、最短５局
+            ・  裏  裏  裏  裏  裏  で、最短５局
             10  10  10  10 10  10
             10   8   6   4  2   0
         """
@@ -853,19 +853,19 @@ class PointsConfiguration():
     def number_longest_time_when_frozen_turn(self):
         """［先後固定制］での［最長対局数］
 
-        白があと１つで勝てるところで止まり、黒が全勝したときの回数と同じ
+        裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
 
-        NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、白と黒は何本取ればいいのか明示しなければ、伝わらない
+        NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、裏と表は何本取ればいいのか明示しなければ、伝わらない
         NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
         NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
 
         `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
-            ・  黒  黒  黒  黒  黒  黒  黒  黒  黒  白  白  白  白  白  で、最長１４局
+            ・  表  表  表  表  表  表  表  表  表  裏  裏  裏  裏  裏  で、最長１４局
             10   9   8   7   6   5  4   3   2   1  1   1   1   1   1
             10  10  10  10  10  10 10  10  10  10  8   6   4   2   0
         
-        `10黒 12白 14目（先後固定制）`
-            ・  白  黒  黒  で最長３局
+        `10表 12裏 14目（先後固定制）`
+            ・  裏  表  表  で最長３局
             14   2   2   2
             14  14   4  -6
         """
@@ -877,9 +877,9 @@ class PointsConfiguration():
         
         Ｂさんだけが勝ったときの回数と同じ。
 
-        まず、［目標の点数］が［黒勝ち１つの点数］＋［白勝ち１つの点数］より上回っているなら、［目標の点数］から［黒勝ち１つの点数］＋［白勝ち１つの点数］を順に引いていく（２回分を加算していく）。
-        端数が出たら［白勝ち１つの点数］（１回分）を加算する。
-        まだ端数が出たら［黒勝ち１つの点数］（１回分）を加算する。
+        まず、［目標の点数］が［表勝ち１つの点数］＋［裏勝ち１つの点数］より上回っているなら、［目標の点数］から［表勝ち１つの点数］＋［裏勝ち１つの点数］を順に引いていく（２回分を加算していく）。
+        端数が出たら［裏勝ち１つの点数］（１回分）を加算する。
+        まだ端数が出たら［表勝ち１つの点数］（１回分）を加算する。
         そのような、［目標の点数］に達するまでの回数。
 
         筆算
@@ -919,15 +919,15 @@ class PointsConfiguration():
         else:
             time = 0
 
-        # 端数があれば［白勝ち１つの点数］を引く（１回分を加算）
+        # 端数があれば［裏勝ち１つの点数］を引く（１回分を加算）
         #
-        #   NOTE 白（後手）の方が step 値が黒（先手）より大きいか、等しいです。［白勝ち１つの点数］の方から先に引きます
+        #   NOTE 裏（後手）の方が step 値が表（先手）より大きいか、等しいです。［裏勝ち１つの点数］の方から先に引きます
         #
         if 0 < remainder:
             time += 1
             remainder -= self._w_step
 
-            # まだ端数があれば［黒勝ち１つの点数］を引く（１回分を加算）
+            # まだ端数があれば［表勝ち１つの点数］を引く（１回分を加算）
             if 0 < remainder:
                 time += 1
                 remainder -= self._b_step
@@ -956,7 +956,7 @@ class PointsConfiguration():
                 10  9   9   8   8   7   7   6  6   5   5   4   4   3  3   2   2   1   1   0
                 10 10   9   9   8   8   7   7  6   6   5   5   4   4  3   3   2   2   1   1
         
-            `0.014715 10黒 12白 14目 1～1局（先後交互制）`
+            `0.014715 10表 12裏 14目 1～1局（先後交互制）`
                 ・  Ａ  Ｂ  Ａ  で、最長３局
                 14   4   4  -6
                 14  14   4   4
@@ -1036,14 +1036,14 @@ class SeriesResult():
 
     @property
     def is_black_won(self):
-        """黒勝ち"""
-        return self.point_calculation.is_fully_won(BLACK) or self.is_points_won(winner=BLACK, loser=WHITE)
+        """表勝ち"""
+        return self.point_calculation.is_fully_won(HEAD) or self.is_points_won(winner=HEAD, loser=TAIL)
 
 
     @property
     def is_white_won(self):
-        """白勝ち"""
-        return self.point_calculation.is_fully_won(WHITE) or self.is_points_won(winner=WHITE, loser=BLACK)
+        """裏勝ち"""
+        return self.point_calculation.is_fully_won(TAIL) or self.is_points_won(winner=TAIL, loser=HEAD)
 
 
     # ［先後交互制］
@@ -1075,10 +1075,10 @@ class LargeSeriesTrialSummary():
         self._longest_time_th = None
         self._number_of_draw_times = None
 
-        # ［満点勝ち］の件数。 未使用、黒、白、Ａさん、Ｂさんの順。初期値は None
+        # ［満点勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
         self._number_of_fully_wons = [None, None, None, None, None]
 
-        # ［勝ち点判定勝ち］の件数。 未使用、黒、白、Ａさん、Ｂさんの順。初期値は None
+        # ［勝ち点判定勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
         self._number_of_points_wons = [None, None, None, None, None]
 
 
@@ -1170,7 +1170,7 @@ class LargeSeriesTrialSummary():
         if self._number_of_no_wons_color is None:
             self._number_of_no_wons_color = 0
             for series_result in self._series_result_list:
-                if series_result.is_no_won(BLACK, WHITE):
+                if series_result.is_no_won(HEAD, TAIL):
                     self._number_of_no_wons_color += 1
 
         return self._number_of_no_wons_color
@@ -1184,7 +1184,7 @@ class LargeSeriesTrialSummary():
     @property
     def number_of_draw_series_ft(self):
         """引分けで終わったシリーズ数"""
-        return self.number_of_series - self.number_of_all_wons(winner=BLACK, loser=WHITE) - self.number_of_all_wons(winner=WHITE, loser=BLACK)
+        return self.number_of_series - self.number_of_all_wons(winner=HEAD, loser=TAIL) - self.number_of_all_wons(winner=TAIL, loser=HEAD)
 
 
     def win_rate_without_draw_ft(self, winner, loser):

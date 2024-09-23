@@ -2,12 +2,12 @@
 # 生成 手番を交互にするパターン
 # python generate_even_when_alternating_turn.py
 #
-#   * Ａさんが勝つために必要な［黒勝ちだけでの対局数］
-#   * Ａさんが勝つために必要な［白勝ちだけでの対局数］
-#   * Ａさんが勝つために必要な［黒白の回数の合算］
-#   * Ｂさんが勝つために必要な［黒勝ちだけでの対局数］
-#   * Ｂさんが勝つために必要な［白勝ちだけでの対局数］
-#   * Ｂさんが勝つために必要な［黒白の回数の合算］
+#   * Ａさんが勝つために必要な［表勝ちだけでの対局数］
+#   * Ａさんが勝つために必要な［裏勝ちだけでの対局数］
+#   * Ａさんが勝つために必要な［表裏の回数の合算］
+#   * Ｂさんが勝つために必要な［表勝ちだけでの対局数］
+#   * Ｂさんが勝つために必要な［裏勝ちだけでの対局数］
+#   * Ｂさんが勝つために必要な［表裏の回数の合算］
 #
 
 import traceback
@@ -15,7 +15,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, round_letro, PseudoSeriesResult, play_game_when_alternating_turn, PointsConfiguration, LargeSeriesTrialSummary
+from library import HEAD, TAIL, ALICE, round_letro, PseudoSeriesResult, play_game_when_alternating_turn, PointsConfiguration, LargeSeriesTrialSummary
 from database import get_df_generate_even_when_alternating_turn
 from views import print_when_generate_even_when_alternating_turn
 
@@ -40,7 +40,7 @@ LIMIT_SPAN = 1001
 
 
 #
-#   NOTE 手番を交代する場合、［最大ｎ本勝負］は、（Ａさんの［黒だけでの反復実施数］－１）＋（Ａさんの［白だけでの反復実施数］－１）＋（Ｂさんの［黒だけでの反復実施数］－１）＋（Ｂさんの［白だけでの反復実施数］－１）＋１ になる
+#   NOTE 手番を交代する場合、［最大ｎ本勝負］は、（Ａさんの［表だけでの反復実施数］－１）＋（Ａさんの［裏だけでの反復実施数］－１）＋（Ｂさんの［表だけでの反復実施数］－１）＋（Ｂさんの［裏だけでの反復実施数］－１）＋１ になる
 #
 
 
@@ -69,11 +69,11 @@ def update_dataframe(df, p,
     df.loc[df['p']==p, ['best_number_of_series']] = best_number_of_series
     df.loc[df['p']==p, ['latest_number_of_series']] = latest_number_of_series
 
-    # ［黒勝ち１つの点数］列を更新
+    # ［表勝ち１つの点数］列を更新
     df.loc[df['p']==p, ['best_b_step']] = best_points_configuration.b_step
     df.loc[df['p']==p, ['latest_b_step']] = latest_points_configuration.b_step
 
-    # ［白勝ち１つの点数］列を更新
+    # ［裏勝ち１つの点数］列を更新
     df.loc[df['p']==p, ['best_w_step']] = best_points_configuration.w_step
     df.loc[df['p']==p, ['latest_w_step']] = latest_points_configuration.w_step
 
@@ -106,13 +106,13 @@ def iteration_deeping(df, abs_limit_of_error):
 
         #   交互に手番を替えるか、変えないかに関わらず、先手と後手の重要さは p で決まっている。
         #
-        #   ［黒勝ちだけでの対局数］も、
-        #   ［白勝ちだけでの対局数］数も、 p で決まっている。
+        #   ［表勝ちだけでの対局数］も、
+        #   ［裏勝ちだけでの対局数］数も、 p で決まっている。
         #
         #   ひとまず、リーチしている状況を考えてみよう。
         #
-        #   'Ｘ' を、Ａさん（またはＢさん）の［黒勝ちだけでの対局数］、
-        #   'ｘ' を、Ａさん（またはＢさん）の［白勝ちだけでの対局数］とする。
+        #   'Ｘ' を、Ａさん（またはＢさん）の［表勝ちだけでの対局数］、
+        #   'ｘ' を、Ａさん（またはＢさん）の［裏勝ちだけでの対局数］とする。
         #
         #   リーチしている状況は下の式のようになる。
         #
@@ -217,9 +217,9 @@ def iteration_deeping(df, abs_limit_of_error):
             is_automatic = True
 
             #
-            # ［目標の点数］、［白勝ち１つの点数］、［黒勝ち１つの点数］を１つずつ進めていく探索です。
+            # ［目標の点数］、［裏勝ち１つの点数］、［表勝ち１つの点数］を１つずつ進めていく探索です。
             #
-            # ［目標の点数］＞＝［白勝ち１つの点数］＞＝［黒勝ち１つの点数］という関係があります。
+            # ［目標の点数］＞＝［裏勝ち１つの点数］＞＝［表勝ち１つの点数］という関係があります。
             #
             start_w_step = latest_w_step
             start_b_step = latest_b_step + 1      # 終わっているところの次から始める      NOTE b_step の初期値は 0 であること
@@ -274,12 +274,12 @@ def iteration_deeping(df, abs_limit_of_error):
                             longest_time = best_points_configuration.count_longest_time_when_alternating_turn()
 
                             # 計算過程
-                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'
+                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}表 {best_points_configuration.w_step}裏 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'
                             print(one_process_text, end='', flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
                             #
-                            #   途中の計算式。半角空白区切り
+                            #   途中の計算式。半角空裏区切り
                             #
                             if isinstance(process, str):
                                 process = f"{process} {one_process_text}"

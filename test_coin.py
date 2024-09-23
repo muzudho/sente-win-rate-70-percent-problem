@@ -11,7 +11,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, WHITE, coin
+from library import HEAD, TAIL, coin
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
 
@@ -49,11 +49,11 @@ if __name__ == '__main__':
         for i in range(0, 100):
             color = test_coin(0.5, 0.0)
 
-            if color == BLACK:
+            if color == HEAD:
                 text = "表が出た"
                 number_of_black += 1
             
-            elif color == WHITE:
+            elif color == TAIL:
                 text = "裏が出た"
                 number_of_white += 1
 

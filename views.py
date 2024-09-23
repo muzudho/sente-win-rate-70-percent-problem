@@ -1,11 +1,11 @@
 import datetime
 import re
 
-from library import BLACK, WHITE, ALICE, BOB, PointsConfiguration
+from library import HEAD, TAIL, ALICE, BOB, PointsConfiguration
 
 
 def parse_process_element(process_element):
-    result = re.match(r'([0-9.-]+) (\d+)黒 (\d+)白 (\d+)目 (\d+)～(\d+)局', process_element)
+    result = re.match(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局', process_element)
     if result:
         p_error = float(result.group(1))
         black = int(result.group(2))
@@ -52,10 +52,10 @@ def stringify_report_muzudho_recommends_points_at(p, number_of_series, latest_th
                 # 誤差（％）
                 seg_3 = p_error*100
 
-                # ［黒勝ち１つの点数］
+                # ［表勝ち１つの点数］
                 seg_4 = b_step
 
-                # ［白勝ち１つの点数］
+                # ［裏勝ち１つの点数］
                 seg_5 = w_step
 
                 # ［目標の点数］
@@ -94,10 +94,10 @@ def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, speci
     # 誤差（％）
     seg_3 = (latest_theoretical_p - 0.5) * 100
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4 = specified_points_configuration.b_step
 
-    # ［白勝ち１つの点数］
+    # ［裏勝ち１つの点数］
     seg_5 = specified_points_configuration.w_step
 
     # ［目標の点数］
@@ -130,10 +130,10 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_e
     # ［調整後の表が出る確率（％）］
     seg_1b = best_p
 
-    # ［黒勝ちだけでの対局数］
+    # ［表勝ちだけでの対局数］
     seg_2 = b_time
 
-    # ［白勝ちだけでの対局数］
+    # ［裏勝ちだけでの対局数］
     seg_3 = w_time
 
     # # 計算過程を追加する場合
@@ -160,10 +160,10 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, p
     seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
     seg_3d = pts_conf.count_longest_time_when_alternating_turn()
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4a = pts_conf.b_step
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4b = pts_conf.w_step
 
     # ［目標の点数］
@@ -192,10 +192,10 @@ def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best
     seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
     seg_3d = pts_conf.count_longest_time_when_alternating_turn()
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4a = pts_conf.b_step
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4b = pts_conf.w_step
 
     # ［目標の点数］
@@ -221,10 +221,10 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     seg_3c = specified_points_configuration.count_shortest_time_when_alternating_turn()
     seg_3d = specified_points_configuration.count_longest_time_when_alternating_turn()
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4a = specified_points_configuration.b_step
 
-    # ［黒勝ち１つの点数］
+    # ［表勝ち１つの点数］
     seg_4b = specified_points_configuration.w_step
 
     # ［目標の点数］
@@ -261,13 +261,13 @@ def stringify_series_log(
     line_3_list = [f'{w_rest:>4}']
 
     for winner_color in series_result.pseudo_series_result.successful_color_list:
-        # 黒石        
-        if winner_color == BLACK:
+        # 表石        
+        if winner_color == HEAD:
             line_1_list.append('   x')
             b_rest -= b_step
         
-        # 白石
-        elif winner_color == WHITE:
+        # 裏石
+        elif winner_color == TAIL:
             line_1_list.append('   o')
             w_rest -= w_step
         
@@ -293,9 +293,9 @@ def stringify_series_log(
     # -----------------
     shw1 = p * 100                                                             # ［将棋の先手勝率（％）］指定値
     if series_result.is_black_won:
-        shw2 = "黒"
+        shw2 = "表"
     elif series_result.is_white_won:
-        shw2 = "白"
+        shw2 = "裏"
     else:
         shw2 = "引"
 
@@ -320,16 +320,16 @@ def stringify_series_log(
 
     # 勝ち点構成
     # ---------
-    pt1 = pts_conf.b_step    # ［黒勝ち１つの点数］
-    pt2 = pts_conf.w_step    # ［白勝ち１つの点数］
+    pt1 = pts_conf.b_step    # ［表勝ち１つの点数］
+    pt2 = pts_conf.w_step    # ［裏勝ち１つの点数］
     pt3 = pts_conf.span      # ［目標の点数］
 
 
     return f"""\
 [{time1                   }] １シリーズ    {ti1}
                                     将棋の先手勝ち  将棋の引分け  プレイヤー勝敗   シリーズ     | 勝ち点設定
-                              指定   |    {shw1:2.0f} ％        {d1:2.0f} ％                        {tm10:>2}～{tm11:>2} 局   | {pt1:3.0f}黒
-                              試行後 |   {shw2}勝ち                   {aw1}勝ち        {tm20:>2}     局   | {pt2:3.0f}白
+                              指定   |    {shw1:2.0f} ％        {d1:2.0f} ％                        {tm10:>2}～{tm11:>2} 局   | {pt1:3.0f}表
+                              試行後 |   {shw2}勝ち                   {aw1}勝ち        {tm20:>2}     局   | {pt2:3.0f}裏
                                                                                                 | {pt3:3.0f}目
 """
 
@@ -365,11 +365,11 @@ def stringify_simulation_log(
     time1 = datetime.datetime.now() # ［タイムスタンプ］
     ti1 = title                     # タイトル
 
-    trial_p = S.win_rate_without_draw_ft(winner=BLACK, loser=WHITE)
-    trial_p_error = S.win_rate_error_without_draw_ft(winner=BLACK, loser=WHITE)
+    trial_p = S.win_rate_without_draw_ft(winner=HEAD, loser=TAIL)
+    trial_p_error = S.win_rate_error_without_draw_ft(winner=HEAD, loser=TAIL)
 
-    trial_q = S.win_rate_without_draw_ft(winner=WHITE, loser=BLACK)
-    trial_q_error = S.win_rate_error_without_draw_ft(winner=WHITE, loser=BLACK)
+    trial_q = S.win_rate_without_draw_ft(winner=TAIL, loser=HEAD)
+    trial_q_error = S.win_rate_error_without_draw_ft(winner=TAIL, loser=HEAD)
 
 
     # ［以下、指定したもの］
@@ -385,11 +385,11 @@ def stringify_simulation_log(
     b_tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
     b_tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
     # 勝ち点構成
-    b_pt1 = pts_conf.b_step             # ［黒勝ち１つの点数］
-    b_pt2 = pts_conf.w_step             # ［白勝ち１つの点数］
+    b_pt1 = pts_conf.b_step             # ［表勝ち１つの点数］
+    b_pt2 = pts_conf.w_step             # ［裏勝ち１つの点数］
     b_pt3 = pts_conf.span               # ［目標の点数］
-    b_pt4 = pts_conf.b_step_when_draw   # ［黒勝ち１つの点数］
-    b_pt5 = pts_conf.w_step_when_draw   # ［白勝ち１つの点数］
+    b_pt4 = pts_conf.b_step_when_draw   # ［表勝ち１つの点数］
+    b_pt5 = pts_conf.w_step_when_draw   # ［裏勝ち１つの点数］
 
 
     # ［以下、［かくきんシステム］を使って試行］１ブロック目（色、引分除く）
@@ -430,10 +430,10 @@ def stringify_simulation_log(
     # シリーズ数
     # ---------
     sr1 = S.number_of_no_wons_player        # 勝者なし
-    sr2 = S.number_of_fully_wons(BLACK)     # 先手満点勝ち
-    sr3 = S.number_of_fully_wons(WHITE)     # 後手満点勝ち
-    sr4 = S.number_of_points_wons(winner=BLACK, loser=WHITE)     # 先手判定勝ち（引分けがなければ零です）
-    sr5 = S.number_of_points_wons(winner=WHITE, loser=BLACK)     # 後手判定勝ち（引分けがなければ零です）
+    sr2 = S.number_of_fully_wons(HEAD)     # 先手満点勝ち
+    sr3 = S.number_of_fully_wons(TAIL)     # 後手満点勝ち
+    sr4 = S.number_of_points_wons(winner=HEAD, loser=TAIL)     # 先手判定勝ち（引分けがなければ零です）
+    sr5 = S.number_of_points_wons(winner=TAIL, loser=HEAD)     # 後手判定勝ち（引分けがなければ零です）
     sr6 = S.number_of_no_wons_color         # 勝者なし
     sr7 = S.number_of_fully_wons(ALICE)     # Ａさん満点勝ち
     sr8 = S.number_of_fully_wons(BOB)       # Ｂさん満点勝ち
@@ -459,8 +459,8 @@ def stringify_simulation_log(
               +--------------------------------------------------------------------------------------------------+ 
               | 以下、［かくきんシステム］が算出した設定                                                         |
               |                                                                    対局数    勝ち点  引分け時    |
-              |                                                                   {b_tm10:>2}～{b_tm11:>2} 局   {b_pt1:3.0f}黒  {b_pt4:8.4f}黒  |
-              |                                                                               {b_pt2:3.0f}白  {b_pt5:8.4f}白  |
+              |                                                                   {b_tm10:>2}～{b_tm11:>2} 局   {b_pt1:3.0f}表  {b_pt4:8.4f}表  |
+              |                                                                               {b_pt2:3.0f}裏  {b_pt5:8.4f}裏  |
               |                                                                               {b_pt3:3.0f}目              |
               +--------------------------------------------------------------------------------------------------+
               | 以下、［かくきんシステム］を使って試行                                                           |
@@ -490,17 +490,17 @@ def stringify_analysis_series_when_frozen_turn(p, draw_rate, series_result_list)
             black_wons += 1
         elif series_result.is_white_won:
             white_wons += 1
-        elif series_result.is_no_won(BLACK, WHITE):
+        elif series_result.is_no_won(HEAD, TAIL):
             no_wons_color += 1
     
-    # 結果としての黒の勝率
+    # 結果としての表の勝率
     result_black_wons_without_draw = black_wons / (len(series_result_list) - no_wons_color)
     result_black_wons_with_draw = black_wons / len(series_result_list)
 
     # 結果としての引分け率
     result_no_wons_color_with_draw = no_wons_color / len(series_result_list)
 
-    # 結果としての白の勝率
+    # 結果としての裏の勝率
     result_white_wons_without_draw = white_wons / (len(series_result_list) - no_wons_color)
     result_white_wons_with_draw = white_wons / len(series_result_list)
 

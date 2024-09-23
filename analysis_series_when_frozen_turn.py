@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import BLACK, WHITE, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results_when_frozen_turn
+from library import HEAD, TAIL, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results_when_frozen_turn
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                 #
                 # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
-                elif DRAW_RATE == 0.0 and series_result.is_no_won(BLACK, WHITE):
+                elif DRAW_RATE == 0.0 and series_result.is_no_won(HEAD, TAIL):
                     #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {DRAW_RATE=}")
                     pass
 

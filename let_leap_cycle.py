@@ -100,7 +100,7 @@ if __name__ == '__main__':
             strict_b_time, strict_w_time = p_to_b_w_times(p=p)
             print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_b_time:>2}：{strict_w_time:>2}  ", end='')
 
-            # 実用的な値（［白勝ちだけでの対局数］が１になるよう丸めたもの）
+            # 実用的な値（［裏勝ちだけでの対局数］が１になるよう丸めたもの）
             practical_b_time = round_letro(strict_b_time / strict_w_time) # 小数点以下四捨五入
             practical_w_time = 1
             print(f"実用的な、先後固定制での回数  先手だけ：後手だけ＝{practical_b_time:>2}：{practical_w_time:>2}  ", end='')

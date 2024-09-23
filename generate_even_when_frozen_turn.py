@@ -5,7 +5,7 @@
 #   TODO 実際値ではなく、理論値を記録したい
 #
 #   手番を交代しない方式。
-#   先後固定制での、［黒勝ちだけでの対局数］と、［白勝ちだけでの対局数］を探索する。
+#   先後固定制での、［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
 
 import traceback
@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import BLACK, WHITE, round_letro, PointsConfiguration, calculate_probability
+from library import HEAD, TAIL, round_letro, PointsConfiguration, calculate_probability
 from database import get_df_generate_even_when_frozen_turn
 from views import print_when_generate_when_frozen_turn
 
@@ -62,11 +62,11 @@ def update_dataframe(df, p,
     df.loc[df['p']==p, ['best_number_of_series']] = best_number_of_series
     df.loc[df['p']==p, ['latest_number_of_series']] = best_number_of_series
 
-    # ［黒勝ち１つの点数］列を更新
+    # ［表勝ち１つの点数］列を更新
     df.loc[df['p']==p, ['best_b_step']] = best_points_configuration.b_step
     df.loc[df['p']==p, ['latest_b_step']] = latest_points_configuration.b_step
 
-    # ［白勝ち１つの点数］列を更新
+    # ［裏勝ち１つの点数］列を更新
     df.loc[df['p']==p, ['best_w_step']] = best_points_configuration.w_step
     df.loc[df['p']==p, ['latest_w_step']] = latest_points_configuration.w_step
 
@@ -124,9 +124,9 @@ def iteration_deeping(df, abs_limit_of_error):
             is_automatic = True
 
             #
-            # ［目標の点数］、［白勝ち１つの点数］、［黒勝ち１つの点数］を１つずつ進めていく探索です。
+            # ［目標の点数］、［裏勝ち１つの点数］、［表勝ち１つの点数］を１つずつ進めていく探索です。
             #
-            # ［目標の点数］＞＝［白勝ち１つの点数］＞＝［黒勝ち１つの点数］という関係があります。
+            # ［目標の点数］＞＝［裏勝ち１つの点数］＞＝［表勝ち１つの点数］という関係があります。
             #
             start_w_step = latest_w_step
             start_b_step = latest_b_step + 1      # 終わっているところの次から始める      NOTE b_step の初期値は 0 であること
@@ -161,12 +161,12 @@ def iteration_deeping(df, abs_limit_of_error):
                             longest_time = best_points_configuration.number_longest_time_when_frozen_turn
 
                             # 計算過程
-                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}黒 {best_points_configuration.w_step}白 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'
+                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}表 {best_points_configuration.w_step}裏 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'
                             print(one_process_text, end='', flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
                             #
-                            #   途中の計算式。半角空白区切り
+                            #   途中の計算式。半角空裏区切り
                             #
                             if isinstance(process, str):
                                 process = f"{process} {one_process_text}"

@@ -63,7 +63,7 @@ def generate_when_alternating_turn():
         comment_element_list = []
         for key, value in process_element_dict.items():
             p_error, black, white, span, shortest, longest = value
-            comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}黒 {white}白 {span}目 {shortest}～{longest}局]')
+            comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}表 {white}裏 {span}目 {shortest}～{longest}局]')
 
         # ［計算過程］列を更新
         df_mr_at.loc[df_mr_at['p']==p, ['process']] = ' '.join(comment_element_list)
@@ -109,7 +109,7 @@ def generate_when_frozen_turn():
         comment_element_list = []
         for key, value in process_element_dict.items():
             p_error, black, white, span, shortest, longest = value
-            comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}黒 {white}白 {span}目 {shortest}～{longest}局]')
+            comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}表 {white}裏 {span}目 {shortest}～{longest}局]')
 
         # ［計算過程］列を更新
         df_mr_ft.loc[df_mr_ft['p']==p, ['process']] = ' '.join(comment_element_list)
