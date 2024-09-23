@@ -23,7 +23,7 @@ CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
 CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
 
 
-DRAW_RATE = 0.0
+FAILURE_RATE = 0.0
 
 
 OUT_OF_ERROR = 0.51
@@ -42,7 +42,7 @@ def generate_when_alternating_turn():
 
         # ［かくきんシステムのｐの構成］。任意に指定します
         specified_points_configuration = PointsConfiguration(
-                draw_rate=DRAW_RATE,
+                failure_rate=FAILURE_RATE,
                 b_step=b_step,
                 w_step=w_step,
                 span=span)
@@ -77,7 +77,7 @@ def generate_when_frozen_turn():
 
         # ［かくきんシステムのｐの構成］。任意に指定します
         specified_points_configuration = PointsConfiguration(
-                draw_rate=DRAW_RATE,
+                failure_rate=FAILURE_RATE,
                 b_step=b_step,
                 w_step=w_step,
                 span=span)

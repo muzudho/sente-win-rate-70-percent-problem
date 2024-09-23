@@ -20,8 +20,8 @@ from views import stringify_series_log, stringify_analysis_series_when_frozen_tu
 LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 
 # 引き分けになる確率
-DRAW_RATE = 0.0     # 引分けなし
-#DRAW_RATE = 10.0     # １０％。コンピュータ将棋など
+FAILURE_RATE = 0.0     # 引分けなし
+#FAILURE_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
 def analysis_series(series_result, p, pts_conf, title):
@@ -36,7 +36,7 @@ def analysis_series(series_result, p, pts_conf, title):
     text = stringify_series_log(
             # ［表が出る確率］（指定値）
             p=p,
-            draw_rate=DRAW_RATE,
+            failure_rate=FAILURE_RATE,
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
             # シリーズの結果
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
-                    draw_rate=DRAW_RATE,
+                    failure_rate=FAILURE_RATE,
                     b_step=b_step,
                     w_step=w_step,
                     span=span)
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
-                        draw_rate=DRAW_RATE,
+                        failure_rate=FAILURE_RATE,
                         longest_times=specified_points_configuration.number_longest_time_when_frozen_turn,
                         successful_color_list=successful_color_list)
 
@@ -113,8 +113,8 @@ if __name__ == '__main__':
                 #
                 # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
-                elif DRAW_RATE == 0.0 and series_result.is_no_won(HEAD, TAIL):
-                    #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {DRAW_RATE=}")
+                elif FAILURE_RATE == 0.0 and series_result.is_no_won(HEAD, TAIL):
+                    #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {FAILURE_RATE=}")
                     pass
 
                 else:
@@ -123,7 +123,7 @@ if __name__ == '__main__':
             # 表示
             print(stringify_analysis_series_when_frozen_turn(
                     p=p,
-                    draw_rate=DRAW_RATE,
+                    failure_rate=FAILURE_RATE,
                     series_result_list=series_result_list))
 
             for series_result in series_result_list:

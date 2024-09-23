@@ -111,7 +111,7 @@ def p_to_b_w_times(p):
     return fraction.numerator, fraction.denominator
 
 
-def coin(p, draw_rate=0.0):
+def coin(p, failure_rate=0.0):
     """コインを投げて、表が出るか、裏が出るか、表も裏も出なかったかのいずれかを返す。
     このコインは表が表く（BLACK）塗られており、裏は裏く（WHITE）塗られている。
     表も裏もでない（EMPTY）ケースも確率で指定することができる。
@@ -121,7 +121,7 @@ def coin(p, draw_rate=0.0):
     p : float
         表が出る確率。例： 表が７割出るなら 0.7
         ただし、この数は表も裏も出なかった回数を含まない。表と裏の２つのうち表が出る確率を表す
-    draw_rate : float
+    failure_rate : float
         表も裏も出ない確率。例： １割が引き分けなら 0.1
     
     Returns
@@ -135,7 +135,7 @@ def coin(p, draw_rate=0.0):
     """
 
     # 表も裏もでない確率
-    if draw_rate != 0.0 and random.random() < draw_rate:
+    if failure_rate != 0.0 and random.random() < failure_rate:
         return EMPTY
 
     if random.random() < p:
@@ -148,14 +148,14 @@ class PseudoSeriesResult():
     """疑似的にシリーズのコイントスした結果"""
 
 
-    def __init__(self, p, draw_rate, longest_times, successful_color_list):
+    def __init__(self, p, failure_rate, longest_times, successful_color_list):
         """初期化
 
         Parameters
         ----------
         p : float
             ［表が出る確率］ 例： ７割なら 0.7
-        draw_rate : float
+        failure_rate : float
             ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
         longest_times : int
             ［最長対局数］
@@ -163,7 +163,7 @@ class PseudoSeriesResult():
             コイントスした結果のリスト。引き分け含む
         """
         self._p = p,
-        self._draw_rate = draw_rate
+        self._failure_rate = failure_rate
         self._longest_times = longest_times
         self._successful_color_list = successful_color_list
 
@@ -175,9 +175,9 @@ class PseudoSeriesResult():
 
 
     @property
-    def draw_rate(self):
+    def failure_rate(self):
         """［引き分ける確率］"""
-        return self._draw_rate
+        return self._failure_rate
 
 
     @property
@@ -193,14 +193,14 @@ class PseudoSeriesResult():
 
 
     @staticmethod
-    def playout_pseudo(p, draw_rate, longest_times):
+    def playout_pseudo(p, failure_rate, longest_times):
         """１シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
 
         Parameters
         ----------
         p : float
             ［表が出る確率］
-        draw_rate : float
+        failure_rate : float
             ［引き分ける確率］
         longest_times : int
             ［最長対局数］
@@ -224,7 +224,7 @@ class PseudoSeriesResult():
 
         return PseudoSeriesResult(
                 p=p,
-                draw_rate=draw_rate,
+                failure_rate=failure_rate,
                 longest_times=longest_times,
                 successful_color_list=successful_color_list)
 
@@ -237,7 +237,7 @@ class PseudoSeriesResult():
 
     def stringify_dump(self):
         """ダンプ"""
-        return f"{self._p=}  {self._draw_rate=}  {self._longest_times=}  {self._successful_color_list}"
+        return f"{self._p=}  {self._failure_rate=}  {self._longest_times=}  {self._successful_color_list}"
 
 
 def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
@@ -504,14 +504,14 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
             pseudo_series_result=pseudo_series_result)
 
 
-def play_tie_break(p, draw_rate):
+def play_tie_break(p, failure_rate):
     """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
 
     Parameters
     ----------
     p : float
         ［表が出る確率］ 例： ７割なら 0.7
-    draw_rate : float
+    failure_rate : float
         ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
     
     Returns
@@ -520,7 +520,7 @@ def play_tie_break(p, draw_rate):
         勝った方の色。引き分けなら裏勝ち
     """
 
-    color = coin(p, draw_rate) 
+    color = coin(p, failure_rate) 
 
     # 引き分けなら裏勝ち
     if color == EMPTY:
@@ -653,7 +653,7 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_draw_point(draw_rate, step):
+    def let_draw_point(failure_rate, step):
         """TODO 引分け時の［勝ち点］の算出。
 
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
@@ -667,15 +667,15 @@ class PointsConfiguration():
         引分け時の勝ち点 = 3 * ( 1 - 0.9 ) / 2 = 0.15
         """
 
-        return step * (1 - draw_rate) / 2
+        return step * (1 - failure_rate) / 2
 
 
-    def __init__(self, draw_rate, b_step, w_step, span):
+    def __init__(self, failure_rate, b_step, w_step, span):
         """初期化
         
         Parameters
         ----------
-        draw_rate : float
+        failure_rate : float
             ［将棋の引分け率］
         b_step : int
             ［表勝ち１つの点数］
@@ -710,26 +710,26 @@ class PointsConfiguration():
         if span < w_step:
             raise ValueError(f"{w_step=} <= {span}")
 
-        self._draw_rate = draw_rate
+        self._failure_rate = failure_rate
         self._b_step = b_step
         self._w_step = w_step
         self._span = span
 
         # 表番の［引分け時の表勝ち１つの点数］
         self._b_step_when_draw = PointsConfiguration.let_draw_point(
-                draw_rate=draw_rate,
+                failure_rate=failure_rate,
                 step=b_step)
 
         # 裏番の［引分け時の裏勝ち１つの点数］
         self._w_step_when_draw = PointsConfiguration.let_draw_point(
-                draw_rate=draw_rate,
+                failure_rate=failure_rate,
                 step=w_step)
 
 
     @property
-    def draw_rate(self):
+    def failure_rate(self):
         """［将棋の引分け率］"""
-        return self._draw_rate
+        return self._failure_rate
 
 
     @property
@@ -799,12 +799,12 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_points_from_repeat(draw_rate, b_time, w_time):
+    def let_points_from_repeat(failure_rate, b_time, w_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
-        draw_rate : float
+        failure_rate : float
             ［将棋の引分け率］
         b_time : int
             ［表勝ちだけでの対局数］
@@ -829,7 +829,7 @@ class PointsConfiguration():
             raise ValueError(f"{span=}  {span_w=}")
 
         return PointsConfiguration(
-                draw_rate=draw_rate,
+                failure_rate=failure_rate,
                 b_step=b_step,
                 w_step=w_step,
                 span=span)
@@ -1204,7 +1204,7 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def draw_rate_ft(self):
+    def failure_rate_ft(self):
         """試行した結果、［引き分ける確率］"""
         return self.number_of_draw_series_ft / self.number_of_series
 
@@ -1248,7 +1248,7 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def draw_rate_at(self):
+    def failure_rate_at(self):
         """試行した結果、［引き分ける確率］"""
         return self.number_of_draw_series_at / self.number_of_series
 

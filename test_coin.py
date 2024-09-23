@@ -19,14 +19,14 @@ from views import stringify_series_log, stringify_analysis_series_when_frozen_tu
 LOG_FILE_PATH = 'output/test_coin.log'
 
 
-def test_coin(p, draw_rate):
+def test_coin(p, failure_rate):
     """コインについて、指定の表が出る確率、裏が出る確率、どちらでもない確率がだいたい出るかテストする
     
     Parameters
     ----------
     p : float
         ［表が出る確率］
-    draw_rate : float
+    failure_rate : float
         ［将棋の引分け率］
     """
 

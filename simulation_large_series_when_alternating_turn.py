@@ -22,8 +22,8 @@ from views import stringify_simulation_log
 LOG_FILE_PATH = 'output/simulation_large_series_when_alternating_turn.log'
 
 # ［将棋の引分け率］
-DRAW_RATE = 0.0
-#DRAW_RATE = 0.1
+FAILURE_RATE = 0.0
+#FAILURE_RATE = 0.1
 
 
 def simulate_stats(p, number_of_series, pts_conf):
@@ -36,7 +36,7 @@ def simulate_stats(p, number_of_series, pts_conf):
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=p,
-                draw_rate=DRAW_RATE,
+                failure_rate=FAILURE_RATE,
                 longest_times=pts_conf.count_longest_time_when_alternating_turn())
 
         # ［先後交互制］で、勝ったプレイヤーを返す
@@ -53,7 +53,7 @@ def simulate_stats(p, number_of_series, pts_conf):
 
     text = stringify_simulation_log(
             p=p,
-            draw_rate=DRAW_RATE,
+            failure_rate=FAILURE_RATE,
             pts_conf=pts_conf,
             large_series_trial_summary=large_series_trial_summary,
             title="（先後交互制）")
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
-                    draw_rate=DRAW_RATE,
+                    failure_rate=FAILURE_RATE,
                     b_step=b_step,
                     w_step=w_step,
                     span=span)

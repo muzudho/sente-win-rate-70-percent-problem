@@ -19,8 +19,8 @@ from views import stringify_simulation_log
 LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 
 # 引き分けになる確率
-#DRAW_RATE = 0.1
-DRAW_RATE = 0.9
+#FAILURE_RATE = 0.1
+FAILURE_RATE = 0.9
 
 
 def simulate_stats(p, number_of_series, pts_conf, title):
@@ -36,7 +36,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=p,
-                draw_rate=DRAW_RATE,
+                failure_rate=FAILURE_RATE,
                 longest_times=longest_times)
 
         # ［先後固定制］で、シリーズを勝った方の手番を返す。引き分けを１局と数える
@@ -68,7 +68,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
             # ［表が出る確率］（指定値）
             p=p,
             # ［引き分ける確率］
-            draw_rate=DRAW_RATE,
+            failure_rate=FAILURE_RATE,
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
             # シミュレーションの結果
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             # ［かくきんシステムのｐの構成］           
             print("確率調整中")  # FIXME
             pts_conf = PointsConfiguration(
-                    draw_rate=DRAW_RATE,
+                    failure_rate=FAILURE_RATE,
                     b_step=b_step,
                     w_step=w_step,
                     span=span)

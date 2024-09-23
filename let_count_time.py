@@ -11,7 +11,7 @@ LOG_FILE_PATH = 'output/let_count_time.log'
 
 
 # ［将棋の引分け率］
-DRAW_RATE = 0.0
+FAILURE_RATE = 0.0
 
 
 ########################################
@@ -30,7 +30,7 @@ if __name__ == '__main__':
                 # ［表勝ち１つの点数］
                 for b_step in range(1, w_step):
                     pts_conf = PointsConfiguration(
-                            draw_rate=DRAW_RATE,
+                            failure_rate=FAILURE_RATE,
                             b_step=b_step,
                             w_step=w_step,
                             span=span)
