@@ -27,11 +27,19 @@ ALICE = 3
 # Ｂさん。配列のインデックスに使う
 BOB = 4
 
+
+# Turn system
+# -----------
+
 # ［先後固定制］。配列のインデックスに使う
 WHEN_FROZEN_TURN = 1
 
 # ［先後交互制］。配列のインデックスに使う
 WHEN_ALTERNATING_TURN = 2
+
+
+# Opponent pair
+# -------------
 
 # ［コインの表と裏］。配列のインデックスに使う
 COIN_HEAD_AND_TAIL = 1

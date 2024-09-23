@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, PointsConfiguration
+from library import HEAD, TAIL, ALICE, BOB, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, COIN_HEAD_AND_TAIL, PLAYER_A_AND_B, PointsConfiguration
 
 
 def parse_process_element(process_element):
