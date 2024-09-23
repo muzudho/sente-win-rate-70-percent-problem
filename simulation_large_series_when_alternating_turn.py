@@ -14,7 +14,7 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
+from library import ALICE, WHEN_ALTERNATING_TURN, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
 from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_simulation_log
 
@@ -54,6 +54,7 @@ def simulate_stats(p, number_of_series, pts_conf):
     text = stringify_simulation_log(
             p=p,
             failure_rate=FAILURE_RATE,
+            turn_system=WHEN_ALTERNATING_TURN,
             pts_conf=pts_conf,
             large_series_trial_summary=large_series_trial_summary,
             title="（先後交互制）")

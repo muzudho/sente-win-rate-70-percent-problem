@@ -11,7 +11,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, HEAD, TAIL, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
+from library import EMPTY, HEAD, TAIL, WHEN_FROZEN_TURN, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -69,6 +69,8 @@ def simulate_stats(p, number_of_series, pts_conf, title):
             p=p,
             # ［引き分ける確率］
             failure_rate=FAILURE_RATE,
+            # ［先後運用制度］
+            turn_system=WHEN_FROZEN_TURN,
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
             # シミュレーションの結果

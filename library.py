@@ -27,6 +27,12 @@ ALICE = 3
 # Ｂさん。配列のインデックスに使う
 BOB = 4
 
+# ［先後固定制］。配列のインデックスに使う
+WHEN_FROZEN_TURN = 1
+
+# ［先後交互制］。配列のインデックスに使う
+WHEN_ALTERNATING_TURN = 2
+
 
 def round_letro(number):
     """四捨五入
@@ -1150,6 +1156,19 @@ class LargeSeriesTrialSummary():
         return self._number_of_points_wons[winner]
 
 
+    def number_of_draw_series(self, turn_system):
+        """引分けで終わったシリーズ数"""
+
+        if turn_system == WHEN_FROZEN_TURN:
+            return self.number_of_series - self.number_of_all_wons(winner=HEAD, loser=TAIL) - self.number_of_all_wons(winner=TAIL, loser=HEAD)
+        
+        elif turn_system == WHEN_ALTERNATING_TURN:
+            return self.number_of_series - self.number_of_all_wons(winner=ALICE, loser=BOB) - self.number_of_all_wons(winner=BOB, loser=ALICE)
+        
+        else:
+            raise ValueError(f"{turn_system=}")
+
+
     # 「先後固定制］
     # -------------
 
@@ -1171,18 +1190,12 @@ class LargeSeriesTrialSummary():
         return self.number_of_fully_wons(winner) + self.number_of_points_wons(winner=winner, loser=loser)
 
 
-    @property
-    def number_of_draw_series_ft(self):
-        """引分けで終わったシリーズ数"""
-        return self.number_of_series - self.number_of_all_wons(winner=HEAD, loser=TAIL) - self.number_of_all_wons(winner=TAIL, loser=HEAD)
-
-
     def win_rate_without_draw_ft(self, winner, loser):
         """試行した結果、 winner が loser に勝つ確率
         
         引分けを除いて計算する
         """
-        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series_ft)
+        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=WHEN_FROZEN_TURN))
 
 
     def win_rate_error_without_draw_ft(self, winner, loser):
@@ -1196,7 +1209,7 @@ class LargeSeriesTrialSummary():
     @property
     def failure_rate_ft(self):
         """試行した結果、［引き分ける確率］"""
-        return self.number_of_draw_series_ft / self.number_of_series
+        return self.number_of_draw_series(turn_system=WHEN_FROZEN_TURN) / self.number_of_series
 
 
     # ［先後交互制］
@@ -1215,18 +1228,12 @@ class LargeSeriesTrialSummary():
         return self._number_of_no_wons_player
 
 
-    @property
-    def number_of_draw_series_at(self):
-        """引分けで終わったシリーズ数"""
-        return self.number_of_series - self.number_of_all_wons(winner=ALICE, loser=BOB) - self.number_of_all_wons(winner=BOB, loser=ALICE)
-
-
     def win_rate_without_draw_at(self, winner, loser):
         """試行した結果、［Ａさんが勝つ確率］
         
         引分けを除いて計算する
         """
-        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series_at)
+        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=WHEN_ALTERNATING_TURN))
 
 
     def win_rate_error_without_draw_at(self, winner, loser):
@@ -1240,5 +1247,5 @@ class LargeSeriesTrialSummary():
     @property
     def failure_rate_at(self):
         """試行した結果、［引き分ける確率］"""
-        return self.number_of_draw_series_at / self.number_of_series
+        return self.number_of_draw_series(turn_system=WHEN_ALTERNATING_TURN) / self.number_of_series
 

@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
+from library import HEAD, ALICE, WHEN_FROZEN_TURN, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -55,7 +55,10 @@ def simulate_stats(p, number_of_series, pts_conf, title):
     text = stringify_simulation_log(
             # ［表が出る確率］（指定値）
             p=p,
+            # ［表も裏も出ない率］
             failure_rate=FAILURE_RATE,
+            # ［先後運用制度］
+            turn_system=WHEN_FROZEN_TURN,
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
             # シミュレーションの結果
