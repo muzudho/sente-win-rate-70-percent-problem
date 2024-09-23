@@ -1037,27 +1037,19 @@ class SeriesResult():
 
 
     def is_won(self, winner, loser):
-        """winner さんの勝ち"""
+        """FIXME winner が loser に勝った"""
+
+        # 両者が満点勝ちしているという状況はない
+        if self.point_calculation.is_fully_won(winner) and self.point_calculation.is_fully_won(loser):
+            raise ValueError(f"両者が満点勝ちしているという状況はない {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}")
+
+        # 両者が判定勝ちしているという状況はない
+        if self.is_points_won(winner=winner, loser=loser) and self.is_points_won(winner=loser, loser=winner):
+            raise ValueError(f"両者が判定勝ちしているという状況はない {winner=}  {loser=}  {self.is_points_won(winner=winner, loser=loser)=}  {self.is_points_won(winner=loser, loser=winner)=}")
+
+        # 満点勝ちなら確定、判定勝ちでもOK 
         return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner, loser=loser)
 
-
-    # ［先後固定制］
-    # -------------
-
-    @property
-    def is_black_won(self):
-        """表勝ち"""
-        return self.point_calculation.is_fully_won(HEAD) or self.is_points_won(winner=HEAD, loser=TAIL)
-
-
-    @property
-    def is_white_won(self):
-        """裏勝ち"""
-        return self.point_calculation.is_fully_won(TAIL) or self.is_points_won(winner=TAIL, loser=HEAD)
-
-
-    # ［先後交互制］
-    # -------------
 
     def is_no_won(self, opponent_pair):
         """勝者なし。 x 、 y の［勝ち点］が等しいとき"""
@@ -1087,9 +1079,6 @@ class LargeSeriesTrialSummary():
             ［シリーズ］の結果のリスト
         """
 
-
-        # 共通
-        # ----
         self._series_result_list = series_result_list
         self._shortest_time_th = None
         self._longest_time_th = None
@@ -1152,7 +1141,7 @@ class LargeSeriesTrialSummary():
 
 
     def number_of_fully_wons(self, index):
-        """Ａさんが［目標の点数］を集めて勝った回数"""
+        """index さんが［目標の点数］を集めて勝った回数"""
         if self._number_of_fully_wons[index] is None:
             self._number_of_fully_wons[index] = 0
             for series_result in self._series_result_list:
@@ -1204,7 +1193,7 @@ class LargeSeriesTrialSummary():
 
     @property
     def failure_rate(self, turn_system):
-        """試行した結果、［引き分ける確率］"""
+        """試行した結果、［引き分けた率］"""
         return self.number_of_draw_series(turn_system=turn_system) / self.number_of_series
 
 

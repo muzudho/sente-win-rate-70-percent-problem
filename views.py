@@ -292,18 +292,18 @@ def stringify_series_log(
     # ［将棋の先手勝率］
     # -----------------
     shw1 = p * 100                                                             # ［将棋の先手勝率（％）］指定値
-    if series_result.is_black_won:
+    if series_result.is_won(winner=HEAD, loser=TAIL):
         shw2 = "表"
-    elif series_result.is_white_won:
+    elif series_result.is_won(winner=TAIL, loser=HEAD):
         shw2 = "裏"
     else:
         shw2 = "引"
 
     # ［Ａさんの勝率］
     # ---------------
-    if series_result.is_black_won:
+    if series_result.is_won(winner=HEAD, loser=TAIL):
         aw1 = "Ａさん"
-    elif series_result.is_white_won:
+    elif series_result.is_won(winner=TAIL, loser=HEAD):
         aw1 = "Ｂさん"
     else:
         aw1 = "引"
@@ -357,8 +357,8 @@ def stringify_simulation_log(
     # 変数名を短くする
     S = large_series_trial_summary  # Summary
 
-    # TODO ［将棋の引分け率］（試行値）
-    trial_failure_rate = S.number_of_draw_series(turn_system=turn_system) / S.number_of_series
+    # 試行した結果、［引き分けた率］
+    trial_failure_rate = S.failure_rate(turn_system=turn_system)
 
     # ヘッダー
     # --------
@@ -486,9 +486,9 @@ def stringify_analysis_series_when_frozen_turn(p, failure_rate, series_result_li
     no_wons_color = 0
     white_wons = 0
     for series_result in series_result_list:
-        if series_result.is_black_won:
+        if series_result.is_won(winner=HEAD, loser=TAIL):
             black_wons += 1
-        elif series_result.is_white_won:
+        elif series_result.is_won(winner=TAIL, loser=HEAD):
             white_wons += 1
         elif series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
             no_wons_color += 1
