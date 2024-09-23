@@ -30,24 +30,7 @@ def test_coin(p, draw_rate):
         ［将棋の引分け率］
     """
 
-    color = coin(p)
-
-    if color == BLACK:
-        text = "表が出た"
-    
-    elif color == WHITE:
-        text = "裏が出た"
-
-    else:
-        text = "どちらも出なかった"
-
-
-    # 表示
-    print(text)
-
-    # ログ出力
-    with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-        f.write(f"{text}\n")    # ファイルへ出力
+    return coin(p)
 
 
 ########################################
@@ -59,8 +42,46 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        number_of_black = 0     # 表が出た回数
+        number_of_white = 0     # 裏が出た回数
+        number_of_draw = 0      # 表も裏も出なかった回数
+
         for i in range(0, 100):
-            test_coin(0.5, 0.0)
+            color = test_coin(0.5, 0.0)
+
+            if color == BLACK:
+                text = "表が出た"
+                number_of_black += 1
+            
+            elif color == WHITE:
+                text = "裏が出た"
+                number_of_white += 1
+
+            else:
+                text = "どちらも出なかった"
+                number_of_draw += 1
+
+            # 表示
+            print(text)
+
+            # ファイルへログ出力
+            with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
+                f.write(f"{text}\n")
+
+
+        text = f"""\
+{text}
+表が出た回数：          {number_of_black}
+裏が出た回数：          {number_of_white}
+表も裏も出なかった回数： {number_of_draw}
+"""
+
+        # 表示
+        print(text)
+  
+        # ファイルへログ出力
+        with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
+            f.write(f"{text}\n")
 
 
     except Exception as err:

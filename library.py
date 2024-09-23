@@ -77,19 +77,6 @@ def scale_for_float_to_int(value):
     return 10**dp_len
 
 
-# def white_win_rate(p):
-#     """［裏が出る確率］（後手勝率）
-#
-#     NOTE 0.11 が 0.10999999999999999 になっていたり、想定した結果を返さないことがあるから使わないほうがいい
-#
-#     Parameters
-#     ----------
-#     p : float
-#         ［表が出る確率］
-#     """
-#     return 1 - p
-
-
 def p_to_b_w_times(p):
     """［表が出る確率］ p を与えると、［黒勝ちだけでの対局数］、［白勝ちだけでの対局数］を返す
     
