@@ -48,6 +48,47 @@ COIN_HEAD_AND_TAIL = 1
 PLAYER_A_AND_B = 2
 
 
+class Specification():
+    """仕様"""
+
+
+    def __init__(self, p, failure_rate, turn_system):
+        """初期化
+
+        Parameters
+        ----------
+        p : float
+            ［表が出る確率］
+        failure_rate : float
+            ［表も裏も出ない確率］。例： １割が引き分けなら 0.1
+        turn_system : int
+            ［先後運営制度］
+        """
+
+        self._p = p
+        self._failure_rate = failure_rate
+        self._turn_system = turn_system
+
+
+    @property
+    def p(self):
+        """［表が出る確率］"""
+        return self._p
+
+
+    @property
+    def failure_rate(self):
+        """［表も裏も出ない確率］"""
+        return self._failure_rate
+
+
+    @property
+    def turn_system(self):
+        """［先後運営制度］"""
+        return self._turn_system
+
+
+
 def round_letro(number):
     """四捨五入
 
@@ -103,7 +144,7 @@ def p_to_b_w_times(p):
     Parameters
     ----------
     p : float
-        表が出る確率
+        ［表が出る確率］
     
     Returns
     -------
@@ -140,7 +181,7 @@ def toss_a_coin(p, failure_rate=0.0):
         表が出る確率。例： 表が７割出るなら 0.7
         ただし、この数は表も裏も出なかった回数を含まない。表と裏の２つのうち表が出る確率を表す
     failure_rate : float
-        表も裏も出ない確率。例： １割が引き分けなら 0.1
+        ［表も裏も出ない確率］。例： １割が引き分けなら 0.1
     
     Returns
     -------
@@ -1191,7 +1232,6 @@ class LargeSeriesTrialSummary():
         return self.win_rate_without_draw(winner=winner, loser=loser, turn_system=turn_system) - 0.5
 
 
-    @property
     def failure_rate(self, turn_system):
         """試行した結果、［引き分けた率］"""
         return self.number_of_draw_series(turn_system=turn_system) / self.number_of_series

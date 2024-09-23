@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, ALICE, WHEN_FROZEN_TURN, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
+from library import HEAD, ALICE, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -24,8 +24,14 @@ LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 FAILURE_RATE = 0.1
 
 
-def simulate_stats(p, number_of_series, pts_conf, title):
-    """大量のシリーズをシミュレートします"""
+def simulate_stats(spec, number_of_series, pts_conf, title):
+    """大量のシリーズをシミュレートします
+    
+    Parameters
+    ----------
+    spec : Specification
+        ［仕様］
+    """
 
     series_result_list = []
 
@@ -54,7 +60,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
 
     text = stringify_simulation_log(
             # ［表が出る確率］（指定値）
-            p=p,
+            p=spec.p,
             # ［表も裏も出ない率］
             failure_rate=FAILURE_RATE,
             # ［先後運用制度］
@@ -76,10 +82,10 @@ def simulate_stats(p, number_of_series, pts_conf, title):
 
     # 表示とログ出力を終えた後でテスト
     if large_series_trial_summary.shortest_time_th < pts_conf.number_shortest_time_when_frozen_turn:
-        raise ValueError(f"{p=} ［先後固定制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_shortest_time_when_frozen_turn} を下回った")
+        raise ValueError(f"{spec.p=} ［先後固定制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_shortest_time_when_frozen_turn} を下回った")
 
     if pts_conf.number_longest_time_when_frozen_turn < large_series_trial_summary.longest_time_th:
-        raise ValueError(f"{p=} ［先後固定制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time_when_frozen_turn} を上回った")
+        raise ValueError(f"{spec.p=} ［先後固定制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time_when_frozen_turn} を上回った")
 
 
 ########################################
@@ -100,6 +106,12 @@ if __name__ == '__main__':
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
 
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=FAILURE_RATE,
+                    turn_system=WHEN_FROZEN_TURN)
+
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
@@ -108,7 +120,7 @@ if __name__ == '__main__':
                     span=span)
 
             simulate_stats(
-                    p=p,
+                    spec=spec,
                     number_of_series=number_of_series,
                     pts_conf=specified_points_configuration,
                     title='（先後固定制）    むずでょセレクション')

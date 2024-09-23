@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results_when_frozen_turn
+from library import HEAD, TAIL, ALICE, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results_when_frozen_turn
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
 
@@ -24,18 +24,20 @@ FAILURE_RATE = 0.0     # 引分けなし
 #FAILURE_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
-def analysis_series(series_result, p, pts_conf, title):
+def analysis_series(series_result, spec, pts_conf, title):
     """シリーズ１つを分析します
     
     Parameters
     ----------
+    spec : Specification
+        ［仕様］
     pts_conf : PointsConfiguration
         ［勝ち点ルール］の構成
     """
 
     text = stringify_series_log(
             # ［表が出る確率］（指定値）
-            p=p,
+            p=spec.p,
             failure_rate=FAILURE_RATE,
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
@@ -65,6 +67,12 @@ if __name__ == '__main__':
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
+
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=FAILURE_RATE,
+                    turn_system=WHEN_FROZEN_TURN)
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
@@ -129,7 +137,7 @@ if __name__ == '__main__':
             for series_result in series_result_list:
                 analysis_series(
                         series_result=series_result,
-                        p=p,
+                        spec=spec,
                         pts_conf=specified_points_configuration,
                         title='（先後固定制）    むずでょセレクション')
 

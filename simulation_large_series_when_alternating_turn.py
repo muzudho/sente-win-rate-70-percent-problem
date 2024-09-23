@@ -14,7 +14,7 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, WHEN_ALTERNATING_TURN, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
+from library import ALICE, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
 from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_simulation_log
 
@@ -26,8 +26,14 @@ FAILURE_RATE = 0.0
 #FAILURE_RATE = 0.1
 
 
-def simulate_stats(p, number_of_series, pts_conf):
-    """大量のシリーズをシミュレートします"""
+def simulate_stats(spec, number_of_series, pts_conf):
+    """大量のシリーズをシミュレートします
+    
+    Parameters
+    ----------
+    spec : Specification
+        ［仕様］
+    """
 
     series_result_list = []
 
@@ -35,7 +41,7 @@ def simulate_stats(p, number_of_series, pts_conf):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
-                p=p,
+                p=spec.p,
                 failure_rate=FAILURE_RATE,
                 longest_times=pts_conf.count_longest_time_when_alternating_turn())
 
@@ -52,7 +58,7 @@ def simulate_stats(p, number_of_series, pts_conf):
             series_result_list=series_result_list)
 
     text = stringify_simulation_log(
-            p=p,
+            p=spec.p,
             failure_rate=FAILURE_RATE,
             turn_system=WHEN_ALTERNATING_TURN,
             pts_conf=pts_conf,
@@ -67,10 +73,10 @@ def simulate_stats(p, number_of_series, pts_conf):
 
     # # 表示とログ出力を終えた後でテスト
     # if large_series_trial_summary.shortest_time_th < expected_shortest_time_th_when_alternating_turn:
-    #     raise ValueError(f"{p=} ［先後交互制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {expected_shortest_time_th_when_alternating_turn} を下回った")
+    #     raise ValueError(f"{spec.p=} ［先後交互制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {expected_shortest_time_th_when_alternating_turn} を下回った")
 
     # if expected_longest_time_th_when_alternating_turn < large_series_trial_summary.longest_time_th:
-    #     raise ValueError(f"{p=} ［先後交互制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {expected_longest_time_th_when_alternating_turn} を上回った")
+    #     raise ValueError(f"{spec.p=} ［先後交互制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {expected_longest_time_th_when_alternating_turn} を上回った")
 
 
 ########################################
@@ -91,6 +97,12 @@ if __name__ == '__main__':
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_at['p'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
 
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=FAILURE_RATE,
+                    turn_system=WHEN_ALTERNATING_TURN)
+
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
@@ -99,7 +111,7 @@ if __name__ == '__main__':
                     span=span)
 
             simulate_stats(
-                    p=p,
+                    spec=spec,
                     number_of_series=number_of_series,
                     pts_conf=specified_points_configuration)
 

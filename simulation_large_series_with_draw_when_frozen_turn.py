@@ -11,7 +11,7 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, HEAD, TAIL, WHEN_FROZEN_TURN, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
+from library import EMPTY, HEAD, TAIL, WHEN_FROZEN_TURN, Specification, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
 from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
@@ -23,8 +23,14 @@ LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 FAILURE_RATE = 0.9
 
 
-def simulate_stats(p, number_of_series, pts_conf, title):
-    """大量のシリーズをシミュレートします"""
+def simulate_stats(spec, number_of_series, pts_conf, title):
+    """大量のシリーズをシミュレートします
+    
+    Parameters
+    ----------
+    spec : Specification
+        ［仕様］
+    """
 
     series_result_list = []
 
@@ -35,7 +41,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
-                p=p,
+                p=spec.p,
                 failure_rate=FAILURE_RATE,
                 longest_times=longest_times)
 
@@ -66,7 +72,7 @@ def simulate_stats(p, number_of_series, pts_conf, title):
 
     text = stringify_simulation_log(
             # ［表が出る確率］（指定値）
-            p=p,
+            p=spec.p,
             # ［引き分ける確率］
             failure_rate=FAILURE_RATE,
             # ［先後運用制度］
@@ -112,8 +118,14 @@ if __name__ == '__main__':
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
 
             #
-            #   NOTE ［目標の点数］を整数倍すると、最小公倍数が何回も出てきて、引き分けになる回数も整数倍になる
+            #   NOTE ［目標の点数］を整数倍すると、最小公倍数が何回も出てきて、引き分けになる回数も整数倍になるから、引き分けが増えるデメリットがある
             #
+
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=FAILURE_RATE,
+                    turn_system=WHEN_FROZEN_TURN)
 
             # ［かくきんシステムのｐの構成］           
             print("確率調整中")  # FIXME
@@ -124,7 +136,7 @@ if __name__ == '__main__':
                     span=span)
 
             simulate_stats(
-                    p=p,
+                    spec=spec,
                     number_of_series=number_of_series,
                     pts_conf=pts_conf,
                     title='むずでょセレクション')
