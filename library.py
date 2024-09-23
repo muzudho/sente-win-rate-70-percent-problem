@@ -205,15 +205,11 @@ class PseudoSeriesResult():
         # ［最長対局数］までやる
         for time_th in range(1, longest_times + 1):
 
-            elementary_event = toss_a_coin(p)
+            elementary_event = toss_a_coin(
+                    p=p,
+                    failure_rate=failure_rate)
 
-            # 引分け
-            if elementary_event == EMPTY:
-                successful_color_list.append(EMPTY)
-
-            # 表勝ち、または裏勝ちのどちらか
-            else:
-                successful_color_list.append(elementary_event)
+            successful_color_list.append(elementary_event)
 
 
         return PseudoSeriesResult(
