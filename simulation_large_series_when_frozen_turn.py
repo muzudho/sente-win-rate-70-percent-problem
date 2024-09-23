@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_lerge_series_when_frozen_turn.py
+# python simulation_large_series_when_frozen_turn.py
 #
 #   ［先後固定制］
 #   表が出る確率（p）が偏ったコインを、指定回数投げる
@@ -17,7 +17,7 @@ from database import get_df_muzudho_recommends_points_when_frozen_turn
 from views import stringify_simulation_log
 
 
-LOG_FILE_PATH = 'output/simulation_lerge_series_when_frozen_turn.log'
+LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 
 # 引き分けになる確率
 #DRAW_RATE = 0.0
