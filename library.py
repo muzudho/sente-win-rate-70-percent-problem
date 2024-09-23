@@ -111,10 +111,8 @@ def p_to_b_w_times(p):
     return fraction.numerator, fraction.denominator
 
 
-def coin(p, failure_rate=0.0):
+def toss_a_coin(p, failure_rate=0.0):
     """コインを投げて、表が出るか、裏が出るか、表も裏も出なかったかのいずれかを返す。
-    このコインは表が表く（BLACK）塗られており、裏は裏く（WHITE）塗られている。
-    表も裏もでない（EMPTY）ケースも確率で指定することができる。
 
     Parameters
     ----------
@@ -126,12 +124,8 @@ def coin(p, failure_rate=0.0):
     
     Returns
     -------
-    HEAD : int
-        表が出た
-    TAIL : int
-        裏が出た
-    EMPTY : int
-        表も裏も出なかった
+    elementary_event : int
+        HEAD（表が出た）、TAIL（裏が出た）、EMPTY（表も裏も出なかった）のいずれか        
     """
 
     # 表も裏もでない確率
@@ -211,15 +205,15 @@ class PseudoSeriesResult():
         # ［最長対局数］までやる
         for time_th in range(1, longest_times + 1):
 
-            color = coin(p)
+            elementary_event = toss_a_coin(p)
 
             # 引分け
-            if color == EMPTY:
+            if elementary_event == EMPTY:
                 successful_color_list.append(EMPTY)
 
             # 表勝ち、または裏勝ちのどちらか
             else:
-                successful_color_list.append(color)
+                successful_color_list.append(elementary_event)
 
 
         return PseudoSeriesResult(
@@ -520,14 +514,14 @@ def play_tie_break(p, failure_rate):
         勝った方の色。引き分けなら裏勝ち
     """
 
-    color = coin(p, failure_rate) 
+    elementary_event = toss_a_coin(p, failure_rate) 
 
     # 引き分けなら裏勝ち
-    if color == EMPTY:
+    if elementary_event == EMPTY:
         return TAIL
 
     else:
-        return color
+        return elementary_event
 
 
 def play_game_when_alternating_turn(pseudo_series_result, pts_conf):

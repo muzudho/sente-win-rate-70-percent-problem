@@ -11,26 +11,12 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, coin
+from library import HEAD, TAIL, toss_a_coin
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
 
 
 LOG_FILE_PATH = 'output/test_coin.log'
-
-
-def test_coin(p, failure_rate):
-    """コインについて、指定の表が出る確率、裏が出る確率、どちらでもない確率がだいたい出るかテストする
-    
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］
-    failure_rate : float
-        ［将棋の引分け率］
-    """
-
-    return coin(p)
 
 
 ########################################
@@ -47,18 +33,20 @@ if __name__ == '__main__':
         number_of_draw = 0      # 表も裏も出なかった回数
 
         for i in range(0, 100):
-            color = test_coin(0.5, 0.0)
+            elementary_event = toss_a_coin(
+                p=0.5,              # ［表が出る確率］
+                failure_rate=0.5)   # ［表も裏も出なかった回数］
 
-            if color == HEAD:
+            if elementary_event == HEAD:
                 text = "表が出た"
                 number_of_black += 1
             
-            elif color == TAIL:
+            elif elementary_event == TAIL:
                 text = "裏が出た"
                 number_of_white += 1
 
             else:
-                text = "どちらも出なかった"
+                text = "表も裏も出なかった"
                 number_of_draw += 1
 
             # 表示
