@@ -111,28 +111,37 @@ def p_to_b_w_times(p):
     return fraction.numerator, fraction.denominator
 
 
-def coin(black_rate):
-    """表が黒、裏が白のコインを投げる
+def coin(p, draw_rate=0.0):
+    """コインを投げて、表が出るか、裏が出るか、表も裏も出なかったかのいずれかを返す。
+    このコインは表が黒く（BLACK）塗られており、裏は白く（WHITE）塗られている。
+    表も裏もでない（EMPTY）ケースも確率で指定することができる。
 
     Parameters
     ----------
-    black_rate : float
-        黒が出る確率。例： 黒が７割出るなら 0.7
-    """
-    if random.random() < black_rate:
-        return BLACK
-    return WHITE
-
-
-def draw(draw_rate):
-    """確率的に引き分けになる
-
-    Parameters
-    ----------
+    p : float
+        表が出る確率。例： 表が７割出るなら 0.7
+        ただし、この数は表も裏も出なかった回数を含まない。表と裏の２つのうち表が出る確率を表す
     draw_rate : float
-        引き分けになる確率。例： １割が引き分けなら 0.1
+        表も裏も出ない確率。例： １割が引き分けなら 0.1
+    
+    Returns
+    -------
+    BLACK : int
+        表が出た
+    WHITE : int
+        裏が出た
+    EMPTY : int
+        表も裏も出なかった
     """
-    return random.random() < draw_rate
+
+    # 表も裏もでない確率
+    if draw_rate != 0.0 and random.random() < draw_rate:
+        return EMPTY
+
+    if random.random() < p:
+        return BLACK
+
+    return WHITE
 
 
 class PseudoSeriesResult():
@@ -202,13 +211,15 @@ class PseudoSeriesResult():
         # ［最長対局数］までやる
         for time_th in range(1, longest_times + 1):
 
+            color = coin(p)
+
             # 引分け
-            if draw(draw_rate):
+            if color == EMPTY:
                 successful_color_list.append(EMPTY)
 
             # 黒勝ち、または白勝ちのどちらか
             else:
-                successful_color_list.append(coin(p))
+                successful_color_list.append(color)
 
 
         return PseudoSeriesResult(
@@ -509,12 +520,14 @@ def play_tie_break(p, draw_rate):
         勝った方の色。引き分けなら白勝ち
     """
 
+    color = coin(p, draw_rate) 
+
     # 引き分けなら白勝ち
-    if draw(draw_rate):
+    if color == EMPTY:
         return WHITE
 
     else:
-        return coin(p)
+        return color
 
 
 def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
