@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, COIN_HEAD_AND_TAIL, PLAYER_A_AND_B, PointsConfiguration
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, PointsConfiguration
 
 
 def parse_process_element(process_element):
@@ -415,15 +415,15 @@ def stringify_simulation_log(
 
     # コインの表裏の回数
     # -----------------
-    ht_total_wons = S.number_of_total_wons(opponent_pair=COIN_HEAD_AND_TAIL)
-    ht_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=COIN_HEAD_AND_TAIL)
-    ht_total_points_wons = S.number_of_total_points_wons(opponent_pair=COIN_HEAD_AND_TAIL)
+    ht_total_wons = S.number_of_total_wons(opponent_pair=FACE_OF_COIN)
+    ht_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=FACE_OF_COIN)
+    ht_total_points_wons = S.number_of_total_points_wons(opponent_pair=FACE_OF_COIN)
 
     c13 = S.number_of_fully_wons(elementary_event=HEAD)                              # 先手満点勝ち
     c14 = S.number_of_fully_wons(elementary_event=TAIL)                              # 後手満点勝ち
     c15 = S.number_of_points_wons(winner=HEAD, loser=TAIL)          # 先手判定勝ち（引分けがなければ零です）
     c16 = S.number_of_points_wons(winner=TAIL, loser=HEAD)          # 後手判定勝ち（引分けがなければ零です）
-    c17 = S.number_of_no_wons(opponent_pair=COIN_HEAD_AND_TAIL)     # コインの表も裏も出なかった
+    c17 = S.number_of_no_wons(opponent_pair=FACE_OF_COIN)     # コインの表も裏も出なかった
     c11 = c13 + c15
     c12 = c14 + c16
 
@@ -453,15 +453,15 @@ def stringify_simulation_log(
 
     # プレイヤーの勝敗数
     # -----------------
-    ab_total_wons = S.number_of_total_wons(opponent_pair=PLAYER_A_AND_B)
-    ab_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=PLAYER_A_AND_B)
-    ab_total_points_wons = S.number_of_total_points_wons(opponent_pair=PLAYER_A_AND_B)
+    ab_total_wons = S.number_of_total_wons(opponent_pair=PLAYERS)
+    ab_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=PLAYERS)
+    ab_total_points_wons = S.number_of_total_points_wons(opponent_pair=PLAYERS)
 
     c103 = S.number_of_fully_wons(elementary_event=ALICE)                             # Ａさん満点勝ち
     c104 = S.number_of_fully_wons(elementary_event=BOB)                               # Ｂさん満点勝ち
     c105 = S.number_of_points_wons(winner=ALICE, loser=BOB)          # Ａさん判定勝ち（引分けがなければ零です）
     c106 = S.number_of_points_wons(winner=BOB, loser=ALICE)         # Ｂさん判定勝ち（引分けがなければ零です）
-    c107 = S.number_of_no_wons(opponent_pair=PLAYER_A_AND_B)         # ＡさんもＢさんも勝ちではなかった
+    c107 = S.number_of_no_wons(opponent_pair=PLAYERS)         # ＡさんもＢさんも勝ちではなかった
 
     c111 = trial_successful_rate * trial_a * 100           # 引分けを含んだ［Ａさんが勝つ確率（％）］実践値
     c112 = trial_successful_rate * trial_b * 100           # 引分けを含んだ［Ｂさんが勝つ確率（％）］実践値
@@ -530,7 +530,7 @@ def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
                 black_wons += 1
             elif series_result.is_won(winner=TAIL, loser=HEAD):
                 white_wons += 1
-            elif series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
+            elif series_result.is_no_won(opponent_pair=FACE_OF_COIN):
                 no_wons_color += 1
         
         # 結果としての表の勝率

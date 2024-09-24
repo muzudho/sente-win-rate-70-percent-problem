@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, COIN_HEAD_AND_TAIL, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary, make_all_pseudo_series_results
+from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary, make_all_pseudo_series_results
 from file_paths import get_analysis_series_log_file_path
 from database import get_df_muzudho_single_points
 from views import stringify_series_log, stringify_analysis_series
@@ -124,7 +124,7 @@ if __name__ == '__main__':
                 #
                 # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
-                elif FAILURE_RATE == 0.0 and series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
+                elif FAILURE_RATE == 0.0 and series_result.is_no_won(opponent_pair=FACE_OF_COIN):
                     #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {FAILURE_RATE=}")
                     pass
 

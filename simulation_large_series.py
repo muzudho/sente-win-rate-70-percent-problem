@@ -93,7 +93,9 @@ Example: 2000000
                         pseudo_series_result=pseudo_series_result,
                         pts_conf=pts_conf,
                         turn_system=turn_system)
-                
+                print(f"{series_result.stringify_dump()}")
+
+
                 series_result_list.append(series_result)
 
 

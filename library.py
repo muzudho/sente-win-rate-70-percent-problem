@@ -27,8 +27,8 @@ HEAD = 1
 # 裏。裏。後手。配列のインデックスに使う
 TAIL = 2
 
-#   Player
-#   ------
+#   Players
+#   -------
 
 # Ａさん。配列のインデックスに使う
 ALICE = 3
@@ -61,10 +61,10 @@ WHEN_ALTERNATING_TURN = 2
 # -------------
 
 # ［コインの表と裏］。配列のインデックスに使う
-COIN_HEAD_AND_TAIL = 1
+FACE_OF_COIN = 1
 
 # ［ＡさんとＢさん］。配列のインデックスに使う
-PLAYER_A_AND_B = 2
+PLAYERS = 2
 
 
 class Specification():
@@ -580,7 +580,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         point_calculation = PointCalculation(pts_conf=pts_conf)
 
         # ［このシリーズで引き分けた対局数］
-        number_of_draw_times = 0
+        number_of_failed = 0
 
         time_th = 0
 
@@ -593,7 +593,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
             #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
             #
             if face_of_coin == EMPTY:
-                number_of_draw_times += 1
+                number_of_failed += 1
 
                 point_calculation.append_draw(time_th, turn_system=WHEN_FROZEN_TURN)
             
@@ -612,7 +612,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
 
                     return SeriesResult(
                             number_of_times=time_th,
-                            number_of_draw_times=number_of_draw_times,
+                            number_of_failed=number_of_failed,
                             span=pts_conf.span,
                             point_calculation=point_calculation,
                             pseudo_series_result=pseudo_series_result)
@@ -621,7 +621,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return SeriesResult(
                 number_of_times=time_th,
-                number_of_draw_times=number_of_draw_times,
+                number_of_failed=number_of_failed,
                 span=pts_conf.span,
                 point_calculation=point_calculation,
                 pseudo_series_result=pseudo_series_result)
@@ -647,7 +647,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         point_calculation = PointCalculation(pts_conf=pts_conf)
 
         # ［このシリーズで引き分けた対局数］
-        number_of_draw_times = 0
+        number_of_failed = 0
 
         time_th = 0
 
@@ -660,7 +660,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
             #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
             #
             if face_of_coin == EMPTY:
-                number_of_draw_times += 1
+                number_of_failed += 1
 
                 point_calculation.append_draw(time_th, turn_system=WHEN_ALTERNATING_TURN)
 
@@ -681,7 +681,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
 
                     return SeriesResult(
                             number_of_times=time_th,
-                            number_of_draw_times=number_of_draw_times,
+                            number_of_failed=number_of_failed,
                             span=pts_conf.span,
                             point_calculation=point_calculation,
                             pseudo_series_result=pseudo_series_result)
@@ -690,7 +690,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return SeriesResult(
                 number_of_times=time_th,
-                number_of_draw_times=number_of_draw_times,
+                number_of_failed=number_of_failed,
                 span=pts_conf.span,
                 point_calculation=point_calculation,
                 pseudo_series_result=pseudo_series_result)
@@ -1109,14 +1109,14 @@ class SeriesResult():
     """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_times, number_of_draw_times, span, point_calculation, pseudo_series_result):
+    def __init__(self, number_of_times, number_of_failed, span, point_calculation, pseudo_series_result):
         """初期化
     
         Parameters
         ----------
         number_of_times : int
             行われた対局数
-        number_of_draw_times : int
+        number_of_failed : int
             引分けだった対局数
         span : int
             ［目標の点数］
@@ -1128,7 +1128,7 @@ class SeriesResult():
 
         # 共通
         self._number_of_times = number_of_times
-        self._number_of_draw_times = number_of_draw_times
+        self._number_of_failed = number_of_failed
         self._span = span
         self._point_calculation = point_calculation
         self._pseudo_series_result = pseudo_series_result
@@ -1150,9 +1150,9 @@ class SeriesResult():
 
 
     @property
-    def number_of_draw_times(self):
-        """引分けだった対局数"""
-        return self._number_of_draw_times
+    def number_of_failed(self):
+        """［表も裏も出なかった対局数］"""
+        return self._number_of_failed
 
 
     @property
@@ -1184,10 +1184,10 @@ class SeriesResult():
     def is_no_won(self, opponent_pair):
         """勝者なし。 x 、 y の［勝ち点］が等しいとき"""
 
-        if opponent_pair == COIN_HEAD_AND_TAIL:
+        if opponent_pair == FACE_OF_COIN:
             x = HEAD
             y = TAIL
-        elif opponent_pair == PLAYER_A_AND_B:
+        elif opponent_pair == PLAYERS:
             x = ALICE
             y = BOB
         else:
@@ -1195,6 +1195,26 @@ class SeriesResult():
 
         return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
 
+
+    def stringify_dump(self):
+        return f"""\
+{self._number_of_times=}
+{self._number_of_failed=}
+{self._span=}
+{self._point_calculation=}
+{self._pseudo_series_result=}
+{self.is_points_won(winner=HEAD, loser=TAIL)=}
+{self.is_points_won(winner=TAIL, loser=HEAD)=}
+{self.is_points_won(winner=ALICE, loser=BOB)=}
+{self.is_points_won(winner=BOB, loser=ALICE)=}
+{self.is_won(winner=HEAD, loser=TAIL)=}
+{self.is_won(winner=TAIL, loser=HEAD)=}
+{self.is_won(winner=ALICE, loser=BOB)=}
+{self.is_won(winner=BOB, loser=ALICE)=}
+{self.is_no_won(opponent_pair=FACE_OF_COIN)}
+{self.is_no_won(opponent_pair=PLAYERS)}
+"""
+    
 
 class LargeSeriesTrialSummary():
     """大量のシリーズを試行した結果"""
@@ -1212,7 +1232,7 @@ class LargeSeriesTrialSummary():
         self._series_result_list = series_result_list
         self._shortest_time_th = None
         self._longest_time_th = None
-        self._number_of_draw_times = None
+        self._number_of_failed = None
 
         # ［満点勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
         self._number_of_fully_wons = [None, None, None, None, None]
@@ -1258,36 +1278,36 @@ class LargeSeriesTrialSummary():
 
 
     def number_of_total_wons(self, opponent_pair):
-        if opponent_pair == COIN_HEAD_AND_TAIL:
+        if opponent_pair == FACE_OF_COIN:
             return self.number_of_wons(winner=HEAD, loser=TAIL) + self.number_of_wons(winner=TAIL, loser=HEAD)
-        elif opponent_pair == PLAYER_A_AND_B:
+        elif opponent_pair == PLAYERS:
             return self.number_of_wons(winner=ALICE, loser=BOB) + self.number_of_wons(winner=BOB, loser=ALICE)
 
 
     def number_of_total_fully_wons(self, opponent_pair):
-        if opponent_pair == COIN_HEAD_AND_TAIL:
+        if opponent_pair == FACE_OF_COIN:
             return self.number_of_fully_wons(elementary_event=HEAD) + self.number_of_fully_wons(elementary_event=TAIL)
-        elif opponent_pair == PLAYER_A_AND_B:
+        elif opponent_pair == PLAYERS:
             return self.number_of_fully_wons(elementary_event=ALICE) + self.number_of_fully_wons(elementary_event=BOB)
 
 
     def number_of_total_points_wons(self, opponent_pair):
-        if opponent_pair == COIN_HEAD_AND_TAIL:
+        if opponent_pair == FACE_OF_COIN:
             return self.number_of_points_wons(winner=HEAD, loser=TAIL) + self.number_of_points_wons(winner=TAIL, loser=HEAD)
-        elif opponent_pair == PLAYER_A_AND_B:
+        elif opponent_pair == PLAYERS:
             return self.number_of_points_wons(winner=ALICE, loser=BOB) + self.number_of_points_wons(winner=BOB, loser=ALICE)
 
 
     @property
-    def number_of_draw_times(self):
+    def number_of_failed(self):
         """全シリーズ通算の引分けの対局数"""
-        if self._number_of_draw_times is None:
-            self._number_of_draw_times = 0
+        if self._number_of_failed is None:
+            self._number_of_failed = 0
             for series_result in self._series_result_list:
-                if series_result.number_of_draw_times:
-                    self._number_of_draw_times += 1
+                if series_result.number_of_failed:
+                    self._number_of_failed += 1
 
-        return self._number_of_draw_times
+        return self._number_of_failed
 
 
     def number_of_fully_wons(self, elementary_event):
