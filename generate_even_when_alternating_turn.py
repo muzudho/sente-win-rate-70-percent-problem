@@ -259,7 +259,7 @@ def iteration_deeping(df, abs_limit_of_error):
                         large_series_trial_summary = LargeSeriesTrialSummary(
                                 series_result_list=series_result_list)
 
-                        latest_p = large_series_trial_summary.number_of_all_wons(winner=ALICE, loser=BOB) / REQUIRED_MUMBER_OF_SERIES
+                        latest_p = large_series_trial_summary.number_of_wons(winner=ALICE, loser=BOB) / REQUIRED_MUMBER_OF_SERIES
                         latest_p_error = latest_p - 0.5
 
 

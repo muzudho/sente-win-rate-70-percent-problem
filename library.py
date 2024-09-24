@@ -1164,7 +1164,6 @@ class LargeSeriesTrialSummary():
     # 共通
     # ----
 
-
     @property
     def number_of_series(self):
         """シリーズ数"""
@@ -1195,6 +1194,27 @@ class LargeSeriesTrialSummary():
         return self._shortest_time_th
 
 
+    def number_of_total_wons(self, opponent_pair):
+        if opponent_pair == COIN_HEAD_AND_TAIL:
+            return self.number_of_wons(winner=HEAD, loser=TAIL) + self.number_of_wons(winner=TAIL, loser=HEAD)
+        elif opponent_pair == PLAYER_A_AND_B:
+            return self.number_of_wons(winner=ALICE, loser=BOB) + self.number_of_wons(winner=BOB, loser=ALICE)
+
+
+    def number_of_total_fully_wons(self, opponent_pair):
+        if opponent_pair == COIN_HEAD_AND_TAIL:
+            return self.number_of_fully_wons(elementary_event=HEAD) + self.number_of_fully_wons(elementary_event=TAIL)
+        elif opponent_pair == PLAYER_A_AND_B:
+            return self.number_of_fully_wons(elementary_event=ALICE) + self.number_of_fully_wons(elementary_event=BOB)
+
+
+    def number_of_total_points_wons(self, opponent_pair):
+        if opponent_pair == COIN_HEAD_AND_TAIL:
+            return self.number_of_points_wons(winner=HEAD, loser=TAIL) + self.number_of_points_wons(winner=TAIL, loser=HEAD)
+        elif opponent_pair == PLAYER_A_AND_B:
+            return self.number_of_points_wons(winner=ALICE, loser=BOB) + self.number_of_points_wons(winner=BOB, loser=ALICE)
+
+
     @property
     def number_of_draw_times(self):
         """全シリーズ通算の引分けの対局数"""
@@ -1207,15 +1227,15 @@ class LargeSeriesTrialSummary():
         return self._number_of_draw_times
 
 
-    def number_of_fully_wons(self, index):
-        """index さんが［目標の点数］を集めて勝った回数"""
-        if self._number_of_fully_wons[index] is None:
-            self._number_of_fully_wons[index] = 0
+    def number_of_fully_wons(self, elementary_event):
+        """elementary_event が［目標の点数］を集めて勝った回数"""
+        if self._number_of_fully_wons[elementary_event] is None:
+            self._number_of_fully_wons[elementary_event] = 0
             for series_result in self._series_result_list:
-                if series_result.point_calculation.is_fully_won(index):
-                    self._number_of_fully_wons[index] += 1
+                if series_result.point_calculation.is_fully_won(elementary_event):
+                    self._number_of_fully_wons[elementary_event] += 1
 
-        return self._number_of_fully_wons[index]
+        return self._number_of_fully_wons[elementary_event]
 
 
     def number_of_points_wons(self, winner, loser):
@@ -1233,10 +1253,10 @@ class LargeSeriesTrialSummary():
         """引分けで終わったシリーズ数"""
 
         if turn_system == WHEN_FROZEN_TURN:
-            return self.number_of_series - self.number_of_all_wons(winner=HEAD, loser=TAIL) - self.number_of_all_wons(winner=TAIL, loser=HEAD)
+            return self.number_of_series - self.number_of_wons(winner=HEAD, loser=TAIL) - self.number_of_wons(winner=TAIL, loser=HEAD)
         
         elif turn_system == WHEN_ALTERNATING_TURN:
-            return self.number_of_series - self.number_of_all_wons(winner=ALICE, loser=BOB) - self.number_of_all_wons(winner=BOB, loser=ALICE)
+            return self.number_of_series - self.number_of_wons(winner=ALICE, loser=BOB) - self.number_of_wons(winner=BOB, loser=ALICE)
         
         else:
             raise ValueError(f"{turn_system=}")
@@ -1247,7 +1267,7 @@ class LargeSeriesTrialSummary():
         
         引分けを除いて計算する
         """
-        return self.number_of_all_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=turn_system))
+        return self.number_of_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=turn_system))
 
 
     def win_rate_error_without_draw(self, winner, loser, turn_system):
@@ -1263,9 +1283,9 @@ class LargeSeriesTrialSummary():
         return self.number_of_draw_series(turn_system=turn_system) / self.number_of_series
 
 
-    def number_of_all_wons(self, winner, loser):
+    def number_of_wons(self, winner, loser):
         """winner が loser に勝った数"""
-        return self.number_of_fully_wons(winner) + self.number_of_points_wons(winner=winner, loser=loser)
+        return self.number_of_fully_wons(elementary_event=winner) + self.number_of_points_wons(winner=winner, loser=loser)
 
 
     def number_of_no_wons(self, opponent_pair):

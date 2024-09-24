@@ -414,8 +414,12 @@ def stringify_simulation_log(
 
     # コインの表裏の回数
     # -----------------
-    c13 = S.number_of_fully_wons(HEAD)                              # 先手満点勝ち
-    c14 = S.number_of_fully_wons(TAIL)                              # 後手満点勝ち
+    ht_total_wons = S.number_of_total_wons(opponent_pair=COIN_HEAD_AND_TAIL)
+    ht_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=COIN_HEAD_AND_TAIL)
+    ht_total_points_wons = S.number_of_total_points_wons(opponent_pair=COIN_HEAD_AND_TAIL)
+
+    c13 = S.number_of_fully_wons(elementary_event=HEAD)                              # 先手満点勝ち
+    c14 = S.number_of_fully_wons(elementary_event=TAIL)                              # 後手満点勝ち
     c15 = S.number_of_points_wons(winner=HEAD, loser=TAIL)          # 先手判定勝ち（引分けがなければ零です）
     c16 = S.number_of_points_wons(winner=TAIL, loser=HEAD)          # 後手判定勝ち（引分けがなければ零です）
     c17 = S.number_of_no_wons(opponent_pair=COIN_HEAD_AND_TAIL)     # コインの表も裏も出なかった
@@ -440,29 +444,31 @@ def stringify_simulation_log(
     c52 = trial_successful_rate * trial_q_error * 100       # 引分けを含んだ［将棋の後手勝率］誤差
     c57 = (trial_failure_rate - failure_rate) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
 
-    # プレイヤーの勝敗数
-    # -----------------
-    c63 = S.number_of_fully_wons(ALICE)                             # Ａさん満点勝ち
-    c64 = S.number_of_fully_wons(BOB)                               # Ｂさん満点勝ち
-    c65 = S.number_of_points_wons(winner=ALICE, loser=BOB)          # Ａさん判定勝ち（引分けがなければ零です）
-    c66 = S.number_of_points_wons(winner=BOB, loser=ALICE)         # Ｂさん判定勝ち（引分けがなければ零です）
-    c67 = S.number_of_no_wons(opponent_pair=PLAYER_A_AND_B)         # ＡさんもＢさんも勝ちではなかった
-
     c71 = trial_a * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
     c72 = trial_b * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
 
     c81 = trial_ae * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
     c82 = trial_be * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
-    # ［以下、［かくきんシステム］を使って試行］４ブロック目（プレイヤー、引分含む）
-    # ---------------------------------------------
-    c91 = trial_successful_rate * trial_a * 100           # 引分けを含んだ［Ａさんが勝つ確率（％）］実践値
-    c92 = trial_successful_rate * trial_b * 100           # 引分けを含んだ［Ｂさんが勝つ確率（％）］実践値
-    c97 = trial_failure_rate * 100                         # ［将棋の引分け率］実践値            　［先後交互制］
+    # プレイヤーの勝敗数
+    # -----------------
+    ab_total_wons = S.number_of_total_wons(opponent_pair=PLAYER_A_AND_B)
+    ab_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=PLAYER_A_AND_B)
+    ab_total_points_wons = S.number_of_total_points_wons(opponent_pair=PLAYER_A_AND_B)
 
-    c101 = trial_successful_rate * trial_ae * 100         # 引分けを含んだ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c102 = trial_successful_rate * trial_be * 100         # 引分けを含んだ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c107 = (trial_failure_rate - failure_rate) * 100       # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
+    c103 = S.number_of_fully_wons(elementary_event=ALICE)                             # Ａさん満点勝ち
+    c104 = S.number_of_fully_wons(elementary_event=BOB)                               # Ｂさん満点勝ち
+    c105 = S.number_of_points_wons(winner=ALICE, loser=BOB)          # Ａさん判定勝ち（引分けがなければ零です）
+    c106 = S.number_of_points_wons(winner=BOB, loser=ALICE)         # Ｂさん判定勝ち（引分けがなければ零です）
+    c107 = S.number_of_no_wons(opponent_pair=PLAYER_A_AND_B)         # ＡさんもＢさんも勝ちではなかった
+
+    c111 = trial_successful_rate * trial_a * 100           # 引分けを含んだ［Ａさんが勝つ確率（％）］実践値
+    c112 = trial_successful_rate * trial_b * 100           # 引分けを含んだ［Ｂさんが勝つ確率（％）］実践値
+    c117 = trial_failure_rate * 100                         # ［将棋の引分け率］実践値            　［先後交互制］
+
+    c141 = trial_successful_rate * trial_ae * 100         # 引分けを含んだ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c142 = trial_successful_rate * trial_be * 100         # 引分けを含んだ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c147 = (trial_failure_rate - failure_rate) * 100       # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
 
     # 対局数
     # ------
@@ -487,23 +493,25 @@ def stringify_simulation_log(
               |                                                                          目標          {b_pt3:4.0f}点                 |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
               | 以下、［かくきんシステム］を使って試行                                                                                        |
-              | 計                            | 決着                          | 引分け                                        |               |
-              | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗なし      | 対局数        |
-              |   { c11:>8} 回     { c12:>8} 回     {c13:>8} 回     {c14:>8} 回     {c15:>8} 回      {c16:>8} 回    {c17:>8} 回 |               |
+              | 計 {ht_total_wons:>8}                   | 引分け無しのシリーズ {ht_total_fully_wons:>8} | 引分けを含んだシリーズ {ht_total_points_wons:>8}               |               |
+              | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗付かず    | 対局数        |
+              |   { c11:>8} 回     { c12:>8} 回                                                                                 |               |
     引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm20:>4} ～{tm21:>4} 局 |
               |（{ c31:+9.4f}）   （{ c32:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
+              |                                   {c13:>8} 回     {c14:>8} 回     {c15:>8} 回      {c16:>8} 回    {c17:>8} 回 |               |
     引分込み  |   { c41:8.4f} ％     { c42:8.4f} ％                                                                     { c47:8.4f} ％ |               |
               |（{ c51:+9.4f}）   （{ c52:+9.4f}）                                                                   （{ c57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+               |
-              | 計                            | 決着                          | 引分け                                        |               |
-              | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗なし      |               |
-    引分除く  |                                   {c63:>8} 回     {c64:>8} 回     {c65:>8} 回     {c66:>8} 回     {c67:>8} 回 |               |
-              |   { c71:8.4f} ％     { c72:8.4f} ％                                                                                 |               |
+              | 計 {ab_total_wons:>8}                   | 引分け無しのシリーズ {ab_total_fully_wons:>8} | 引分けを含んだシリーズ {ab_total_points_wons:>8}               |               |
+              | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗付かず    |               |
+              |                                                                                                               |               |
+    引分除く  |   { c71:8.4f} ％     { c72:8.4f} ％                                                                                 |               |
               |（{ c81:+9.4f}）   （{ c82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
-    引分込み  |   { c91:8.4f} ％     { c92:8.4f} ％                                                                     { c97 :8.4f} ％ |               |
-              |（{c101:+9.4f}）   （{c102:+9.4f}）                                                                   （{c107:+9.4f}）  |               |
+              |                                   {c103:>8} 回     {c104:>8} 回     {c105:>8} 回     {c106:>8} 回     {c107:>8} 回 |               |
+    引分込み  |   {c111:8.4f} ％     {c112:8.4f} ％                                                                     {c117 :8.4f} ％ |               |
+              |（{c141:+9.4f}）   （{c142:+9.4f}）                                                                   （{c147:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 """
 
