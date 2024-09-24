@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import round_letro, calculate_probability, PointsConfiguration
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, PointsConfiguration, Specification
 from database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from views import stringify_report_muzudho_recommends_points
 
@@ -75,8 +75,8 @@ def generate_report(turn_system):
 
         df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
-        for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for            p,          number_of_series,          b_step,          w_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['number_of_series'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # 仕様
             spec = Specification(
@@ -100,6 +100,7 @@ def generate_report(turn_system):
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(
                     p=p,
+                    number_of_series=number_of_series,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                     presentable=presentable,

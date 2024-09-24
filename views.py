@@ -110,13 +110,16 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         # ［最長対局数］
         seg_8 = specified_points_configuration.number_longest_time(turn_system=turn_system)
 
+        # ［試行回数］
+        seg_9 = number_of_series
+
         # 表示用の説明文
         if isinstance(presentable, str):    # float NaN が入っていることがある
-            seg_9 = f"    {presentable}"
+            seg_10 = f"    {presentable}"
         else:
-            seg_9 = ''
+            seg_10 = ''
 
-        return f"先手勝率 {seg_1:2.0f} ％ --理論値--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）{seg_9}"
+        return f"先手勝率 {seg_1:2.0f} ％ --理論値--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）    試行{seg_9}回{seg_10}"
 
 
     raise ValueError(f"{turn_system=}")

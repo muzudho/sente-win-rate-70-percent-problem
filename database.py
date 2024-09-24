@@ -90,13 +90,10 @@ def get_df_muzudho_recommends_points(turn_system):
         return df
 
 
-    raise ValueError(f"{turn_system=}")
-
-
-def get_df_muzudho_recommends_points(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         df = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
         df['p'].astype('float')
+        df['number_of_series'].fillna(0).astype('int')
         df['b_step'].fillna(0).astype('int')
         df['w_step'].fillna(1).astype('int')
         df['span'].fillna(1).astype('int')
