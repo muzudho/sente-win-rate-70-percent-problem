@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import HEAD, round_letro, p_to_b_w_times, PointsConfiguration, judge_series_when_frozen_turn
+from library import HEAD, round_letro, p_to_b_w_times, PointsConfiguration, judge_series
 
 
 LOG_FILE_PATH = 'output/simulation_series_with_leap.log'

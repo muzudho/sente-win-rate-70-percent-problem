@@ -11,8 +11,8 @@ import math
 
 import pandas as pd
 
-from library import EMPTY, HEAD, TAIL, WHEN_FROZEN_TURN, Specification, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, play_tie_break, LargeSeriesTrialSummary
-from database import get_df_muzudho_recommends_points_when_frozen_turn
+from library import EMPTY, HEAD, TAIL, WHEN_FROZEN_TURN, Specification, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series, play_tie_break, LargeSeriesTrialSummary
+from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
 
@@ -46,9 +46,10 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
                 longest_times=longest_times)
 
         # ［先後固定制］で、シリーズを勝った方の手番を返す。引き分けを１局と数える
-        series_result = judge_series_when_frozen_turn(
+        series_result = judge_series(
                 pseudo_series_result=pseudo_series_result,
-                pts_conf=pts_conf)
+                pts_conf=pts_conf,
+                turn_system=WHEN_FROZEN_TURN)
         
         series_result_list.append(series_result)
 
@@ -108,7 +109,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
         # 対局数
         number_of_series = 2_000_000 # 十分多いケース

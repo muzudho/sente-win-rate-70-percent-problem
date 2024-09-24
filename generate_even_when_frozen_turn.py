@@ -15,7 +15,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, round_letro, PointsConfiguration, calculate_probability
 from database import get_df_generate_even
-from views import print_when_generate_when_frozen_turn
+from views import print_when_generate
 
 
 LOG_FILE_PATH_FT = 'output/generate_even_when_frozen_turn.log'
@@ -43,12 +43,13 @@ def update_dataframe(df, p,
     """データフレーム更新"""
 
     # 表示
-    print_when_generate_when_frozen_turn(
+    print_when_generate(
             p=p,
             specified_p=best_p,
             specified_p_error=best_p_error,
             specified_number_of_series=best_number_of_series,
-            specified_points_configuration=best_points_configuration)
+            specified_points_configuration=best_points_configuration,
+            turn_system=WHEN_FROZEN_TURN)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['best_p']] = best_p

@@ -207,33 +207,37 @@ def print_when_generate_even(p, best_p, best_p_error, best_number_of_series, pts
     raise ValueError(f"{turn_system=}")
 
 
-def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, specified_number_of_series, specified_points_configuration):
+def print_when_generat(p, specified_p, specified_p_error, specified_number_of_series, specified_points_configuration, turn_system):
+    if turn_system == WHEN_FROZEN_TURN:
+        # ［表が出る確率（％）］
+        seg_1a = p*100
 
-    # ［表が出る確率（％）］
-    seg_1a = p*100
+        # ［調整後の表が出る確率（％）］
+        seg_1b = specified_p * 100
 
-    # ［調整後の表が出る確率（％）］
-    seg_1b = specified_p * 100
+        # ［調整後の表が出る確率（％）と 0.5 との誤差］
+        seg_1c = specified_p_error * 100
 
-    # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = specified_p_error * 100
+        # 対局数
+        seg_3a = specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+        seg_3b = specified_points_configuration.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+        seg_3c = specified_points_configuration.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+        seg_3d = specified_points_configuration.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
-    # 対局数
-    seg_3a = specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-    seg_3b = specified_points_configuration.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-    seg_3c = specified_points_configuration.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-    seg_3d = specified_points_configuration.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+        # ［表勝ち１つの点数］
+        seg_4a = specified_points_configuration.b_step
 
-    # ［表勝ち１つの点数］
-    seg_4a = specified_points_configuration.b_step
+        # ［表勝ち１つの点数］
+        seg_4b = specified_points_configuration.w_step
 
-    # ［表勝ち１つの点数］
-    seg_4b = specified_points_configuration.w_step
+        # ［目標の点数］
+        seg_4c = specified_points_configuration.span
 
-    # ［目標の点数］
-    seg_4c = specified_points_configuration.span
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        return
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+
+    raise ValueError(f"{turn_system=}")
 
 
 def stringify_series_log(
@@ -519,54 +523,60 @@ def stringify_simulation_log(
 """
 
 
-def stringify_analysis_series_when_frozen_turn(p, failure_rate, series_result_list):
-    """シリーズ分析中のログ"""
+def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
+    if turn_system == WHEN_FROZEN_TURN:
+        """シリーズ分析中のログ"""
 
-    # 集計
-    black_wons = 0
-    no_wons_color = 0
-    white_wons = 0
-    for series_result in series_result_list:
-        if series_result.is_won(winner=HEAD, loser=TAIL):
-            black_wons += 1
-        elif series_result.is_won(winner=TAIL, loser=HEAD):
-            white_wons += 1
-        elif series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
-            no_wons_color += 1
-    
-    # 結果としての表の勝率
-    result_black_wons_without_draw = black_wons / (len(series_result_list) - no_wons_color)
-    result_black_wons_with_draw = black_wons / len(series_result_list)
+        # 集計
+        black_wons = 0
+        no_wons_color = 0
+        white_wons = 0
+        for series_result in series_result_list:
+            if series_result.is_won(winner=HEAD, loser=TAIL):
+                black_wons += 1
+            elif series_result.is_won(winner=TAIL, loser=HEAD):
+                white_wons += 1
+            elif series_result.is_no_won(opponent_pair=COIN_HEAD_AND_TAIL):
+                no_wons_color += 1
+        
+        # 結果としての表の勝率
+        result_black_wons_without_draw = black_wons / (len(series_result_list) - no_wons_color)
+        result_black_wons_with_draw = black_wons / len(series_result_list)
 
-    # 結果としての引分け率
-    result_no_wons_color_with_draw = no_wons_color / len(series_result_list)
+        # 結果としての引分け率
+        result_no_wons_color_with_draw = no_wons_color / len(series_result_list)
 
-    # 結果としての裏の勝率
-    result_white_wons_without_draw = white_wons / (len(series_result_list) - no_wons_color)
-    result_white_wons_with_draw = white_wons / len(series_result_list)
+        # 結果としての裏の勝率
+        result_white_wons_without_draw = white_wons / (len(series_result_list) - no_wons_color)
+        result_white_wons_with_draw = white_wons / len(series_result_list)
 
-    # 将棋の先手勝率など
-    shw1 = p * 100
-    shd1 = failure_rate
-    shl1 = (1 - p) * 100
+        # 将棋の先手勝率など
+        shw1 = p * 100
+        shd1 = failure_rate
+        shl1 = (1 - p) * 100
 
-    bw1 = result_black_wons_without_draw * 100
-    bw2 = result_black_wons_with_draw * 100
+        bw1 = result_black_wons_without_draw * 100
+        bw2 = result_black_wons_with_draw * 100
 
-    bd2 = result_no_wons_color_with_draw * 100
+        bd2 = result_no_wons_color_with_draw * 100
 
-    ww1 = result_white_wons_without_draw * 100
-    ww2 = result_white_wons_with_draw * 100
+        ww1 = result_white_wons_without_draw * 100
+        ww2 = result_white_wons_with_draw * 100
 
-    print(f"""\
-         +--------------------------------------------------------------+
-         | 以下、指定したもの                                           |
-         |  将棋の先手勝率        将棋の引分け率        将棋の後手勝率  |
-         |  {shw1:8.4f} ％           {shd1:8.4f} ％           {shl1:8.4f} ％     |
-         +--------------------------------------------------------------+
-         | 以下、［かくきんシステム］が設定したハンディキャップ         |
-         |  先手勝率              引分け率              後手勝率        |
+        print(f"""\
+        +--------------------------------------------------------------+
+        | 以下、指定したもの                                           |
+        |  将棋の先手勝率        将棋の引分け率        将棋の後手勝率  |
+        |  {shw1:8.4f} ％           {shd1:8.4f} ％           {shl1:8.4f} ％     |
+        +--------------------------------------------------------------+
+        | 以下、［かくきんシステム］が設定したハンディキャップ         |
+        |  先手勝率              引分け率              後手勝率        |
 引分除く |  {bw1:8.4f} ％                                 {  ww1:8.4f} ％     |
 引分込み |  {bw2:8.4f} ％           {bd2:8.4f} ％           {ww2:8.4f} ％     |
-         +--------------------------------------------------------------+
+        +--------------------------------------------------------------+
 """)
+
+        return
+
+
+    raise ValueError(f"{turn_system=}")

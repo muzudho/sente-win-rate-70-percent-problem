@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, toss_a_coin
-from views import stringify_analysis_series_when_frozen_turn
+from views import stringify_analysis_series
 
 
 LOG_FILE_PATH = 'output/test_coin.log'

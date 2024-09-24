@@ -12,8 +12,8 @@ import math
 
 import pandas as pd
 
-from library import HEAD, ALICE, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary
-from database import get_df_muzudho_recommends_points_when_frozen_turn
+from library import HEAD, ALICE, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary
+from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
 
@@ -52,9 +52,10 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
                 longest_times=longest_times)
 
         # ［先後固定制］で、シリーズを勝った方の手番を返す
-        series_result = judge_series_when_frozen_turn(
+        series_result = judge_series(
                 pseudo_series_result=pseudo_series_result,
-                pts_conf=pts_conf)
+                pts_conf=pts_conf,
+                turn_system=WHEN_FROZEN_TURN)
         
         series_result_list.append(series_result)
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):

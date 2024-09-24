@@ -93,17 +93,21 @@ def get_df_muzudho_recommends_points(turn_system):
     raise ValueError(f"{turn_system=}")
 
 
-def get_df_muzudho_recommends_points_when_frozen_turn():
-    df = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
-    df['p'].astype('float')
-    df['b_step'].fillna(0).astype('int')
-    df['w_step'].fillna(1).astype('int')
-    df['span'].fillna(1).astype('int')
-    df['presentable'].astype('string')
-    df['comment'].astype('string')
-    df['process'].astype('string')
+def get_df_muzudho_recommends_points(turn_system):
+    if turn_system == WHEN_FROZEN_TURN:
+        df = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
+        df['p'].astype('float')
+        df['b_step'].fillna(0).astype('int')
+        df['w_step'].fillna(1).astype('int')
+        df['span'].fillna(1).astype('int')
+        df['presentable'].astype('string')
+        df['comment'].astype('string')
+        df['process'].astype('string')
 
-    return df
+        return df
+
+
+    raise ValueError(f"{turn_system=}")
 
 
 def get_df_muzudho_single_points(turn_system):

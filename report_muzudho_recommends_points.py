@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from database import get_df_muzudho_recommends_points_when_frozen_turn, get_df_muzudho_recommends_points
+from database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from views import stringify_report_muzudho_recommends_points_ft, stringify_report_muzudho_recommends_points_at
 
 
@@ -72,7 +72,7 @@ def generate_report(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         """［先後固定制］"""
 
-        df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):

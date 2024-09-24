@@ -12,9 +12,9 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, COIN_HEAD_AND_TAIL, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results
+from library import HEAD, TAIL, ALICE, COIN_HEAD_AND_TAIL, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary, make_all_pseudo_series_results
 from database import get_df_muzudho_single_points
-from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
+from views import stringify_series_log, stringify_analysis_series
 
 
 LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
@@ -107,9 +107,10 @@ if __name__ == '__main__':
                 old_number_of_times = len(successful_color_list)
 
                 # ［先後固定制］で、シリーズを勝った方の手番を返す
-                series_result = judge_series_when_frozen_turn(
+                series_result = judge_series(
                         pseudo_series_result=pseudo_series_result,
-                        pts_conf=specified_points_configuration)
+                        pts_conf=specified_points_configuration,
+                        turn_system=WHEN_FROZEN_TURN)
 
                 if series_result.number_of_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
@@ -132,10 +133,11 @@ if __name__ == '__main__':
                     series_result_list.append(series_result)
 
             # 表示
-            print(stringify_analysis_series_when_frozen_turn(
+            print(stringify_analysis_series(
                     p=p,
                     failure_rate=FAILURE_RATE,
-                    series_result_list=series_result_list))
+                    series_result_list=series_result_list,
+                    turn_system=WHEN_FROZEN_TURN))
 
             for series_result in series_result_list:
                 analysis_series(

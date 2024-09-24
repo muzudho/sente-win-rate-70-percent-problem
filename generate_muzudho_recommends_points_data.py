@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
-from database import get_df_generate_even, get_df_generate_even, get_df_muzudho_recommends_points, get_df_muzudho_recommends_points_when_frozen_turn
+from database import get_df_generate_even, get_df_generate_even, get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from views import parse_process_element
 
 
@@ -82,7 +82,7 @@ def generate_report(turn_system):
         """［先後固定制］"""
 
         df_ft = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
-        df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
         for            p,          best_p,          best_p_error,          best_number_of_series,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_b_step,          latest_w_step,          latest_span,          process in\
             zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_number_of_series'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_number_of_series'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
