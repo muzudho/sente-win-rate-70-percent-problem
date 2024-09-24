@@ -12,8 +12,14 @@ from fractions import Fraction
 from decimal import Decimal, ROUND_HALF_UP
 
 
+# Elementary event
+# ----------------
+
 # 配列の未使用インデックスに使う
 EMPTY = 0
+
+#   Face of coin
+#   ------------
 
 # 表。表。先手。配列のインデックスに使う
 HEAD = 1
@@ -21,11 +27,24 @@ HEAD = 1
 # 裏。裏。後手。配列のインデックスに使う
 TAIL = 2
 
+#   Player
+#   ------
+
 # Ａさん。配列のインデックスに使う
 ALICE = 3
 
 # Ｂさん。配列のインデックスに使う
 BOB = 4
+
+
+# Challenged
+# ----------
+
+# ［コインを投げて表か裏が出た］
+SUCCESSFUL = 1
+
+# ［コインを投げて表も裏も出なかった］
+FAILED = 2
 
 
 # Turn system
@@ -203,7 +222,7 @@ class PseudoSeriesResult():
     """疑似的にシリーズのコイントスした結果"""
 
 
-    def __init__(self, p, failure_rate, longest_times, successful_color_list):
+    def __init__(self, p, failure_rate, longest_times, face_of_coin_list):
         """初期化
 
         Parameters
@@ -214,13 +233,13 @@ class PseudoSeriesResult():
             ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
         longest_times : int
             ［最長対局数］
-        successful_color_list : list
+        face_of_coin_list : list
             コイントスした結果のリスト。引き分け含む
         """
         self._p = p,
         self._failure_rate = failure_rate
         self._longest_times = longest_times
-        self._successful_color_list = successful_color_list
+        self._face_of_coin_list = face_of_coin_list
 
 
     @property
@@ -242,9 +261,9 @@ class PseudoSeriesResult():
 
 
     @property
-    def successful_color_list(self):
+    def face_of_coin_list(self):
         """コイントスした結果のリスト。引き分け含む"""
-        return self._successful_color_list
+        return self._face_of_coin_list
 
 
     @staticmethod
@@ -261,7 +280,7 @@ class PseudoSeriesResult():
             ［最長対局数］
         """
 
-        successful_color_list = []
+        face_of_coin_list = []
 
         # ［最長対局数］までやる
         for time_th in range(1, longest_times + 1):
@@ -270,25 +289,25 @@ class PseudoSeriesResult():
                     p=p,
                     failure_rate=failure_rate)
 
-            successful_color_list.append(elementary_event)
+            face_of_coin_list.append(elementary_event)
 
 
         return PseudoSeriesResult(
                 p=p,
                 failure_rate=failure_rate,
                 longest_times=longest_times,
-                successful_color_list=successful_color_list)
+                face_of_coin_list=face_of_coin_list)
 
 
     def cut_down(self, number_of_times):
         """コイントスの結果のリストの長さを切ります。
         対局は必ずしも［最長対局数］になるわけではありません"""
-        self._successful_color_list = self._successful_color_list[0:number_of_times]
+        self._face_of_coin_list = self._face_of_coin_list[0:number_of_times]
 
 
     def stringify_dump(self):
         """ダンプ"""
-        return f"{self._p=}  {self._failure_rate=}  {self._longest_times=}  {self._successful_color_list}"
+        return f"{self._p=}  {self._failure_rate=}  {self._longest_times=}  {self._face_of_coin_list}"
 
 
 def make_all_pseudo_series_results(can_draw, pts_conf, turn_system):
@@ -450,24 +469,22 @@ class PointCalculation():
         raise ValueError(f"{turn_system=}")
 
 
-    def append_won(self, successful_color, time_th, turn_system):
+    def append_won(self, successful_face_of_coin, time_th, turn_system):
         """加点
 
         Parameters
         ----------
+        successful_face_of_coin : int
+            ［コインの表か裏］
         """
 
-        successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system)
+        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, turn_system)
 
-        # 表が出た
-        if successful_color == HEAD:
-            step = self._pts_conf.b_step
-        # 裏が出た
-        else:
-            step = self._pts_conf.w_step
+        # ［勝ち点］
+        step = self._pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
 
 
-        self._point_list[successful_color] += step
+        self._point_list[successful_face_of_coin] += step
         self._point_list[successful_player] += step
 
 
@@ -477,23 +494,23 @@ class PointCalculation():
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        self._point_list[HEAD] += self._pts_conf.b_step_when_draw
-        self._point_list[TAIL] += self._pts_conf.w_step_when_draw
+        self._point_list[HEAD] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        self._point_list[TAIL] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         if turn_system == WHEN_FROZEN_TURN:
-            self._point_list[ALICE] += self._pts_conf.b_step_when_draw
-            self._point_list[BOB] += self._pts_conf.w_step_when_draw
+            self._point_list[ALICE] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[BOB] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         elif turn_system == WHEN_ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
-                self._point_list[ALICE] += self._pts_conf.b_step_when_draw
-                self._point_list[BOB] += self._pts_conf.w_step_when_draw
+                self._point_list[ALICE] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
             # 偶数回はＢさんが先手
             else:
-                self._point_list[BOB] += self._pts_conf.b_step_when_draw
-                self._point_list[ALICE] += self._pts_conf.w_step_when_draw
+                self._point_list[BOB] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             
         else:
             raise ValueError(f"{turn_system=}")
@@ -568,26 +585,26 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         time_th = 0
 
         # 予め作った１シリーズ分の対局結果を読んでいく
-        for successful_color in pseudo_series_result.successful_color_list:
+        for face_of_coin in pseudo_series_result.face_of_coin_list:
             time_th += 1
 
             # 引き分けを１局と数えるケース
             #
             #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
             #
-            if successful_color == EMPTY:
+            if face_of_coin == EMPTY:
                 number_of_draw_times += 1
 
                 point_calculation.append_draw(time_th, turn_system=WHEN_FROZEN_TURN)
             
             else:
                 point_calculation.append_won(
-                    successful_color=successful_color,
+                    successful_face_of_coin=face_of_coin,
                     time_th=time_th,
                     turn_system=WHEN_FROZEN_TURN)
 
                 # 勝ち抜け
-                if pts_conf.span <= point_calculation.get_point_of(successful_color):
+                if pts_conf.span <= point_calculation.get_point_of(face_of_coin):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -635,23 +652,23 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         time_th = 0
 
         # 予め作った１シリーズ分の対局結果を読んでいく
-        for successful_color in pseudo_series_result.successful_color_list:
+        for face_of_coin in pseudo_series_result.face_of_coin_list:
             time_th += 1
 
             # 引き分けを１局と数えるケース
             #
             #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
             #
-            if successful_color == EMPTY:
+            if face_of_coin == EMPTY:
                 number_of_draw_times += 1
 
                 point_calculation.append_draw(time_th, turn_system=WHEN_ALTERNATING_TURN)
 
             else:
-                successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
+                successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=WHEN_ALTERNATING_TURN)
 
                 point_calculation.append_won(
-                        successful_color=successful_color,
+                        successful_color=face_of_coin,
                         time_th=time_th,
                         turn_system=WHEN_ALTERNATING_TURN)
 
@@ -799,19 +816,23 @@ class PointsConfiguration():
             raise ValueError(f"{w_step=} <= {span}")
 
         self._failure_rate = failure_rate
-        self._b_step = b_step
-        self._w_step = w_step
         self._span = span
 
-        # 表番の［引分け時の表勝ち１つの点数］
-        self._b_step_when_draw = PointsConfiguration.let_draw_point(
-                failure_rate=failure_rate,
-                step=b_step)
-
-        # 裏番の［引分け時の裏勝ち１つの点数］
-        self._w_step_when_draw = PointsConfiguration.let_draw_point(
-                failure_rate=failure_rate,
-                step=w_step)
+        self._step_list = [
+                # 0: ［未使用］
+                None,
+                # 1: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                PointsConfiguration.let_draw_point(
+                        failure_rate=failure_rate,
+                        step=b_step),
+                # 2: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+                PointsConfiguration.let_draw_point(
+                        failure_rate=failure_rate,
+                        step=w_step),
+                # 3: ［コインの表が出たときの勝ち点］
+                b_step,
+                # 4: ［コインの裏が出たときの勝ち点］
+                w_step]
 
 
     @property
@@ -820,28 +841,42 @@ class PointsConfiguration():
         return self._failure_rate
 
 
-    @property
-    def b_step(self):
-        """［表勝ち１つの点数］"""
-        return self._b_step
+    def get_step_by(self, challenged, face_of_coin):
+        """［勝ち点］を取得します
+        
+        Parameters
+        ----------
+        challenged : int
+            ［成功か失敗］
+        face_of_coin : int
+            ［コインの表か裏かそれ以外］
+        """
+
+        if challenged == FAILED:
+            # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            if face_of_coin == HEAD:
+                return self._step_list[1]
+            
+            # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+            if face_of_coin == TAIL:
+                return self._step_list[2]
+            
+            raise ValueError(f"{face_of_coin=}")
 
 
-    @property
-    def w_step(self):
-        """［裏勝ち１つの点数］"""
-        return self._w_step
+        elif challenged == SUCCESSFUL:
+            # ［コインの表が出たときの勝ち点］
+            if face_of_coin == HEAD:
+                return self._step_list[3]
+
+            # ［コインの裏が出たときの勝ち点］
+            if face_of_coin == TAIL:
+                return self._step_list[4]
+
+            raise ValueError(f"{face_of_coin=}")
 
 
-    @property
-    def b_step_when_draw(self):
-        """［引分け時の表勝ち１つの点数］"""
-        return self._b_step_when_draw
-
-
-    @property
-    def w_step_when_draw(self):
-        """［引分け時の裏勝ち１つの点数］"""
-        return self._w_step_when_draw
+        raise ValueError(f"{challenged=}")
 
 
     @property
@@ -865,7 +900,7 @@ class PointsConfiguration():
         #
         #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
         #
-        return round_letro(math.ceil(self._span / self._b_step))
+        return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)))
 
 
     @property
@@ -883,7 +918,7 @@ class PointsConfiguration():
         #
         #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
         #
-        return round_letro(math.ceil(self._span / self._w_step))
+        return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)))
 
 
     @staticmethod
@@ -977,10 +1012,10 @@ class PointsConfiguration():
 
             remainder = self._span
 
-            if self._b_step + self._w_step <= remainder:
+            if self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) + self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL) <= remainder:
                 # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
-                new_remainder = self._span % (self._b_step + self._w_step)
-                time = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
+                new_remainder = self._span % (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) + self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                time = math.floor( (remainder - new_remainder) / (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) + self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL))) * 2
                 remainder = new_remainder
 
             else:
@@ -992,20 +1027,20 @@ class PointsConfiguration():
             #
             if 0 < remainder:
                 time += 1
-                remainder -= self._w_step
+                remainder -= self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
                 # まだ端数があれば［表勝ち１つの点数］を引く（１回分を加算）
                 if 0 < remainder:
                     time += 1
-                    remainder -= self._b_step
+                    remainder -= self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
                     # remainder は負数になっているはず（割り切れないはず）
                     if 0 <= remainder:
-                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
+                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)=}")
                 
                 # remainder は零か負数になっているはず
                 elif 0 < remainder:
-                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
+                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)=}")
 
             return time
 

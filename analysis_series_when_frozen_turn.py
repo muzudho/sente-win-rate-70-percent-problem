@@ -91,20 +91,20 @@ if __name__ == '__main__':
                     pts_conf=specified_points_configuration,
                     turn_system=WHEN_FROZEN_TURN)
             
-            for successful_color_list in stats_result_data:
-                #print(f"動作テスト {successful_color_list=}")
+            for face_of_coin_list in stats_result_data:
+                #print(f"動作テスト {face_of_coin_list=}")
 
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
                         longest_times=specified_points_configuration.number_longest_time(turn_system=spec.turn_system),
-                        successful_color_list=successful_color_list)
+                        face_of_coin_list=face_of_coin_list)
 
                 #
                 # 到達できない棋譜は除去しておきたい
                 #
 
-                old_number_of_times = len(successful_color_list)
+                old_number_of_times = len(face_of_coin_list)
 
                 # ［先後固定制］で、シリーズを勝った方の手番を返す
                 series_result = judge_series(

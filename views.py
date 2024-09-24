@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, COIN_HEAD_AND_TAIL, PLAYER_A_AND_B, PointsConfiguration
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, COIN_HEAD_AND_TAIL, PLAYER_A_AND_B, PointsConfiguration
 
 
 def parse_process_element(process_element):
@@ -167,11 +167,8 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, p
     seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
     seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
-    # ［表勝ち１つの点数］
-    seg_4a = pts_conf.b_step
-
-    # ［表勝ち１つの点数］
-    seg_4b = pts_conf.w_step
+    seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+    seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
     # ［目標の点数］
     seg_4c = pts_conf.span
@@ -199,11 +196,8 @@ def print_when_generate_even(p, best_p, best_p_error, best_number_of_series, pts
         seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
         seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
-        # ［表勝ち１つの点数］
-        seg_4a = pts_conf.b_step
-
-        # ［表勝ち１つの点数］
-        seg_4b = pts_conf.w_step
+        seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+        seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
         # ［目標の点数］
         seg_4c = pts_conf.span
@@ -227,11 +221,8 @@ def print_when_generate_even(p, best_p, best_p_error, best_number_of_series, pts
         seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
         seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
-        # ［表勝ち１つの点数］
-        seg_4a = pts_conf.b_step
-
-        # ［表勝ち１つの点数］
-        seg_4b = pts_conf.w_step
+        seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+        seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
         # ［目標の点数］
         seg_4c = pts_conf.span
@@ -261,8 +252,8 @@ def stringify_series_log(
         タイトル
     """
 
-    b_step = pts_conf.b_step
-    w_step = pts_conf.w_step
+    b_step = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+    w_step = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
     span = pts_conf.span
     b_rest = span
     w_rest = span
@@ -270,7 +261,7 @@ def stringify_series_log(
     line_2_list = [f'{b_rest:>4}']
     line_3_list = [f'{w_rest:>4}']
 
-    for winner_color in series_result.pseudo_series_result.successful_color_list:
+    for winner_color in series_result.pseudo_series_result.face_of_coin_list:
         # 表石        
         if winner_color == HEAD:
             line_1_list.append('   x')
@@ -330,8 +321,8 @@ def stringify_series_log(
 
     # 勝ち点構成
     # ---------
-    pt1 = pts_conf.b_step    # ［表勝ち１つの点数］
-    pt2 = pts_conf.w_step    # ［裏勝ち１つの点数］
+    pt1 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
+    pt2 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
     pt3 = pts_conf.span      # ［目標の点数］
 
 
@@ -407,11 +398,11 @@ def stringify_simulation_log(
     b_tm10 = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)  # ［最短対局数］理論値
     b_tm11 = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)   # ［最長対局数］
     # 勝ち点構成
-    b_pt1 = pts_conf.b_step             # ［表勝ち１つの点数］
-    b_pt2 = pts_conf.w_step             # ［裏勝ち１つの点数］
+    b_pt1 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)      # ［コインの表が出たときの勝ち点］
+    b_pt2 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)      # ［コインの裏が出たときの勝ち点］
     b_pt3 = pts_conf.span               # ［目標の点数］
-    b_pt4 = pts_conf.b_step_when_draw   # ［表勝ち１つの点数］
-    b_pt5 = pts_conf.w_step_when_draw   # ［裏勝ち１つの点数］
+    b_pt4 = pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)          # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+    b_pt5 = pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)          # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
 
     # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
