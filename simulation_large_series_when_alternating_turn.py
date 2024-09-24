@@ -8,20 +8,15 @@
 #
 
 import traceback
-import random
-import math
-import datetime
-import pandas as pd
 
-from fractions import Fraction
-from library import ALICE, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
+from library import WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
 from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
 
 LOG_FILE_PATH = 'output/simulation_large_series_when_alternating_turn.log'
 
-# ［将棋の引分け率］
+# 引き分けになる確率
 FAILURE_RATE = 0.0
 #FAILURE_RATE = 0.1
 
@@ -31,7 +26,7 @@ FAILURE_RATE = 0.0
 NUMBER_OF_SERIES = 20
 
 
-def simulate_stats(spec, number_of_series, pts_conf, turn_system):
+def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     """大量のシリーズをシミュレートします
     
     Parameters
@@ -42,19 +37,22 @@ def simulate_stats(spec, number_of_series, pts_conf, turn_system):
 
     series_result_list = []
 
+    # ［最長対局数］は計算で求められます
+    longest_times = pts_conf.number_longest_time(turn_system=turn_system)
+
     for round in range(0, number_of_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=spec.p,
                 failure_rate=FAILURE_RATE,
-                longest_times=pts_conf.number_longest_time(turn_system=turn_system))
+                longest_times=longest_times)
 
-        # ［先後交互制］で、勝ったプレイヤーを返す
+        # シリーズの結果を返す
         series_result = judge_series(
                 pseudo_series_result=pseudo_series_result,
                 pts_conf=pts_conf,
-                turn_system=WHEN_ALTERNATING_TURN)
+                turn_system=turn_system)
 
         series_result_list.append(series_result)
 
@@ -64,12 +62,18 @@ def simulate_stats(spec, number_of_series, pts_conf, turn_system):
             series_result_list=series_result_list)
 
     text = stringify_simulation_log(
+            # ［表が出る確率］（指定値）
             p=spec.p,
+            # ［表も裏も出ない率］
             failure_rate=FAILURE_RATE,
-            turn_system=WHEN_ALTERNATING_TURN,
+            # ［先後運用制度］
+            turn_system=turn_system,
+            # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
+            # シミュレーションの結果
             large_series_trial_summary=large_series_trial_summary,
-            title="（先後交互制）")
+            # タイトル
+            title=title)
 
     print(text) # 表示
 
@@ -94,10 +98,10 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_at = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
+        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
 
-        for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
-            zip(df_mr_at['p'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
+        for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # 仕様
             spec = Specification(
@@ -116,6 +120,7 @@ if __name__ == '__main__':
                     spec=spec,
                     number_of_series=NUMBER_OF_SERIES,
                     pts_conf=specified_points_configuration,
+                    title="（先後交互制）    むずでょセレクション",
                     turn_system=spec.turn_system)
 
 

@@ -7,12 +7,8 @@
 #
 
 import traceback
-import random
-import math
 
-import pandas as pd
-
-from library import HEAD, ALICE, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary
+from library import WHEN_FROZEN_TURN, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
 from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
@@ -47,15 +43,15 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
-                p=p,
+                p=spec.p,
                 failure_rate=FAILURE_RATE,
                 longest_times=longest_times)
 
-        # ［先後固定制］で、シリーズを勝った方の手番を返す
+        # シリーズの結果を返す
         series_result = judge_series(
                 pseudo_series_result=pseudo_series_result,
                 pts_conf=pts_conf,
-                turn_system=WHEN_FROZEN_TURN)
+                turn_system=turn_system)
         
         series_result_list.append(series_result)
 
@@ -70,14 +66,13 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
             # ［表も裏も出ない率］
             failure_rate=FAILURE_RATE,
             # ［先後運用制度］
-            turn_system=WHEN_FROZEN_TURN,
+            turn_system=turn_system,
             # ［かくきんシステムのｐの構成］
             pts_conf=pts_conf,
             # シミュレーションの結果
             large_series_trial_summary=large_series_trial_summary,
             # タイトル
             title=title)
-
 
     print(text) # 表示
 
