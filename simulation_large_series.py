@@ -14,16 +14,6 @@ from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
 
-# 引き分けになる確率
-#FAILURE_RATE = 0.0
-FAILURE_RATE = 0.1
-
-# 対局数
-#NUMBER_OF_SERIES = 2_000_000 # 十分多いケース
-NUMBER_OF_SERIES = 20
-#NUMBER_OF_SERIES = 10 # 少なすぎるケース
-
-
 def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     """大量のシリーズをシミュレートします
     
@@ -38,10 +28,11 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     longest_times = pts_conf.number_longest_time(turn_system=turn_system)
 
     for round in range(0, number_of_series):
+
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=spec.p,
-                failure_rate=FAILURE_RATE,
+                failure_rate=spec.failure_rate,
                 longest_times=longest_times)
 
         # シリーズの結果を返す
@@ -62,7 +53,7 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
             # ［表が出る確率］（指定値）
             p=spec.p,
             # ［表も裏も出ない率］
-            failure_rate=FAILURE_RATE,
+            failure_rate=spec.failure_rate,
             # ［先後運用制度］
             turn_system=turn_system,
             # ［かくきんシステムのｐの構成］
@@ -72,14 +63,15 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
             # タイトル
             title=title)
 
+
     print(text) # 表示
 
 
     # ログ出力
     with open(get_simulation_large_series_log_file_path(
             p=p,
-            failure_rate=FAILURE_RATE,
-            turn_system=WHEN_FROZEN_TURN), 'a', encoding='utf8') as f:
+            failure_rate=spec.failure_rate,
+            turn_system=turn_system), 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 
@@ -89,6 +81,12 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
 
     if pts_conf.number_longest_time(turn_system=turn_system) < large_series_trial_summary.longest_time_th:
         raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time(turn_system=turn_system)} を上回った")
+
+    # 表示とログ出力を終えた後でテスト
+    #
+    #   FIXME ［引き分けを１局として数えるケース］では、対局数の計算がまだ実装できていません
+    #
+    print("［引き分けを１局として数えるケース］では、対局数の計算がまだ実装できていません")
 
 
 ########################################
@@ -116,6 +114,21 @@ Which one(1-2)? """)
         else:
             raise ValueError(f"{choice=}")
 
+
+        print(f"""\
+What is the failure rate?
+Example: 10% is 0.1
+? """)
+        failure_rate = float(input())
+
+
+        print(f"""\
+How many times do you want to try the series?
+Example: 2000000
+? """)
+        number_of_series = int(input())
+
+
         df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
         df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
 
@@ -125,20 +138,20 @@ Which one(1-2)? """)
             # 仕様
             spec = Specification(
                     p=p,
-                    failure_rate=FAILURE_RATE,
+                    failure_rate=failure_rate,
                     turn_system=turn_system)
 
             # ［かくきんシステムのｐの構成］。任意に指定します
-            specified_points_configuration = PointsConfiguration(
-                    failure_rate=FAILURE_RATE,
+            pts_conf = PointsConfiguration(
+                    failure_rate=spec.failure_rate,
                     b_step=b_step,
                     w_step=w_step,
                     span=span)
 
             simulate_stats(
                     spec=spec,
-                    number_of_series=NUMBER_OF_SERIES,
-                    pts_conf=specified_points_configuration,
+                    number_of_series=number_of_series,
+                    pts_conf=pts_conf,
                     title='むずでょセレクション',
                     turn_system=spec.turn_system)
 
