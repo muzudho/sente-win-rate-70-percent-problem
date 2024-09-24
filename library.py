@@ -402,12 +402,12 @@ class PointCalculation():
 
 
     @staticmethod
-    def get_successful_player(successful_color, time_th, is_alternating_turn):
+    def get_successful_player(elementary_event, time_th, turn_system):
 
         # ［先後交互制］
-        if is_alternating_turn:
+        if turn_system == WHEN_ALTERNATING_TURN:
             # 表が出た
-            if successful_color == HEAD:
+            if elementary_event == HEAD:
 
                 # 奇数本で表番のプレイヤーはＡさん
                 if time_th % 2 == 1:
@@ -417,29 +417,47 @@ class PointCalculation():
                 return BOB
 
             # 裏が出た
+            if elementary_event == TAIL:
 
-            # 奇数本で裏番のプレイヤーはＢさん
-            if time_th % 2 == 1:
-                return BOB
+                # 奇数本で裏番のプレイヤーはＢさん
+                if time_th % 2 == 1:
+                    return BOB
 
-            # 偶数本で裏番のプレイヤーはＡさん
-            return ALICE
+                # 偶数本で裏番のプレイヤーはＡさん
+                return ALICE
+
+            # 表も裏も出なかった
+            if elementary_event == EMPTY:
+                return EMPTY
+
+            raise ValueError(f"{elementary_event=}")
 
         # ［先後固定制］
-        if successful_color == HEAD:
-            return ALICE
+        if turn_system == WHEN_FROZEN_TURN:
+            if elementary_event == HEAD:
+                return ALICE
 
-        return BOB
+            if elementary_event == TAIL:
+                return BOB
+
+            # 表も裏も出なかった
+            if elementary_event == EMPTY:
+                return EMPTY
+
+            raise ValueError(f"{elementary_event=}")
 
 
-    def append_won(self, successful_color, time_th, is_alternating_turn):
+        raise ValueError(f"{turn_system=}")
+
+
+    def append_won(self, successful_color, time_th, turn_system):
         """加点
 
         Parameters
         ----------
         """
 
-        successful_player = PointCalculation.get_successful_player(successful_color, time_th, is_alternating_turn)
+        successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system)
 
         # 表が出た
         if successful_color == HEAD:
@@ -453,7 +471,7 @@ class PointCalculation():
         self._point_list[successful_player] += step
 
 
-    def append_draw(self, time_th, is_alternating_turn):
+    def append_draw(self, time_th, turn_system):
         """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
 
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
@@ -462,15 +480,23 @@ class PointCalculation():
         self._point_list[HEAD] += self._pts_conf.b_step_when_draw
         self._point_list[TAIL] += self._pts_conf.w_step_when_draw
 
-        # 奇数回はＡさんが先手
-        if time_th % 2 == 1:
+        if turn_system == WHEN_FROZEN_TURN:
             self._point_list[ALICE] += self._pts_conf.b_step_when_draw
             self._point_list[BOB] += self._pts_conf.w_step_when_draw
 
-        # 偶数回はＢさんが先手
+        elif turn_system == WHEN_ALTERNATING_TURN:
+            # 奇数回はＡさんが先手
+            if time_th % 2 == 1:
+                self._point_list[ALICE] += self._pts_conf.b_step_when_draw
+                self._point_list[BOB] += self._pts_conf.w_step_when_draw
+
+            # 偶数回はＢさんが先手
+            else:
+                self._point_list[BOB] += self._pts_conf.b_step_when_draw
+                self._point_list[ALICE] += self._pts_conf.w_step_when_draw
+            
         else:
-            self._point_list[BOB] += self._pts_conf.b_step_when_draw
-            self._point_list[ALICE] += self._pts_conf.w_step_when_draw
+            raise ValueError(f"{turn_system=}")
 
 
     def get_point_of(self, index):
@@ -526,10 +552,10 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
         if successful_color == EMPTY:
             number_of_draw_times += 1
 
-            point_calculation.append_draw(time_th, is_alternating_turn=False)
+            point_calculation.append_draw(time_th, turn_system=WHEN_FROZEN_TURN)
         
         else:
-            point_calculation.append_won(successful_color, time_th, is_alternating_turn=False)
+            point_calculation.append_won(successful_color, time_th, turn_system=WHEN_FROZEN_TURN)
 
             # 勝ち抜け
             if pts_conf.span <= point_calculation.get_point_of(successful_color):
@@ -614,12 +640,12 @@ def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
         if successful_color == EMPTY:
             number_of_draw_times += 1
 
-            point_calculation.append_draw(time_th, is_alternating_turn=True)
+            point_calculation.append_draw(time_th, turn_system=WHEN_ALTERNATING_TURN)
 
         else:
-            successful_player = PointCalculation.get_successful_player(successful_color, time_th, is_alternating_turn=True)
+            successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
 
-            point_calculation.append_won(successful_color, time_th, is_alternating_turn=True)
+            point_calculation.append_won(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
 
             # 勝ち抜け
             if pts_conf.span <= point_calculation.get_point_of(successful_player):
