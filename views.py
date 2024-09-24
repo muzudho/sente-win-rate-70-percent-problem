@@ -360,24 +360,36 @@ def stringify_simulation_log(
     # 試行した結果、［引き分けた率］
     trial_failure_rate = S.failure_rate(turn_system=turn_system)
 
+    # 試行した結果、［決着が付いた率］
+    trial_successful_rate = 1 - trial_failure_rate
+
+
     # ヘッダー
     # --------
-    time1 = datetime.datetime.now() # ［タイムスタンプ］
-    ti1 = title                     # タイトル
+    time1 = datetime.datetime.now()     # ［タイムスタンプ］
+    ti1 = title                         # タイトル
 
-    trial_p = S.win_rate_without_draw(winner=HEAD, loser=TAIL, turn_system=WHEN_FROZEN_TURN)
-    trial_p_error = S.win_rate_error_without_draw(winner=HEAD, loser=TAIL, turn_system=WHEN_FROZEN_TURN)
+    trial_p = S.win_rate_without_draw(winner=HEAD, loser=TAIL, turn_system=turn_system)                     # 引分けを除いた［表が出る確率］
+    trial_p_error = S.win_rate_error_without_draw(winner=HEAD, loser=TAIL, turn_system=turn_system)         # 引分けを除いた［表が出る確率］の誤差
 
-    trial_q = S.win_rate_without_draw(winner=TAIL, loser=HEAD, turn_system=WHEN_FROZEN_TURN)
-    trial_q_error = S.win_rate_error_without_draw(winner=TAIL, loser=HEAD, turn_system=WHEN_FROZEN_TURN)
+    trial_q = S.win_rate_without_draw(winner=TAIL, loser=HEAD, turn_system=turn_system)                     # 引分けを除いた［裏が出る確率］
+    trial_q_error = S.win_rate_error_without_draw(winner=TAIL, loser=HEAD, turn_system=turn_system)         # 引分けを除いた［裏が出る確率］の誤差
 
 
     # ［以下、指定したもの］
     # ---------------------
     a_shw1 = p * 100                # ［将棋の先手勝率（％）］指定値
-    a_d1 = failure_rate * 100          # ［将棋の引分け率］指定値
+    a_d1 = failure_rate * 100       # ［将棋の引分け率］指定値
     a_shl1 = (1 - p) * 100          # ［将棋の後手勝率（％）］指定値
     a_sr0 = S.number_of_series      # 全シリーズ数
+
+    # 全角文字の横幅は文字数を揃えること。全角文字の幅が半角のちょうど2倍ではないのでずれるので、書式設定の桁数を指定してもずれるから。
+    if turn_system == WHEN_FROZEN_TURN:
+        a_trn = "［先後固定制］上手と下手のように、Ａさんはずっと先手、Ｂさんはずっと後手"
+    elif turn_system == WHEN_ALTERNATING_TURN:
+        a_trn = "［先後交互制］Ａさんの先手、Ｂさんの後手で始まり、１局毎に先後を入替える"
+    else:
+        raise ValueError(f"{turn_system=}")
 
 
     # ［以下、［かくきんシステム］が算出した設定］
@@ -394,51 +406,57 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］を使って試行］１ブロック目（色、引分除く）
     # ---------------------------------------------
-    c1_shw = trial_p * 100           # ［将棋の先手勝率（％）］実践値（引分除く）
-    c1_shwe = trial_p_error * 100    # ［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
-    c1_shl = trial_q * 100           # ［将棋の後手勝率（％）］実践値（引分除く）
-    c1_shle = trial_q_error * 100    # ［将棋の後手勝率（％）と 0.5 との誤差］実践値
+    c1_shw = trial_p * 100           # 引分けを除いた［将棋の先手勝率（％）］実践値（引分除く）
+    c1_shwe = trial_p_error * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
+    c1_shl = trial_q * 100           # 引分けを除いた［将棋の後手勝率（％）］実践値（引分除く）
+    c1_shle = trial_q_error * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
 
 
     # ［以下、［かくきんシステム］を使って試行］２ブロック目（色、引分込み）
     # ---------------------------------------------
-    c2_shw = (1 - trial_failure_rate) * trial_p * 100            # ［将棋の先手勝率］（引分込み）
-    c2_shwe = (1 - trial_failure_rate) * trial_p_error * 100     # ［将棋の先手勝率］（引分込み） 誤差
-    c2_d = trial_failure_rate * 100                              # ［将棋の引分け率］実践値            　［先後固定制］
-    c2_de = (trial_failure_rate - failure_rate) * 100            # ［将棋の引分け率］実践値と指定値の誤差 ［先後固定制］
-    c2_shl = (1 - trial_failure_rate) * trial_q * 100            # ［将棋の後手勝率］（引分込み）
-    c2_shle = (1 - trial_failure_rate) * trial_q_error * 100     # ［将棋の後手勝率］（引分込み） 誤差
+    c2_shw = trial_successful_rate * trial_p * 100              # 引分けを含んだ［将棋の先手勝率］
+    c2_shwe = trial_successful_rate * trial_p_error * 100       # 引分けを含んだ［将棋の先手勝率］誤差
+    c2_d = trial_failure_rate * 100                             # 引分けを含んだ［将棋の引分け率］実践値
+    c2_de = (trial_failure_rate - failure_rate) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
+    c2_shl = trial_successful_rate * trial_q * 100              # 引分けを含んだ［将棋の後手勝率］
+    c2_shle = trial_successful_rate * trial_q_error * 100       # 引分けを含んだ［将棋の後手勝率］誤差
 
 
     # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
     # ---------------------------------------------
-    c3_aw = S.win_rate_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ａさんが勝つ確率（％）］実践値
-    c3_awe = S.win_rate_error_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c3_bw = S.win_rate_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ｂさんが勝つ確率（％）］実践値
-    c3_bwe = S.win_rate_error_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    trial_a = S.win_rate_without_draw(winner=ALICE, loser=BOB, turn_system=turn_system)             # 引分けを除いた［Ａさんが勝つ確率］実践値
+    trial_ae = S.win_rate_error_without_draw(winner=ALICE, loser=BOB, turn_system=turn_system)      # 引分けを除いた［Ａさんが勝つ確率と 0.5 との誤差］実践値
+    trial_b = S.win_rate_without_draw(winner=BOB, loser=ALICE, turn_system=turn_system)             # 引分けを除いた［Ｂさんが勝つ確率］実践値
+    trial_be = S.win_rate_error_without_draw(winner=BOB, loser=ALICE, turn_system=turn_system)      # 引分けを除いた［Ｂさんが勝つ確率と 0.5 との誤差］実践値
+
+    c3_aw = trial_a * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
+    c3_awe = trial_ae * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c3_bw = trial_b * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
+    c3_bwe = trial_be * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
 
     # ［以下、［かくきんシステム］を使って試行］４ブロック目（プレイヤー、引分含む）
     # ---------------------------------------------
-    c4_aw = (1 - trial_failure_rate) * S.win_rate_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ａさんが勝つ確率（％）］実践値
-    c4_awe = (1 - trial_failure_rate) * S.win_rate_error_without_draw(winner=ALICE, loser=BOB, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c4_d = trial_failure_rate * 100                 # ［将棋の引分け率］実践値            　［先後交互制］
-    c4_de = (trial_failure_rate - failure_rate) * 100  # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
-    c4_bw = (1 - trial_failure_rate) * S.win_rate_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100           # ［Ｂさんが勝つ確率（％）］実践値
-    c4_bwe = (1 - trial_failure_rate) * S.win_rate_error_without_draw(winner=BOB, loser=ALICE, turn_system=WHEN_ALTERNATING_TURN) * 100    # ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_aw = trial_successful_rate * trial_a * 100           # 引分けを含んだ［Ａさんが勝つ確率（％）］実践値
+    c4_awe = trial_successful_rate * trial_ae * 100         # 引分けを含んだ［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    c4_d = trial_failure_rate * 100                         # ［将棋の引分け率］実践値            　［先後交互制］
+    c4_de = (trial_failure_rate - failure_rate) * 100       # ［将棋の引分け率］実践値と指定値の誤差 ［先後交互制］
+    c4_bw = trial_successful_rate * trial_b * 100           # 引分けを含んだ［Ｂさんが勝つ確率（％）］実践値
+    c4_bwe = trial_successful_rate * trial_be * 100         # 引分けを含んだ［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+
 
     # シリーズ数
     # ---------
-    sr1 = S.number_of_no_wons(opponent_pair=PLAYER_A_AND_B)        # 勝者なし
-    sr2 = S.number_of_fully_wons(HEAD)     # 先手満点勝ち
-    sr3 = S.number_of_fully_wons(TAIL)     # 後手満点勝ち
-    sr4 = S.number_of_points_wons(winner=HEAD, loser=TAIL)     # 先手判定勝ち（引分けがなければ零です）
-    sr5 = S.number_of_points_wons(winner=TAIL, loser=HEAD)     # 後手判定勝ち（引分けがなければ零です）
-    sr6 = S.number_of_no_wons(opponent_pair=COIN_HEAD_AND_TAIL)         # 勝者なし
-    sr7 = S.number_of_fully_wons(ALICE)     # Ａさん満点勝ち
-    sr8 = S.number_of_fully_wons(BOB)       # Ｂさん満点勝ち
-    sr9 = S.number_of_points_wons(winner=ALICE, loser=BOB)     # Ａさん判定勝ち（引分けがなければ零です）
-    sr10 = S.number_of_points_wons(winner=BOB, loser=ALICE)    # Ｂさん判定勝ち（引分けがなければ零です）
+    sr1 = S.number_of_no_wons(opponent_pair=PLAYER_A_AND_B)         # 勝者なし
+    sr2 = S.number_of_fully_wons(HEAD)                              # 先手満点勝ち
+    sr3 = S.number_of_fully_wons(TAIL)                              # 後手満点勝ち
+    sr4 = S.number_of_points_wons(winner=HEAD, loser=TAIL)          # 先手判定勝ち（引分けがなければ零です）
+    sr5 = S.number_of_points_wons(winner=TAIL, loser=HEAD)          # 後手判定勝ち（引分けがなければ零です）
+    sr6 = S.number_of_no_wons(opponent_pair=COIN_HEAD_AND_TAIL)     # 勝者なし
+    sr7 = S.number_of_fully_wons(ALICE)                             # Ａさん満点勝ち
+    sr8 = S.number_of_fully_wons(BOB)                               # Ｂさん満点勝ち
+    sr9 = S.number_of_points_wons(winner=ALICE, loser=BOB)          # Ａさん判定勝ち（引分けがなければ零です）
+    sr10 = S.number_of_points_wons(winner=BOB, loser=ALICE)         # Ｂさん判定勝ち（引分けがなければ零です）
 
 
     # 対局数
@@ -449,13 +467,16 @@ def stringify_simulation_log(
     # FIXME 勝ちの内訳を［満点勝ち］［判定勝ち］で表示したい
     # FIXME ［引分除く］［引分込み］でも表示したい
 
-
+    #                                                                                              1         1         1
+    #    1         2         3         4         5         6         7         8         9         0         1         2
+    # 7  0         0         0         0         0         0         0         0         0         0         0         0
     return f"""\
 [{time1                   }] {ti1}
               +--------------------------------------------------------------------------------------------------+
               | 以下、指定したもの                                                                               |
               |  将棋の先手勝ち  将棋の引分け  将棋の後手勝ち  .   シリーズ                                      |
               |       {a_shw1:2.0f} ％        {a_d1:2.0f} ％             {a_shl1:2.0f} ％     .   {a_sr0:>7}回試行                                 |
+              | {a_trn:61}|
               +--------------------------------------------------------------------------------------------------+ 
               | 以下、［かくきんシステム］が算出した設定                                                         |
               |                                                                    対局数    勝ち点  引分け時    |
