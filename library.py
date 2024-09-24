@@ -609,10 +609,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
                 point_calculation=point_calculation,
                 pseudo_series_result=pseudo_series_result)
 
-    raise ValueError(f"{turn_system=}")
 
-
-def judge_series(pseudo_series_result, pts_conf, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
