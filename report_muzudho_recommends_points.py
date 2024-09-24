@@ -19,12 +19,7 @@ from views import stringify_report_muzudho_recommends_points
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
 REPORT_FILE_PATH = 'reports/report_muzudho_recommends_points.log'
 
-CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
-CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
-
-
 FAILURE_RATE = 0.0
-
 
 OUT_OF_ERROR = 0.51
 

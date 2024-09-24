@@ -11,6 +11,11 @@ def turn_system_to_file_name(turn_system):
     raise ValueError(f"{turn_system=}")
 
 
+def get_analysis_series_log_file_path(turn_system):
+    ts = turn_system_to_file_name(turn_system=turn_system)
+    return f'output/analysis_series{ts}.log'
+
+
 def get_simulation_large_series_log_file_path(p, failure_rate, turn_system):
     """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
 
@@ -23,9 +28,7 @@ def get_simulation_large_series_log_file_path(p, failure_rate, turn_system):
     turn_system : float
         ［先後の選び方の制度］
     """
-
     ts = turn_system_to_file_name(turn_system=turn_system)
-
     return f'output/simulation_large_series_p{p}_f{failure_rate}{ts}.log'
 
 
@@ -39,3 +42,15 @@ def get_even_csv_file_path(turn_system):
     """勝ち点を探索した記録ファイルへのパス"""
     ts = turn_system_to_file_name(turn_system=turn_system)
     return f'./data/generate_even{ts}.csv'
+
+
+def get_muzudho_recommends_points_csv_file_path(turn_system):
+    """勝ち点ルールのむずでょセレクション"""
+    ts = turn_system_to_file_name(turn_system=turn_system)
+    return f'./data/muzudho_recommends_points{ts}.csv'
+
+
+def get_muzudho_single_points_csv_file_path(turn_system):
+    """勝ち点ルールのむずでょ１点セレクション"""
+    ts = turn_system_to_file_name(turn_system=turn_system)
+    return f'./data/muzudho_single_points_when_frozen_turn.csv'

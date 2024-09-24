@@ -12,16 +12,13 @@ import math
 import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
+from file_paths import get_muzudho_recommends_points_csv_file_path
 from database import get_df_generate_even, get_df_generate_even, get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from views import parse_process_element
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
 REPORT_FILE_PATH = 'reports/report_muzudho_recommends_points.log'
-
-CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
-CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
-
 
 OUT_OF_ERROR = 0.51
 
@@ -70,7 +67,7 @@ def generate_report(turn_system):
             df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mr.to_csv(CSV_FILE_PATH_MR_AT,
+            df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_ALTERNATING_TURN),
                     # ［計算過程］列は長くなるので末尾に置きたい
                     columns=['p', 'number_of_series', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
@@ -118,7 +115,7 @@ def generate_report(turn_system):
             df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mr.to_csv(CSV_FILE_PATH_MR_FT,
+            df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_FROZEN_TURN),
                     # ［計算過程］列は長くなるので末尾に置きたい
                     columns=['p', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた

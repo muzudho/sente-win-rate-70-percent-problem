@@ -4,13 +4,8 @@
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
-from file_paths import get_even_csv_file_path
+from file_paths import get_even_csv_file_path, get_muzudho_recommends_points_csv_file_path
 
-
-CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
-CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
-
-CSV_FILE_PATH_SR_FT = './data/muzudho_single_points_when_frozen_turn.csv'
 
 CSV_FILE_PATH_P = './data/p.csv'
 CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
@@ -75,7 +70,7 @@ def get_df_p():
 
 def get_df_muzudho_recommends_points(turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
-        df = pd.read_csv(CSV_FILE_PATH_MR_AT, encoding="utf8")
+        df = pd.read_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_ALTERNATING_TURN), encoding="utf8")
         df['p'].astype('float')
         df['number_of_series'].fillna(0).astype('int')
         df['b_step'].fillna(0).astype('int')
@@ -89,7 +84,7 @@ def get_df_muzudho_recommends_points(turn_system):
 
 
     if turn_system == WHEN_FROZEN_TURN:
-        df = pd.read_csv(CSV_FILE_PATH_MR_FT, encoding="utf8")
+        df = pd.read_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
         df['p'].astype('float')
         df['number_of_series'].fillna(0).astype('int')
         df['b_step'].fillna(0).astype('int')
@@ -107,7 +102,7 @@ def get_df_muzudho_recommends_points(turn_system):
 
 def get_df_muzudho_single_points(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
-        df = pd.read_csv(CSV_FILE_PATH_SR_FT, encoding="utf8")
+        df = pd.read_csv(get_muzudho_single_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
         df['p'].astype('float')
         df['b_step'].fillna(0).astype('int')
         df['w_step'].fillna(1).astype('int')

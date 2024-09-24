@@ -12,11 +12,10 @@ import math
 import pandas as pd
 
 from library import EMPTY, HEAD, TAIL, WHEN_FROZEN_TURN, Specification, round_letro, PointsConfiguration, PseudoSeriesResult, judge_series, play_tie_break, LargeSeriesTrialSummary
+from file_paths import get_simulation_large_series_log_file_path
 from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
-
-LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 
 # 引き分けになる確率
 #FAILURE_RATE = 0.1
@@ -89,7 +88,7 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     print(text) # 表示
 
     # ログ出力
-    with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
+    with open(get_simulation_large_series_log_file_path(turn_system=WHEN_FROZEN_TURN), 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 

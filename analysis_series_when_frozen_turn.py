@@ -13,11 +13,10 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, COIN_HEAD_AND_TAIL, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary, make_all_pseudo_series_results
+from file_paths import get_analysis_series_log_file_path
 from database import get_df_muzudho_single_points
 from views import stringify_series_log, stringify_analysis_series
 
-
-LOG_FILE_PATH = 'output/analysis_series_when_frozen_turn.log'
 
 # 引き分けになる確率
 FAILURE_RATE = 0.0     # 引分けなし
@@ -51,7 +50,7 @@ def analysis_series(series_result, spec, pts_conf, title):
     print(text) # 表示
 
     # ログ出力
-    with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
+    with open(get_analysis_series_log_file_path(turn_system=WHEN_FROZEN_TURN), 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 
