@@ -1274,7 +1274,7 @@ class LargeSeriesTrialSummary():
                 if self._longest_time_th < series_result.number_of_times:
                     self._longest_time_th = series_result.number_of_times
 
-        return self._shortest_time_th
+        return self._longest_time_th
 
 
     def number_of_total_wons(self, opponent_pair):
@@ -1332,7 +1332,7 @@ class LargeSeriesTrialSummary():
         return self._number_of_points_wons[winner]
 
 
-    def number_of_draw_series(self, turn_system):
+    def number_of_failed_series(self, turn_system):
         """引分けで終わったシリーズ数"""
 
         if turn_system == WHEN_FROZEN_TURN:
@@ -1350,7 +1350,7 @@ class LargeSeriesTrialSummary():
         
         引分けを除いて計算する
         """
-        return self.number_of_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_draw_series(turn_system=turn_system))
+        return self.number_of_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_failed_series(turn_system=turn_system))
 
 
     def win_rate_error_without_draw(self, winner, loser, turn_system):
@@ -1363,7 +1363,7 @@ class LargeSeriesTrialSummary():
 
     def failure_rate(self, turn_system):
         """試行した結果、［引き分けた率］"""
-        return self.number_of_draw_series(turn_system=turn_system) / self.number_of_series
+        return self.number_of_failed_series(turn_system=turn_system) / self.number_of_series
 
 
     def number_of_wons(self, winner, loser):
