@@ -23,6 +23,11 @@ LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 #FAILURE_RATE = 0.0
 FAILURE_RATE = 0.1
 
+# 対局数
+#NUMBER_OF_SERIES = 2_000_000 # 十分多いケース
+NUMBER_OF_SERIES = 20_000
+#NUMBER_OF_SERIES = 10 # 少なすぎるケース
+
 
 def simulate_stats(spec, number_of_series, pts_conf, title):
     """大量のシリーズをシミュレートします
@@ -99,10 +104,6 @@ if __name__ == '__main__':
     try:
         df_mr_ft = get_df_muzudho_recommends_points_when_frozen_turn()
 
-        # 対局数
-        number_of_series = 2_000_000 # 十分多いケース
-        #number_of_series = 10 # 少なすぎるケース
-
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
 
@@ -121,7 +122,7 @@ if __name__ == '__main__':
 
             simulate_stats(
                     spec=spec,
-                    number_of_series=number_of_series,
+                    number_of_series=NUMBER_OF_SERIES,
                     pts_conf=specified_points_configuration,
                     title='（先後固定制）    むずでょセレクション')
 
