@@ -13,7 +13,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, COIN_HEAD_AND_TAIL, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results
-from database import get_df_muzudho_single_points_when_frozen_turn
+from database import get_df_muzudho_single_points
 from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
 
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_ft = get_df_muzudho_single_points_when_frozen_turn()
+        df_mr_ft = get_df_muzudho_single_points(turn_system=WHEN_FROZEN_TURN)
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):

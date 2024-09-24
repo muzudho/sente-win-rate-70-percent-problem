@@ -14,8 +14,8 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, judge_series_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
-from database import get_df_muzudho_recommends_points_when_alternating_turn
+from library import ALICE, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
+from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
 
@@ -51,9 +51,10 @@ def simulate_stats(spec, number_of_series, pts_conf, turn_system):
                 longest_times=pts_conf.number_longest_time(turn_system=turn_system))
 
         # ［先後交互制］で、勝ったプレイヤーを返す
-        series_result = judge_series_when_alternating_turn(
+        series_result = judge_series(
                 pseudo_series_result=pseudo_series_result,
-                pts_conf=pts_conf)
+                pts_conf=pts_conf,
+                turn_system=WHEN_ALTERNATING_TURN)
 
         series_result_list.append(series_result)
 
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
+        df_mr_at = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
 
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_at['p'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):

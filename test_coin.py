@@ -12,7 +12,6 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, toss_a_coin
-from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_analysis_series_when_frozen_turn
 
 

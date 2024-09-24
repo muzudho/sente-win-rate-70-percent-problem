@@ -15,9 +15,9 @@ import random
 import math
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, round_letro, PseudoSeriesResult, judge_series_when_alternating_turn, PointsConfiguration, LargeSeriesTrialSummary
-from database import get_df_generate_even_when_alternating_turn
-from views import print_when_generate_even_when_alternating_turn
+from library import HEAD, TAIL, ALICE, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, LargeSeriesTrialSummary
+from database import get_df_generate_even
+from views import print_when_generate_even
 
 
 LOG_FILE_PATH_AT = 'output/generate_even_when_alternating_turn.log'
@@ -50,12 +50,13 @@ def update_dataframe(df, p,
     """データフレーム更新"""
 
     # 表示
-    print_when_generate_even_when_alternating_turn(
+    print_when_generate_even(
             p=p,
             best_p=best_p,
             best_p_error=best_p_error,
             best_number_of_series=best_number_of_series,
-            pts_conf=best_points_configuration)
+            pts_conf=best_points_configuration,
+            turn_system=WHEN_ALTERNATING_TURN)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['best_p']] = best_p
@@ -256,9 +257,10 @@ def iteration_deeping(df, abs_limit_of_error):
                                     failure_rate=FAILURE_RATE,
                                     longest_times=latest_points_configuration.number_longest_time(turn_system=spec.turn_system))
 
-                            series_result = judge_series_when_alternating_turn(
+                            series_result = judge_series(
                                     pseudo_series_result=pseudo_series_result,
-                                    pts_conf=latest_points_configuration)
+                                    pts_conf=latest_points_configuration,
+                                    turn_system=WHEN_ALTERNATING_TURN)
                             series_result_list.append(series_result)
                         
                         # シミュレーションの結果
@@ -378,7 +380,7 @@ if __name__ == '__main__':
 
     try:
 
-        df_at = get_df_generate_even_when_alternating_turn()
+        df_at = get_df_generate_even(turn_system=WHEN_ALTERNATING_TURN)
         print(df_at)
 
 

@@ -3,6 +3,8 @@
 #
 import pandas as pd
 
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
+
 
 CSV_FILE_PATH_AT = './data/generate_even_when_alternating_turn.csv'
 CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
@@ -17,52 +19,54 @@ CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
-def get_df_generate_even_when_alternating_turn():
-    df = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
+def get_df_generate_even(turn_system):
+    if turn_system == WHEN_ALTERNATING_TURN:
+        df = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
 
-    #
-    # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-    #
-    df['p'].astype('float')
-    df['best_p'].fillna(0.0).astype('float')
-    df['best_p_error'].fillna(0.0).astype('float')
-    df['best_number_of_series'].fillna(0).astype('int')
-    df['best_b_step'].fillna(0).astype('int')
-    df['best_w_step'].fillna(0).astype('int')
-    df['best_span'].fillna(0).astype('int')
-    df['latest_p'].fillna(0.0).astype('float')
-    df['latest_p_error'].fillna(0.0).astype('float')
-    df['latest_number_of_series'].fillna(0).astype('int')
-    df['latest_b_step'].fillna(0).astype('int')
-    df['latest_w_step'].fillna(0).astype('int')
-    df['latest_span'].fillna(0).astype('int')
-    df['process'].fillna('').astype('string')
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['p'].astype('float')
+        df['best_p'].fillna(0.0).astype('float')
+        df['best_p_error'].fillna(0.0).astype('float')
+        df['best_number_of_series'].fillna(0).astype('int')
+        df['best_b_step'].fillna(0).astype('int')
+        df['best_w_step'].fillna(0).astype('int')
+        df['best_span'].fillna(0).astype('int')
+        df['latest_p'].fillna(0.0).astype('float')
+        df['latest_p_error'].fillna(0.0).astype('float')
+        df['latest_number_of_series'].fillna(0).astype('int')
+        df['latest_b_step'].fillna(0).astype('int')
+        df['latest_w_step'].fillna(0).astype('int')
+        df['latest_span'].fillna(0).astype('int')
+        df['process'].fillna('').astype('string')
 
-    return df
+        return df
 
+    if turn_system == WHEN_FROZEN_TURN:
+        df = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
 
-def get_df_generate_even_when_frozen_turn():
-    df = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['p'].astype('float')
+        df['best_p'].fillna(0.0).astype('float')
+        df['best_p_error'].fillna(0.0).astype('float')
+        df['best_number_of_series'].fillna(0).astype('int')
+        df['best_b_step'].fillna(0).astype('int')
+        df['best_w_step'].fillna(0).astype('int')
+        df['best_span'].fillna(0).astype('int')
+        df['latest_p'].fillna(0.0).astype('float')
+        df['latest_p_error'].fillna(0.0).astype('float')
+        df['latest_number_of_series'].fillna(0).astype('int')
+        df['latest_b_step'].fillna(0).astype('int')
+        df['latest_w_step'].fillna(0).astype('int')
+        df['latest_span'].fillna(0).astype('int')
+        df['process'].fillna('').astype('string')
 
-    #
-    # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-    #
-    df['p'].astype('float')
-    df['best_p'].fillna(0.0).astype('float')
-    df['best_p_error'].fillna(0.0).astype('float')
-    df['best_number_of_series'].fillna(0).astype('int')
-    df['best_b_step'].fillna(0).astype('int')
-    df['best_w_step'].fillna(0).astype('int')
-    df['best_span'].fillna(0).astype('int')
-    df['latest_p'].fillna(0.0).astype('float')
-    df['latest_p_error'].fillna(0.0).astype('float')
-    df['latest_number_of_series'].fillna(0).astype('int')
-    df['latest_b_step'].fillna(0).astype('int')
-    df['latest_w_step'].fillna(0).astype('int')
-    df['latest_span'].fillna(0).astype('int')
-    df['process'].fillna('').astype('string')
+        return df
 
-    return df
+    raise ValueError(f"{turn_system=}")
 
 
 def get_df_p():
@@ -71,18 +75,22 @@ def get_df_p():
     return df
 
 
-def get_df_muzudho_recommends_points_when_alternating_turn():
-    df = pd.read_csv(CSV_FILE_PATH_MR_AT, encoding="utf8")
-    df['p'].astype('float')
-    df['number_of_series'].fillna(0).astype('int')
-    df['b_step'].fillna(0).astype('int')
-    df['w_step'].fillna(1).astype('int')
-    df['span'].fillna(1).astype('int')
-    df['presentable'].astype('string')
-    df['comment'].astype('string')
-    df['process'].astype('string')
+def get_df_muzudho_recommends_points(turn_system):
+    if turn_system == WHEN_ALTERNATING_TURN:
+        df = pd.read_csv(CSV_FILE_PATH_MR_AT, encoding="utf8")
+        df['p'].astype('float')
+        df['number_of_series'].fillna(0).astype('int')
+        df['b_step'].fillna(0).astype('int')
+        df['w_step'].fillna(1).astype('int')
+        df['span'].fillna(1).astype('int')
+        df['presentable'].astype('string')
+        df['comment'].astype('string')
+        df['process'].astype('string')
 
-    return df
+        return df
+
+
+    raise ValueError(f"{turn_system=}")
 
 
 def get_df_muzudho_recommends_points_when_frozen_turn():
@@ -98,17 +106,21 @@ def get_df_muzudho_recommends_points_when_frozen_turn():
     return df
 
 
-def get_df_muzudho_single_points_when_frozen_turn():
-    df = pd.read_csv(CSV_FILE_PATH_SR_FT, encoding="utf8")
-    df['p'].astype('float')
-    df['b_step'].fillna(0).astype('int')
-    df['w_step'].fillna(1).astype('int')
-    df['span'].fillna(1).astype('int')
-    df['presentable'].astype('string')
-    df['comment'].astype('string')
-    df['process'].astype('string')
+def get_df_muzudho_single_points(turn_system):
+    if turn_system == WHEN_FROZEN_TURN:
+        df = pd.read_csv(CSV_FILE_PATH_SR_FT, encoding="utf8")
+        df['p'].astype('float')
+        df['b_step'].fillna(0).astype('int')
+        df['w_step'].fillna(1).astype('int')
+        df['span'].fillna(1).astype('int')
+        df['presentable'].astype('string')
+        df['comment'].astype('string')
+        df['process'].astype('string')
 
-    return df
+        return df
+
+
+    raise ValueError(f"{turn_system=}")
 
 
 def get_df_report_muzudho_recommends_points():

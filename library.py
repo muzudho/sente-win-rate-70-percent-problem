@@ -609,73 +609,77 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
             pseudo_series_result=pseudo_series_result)
 
 
-def judge_series_when_alternating_turn(pseudo_series_result, pts_conf):
-    """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
-    
-    Parameters
-    ----------
-    pseudo_series_result : PseudoSeriesResult
-        コイントス・リスト
-    pts_conf : PointsConfiguration
-        ［かくきんシステムのｐの構成］
-    
-    Returns
-    -------
-    series_result : SeriesResult
-        ［シリーズ］の結果
-    """
+def judge_series(pseudo_series_result, pts_conf, turn_system):
+    if turn_system == WHEN_ALTERNATING_TURN:
+        """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
+        
+        Parameters
+        ----------
+        pseudo_series_result : PseudoSeriesResult
+            コイントス・リスト
+        pts_conf : PointsConfiguration
+            ［かくきんシステムのｐの構成］
+        
+        Returns
+        -------
+        series_result : SeriesResult
+            ［シリーズ］の結果
+        """
 
-    # ［勝ち点計算］
-    point_calculation = PointCalculation(pts_conf=pts_conf)
+        # ［勝ち点計算］
+        point_calculation = PointCalculation(pts_conf=pts_conf)
 
-    # ［このシリーズで引き分けた対局数］
-    number_of_draw_times = 0
+        # ［このシリーズで引き分けた対局数］
+        number_of_draw_times = 0
 
-    time_th = 0
+        time_th = 0
 
-    # 予め作った１シリーズ分の対局結果を読んでいく
-    for successful_color in pseudo_series_result.successful_color_list:
-        time_th += 1
+        # 予め作った１シリーズ分の対局結果を読んでいく
+        for successful_color in pseudo_series_result.successful_color_list:
+            time_th += 1
 
-        # 引き分けを１局と数えるケース
-        #
-        #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
-        #
-        if successful_color == EMPTY:
-            number_of_draw_times += 1
+            # 引き分けを１局と数えるケース
+            #
+            #   NOTE シリーズの中で引分けが１回でも起こると、（点数が足らず）シリーズ全体も引き分けになる確率が上がるので、後段で何かしらの対応をします
+            #
+            if successful_color == EMPTY:
+                number_of_draw_times += 1
 
-            point_calculation.append_draw(time_th, turn_system=WHEN_ALTERNATING_TURN)
+                point_calculation.append_draw(time_th, turn_system=WHEN_ALTERNATING_TURN)
 
-        else:
-            successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
+            else:
+                successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
 
-            point_calculation.append_won(
-                    successful_color=successful_color,
-                    time_th=time_th,
-                    turn_system=WHEN_ALTERNATING_TURN)
+                point_calculation.append_won(
+                        successful_color=successful_color,
+                        time_th=time_th,
+                        turn_system=WHEN_ALTERNATING_TURN)
 
-            # 勝ち抜け
-            if pts_conf.span <= point_calculation.get_point_of(successful_player):
+                # 勝ち抜け
+                if pts_conf.span <= point_calculation.get_point_of(successful_player):
 
-                # コイントスの結果のリストの長さを切ります。
-                # 対局は必ずしも［最長対局数］になるわけではありません
-                pseudo_series_result.cut_down(time_th)
+                    # コイントスの結果のリストの長さを切ります。
+                    # 対局は必ずしも［最長対局数］になるわけではありません
+                    pseudo_series_result.cut_down(time_th)
 
-                return SeriesResult(
-                        number_of_times=time_th,
-                        number_of_draw_times=number_of_draw_times,
-                        span=pts_conf.span,
-                        point_calculation=point_calculation,
-                        pseudo_series_result=pseudo_series_result)
+                    return SeriesResult(
+                            number_of_times=time_th,
+                            number_of_draw_times=number_of_draw_times,
+                            span=pts_conf.span,
+                            point_calculation=point_calculation,
+                            pseudo_series_result=pseudo_series_result)
 
 
-    # タイブレークをするかどうかは、この関数の呼び出し側に任せます
-    return SeriesResult(
-            number_of_times=time_th,
-            number_of_draw_times=number_of_draw_times,
-            span=pts_conf.span,
-            point_calculation=point_calculation,
-            pseudo_series_result=pseudo_series_result)
+        # タイブレークをするかどうかは、この関数の呼び出し側に任せます
+        return SeriesResult(
+                number_of_times=time_th,
+                number_of_draw_times=number_of_draw_times,
+                span=pts_conf.span,
+                point_calculation=point_calculation,
+                pseudo_series_result=pseudo_series_result)
+
+
+    raise ValueError(f"{turn_system=}")
 
 
 def calculate_probability(p, H, T):

@@ -175,33 +175,36 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, p
     return text
 
 
-def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best_number_of_series, pts_conf):
+def print_when_generate_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_system):
+    if turn_system == WHEN_ALTERNATING_TURN:
+        # ［表が出る確率（％）］
+        seg_1a = p*100
 
-    # ［表が出る確率（％）］
-    seg_1a = p*100
+        # ［調整後の表が出る確率（％）］
+        seg_1b = best_p * 100
 
-    # ［調整後の表が出る確率（％）］
-    seg_1b = best_p * 100
+        # ［調整後の表が出る確率（％）と 0.5 との誤差］
+        seg_1c = best_p_error * 100
 
-    # ［調整後の表が出る確率（％）と 0.5 との誤差］
-    seg_1c = best_p_error * 100
+        # 対局数
+        seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+        seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+        seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+        seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
-    # 対局数
-    seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-    seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-    seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-    seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+        # ［表勝ち１つの点数］
+        seg_4a = pts_conf.b_step
 
-    # ［表勝ち１つの点数］
-    seg_4a = pts_conf.b_step
+        # ［表勝ち１つの点数］
+        seg_4b = pts_conf.w_step
 
-    # ［表勝ち１つの点数］
-    seg_4b = pts_conf.w_step
+        # ［目標の点数］
+        seg_4c = pts_conf.span
 
-    # ［目標の点数］
-    seg_4c = pts_conf.span
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        return
 
-    print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+    raise ValueError(f"{turn_system=}")
 
 
 def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, specified_number_of_series, specified_points_configuration):

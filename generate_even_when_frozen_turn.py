@@ -14,7 +14,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, round_letro, PointsConfiguration, calculate_probability
-from database import get_df_generate_even_when_frozen_turn
+from database import get_df_generate_even
 from views import print_when_generate_when_frozen_turn
 
 
@@ -264,7 +264,7 @@ if __name__ == '__main__':
 
     try:
 
-        df_ft = get_df_generate_even_when_frozen_turn()
+        df_ft = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
         print(df_ft)
 
 
