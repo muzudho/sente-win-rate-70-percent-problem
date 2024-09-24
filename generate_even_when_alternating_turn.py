@@ -15,7 +15,7 @@ import random
 import math
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, round_letro, PseudoSeriesResult, play_game_when_alternating_turn, PointsConfiguration, LargeSeriesTrialSummary
+from library import HEAD, TAIL, ALICE, round_letro, PseudoSeriesResult, judge_series_when_alternating_turn, PointsConfiguration, LargeSeriesTrialSummary
 from database import get_df_generate_even_when_alternating_turn
 from views import print_when_generate_even_when_alternating_turn
 
@@ -216,6 +216,12 @@ def iteration_deeping(df, abs_limit_of_error):
             print(f"[p={p}]", end='', flush=True)
             is_automatic = True
 
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=FAILURE_RATE,
+                    turn_system=WHEN_ALTERNATING_TURN)
+
             #
             # ［目標の点数］、［裏勝ち１つの点数］、［表勝ち１つの点数］を１つずつ進めていく探索です。
             #
@@ -248,9 +254,9 @@ def iteration_deeping(df, abs_limit_of_error):
                             pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                                     p=p,
                                     failure_rate=FAILURE_RATE,
-                                    longest_times=latest_points_configuration.count_longest_time_when_alternating_turn())
+                                    longest_times=latest_points_configuration.number_longest_time(turn_system=spec.turn_system))
 
-                            series_result = play_game_when_alternating_turn(
+                            series_result = judge_series_when_alternating_turn(
                                     pseudo_series_result=pseudo_series_result,
                                     pts_conf=latest_points_configuration)
                             series_result_list.append(series_result)
@@ -270,8 +276,8 @@ def iteration_deeping(df, abs_limit_of_error):
                             best_points_configuration = latest_points_configuration
 
                             # ［最短対局数］［最長対局数］
-                            shortest_time = best_points_configuration.count_shortest_time_when_alternating_turn()
-                            longest_time = best_points_configuration.count_longest_time_when_alternating_turn()
+                            shortest_time = best_points_configuration.number_shortest_time(turn_system=spec.turn_system)
+                            longest_time = best_points_configuration.number_longest_time(turn_system=spec.turn_system)
 
                             # 計算過程
                             one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}表 {best_points_configuration.w_step}裏 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'

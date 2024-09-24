@@ -23,7 +23,7 @@ LOG_FILE_PATH = 'output/simulation_large_series_when_frozen_turn.log'
 FAILURE_RATE = 0.9
 
 
-def simulate_stats(spec, number_of_series, pts_conf, title):
+def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     """大量のシリーズをシミュレートします
     
     Parameters
@@ -35,7 +35,7 @@ def simulate_stats(spec, number_of_series, pts_conf, title):
     series_result_list = []
 
     # ［最長対局数］は計算で求められます
-    longest_times = pts_conf.number_longest_time_when_frozen_turn
+    longest_times = pts_conf.number_longest_time(turn_system=turn_system)
 
     for series_num in range(0, number_of_series):
 
@@ -139,7 +139,8 @@ if __name__ == '__main__':
                     spec=spec,
                     number_of_series=number_of_series,
                     pts_conf=pts_conf,
-                    title='むずでょセレクション')
+                    title='むずでょセレクション',
+                    turn_system=turn_system)
 
 
     except Exception as err:

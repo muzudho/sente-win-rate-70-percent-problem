@@ -36,10 +36,10 @@ if __name__ == '__main__':
                             span=span)
 
                     # ［最短対局数］［最長対局数］
-                    seg_3a = pts_conf.number_shortest_time_when_frozen_turn
-                    seg_3b = pts_conf.number_longest_time_when_frozen_turn
-                    seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
-                    seg_3d = pts_conf.count_longest_time_when_alternating_turn()
+                    seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+                    seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+                    seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+                    seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
                     seg_4a = b_step
                     seg_4b = w_step

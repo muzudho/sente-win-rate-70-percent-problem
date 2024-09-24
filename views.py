@@ -76,7 +76,7 @@ def stringify_report_muzudho_recommends_points_at(p, number_of_series, latest_th
     return f"先手勝率 {seg_1:2.0f} ％ --試行後--> （該当なし）{seg_10}"
 
 
-def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, specified_points_configuration, presentable, process):
+def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, specified_points_configuration, presentable, process, turn_system):
     """［先後固定制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
     Parameters
@@ -103,11 +103,11 @@ def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, speci
     # ［目標の点数］
     seg_6 = specified_points_configuration.span
 
-    # ［先後交互制］での［最短対局数］
-    seg_7 = specified_points_configuration.count_shortest_time_when_alternating_turn()
+    # ［最短対局数］
+    seg_7 = specified_points_configuration.number_shortest_time(turn_system=turn_system)
 
-    # ［先後交互制］での［最長対局数］
-    seg_8 = specified_points_configuration.count_longest_time_when_alternating_turn()
+    # ［最長対局数］
+    seg_8 = specified_points_configuration.number_longest_time(turn_system=turn_system)
 
     # 表示用の説明文
     if isinstance(presentable, str):    # float NaN が入っていることがある
@@ -155,10 +155,10 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, p
     seg_1c = best_p_error*100
 
     # 対局数
-    seg_3a = pts_conf.number_shortest_time_when_frozen_turn
-    seg_3b = pts_conf.number_longest_time_when_frozen_turn
-    seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
-    seg_3d = pts_conf.count_longest_time_when_alternating_turn()
+    seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+    seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+    seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+    seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
     # ［表勝ち１つの点数］
     seg_4a = pts_conf.b_step
@@ -187,10 +187,10 @@ def print_when_generate_even_when_alternating_turn(p, best_p, best_p_error, best
     seg_1c = best_p_error * 100
 
     # 対局数
-    seg_3a = pts_conf.number_shortest_time_when_frozen_turn
-    seg_3b = pts_conf.number_longest_time_when_frozen_turn
-    seg_3c = pts_conf.count_shortest_time_when_alternating_turn()
-    seg_3d = pts_conf.count_longest_time_when_alternating_turn()
+    seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+    seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+    seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+    seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
     # ［表勝ち１つの点数］
     seg_4a = pts_conf.b_step
@@ -216,10 +216,10 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
     seg_1c = specified_p_error * 100
 
     # 対局数
-    seg_3a = specified_points_configuration.number_shortest_time_when_frozen_turn
-    seg_3b = specified_points_configuration.number_longest_time_when_frozen_turn
-    seg_3c = specified_points_configuration.count_shortest_time_when_alternating_turn()
-    seg_3d = specified_points_configuration.count_longest_time_when_alternating_turn()
+    seg_3a = specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+    seg_3b = specified_points_configuration.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+    seg_3c = specified_points_configuration.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+    seg_3d = specified_points_configuration.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
     # ［表勝ち１つの点数］
     seg_4a = specified_points_configuration.b_step
@@ -234,7 +234,7 @@ def print_when_generate_when_frozen_turn(p, specified_p, specified_p_error, spec
 
 
 def stringify_series_log(
-        p, failure_rate, pts_conf, series_result, title):
+        p, failure_rate, pts_conf, series_result, title, turn_system):
     """シリーズのログの文言作成
     
     Parameters
@@ -314,9 +314,9 @@ def stringify_series_log(
 
     # 対局数
     # ------
-    tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
-    tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
-    tm20 = series_result.number_of_times                    # ［対局数］実践値
+    tm10 = pts_conf.number_shortest_time(turn_system=turn_system)  # ［最短対局数］理論値
+    tm11 = pts_conf.number_longest_time(turn_system=turn_system)   # ［最長対局数］
+    tm20 = series_result.number_of_times                            # ［対局数］実践値
 
     # 勝ち点構成
     # ---------
@@ -394,8 +394,8 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］が算出した設定］
     # -----------------------------------------
-    b_tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
-    b_tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
+    b_tm10 = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)  # ［最短対局数］理論値
+    b_tm11 = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)   # ［最長対局数］
     # 勝ち点構成
     b_pt1 = pts_conf.b_step             # ［表勝ち１つの点数］
     b_pt2 = pts_conf.w_step             # ［裏勝ち１つの点数］
@@ -472,8 +472,8 @@ def stringify_simulation_log(
 
     # 対局数
     # ------
-    tm20 = S.shortest_time_th    # ［最短対局数］実践値
-    tm21 = S.longest_time_th     # ［最長対局数］
+    tm_s = S.shortest_time_th    # ［最短対局数］実践値
+    tm_l = S.longest_time_th     # ［最長対局数］
 
     #                                                                                              1         1         1
     #    1         2         3         4         5         6         7         8         9         0         1         2
@@ -496,7 +496,7 @@ def stringify_simulation_log(
               | 計 {ht_total_wons:>8}                   | 引分け無しのシリーズ {ht_total_fully_wons:>8} | 引分けを含んだシリーズ {ht_total_points_wons:>8}               |               |
               | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗付かず    | 対局数        |
               |   { c11:>8} 回     { c12:>8} 回                                                                                 |               |
-    引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm20:>4} ～{tm21:>4} 局 |
+    引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
               |（{ c31:+9.4f}）   （{ c32:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
               |                                   {c13:>8} 回     {c14:>8} 回     {c15:>8} 回      {c16:>8} 回    {c17:>8} 回 |               |

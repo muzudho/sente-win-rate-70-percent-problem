@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results_when_frozen_turn
+from library import HEAD, TAIL, ALICE, COIN_HEAD_AND_TAIL, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series_when_frozen_turn, LargeSeriesTrialSummary, make_all_pseudo_series_results
 from database import get_df_muzudho_single_points_when_frozen_turn
 from views import stringify_series_log, stringify_analysis_series_when_frozen_turn
 
@@ -44,7 +44,8 @@ def analysis_series(series_result, spec, pts_conf, title):
             # シリーズの結果
             series_result=series_result,
             # タイトル
-            title=title)
+            title=title,
+            turn_system=WHEN_FROZEN_TURN)
 
 
     print(text) # 表示
@@ -85,16 +86,18 @@ if __name__ == '__main__':
             series_result_list = []
 
             # FIXME 動作テスト
-            stats_result_data = make_all_pseudo_series_results_when_frozen_turn(
+            stats_result_data = make_all_pseudo_series_results(
                     can_draw=False,
-                    pts_conf=specified_points_configuration)
+                    pts_conf=specified_points_configuration,
+                    turn_system=WHEN_FROZEN_TURN)
+            
             for successful_color_list in stats_result_data:
                 #print(f"動作テスト {successful_color_list=}")
 
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        longest_times=specified_points_configuration.number_longest_time_when_frozen_turn,
+                        longest_times=specified_points_configuration.number_longest_time(turn_system=spec.turn_system),
                         successful_color_list=successful_color_list)
 
                 #
@@ -113,9 +116,9 @@ if __name__ == '__main__':
                     #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_points_configuration.number_shortest_time_when_frozen_turn:
+                elif old_number_of_times < specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN):
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.number_shortest_time_when_frozen_turn=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN)=}")
                     pass
 
                 #

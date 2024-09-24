@@ -291,7 +291,7 @@ class PseudoSeriesResult():
         return f"{self._p=}  {self._failure_rate=}  {self._longest_times=}  {self._successful_color_list}"
 
 
-def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
+def make_all_pseudo_series_results(can_draw, pts_conf, turn_system):
     """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
     
     １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
@@ -313,7 +313,7 @@ def make_all_pseudo_series_results_when_frozen_turn(can_draw, pts_conf):
         elements = [HEAD, TAIL]
 
     # 桁数
-    depth = pts_conf.number_longest_time_when_frozen_turn
+    depth = pts_conf.number_longest_time(turn_system=turn_system)
 
     # １シーズン分のコイントスの全ての結果
     stats = []
@@ -513,6 +513,31 @@ class PointCalculation():
         return self.get_point_of(y) < self.get_point_of(x)
 
 
+def play_tie_break(p, failure_rate):
+    """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
+
+    Parameters
+    ----------
+    p : float
+        ［表が出る確率］ 例： ７割なら 0.7
+    failure_rate : float
+        ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
+    
+    Returns
+    -------
+    winner_color : int
+        勝った方の色。引き分けなら裏勝ち
+    """
+
+    elementary_event = toss_a_coin(p, failure_rate) 
+
+    # 引き分けなら裏勝ち
+    if elementary_event == EMPTY:
+        return TAIL
+
+    else:
+        return elementary_event
+
 
 def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
     """１シリーズ分の疑似対局結果を読み取ります。［先後固定制］で判定します。
@@ -555,7 +580,10 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
             point_calculation.append_draw(time_th, turn_system=WHEN_FROZEN_TURN)
         
         else:
-            point_calculation.append_won(successful_color, time_th, turn_system=WHEN_FROZEN_TURN)
+            point_calculation.append_won(
+                successful_color=successful_color,
+                time_th=time_th,
+                turn_system=WHEN_FROZEN_TURN)
 
             # 勝ち抜け
             if pts_conf.span <= point_calculation.get_point_of(successful_color):
@@ -581,37 +609,13 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
             pseudo_series_result=pseudo_series_result)
 
 
-def play_tie_break(p, failure_rate):
-    """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
-
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］ 例： ７割なら 0.7
-    failure_rate : float
-        ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
-    
-    Returns
-    -------
-    winner_color : int
-        勝った方の色。引き分けなら裏勝ち
-    """
-
-    elementary_event = toss_a_coin(p, failure_rate) 
-
-    # 引き分けなら裏勝ち
-    if elementary_event == EMPTY:
-        return TAIL
-
-    else:
-        return elementary_event
-
-
-def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
+def judge_series_when_alternating_turn(pseudo_series_result, pts_conf):
     """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
     
     Parameters
     ----------
+    pseudo_series_result : PseudoSeriesResult
+        コイントス・リスト
     pts_conf : PointsConfiguration
         ［かくきんシステムのｐの構成］
     
@@ -645,7 +649,10 @@ def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
         else:
             successful_player = PointCalculation.get_successful_player(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
 
-            point_calculation.append_won(successful_color, time_th, turn_system=WHEN_ALTERNATING_TURN)
+            point_calculation.append_won(
+                    successful_color=successful_color,
+                    time_th=time_th,
+                    turn_system=WHEN_ALTERNATING_TURN)
 
             # 勝ち抜け
             if pts_conf.span <= point_calculation.get_point_of(successful_player):
@@ -912,134 +919,144 @@ class PointsConfiguration():
                 span=span)
 
 
-    @property
-    def number_shortest_time_when_frozen_turn(self):
-        """［先後固定制］での［最短対局数］
-        
-        裏が全勝したときの回数と同じ
+    def number_shortest_time(self, turn_system):
+        """［最短対局数］"""
 
-        `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
-            ・  裏  裏  裏  裏  裏  で、最短５局
-            10  10  10  10 10  10
-            10   8   6   4  2   0
-        """
-        return self.w_time
-
-
-    @property
-    def number_longest_time_when_frozen_turn(self):
-        """［先後固定制］での［最長対局数］
-
-        裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
-
-        NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、裏と表は何本取ればいいのか明示しなければ、伝わらない
-        NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
-        NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
-
-        `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
-            ・  表  表  表  表  表  表  表  表  表  裏  裏  裏  裏  裏  で、最長１４局
-            10   9   8   7   6   5  4   3   2   1  1   1   1   1   1
-            10  10  10  10  10  10 10  10  10  10  8   6   4   2   0
-        
-        `10表 12裏 14目（先後固定制）`
-            ・  裏  表  表  で最長３局
-            14   2   2   2
-            14  14   4  -6
-        """
-        return  (self.b_time-1) + (self.w_time-1) + 1
-
-
-    def count_shortest_time_when_alternating_turn(self):
-        """［先後交互制］での［最短対局数］
-        
-        Ｂさんだけが勝ったときの回数と同じ。
-
-        まず、［目標の点数］が［表勝ち１つの点数］＋［裏勝ち１つの点数］より上回っているなら、［目標の点数］から［表勝ち１つの点数］＋［裏勝ち１つの点数］を順に引いていく（２回分を加算していく）。
-        端数が出たら［裏勝ち１つの点数］（１回分）を加算する。
-        まだ端数が出たら［表勝ち１つの点数］（１回分）を加算する。
-        そのような、［目標の点数］に達するまでの回数。
-
-        筆算
-        ----
-
-            `先手勝ち 1点、後手勝ち 2点　目標  9点` のとき、先後交互制で最短は？
-                ・  Ａ  ａ  Ａ  ａ  Ａ  ａ  で、最短６対局
-                9   8  6   5   3   2   0
-
-                ・  ｂ  Ｂ  ｂ  Ｂ  ｂ  Ｂ  で、最短６対局
-                9   7  6   4   3   1   0
-
-
-            `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後交互制で最短は？
-                ・  Ａ  ａ  Ａ  ａ  Ａ  ａ  Ａ  で、最短７対局
-                10   9  7   6   4   3   1   0
-
-                ・  ｂ  Ｂ  ｂ  Ｂ  ｂ  Ｂ  ｂ  で、最短７対局
-                10   8  7   5   4   2   1  -1
+        if turn_system == WHEN_FROZEN_TURN:
+            """［先後固定制］での［最短対局数］
             
-            `先手勝ち10点、後手勝ち19点　目標190点` のとき、先後交互制で最短は？
-                ・   Ａ   ａ   Ａ    ａ   Ａ   ａ   Ａ  ａ  Ａ   ａ  Ａ  ａ  Ａ   ａ  で14局
-                190  180  161  151  132  122  103  93  74  64  45  35  16   6  -13
+            裏が全勝したときの回数と同じ
 
-                ・   ｂ   Ｂ   ｂ    Ｂ   ｂ   Ｂ   ｂ  Ｂ  ｂ   Ｂ  ｂ  Ｂ  ｂ  で最短13局
-                190  171  161  142  132  113  103  84  74  55  45  26  16  -3
-        """
+            `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
+                ・  裏  裏  裏  裏  裏  で、最短５局
+                10  10  10  10 10  10
+                10   8   6   4  2   0
+            """
 
-        remainder = self._span
+            return self.w_time
 
-        if self._b_step + self._w_step <= remainder:
-            # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
-            new_remainder = self._span % (self._b_step + self._w_step)
-            time = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
-            remainder = new_remainder
+        if turn_system == WHEN_ALTERNATING_TURN:
+            """［先後交互制］での［最短対局数］
+            
+            Ｂさんだけが勝ったときの回数と同じ。
 
-        else:
-            time = 0
+            まず、［目標の点数］が［表勝ち１つの点数］＋［裏勝ち１つの点数］より上回っているなら、［目標の点数］から［表勝ち１つの点数］＋［裏勝ち１つの点数］を順に引いていく（２回分を加算していく）。
+            端数が出たら［裏勝ち１つの点数］（１回分）を加算する。
+            まだ端数が出たら［表勝ち１つの点数］（１回分）を加算する。
+            そのような、［目標の点数］に達するまでの回数。
 
-        # 端数があれば［裏勝ち１つの点数］を引く（１回分を加算）
-        #
-        #   NOTE 裏（後手）の方が step 値が表（先手）より大きいか、等しいです。［裏勝ち１つの点数］の方から先に引きます
-        #
-        if 0 < remainder:
-            time += 1
-            remainder -= self._w_step
+            筆算
+            ----
 
-            # まだ端数があれば［表勝ち１つの点数］を引く（１回分を加算）
+                `先手勝ち 1点、後手勝ち 2点　目標  9点` のとき、先後交互制で最短は？
+                    ・  Ａ  ａ  Ａ  ａ  Ａ  ａ  で、最短６対局
+                    9   8  6   5   3   2   0
+
+                    ・  ｂ  Ｂ  ｂ  Ｂ  ｂ  Ｂ  で、最短６対局
+                    9   7  6   4   3   1   0
+
+
+                `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後交互制で最短は？
+                    ・  Ａ  ａ  Ａ  ａ  Ａ  ａ  Ａ  で、最短７対局
+                    10   9  7   6   4   3   1   0
+
+                    ・  ｂ  Ｂ  ｂ  Ｂ  ｂ  Ｂ  ｂ  で、最短７対局
+                    10   8  7   5   4   2   1  -1
+                
+                `先手勝ち10点、後手勝ち19点　目標190点` のとき、先後交互制で最短は？
+                    ・   Ａ   ａ   Ａ    ａ   Ａ   ａ   Ａ  ａ  Ａ   ａ  Ａ  ａ  Ａ   ａ  で14局
+                    190  180  161  151  132  122  103  93  74  64  45  35  16   6  -13
+
+                    ・   ｂ   Ｂ   ｂ    Ｂ   ｂ   Ｂ   ｂ  Ｂ  ｂ   Ｂ  ｂ  Ｂ  ｂ  で最短13局
+                    190  171  161  142  132  113  103  84  74  55  45  26  16  -3
+            """
+
+            remainder = self._span
+
+            if self._b_step + self._w_step <= remainder:
+                # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
+                new_remainder = self._span % (self._b_step + self._w_step)
+                time = math.floor( (remainder - new_remainder) / (self._b_step + self._w_step)) * 2
+                remainder = new_remainder
+
+            else:
+                time = 0
+
+            # 端数があれば［裏勝ち１つの点数］を引く（１回分を加算）
+            #
+            #   NOTE 裏（後手）の方が step 値が表（先手）より大きいか、等しいです。［裏勝ち１つの点数］の方から先に引きます
+            #
             if 0 < remainder:
                 time += 1
-                remainder -= self._b_step
+                remainder -= self._w_step
 
-                # remainder は負数になっているはず（割り切れないはず）
-                if 0 <= remainder:
-                    raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
+                # まだ端数があれば［表勝ち１つの点数］を引く（１回分を加算）
+                if 0 < remainder:
+                    time += 1
+                    remainder -= self._b_step
+
+                    # remainder は負数になっているはず（割り切れないはず）
+                    if 0 <= remainder:
+                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
+                
+                # remainder は零か負数になっているはず
+                elif 0 < remainder:
+                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
+
+            return time
+
+
+        raise ValueError(f"{turn_system=}")
+
+
+    def number_longest_time(self, turn_system):
+        """［最長対局数］"""
+
+        if turn_system == WHEN_FROZEN_TURN:
+            """［先後固定制］での［最長対局数］
+
+            裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
+
+            NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、裏と表は何本取ればいいのか明示しなければ、伝わらない
+            NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
+            NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
+
+            `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
+                ・  表  表  表  表  表  表  表  表  表  裏  裏  裏  裏  裏  で、最長１４局
+                10   9   8   7   6   5  4   3   2   1  1   1   1   1   1
+                10  10  10  10  10  10 10  10  10  10  8   6   4   2   0
             
-            # remainder は零か負数になっているはず
-            elif 0 < remainder:
-                raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self._b_step=}  {self._w_step=}")
+            `10表 12裏 14目（先後固定制）`
+                ・  裏  表  表  で最長３局
+                14   2   2   2
+                14  14   4  -6
+            """
+            return  (self.b_time-1) + (self.w_time-1) + 1
 
-        return time
+
+        if turn_system == WHEN_ALTERNATING_TURN:
+            """［先後交互制］での［最長対局数］
+
+            ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
+
+            筆算
+            ----
+
+                理論上 `対局数  5～14（先後固定制）   7～19（先後交互制）    先手勝ち 1点、後手勝ち 2点　目標 10点（先後固定制）`
+                    ・  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  で、最長１９対局
+                    10  9   9   8   8   7   7   6  6   5   5   4   4   3  3   2   2   1   1   0
+                    10 10   9   9   8   8   7   7  6   6   5   5   4   4  3   3   2   2   1   1
+            
+                `0.014715 10表 12裏 14目 1～1局（先後交互制）`
+                    ・  Ａ  Ｂ  Ａ  で、最長３局
+                    14   4   4  -6
+                    14  14   4   4
+            """
+
+            return  (self.b_time-1) + (self.w_time-1) + 1
 
 
-    def count_longest_time_when_alternating_turn(self):
-        """［先後交互制］での［最長対局数］
-
-        ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
-
-        筆算
-        ----
-
-            理論上 `対局数  5～14（先後固定制）   7～19（先後交互制）    先手勝ち 1点、後手勝ち 2点　目標 10点（先後固定制）`
-                ・  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  で、最長１９対局
-                10  9   9   8   8   7   7   6  6   5   5   4   4   3  3   2   2   1   1   0
-                10 10   9   9   8   8   7   7  6   6   5   5   4   4  3   3   2   2   1   1
-        
-            `0.014715 10表 12裏 14目 1～1局（先後交互制）`
-                ・  Ａ  Ｂ  Ａ  で、最長３局
-                14   4   4  -6
-                14  14   4   4
-        """
-
-        return  (self.b_time-1) + (self.w_time-1) + 1
+        raise ValueError(f"{turn_system=}")
 
 
 class SeriesResult():

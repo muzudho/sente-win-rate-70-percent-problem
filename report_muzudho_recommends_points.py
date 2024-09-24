@@ -75,6 +75,12 @@ def generate_when_frozen_turn():
     for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
         zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
 
+        # 仕様
+        spec = Specification(
+                p=p,
+                failure_rate=FAILURE_RATE,
+                turn_system=WHEN_ALTERNATING_TURN)
+
         # ［かくきんシステムのｐの構成］。任意に指定します
         specified_points_configuration = PointsConfiguration(
                 failure_rate=FAILURE_RATE,
@@ -94,7 +100,9 @@ def generate_when_frozen_turn():
                 latest_theoretical_p=latest_theoretical_p,
                 specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                 presentable=presentable,
-                process=process)
+                process=process,
+                turn_system=spec.turn_system)
+                
         print(text) # 表示
 
         with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:

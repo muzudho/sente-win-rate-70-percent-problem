@@ -29,7 +29,7 @@ NUMBER_OF_SERIES = 20_000
 #NUMBER_OF_SERIES = 10 # 少なすぎるケース
 
 
-def simulate_stats(spec, number_of_series, pts_conf, title):
+def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     """大量のシリーズをシミュレートします
     
     Parameters
@@ -41,7 +41,7 @@ def simulate_stats(spec, number_of_series, pts_conf, title):
     series_result_list = []
 
     # ［最長対局数］は計算で求められます
-    longest_times = pts_conf.number_longest_time_when_frozen_turn
+    longest_times = pts_conf.number_longest_time(turn_system=turn_system)
 
     for round in range(0, number_of_series):
 
@@ -86,11 +86,11 @@ def simulate_stats(spec, number_of_series, pts_conf, title):
 
 
     # 表示とログ出力を終えた後でテスト
-    if large_series_trial_summary.shortest_time_th < pts_conf.number_shortest_time_when_frozen_turn:
-        raise ValueError(f"{spec.p=} ［先後固定制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_shortest_time_when_frozen_turn} を下回った")
+    if large_series_trial_summary.shortest_time_th < pts_conf.number_shortest_time(turn_system=turn_system):
+        raise ValueError(f"{spec.p=} ［先後固定制］の最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_shortest_time(turn_system=turn_system)} を下回った")
 
-    if pts_conf.number_longest_time_when_frozen_turn < large_series_trial_summary.longest_time_th:
-        raise ValueError(f"{spec.p=} ［先後固定制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time_when_frozen_turn} を上回った")
+    if pts_conf.number_longest_time(turn_system=turn_system) < large_series_trial_summary.longest_time_th:
+        raise ValueError(f"{spec.p=} ［先後固定制］の最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time(turn_system=turn_system)} を上回った")
 
 
 ########################################
@@ -124,7 +124,8 @@ if __name__ == '__main__':
                     spec=spec,
                     number_of_series=NUMBER_OF_SERIES,
                     pts_conf=specified_points_configuration,
-                    title='（先後固定制）    むずでょセレクション')
+                    title='（先後固定制）    むずでょセレクション',
+                    turn_system=spec.turn_system)
 
 
     except Exception as err:

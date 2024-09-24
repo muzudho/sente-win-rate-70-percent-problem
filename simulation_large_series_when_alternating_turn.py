@@ -14,7 +14,7 @@ import datetime
 import pandas as pd
 
 from fractions import Fraction
-from library import ALICE, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, play_game_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
+from library import ALICE, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, judge_series_when_alternating_turn, LargeSeriesTrialSummary, PseudoSeriesResult
 from database import get_df_muzudho_recommends_points_when_alternating_turn
 from views import stringify_simulation_log
 
@@ -26,7 +26,12 @@ FAILURE_RATE = 0.0
 #FAILURE_RATE = 0.1
 
 
-def simulate_stats(spec, number_of_series, pts_conf):
+# 対局数
+#NUMBER_OF_SERIES = 2_000_000 # 十分多いケース
+NUMBER_OF_SERIES = 20
+
+
+def simulate_stats(spec, number_of_series, pts_conf, turn_system):
     """大量のシリーズをシミュレートします
     
     Parameters
@@ -43,10 +48,10 @@ def simulate_stats(spec, number_of_series, pts_conf):
         pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                 p=spec.p,
                 failure_rate=FAILURE_RATE,
-                longest_times=pts_conf.count_longest_time_when_alternating_turn())
+                longest_times=pts_conf.number_longest_time(turn_system=turn_system))
 
         # ［先後交互制］で、勝ったプレイヤーを返す
-        series_result = play_game_when_alternating_turn(
+        series_result = judge_series_when_alternating_turn(
                 pseudo_series_result=pseudo_series_result,
                 pts_conf=pts_conf)
 
@@ -90,10 +95,6 @@ if __name__ == '__main__':
     try:
         df_mr_at = get_df_muzudho_recommends_points_when_alternating_turn()
 
-        # 対局数
-        number_of_series = 2_000_000 # 十分多いケース
-        #number_of_series = 200
-
         for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
             zip(df_mr_at['p'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
 
@@ -112,8 +113,9 @@ if __name__ == '__main__':
 
             simulate_stats(
                     spec=spec,
-                    number_of_series=number_of_series,
-                    pts_conf=specified_points_configuration)
+                    number_of_series=NUMBER_OF_SERIES,
+                    pts_conf=specified_points_configuration,
+                    turn_system=spec.turn_system)
 
 
     except Exception as err:
