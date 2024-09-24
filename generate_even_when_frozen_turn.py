@@ -14,12 +14,10 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, WHEN_FROZEN_TURN, round_letro, PointsConfiguration, calculate_probability, Specification
+from file_paths import get_even_csv_file_path
 from database import get_df_generate_even
-from views import print_when_generate_even
+from views import print_even
 
-
-LOG_FILE_PATH_FT = 'output/generate_even_when_frozen_turn.log'
-CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 # ［将棋の引分け率］
 FAILURE_RATE = 0.0
@@ -43,7 +41,7 @@ def update_dataframe(df, p,
     """データフレーム更新"""
 
     # 表示
-    print_when_generate_even(
+    print_even(
             p=p,
             best_p=best_p,
             best_p_error=best_p_error,
@@ -79,7 +77,7 @@ def update_dataframe(df, p,
     df.loc[df['p']==p, ['process']] = process
 
     # CSV保存
-    df.to_csv(CSV_FILE_PATH_FT,
+    df.to_csv(get_even_csv_file_path(turn_system=WHEN_FROZEN_TURN),
             # ［計算過程］列は長くなるので末尾に置きたい
             columns=['p', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた

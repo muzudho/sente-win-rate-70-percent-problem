@@ -125,7 +125,7 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
     raise ValueError(f"{turn_system=}")
 
 
-def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_error):
+def stringify_calculate_probability(p, b_time, w_time, best_p, best_p_error):
     """文言の作成"""
 
     # ［タイムスタンプ］
@@ -150,7 +150,7 @@ def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_e
     return text
 
 
-def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, process_list):
+def stringify_p_q_time_strict(p, best_p, best_p_error, pts_conf, process_list):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -179,7 +179,7 @@ def stringify_when_generate_b_w_time_strict(p, best_p, best_p_error, pts_conf, p
     return text
 
 
-def print_when_generate_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_system):
+def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         # ［表が出る確率（％）］
         seg_1a = p*100

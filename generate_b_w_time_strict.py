@@ -15,7 +15,7 @@ import pandas as pd
 
 from library import calculate_probability, PointsConfiguration
 from database import get_df_p
-from views import stringify_when_generate_b_w_time_strict
+from views import stringify_p_q_time_strict
 
 
 LOG_FILE_PATH = 'output/generate_b_w_time_strict.log'
@@ -93,7 +93,7 @@ if __name__ == '__main__':
                     b_time=best_b_time,
                     w_time=best_w_time)
 
-                text = stringify_when_generate_b_w_time_strict(
+                text = stringify_p_q_time_strict(
                         p=p,
                         best_p=best_p,
                         best_p_error=best_p_error,

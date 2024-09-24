@@ -9,7 +9,7 @@
 import traceback
 
 from library import WHEN_FROZEN_TURN, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
-from file_paths import get_simulation_large_series_file
+from file_paths import get_simulation_large_series_log_file_path
 from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
 
@@ -76,7 +76,7 @@ def simulate_stats(spec, number_of_series, pts_conf, title, turn_system):
     print(text) # 表示
 
     # ログ出力
-    with open(get_simulation_large_series_file(
+    with open(get_simulation_large_series_log_file_path(
             p=p,
             failure_rate=FAILURE_RATE,
             turn_system=WHEN_FROZEN_TURN), 'a', encoding='utf8') as f:

@@ -4,10 +4,8 @@
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
+from file_paths import get_even_csv_file_path
 
-
-CSV_FILE_PATH_AT = './data/generate_even_when_alternating_turn.csv'
-CSV_FILE_PATH_FT = './data/generate_even_when_frozen_turn.csv'
 
 CSV_FILE_PATH_MR_AT = './data/muzudho_recommends_points_when_alternating_turn.csv'
 CSV_FILE_PATH_MR_FT = './data/muzudho_recommends_points_when_frozen_turn.csv'
@@ -21,7 +19,7 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 def get_df_generate_even(turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
-        df = pd.read_csv(CSV_FILE_PATH_AT, encoding="utf8")
+        df = pd.read_csv(get_even_csv_file_path(turn_system=WHEN_ALTERNATING_TURN), encoding="utf8")
 
         #
         # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
@@ -44,7 +42,7 @@ def get_df_generate_even(turn_system):
         return df
 
     if turn_system == WHEN_FROZEN_TURN:
-        df = pd.read_csv(CSV_FILE_PATH_FT, encoding="utf8")
+        df = pd.read_csv(file_paths(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
 
         #
         # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく

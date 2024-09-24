@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import calculate_probability
 from database import get_df_let_calculate_probability
-from views import stringify_when_let_calculate_probability
+from views import stringify_calculate_probability
 
 
 LOG_FILE_PATH = 'output/let_calculate_probability.log'
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 # 文言作成
                 # -------
 
-                text = stringify_when_let_calculate_probability(
+                text = stringify_calculate_probability(
                         p=p,
                         b_time=b_time,
                         w_time=w_time,
