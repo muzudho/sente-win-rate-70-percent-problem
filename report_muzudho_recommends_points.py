@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import round_letro, calculate_probability, PointsConfiguration
 from database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
-from views import stringify_report_muzudho_recommends_points_ft, stringify_report_muzudho_recommends_points_at
+from views import stringify_report_muzudho_recommends_points
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -36,10 +36,10 @@ def generate_report(turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］"""
 
-        df_mr_at = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
+        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
 
-        for               p,             number_of_series,             b_step,             w_step,             span,             presentable,             comment,             process in\
-            zip(df_mr_at['p'], df_mr_at['number_of_series'], df_mr_at['b_step'], df_mr_at['w_step'], df_mr_at['span'], df_mr_at['presentable'], df_mr_at['comment'], df_mr_at['process']):
+        for            p,          number_of_series,          b_step,          w_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['number_of_series'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
@@ -55,13 +55,14 @@ def generate_report(turn_system):
                     T=specified_points_configuration.w_time)
 
             # 文言の作成
-            text = stringify_report_muzudho_recommends_points_at(
+            text = stringify_report_muzudho_recommends_points(
                     p=p,
                     number_of_series=number_of_series,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
-                    process=process)
+                    process=process,
+                    turn_system=WHEN_ALTERNATING_TURN)
             print(text) # 表示
 
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
@@ -72,10 +73,10 @@ def generate_report(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         """［先後固定制］"""
 
-        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
+        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
-        for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
-            zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
+        for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # 仕様
             spec = Specification(
@@ -97,7 +98,7 @@ def generate_report(turn_system):
                     T=specified_points_configuration.w_time)
 
             # 文言の作成
-            text = stringify_report_muzudho_recommends_points_ft(
+            text = stringify_report_muzudho_recommends_points(
                     p=p,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_points_configuration=specified_points_configuration,    # TODO 任意のポイントを指定したい

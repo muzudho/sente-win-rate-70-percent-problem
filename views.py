@@ -19,103 +19,107 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_muzudho_recommends_points_at(p, number_of_series, latest_theoretical_p, specified_points_configuration, presentable, process):
-    """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
+def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theoretical_p, specified_points_configuration, presentable, process, turn_system):
+    if turn_system == WHEN_ALTERNATING_TURN:
+        """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
-    Parameters
-    ----------
-    presentable : str
-        表示用の説明文
-    """
+        Parameters
+        ----------
+        presentable : str
+            表示用の説明文
+        """
 
-    # ［表が出る確率（％）］
-    seg_1 = p * 100
+        # ［表が出る確率（％）］
+        seg_1 = p * 100
 
-    # 表示用の説明文
-    if isinstance(presentable, str):    # float NaN が入っていることがある
-        seg_10 = f"    {presentable}"
-    else:
-        seg_10 = ''
+        # 表示用の説明文
+        if isinstance(presentable, str):    # float NaN が入っていることがある
+            seg_10 = f"    {presentable}"
+        else:
+            seg_10 = ''
 
-    # NOTE ［先後交互制］では、理論値を出すのが難しいので、理論値ではなく、実際値を出力する
-    #
-    # ［計算過程］
-    process_list = process[1:-1].split('] [')
-    for process_element in process_list:
-        p_error, b_step, w_step, span, shortest, longest = parse_process_element(process_element)
-        if p_error is not None:
-            if b_step == specified_points_configuration.b_step and w_step == specified_points_configuration.w_step and span == specified_points_configuration.span:
+        # NOTE ［先後交互制］では、理論値を出すのが難しいので、理論値ではなく、実際値を出力する
+        #
+        # ［計算過程］
+        process_list = process[1:-1].split('] [')
+        for process_element in process_list:
+            p_error, b_step, w_step, span, shortest, longest = parse_process_element(process_element)
+            if p_error is not None:
+                if b_step == specified_points_configuration.b_step and w_step == specified_points_configuration.w_step and span == specified_points_configuration.span:
 
-                # ［調整後の表が出る確率（％）］
-                seg_2 = p_error*100+50
+                    # ［調整後の表が出る確率（％）］
+                    seg_2 = p_error*100+50
 
-                # 誤差（％）
-                seg_3 = p_error*100
+                    # 誤差（％）
+                    seg_3 = p_error*100
 
-                # ［表勝ち１つの点数］
-                seg_4 = b_step
+                    # ［表勝ち１つの点数］
+                    seg_4 = b_step
 
-                # ［裏勝ち１つの点数］
-                seg_5 = w_step
+                    # ［裏勝ち１つの点数］
+                    seg_5 = w_step
 
-                # ［目標の点数］
-                seg_6 = span
+                    # ［目標の点数］
+                    seg_6 = span
 
-                # ［先後交互制］での［最短対局数］
-                seg_7 = shortest
+                    # ［先後交互制］での［最短対局数］
+                    seg_7 = shortest
 
-                # ［先後交互制］での［最長対局数］
-                seg_8 = longest
+                    # ［先後交互制］での［最長対局数］
+                    seg_8 = longest
 
-                # ［試行回数］
-                seg_9 = number_of_series
+                    # ［試行回数］
+                    seg_9 = number_of_series
 
-                return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回{seg_10}"
-
-
-    return f"先手勝率 {seg_1:2.0f} ％ --試行後--> （該当なし）{seg_10}"
+                    return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回{seg_10}"
 
 
-def stringify_report_muzudho_recommends_points_ft(p, latest_theoretical_p, specified_points_configuration, presentable, process, turn_system):
-    """［先後固定制］での、むずでょが推奨する［かくきんシステムのｐの構成］
+        return f"先手勝率 {seg_1:2.0f} ％ --試行後--> （該当なし）{seg_10}"
 
-    Parameters
-    ----------
-    presentable : str
-        表示用の説明文
-    """
 
-    # ［表が出る確率（％）］
-    seg_1 = p * 100
+    if turn_system == WHEN_FROZEN_TURN:
+        """［先後固定制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
-    # ［調整後の表が出る確率（％）］    NOTE ［先後固定制］では、理論値が出せるので、実際値ではなく、理論値を出力する
-    seg_2 = latest_theoretical_p * 100
+        Parameters
+        ----------
+        presentable : str
+            表示用の説明文
+        """
 
-    # 誤差（％）
-    seg_3 = (latest_theoretical_p - 0.5) * 100
+        # ［表が出る確率（％）］
+        seg_1 = p * 100
 
-    # ［表勝ち１つの点数］
-    seg_4 = specified_points_configuration.b_step
+        # ［調整後の表が出る確率（％）］    NOTE ［先後固定制］では、理論値が出せるので、実際値ではなく、理論値を出力する
+        seg_2 = latest_theoretical_p * 100
 
-    # ［裏勝ち１つの点数］
-    seg_5 = specified_points_configuration.w_step
+        # 誤差（％）
+        seg_3 = (latest_theoretical_p - 0.5) * 100
 
-    # ［目標の点数］
-    seg_6 = specified_points_configuration.span
+        # ［表勝ち１つの点数］
+        seg_4 = specified_points_configuration.b_step
 
-    # ［最短対局数］
-    seg_7 = specified_points_configuration.number_shortest_time(turn_system=turn_system)
+        # ［裏勝ち１つの点数］
+        seg_5 = specified_points_configuration.w_step
 
-    # ［最長対局数］
-    seg_8 = specified_points_configuration.number_longest_time(turn_system=turn_system)
+        # ［目標の点数］
+        seg_6 = specified_points_configuration.span
 
-    # 表示用の説明文
-    if isinstance(presentable, str):    # float NaN が入っていることがある
-        seg_9 = f"    {presentable}"
-    else:
-        seg_9 = ''
+        # ［最短対局数］
+        seg_7 = specified_points_configuration.number_shortest_time(turn_system=turn_system)
 
-    return f"先手勝率 {seg_1:2.0f} ％ --理論値--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）{seg_9}"
+        # ［最長対局数］
+        seg_8 = specified_points_configuration.number_longest_time(turn_system=turn_system)
+
+        # 表示用の説明文
+        if isinstance(presentable, str):    # float NaN が入っていることがある
+            seg_9 = f"    {presentable}"
+        else:
+            seg_9 = ''
+
+        return f"先手勝率 {seg_1:2.0f} ％ --理論値--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後固定制）{seg_9}"
+
+
+    raise ValueError(f"{turn_system=}")
 
 
 def stringify_when_let_calculate_probability(p, b_time, w_time, best_p, best_p_error):
@@ -204,36 +208,32 @@ def print_when_generate_even(p, best_p, best_p_error, best_number_of_series, pts
         print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
-    raise ValueError(f"{turn_system=}")
-
-
-def print_when_generat(p, specified_p, specified_p_error, specified_number_of_series, specified_points_configuration, turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         # ［表が出る確率（％）］
         seg_1a = p*100
 
         # ［調整後の表が出る確率（％）］
-        seg_1b = specified_p * 100
+        seg_1b = best_p * 100
 
         # ［調整後の表が出る確率（％）と 0.5 との誤差］
-        seg_1c = specified_p_error * 100
+        seg_1c = best_p_error * 100
 
         # 対局数
-        seg_3a = specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-        seg_3b = specified_points_configuration.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-        seg_3c = specified_points_configuration.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-        seg_3d = specified_points_configuration.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+        seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
+        seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
+        seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
+        seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
         # ［表勝ち１つの点数］
-        seg_4a = specified_points_configuration.b_step
+        seg_4a = pts_conf.b_step
 
         # ［表勝ち１つの点数］
-        seg_4b = specified_points_configuration.w_step
+        seg_4b = pts_conf.w_step
 
         # ［目標の点数］
-        seg_4c = specified_points_configuration.span
+        seg_4c = pts_conf.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{specified_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
 

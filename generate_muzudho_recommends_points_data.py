@@ -81,11 +81,11 @@ def generate_report(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         """［先後固定制］"""
 
-        df_ft = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
-        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
+        df_ev = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
+        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
         for            p,          best_p,          best_p_error,          best_number_of_series,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_b_step,          latest_w_step,          latest_span,          process in\
-            zip(df_ft['p'], df_ft['best_p'], df_ft['best_p_error'], df_ft['best_number_of_series'], df_ft['best_b_step'], df_ft['best_w_step'], df_ft['best_span'], df_ft['latest_p'], df_ft['latest_p_error'], df_ft['latest_number_of_series'], df_ft['latest_b_step'], df_ft['latest_w_step'], df_ft['latest_span'], df_ft['process']):
+            zip(df_ev['p'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_b_step'], df_ev['best_w_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_b_step'], df_ev['latest_w_step'], df_ev['latest_span'], df_ev['process']):
 
             # ［計算過程］一覧
             #
@@ -115,10 +115,10 @@ def generate_report(turn_system):
                 comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}表 {white}裏 {span}目 {shortest}～{longest}局]')
 
             # ［計算過程］列を更新
-            df_mr_ft.loc[df_mr_ft['p']==p, ['process']] = ' '.join(comment_element_list)
+            df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mr_ft.to_csv(CSV_FILE_PATH_MR_FT,
+            df_mr.to_csv(CSV_FILE_PATH_MR_FT,
                     # ［計算過程］列は長くなるので末尾に置きたい
                     columns=['p', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた

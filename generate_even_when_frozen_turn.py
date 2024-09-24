@@ -13,9 +13,9 @@ import random
 import math
 import pandas as pd
 
-from library import HEAD, TAIL, round_letro, PointsConfiguration, calculate_probability
+from library import HEAD, TAIL, WHEN_FROZEN_TURN, round_letro, PointsConfiguration, calculate_probability, Specification
 from database import get_df_generate_even
-from views import print_when_generate
+from views import print_when_generate_even
 
 
 LOG_FILE_PATH_FT = 'output/generate_even_when_frozen_turn.log'
@@ -43,12 +43,12 @@ def update_dataframe(df, p,
     """データフレーム更新"""
 
     # 表示
-    print_when_generate(
+    print_when_generate_even(
             p=p,
-            specified_p=best_p,
-            specified_p_error=best_p_error,
-            specified_number_of_series=best_number_of_series,
-            specified_points_configuration=best_points_configuration,
+            best_p=best_p,
+            best_p_error=best_p_error,
+            best_number_of_series=best_number_of_series,
+            pts_conf=best_points_configuration,
             turn_system=WHEN_FROZEN_TURN)
 
     # ［調整後の表が出る確率］列を更新
@@ -265,8 +265,8 @@ if __name__ == '__main__':
 
     try:
 
-        df_ft = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
-        print(df_ft)
+        df_ev = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
+        print(df_ev)
 
 
         # 反復深化探索
@@ -284,7 +284,7 @@ if __name__ == '__main__':
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            worst_abs_best_p_error = max(abs(df_ft['best_p_error'].min()), abs(df_ft['best_p_error'].max()))
+            worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
             print(f"{worst_abs_best_p_error=}")
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
@@ -295,7 +295,7 @@ if __name__ == '__main__':
             # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
             abs_limit_of_error = worst_abs_best_p_error * 9 / 10
 
-            iteration_deeping(df_ft, abs_limit_of_error)
+            iteration_deeping(df_ev, abs_limit_of_error)
 
 
     except Exception as err:

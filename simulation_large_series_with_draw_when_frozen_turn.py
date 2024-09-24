@@ -109,14 +109,14 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr_ft = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
+        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
         # 対局数
         number_of_series = 2_000_000 # 十分多いケース
         #number_of_series = 10 # 少なすぎるケース
 
-        for               p,             b_step,             w_step,             span,             presentable,             comment,             process in\
-            zip(df_mr_ft['p'], df_mr_ft['b_step'], df_mr_ft['w_step'], df_mr_ft['span'], df_mr_ft['presentable'], df_mr_ft['comment'], df_mr_ft['process']):
+        for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             #
             #   NOTE ［目標の点数］を整数倍すると、最小公倍数が何回も出てきて、引き分けになる回数も整数倍になるから、引き分けが増えるデメリットがある
