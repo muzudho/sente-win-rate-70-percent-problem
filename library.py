@@ -565,7 +565,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
                 pseudo_series_result.cut_down(time_th)
 
                 return SeriesResult(
-                        number_of_all_times=time_th,
+                        number_of_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=pts_conf.span,
                         point_calculation=point_calculation,
@@ -574,7 +574,7 @@ def judge_series_when_frozen_turn(pseudo_series_result, pts_conf):
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
     return SeriesResult(
-            number_of_all_times=time_th,
+            number_of_times=time_th,
             number_of_draw_times=number_of_draw_times,
             span=pts_conf.span,
             point_calculation=point_calculation,
@@ -655,7 +655,7 @@ def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
                 pseudo_series_result.cut_down(time_th)
 
                 return SeriesResult(
-                        number_of_all_times=time_th,
+                        number_of_times=time_th,
                         number_of_draw_times=number_of_draw_times,
                         span=pts_conf.span,
                         point_calculation=point_calculation,
@@ -664,7 +664,7 @@ def play_game_when_alternating_turn(pseudo_series_result, pts_conf):
 
     # タイブレークをするかどうかは、この関数の呼び出し側に任せます
     return SeriesResult(
-            number_of_all_times=time_th,
+            number_of_times=time_th,
             number_of_draw_times=number_of_draw_times,
             span=pts_conf.span,
             point_calculation=point_calculation,
@@ -1046,12 +1046,12 @@ class SeriesResult():
     """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_all_times, number_of_draw_times, span, point_calculation, pseudo_series_result):
+    def __init__(self, number_of_times, number_of_draw_times, span, point_calculation, pseudo_series_result):
         """初期化
     
         Parameters
         ----------
-        number_of_all_times : int
+        number_of_times : int
             行われた対局数
         number_of_draw_times : int
             引分けだった対局数
@@ -1064,7 +1064,7 @@ class SeriesResult():
         """
 
         # 共通
-        self._number_of_all_times = number_of_all_times
+        self._number_of_times = number_of_times
         self._number_of_draw_times = number_of_draw_times
         self._span = span
         self._point_calculation = point_calculation
@@ -1081,9 +1081,9 @@ class SeriesResult():
 
 
     @property
-    def number_of_all_times(self):
+    def number_of_times(self):
         """行われた対局数"""
-        return self._number_of_all_times
+        return self._number_of_times
 
 
     @property
@@ -1176,8 +1176,8 @@ class LargeSeriesTrialSummary():
         if self._shortest_time_th is None:
             self._shortest_time_th = 2_147_483_647
             for series_result in self._series_result_list:
-                if series_result.number_of_all_times < self._shortest_time_th:
-                    self._shortest_time_th = series_result.number_of_all_times
+                if series_result.number_of_times < self._shortest_time_th:
+                    self._shortest_time_th = series_result.number_of_times
 
         return self._shortest_time_th
 
@@ -1188,8 +1188,8 @@ class LargeSeriesTrialSummary():
         if self._longest_time_th is None:
             self._longest_time_th = 0
             for series_result in self._series_result_list:
-                if self._longest_time_th < series_result.number_of_all_times:
-                    self._longest_time_th = series_result.number_of_all_times
+                if self._longest_time_th < series_result.number_of_times:
+                    self._longest_time_th = series_result.number_of_times
 
         return self._shortest_time_th
 

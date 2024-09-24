@@ -108,9 +108,9 @@ if __name__ == '__main__':
                         pseudo_series_result=pseudo_series_result,
                         pts_conf=specified_points_configuration)
 
-                if series_result.number_of_all_times < old_number_of_times:
+                if series_result.number_of_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
-                    #print(f"到達できない棋譜を除去 {series_result.number_of_all_times=}  {old_number_of_times=}")
+                    #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
                 elif old_number_of_times < specified_points_configuration.number_shortest_time_when_frozen_turn:

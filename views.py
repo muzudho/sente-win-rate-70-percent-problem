@@ -316,7 +316,7 @@ def stringify_series_log(
     # ------
     tm10 = pts_conf.number_shortest_time_when_frozen_turn  # ［最短対局数］理論値
     tm11 = pts_conf.number_longest_time_when_frozen_turn   # ［最長対局数］
-    tm20 = series_result.number_of_all_times    # ［対局数］実践値
+    tm20 = series_result.number_of_times                    # ［対局数］実践値
 
     # 勝ち点構成
     # ---------
