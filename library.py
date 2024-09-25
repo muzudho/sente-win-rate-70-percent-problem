@@ -793,6 +793,7 @@ class PointsConfiguration():
         return step * (1 - failure_rate) / 2
 
 
+    # TODO turn_system
     def __init__(self, failure_rate, p_step, q_step, span):
         """初期化
         
@@ -828,25 +829,32 @@ class PointsConfiguration():
             raise ValueError(f"正の整数であることが必要 {span=}  {span=}")
 
         if q_step < p_step:
-            raise ValueError(f"{p_step=} <= {q_step}")
+            raise ValueError(f"［コインの表が出たときの勝ち点］{p_step=} が、［コインの裏が出たときの勝ち点］ {q_step} を上回るのはおかしいです")
 
         if span < q_step:
-            raise ValueError(f"{q_step=} <= {span}")
+            raise ValueError(f"［コインの裏が出たときの勝ち点］{q_step=} が、［目標の点数］{span} を上回るのはおかしいです")
 
         self._failure_rate = failure_rate
         self._span = span
+
+        p_step_when_failed = PointsConfiguration.let_draw_point(
+                failure_rate=failure_rate,
+                step=p_step)
+
+        q_step_when_failed = PointsConfiguration.let_draw_point(
+                failure_rate=failure_rate,
+                step=q_step)
+
+        if q_step_when_failed < p_step_when_failed:
+            raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
 
         self._step_list = [
                 # 0: ［未使用］
                 None,
                 # 1: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                PointsConfiguration.let_draw_point(
-                        failure_rate=failure_rate,
-                        step=p_step),
+                p_step_when_failed,
                 # 2: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-                PointsConfiguration.let_draw_point(
-                        failure_rate=failure_rate,
-                        step=q_step),
+                q_step_when_failed,
                 # 3: ［コインの表が出たときの勝ち点］
                 p_step,
                 # 4: ［コインの裏が出たときの勝ち点］
