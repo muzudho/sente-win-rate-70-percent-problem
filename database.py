@@ -72,35 +72,19 @@ def get_df_p():
 
 
 def get_df_muzudho_recommends_points(turn_system):
-    if turn_system == WHEN_ALTERNATING_TURN:
-        df = pd.read_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_ALTERNATING_TURN), encoding="utf8")
-        df['p'].astype('float')
-        df['number_of_series'].fillna(0).astype('int')
-        df['p_step'].fillna(0).astype('int')
-        df['q_step'].fillna(1).astype('int')
-        df['span'].fillna(1).astype('int')
-        df['presentable'].astype('string')
-        df['comment'].astype('string')
-        df['process'].astype('string')
+    csv_file_path = get_muzudho_recommends_points_csv_file_path(turn_system=turn_system)
+    df = pd.read_csv(csv_file_path, encoding="utf8")
 
-        return df
+    df['p'].astype('float')
+    df['number_of_series'].fillna(0).astype('int')
+    df['p_step'].fillna(0).astype('int')
+    df['q_step'].fillna(1).astype('int')
+    df['span'].fillna(1).astype('int')
+    df['presentable'].astype('string')
+    df['comment'].astype('string')
+    df['process'].astype('string')
 
-
-    if turn_system == WHEN_FROZEN_TURN:
-        df = pd.read_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
-        df['p'].astype('float')
-        df['number_of_series'].fillna(0).astype('int')
-        df['p_step'].fillna(0).astype('int')
-        df['q_step'].fillna(1).astype('int')
-        df['span'].fillna(1).astype('int')
-        df['presentable'].astype('string')
-        df['comment'].astype('string')
-        df['process'].astype('string')
-
-        return df
-
-
-    raise ValueError(f"{turn_system=}")
+    return df
 
 
 def get_df_muzudho_single_points(turn_system):

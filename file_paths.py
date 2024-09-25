@@ -50,8 +50,11 @@ def get_even_csv_file_path(turn_system):
 
 def get_muzudho_recommends_points_csv_file_path(turn_system):
     """勝ち点ルールのむずでょセレクション"""
-    ts = turn_system_to_file_name(turn_system=turn_system)
-    return f'./data/muzudho_recommends_points{ts}.csv'
+    if turn_system is None:
+        ts = ''
+    else:
+        ts = f"_{turn_system_to_file_name(turn_system=turn_system)}"
+    return f'./data/muzudho_recommends_points_ts{ts}.csv'
 
 
 def get_muzudho_single_points_csv_file_path(turn_system):

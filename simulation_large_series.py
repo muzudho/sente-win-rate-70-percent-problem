@@ -78,7 +78,10 @@ Example: 2000000
             series_result_list = []
 
             # ［最長対局数］は計算で求められます
+            shortest_times = pts_conf.number_shortest_time(turn_system=turn_system)
             longest_times = pts_conf.number_longest_time(turn_system=turn_system)
+            if longest_times < shortest_times:
+                raise ValueError(f"［最短対局数］{shortest_times} が、［最長対局数］{longest_times} より長いです")
 
             for round in range(0, number_of_series):
 
@@ -94,6 +97,26 @@ Example: 2000000
                         pts_conf=pts_conf,
                         turn_system=turn_system)
                 #print(f"{series_result.stringify_dump()}")
+
+
+
+                
+                if series_result.number_of_times < pts_conf.number_shortest_time(turn_system=turn_system):
+                    text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_shortest_time(turn_system=turn_system)} を下回った"
+                    print(f"""{text}
+{longest_times=}
+{series_result.stringify_dump('')}
+""")
+                    raise ValueError(text)
+
+                if pts_conf.number_longest_time(turn_system=turn_system) < series_result.number_of_times:
+                    text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_longest_time(turn_system=turn_system)} を上回った"
+                    print(f"""{text}
+{longest_times=}
+{series_result.stringify_dump('')}
+""")
+                    raise ValueError(text)
+
 
 
                 series_result_list.append(series_result)

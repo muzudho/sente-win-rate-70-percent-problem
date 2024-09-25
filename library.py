@@ -305,9 +305,16 @@ class PseudoSeriesResult():
         self._face_of_coin_list = self._face_of_coin_list[0:number_of_times]
 
 
-    def stringify_dump(self):
+    def stringify_dump(self, indent):
         """ダンプ"""
-        return f"{self._p=}  {self._failure_rate=}  {self._longest_times=}  {self._face_of_coin_list}"
+        return f"""\
+{indent}PseudoSeriesResult
+{indent}------------------
+{indent}{indent}{self._p=}
+{indent}{indent}{self._failure_rate=}
+{indent}{indent}{self._longest_times=}
+{indent}{indent}{self._face_of_coin_list=}
+"""
 
 
 def make_all_pseudo_series_results(can_draw, pts_conf, turn_system):
@@ -530,6 +537,17 @@ class PointCalculation():
         return self.get_point_of(y) < self.get_point_of(x)
 
 
+    def stringify_dump(self, indent):
+        double_indent = indent + indent
+        return f"""\
+{indent}PointCalculation
+{indent}----------------
+{indent}{indent}self._pts_conf:
+{self._pts_conf.stringify_dump(double_indent)}
+{indent}{indent}{self._point_list=}
+"""
+
+
 def play_tie_break(p, failure_rate):
     """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
 
@@ -668,7 +686,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
                 successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=WHEN_ALTERNATING_TURN)
 
                 point_calculation.append_won(
-                        successful_color=face_of_coin,
+                        successful_face_of_coin=face_of_coin,
                         time_th=time_th,
                         turn_system=WHEN_ALTERNATING_TURN)
 
@@ -1105,6 +1123,16 @@ class PointsConfiguration():
         raise ValueError(f"{turn_system=}")
 
 
+    def stringify_dump(self, indent):
+        return f"""\
+{indent}PointsConfiguration
+{indent}-------------------
+{indent}{indent}{self._failure_rate=}
+{indent}{indent}{self._span=}
+{indent}{indent}{self._step_list=}
+"""
+
+
 class SeriesResult():
     """［シリーズ］の結果"""
 
@@ -1196,23 +1224,28 @@ class SeriesResult():
         return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
 
 
-    def stringify_dump(self):
+    def stringify_dump(self, indent):
+        double_indent = indent + indent
         return f"""\
-{self._number_of_times=}
-{self._number_of_failed=}
-{self._span=}
-{self._point_calculation=}
-{self._pseudo_series_result=}
-{self.is_points_won(winner=HEAD, loser=TAIL)=}
-{self.is_points_won(winner=TAIL, loser=HEAD)=}
-{self.is_points_won(winner=ALICE, loser=BOB)=}
-{self.is_points_won(winner=BOB, loser=ALICE)=}
-{self.is_won(winner=HEAD, loser=TAIL)=}
-{self.is_won(winner=TAIL, loser=HEAD)=}
-{self.is_won(winner=ALICE, loser=BOB)=}
-{self.is_won(winner=BOB, loser=ALICE)=}
-{self.is_no_won(opponent_pair=FACE_OF_COIN)}
-{self.is_no_won(opponent_pair=PLAYERS)}
+{indent}SeriesResult
+{indent}------------
+{indent}{indent}{self._number_of_times=}
+{indent}{indent}{self._number_of_failed=}
+{indent}{indent}{self._span=}
+{indent}{indent}self._point_calculation:
+{self._point_calculation.stringify_dump(double_indent)}
+{indent}{indent}self._pseudo_series_result:
+{self._pseudo_series_result.stringify_dump(double_indent)}
+{indent}{indent}{self.is_points_won(winner=HEAD, loser=TAIL)=}
+{indent}{indent}{self.is_points_won(winner=TAIL, loser=HEAD)=}
+{indent}{indent}{self.is_points_won(winner=ALICE, loser=BOB)=}
+{indent}{indent}{self.is_points_won(winner=BOB, loser=ALICE)=}
+{indent}{indent}{self.is_won(winner=HEAD, loser=TAIL)=}
+{indent}{indent}{self.is_won(winner=TAIL, loser=HEAD)=}
+{indent}{indent}{self.is_won(winner=ALICE, loser=BOB)=}
+{indent}{indent}{self.is_won(winner=BOB, loser=ALICE)=}
+{indent}{indent}{self.is_no_won(opponent_pair=FACE_OF_COIN)}
+{indent}{indent}{self.is_no_won(opponent_pair=PLAYERS)}
 """
     
 
