@@ -37,6 +37,7 @@ INTERVAL_SECONDS_FOR_SAVE_CSV = 60
 
 # CSV保存用タイマー
 start_time_for_save = None
+is_dirty_csv = False
 
 
 def update_dataframe(df, p, failure_rate,
@@ -45,7 +46,7 @@ def update_dataframe(df, p, failure_rate,
         turn_system):
     """データフレーム更新"""
 
-    global start_time_for_save
+    global start_time_for_save, is_dirty_csv
 
     # # 表示
     # print_even_table(
@@ -82,6 +83,8 @@ def update_dataframe(df, p, failure_rate,
     # ［計算過程］列を更新
     df.loc[df['p']==p, ['process']] = process
 
+    is_dirty_csv = True
+
 
 def ready_records(df, specified_failure_rate, turn_system):
     """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
@@ -115,7 +118,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
         リミット
     """
 
-    global start_time_for_save
+    global start_time_for_save, is_dirty_csv
 
 
     # まず、行の存在チェック。無ければ追加
@@ -243,8 +246,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
                             # 指定間隔（秒）で保存
                             end_time_for_save = time.time()
-                            if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
+                            if is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                                 start_time_for_save = end_time_for_save
+                                is_dirty_csv = False
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
@@ -310,8 +314,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
             # 指定間隔（秒）で保存
             end_time_for_save = time.time()
-            if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
+            if is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                 start_time_for_save = end_time_for_save
+                is_dirty_csv = False
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
@@ -363,6 +368,7 @@ Example: 10% is 0.1
 
 
         start_time_for_save = time.time()
+        is_dirty_csv = False
 
 
         # 反復深化探索
@@ -398,9 +404,12 @@ Example: 10% is 0.1
                     turn_system=turn_system)
 
 
-        # 最後に CSV保存
-        print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-        df_even_to_csv(df=df, turn_system=turn_system)
+        if is_dirty_csv:
+            is_dirty_csv = False
+
+            # 最後に CSV保存
+            print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
+            df_even_to_csv(df=df, turn_system=turn_system)
 
 
     except Exception as err:
