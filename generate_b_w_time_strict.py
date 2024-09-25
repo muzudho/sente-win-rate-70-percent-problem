@@ -88,8 +88,9 @@ if __name__ == '__main__':
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
                 # ［かくきんシステムのｐの構成］
-                pts_conf = PointsConfiguration.let_points_from_repeat(
+                pts_conf = PointsConfiguration.let_points_from_time(
                     failure_rate=FAILURE_RATE,
+                    turn_system=WHEN_FROZEN_TURN,
                     p_time=best_p_time,
                     q_time=best_q_time)
 

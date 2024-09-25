@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import round_letro, calculate_probability, PointsConfiguration
+from library import round_letro, calculate_probability
 from file_paths import get_muzudho_recommends_points_csv_file_path
 from database import get_df_even, get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from views import parse_process_element

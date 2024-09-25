@@ -94,6 +94,7 @@ Which one(1-2)? """)
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
+                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
                     span=span)

@@ -39,6 +39,7 @@ def generate_report(turn_system):
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
+                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
                     span=span)
@@ -82,6 +83,7 @@ def generate_report(turn_system):
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
+                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
                     span=span)

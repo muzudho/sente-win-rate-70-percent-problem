@@ -71,6 +71,7 @@ Example: 2000000
             # ［かくきんシステムのｐの構成］。任意に指定します
             pts_conf = PointsConfiguration(
                     failure_rate=spec.failure_rate,
+                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
                     span=span)

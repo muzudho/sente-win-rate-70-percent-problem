@@ -31,6 +31,7 @@ if __name__ == '__main__':
                 for p_step in range(1, q_step):
                     pts_conf = PointsConfiguration(
                             failure_rate=FAILURE_RATE,
+                            turn_system=WHEN_FROZEN_TURN,
                             p_step=p_step,
                             q_step=q_step,
                             span=span)

@@ -141,6 +141,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
         best_pts_conf = PointsConfiguration(
                 failure_rate=failure_rate,
+                turn_system=turn_system,
                 p_step=temp_best_p_step,
                 q_step=best_q_step,
                 span=best_span)
@@ -180,6 +181,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                         # ［かくきんシステムのｐの構成］
                         latest_pts_conf = PointsConfiguration(
                                 failure_rate=failure_rate,
+                                turn_system=turn_system,
                                 p_step=cur_p_step,
                                 q_step=cur_q_step,
                                 span=cur_span)

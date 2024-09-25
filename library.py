@@ -793,8 +793,7 @@ class PointsConfiguration():
         return step * (1 - failure_rate) / 2
 
 
-    # TODO turn_system
-    def __init__(self, failure_rate, p_step, q_step, span):
+    def __init__(self, failure_rate, p_step, q_step, span, turn_system):
         """初期化
         
         Parameters
@@ -955,7 +954,7 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_points_from_repeat(failure_rate, p_time, q_time):
+    def let_points_from_time(failure_rate, p_time, q_time, turn_system):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
@@ -986,6 +985,7 @@ class PointsConfiguration():
 
         return PointsConfiguration(
                 failure_rate=failure_rate,
+                turn_system=turn_system,
                 p_step=p_step,
                 q_step=q_step,
                 span=span)
