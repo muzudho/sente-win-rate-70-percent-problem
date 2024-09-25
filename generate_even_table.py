@@ -83,22 +83,10 @@ def update_dataframe(df, p, failure_rate,
     df.loc[df['p']==p, ['process']] = process
 
 
-def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system):
-    """反復深化探索の１セット
-
-    Parameters
-    ----------
-    df : DataFrame
-        データフレーム
-    abs_limit_of_error : float
-        リミット
-    """
-
-    global start_time_for_save
-
+def ready_records(df, specified_failure_rate, turn_system):
+    """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
     is_append_new_record = False
 
-    # まず、存在チェック。無ければ追加
     df_p = get_df_p()
 
     # ［コインを投げて表が出る確率］
@@ -114,6 +102,24 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
     if is_append_new_record:
         # CSV保存
         df_even_to_csv(df=df, turn_system=turn_system)
+
+
+def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system):
+    """反復深化探索の１セット
+
+    Parameters
+    ----------
+    df : DataFrame
+        データフレーム
+    abs_limit_of_error : float
+        リミット
+    """
+
+    global start_time_for_save
+
+
+    # まず、行の存在チェック。無ければ追加
+    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
 
 
     for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       process in\
@@ -349,7 +355,7 @@ Which one(1-2)? """)
 What is the failure rate?
 Example: 10% is 0.1
 ? """)
-        failure_rate = float(input())
+        specified_failure_rate = float(input())
 
 
         df_ev = get_df_even(turn_system=turn_system)
@@ -388,7 +394,7 @@ Example: 10% is 0.1
             iteration_deeping(
                     df_ev,
                     abs_limit_of_error,
-                    specified_failure_rate=failure_rate,
+                    specified_failure_rate=specified_failure_rate,
                     turn_system=turn_system)
 
 

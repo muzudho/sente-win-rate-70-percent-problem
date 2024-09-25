@@ -16,7 +16,7 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 def append_default_record_to_df_even(df, p, failure_rate):
     index = len(df.index)
 
-    # TODO int 型が float になって入ってしまうのを防ぎたい
+    # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
     df.loc[index, ['p']] = p
     df.loc[index, ['failure_rate']] = failure_rate
     df.loc[index, ['best_p']] = 0
@@ -80,6 +80,20 @@ def get_df_p():
     return df
 
 
+def append_default_record_to_df_mrp(df, p, failure_rate):
+    index = len(df.index)
+
+    # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
+    df.loc[index, ['p']] = p
+    df.loc[index, ['failure_rate']] = failure_rate
+    df.loc[index, ['p_step']] = 0
+    df.loc[index, ['q_step']] = 1
+    df.loc[index, ['span']] = 1
+    df.loc[index, ['presentable']] = ''
+    df.loc[index, ['comment']] = ''
+    df.loc[index, ['process']] = ''
+
+
 def get_df_muzudho_recommends_points(turn_system):
     csv_file_path = get_muzudho_recommends_points_csv_file_path(turn_system=turn_system)
 
@@ -90,6 +104,7 @@ def get_df_muzudho_recommends_points(turn_system):
     df = pd.read_csv(csv_file_path, encoding="utf8")
 
     df['p'].astype('float')
+    df['failure_rate'].astype('float')
     df['number_of_series'].fillna(0).astype('int')
     df['p_step'].fillna(0).astype('int')
     df['q_step'].fillna(1).astype('int')
@@ -104,7 +119,7 @@ def get_df_muzudho_recommends_points(turn_system):
 def df_mrp_to_csv(df, turn_system):
     df.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
             # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
+            columns=['p', 'failure_rate', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 

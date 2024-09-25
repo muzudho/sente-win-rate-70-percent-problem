@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability
 from file_paths import get_muzudho_recommends_points_csv_file_path
-from database import get_df_even, get_df_muzudho_recommends_points, df_mrp_to_csv
+from database import get_df_even, get_df_muzudho_recommends_points, df_mrp_to_csv, get_df_p, append_default_record_to_df_mrp
 from views import parse_process_element
 
 
@@ -26,12 +26,39 @@ OUT_OF_ERROR = 0.51
 LIMIT_ERROR = 0.03
 
 
-def generate_data(failure_rate, turn_system):
+def ready_records(df, specified_failure_rate, turn_system):
+    """MRPテーブルについて、まず、行の存在チェック。無ければ追加"""
+    is_append_new_record = False
+
+    df_p = get_df_p()
+
+    # ［コインを投げて表が出る確率］
+    for p in df_p['p']:
+        # 存在しなければデフォルトのレコード追加
+        if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate)).any():
+            append_default_record_to_df_mrp(
+                    df=df,
+                    p=p,
+                    failure_rate=specified_failure_rate)
+            is_append_new_record = True
+
+    if is_append_new_record:
+        # CSV保存
+        df_mrp_to_csv(df=df, turn_system=turn_system)
+
+
+def generate_data(specified_failure_rate, turn_system):
+
+    df_ev = get_df_even(turn_system=turn_system)
+    df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
+
+    # まず、行の存在チェック。無ければ追加
+    ready_records(df=df_mrp, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
+
+
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］"""
 
-        df_ev = get_df_even(turn_system=turn_system)
-        df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
         for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
             zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
@@ -77,9 +104,6 @@ def generate_data(failure_rate, turn_system):
 
     if turn_system == WHEN_FROZEN_TURN:
         """［先後固定制］"""
-
-        df_ev = get_df_even(turn_system=turn_system)
-        df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
         for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
             zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
@@ -142,14 +166,14 @@ if __name__ == '__main__':
 What is the failure rate?
 Example: 10% is 0.1
 ? """)
-        failure_rate = float(input())
+        specified_failure_rate = float(input())
 
 
         # ［先後固定制］
-        generate_data(failure_rate=failure_rate, turn_system=WHEN_FROZEN_TURN)
+        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_FROZEN_TURN)
 
         # ［先後交互制］
-        generate_data(failure_rate=failure_rate, turn_system=WHEN_ALTERNATING_TURN)
+        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_ALTERNATING_TURN)
 
 
     except Exception as err:
