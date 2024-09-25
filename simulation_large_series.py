@@ -85,7 +85,11 @@ Example: 2000000
                 text = f"［最短対局数］{shortest_times} が、［最長対局数］{longest_times} より長いです"
                 print(f"""\
 {text}
-{turn_system=}
+spec:
+{spec.stringify_dump('    ')}
+{p_step=}
+{q_step=}
+{span=}
 pts_conf:
 {pts_conf.stringify_dump('   ')}
 """)
@@ -113,7 +117,7 @@ pts_conf:
                     text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_shortest_time(turn_system=turn_system)} を下回った"
                     print(f"""{text}
 {longest_times=}
-{series_result.stringify_dump('')}
+{series_result.stringify_dump('   ')}
 """)
                     raise ValueError(text)
 
@@ -121,7 +125,7 @@ pts_conf:
                     text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_longest_time(turn_system=turn_system)} を上回った"
                     print(f"""{text}
 {longest_times=}
-{series_result.stringify_dump('')}
+{series_result.stringify_dump('   ')}
 """)
                     raise ValueError(text)
 

@@ -107,6 +107,16 @@ class Specification():
         return self._turn_system
 
 
+    def stringify_dump(self, indent):
+        return f"""\
+{indent}Specification
+{indent}-------------
+{indent}{indent}{self._p=}
+{indent}{indent}{self._failure_rate=}
+{indent}{indent}{self._turn_system=}
+"""
+
+
 
 def round_letro(number):
     """四捨五入
@@ -1040,14 +1050,24 @@ class PointsConfiguration():
 
                     ・   ｂ   Ｂ   ｂ    Ｂ   ｂ   Ｂ   ｂ  Ｂ  ｂ   Ｂ  ｂ  Ｂ  ｂ  で最短13局
                     190  171  161  142  132  113  103  84  74  55  45  26  16  -3
+
+                表1点、裏1点、目標1点
+                    ・  Ａ  で、最短１局
+                     1   1
+                     1   0
             """
 
             remainder = self._span
 
-            if self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) + self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL) <= remainder:
+            p_step = self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+            q_step = self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+            successful_step = p_step + q_step
+
+            if p_step + q_step <= remainder:
                 # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
-                new_remainder = self._span % (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) + self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
-                time = math.floor( (remainder - new_remainder) / (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) + self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL))) * 2
+                new_remainder = self._span % successful_step
+                # 余りから端数を引いて割り切れるようにしてから割る。先手と後手のペアだから、回数は２倍
+                time = math.floor((remainder - new_remainder) / successful_step) * 2
                 remainder = new_remainder
 
             else:
@@ -1059,20 +1079,20 @@ class PointsConfiguration():
             #
             if 0 < remainder:
                 time += 1
-                remainder -= self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+                remainder -= q_step
 
                 # まだ端数があれば［表勝ち１つの点数］を引く（１回分を加算）
                 if 0 < remainder:
                     time += 1
-                    remainder -= self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+                    remainder -= p_step
 
                     # remainder は負数になっているはず（割り切れないはず）
                     if 0 <= remainder:
-                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)=}")
+                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {p_step=}  {q_step=}")
                 
                 # remainder は零か負数になっているはず
                 elif 0 < remainder:
-                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)=}  {self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)=}")
+                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {p_step=}  {q_step=}")
 
             return time
 
@@ -1122,6 +1142,11 @@ class PointsConfiguration():
                     ・  Ａ  Ｂ  Ａ  で、最長３局
                     14   4   4  -6
                     14  14   4   4
+                
+                表1点、裏1点、目標1点
+                    ・  Ａ  で、最長１局
+                     1   1
+                     1   0
             """
 
             return  (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) - 1) + (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL) - 1) + 1
