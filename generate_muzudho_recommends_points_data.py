@@ -11,9 +11,9 @@ import random
 import math
 import pandas as pd
 
-from library import round_letro, calculate_probability
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability
 from file_paths import get_muzudho_recommends_points_csv_file_path
-from database import get_df_even, get_df_muzudho_recommends_points, df_mr_to_csv
+from database import get_df_even, get_df_muzudho_recommends_points, df_mrp_to_csv
 from views import parse_process_element
 
 
@@ -26,12 +26,12 @@ OUT_OF_ERROR = 0.51
 LIMIT_ERROR = 0.03
 
 
-def generate_report(p, failure_rate, turn_system):
+def generate_data(failure_rate, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］"""
 
         df_ev = get_df_even(turn_system=turn_system)
-        df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
+        df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
         for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
             zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
@@ -41,7 +41,10 @@ def generate_report(p, failure_rate, turn_system):
             #   NOTE ［計算過程］リストの後ろの方のデータの方が精度が高い
             #   NOTE ［最長対局数］を気にする。長すぎるものは採用しづらい
             #
-            process_list = process[1:-1].split('] [')
+            if isinstance(process, float):  # nan が入ってる？
+                process_list = []
+            else:
+                process_list = process[1:-1].split('] [')
 
             #
             #   ［計算過程］が量が多くて調べものをしづらいので、量を減らします。
@@ -64,10 +67,10 @@ def generate_report(p, failure_rate, turn_system):
                 comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {head}表 {tail}裏 {span}目 {shortest}～{longest}局]')
 
             # ［計算過程］列を更新
-            df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
+            df_mrp.loc[df_mrp['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mr_to_csv(df=df, turn_system=turn_system)
+            df_mrp_to_csv(df=df_mrp, turn_system=turn_system)
 
         return
 
@@ -76,7 +79,7 @@ def generate_report(p, failure_rate, turn_system):
         """［先後固定制］"""
 
         df_ev = get_df_even(turn_system=turn_system)
-        df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
+        df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
         for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
             zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
@@ -109,10 +112,10 @@ def generate_report(p, failure_rate, turn_system):
                 comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {head}表 {tail}裏 {span}目 {shortest}～{longest}局]')
 
             # ［計算過程］列を更新
-            df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
+            df_mrp.loc[df_mrp['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mrp_to_csv(df=df, turn_system=turn_system)
+            df_mrp_to_csv(df=df_mrp, turn_system=turn_system)
             
             return
 
@@ -128,11 +131,11 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        print(f"""\
-What is the probability of flipping a coin and getting heads?
-Example: 70% is 0.7
-? """)
-        p = float(input())
+#         print(f"""\
+# What is the probability of flipping a coin and getting heads?
+# Example: 70% is 0.7
+# ? """)
+#         p = float(input())
 
 
         print(f"""\
@@ -142,11 +145,11 @@ Example: 10% is 0.1
         failure_rate = float(input())
 
 
-        # ［先後交互制］
-        generate_report(p=p, failure_rate=failure_rate, turn_system=WHEN_ALTERNATING_TURN)
-
         # ［先後固定制］
-        generate_report(p=p, failure_rate=failure_rate, turn_system=WHEN_FROZEN_TURN)
+        generate_data(failure_rate=failure_rate, turn_system=WHEN_FROZEN_TURN)
+
+        # ［先後交互制］
+        generate_data(failure_rate=failure_rate, turn_system=WHEN_ALTERNATING_TURN)
 
 
     except Exception as err:

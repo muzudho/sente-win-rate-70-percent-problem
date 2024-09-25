@@ -82,6 +82,11 @@ def get_df_p():
 
 def get_df_muzudho_recommends_points(turn_system):
     csv_file_path = get_muzudho_recommends_points_csv_file_path(turn_system=turn_system)
+
+    # ファイルが存在しなかった場合
+    if not os.path.isfile(csv_file_path):
+        csv_file_path = get_muzudho_recommends_points_csv_file_path(turn_system=None)
+
     df = pd.read_csv(csv_file_path, encoding="utf8")
 
     df['p'].astype('float')
@@ -96,17 +101,10 @@ def get_df_muzudho_recommends_points(turn_system):
     return df
 
 
-def df_mr_to_csv(df, turn_system):
-    df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
+def df_mrp_to_csv(df, turn_system):
+    df.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
             # ［計算過程］列は長くなるので末尾に置きたい
             columns=['p', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
-            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
-
-
-def dr_mrp_to_csv(df, turn_system):
-    df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
-            # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
