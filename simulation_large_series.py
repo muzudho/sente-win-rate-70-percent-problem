@@ -2,8 +2,7 @@
 # シミュレーション
 # python simulation_large_series.py
 #
-#   ［先後固定制］
-#   表が出る確率（p）が偏ったコインを、指定回数投げる
+#   ［コインの表が出る確率］ p=0.50 ～ 0.99 までのデータを一覧する
 #
 
 import traceback
