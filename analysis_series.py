@@ -92,7 +92,7 @@ Which one(1-2)? """)
                     turn_system=turn_system)
 
             # ［かくきんシステムのｐの構成］。任意に指定します
-            specified_points_configuration = PointsConfiguration(
+            specified_pts_conf = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
                     turn_system=turn_system,
                     p_step=p_step,
@@ -105,7 +105,7 @@ Which one(1-2)? """)
             # FIXME 動作テスト
             stats_result_data = make_all_pseudo_series_results(
                     can_draw=False,
-                    pts_conf=specified_points_configuration,
+                    pts_conf=specified_pts_conf,
                     turn_system=turn_system)
             
             for face_of_coin_list in stats_result_data:
@@ -114,7 +114,7 @@ Which one(1-2)? """)
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        longest_times=specified_points_configuration.number_longest_time(turn_system=spec.turn_system),
+                        longest_times=specified_pts_conf.number_longest_time(turn_system=spec.turn_system),
                         face_of_coin_list=face_of_coin_list)
 
                 #
@@ -126,7 +126,7 @@ Which one(1-2)? """)
                 # ［先後固定制］で、シリーズを勝った方の手番を返す
                 series_result = judge_series(
                         pseudo_series_result=pseudo_series_result,
-                        pts_conf=specified_points_configuration,
+                        pts_conf=specified_pts_conf,
                         turn_system=turn_system)
 
                 if series_result.number_of_times < old_number_of_times:
@@ -134,9 +134,9 @@ Which one(1-2)? """)
                     #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_points_configuration.number_shortest_time(turn_system=turn_system):
+                elif old_number_of_times < specified_pts_conf.number_shortest_time(turn_system=turn_system):
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.number_shortest_time(turn_system=turn_system)=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_pts_conf.number_shortest_time(turn_system=turn_system)=}")
                     pass
 
                 #
@@ -160,7 +160,7 @@ Which one(1-2)? """)
                 analysis_series(
                         series_result=series_result,
                         spec=spec,
-                        pts_conf=specified_points_configuration,
+                        pts_conf=specified_pts_conf,
                         title='（先後固定制）    むずでょセレクション',
                         turn_system=turn_system)
 

@@ -19,7 +19,7 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theoretical_p, specified_points_configuration, presentable, process, turn_system):
+def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theoretical_p, specified_pts_conf, presentable, process, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
@@ -45,7 +45,7 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         for process_element in process_list:
             p_error, p_step, q_step, span, shortest, longest = parse_process_element(process_element)
             if p_error is not None:
-                if p_step == specified_points_configuration.p_step and q_step == specified_points_configuration.q_step and span == specified_points_configuration.span:
+                if p_step == specified_pts_conf.p_step and q_step == specified_pts_conf.q_step and span == specified_pts_conf.span:
 
                     # ［調整後の表が出る確率（％）］
                     seg_2 = p_error*100+50
@@ -96,19 +96,19 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         seg_3 = (latest_theoretical_p - 0.5) * 100
 
         # ［表勝ち１つの点数］
-        seg_4 = specified_points_configuration.p_step
+        seg_4 = specified_pts_conf.p_step
 
         # ［裏勝ち１つの点数］
-        seg_5 = specified_points_configuration.q_step
+        seg_5 = specified_pts_conf.q_step
 
         # ［目標の点数］
-        seg_6 = specified_points_configuration.span
+        seg_6 = specified_pts_conf.span
 
         # ［最短対局数］
-        seg_7 = specified_points_configuration.number_shortest_time(turn_system=turn_system)
+        seg_7 = specified_pts_conf.number_shortest_time(turn_system=turn_system)
 
         # ［最長対局数］
-        seg_8 = specified_points_configuration.number_longest_time(turn_system=turn_system)
+        seg_8 = specified_pts_conf.number_longest_time(turn_system=turn_system)
 
         # ［試行回数］
         seg_9 = number_of_series
