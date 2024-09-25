@@ -333,7 +333,7 @@ class PseudoSeriesResult():
 """
 
 
-def make_all_pseudo_series_results(can_draw, pts_conf):
+def make_all_pseudo_series_results(can_failure, pts_conf):
     """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
     
     １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
@@ -347,7 +347,7 @@ def make_all_pseudo_series_results(can_draw, pts_conf):
     """
 
     # 要素数
-    if can_draw:
+    if can_failure:
         # 表勝ち、裏勝ち、勝者なしの３要素
         elements = [HEAD, TAIL, EMPTY]
     else:
@@ -363,7 +363,7 @@ def make_all_pseudo_series_results(can_draw, pts_conf):
     position = []
 
 
-    def search(depth, stats, position, can_draw):
+    def search(depth, stats, position, can_failure):
 
         # 表勝ちを追加
         position.append(HEAD)
@@ -372,7 +372,7 @@ def make_all_pseudo_series_results(can_draw, pts_conf):
         stats.append(list(position))
 
         if 0 < depth:
-            search(depth - 1, stats, position, can_draw=False)
+            search(depth - 1, stats, position, can_failure=False)
 
         # 末尾の要素を削除
         position.pop()
@@ -385,13 +385,13 @@ def make_all_pseudo_series_results(can_draw, pts_conf):
         stats.append(list(position))
 
         if 0 < depth:
-            search(depth - 1, stats, position, can_draw=False)
+            search(depth - 1, stats, position, can_failure=False)
 
         # 末尾の要素を削除
         position.pop()
 
 
-        if can_draw:
+        if can_failure:
             # 引分けを追加
             position.append(EMPTY)
 
@@ -399,14 +399,14 @@ def make_all_pseudo_series_results(can_draw, pts_conf):
             stats.append(list(position))
 
             if 0 < depth:
-                search(depth - 1, stats, position, can_draw=False)
+                search(depth - 1, stats, position, can_failure=False)
 
             # 末尾の要素を削除
             position.pop()
 
 
 
-    search(depth, stats, position, can_draw=False)
+    search(depth, stats, position, can_failure=False)
 
 
     return stats
@@ -511,7 +511,7 @@ class PointCalculation():
         self._point_list[successful_player] += step
 
 
-    def append_draw(self, time_th, turn_system):
+    def append_failure(self, time_th, turn_system):
         """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
 
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
@@ -629,7 +629,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
             if face_of_coin == EMPTY:
                 number_of_failed += 1
 
-                point_calculation.append_draw(time_th, turn_system=WHEN_FROZEN_TURN)
+                point_calculation.append_failure(time_th, turn_system=WHEN_FROZEN_TURN)
             
             else:
                 point_calculation.append_won(
@@ -696,7 +696,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
             if face_of_coin == EMPTY:
                 number_of_failed += 1
 
-                point_calculation.append_draw(time_th, turn_system=WHEN_ALTERNATING_TURN)
+                point_calculation.append_failure(time_th, turn_system=WHEN_ALTERNATING_TURN)
 
             else:
                 successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=WHEN_ALTERNATING_TURN)
@@ -792,7 +792,7 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_draw_point(failure_rate, step):
+    def let_failure_point(failure_rate, step):
         """TODO 引分け時の［勝ち点］の算出。
 
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
@@ -806,7 +806,16 @@ class PointsConfiguration():
         引分け時の勝ち点 = 3 * ( 1 - 0.9 ) / 2 = 0.15
         """
 
-        return step * (1 - failure_rate) / 2
+        if self._turn_system == WHEN_FROZEN_TURN:
+            # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
+            return step * (1 - failure_rate) / 2
+
+        elif self._turn_system == WHEN_ALTERNATING_TURN:
+            return step * (1 - failure_rate) / 2
+
+        else:
+            raise ValueError(f"{self._turn_system=}")
+
 
 
     def __init__(self, failure_rate, p_step, q_step, span, turn_system):
@@ -852,11 +861,15 @@ class PointsConfiguration():
         self._failure_rate = failure_rate
         self._span = span
 
-        p_step_when_failed = PointsConfiguration.let_draw_point(
+        # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
+        p_step_when_failed = PointsConfiguration.let_failure_point(
                 failure_rate=failure_rate,
                 step=p_step)
 
-        q_step_when_failed = PointsConfiguration.let_draw_point(
+        # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+        # TODO ［表も裏も出ない確率］が 0.99 なら、［後手勝ち］の基本［勝ち点］も減らす必要がある？ 先手の勝つ機会が減ってるんで。
+        q_step_when_failed = PointsConfiguration.let_failure_point(
                 failure_rate=failure_rate,
                 step=q_step)
 
@@ -1136,6 +1149,7 @@ class PointsConfiguration():
 
         ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
         TODO ［表も裏も出ない確率］が 0.99 なら、 99回分の引分けの按分を足す必要があるか？ ----> 引分け用の点数を少なくすることで対応？
+        TODO ［表も裏も出ない確率］が 0.99 なら、［後手勝ち］の基本［勝ち点］も減らす必要がある？ 先手の勝つ機会が減ってるんで。
 
         筆算
         ----
@@ -1429,7 +1443,7 @@ class LargeSeriesTrialSummary():
             raise ValueError(f"{turn_system=}")
 
 
-    def win_rate_without_draw(self, winner, loser, turn_system):
+    def win_rate_without_failure(self, winner, loser, turn_system):
         """試行した結果、 winner が loser に勝つ確率
         
         引分けを除いて計算する
@@ -1437,12 +1451,12 @@ class LargeSeriesTrialSummary():
         return self.number_of_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_failed_series(turn_system=turn_system))
 
 
-    def win_rate_error_without_draw(self, winner, loser, turn_system):
+    def win_rate_error_without_failure(self, winner, loser, turn_system):
         """試行した結果、 winner が loser に勝つ確率と0.5との誤差］
         
         引分けを除いて計算する
         """
-        return self.win_rate_without_draw(winner=winner, loser=loser, turn_system=turn_system) - 0.5
+        return self.win_rate_without_failure(winner=winner, loser=loser, turn_system=turn_system) - 0.5
 
 
     def failure_rate(self, turn_system):

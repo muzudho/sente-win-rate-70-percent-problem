@@ -27,9 +27,9 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        number_of_black = 0     # 表が出た回数
-        number_of_white = 0     # 裏が出た回数
-        number_of_draw = 0      # 表も裏も出なかった回数
+        number_of_head = 0     # 表が出た回数
+        number_of_tail = 0     # 裏が出た回数
+        number_of_failure = 0      # 表も裏も出なかった回数
 
         for i in range(0, 100):
             elementary_event = toss_a_coin(
@@ -38,15 +38,15 @@ if __name__ == '__main__':
 
             if elementary_event == HEAD:
                 text = "表が出た"
-                number_of_black += 1
+                number_of_head += 1
             
             elif elementary_event == TAIL:
                 text = "裏が出た"
-                number_of_white += 1
+                number_of_tail += 1
 
             else:
                 text = "表も裏も出なかった"
-                number_of_draw += 1
+                number_of_failure += 1
 
             # 表示
             print(text)
@@ -58,9 +58,9 @@ if __name__ == '__main__':
 
         text = f"""\
 {text}
-表が出た回数：          {number_of_black}
-裏が出た回数：          {number_of_white}
-表も裏も出なかった回数： {number_of_draw}
+表が出た回数：          {number_of_head}
+裏が出た回数：          {number_of_tail}
+表も裏も出なかった回数： {number_of_failure}
 """
 
         # 表示

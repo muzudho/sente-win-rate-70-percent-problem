@@ -8,13 +8,13 @@ def parse_process_element(process_element):
     result = re.match(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局', process_element)
     if result:
         p_error = float(result.group(1))
-        black = int(result.group(2))
-        white = int(result.group(3))
+        head = int(result.group(2))
+        tail = int(result.group(3))
         span = int(result.group(4))
         shortest = int(result.group(5))
         longest = int(result.group(6))
 
-        return p_error, black, white, span, shortest, longest
+        return p_error, head, tail, span, shortest, longest
 
     return None, None, None, None, None, None
 
@@ -380,11 +380,11 @@ def stringify_simulation_log(
     time1 = datetime.datetime.now()     # ［タイムスタンプ］
     ti1 = title                         # タイトル
 
-    trial_p = S.win_rate_without_draw(winner=HEAD, loser=TAIL, turn_system=turn_system)                     # 引分けを除いた［表が出る確率］
-    trial_p_error = S.win_rate_error_without_draw(winner=HEAD, loser=TAIL, turn_system=turn_system)         # 引分けを除いた［表が出る確率］の誤差
+    trial_p = S.win_rate_without_failure(winner=HEAD, loser=TAIL, turn_system=turn_system)                     # 引分けを除いた［表が出る確率］
+    trial_p_error = S.win_rate_error_without_failure(winner=HEAD, loser=TAIL, turn_system=turn_system)         # 引分けを除いた［表が出る確率］の誤差
 
-    trial_q = S.win_rate_without_draw(winner=TAIL, loser=HEAD, turn_system=turn_system)                     # 引分けを除いた［裏が出る確率］
-    trial_q_error = S.win_rate_error_without_draw(winner=TAIL, loser=HEAD, turn_system=turn_system)         # 引分けを除いた［裏が出る確率］の誤差
+    trial_q = S.win_rate_without_failure(winner=TAIL, loser=HEAD, turn_system=turn_system)                     # 引分けを除いた［裏が出る確率］
+    trial_q_error = S.win_rate_error_without_failure(winner=TAIL, loser=HEAD, turn_system=turn_system)         # 引分けを除いた［裏が出る確率］の誤差
 
 
     # ［以下、指定したもの］
@@ -417,10 +417,10 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
     # ---------------------------------------------
-    trial_a = S.win_rate_without_draw(winner=ALICE, loser=BOB, turn_system=turn_system)             # 引分けを除いた［Ａさんが勝つ確率］実践値
-    trial_ae = S.win_rate_error_without_draw(winner=ALICE, loser=BOB, turn_system=turn_system)      # 引分けを除いた［Ａさんが勝つ確率と 0.5 との誤差］実践値
-    trial_b = S.win_rate_without_draw(winner=BOB, loser=ALICE, turn_system=turn_system)             # 引分けを除いた［Ｂさんが勝つ確率］実践値
-    trial_be = S.win_rate_error_without_draw(winner=BOB, loser=ALICE, turn_system=turn_system)      # 引分けを除いた［Ｂさんが勝つ確率と 0.5 との誤差］実践値
+    trial_a = S.win_rate_without_failure(winner=ALICE, loser=BOB, turn_system=turn_system)             # 引分けを除いた［Ａさんが勝つ確率］実践値
+    trial_ae = S.win_rate_error_without_failure(winner=ALICE, loser=BOB, turn_system=turn_system)      # 引分けを除いた［Ａさんが勝つ確率と 0.5 との誤差］実践値
+    trial_b = S.win_rate_without_failure(winner=BOB, loser=ALICE, turn_system=turn_system)             # 引分けを除いた［Ｂさんが勝つ確率］実践値
+    trial_be = S.win_rate_error_without_failure(winner=BOB, loser=ALICE, turn_system=turn_system)      # 引分けを除いた［Ｂさんが勝つ確率と 0.5 との誤差］実践値
 
 
     # コインの表裏の回数
@@ -532,40 +532,40 @@ def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
         """シリーズ分析中のログ"""
 
         # 集計
-        black_wons = 0
+        head_wons = 0
         no_wons_color = 0
-        white_wons = 0
+        tail_wons = 0
         for series_result in series_result_list:
             if series_result.is_won(winner=HEAD, loser=TAIL):
-                black_wons += 1
+                head_wons += 1
             elif series_result.is_won(winner=TAIL, loser=HEAD):
-                white_wons += 1
+                tail_wons += 1
             elif series_result.is_no_won(opponent_pair=FACE_OF_COIN):
                 no_wons_color += 1
         
         # 結果としての表の勝率
-        result_black_wons_without_draw = black_wons / (len(series_result_list) - no_wons_color)
-        result_black_wons_with_draw = black_wons / len(series_result_list)
+        result_head_wons_without_failure = head_wons / (len(series_result_list) - no_wons_color)
+        result_head_wons_with_failure = head_wons / len(series_result_list)
 
         # 結果としての引分け率
-        result_no_wons_color_with_draw = no_wons_color / len(series_result_list)
+        result_no_wons_color_with_failure = no_wons_color / len(series_result_list)
 
         # 結果としての裏の勝率
-        result_white_wons_without_draw = white_wons / (len(series_result_list) - no_wons_color)
-        result_white_wons_with_draw = white_wons / len(series_result_list)
+        result_tail_wons_without_failure = tail_wons / (len(series_result_list) - no_wons_color)
+        result_tail_wons_with_failure = tail_wons / len(series_result_list)
 
         # 将棋の先手勝率など
         shw1 = p * 100
         shd1 = failure_rate
         shl1 = (1 - p) * 100
 
-        bw1 = result_black_wons_without_draw * 100
-        bw2 = result_black_wons_with_draw * 100
+        bw1 = result_head_wons_without_failure * 100
+        bw2 = result_head_wons_with_failure * 100
 
-        bd2 = result_no_wons_color_with_draw * 100
+        bd2 = result_no_wons_color_with_failure * 100
 
-        ww1 = result_white_wons_without_draw * 100
-        ww2 = result_white_wons_with_draw * 100
+        ww1 = result_tail_wons_without_failure * 100
+        ww2 = result_tail_wons_with_failure * 100
 
         print(f"""\
         +--------------------------------------------------------------+

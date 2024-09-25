@@ -23,9 +23,9 @@
 * `［引き分ける確率］` - 文字通り
 * `［引き分けた回数］` - 文字通り
 * `［シリーズ全体を通して引き分けた数］` - （number_of_ties_throughout_trial）
-* `［タイブレークで表が勝った回数］` - （black_wons_in_tie_break）文字通り
-* `［タイブレーク表勝率（％）］` - (black_wons_rate_in_tie_break) 先手勝率が高いことが問題になっているので、この勝率は先手にどんどん偏っていきます
-* `［勝ち点差判定が行われた回数］` - （number_of_black_points_wons）
-* `［勝ち点差で表が勝った回数］` - （number_of_black_points_wons）
-* `［勝ち点差表勝率（％）］` - (black_wons_rate_in_points)［目標の点数］に達しなかったが、勝ち点が多いという判定による表の勝率
+* `［タイブレークで表が勝った回数］` - （head_wons_in_tie_break）文字通り
+* `［タイブレーク表勝率（％）］` - (head_wons_rate_in_tie_break) 先手勝率が高いことが問題になっているので、この勝率は先手にどんどん偏っていきます
+* `［勝ち点差判定が行われた回数］` - （number_of_head_points_wons）
+* `［勝ち点差で表が勝った回数］` - （number_of_head_points_wons）
+* `［勝ち点差表勝率（％）］` - (head_wons_rate_in_points)［目標の点数］に達しなかったが、勝ち点が多いという判定による表の勝率
 

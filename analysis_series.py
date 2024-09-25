@@ -104,7 +104,7 @@ Which one(1-2)? """)
 
             # FIXME 動作テスト
             stats_result_data = make_all_pseudo_series_results(
-                    can_draw=False,
+                    can_failure=False,
                     pts_conf=specified_pts_conf)
             
             for face_of_coin_list in stats_result_data:

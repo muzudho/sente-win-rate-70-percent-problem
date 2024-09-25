@@ -50,18 +50,18 @@ def generate_report(p, failure_rate, turn_system):
             process_element_dict = dict()
 
             for process_element in process_list:
-                p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+                p_error, head, tail, span, shortest, longest = parse_process_element(process_element)
 
                 if p_error is not None:
                     key = (shortest, longest)
-                    value = (p_error, black, white, span, shortest, longest)
+                    value = (p_error, head, tail, span, shortest, longest)
                     if key not in process_element_dict:
                         process_element_dict[key] = value
 
             comment_element_list = []
             for key, value in process_element_dict.items():
-                p_error, black, white, span, shortest, longest = value
-                comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}表 {white}裏 {span}目 {shortest}～{longest}局]')
+                p_error, head, tail, span, shortest, longest = value
+                comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {head}表 {tail}裏 {span}目 {shortest}～{longest}局]')
 
             # ［計算過程］列を更新
             df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
@@ -98,18 +98,18 @@ def generate_report(p, failure_rate, turn_system):
             process_element_dict = dict()
 
             for process_element in process_list:
-                p_error, black, white, span, shortest, longest = parse_process_element(process_element)
+                p_error, head, tail, span, shortest, longest = parse_process_element(process_element)
 
                 if p_error is not None:
                     key = (shortest, longest)
-                    value = (p_error, black, white, span, shortest, longest)
+                    value = (p_error, head, tail, span, shortest, longest)
                     if key not in process_element_dict:
                         process_element_dict[key] = value
 
             comment_element_list = []
             for key, value in process_element_dict.items():
-                p_error, black, white, span, shortest, longest = value
-                comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {black}表 {white}裏 {span}目 {shortest}～{longest}局]')
+                p_error, head, tail, span, shortest, longest = value
+                comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {head}表 {tail}裏 {span}目 {shortest}～{longest}局]')
 
             # ［計算過程］列を更新
             df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
