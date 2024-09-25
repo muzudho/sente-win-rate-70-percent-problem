@@ -11,6 +11,7 @@ import traceback
 import random
 import math
 import time
+import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
@@ -46,13 +47,13 @@ def update_dataframe(df, p, failure_rate,
 
     global start_time_for_save
 
-    # 表示
-    print_even_table(
-            p=p,
-            best_p=best_p,
-            best_p_error=best_p_error,
-            best_number_of_series=best_number_of_series,
-            pts_conf=best_pts_conf)
+    # # 表示
+    # print_even_table(
+    #         p=p,
+    #         best_p=best_p,
+    #         best_p_error=best_p_error,
+    #         best_number_of_series=best_number_of_series,
+    #         pts_conf=best_pts_conf)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['best_p']] = best_p
@@ -157,7 +158,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
         # アルゴリズムで求めるケース
         else:
-            print(f"[p={p}]", end='', flush=True)
+            # print(f"[p={p}]", end='', flush=True)
             is_automatic = True
 
             # 仕様
@@ -207,7 +208,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
                             # 計算過程
                             one_process_text = f'[{best_p_error:.6f} {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_pts_conf.span}目 {shortest_time}～{longest_time}局]'
-                            print(one_process_text, end='', flush=True) # すぐ表示
+                            print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {one_process_text}", flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
                             #
@@ -238,7 +239,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             end_time_for_save = time.time()
                             if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                                 start_time_for_save = end_time_for_save
+
                                 # CSV保存
+                                print(f"[{datetime.datetime.now()}] CSV保存 ...")
                                 df_even_to_csv(df=df, turn_system=turn_system)
 
 
@@ -246,22 +249,22 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             if abs(best_p_error) < abs_limit_of_error or 2 < update_count:
                                 is_good = True
                                 is_cutoff = True
-                                # 進捗バー
-                                print('cutoff (good)', flush=True)
+                                # # 進捗バー
+                                # print('cutoff (good)', flush=True)
                                 break
 
                         else:
                             passage_count += 1
                             latest_process = process
 
-                            # 進捗バー
-                            print('.', end='', flush=True)
+                            # # 進捗バー
+                            # print('.', end='', flush=True)
 
                             # 空振りが多いとき、探索を打ち切ります
                             if 30 < passage_count:
                                 is_cutoff = True
-                                # 進捗バー
-                                print('cutoff (procrastinate)', flush=True)
+                                # # 進捗バー
+                                # print('cutoff (procrastinate)', flush=True)
                                 break
 
                     start_p_step = 1
@@ -274,18 +277,12 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                 if is_cutoff:
                     break
 
-            print() # 改行
+            # print() # 改行
 
 
         if is_good:
             continue
 
-        # 自動計算未完了
-        if is_automatic and best_p_error == ABS_OUT_OF_ERROR:
-            print(f"先手勝率：{p*100:2} ％  （自動計算未完了）")
-
-        elif update_count < 1:
-            print(f"先手勝率：{p*100:2} ％  （更新なし）")
 
         # 空振りが１回でもあれば、途中状態を保存
         if 0 < passage_count:
@@ -309,7 +306,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
             end_time_for_save = time.time()
             if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                 start_time_for_save = end_time_for_save
+
                 # CSV保存
+                print(f"[{datetime.datetime.now()}] CSV保存 ...")
                 df_even_to_csv(df=df, turn_system=turn_system)
 
 
@@ -376,7 +375,7 @@ Example: 10% is 0.1
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
             worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
-            print(f"{worst_abs_best_p_error=}")
+            # print(f"{worst_abs_best_p_error=}")
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
             #
@@ -394,6 +393,7 @@ Example: 10% is 0.1
 
 
         # 最後に CSV保存
+        print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
         df_even_to_csv(df=df, turn_system=turn_system)
 
 
