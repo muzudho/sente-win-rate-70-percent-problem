@@ -67,6 +67,93 @@ FACE_OF_COIN = 1
 PLAYERS = 2
 
 
+# 反対
+_opponent = {
+    HEAD : TAIL,
+    TAIL : HEAD,
+    ALICE : BOB,
+    BOB : ALICE,
+}
+
+
+def opponent(elementary_event):
+    return _opponent[elementary_event]
+
+
+class Functions():
+    """数式"""
+
+
+    @staticmethod
+    def point_when_failed(failure_rate, turn_system, face_of_coin, step):
+        """TODO 引分け時の［勝ち点］の算出。
+
+        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
+
+        // ２で割ってるのは、両者が１つの勝ちを半分ずつに按分するから。
+
+        例： 勝ち点３で、将棋の引分け率を 0.1 と指定したとき、
+        引分け時の勝ち点 = 3 * ( 1 - 0.1 ) / 2 = 1.35
+
+        例： 勝ち点３で、将棋の引分け率を 0.9 と指定したとき、
+        引分け時の勝ち点 = 3 * ( 1 - 0.9 ) / 2 = 0.15
+
+        Parameters
+        ----------
+        failure_rate : int
+            ［コインの表も裏も出なかった確率］
+        turn_system : int
+            ［先後が回ってくる制度］
+        step : int
+            ［勝ち点］
+        face_of_coin : int
+            ［コインの表か裏］
+        """
+
+        # 引分けは、ちょうどプレイヤー数で割って半分ずつに按分します
+        player_number = 2
+
+        if turn_system == WHEN_FROZEN_TURN:
+            # 例： ［勝ち点] 1、［表も裏も出なかった確率］ 0.3
+            #   = 1 * (1 - 0.3) / 2
+            #   =        0.7    / 2
+            #   =             0.35
+            # ［勝ち点］は［表か裏が出たとき］が 1 で、［表も裏も出なかったとき］は 0.35 に減る
+            #
+            return step * (1 - failure_rate) / player_number
+
+        if turn_system == WHEN_ALTERNATING_TURN:
+            # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
+
+            # 例： ［勝ち点] 1、［表も裏も出なかった確率］ 0.3
+            #   = 1 * 0.5 / 0.3
+            #   =   1.6666...
+            # ［勝ち点］は［表か裏が出たとき］が 1 で、［表も裏も出なかったとき］は 1.6666... に増える
+            #
+
+            # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
+            if face_of_coin == HEAD:
+                return step * (1 - failure_rate) / player_number
+
+                # NOTE ［表が出たときの勝ち点］を増やすと、［勝ち点］調整がおかしいと、［両者満点勝ち］という不具合が起きてしまう
+                #return (step * (1 - failure_rate) / player_number) / failure_rate
+
+            # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+            # TODO ［表も裏も出ない確率］が 0.99 なら、［後手勝ち］の基本［勝ち点］も減らす必要がある？ 先手の勝つ機会が減ってるんで。
+            elif face_of_coin == TAIL:
+                return step * (1 - failure_rate) / player_number
+
+                #return step / player_number
+
+            else:
+                raise ValueError(f"{face_of_coin=}")
+            
+
+        else:
+            raise ValueError(f"{self._turn_system=}")
+
+
 class Specification():
     """仕様"""
 
@@ -791,33 +878,6 @@ class PointsConfiguration():
     """［かくきんシステムのｐの構成］"""
 
 
-    @staticmethod
-    def let_failure_point(failure_rate, step):
-        """TODO 引分け時の［勝ち点］の算出。
-
-        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
-
-        // ２で割ってるのは、両者が１つの勝ちを半分ずつに按分するから。
-
-        例： 勝ち点３で、将棋の引分け率を 0.1 と指定したとき、
-        引分け時の勝ち点 = 3 * ( 1 - 0.1 ) / 2 = 1.35
-
-        例： 勝ち点３で、将棋の引分け率を 0.9 と指定したとき、
-        引分け時の勝ち点 = 3 * ( 1 - 0.9 ) / 2 = 0.15
-        """
-
-        if self._turn_system == WHEN_FROZEN_TURN:
-            # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
-            return step * (1 - failure_rate) / 2
-
-        elif self._turn_system == WHEN_ALTERNATING_TURN:
-            return step * (1 - failure_rate) / 2
-
-        else:
-            raise ValueError(f"{self._turn_system=}")
-
-
-
     def __init__(self, failure_rate, p_step, q_step, span, turn_system):
         """初期化
         
@@ -862,16 +922,18 @@ class PointsConfiguration():
         self._span = span
 
         # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
-        p_step_when_failed = PointsConfiguration.let_failure_point(
+        p_step_when_failed = Functions.point_when_failed(
                 failure_rate=failure_rate,
-                step=p_step)
+                turn_system=turn_system,
+                step=p_step,
+                face_of_coin=HEAD)
 
         # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-        # TODO ［表も裏も出ない確率］が 0.99 なら、［後手勝ち］の基本［勝ち点］も減らす必要がある？ 先手の勝つ機会が減ってるんで。
-        q_step_when_failed = PointsConfiguration.let_failure_point(
+        q_step_when_failed = Functions.point_when_failed(
                 failure_rate=failure_rate,
-                step=q_step)
+                turn_system=turn_system,
+                step=q_step,
+                face_of_coin=TAIL)
 
         if q_step_when_failed < p_step_when_failed:
             raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
@@ -1377,9 +1439,9 @@ class LargeSeriesTrialSummary():
 
     def number_of_total_wons(self, opponent_pair):
         if opponent_pair == FACE_OF_COIN:
-            return self.number_of_wons(winner=HEAD, loser=TAIL) + self.number_of_wons(winner=TAIL, loser=HEAD)
+            return self.number_of_wons(winner=HEAD) + self.number_of_wons(winner=TAIL)
         elif opponent_pair == PLAYERS:
-            return self.number_of_wons(winner=ALICE, loser=BOB) + self.number_of_wons(winner=BOB, loser=ALICE)
+            return self.number_of_wons(winner=ALICE) + self.number_of_wons(winner=BOB)
 
 
     def number_of_total_fully_wons(self, opponent_pair):
@@ -1391,9 +1453,9 @@ class LargeSeriesTrialSummary():
 
     def number_of_total_points_wons(self, opponent_pair):
         if opponent_pair == FACE_OF_COIN:
-            return self.number_of_points_wons(winner=HEAD, loser=TAIL) + self.number_of_points_wons(winner=TAIL, loser=HEAD)
+            return self.number_of_points_wons(winner=HEAD) + self.number_of_points_wons(winner=TAIL)
         elif opponent_pair == PLAYERS:
-            return self.number_of_points_wons(winner=ALICE, loser=BOB) + self.number_of_points_wons(winner=BOB, loser=ALICE)
+            return self.number_of_points_wons(winner=ALICE) + self.number_of_points_wons(winner=BOB)
 
 
     @property
@@ -1419,8 +1481,9 @@ class LargeSeriesTrialSummary():
         return self._number_of_fully_wons[elementary_event]
 
 
-    def number_of_points_wons(self, winner, loser):
+    def number_of_points_wons(self, winner):
         """winner が［勝ち点差判定］で loser に勝った回数"""
+        loser = opponent(winner)
         if self._number_of_points_wons[winner] is None:
             self._number_of_points_wons[winner] = 0
             for series_result in self._series_result_list:
@@ -1430,43 +1493,76 @@ class LargeSeriesTrialSummary():
         return self._number_of_points_wons[winner]
 
 
-    def number_of_failed_series(self, turn_system):
-        """引分けで終わったシリーズ数"""
-
-        if turn_system == WHEN_FROZEN_TURN:
-            return self.number_of_series - self.number_of_wons(winner=HEAD, loser=TAIL) - self.number_of_wons(winner=TAIL, loser=HEAD)
+    def number_of_no_won_series(self, opponent_pair):
+        """［勝敗付かず］で終わったシリーズ数
         
-        elif turn_system == WHEN_ALTERNATING_TURN:
-            return self.number_of_series - self.number_of_wons(winner=ALICE, loser=BOB) - self.number_of_wons(winner=BOB, loser=ALICE)
-        
-        else:
-            raise ValueError(f"{turn_system=}")
-
-
-    def win_rate_without_failure(self, winner, loser, turn_system):
-        """試行した結果、 winner が loser に勝つ確率
-        
-        引分けを除いて計算する
+        Parameters
+        ----------
+        opponent_pair : int
+            ［コインの表裏］か［プレイヤー］
         """
-        return self.number_of_wons(winner=winner, loser=loser) / (self.number_of_series - self.number_of_failed_series(turn_system=turn_system))
 
-
-    def win_rate_error_without_failure(self, winner, loser, turn_system):
-        """試行した結果、 winner が loser に勝つ確率と0.5との誤差］
+        # ［コインの表が出た回数］と［コインの裏が出た回数］を数えるメソッドの働きの確認をしている
+        #
+        #   シリーズ数　－　［コインの表が出た回数］　－　［コインの裏が出た回数］
+        #
+        if opponent_pair == FACE_OF_COIN:
+            return self.number_of_series - self.number_of_wons(winner=HEAD) - self.number_of_wons(winner=TAIL)
         
-        引分けを除いて計算する
+        # ［Ａさんが勝った回数］と［Ｂさんが勝った回数］を数えるメソッドの働きの確認をしている
+        #
+        #   シリーズ数　－　［Ａさんが勝った回数］　－　［Ｂさんが勝った回数］
+        #
+        if opponent_pair == PLAYERS:
+            return self.number_of_series - self.number_of_wons(winner=ALICE) - self.number_of_wons(winner=BOB)
+        
+        raise ValueError(f"{turn_system=}")
+
+
+    def won_rate(self, success_rate, winner):
+        """試行した結果、 winner が loser に勝った率
+
+        ［コインの表か裏が出た確率］ × ［winner が loser に勝った回数］ / ［シリーズ数］
+
+        Parameters
+        ----------
+        success_rate : float
+            ［コインの表か裏が出た確率］
+        winner : int
+            ［コインの表］か［コインの裏］か［Ａさん］か［Ｂさん］
         """
-        return self.win_rate_without_failure(winner=winner, loser=loser, turn_system=turn_system) - 0.5
+        return success_rate * self.number_of_wons(winner=winner) / self.number_of_series
 
 
-    def failure_rate(self, turn_system):
-        """試行した結果、［引き分けた率］"""
-        return self.number_of_failed_series(turn_system=turn_system) / self.number_of_series
+    def won_rate_error(self, success_rate, winner):
+        """試行した結果、 winner が loser に勝った率と0.5との誤差］
+
+        ［試行した結果、 winner が loser に勝った率］ - 0.5
+
+        Parameters
+        ----------
+        success_rate : float
+            ［コインの表か裏が出た確率］
+        winner : int
+            ［コインの表］か［コインの裏］か［Ａさん］か［Ｂさん］
+        """
+        return self.won_rate(success_rate=success_rate, winner=winner) - 0.5
 
 
-    def number_of_wons(self, winner, loser):
+    def trial_no_won_series_rate(self, opponent_pair):
+        """試行した結果、［勝敗付かず］で終わったシリーズの割合
+        
+        Parameters
+        ----------
+        opponent_pair : int
+            ［コインの表裏］か［プレイヤー］
+        """
+        return self.number_of_no_won_series(opponent_pair=opponent_pair) / self.number_of_series
+
+
+    def number_of_wons(self, winner):
         """winner が loser に勝った数"""
-        return self.number_of_fully_wons(elementary_event=winner) + self.number_of_points_wons(winner=winner, loser=loser)
+        return self.number_of_fully_wons(elementary_event=winner) + self.number_of_points_wons(winner=winner)
 
 
     def number_of_no_wons(self, opponent_pair):
