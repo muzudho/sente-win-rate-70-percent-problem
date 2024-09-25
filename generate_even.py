@@ -119,6 +119,15 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
     for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_b_step,       latest_w_step,       latest_span,       process in\
         zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
 
+        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+        best_b_step = round_letro(best_b_step)
+        best_w_step = round_letro(best_w_step)
+        best_span = round_letro(best_span)
+        latest_b_step = round_letro(latest_b_step)
+        latest_w_step = round_letro(latest_w_step)
+        latest_span = round_letro(latest_span)
+
+
         # 該当行以外は無視
         if specified_failure_rate != failure_rate:
             continue

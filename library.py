@@ -792,22 +792,22 @@ class PointsConfiguration():
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
         if not isinstance(b_step, int):
-            raise ValueError(f"int 型であることが必要 {type(b_step)=}")
+            raise ValueError(f"int 型であることが必要 {type(b_step)=}  {b_step=}")
 
         if not isinstance(w_step, int):
-            raise ValueError(f"int 型であることが必要 {type(w_step)=}")
+            raise ValueError(f"int 型であることが必要 {type(w_step)=}  {w_step=}")
 
         if not isinstance(span, int):
-            raise ValueError(f"int 型であることが必要 {type(span)=}")
+            raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
 
         if b_step < 1:
-            raise ValueError(f"正の整数であることが必要 {b_step=}")
+            raise ValueError(f"正の整数であることが必要 {b_step=}  {b_step=}")
 
         if w_step < 1:
-            raise ValueError(f"正の整数であることが必要 {w_step=}")
+            raise ValueError(f"正の整数であることが必要 {w_step=}  {w_step=}")
 
         if span < 1:
-            raise ValueError(f"正の整数であることが必要 {span=}")
+            raise ValueError(f"正の整数であることが必要 {span=}  {span=}")
 
         if w_step < b_step:
             raise ValueError(f"{b_step=} <= {w_step}")

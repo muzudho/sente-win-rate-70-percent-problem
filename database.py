@@ -14,8 +14,24 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
 def append_default_record_to_df_even(df, p, failure_rate):
-    #                    p, failure_rate, best_p, best_p_error, best_number_of_series, best_b_step, best_w_step, best_span, latest_p, latest_p_error, latest_number_of_series, latest_b_step, latest_w_step, latest_span, process
-    df.loc[len(df.index)] = [p, failure_rate,      0,         0.51,               2000000,           0,           1,         1,        0,           0.51,                 2000000,             0,             0,           0,       0]
+    index = len(df.index)
+
+    # TODO int 型が float になって入ってしまうのを防ぎたい
+    df.loc[index, ['p']] = p
+    df.loc[index, ['failure_rate']] = failure_rate
+    df.loc[index, ['best_p']] = 0
+    df.loc[index, ['best_p_error']] = 0.51
+    df.loc[index, ['best_number_of_series']] = 2000000
+    df.loc[index, ['best_b_step']] = 0
+    df.loc[index, ['best_w_step']] = 1
+    df.loc[index, ['best_span']] = 1
+    df.loc[index, ['latest_p']] = 0
+    df.loc[index, ['latest_p_error']] = 0.51
+    df.loc[index, ['latest_number_of_series']] = 2000000
+    df.loc[index, ['latest_b_step']] = 0
+    df.loc[index, ['latest_w_step']] = 1
+    df.loc[index, ['latest_span']] = 1
+    df.loc[index, ['process']] = ''
 
 
 def get_df_even(turn_system):
@@ -27,56 +43,26 @@ def get_df_even(turn_system):
         csv_file_path = get_even_csv_file_path(turn_system=None)
 
 
-    if turn_system == WHEN_FROZEN_TURN:
-        df = pd.read_csv(csv_file_path, encoding="utf8")
-
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['p'].astype('float')
-        df['failure_rate'].astype('float')
-        df['best_p'].fillna(0.0).astype('float')
-        df['best_p_error'].fillna(0.0).astype('float')
-        df['best_number_of_series'].fillna(0).astype('int')
-        df['best_b_step'].fillna(0).astype('int')
-        df['best_w_step'].fillna(0).astype('int')
-        df['best_span'].fillna(0).astype('int')
-        df['latest_p'].fillna(0.0).astype('float')
-        df['latest_p_error'].fillna(0.0).astype('float')
-        df['latest_number_of_series'].fillna(0).astype('int')
-        df['latest_b_step'].fillna(0).astype('int')
-        df['latest_w_step'].fillna(0).astype('int')
-        df['latest_span'].fillna(0).astype('int')
-        df['process'].fillna('').astype('string')
-
-        return df
-
-
-    if turn_system == WHEN_ALTERNATING_TURN:
-        df = pd.read_csv(csv_file_path, encoding="utf8")
-
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['p'].astype('float')
-        df['best_p'].fillna(0.0).astype('float')
-        df['best_p_error'].fillna(0.0).astype('float')
-        df['best_number_of_series'].fillna(0).astype('int')
-        df['best_b_step'].fillna(0).astype('int')
-        df['best_w_step'].fillna(0).astype('int')
-        df['best_span'].fillna(0).astype('int')
-        df['latest_p'].fillna(0.0).astype('float')
-        df['latest_p_error'].fillna(0.0).astype('float')
-        df['latest_number_of_series'].fillna(0).astype('int')
-        df['latest_b_step'].fillna(0).astype('int')
-        df['latest_w_step'].fillna(0).astype('int')
-        df['latest_span'].fillna(0).astype('int')
-        df['process'].fillna('').astype('string')
-
-        return df
-
-
-    raise ValueError(f"{turn_system=}")
+    df = pd.read_csv(csv_file_path, encoding="utf8")
+    #
+    # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+    #
+    df['p'].astype('float')
+    df['failure_rate'].astype('float')
+    df['best_p'].fillna(0.0).astype('float')
+    df['best_p_error'].fillna(0.0).astype('float')
+    df['best_number_of_series'].fillna(0).astype('int')
+    df['best_b_step'].fillna(0).astype('int')
+    df['best_w_step'].fillna(0).astype('int')
+    df['best_span'].fillna(0).astype('int')
+    df['latest_p'].fillna(0.0).astype('float')
+    df['latest_p_error'].fillna(0.0).astype('float')
+    df['latest_number_of_series'].fillna(0).astype('int')
+    df['latest_b_step'].fillna(0).astype('int')
+    df['latest_w_step'].fillna(0).astype('int')
+    df['latest_span'].fillna(0).astype('int')
+    df['process'].fillna('').astype('string')
+    return df
 
 
 def get_df_p():
