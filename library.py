@@ -1122,7 +1122,9 @@ class PointsConfiguration():
                 14   2   2   2
                 14  14   4  -6
             """
-            return  (self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD) - 1) + (self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL) - 1) + 1
+            p_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+            q_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+            return  (p_time - 1) + (q_time - 1) + 1
 
 
         if turn_system == WHEN_ALTERNATING_TURN:
@@ -1150,7 +1152,9 @@ class PointsConfiguration():
                      1   0
             """
 
-            return  (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) - 1) + (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL) - 1) + 1
+            p_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+            q_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+            return  (p_time - 1) + (q_time - 1) + 1
 
 
         raise ValueError(f"{turn_system=}")
