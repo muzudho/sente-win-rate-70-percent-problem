@@ -10,12 +10,13 @@
 import traceback
 import random
 import math
+import time
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
 from file_paths import get_even_table_csv_file_path
 from database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
-from views import print_even
+from views import print_even_table
 
 
 # このラウンド数を満たさないデータは、再探索します
@@ -30,6 +31,12 @@ ABS_SMALL_ERROR = 0.00009
 # 探索の上限
 LIMIT_SPAN = 1001
 
+# CSV保存間隔（秒）
+INTERVAL_SECONDS_FOR_SAVE_CSV = 60
+
+# CSV保存用タイマー
+start_time_for_save = None
+
 
 def update_dataframe(df, p, failure_rate,
         best_p, best_p_error, best_number_of_series, best_pts_conf,
@@ -37,8 +44,10 @@ def update_dataframe(df, p, failure_rate,
         turn_system):
     """データフレーム更新"""
 
+    global start_time_for_save
+
     # 表示
-    print_even(
+    print_even_table(
             p=p,
             best_p=best_p,
             best_p_error=best_p_error,
@@ -72,9 +81,6 @@ def update_dataframe(df, p, failure_rate,
     # ［計算過程］列を更新
     df.loc[df['p']==p, ['process']] = process
 
-    # CSV保存
-    df_even_to_csv(df=df, turn_system=turn_system)
-
 
 def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system):
     """反復深化探索の１セット
@@ -86,6 +92,8 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
     abs_limit_of_error : float
         リミット
     """
+
+    global start_time_for_save
 
     is_append_new_record = False
 
@@ -226,6 +234,14 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                     process=process,
                                     turn_system=spec.turn_system)
 
+                            # 指定間隔（秒）で保存
+                            end_time_for_save = time.time()
+                            if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
+                                start_time_for_save = end_time_for_save
+                                # CSV保存
+                                df_even_to_csv(df=df, turn_system=turn_system)
+
+
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
                             if abs(best_p_error) < abs_limit_of_error or 2 < update_count:
                                 is_good = True
@@ -289,6 +305,13 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                     process=latest_process,
                     turn_system=turn_system)
 
+            # 指定間隔（秒）で保存
+            end_time_for_save = time.time()
+            if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
+                start_time_for_save = end_time_for_save
+                # CSV保存
+                df_even_to_csv(df=df, turn_system=turn_system)
+
 
 ########################################
 # コマンドから実行時
@@ -334,6 +357,9 @@ Example: 10% is 0.1
         print(df_ev)
 
 
+        start_time_for_save = time.time()
+
+
         # 反復深化探索
         # ===========
         #
@@ -365,6 +391,10 @@ Example: 10% is 0.1
                     abs_limit_of_error,
                     specified_failure_rate=failure_rate,
                     turn_system=turn_system)
+
+
+        # 最後に CSV保存
+        df_even_to_csv(df=df, turn_system=turn_system)
 
 
     except Exception as err:
