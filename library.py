@@ -959,6 +959,11 @@ class PointsConfiguration():
         return self._failure_rate
 
 
+    @property
+    def turn_system(self):
+        return self._turn_system
+
+
     def get_time_by(self, challenged, face_of_coin):
         """［対局数］を取得
         """
