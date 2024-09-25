@@ -8,7 +8,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
 from file_paths import get_simulation_large_series_log_file_path
 from database import get_df_muzudho_recommends_points
 from views import stringify_simulation_log
@@ -56,11 +56,20 @@ Example: 2000000
         title='むずでょセレクション'
 
 
-        df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
-        df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
+        df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
-        for            p,          p_step,          q_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           process in\
+            zip(df_mrp['p'], df_mrp['failure_rate'], df_mrp['p_step'], df_mrp['q_step'], df_mrp['span'], df_mrp['presentable'], df_mrp['comment'], df_mrp['process']):
+
+            # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+            p_step = round_letro(p_step)
+            q_step = round_letro(q_step)
+            span = round_letro(span)
+
+            if p_step < 1:
+                print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
+                continue
+
 
             # 仕様
             spec = Specification(

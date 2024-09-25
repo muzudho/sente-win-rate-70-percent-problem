@@ -86,6 +86,7 @@ def append_default_record_to_df_mrp(df, p, failure_rate):
     # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
     df.loc[index, ['p']] = p
     df.loc[index, ['failure_rate']] = failure_rate
+    df.loc[index, ['number_of_series']] = 0
     df.loc[index, ['p_step']] = 0
     df.loc[index, ['q_step']] = 1
     df.loc[index, ['span']] = 1
