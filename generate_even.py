@@ -1,11 +1,10 @@
 #
 # 生成
-# python generate_even_when_frozen_turn.py
+# python generate_even.py
 #
-#   TODO 実際値ではなく、理論値を記録したい
+#   TODO 実際値ではなく、理論値を記録したい。 alternating_turn の方がそれに対応してない
 #
-#   手番を交代しない方式。
-#   先後固定制での、［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
+#   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
 
 import traceback
@@ -13,14 +12,11 @@ import random
 import math
 import pandas as pd
 
-from library import HEAD, TAIL, WHEN_FROZEN_TURN, round_letro, PointsConfiguration, calculate_probability, Specification
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
 from file_paths import get_even_csv_file_path
-from database import get_df_generate_even
+from database import append_default_record_to_df_even, get_df_even, get_df_p
 from views import print_even
 
-
-# ［将棋の引分け率］
-FAILURE_RATE = 0.0
 
 # このラウンド数を満たさないデータは、再探索します
 REQUIRED_MUMBER_OF_SERIES = 2_000_000
@@ -35,9 +31,10 @@ ABS_SMALL_ERROR = 0.00009
 LIMIT_SPAN = 1001
 
 
-def update_dataframe(df, p,
-        best_p, best_p_error, best_number_of_series, best_points_configuration,
-        latest_p, latest_p_error, latest_number_of_series, latest_points_configuration, process):
+def update_dataframe(df, p, failure_rate,
+        best_p, best_p_error, best_number_of_series, best_pts_conf,
+        latest_p, latest_p_error, latest_number_of_series, latest_pts_conf, process,
+        turn_system):
     """データフレーム更新"""
 
     # 表示
@@ -46,44 +43,45 @@ def update_dataframe(df, p,
             best_p=best_p,
             best_p_error=best_p_error,
             best_number_of_series=best_number_of_series,
-            pts_conf=best_points_configuration,
-            turn_system=WHEN_FROZEN_TURN)
+            pts_conf=best_pts_conf,
+            turn_system=turn_system)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['best_p']] = best_p
-    df.loc[df['p']==p, ['latest_p']] = best_p
+    df.loc[df['p']==p, ['latest_p']] = latest_p
 
     # ［調整後の表が出る確率の５割との誤差］列を更新
     df.loc[df['p']==p, ['best_p_error']] = best_p_error
-    df.loc[df['p']==p, ['latest_p_error']] = best_p_error
+    df.loc[df['p']==p, ['latest_p_error']] = latest_p_error
 
     # ［試行回数］列を更新
     df.loc[df['p']==p, ['best_number_of_series']] = best_number_of_series
-    df.loc[df['p']==p, ['latest_number_of_series']] = best_number_of_series
+    df.loc[df['p']==p, ['latest_number_of_series']] = latest_number_of_series
 
     # ［表勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_b_step']] = best_points_configuration.b_step
-    df.loc[df['p']==p, ['latest_b_step']] = latest_points_configuration.b_step
+    df.loc[df['p']==p, ['best_b_step']] = best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==p, ['latest_b_step']] = latest_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
     # ［裏勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_w_step']] = best_points_configuration.w_step
-    df.loc[df['p']==p, ['latest_w_step']] = latest_points_configuration.w_step
+    df.loc[df['p']==p, ['best_w_step']] = best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==p, ['latest_w_step']] = latest_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
-    df.loc[df['p']==p, ['best_span']] = best_points_configuration.span
-    df.loc[df['p']==p, ['latest_span']] = latest_points_configuration.span
+    df.loc[df['p']==p, ['best_span']] = best_pts_conf.span
+    df.loc[df['p']==p, ['latest_span']] = latest_pts_conf.span
 
     # ［計算過程］列を更新
     df.loc[df['p']==p, ['process']] = process
 
     # CSV保存
-    df.to_csv(get_even_csv_file_path(turn_system=WHEN_FROZEN_TURN),
+    df.to_csv(
+            get_even_csv_file_path(turn_system=turn_system),
             # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
+            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
-def iteration_deeping(df, abs_limit_of_error):
+def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system):
     """反復深化探索の１セット
 
     Parameters
@@ -93,16 +91,47 @@ def iteration_deeping(df, abs_limit_of_error):
     abs_limit_of_error : float
         リミット
     """
-    for         p,       best_p,       best_p_error,       best_number_of_series,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_b_step,       latest_w_step,       latest_span,       process in \
-        zip(df['p'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
+
+    is_append_new_record = False
+
+    # まず、存在チェック。無ければ追加
+    df_p = get_df_p()
+
+    # ［コインを投げて表が出る確率］
+    for p in df_p['p']:
+        # 存在しなければデフォルトのレコード追加
+        if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate)).any():
+            append_default_record_to_df_even(
+                    df=df,
+                    p=p,
+                    failure_rate=specified_failure_rate)
+            is_append_new_record = True
+
+    if is_append_new_record:
+        # CSV保存
+        df.to_csv(
+                get_even_csv_file_path(turn_system=turn_system),
+                # ［計算過程］列は長くなるので末尾に置きたい
+                columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+
+    for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_b_step,       latest_w_step,       latest_span,       process in\
+        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
+
+        # 該当行以外は無視
+        if specified_failure_rate != failure_rate:
+            continue
+
 
         # ［かくきんシステムのｐの構成］
         if 0 < best_b_step:
             temp_best_b_step = best_b_step
         else:
             temp_best_b_step = 1
-        best_points_configuration = PointsConfiguration(
-                failure_rate=FAILURE_RATE,
+
+        best_pts_conf = PointsConfiguration(
+                failure_rate=failure_rate,
                 b_step=temp_best_b_step,
                 w_step=best_w_step,
                 span=best_span)
@@ -125,8 +154,8 @@ def iteration_deeping(df, abs_limit_of_error):
             # 仕様
             spec = Specification(
                     p=p,
-                    failure_rate=FAILURE_RATE,
-                    turn_system=WHEN_FROZEN_TURN)
+                    failure_rate=failure_rate,
+                    turn_system=turn_system)
 
             #
             # ［目標の点数］、［裏勝ち１つの点数］、［表勝ち１つの点数］を１つずつ進めていく探索です。
@@ -140,33 +169,34 @@ def iteration_deeping(df, abs_limit_of_error):
                     for cur_b_step in range(start_b_step, cur_w_step + 1):
 
                         # ［かくきんシステムのｐの構成］
-                        latest_points_configuration = PointsConfiguration(
-                                failure_rate=FAILURE_RATE,
+                        latest_pts_conf = PointsConfiguration(
+                                failure_rate=failure_rate,
                                 b_step=cur_b_step,
                                 w_step=cur_w_step,
                                 span=cur_span)
 
 
-                        # NOTE 理論値の場合
-                        latest_p = calculate_probability(
-                                p=p,
-                                H=latest_points_configuration.b_time,
-                                T=latest_points_configuration.w_time)
-                        latest_p_error = latest_p - 0.5
+                        if turn_system == WHEN_FROZEN_TURN:
+                            # NOTE 理論値の場合
+                            latest_p = calculate_probability(
+                                    p=p,
+                                    H=latest_pts_conf.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                                    T=latest_pts_conf.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                            latest_p_error = latest_p - 0.5
 
 
                         if abs(latest_p_error) < abs(best_p_error):
                             update_count += 1
                             best_p = latest_p
                             best_p_error = latest_p_error
-                            best_points_configuration = latest_points_configuration
+                            best_pts_conf = latest_pts_conf
 
                             # ［最短対局数］［最長対局数］
-                            shortest_time = best_points_configuration.number_shortest_time(turn_system=spec.turn_system)
-                            longest_time = best_points_configuration.number_longest_time(turn_system=spec.turn_system)
+                            shortest_time = best_pts_conf.number_shortest_time(turn_system=spec.turn_system)
+                            longest_time = best_pts_conf.number_longest_time(turn_system=spec.turn_system)
 
                             # 計算過程
-                            one_process_text = f'[{best_p_error:.6f} {best_points_configuration.b_step}表 {best_points_configuration.w_step}裏 {best_points_configuration.span}目 {shortest_time}～{longest_time}局]'
+                            one_process_text = f'[{best_p_error:.6f} {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_pts_conf.span}目 {shortest_time}～{longest_time}局]'
                             print(one_process_text, end='', flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
@@ -182,15 +212,17 @@ def iteration_deeping(df, abs_limit_of_error):
                             update_dataframe(
                                     df=df,
                                     p=p,
+                                    failure_rate=failure_rate,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
                                     best_number_of_series=REQUIRED_MUMBER_OF_SERIES,
-                                    best_points_configuration=best_points_configuration,
+                                    best_pts_conf=best_pts_conf,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
                                     latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
-                                    latest_points_configuration=latest_points_configuration,
-                                    process=process)
+                                    latest_pts_conf=latest_pts_conf,
+                                    process=process,
+                                    turn_system=spec.turn_system)
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
                             if abs(best_p_error) < abs_limit_of_error or 2 < update_count:
@@ -226,6 +258,7 @@ def iteration_deeping(df, abs_limit_of_error):
 
             print() # 改行
 
+
         if is_good:
             continue
 
@@ -242,15 +275,17 @@ def iteration_deeping(df, abs_limit_of_error):
             update_dataframe(
                     df=df,
                     p=p,
+                    failure_rate=failure_rate,
                     best_p=best_p,
                     best_p_error=best_p_error,
                     best_number_of_series=REQUIRED_MUMBER_OF_SERIES,
-                    best_points_configuration=best_points_configuration,
+                    best_pts_conf=best_pts_conf,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
                     latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
-                    latest_points_configuration=latest_points_configuration,
-                    process=latest_process)
+                    latest_pts_conf=latest_pts_conf,
+                    process=latest_process,
+                    turn_system=turn_system)
 
 
 ########################################
@@ -262,8 +297,38 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        print(f"""\
+(1) Frozen turn
+(2) Alternating turn
+Which one(1-2)? """)
 
-        df_ev = get_df_generate_even(turn_system=WHEN_FROZEN_TURN)
+        choice = input()
+
+        if choice == '1':
+            turn_system = WHEN_FROZEN_TURN
+
+        elif choice == '2':
+            turn_system = WHEN_ALTERNATING_TURN
+
+        else:
+            raise ValueError(f"{choice=}")
+
+
+#         print(f"""\
+# What is the probability of flipping a coin and getting heads?
+# Example: 70% is 0.7
+# ? """)
+#         p = float(input())
+
+
+        print(f"""\
+What is the failure rate?
+Example: 10% is 0.1
+? """)
+        failure_rate = float(input())
+
+
+        df_ev = get_df_even(turn_system=turn_system)
         print(df_ev)
 
 
@@ -293,7 +358,11 @@ if __name__ == '__main__':
             # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
             abs_limit_of_error = worst_abs_best_p_error * 9 / 10
 
-            iteration_deeping(df_ev, abs_limit_of_error)
+            iteration_deeping(
+                    df_ev,
+                    abs_limit_of_error,
+                    specified_failure_rate=failure_rate,
+                    turn_system=turn_system)
 
 
     except Exception as err:

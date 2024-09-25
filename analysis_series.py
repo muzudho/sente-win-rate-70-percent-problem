@@ -1,6 +1,6 @@
 #
 # 分析
-# python analysis_series_when_frozen_turn.py
+# python analysis_series.py
 #
 #   ［先後固定制］
 #   表が出る確率（p）が偏ったコインを、指定回数投げる
@@ -23,7 +23,7 @@ FAILURE_RATE = 0.0     # 引分けなし
 #FAILURE_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
-def analysis_series(series_result, spec, pts_conf, title):
+def analysis_series(series_result, spec, pts_conf, title, turn_system):
     """シリーズ１つを分析します
     
     Parameters
@@ -44,13 +44,13 @@ def analysis_series(series_result, spec, pts_conf, title):
             series_result=series_result,
             # タイトル
             title=title,
-            turn_system=WHEN_FROZEN_TURN)
+            turn_system=turn_system)
 
 
     print(text) # 表示
 
     # ログ出力
-    with open(get_analysis_series_log_file_path(turn_system=WHEN_FROZEN_TURN), 'a', encoding='utf8') as f:
+    with open(get_analysis_series_log_file_path(turn_system=turn_system), 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 
@@ -63,7 +63,24 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mr = get_df_muzudho_single_points(turn_system=WHEN_FROZEN_TURN)
+        print(f"""\
+(1) Frozen turn
+(2) Alternating turn
+Which one(1-2)? """)
+
+        choice = input()
+
+        if choice == '1':
+            turn_system = WHEN_FROZEN_TURN
+
+        elif choice == '2':
+            turn_system = WHEN_ALTERNATING_TURN
+
+        else:
+            raise ValueError(f"{choice=}")
+
+
+        df_mr = get_df_muzudho_single_points(turn_system=turn_system)
 
         for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
             zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
@@ -72,7 +89,7 @@ if __name__ == '__main__':
             spec = Specification(
                     p=p,
                     failure_rate=FAILURE_RATE,
-                    turn_system=WHEN_FROZEN_TURN)
+                    turn_system=turn_system)
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
@@ -88,7 +105,7 @@ if __name__ == '__main__':
             stats_result_data = make_all_pseudo_series_results(
                     can_draw=False,
                     pts_conf=specified_points_configuration,
-                    turn_system=WHEN_FROZEN_TURN)
+                    turn_system=turn_system)
             
             for face_of_coin_list in stats_result_data:
                 #print(f"動作テスト {face_of_coin_list=}")
@@ -109,16 +126,16 @@ if __name__ == '__main__':
                 series_result = judge_series(
                         pseudo_series_result=pseudo_series_result,
                         pts_conf=specified_points_configuration,
-                        turn_system=WHEN_FROZEN_TURN)
+                        turn_system=turn_system)
 
                 if series_result.number_of_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
                     #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN):
+                elif old_number_of_times < specified_points_configuration.number_shortest_time(turn_system=turn_system):
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.number_shortest_time(turn_system=WHEN_FROZEN_TURN)=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_points_configuration.number_shortest_time(turn_system=turn_system)=}")
                     pass
 
                 #
@@ -136,14 +153,15 @@ if __name__ == '__main__':
                     p=p,
                     failure_rate=FAILURE_RATE,
                     series_result_list=series_result_list,
-                    turn_system=WHEN_FROZEN_TURN))
+                    turn_system=turn_system))
 
             for series_result in series_result_list:
                 analysis_series(
                         series_result=series_result,
                         spec=spec,
                         pts_conf=specified_points_configuration,
-                        title='（先後固定制）    むずでょセレクション')
+                        title='（先後固定制）    むずでょセレクション',
+                        turn_system=turn_system)
 
 
     except Exception as err:

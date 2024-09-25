@@ -1099,7 +1099,7 @@ class PointsConfiguration():
                     14  14   4   4
             """
 
-            return  (self.b_time-1) + (self.w_time-1) + 1
+            return  (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) - 1) + (self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL) - 1) + 1
 
 
         raise ValueError(f"{turn_system=}")

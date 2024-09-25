@@ -3,10 +3,10 @@ from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
 
 def turn_system_to_file_name(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
-        return '_when_frozen_turn'
+        return 'frozen'
     
     if turn_system == WHEN_ALTERNATING_TURN:
-        return '_when_alternating_turn'
+        return 'alternating'
     
     raise ValueError(f"{turn_system=}")
 
@@ -40,8 +40,12 @@ def get_even_log_file_path(turn_system):
 
 def get_even_csv_file_path(turn_system):
     """勝ち点を探索した記録ファイルへのパス"""
-    ts = turn_system_to_file_name(turn_system=turn_system)
-    return f'./data/generate_even{ts}.csv'
+    if turn_system is None:
+        ts1 = ''
+    else:
+        ts1 = f'_{turn_system_to_file_name(turn_system=turn_system)}'
+
+    return f'./data/generate_even_ts{ts1}.csv'
 
 
 def get_muzudho_recommends_points_csv_file_path(turn_system):

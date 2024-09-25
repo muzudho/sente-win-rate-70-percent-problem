@@ -137,12 +137,6 @@ Example: 2000000
             if pts_conf.number_longest_time(turn_system=turn_system) < large_series_trial_summary.longest_time_th:
                 raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time(turn_system=turn_system)} を上回った")
 
-            # 表示とログ出力を終えた後でテスト
-            #
-            #   FIXME ［引き分けを１局として数えるケース］では、対局数の計算がまだ実装できていません
-            #
-            print("［引き分けを１局として数えるケース］では、対局数の計算がまだ実装できていません")
-
 
     except Exception as err:
         print(f"[unexpected error] {err=}  {type(err)=}")
