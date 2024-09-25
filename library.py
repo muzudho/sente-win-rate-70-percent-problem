@@ -866,6 +866,48 @@ class PointsConfiguration():
         return self._failure_rate
 
 
+    def get_time_by(self, challenged, face_of_coin):
+        """［対局数］を取得
+        """
+
+        if challenged == SUCCESSFUL:
+            if face_of_coin == HEAD:
+                """
+                筆算
+                ----
+                `10表 12裏 14目（先後固定制）`
+                    ・  表  表  で最長２局
+                    14  14  14
+                    14   4  -6
+                """
+
+                #
+                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+                #
+                return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)))
+
+            elif face_of_coin == TAIL:
+                """［裏勝ちだけでの対局数］
+
+                筆算
+                ----
+                `10表 12裏 14目（先後固定制）`
+                    ・  裏  で最長１局
+                    14   0
+                    14  14
+                """
+
+                #
+                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+                #
+                return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)))
+
+            else:
+                raise ValueError(f"{face_of_coin=}")
+        else:
+            raise ValueError(f"{challenged=}")
+
+
     def get_step_by(self, challenged, face_of_coin):
         """［勝ち点］を取得します
         
@@ -908,49 +950,6 @@ class PointsConfiguration():
     def span(self):
         """［目標の点数］"""
         return self._span
-
-
-    # p_time, q_time
-    def get_time_by(self, challenged, face_of_coin):
-        """［対局数］を取得
-        """
-
-        if challenged == SUCCESSFUL:
-            if face_of_coin == HEAD:
-                """
-                筆算
-                ----
-                `10表 12裏 14目（先後固定制）`
-                    ・  表  表  で最長２局
-                    14  14  14
-                    14   4  -6
-                """
-
-                #
-                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                #
-                return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)))
-
-            elif face_of_coin == TAIL:
-                """［裏勝ちだけでの対局数］
-
-                筆算
-                ----
-                `10表 12裏 14目（先後固定制）`
-                    ・  裏  で最長１局
-                    14   0
-                    14  14
-                """
-
-                #
-                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                #
-                return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)))
-
-            else:
-                raise ValueError(f"{face_of_coin=}")
-        else:
-            raise ValueError(f"{challenged=}")
 
 
     @staticmethod

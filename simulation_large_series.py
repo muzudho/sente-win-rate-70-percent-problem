@@ -82,7 +82,14 @@ Example: 2000000
             shortest_times = pts_conf.number_shortest_time(turn_system=turn_system)
             longest_times = pts_conf.number_longest_time(turn_system=turn_system)
             if longest_times < shortest_times:
-                raise ValueError(f"［最短対局数］{shortest_times} が、［最長対局数］{longest_times} より長いです")
+                text = f"［最短対局数］{shortest_times} が、［最長対局数］{longest_times} より長いです"
+                print(f"""\
+{text}
+{turn_system=}
+pts_conf:
+{pts_conf.stringify_dump('   ')}
+""")
+                raise ValueError(text)
 
             for round in range(0, number_of_series):
 
