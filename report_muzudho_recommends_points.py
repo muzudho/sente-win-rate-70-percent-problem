@@ -46,8 +46,8 @@ def generate_report(turn_system):
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
             latest_theoretical_p = calculate_probability(
                     p=p,
-                    H=specified_points_configuration.b_time,
-                    T=specified_points_configuration.w_time)
+                    H=specified_points_configuration.p_time,
+                    T=specified_points_configuration.q_time)
 
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(
@@ -89,8 +89,8 @@ def generate_report(turn_system):
             # NOTE 実際値ではなく、理論値を出力する
             latest_theoretical_p = calculate_probability(
                     p=p,
-                    H=specified_points_configuration.b_time,
-                    T=specified_points_configuration.w_time)
+                    H=specified_points_configuration.p_time,
+                    T=specified_points_configuration.q_time)
 
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(

@@ -157,7 +157,7 @@ def scale_for_float_to_int(value):
     return 10**dp_len
 
 
-def p_to_b_w_times(p):
+def p_to_b_q_times(p):
     """［表が出る確率］ p を与えると、［表勝ちだけでの対局数］、［裏勝ちだけでの対局数］を返す
     
     Parameters
@@ -167,9 +167,9 @@ def p_to_b_w_times(p):
     
     Returns
     -------
-    b_time : int
+    p_time : int
         ［表勝ちだけでの対局数］
-    w_time : int
+    q_time : int
         ［裏勝ちだけでの対局数］
     """
 
@@ -181,13 +181,13 @@ def p_to_b_w_times(p):
     #
     #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
     #
-    b_time = round_letro(p * scale)
+    p_time = round_letro(p * scale)
 
     # ［裏勝ちだけでの対局数］基礎
-    w_time = scale - b_time
+    q_time = scale - p_time
 
     # 約分する
-    fraction = Fraction(b_time, w_time)
+    fraction = Fraction(p_time, q_time)
     return fraction.numerator, fraction.denominator
 
 
@@ -885,7 +885,7 @@ class PointsConfiguration():
         return self._span
 
 
-    # b_time, w_time
+    # p_time, q_time
     def get_time_by(self, challenged, face_of_coin):
         """［対局数］を取得
         """
@@ -929,32 +929,32 @@ class PointsConfiguration():
 
 
     @staticmethod
-    def let_points_from_repeat(failure_rate, b_time, w_time):
+    def let_points_from_repeat(failure_rate, p_time, q_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
         failure_rate : float
             ［将棋の引分け率］
-        b_time : int
+        p_time : int
             ［表勝ちだけでの対局数］
-        w_time : int
+        q_time : int
             ［裏勝ちだけでの対局数］
         """
         # DO 通分したい。最小公倍数を求める
-        lcm = math.lcm(b_time, w_time)
+        lcm = math.lcm(p_time, q_time)
         # ［表勝ち１つの点数］
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        p_step = round_letro(lcm / b_time)
+        p_step = round_letro(lcm / p_time)
         # ［裏勝ち１つの点数］
-        q_step = round_letro(lcm / w_time)
+        q_step = round_letro(lcm / q_time)
         # ［目標の点数］
-        span = round_letro(w_time * q_step)
+        span = round_letro(q_time * q_step)
 
         # データチェック
-        span_w = round_letro(b_time * p_step)
+        span_w = round_letro(p_time * p_step)
         if span != span_w:
             raise ValueError(f"{span=}  {span_w=}")
 

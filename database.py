@@ -123,8 +123,8 @@ def get_df_muzudho_single_points(turn_system):
 def get_df_report_muzudho_recommends_points():
     df = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
     df['p'].astype('float')
-    df['b_time'].fillna(0).astype('int')
-    df['w_time'].fillna(0).astype('int')
+    df['p_time'].fillna(0).astype('int')
+    df['q_time'].fillna(0).astype('int')
 
     return df
 

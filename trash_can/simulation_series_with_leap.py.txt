@@ -12,7 +12,7 @@ import datetime
 import random
 import math
 
-from library import HEAD, round_letro, p_to_b_w_times, PointsConfiguration, judge_series
+from library import HEAD, round_letro, p_to_b_q_times, PointsConfiguration, judge_series
 
 
 LOG_FILE_PATH = 'output/simulation_series_with_leap.log'
@@ -105,13 +105,13 @@ if __name__ == '__main__':
 
 
             # 厳密な値
-            strict_b_time, strict_w_time = p_to_b_w_times(p=p)
-            print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_b_time:>2}：{strict_w_time:>2}  ", end='')
+            strict_p_time, strict_q_time = p_to_b_q_times(p=p)
+            print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_p_time:>2}：{strict_q_time:>2}  ", end='')
 
             # 実用的な値（［裏勝ちだけでの対局数］が１になるよう丸めたもの）
-            practical_b_time = round_letro(strict_b_time / strict_w_time) # 小数点以下四捨五入
-            practical_w_time = 1
-            print(f"実用的な、先後固定制での回数  先手だけ：後手だけ＝{practical_b_time:>2}：{practical_w_time:>2}  ", end='')
+            practical_p_time = round_letro(strict_p_time / strict_q_time) # 小数点以下四捨五入
+            practical_q_time = 1
+            print(f"実用的な、先後固定制での回数  先手だけ：後手だけ＝{practical_p_time:>2}：{practical_q_time:>2}  ", end='')
 
             print() # 改行
 
@@ -133,8 +133,8 @@ if __name__ == '__main__':
                     if round_in_cycle + 1 in leap_th_list:
                         # 閏対局
                         pts_conf = PointsConfiguration.let_points_from_repeat(
-                                b_time=practical_b_time + 1,    # 閏の + 1
-                                w_time=practical_w_time)
+                                p_time=practical_p_time + 1,    # 閏の + 1
+                                q_time=practical_q_time)
 
                         series_result = ...(
                                 p=p,
@@ -147,8 +147,8 @@ if __name__ == '__main__':
                         # 閏対局を使わないパターン
 
                         pts_conf = PointsConfiguration.let_points_from_repeat(
-                                b_time=practical_b_time,
-                                w_time=practical_w_time)
+                                p_time=practical_p_time,
+                                q_time=practical_q_time)
 
                         series_result = ...(
                                 p=p,
@@ -162,8 +162,8 @@ if __name__ == '__main__':
                     # 勝った方の手番を返す
 
                     pts_conf = PointsConfiguration.let_points_from_repeat(
-                            b_time=practical_b_time,
-                            w_time=practical_w_time)
+                            p_time=practical_p_time,
+                            q_time=practical_q_time)
 
                     series_result = ...(
                             p=p,
@@ -179,7 +179,7 @@ if __name__ == '__main__':
             error = abs(black_won_rate - 0.5)
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.02f}  実用的な先手{practical_b_time:2}本先取／後手{practical_w_time:2}本先取制  先手勝ち数{black_wons:7}／{number_of_series:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
+                text = f"[{datetime.datetime.now()}]  先手勝率：{p:4.02f}  実用的な先手{practical_p_time:2}本先取／後手{practical_q_time:2}本先取制  先手勝ち数{black_wons:7}／{number_of_series:7}対局試行  先手が勝った確率{black_won_rate*100:8.4f} ％  誤差{error*100:8.4f} ％"
                 print(text)
                 f.write(f"{text}\n")
 

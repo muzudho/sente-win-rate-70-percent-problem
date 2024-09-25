@@ -12,7 +12,7 @@ import traceback
 import math
 import pandas as pd
 
-from library import round_letro, scale_for_float_to_int, p_to_b_w_times
+from library import round_letro, scale_for_float_to_int, p_to_b_q_times
 from database import get_df_p
 
 
@@ -20,28 +20,28 @@ class LeapRoundCalculate():
     """閏対局計算"""
 
 
-    def __init__(self, p, strict_b_time, strict_w_time, practical_b_time, practical_w_time):
+    def __init__(self, p, strict_p_time, strict_q_time, practical_p_time, practical_q_time):
         """初期化
         
         Parameters
         ----------
         p : float
             表が出る確率
-        strict_b_time : int
+        strict_p_time : int
             表が出る確率の厳密な整数比
-        strict_w_time : int
+        strict_q_time : int
             裏が出る確率の厳密な整数比
-        practical_b_time : int
+        practical_p_time : int
             表が出る確率の実用的な整数比
-        practical_w_time : int
+        practical_q_time : int
             裏が出る確率の実用的な整数比
         """
 
         self._p = p
-        self._strict_b_time = strict_b_time
-        self._strict_w_time = strict_w_time
-        self._practical_b_time = practical_b_time
-        self._practical_w_time = practical_w_time
+        self._strict_p_time = strict_p_time
+        self._strict_q_time = strict_q_time
+        self._practical_p_time = practical_p_time
+        self._practical_q_time = practical_q_time
 
 
     @property
@@ -51,27 +51,27 @@ class LeapRoundCalculate():
 
 
     @property
-    def strict_b_time(self):
+    def strict_p_time(self):
         """表が出る確率の厳密な整数比"""
-        return self._strict_b_time
+        return self._strict_p_time
 
 
     @property
-    def strict_w_time(self):
+    def strict_q_time(self):
         """裏が出る確率の厳密な整数比"""
-        return self._strict_w_time
+        return self._strict_q_time
 
 
     @property
-    def practical_b_time(self):
+    def practical_p_time(self):
         """表が出る確率の実用的な整数比"""
-        return self._practical_b_time
+        return self._practical_p_time
 
 
     @property
-    def practical_w_time(self):
+    def practical_q_time(self):
         """裏が出る確率の実用的な整数比"""
-        return self._practical_w_time
+        return self._practical_q_time
 
 
 ########################################
@@ -97,20 +97,20 @@ if __name__ == '__main__':
             # -------------------
 
             # 厳密な値
-            strict_b_time, strict_w_time = p_to_b_w_times(p=p)
-            print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_b_time:>2}：{strict_w_time:>2}  ", end='')
+            strict_p_time, strict_q_time = p_to_b_q_times(p=p)
+            print(f"厳密な、先後固定制での回数  先手だけ：後手だけ＝{strict_p_time:>2}：{strict_q_time:>2}  ", end='')
 
             # 実用的な値（［裏勝ちだけでの対局数］が１になるよう丸めたもの）
-            practical_b_time = round_letro(strict_b_time / strict_w_time) # 小数点以下四捨五入
-            practical_w_time = 1
-            print(f"実用的な、先後固定制での回数  先手だけ：後手だけ＝{practical_b_time:>2}：{practical_w_time:>2}  ", end='')
+            practical_p_time = round_letro(strict_p_time / strict_q_time) # 小数点以下四捨五入
+            practical_q_time = 1
+            print(f"実用的な、先後固定制での回数  先手だけ：後手だけ＝{practical_p_time:>2}：{practical_q_time:>2}  ", end='')
 
 
             # 説明４　表がまだ多めに出る得
             # --------------------------
 
             # 剰余（remainder）。繰り上がり先手勝率点
-            strict_carried = strict_b_time % strict_w_time            
+            strict_carried = strict_p_time % strict_q_time            
             print(f"割り切れない先手得{strict_carried:2}  ", end='')
 
 
@@ -126,7 +126,7 @@ if __name__ == '__main__':
             # ---------------------------------
 
             # 繰り上がり先手勝率点込みの先手勝率点
-            carryover_strict_b_time = strict_b_time + strict_carried
+            carryover_strict_p_time = strict_p_time + strict_carried
 
 
             # 繰り上がりがある場合
@@ -150,9 +150,9 @@ if __name__ == '__main__':
                     # ---------------------------------------------------------------
 
                     # あと何対局すると、余りが後手の整数比を上回るか（次の閏対局までの長さ）
-                    fill_times = math.ceil(strict_w_time / strict_carried)
-                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_w_time}以上になるのが、次の閏対局までの長さ{fill_times:2}")
-                    print(f"(得{strict_carried:2}×{fill_times:2}局>=分子{strict_w_time:2})", end='')
+                    fill_times = math.ceil(strict_q_time / strict_carried)
+                    #print(f"\n  一対局毎に余りが{strict_carried}ずつ溜まり、{strict_q_time}以上になるのが、次の閏対局までの長さ{fill_times:2}")
+                    print(f"(得{strict_carried:2}×{fill_times:2}局>=分子{strict_q_time:2})", end='')
 
 
                     if strict_carried != 0:
@@ -163,7 +163,7 @@ if __name__ == '__main__':
                             #print(f"  次に余りを解消できる閏対局第{next_leap:2}")
 
                             # 次の繰り上がり先手勝率点
-                            strict_carried = strict_b_time % strict_carried
+                            strict_carried = strict_p_time % strict_carried
                             #print(f"  次の繰り上がり先手勝率点{strict_carried}")
                             print(f"[第{next_leap:2}](新得{strict_carried:2}) ", end='')
 
@@ -173,8 +173,8 @@ if __name__ == '__main__':
                                 break
 
                             # 繰り上がり込み先手勝率点
-                            carryover_strict_b_time = strict_b_time + strict_carried
-                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_b_time}")
+                            carryover_strict_p_time = strict_p_time + strict_carried
+                            #print(f"  繰り上がり込み先手勝率点{carryover_strict_p_time}")
 
                     countdown -= 1
 
@@ -189,13 +189,13 @@ if __name__ == '__main__':
                     # 表が出る確率
                     p=p,
                     # 先手勝率の厳密な整数比
-                    strict_b_time=strict_b_time,
+                    strict_p_time=strict_p_time,
                     # 後手勝率の厳密な整数比
-                    strict_w_time=strict_w_time,
+                    strict_q_time=strict_q_time,
                     # 先手勝率の実用的な整数比
-                    practical_b_time=practical_b_time,
+                    practical_p_time=practical_p_time,
                     # 後手勝率の実用的な整数比
-                    practical_w_time=practical_w_time)
+                    practical_q_time=practical_q_time)
 
 
     except Exception as err:

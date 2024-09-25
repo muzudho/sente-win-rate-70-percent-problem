@@ -125,7 +125,7 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
     raise ValueError(f"{turn_system=}")
 
 
-def stringify_calculate_probability(p, b_time, w_time, best_p, best_p_error):
+def stringify_calculate_probability(p, p_time, q_time, best_p, best_p_error):
     """文言の作成"""
 
     # ［タイムスタンプ］
@@ -138,10 +138,10 @@ def stringify_calculate_probability(p, b_time, w_time, best_p, best_p_error):
     seg_1b = best_p
 
     # ［表勝ちだけでの対局数］
-    seg_2 = b_time
+    seg_2 = p_time
 
     # ［裏勝ちだけでの対局数］
-    seg_3 = w_time
+    seg_3 = q_time
 
     # # 計算過程を追加する場合
     # text += f"  {''.join(process_list)}"

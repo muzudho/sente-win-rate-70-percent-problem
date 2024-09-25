@@ -24,8 +24,8 @@ if __name__ == '__main__':
             print(f"{column_name=}")
 
 
-        for p, b_time, w_time in zip(df_mrp['p'], df_mrp['b_time'], df_mrp['w_time']):
-            print(f"{p=}  {b_time=}  {w_time}")
+        for p, p_time, q_time in zip(df_mrp['p'], df_mrp['p_time'], df_mrp['q_time']):
+            print(f"{p=}  {p_time=}  {q_time}")
 
 
     except Exception as err:
