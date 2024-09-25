@@ -118,7 +118,7 @@ class Specification():
 
 
 
-def round_letro(number):
+def round_letro(number, format='0'):
     """四捨五入
 
     📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
@@ -133,7 +133,13 @@ def round_letro(number):
     answer : int
         整数
     """
-    return int(Decimal(str(number)).quantize(Decimal('0'), ROUND_HALF_UP))
+
+    # 数を文字列型に変換して Decimal オブジェクトを生成。
+    # Decimal オブジェクト quantize によって丸める。さらに int 型に変換して返す
+    #
+    # quantize には、小数第一位を四捨五入するときは '0', 小数第二位を四捨五入するときは `0.1`、
+    # 小数第三位を四捨五入するときは '0.01' のように、書式を指定する必要がある
+    return int(Decimal(str(number)).quantize(Decimal(format), ROUND_HALF_UP))
 
 
 def count_of_decimal_places(value):
@@ -327,7 +333,7 @@ class PseudoSeriesResult():
 """
 
 
-def make_all_pseudo_series_results(can_draw, pts_conf, turn_system):
+def make_all_pseudo_series_results(can_draw, pts_conf):
     """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
     
     １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
@@ -349,7 +355,7 @@ def make_all_pseudo_series_results(can_draw, pts_conf, turn_system):
         elements = [HEAD, TAIL]
 
     # 桁数
-    depth = pts_conf.number_longest_time(turn_system=turn_system)
+    depth = pts_conf.number_longest_time()
 
     # １シーズン分のコイントスの全ての結果
     stats = []
@@ -869,6 +875,8 @@ class PointsConfiguration():
                 # 4: ［コインの裏が出たときの勝ち点］
                 q_step]
 
+        self._turn_system = turn_system
+        
 
     @property
     def failure_rate(self):
@@ -1000,10 +1008,10 @@ class PointsConfiguration():
                 span=span)
 
 
-    def number_shortest_time(self, turn_system):
+    def number_shortest_time(self):
         """［最短対局数］"""
 
-        if turn_system == WHEN_FROZEN_TURN:
+        if self._turn_system == WHEN_FROZEN_TURN:
             """［先後固定制］での［最短対局数］
             
             裏が全勝したときの回数と同じ
@@ -1016,7 +1024,7 @@ class PointsConfiguration():
 
             return self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
-        if turn_system == WHEN_ALTERNATING_TURN:
+        if self._turn_system == WHEN_ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］
             
             Ｂさんだけが勝ったときの回数と同じ。
@@ -1097,13 +1105,15 @@ class PointsConfiguration():
             return time
 
 
-        raise ValueError(f"{turn_system=}")
+        raise ValueError(f"{self._turn_system=}")
 
 
-    def number_longest_time(self, turn_system):
+    def number_longest_time(self):
         """［最長対局数］"""
+        p_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+        q_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
-        if turn_system == WHEN_FROZEN_TURN:
+        if self._turn_system == WHEN_FROZEN_TURN:
             """［先後固定制］での［最長対局数］
 
             裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
@@ -1122,12 +1132,10 @@ class PointsConfiguration():
                 14   2   2   2
                 14  14   4  -6
             """
-            p_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-            q_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
             return  (p_time - 1) + (q_time - 1) + 1
 
 
-        if turn_system == WHEN_ALTERNATING_TURN:
+        if self._turn_system == WHEN_ALTERNATING_TURN:
             """［先後交互制］での［最長対局数］
 
             ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
@@ -1152,12 +1160,10 @@ class PointsConfiguration():
                      1   0
             """
 
-            p_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-            q_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
             return  (p_time - 1) + (q_time - 1) + 1
 
 
-        raise ValueError(f"{turn_system=}")
+        raise ValueError(f"{self._turn_system=}")
 
 
     def stringify_dump(self, indent):

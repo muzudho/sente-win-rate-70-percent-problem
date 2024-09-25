@@ -105,10 +105,10 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         seg_6 = specified_pts_conf.span
 
         # ［最短対局数］
-        seg_7 = specified_pts_conf.number_shortest_time(turn_system=turn_system)
+        seg_7 = specified_pts_conf.number_shortest_time()
 
         # ［最長対局数］
-        seg_8 = specified_pts_conf.number_longest_time(turn_system=turn_system)
+        seg_8 = specified_pts_conf.number_longest_time()
 
         # ［試行回数］
         seg_9 = number_of_series
@@ -162,10 +162,16 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, pts_conf, process_list):
     seg_1c = best_p_error*100
 
     # 対局数
-    seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-    seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-    seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-    seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+
+    if pts_conf.turn_system == WHEN_FROZEN_TURN:
+        ts = '先後固定制'
+    elif pts_conf.turn_system == WHEN_ALTERNATING_TURN:
+        ts = '先後交互制'
+    else:
+        raise ValueError(f"{pts_conf.turn_system=}")
+
+    seg_3a = pts_conf.number_shortest_time()
+    seg_3b = pts_conf.number_longest_time()
 
     seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
     seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
@@ -175,12 +181,21 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, pts_conf, process_list):
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
-    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {seg_1c:>7.4f}）  対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"
+    text += f"先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {seg_1c:>7.4f}）  対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"
     return text
 
 
-def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_system):
-    if turn_system == WHEN_ALTERNATING_TURN:
+def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf):
+
+    # 対局数
+    if pts_conf.turn_system == WHEN_FROZEN_TURN:
+        ts = '先後固定制'
+    elif pts_conf.turn_system == WHEN_ALTERNATING_TURN:
+        ts = '先後交互制'
+    else:
+        raise ValueError(f'{pts_conf.turn_system=}')
+
+    if pts_conf.turn_system == WHEN_ALTERNATING_TURN:
         # ［表が出る確率（％）］
         seg_1a = p*100
 
@@ -189,12 +204,9 @@ def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_sy
 
         # ［調整後の表が出る確率（％）と 0.5 との誤差］
         seg_1c = best_p_error * 100
-
-        # 対局数
-        seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-        seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-        seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-        seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+        
+        seg_3a = pts_conf.number_shortest_time()
+        seg_3b = pts_conf.number_longest_time()
 
         seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
         seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
@@ -202,10 +214,10 @@ def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_sy
         # ［目標の点数］
         seg_4c = pts_conf.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
-    if turn_system == WHEN_FROZEN_TURN:
+    if pts_conf.turn_system == WHEN_FROZEN_TURN:
         # ［表が出る確率（％）］
         seg_1a = p*100
 
@@ -216,10 +228,8 @@ def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_sy
         seg_1c = best_p_error * 100
 
         # 対局数
-        seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-        seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-        seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-        seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+        seg_3a = pts_conf.number_shortest_time()
+        seg_3b = pts_conf.number_longest_time()
 
         seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
         seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
@@ -227,7 +237,7 @@ def print_even(p, best_p, best_p_error, best_number_of_series, pts_conf, turn_sy
         # ［目標の点数］
         seg_4c = pts_conf.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
 
@@ -315,8 +325,8 @@ def stringify_series_log(
 
     # 対局数
     # ------
-    tm10 = pts_conf.number_shortest_time(turn_system=turn_system)  # ［最短対局数］理論値
-    tm11 = pts_conf.number_longest_time(turn_system=turn_system)   # ［最長対局数］
+    tm10 = pts_conf.number_shortest_time()  # ［最短対局数］理論値
+    tm11 = pts_conf.number_longest_time()   # ［最長対局数］
     tm20 = series_result.number_of_times                            # ［対局数］実践値
 
     # 勝ち点構成
@@ -395,8 +405,8 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］が算出した設定］
     # -----------------------------------------
-    b_tm10 = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)  # ［最短対局数］理論値
-    b_tm11 = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)   # ［最長対局数］
+    b_tm10 = pts_conf.number_shortest_time()        # ［最短対局数］理論値
+    b_tm11 = pts_conf.number_longest_time()         # ［最長対局数］
     # 勝ち点構成
     b_pt1 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)      # ［コインの表が出たときの勝ち点］
     b_pt2 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)      # ［コインの裏が出たときの勝ち点］

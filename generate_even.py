@@ -43,8 +43,7 @@ def update_dataframe(df, p, failure_rate,
             best_p=best_p,
             best_p_error=best_p_error,
             best_number_of_series=best_number_of_series,
-            pts_conf=best_pts_conf,
-            turn_system=turn_system)
+            pts_conf=best_pts_conf)
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==p, ['best_p']] = best_p
@@ -181,13 +180,13 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                         # ［かくきんシステムのｐの構成］
                         latest_pts_conf = PointsConfiguration(
                                 failure_rate=failure_rate,
-                                turn_system=turn_system,
+                                turn_system=spec.turn_system,
                                 p_step=cur_p_step,
                                 q_step=cur_q_step,
                                 span=cur_span)
 
 
-                        if turn_system == WHEN_FROZEN_TURN:
+                        if spec.turn_system == WHEN_FROZEN_TURN:
                             # NOTE 理論値の場合
                             latest_p = calculate_probability(
                                     p=p,
@@ -203,8 +202,8 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             best_pts_conf = latest_pts_conf
 
                             # ［最短対局数］［最長対局数］
-                            shortest_time = best_pts_conf.number_shortest_time(turn_system=spec.turn_system)
-                            longest_time = best_pts_conf.number_longest_time(turn_system=spec.turn_system)
+                            shortest_time = best_pts_conf.number_shortest_time()
+                            longest_time = best_pts_conf.number_longest_time()
 
                             # 計算過程
                             one_process_text = f'[{best_p_error:.6f} {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_pts_conf.span}目 {shortest_time}～{longest_time}局]'

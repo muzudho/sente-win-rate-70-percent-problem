@@ -29,18 +29,25 @@ if __name__ == '__main__':
             for q_step in range(1, span):
                 # ［表勝ち１つの点数］
                 for p_step in range(1, q_step):
-                    pts_conf = PointsConfiguration(
+                    pts_conf_ft = PointsConfiguration(
                             failure_rate=FAILURE_RATE,
                             turn_system=WHEN_FROZEN_TURN,
                             p_step=p_step,
                             q_step=q_step,
                             span=span)
 
+                    pts_conf_at = PointsConfiguration(
+                            failure_rate=FAILURE_RATE,
+                            turn_system=WHEN_ALTERNATING_TURN,
+                            p_step=p_step,
+                            q_step=q_step,
+                            span=span)
+
                     # ［最短対局数］［最長対局数］
-                    seg_3a = pts_conf.number_shortest_time(turn_system=WHEN_FROZEN_TURN)
-                    seg_3b = pts_conf.number_longest_time(turn_system=WHEN_FROZEN_TURN)
-                    seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
-                    seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
+                    seg_3a = pts_conf_ft.number_shortest_time()
+                    seg_3b = pts_conf_ft.number_longest_time()
+                    seg_3c = pts_conf_at.number_shortest_time()
+                    seg_3d = pts_conf_at.number_longest_time()
 
                     seg_4a = p_step
                     seg_4b = q_step
