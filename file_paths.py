@@ -32,20 +32,20 @@ def get_simulation_large_series_log_file_path(p, failure_rate, turn_system):
     return f'output/simulation_large_series_p{p}_f{failure_rate}{ts}.log'
 
 
-def get_even_log_file_path(turn_system):
+def get_even_table_log_file_path(turn_system):
     """勝ち点を探索したログ・ファイルへのパス"""
     ts = turn_system_to_file_name(turn_system=turn_system)
-    return f'output/generate_even{ts}.log'
+    return f'output/even_table{ts}.log'
 
 
-def get_even_csv_file_path(turn_system):
+def get_even_table_csv_file_path(turn_system):
     """勝ち点を探索した記録ファイルへのパス"""
     if turn_system is None:
         ts1 = ''
     else:
         ts1 = f'_{turn_system_to_file_name(turn_system=turn_system)}'
 
-    return f'./data/generate_even_ts{ts1}.csv'
+    return f'./data/even_table_ts{ts1}.csv'
 
 
 def get_muzudho_recommends_points_csv_file_path(turn_system):

@@ -111,5 +111,3 @@ if __name__ == '__main__':
 
         # スタックトレース表示
         print(traceback.format_exc())
-
-        raise

@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import round_letro, calculate_probability
 from file_paths import get_muzudho_recommends_points_csv_file_path
-from database import get_df_even, get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
+from database import get_df_even, get_df_muzudho_recommends_points, df_mr_to_csv
 from views import parse_process_element
 
 
@@ -67,10 +67,7 @@ def generate_report(p, failure_rate, turn_system):
             df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
-                    # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
-                    index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+            df_mr_to_csv(df=df, turn_system=turn_system)
 
         return
 
@@ -115,10 +112,7 @@ def generate_report(p, failure_rate, turn_system):
             df_mr.loc[df_mr['p']==p, ['process']] = ' '.join(comment_element_list)
 
             # CSV保存
-            df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
-                    # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
-                    index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+            df_mrp_to_csv(df=df, turn_system=turn_system)
             
             return
 
@@ -160,5 +154,3 @@ Example: 10% is 0.1
 
         # スタックトレース表示
         print(traceback.format_exc())
-
-        raise

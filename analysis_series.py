@@ -169,5 +169,3 @@ Which one(1-2)? """)
 
         # スタックトレース表示
         print(traceback.format_exc())
-
-        raise

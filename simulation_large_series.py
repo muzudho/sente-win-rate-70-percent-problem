@@ -178,5 +178,3 @@ pts_conf:
 
         # スタックトレース表示
         print(traceback.format_exc())
-
-        raise

@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
-from file_paths import get_even_csv_file_path, get_muzudho_recommends_points_csv_file_path
+from file_paths import get_even_table_csv_file_path, get_muzudho_recommends_points_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'
@@ -36,11 +36,11 @@ def append_default_record_to_df_even(df, p, failure_rate):
 
 def get_df_even(turn_system):
 
-    csv_file_path = get_even_csv_file_path(turn_system=turn_system)
+    csv_file_path = get_even_table_csv_file_path(turn_system=turn_system)
 
     # ファイルが存在しなかった場合
     if not os.path.isfile(csv_file_path):
-        csv_file_path = get_even_csv_file_path(turn_system=None)
+        csv_file_path = get_even_table_csv_file_path(turn_system=None)
 
 
     df = pd.read_csv(csv_file_path, encoding="utf8")
@@ -65,6 +65,15 @@ def get_df_even(turn_system):
     return df
 
 
+def df_even_to_csv(df, turn_system):
+    # CSV保存
+    df.to_csv(
+            get_even_table_csv_file_path(turn_system=turn_system),
+            # ［計算過程］列は長くなるので末尾に置きたい
+            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'process'],
+            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+
 def get_df_p():
     df = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
 
@@ -85,6 +94,20 @@ def get_df_muzudho_recommends_points(turn_system):
     df['process'].astype('string')
 
     return df
+
+
+def df_mr_to_csv(df, turn_system):
+    df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
+            # ［計算過程］列は長くなるので末尾に置きたい
+            columns=['p', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
+            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+
+def dr_mrp_to_csv(df, turn_system):
+    df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
+            # ［計算過程］列は長くなるので末尾に置きたい
+            columns=['p', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
+            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 def get_df_muzudho_single_points(turn_system):

@@ -1,6 +1,6 @@
 #
 # 生成
-# python generate_even.py
+# python generate_even_table.py
 #
 #   TODO 実際値ではなく、理論値を記録したい。 alternating_turn の方がそれに対応してない
 #
@@ -13,8 +13,8 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
-from file_paths import get_even_csv_file_path
-from database import append_default_record_to_df_even, get_df_even, get_df_p
+from file_paths import get_even_table_csv_file_path
+from database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from views import print_even
 
 
@@ -73,11 +73,7 @@ def update_dataframe(df, p, failure_rate,
     df.loc[df['p']==p, ['process']] = process
 
     # CSV保存
-    df.to_csv(
-            get_even_csv_file_path(turn_system=turn_system),
-            # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'process'],
-            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+    df_even_to_csv(df=df, turn_system=turn_system)
 
 
 def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system):
@@ -108,11 +104,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
     if is_append_new_record:
         # CSV保存
-        df.to_csv(
-                get_even_csv_file_path(turn_system=turn_system),
-                # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'process'],
-                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+        df_even_to_csv(df=df, turn_system=turn_system)
 
 
     for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       process in\
@@ -380,5 +372,3 @@ Example: 10% is 0.1
 
         # スタックトレース表示
         print(traceback.format_exc())
-
-        raise
