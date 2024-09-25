@@ -1,4 +1,4 @@
-p,best_p,best_p_error,best_number_of_series,best_b_step,best_w_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_b_step,latest_w_step,latest_span,process
+p,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,process
 0.5,0.5,0.0,2000000,1,1,1,0.5,0.0,2000000,1,1,1,[0.000000 1表 1裏 1目 1～1局]
 0.51,0.51,0.010000000000000009,2000000,1,1,1,0.51,0.010000000000000009,2000000,1,38,41,[0.010000 1表 1裏 1目 1～1局]
 0.52,0.52,0.020000000000000018,2000000,1,1,1,0.52,0.020000000000000018,2000000,1,38,41,[0.020000 1表 1裏 1目 1～1局]

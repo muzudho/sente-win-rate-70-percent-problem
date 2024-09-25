@@ -33,14 +33,14 @@ def generate_report(turn_system):
 
         df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
 
-        for            p,          number_of_series,          b_step,          w_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['number_of_series'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for            p,          number_of_series,          p_step,          q_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['number_of_series'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
-                    b_step=b_step,
-                    w_step=w_step,
+                    p_step=p_step,
+                    q_step=q_step,
                     span=span)
 
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
@@ -70,8 +70,8 @@ def generate_report(turn_system):
 
         df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
 
-        for            p,          number_of_series,          b_step,          w_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['number_of_series'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for            p,          number_of_series,          p_step,          q_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['number_of_series'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # 仕様
             spec = Specification(
@@ -82,8 +82,8 @@ def generate_report(turn_system):
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
-                    b_step=b_step,
-                    w_step=w_step,
+                    p_step=p_step,
+                    q_step=q_step,
                     span=span)
 
             # NOTE 実際値ではなく、理論値を出力する

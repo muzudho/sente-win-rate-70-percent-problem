@@ -59,8 +59,8 @@ Example: 2000000
         df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
         df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
 
-        for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for            p,          p_step,          q_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # 仕様
             spec = Specification(
@@ -71,8 +71,8 @@ Example: 2000000
             # ［かくきんシステムのｐの構成］。任意に指定します
             pts_conf = PointsConfiguration(
                     failure_rate=spec.failure_rate,
-                    b_step=b_step,
-                    w_step=w_step,
+                    p_step=p_step,
+                    q_step=q_step,
                     span=span)
 
             series_result_list = []

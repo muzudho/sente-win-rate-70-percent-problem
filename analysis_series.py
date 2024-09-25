@@ -82,8 +82,8 @@ Which one(1-2)? """)
 
         df_mr = get_df_muzudho_single_points(turn_system=turn_system)
 
-        for            p,          b_step,          w_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['b_step'], df_mr['w_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for            p,          p_step,          q_step,          span,          presentable,          comment,          process in\
+            zip(df_mr['p'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
             # 仕様
             spec = Specification(
@@ -94,8 +94,8 @@ Which one(1-2)? """)
             # ［かくきんシステムのｐの構成］。任意に指定します
             specified_points_configuration = PointsConfiguration(
                     failure_rate=FAILURE_RATE,
-                    b_step=b_step,
-                    w_step=w_step,
+                    p_step=p_step,
+                    q_step=q_step,
                     span=span)
 
 

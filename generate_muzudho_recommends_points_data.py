@@ -33,8 +33,8 @@ def generate_report(p, failure_rate, turn_system):
         df_ev = get_df_even(turn_system=turn_system)
         df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
 
-        for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_b_step,          latest_w_step,          latest_span,          process in\
-            zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_b_step'], df_ev['best_w_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_b_step'], df_ev['latest_w_step'], df_ev['latest_span'], df_ev['process']):
+        for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
+            zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
 
             # ［計算過程］一覧
             #
@@ -69,7 +69,7 @@ def generate_report(p, failure_rate, turn_system):
             # CSV保存
             df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
                     # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'number_of_series', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
+                    columns=['p', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return
@@ -81,8 +81,8 @@ def generate_report(p, failure_rate, turn_system):
         df_ev = get_df_even(turn_system=turn_system)
         df_mr = get_df_muzudho_recommends_points(turn_system=turn_system)
 
-        for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_b_step,          best_w_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_b_step,          latest_w_step,          latest_span,          process in\
-            zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_b_step'], df_ev['best_w_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_b_step'], df_ev['latest_w_step'], df_ev['latest_span'], df_ev['process']):
+        for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
+            zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
 
             # ［計算過程］一覧
             #
@@ -117,7 +117,7 @@ def generate_report(p, failure_rate, turn_system):
             # CSV保存
             df_mr.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
                     # ［計算過程］列は長くなるので末尾に置きたい
-                    columns=['p', 'b_step', 'w_step', 'span', 'presentable', 'comment', 'process'],
+                    columns=['p', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
                     index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
             
             return

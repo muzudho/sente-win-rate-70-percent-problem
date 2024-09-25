@@ -26,13 +26,13 @@ if __name__ == '__main__':
         # ［目標の点数］
         for span in range(1,101):
             # ［裏勝ち１つの点数］
-            for w_step in range(1, span):
+            for q_step in range(1, span):
                 # ［表勝ち１つの点数］
-                for b_step in range(1, w_step):
+                for p_step in range(1, q_step):
                     pts_conf = PointsConfiguration(
                             failure_rate=FAILURE_RATE,
-                            b_step=b_step,
-                            w_step=w_step,
+                            p_step=p_step,
+                            q_step=q_step,
                             span=span)
 
                     # ［最短対局数］［最長対局数］
@@ -41,8 +41,8 @@ if __name__ == '__main__':
                     seg_3c = pts_conf.number_shortest_time(turn_system=WHEN_ALTERNATING_TURN)
                     seg_3d = pts_conf.number_longest_time(turn_system=WHEN_ALTERNATING_TURN)
 
-                    seg_4a = b_step
-                    seg_4b = w_step
+                    seg_4a = p_step
+                    seg_4b = q_step
                     seg_4c = span
 
                     text = f"対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"

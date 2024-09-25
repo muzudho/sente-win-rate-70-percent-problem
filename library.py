@@ -775,45 +775,45 @@ class PointsConfiguration():
         return step * (1 - failure_rate) / 2
 
 
-    def __init__(self, failure_rate, b_step, w_step, span):
+    def __init__(self, failure_rate, p_step, q_step, span):
         """初期化
         
         Parameters
         ----------
         failure_rate : float
             ［将棋の引分け率］
-        b_step : int
+        p_step : int
             ［表勝ち１つの点数］
-        w_step : int
+        q_step : int
             ［裏勝ち１つの点数］
         span : int
             ［目標の点数］
         """
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
-        if not isinstance(b_step, int):
-            raise ValueError(f"int 型であることが必要 {type(b_step)=}  {b_step=}")
+        if not isinstance(p_step, int):
+            raise ValueError(f"int 型であることが必要 {type(p_step)=}  {p_step=}")
 
-        if not isinstance(w_step, int):
-            raise ValueError(f"int 型であることが必要 {type(w_step)=}  {w_step=}")
+        if not isinstance(q_step, int):
+            raise ValueError(f"int 型であることが必要 {type(q_step)=}  {q_step=}")
 
         if not isinstance(span, int):
             raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
 
-        if b_step < 1:
-            raise ValueError(f"正の整数であることが必要 {b_step=}  {b_step=}")
+        if p_step < 1:
+            raise ValueError(f"正の整数であることが必要 {p_step=}  {p_step=}")
 
-        if w_step < 1:
-            raise ValueError(f"正の整数であることが必要 {w_step=}  {w_step=}")
+        if q_step < 1:
+            raise ValueError(f"正の整数であることが必要 {q_step=}  {q_step=}")
 
         if span < 1:
             raise ValueError(f"正の整数であることが必要 {span=}  {span=}")
 
-        if w_step < b_step:
-            raise ValueError(f"{b_step=} <= {w_step}")
+        if q_step < p_step:
+            raise ValueError(f"{p_step=} <= {q_step}")
 
-        if span < w_step:
-            raise ValueError(f"{w_step=} <= {span}")
+        if span < q_step:
+            raise ValueError(f"{q_step=} <= {span}")
 
         self._failure_rate = failure_rate
         self._span = span
@@ -824,15 +824,15 @@ class PointsConfiguration():
                 # 1: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
                 PointsConfiguration.let_draw_point(
                         failure_rate=failure_rate,
-                        step=b_step),
+                        step=p_step),
                 # 2: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
                 PointsConfiguration.let_draw_point(
                         failure_rate=failure_rate,
-                        step=w_step),
+                        step=q_step),
                 # 3: ［コインの表が出たときの勝ち点］
-                b_step,
+                p_step,
                 # 4: ［コインの裏が出たときの勝ち点］
-                w_step]
+                q_step]
 
 
     @property
@@ -947,21 +947,21 @@ class PointsConfiguration():
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        b_step = round_letro(lcm / b_time)
+        p_step = round_letro(lcm / b_time)
         # ［裏勝ち１つの点数］
-        w_step = round_letro(lcm / w_time)
+        q_step = round_letro(lcm / w_time)
         # ［目標の点数］
-        span = round_letro(w_time * w_step)
+        span = round_letro(w_time * q_step)
 
         # データチェック
-        span_w = round_letro(b_time * b_step)
+        span_w = round_letro(b_time * p_step)
         if span != span_w:
             raise ValueError(f"{span=}  {span_w=}")
 
         return PointsConfiguration(
                 failure_rate=failure_rate,
-                b_step=b_step,
-                w_step=w_step,
+                p_step=p_step,
+                q_step=q_step,
                 span=span)
 
 

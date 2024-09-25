@@ -22,14 +22,14 @@ def append_default_record_to_df_even(df, p, failure_rate):
     df.loc[index, ['best_p']] = 0
     df.loc[index, ['best_p_error']] = 0.51
     df.loc[index, ['best_number_of_series']] = 2000000
-    df.loc[index, ['best_b_step']] = 0
-    df.loc[index, ['best_w_step']] = 1
+    df.loc[index, ['best_p_step']] = 0
+    df.loc[index, ['best_q_step']] = 1
     df.loc[index, ['best_span']] = 1
     df.loc[index, ['latest_p']] = 0
     df.loc[index, ['latest_p_error']] = 0.51
     df.loc[index, ['latest_number_of_series']] = 2000000
-    df.loc[index, ['latest_b_step']] = 0
-    df.loc[index, ['latest_w_step']] = 1
+    df.loc[index, ['latest_p_step']] = 0
+    df.loc[index, ['latest_q_step']] = 1
     df.loc[index, ['latest_span']] = 1
     df.loc[index, ['process']] = ''
 
@@ -52,14 +52,14 @@ def get_df_even(turn_system):
     df['best_p'].fillna(0.0).astype('float')
     df['best_p_error'].fillna(0.0).astype('float')
     df['best_number_of_series'].fillna(0).astype('int')
-    df['best_b_step'].fillna(0).astype('int')
-    df['best_w_step'].fillna(0).astype('int')
+    df['best_p_step'].fillna(0).astype('int')
+    df['best_q_step'].fillna(0).astype('int')
     df['best_span'].fillna(0).astype('int')
     df['latest_p'].fillna(0.0).astype('float')
     df['latest_p_error'].fillna(0.0).astype('float')
     df['latest_number_of_series'].fillna(0).astype('int')
-    df['latest_b_step'].fillna(0).astype('int')
-    df['latest_w_step'].fillna(0).astype('int')
+    df['latest_p_step'].fillna(0).astype('int')
+    df['latest_q_step'].fillna(0).astype('int')
     df['latest_span'].fillna(0).astype('int')
     df['process'].fillna('').astype('string')
     return df
@@ -76,8 +76,8 @@ def get_df_muzudho_recommends_points(turn_system):
         df = pd.read_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_ALTERNATING_TURN), encoding="utf8")
         df['p'].astype('float')
         df['number_of_series'].fillna(0).astype('int')
-        df['b_step'].fillna(0).astype('int')
-        df['w_step'].fillna(1).astype('int')
+        df['p_step'].fillna(0).astype('int')
+        df['q_step'].fillna(1).astype('int')
         df['span'].fillna(1).astype('int')
         df['presentable'].astype('string')
         df['comment'].astype('string')
@@ -90,8 +90,8 @@ def get_df_muzudho_recommends_points(turn_system):
         df = pd.read_csv(get_muzudho_recommends_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
         df['p'].astype('float')
         df['number_of_series'].fillna(0).astype('int')
-        df['b_step'].fillna(0).astype('int')
-        df['w_step'].fillna(1).astype('int')
+        df['p_step'].fillna(0).astype('int')
+        df['q_step'].fillna(1).astype('int')
         df['span'].fillna(1).astype('int')
         df['presentable'].astype('string')
         df['comment'].astype('string')
@@ -107,8 +107,8 @@ def get_df_muzudho_single_points(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         df = pd.read_csv(get_muzudho_single_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
         df['p'].astype('float')
-        df['b_step'].fillna(0).astype('int')
-        df['w_step'].fillna(1).astype('int')
+        df['p_step'].fillna(0).astype('int')
+        df['q_step'].fillna(1).astype('int')
         df['span'].fillna(1).astype('int')
         df['presentable'].astype('string')
         df['comment'].astype('string')

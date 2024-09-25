@@ -43,9 +43,9 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         # ［計算過程］
         process_list = process[1:-1].split('] [')
         for process_element in process_list:
-            p_error, b_step, w_step, span, shortest, longest = parse_process_element(process_element)
+            p_error, p_step, q_step, span, shortest, longest = parse_process_element(process_element)
             if p_error is not None:
-                if b_step == specified_points_configuration.b_step and w_step == specified_points_configuration.w_step and span == specified_points_configuration.span:
+                if p_step == specified_points_configuration.p_step and q_step == specified_points_configuration.q_step and span == specified_points_configuration.span:
 
                     # ［調整後の表が出る確率（％）］
                     seg_2 = p_error*100+50
@@ -54,10 +54,10 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
                     seg_3 = p_error*100
 
                     # ［表勝ち１つの点数］
-                    seg_4 = b_step
+                    seg_4 = p_step
 
                     # ［裏勝ち１つの点数］
-                    seg_5 = w_step
+                    seg_5 = q_step
 
                     # ［目標の点数］
                     seg_6 = span
@@ -96,10 +96,10 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         seg_3 = (latest_theoretical_p - 0.5) * 100
 
         # ［表勝ち１つの点数］
-        seg_4 = specified_points_configuration.b_step
+        seg_4 = specified_points_configuration.p_step
 
         # ［裏勝ち１つの点数］
-        seg_5 = specified_points_configuration.w_step
+        seg_5 = specified_points_configuration.q_step
 
         # ［目標の点数］
         seg_6 = specified_points_configuration.span
@@ -252,8 +252,8 @@ def stringify_series_log(
         タイトル
     """
 
-    b_step = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-    w_step = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+    p_step = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+    q_step = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
     span = pts_conf.span
     b_rest = span
     w_rest = span
@@ -265,12 +265,12 @@ def stringify_series_log(
         # 表石        
         if winner_color == HEAD:
             line_1_list.append('   x')
-            b_rest -= b_step
+            b_rest -= p_step
         
         # 裏石
         elif winner_color == TAIL:
             line_1_list.append('   o')
-            w_rest -= w_step
+            w_rest -= q_step
         
         # 勝者なし
         else:

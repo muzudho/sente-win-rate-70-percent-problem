@@ -59,12 +59,12 @@ def update_dataframe(df, p, failure_rate,
     df.loc[df['p']==p, ['latest_number_of_series']] = latest_number_of_series
 
     # ［表勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_b_step']] = best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    df.loc[df['p']==p, ['latest_b_step']] = latest_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==p, ['best_p_step']] = best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==p, ['latest_p_step']] = latest_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
     # ［裏勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_w_step']] = best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
-    df.loc[df['p']==p, ['latest_w_step']] = latest_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==p, ['best_q_step']] = best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==p, ['latest_q_step']] = latest_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
     df.loc[df['p']==p, ['best_span']] = best_pts_conf.span
@@ -77,7 +77,7 @@ def update_dataframe(df, p, failure_rate,
     df.to_csv(
             get_even_csv_file_path(turn_system=turn_system),
             # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
+            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -112,19 +112,19 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
         df.to_csv(
                 get_even_csv_file_path(turn_system=turn_system),
                 # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_b_step', 'best_w_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_b_step', 'latest_w_step', 'latest_span', 'process'],
+                columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'process'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
-    for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_b_step,       best_w_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_b_step,       latest_w_step,       latest_span,       process in\
-        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_b_step'], df['best_w_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_b_step'], df['latest_w_step'], df['latest_span'], df['process']):
+    for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       process in\
+        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['process']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        best_b_step = round_letro(best_b_step)
-        best_w_step = round_letro(best_w_step)
+        best_p_step = round_letro(best_p_step)
+        best_q_step = round_letro(best_q_step)
         best_span = round_letro(best_span)
-        latest_b_step = round_letro(latest_b_step)
-        latest_w_step = round_letro(latest_w_step)
+        latest_p_step = round_letro(latest_p_step)
+        latest_q_step = round_letro(latest_q_step)
         latest_span = round_letro(latest_span)
 
 
@@ -134,15 +134,15 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
 
         # ［かくきんシステムのｐの構成］
-        if 0 < best_b_step:
-            temp_best_b_step = best_b_step
+        if 0 < best_p_step:
+            temp_best_p_step = best_p_step
         else:
-            temp_best_b_step = 1
+            temp_best_p_step = 1
 
         best_pts_conf = PointsConfiguration(
                 failure_rate=failure_rate,
-                b_step=temp_best_b_step,
-                w_step=best_w_step,
+                p_step=temp_best_p_step,
+                q_step=best_q_step,
                 span=best_span)
 
         update_count = 0
@@ -171,17 +171,17 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
             #
             # ［目標の点数］＞＝［裏勝ち１つの点数］＞＝［表勝ち１つの点数］という関係があります。
             #
-            start_w_step = latest_w_step
-            start_b_step = latest_b_step + 1      # 終わっているところの次から始める      NOTE b_step の初期値は 0 であること
+            start_q_step = latest_q_step
+            start_p_step = latest_p_step + 1      # 終わっているところの次から始める      NOTE p_step の初期値は 0 であること
             for cur_span in range(latest_span, LIMIT_SPAN):
-                for cur_w_step in range(start_w_step, cur_span + 1):
-                    for cur_b_step in range(start_b_step, cur_w_step + 1):
+                for cur_q_step in range(start_q_step, cur_span + 1):
+                    for cur_p_step in range(start_p_step, cur_q_step + 1):
 
                         # ［かくきんシステムのｐの構成］
                         latest_pts_conf = PointsConfiguration(
                                 failure_rate=failure_rate,
-                                b_step=cur_b_step,
-                                w_step=cur_w_step,
+                                p_step=cur_p_step,
+                                q_step=cur_q_step,
                                 span=cur_span)
 
 
@@ -255,12 +255,12 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                 print('cutoff (procrastinate)', flush=True)
                                 break
 
-                    start_b_step = 1
+                    start_p_step = 1
 
                     if is_cutoff:
                         break
 
-                start_w_step = 1
+                start_q_step = 1
 
                 if is_cutoff:
                     break
