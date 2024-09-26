@@ -271,7 +271,7 @@ def stringify_series_log(
     line_2_list = [f'{b_rest:>4}']
     line_3_list = [f'{w_rest:>4}']
 
-    for winner_color in series_result.elementary_event_sequence.list_of_face_of_coin:
+    for winner_color in series_result.list_of_face_of_coin:
         # 表石        
         if winner_color == HEAD:
             line_1_list.append('   x')

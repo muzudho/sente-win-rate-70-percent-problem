@@ -110,11 +110,11 @@ Which one(1-2)? """)
             for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
                 #print(f"動作テスト {list_of_face_of_coin=}")
 
-                elementary_event_sequence = ElementaryEventSequence(
+                # 引数作成
+                argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        number_of_longest_time=specified_pts_conf.number_of_longest_time(),
-                        list_of_face_of_coin=list_of_face_of_coin)
+                        number_of_longest_time=specified_pts_conf.number_of_longest_time())
 
                 #
                 # 到達できない棋譜は除去しておきたい
@@ -124,7 +124,8 @@ Which one(1-2)? """)
 
                 # ［先後固定制］で、シリーズを勝った方の手番を返す
                 series_result = judge_series(
-                        elementary_event_sequence=elementary_event_sequence,
+                        argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                        list_of_face_of_coin=list_of_face_of_coin,
                         pts_conf=specified_pts_conf,
                         turn_system=turn_system)
 

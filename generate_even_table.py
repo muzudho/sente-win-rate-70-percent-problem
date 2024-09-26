@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, ElementaryEventSequence, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, ElementaryEventSequence, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_even_table_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_table
@@ -210,21 +210,20 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
                             for i in range(0, REQUIRED_MUMBER_OF_SERIES):
 
-                                # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-                                list_of_face_of_coin = SequenceOfFaceOfCoin.make_list_by_toss_a_coin(
+                                # 引数作成
+                                argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
                                         p=p,
                                         failure_rate=failure_rate,
                                         number_of_longest_time=latest_pts_conf.number_of_longest_time())
 
-                                elementary_event_sequence = ElementaryEventSequence(
-                                        p=p,
-                                        failure_rate=failure_rate,
-                                        number_of_longest_time=latest_pts_conf.number_of_longest_time(),
-                                        list_of_face_of_coin=list_of_face_of_coin)
+                                # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+                                list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
+                                        argument_of_sequence_of_playout=argument_of_sequence_of_playout)
 
                                 # 疑似のリストをもとに、シリーズとして見てみる
                                 series_result = judge_series(
-                                        elementary_event_sequence=elementary_event_sequence,
+                                        argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                                        list_of_face_of_coin=list_of_face_of_coin,
                                         pts_conf=latest_pts_conf,
                                         turn_system=turn_system)
                                 

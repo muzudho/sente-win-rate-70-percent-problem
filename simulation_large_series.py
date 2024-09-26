@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_muzudho_recommends_points
 from library.views import stringify_simulation_log
@@ -105,21 +105,20 @@ pts_conf:
 
             for round in range(0, number_of_series):
 
-                # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-                list_of_face_of_coin = SequenceOfFaceOfCoin.make_list_by_toss_a_coin(
+                # 引数作成
+                argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
                         p=p,
                         failure_rate=spec.failure_rate,
                         number_of_longest_time=number_of_longest_time)
 
-                elementary_event_sequence = ElementaryEventSequence(
-                        p=p,
-                        failure_rate=spec.failure_rate,
-                        number_of_longest_time=number_of_longest_time,
-                        list_of_face_of_coin=list_of_face_of_coin)
+                # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+                list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
+                        argument_of_sequence_of_playout=argument_of_sequence_of_playout)
 
                 # シリーズの結果を返す
                 series_result = judge_series(
-                        elementary_event_sequence=elementary_event_sequence,
+                        argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                        list_of_face_of_coin=list_of_face_of_coin,
                         pts_conf=pts_conf,
                         turn_system=turn_system)
                 #print(f"{series_result.stringify_dump()}")
