@@ -15,9 +15,9 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
-from file_paths import get_even_table_csv_file_path
-from database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
-from views import print_even_table
+from library.file_paths import get_even_table_csv_file_path
+from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
+from library.views import print_even_table
 
 
 # このラウンド数を満たさないデータは、再探索します

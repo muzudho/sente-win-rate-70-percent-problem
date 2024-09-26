@@ -12,8 +12,8 @@ import math
 import pandas as pd
 
 from library import calculate_probability
-from database import get_df_let_calculate_probability
-from views import stringify_calculate_probability
+from library.database import get_df_let_calculate_probability
+from library.views import stringify_calculate_probability
 
 
 LOG_FILE_PATH = 'output/let_calculate_probability.log'

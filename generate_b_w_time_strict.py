@@ -14,8 +14,8 @@ import math
 import pandas as pd
 
 from library import calculate_probability, PointsConfiguration
-from database import get_df_p
-from views import stringify_p_q_time_strict
+from library.database import get_df_p
+from library.views import stringify_p_q_time_strict
 
 
 LOG_FILE_PATH = 'output/generate_b_q_time_strict.log'

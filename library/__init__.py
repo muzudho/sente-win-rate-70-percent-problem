@@ -80,6 +80,16 @@ def opponent(elementary_event):
     return _opponent[elementary_event]
 
 
+# Generation Algorithm
+# --------------------
+
+# 理論から算出する
+THEORETICAL = 1
+
+# 力任せ探索
+BRUTE_FORCE = 2
+
+
 class Functions():
     """数式"""
 

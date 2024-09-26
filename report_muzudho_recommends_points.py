@@ -12,8 +12,8 @@ import math
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, PointsConfiguration, Specification
-from database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
-from views import stringify_report_muzudho_recommends_points
+from library.database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
+from library.views import stringify_report_muzudho_recommends_points
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください

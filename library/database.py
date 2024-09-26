@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
-from file_paths import get_even_table_csv_file_path, get_muzudho_recommends_points_csv_file_path
+from library.file_paths import get_even_table_csv_file_path, get_muzudho_recommends_points_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'

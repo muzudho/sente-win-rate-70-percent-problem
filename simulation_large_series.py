@@ -8,9 +8,9 @@
 import traceback
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
-from file_paths import get_simulation_large_series_log_file_path
-from database import get_df_muzudho_recommends_points
-from views import stringify_simulation_log
+from library.file_paths import get_simulation_large_series_log_file_path
+from library.database import get_df_muzudho_recommends_points
+from library.views import stringify_simulation_log
 
 
 ########################################

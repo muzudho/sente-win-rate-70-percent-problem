@@ -4,7 +4,7 @@
 import traceback
 import pandas as pd
 
-from database import get_df_report_muzudho_recommends_points
+from library.database import get_df_report_muzudho_recommends_points
 
 
 ########################################
