@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, make_generation_algorythm, round_letro, calculate_probability
 from library.file_paths import get_muzudho_recommends_points_csv_file_path
 from library.database import get_df_even, get_df_muzudho_recommends_points, df_mrp_to_csv, get_df_p, append_default_record_to_df_mrp
 from library.views import parse_process_element
@@ -47,9 +47,9 @@ def ready_records(df, specified_failure_rate, turn_system):
         df_mrp_to_csv(df=df, turn_system=turn_system)
 
 
-def generate_data(specified_failure_rate, turn_system):
+def generate_data(specified_failure_rate, turn_system, generation_algorythm):
 
-    df_ev = get_df_even(turn_system=turn_system)
+    df_ev = get_df_even(turn_system=turn_system, generation_algorythm=generation_algorythm)
     df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
     # まず、行の存在チェック。無ければ追加
@@ -132,11 +132,14 @@ Example: 10% is 0.1
         specified_failure_rate = float(input())
 
 
+
         # ［先後固定制］
-        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_FROZEN_TURN)
+        generation_algorythm_ft = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=WHEN_FROZEN_TURN)
+        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_FROZEN_TURN, generation_algorythm=generation_algorythm_ft)
 
         # ［先後交互制］
-        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_ALTERNATING_TURN)
+        generation_algorythm_at = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=WHEN_ALTERNATING_TURN)
+        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_ALTERNATING_TURN, generation_algorythm=generation_algorythm_at)
 
 
     except Exception as err:

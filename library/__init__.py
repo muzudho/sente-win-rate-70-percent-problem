@@ -90,6 +90,13 @@ BRUTE_FORCE = 1
 THEORETICAL = 2
 
 
+def make_generation_algorythm(failure_rate, turn_system):
+    # 現在のところ、［先後固定制］で、かつ［表も裏も出ない確率］が 0 のときのみ、理論値を求めることができます
+    if failure_rate == 0 and turn_system == WHEN_FROZEN_TURN:
+        return THEORETICAL
+    return BRUTE_FORCE
+
+
 class Functions():
     """数式"""
 

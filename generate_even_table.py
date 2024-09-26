@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
 from library.file_paths import get_even_table_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_table
@@ -340,10 +340,10 @@ Which one(1-2)? """)
         choice = input()
 
         if choice == '1':
-            turn_system = WHEN_FROZEN_TURN
+            specified_turn_system = WHEN_FROZEN_TURN
 
         elif choice == '2':
-            turn_system = WHEN_ALTERNATING_TURN
+            specified_turn_system = WHEN_ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -363,15 +363,16 @@ Example: 10% is 0.1
         specified_failure_rate = float(input())
 
 
-        if turn_system == WHEN_FROZEN_TURN and specified_failure_rate == 0:
-            generation_algorythm = THEORETICAL
+        generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        if generation_algorythm == THEORETICAL:
             print("理論値を求めます")
-        else:
-            generation_algorythm = BRUTE_FORCE
+        elif generation_algorythm == BRUTE_FORCE:
             print("力任せ探索を行います")
+        else:
+            raise ValueError(f"{generation_algorythm=}")
 
 
-        df_ev = get_df_even(turn_system=turn_system, generation_algorythm=generation_algorythm)
+        df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
         #print(df_ev)
 
 
@@ -409,7 +410,7 @@ Example: 10% is 0.1
                     df_ev,
                     abs_limit_of_error,
                     specified_failure_rate=specified_failure_rate,
-                    turn_system=turn_system,
+                    turn_system=specified_turn_system,
                     generation_algorythm=generation_algorythm)
 
 
@@ -418,7 +419,7 @@ Example: 10% is 0.1
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
+            df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
 
     except Exception as err:
