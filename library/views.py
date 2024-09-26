@@ -451,29 +451,25 @@ def stringify_simulation_log(
 
     ht71 = h_wins / ht_total_wins * 100           # 引分けを除いた［将棋の先手勝率（％）］実践値（引分除く）
     ht72 = t_wins / ht_total_wins * 100           # 引分けを除いた［将棋の後手勝率（％）］実践値（引分除く）
+    ht81 = ((h_wins / ht_total_wins) - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
+    ht82 = ((t_wins / ht_total_wins) - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
 
-    ht81 = (h_wins - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
-    ht82 = (t_wins - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
-
-    # ［以下、［かくきんシステム］を使って試行］２ブロック目（色、引分込み）
-    # ---------------------------------------------
-    c41 = succ_series_rate_ht * succ_p * 100              # 引分けを含んだ［将棋の先手勝率］
-    c42 = succ_series_rate_ht * succ_q * 100              # 引分けを含んだ［将棋の後手勝率］
-    c47 = no_won_series_rate_ht * 100                             # 引分けを含んだ［将棋の引分け率］実践値
-
-    c51 = succ_series_rate_ht * succ_pe * 100       # 引分けを含んだ［将棋の先手勝率］誤差
-    c52 = succ_series_rate_ht * succ_qe * 100       # 引分けを含んだ［将棋の後手勝率］誤差
-    c57 = (no_won_series_rate_ht - failure_rate) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
+    ht41 = h_wins / ht_total * 100              # 引分けを含んだ［将棋の先手勝率］
+    ht42 = t_wins / ht_total * 100              # 引分けを含んだ［将棋の後手勝率］
+    ht47 = ht_no_wins / ht_total * 100                             # 引分けを含んだ［将棋の引分け率］実践値
+    ht51 = ((h_wins / ht_total) - 0.5) * 100       # 引分けを含んだ［将棋の先手勝率］誤差
+    ht52 = ((t_wins / ht_total) - 0.5) * 100       # 引分けを含んだ［将棋の後手勝率］誤差
+    ht57 = ((ht_no_wins / ht_total) - 0.5) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
 
 
     # プレイヤーの勝敗数
     # -----------------
     a_wins = S.number_of_wins(winner=ALICE)
     b_wins = S.number_of_wins(winner=BOB)
+    ab_no_wins = S.number_of_no_wins(opponent_pair=PLAYERS)
     ab_total_wins = a_wins + b_wins
     ab_total_fully_wins = S.number_of_fully_wins(elementary_event=ALICE) + S.number_of_fully_wins(elementary_event=BOB)
     ab_total_points_wins = S.number_of_points_wins(winner=ALICE) + S.number_of_points_wins(winner=BOB)
-    ab_no_wins = S.number_of_no_wins(opponent_pair=PLAYERS)
     ab_total = ab_total_wins + ab_no_wins
 
     ab152 = ab_total   # 全シリーズ計
@@ -484,12 +480,6 @@ def stringify_simulation_log(
     ab164 = ab_total_fully_wins / ab_total * 100
     ab167 = (ab_total_points_wins + ab_no_wins) / ab_total * 100
 
-    ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
-    ab72 = b_wins / ab_total_wins * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
-
-    ab81 = (a_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    ab82 = (b_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
-
     c101 = S.number_of_wins(winner=ALICE)                       # Ａさんの勝ちの総数
     c102 = S.number_of_wins(winner=BOB)                         # Ｂさんの勝ちの総数
     c103 = S.number_of_fully_wins(elementary_event=ALICE)       # Ａさん満点勝ち
@@ -498,13 +488,17 @@ def stringify_simulation_log(
     c106 = S.number_of_points_wins(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
     c107 = ab_no_wins           # ＡさんもＢさんも勝ちではなかった
 
-    c111 = succ_series_rate_ab * succ_a * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ａさんが勝つ確率］実践値（％）
-    c112 = succ_series_rate_ab * succ_b * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ｂさんが勝つ確率］実践値（％）
-    c117 = no_won_series_rate_ab * 100                             # ［表も裏も出なかった確率］実践値（％）
+    ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
+    ab72 = b_wins / ab_total_wins * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
+    ab81 = (a_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    ab82 = (b_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
-    c141 = succ_series_rate_ab * succ_ae * 100                   # 茣蓙の実践値（％）
-    c142 = succ_series_rate_ab * succ_be * 100                   # 茣蓙の実践値（％）
-    c147 = (no_won_series_rate_ab - failure_rate) * 100            # 茣蓙の実践値（％）
+    ab41 = a_wins / ab_total * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ａさんが勝つ確率］実践値（％）
+    ab42 = b_wins / ab_total * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ｂさんが勝つ確率］実践値（％）
+    ab47 = ab_no_wins / ab_total * 100                             # ［表も裏も出なかった確率］実践値（％）
+    ab51 = ((a_wins / ab_total) - 0.5) * 100                   # 茣蓙の実践値（％）
+    ab52 = ((b_wins / ab_total) - 0.5) * 100                   # 茣蓙の実践値（％）
+    ab57 = ((ab_no_wins / ab_total) - 0.5) * 100            # 茣蓙の実践値（％）
 
     # 対局数
     # ------
@@ -541,8 +535,8 @@ def stringify_simulation_log(
     引分除く  |   {ht71:8.4f} ％     {ht72:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
               |（{ht81:+9.4f}）   （{ht82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
-    引分込み  |   { c41:8.4f} ％     { c42:8.4f} ％                                                                     { c47:8.4f} ％ |               |
-              |（{ c51:+9.4f}）   （{ c52:+9.4f}）                                                                   （{ c57:+9.4f}）  |               |
+    引分込み  |   {ht41:8.4f} ％     {ht42:8.4f} ％                                                                     {ht47:8.4f} ％ |               |
+              |（{ht51:+9.4f}）   （{ht52:+9.4f}）                                                                   （{ht57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+               |
               | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
               |                   {ab152:>8} 回 |                   {ab154:>8} 回 |                                   {ab157:>8} 回 |               |
@@ -556,8 +550,8 @@ def stringify_simulation_log(
     引分除く  |   { ab71:8.4f} ％     { ab72:8.4f} ％                                                                                 |               |
               |（{ ab81:+9.4f}）   （{ ab82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
-    引分込み  |   {c111:8.4f} ％     {c112:8.4f} ％                                                                     {c117 :8.4f} ％ |               |
-              |（{c141:+9.4f}）   （{c142:+9.4f}）                                                                   （{c147:+9.4f}）  |               |
+    引分込み  |   {ab41:8.4f} ％     {ab42:8.4f} ％                                                                     {ab47:8.4f} ％ |               |
+              |（{ab51:+9.4f}）   （{ab52:+9.4f}）                                                                   （{ab57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 """
 
