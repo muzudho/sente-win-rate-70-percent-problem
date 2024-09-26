@@ -451,15 +451,15 @@ def stringify_simulation_log(
 
     ht71 = h_wins / ht_total_wins * 100           # 引分けを除いた［将棋の先手勝率（％）］実践値（引分除く）
     ht72 = t_wins / ht_total_wins * 100           # 引分けを除いた［将棋の後手勝率（％）］実践値（引分除く）
-    ht81 = ((h_wins / ht_total_wins) - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
-    ht82 = ((t_wins / ht_total_wins) - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
+    ht81 = (h_wins / ht_total_wins - 0.5) * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
+    ht82 = (t_wins / ht_total_wins - 0.5) * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
 
     ht41 = h_wins / ht_total * 100              # 引分けを含んだ［将棋の先手勝率］
     ht42 = t_wins / ht_total * 100              # 引分けを含んだ［将棋の後手勝率］
     ht47 = ht_no_wins / ht_total * 100                             # 引分けを含んだ［将棋の引分け率］実践値
-    ht51 = ((h_wins / ht_total) - 0.5) * 100       # 引分けを含んだ［将棋の先手勝率］誤差
-    ht52 = ((t_wins / ht_total) - 0.5) * 100       # 引分けを含んだ［将棋の後手勝率］誤差
-    ht57 = ((ht_no_wins / ht_total) - 0.5) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
+    ht51 = (h_wins / ht_total - 0.5) * 100       # 引分けを含んだ［将棋の先手勝率］誤差
+    ht52 = (t_wins / ht_total - 0.5) * 100       # 引分けを含んだ［将棋の後手勝率］誤差
+    ht57 = (ht_no_wins / ht_total - 0.5) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
 
 
     # プレイヤーの勝敗数
@@ -490,15 +490,15 @@ def stringify_simulation_log(
 
     ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
     ab72 = b_wins / ab_total_wins * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
-    ab81 = (a_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    ab82 = (b_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
+    ab81 = (a_wins / ab_total_wins - 0.5) * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    ab82 = (b_wins / ab_total_wins - 0.5) * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     ab41 = a_wins / ab_total * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ａさんが勝つ確率］実践値（％）
     ab42 = b_wins / ab_total * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ｂさんが勝つ確率］実践値（％）
     ab47 = ab_no_wins / ab_total * 100                             # ［表も裏も出なかった確率］実践値（％）
-    ab51 = ((a_wins / ab_total) - 0.5) * 100                   # 茣蓙の実践値（％）
-    ab52 = ((b_wins / ab_total) - 0.5) * 100                   # 茣蓙の実践値（％）
-    ab57 = ((ab_no_wins / ab_total) - 0.5) * 100            # 茣蓙の実践値（％）
+    ab51 = (a_wins / ab_total - 0.5) * 100                   # 茣蓙の実践値（％）
+    ab52 = (b_wins / ab_total - 0.5) * 100                   # 茣蓙の実践値（％）
+    ab57 = (ab_no_wins / ab_total - 0.5) * 100            # 茣蓙の実践値（％）
 
     # 対局数
     # ------
