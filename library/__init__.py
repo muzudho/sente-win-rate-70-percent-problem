@@ -459,7 +459,7 @@ def make_all_pseudo_series_results(can_failure, pts_conf):
         elements = [HEAD, TAIL]
 
     # 桁数
-    depth = pts_conf.number_longest_time()
+    depth = pts_conf.number_of_longest_time()
 
     # １シーズン分のコイントスの全ての結果
     stats = []
@@ -1105,7 +1105,7 @@ class PointsConfiguration():
                 span=span)
 
 
-    def number_shortest_time(self):
+    def number_of_shortest_time(self):
         """［最短対局数］"""
 
         if self._turn_system == WHEN_FROZEN_TURN:
@@ -1205,7 +1205,7 @@ class PointsConfiguration():
         raise ValueError(f"{self._turn_system=}")
 
 
-    def number_longest_time(self):
+    def number_of_longest_time(self):
         """［最長対局数］
         
         ［先後固定制］

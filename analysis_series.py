@@ -113,7 +113,7 @@ Which one(1-2)? """)
                 pseudo_series_result = PseudoSeriesResult(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        longest_times=specified_pts_conf.number_longest_time(),
+                        longest_times=specified_pts_conf.number_of_longest_time(),
                         face_of_coin_list=face_of_coin_list)
 
                 #
@@ -133,9 +133,9 @@ Which one(1-2)? """)
                     #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_pts_conf.number_shortest_time():
+                elif old_number_of_times < specified_pts_conf.number_of_shortest_time():
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_pts_conf.number_shortest_time()=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_pts_conf.number_of_shortest_time()=}")
                     pass
 
                 #

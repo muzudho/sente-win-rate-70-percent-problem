@@ -44,10 +44,10 @@ if __name__ == '__main__':
                             span=span)
 
                     # ［最短対局数］［最長対局数］
-                    seg_3a = pts_conf_ft.number_shortest_time()
-                    seg_3b = pts_conf_ft.number_longest_time()
-                    seg_3c = pts_conf_at.number_shortest_time()
-                    seg_3d = pts_conf_at.number_longest_time()
+                    seg_3a = pts_conf_ft.number_of_shortest_time()
+                    seg_3b = pts_conf_ft.number_of_longest_time()
+                    seg_3c = pts_conf_at.number_of_shortest_time()
+                    seg_3d = pts_conf_at.number_of_longest_time()
 
                     seg_4a = p_step
                     seg_4b = q_step

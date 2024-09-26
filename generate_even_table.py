@@ -214,7 +214,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                 pseudo_series_result = PseudoSeriesResult.playout_pseudo(
                                         p=p,
                                         failure_rate=failure_rate,
-                                        longest_times=latest_pts_conf.number_longest_time())
+                                        longest_times=latest_pts_conf.number_of_longest_time())
 
                                 # 疑似のリストをもとに、シリーズとして見てみる
                                 series_result = judge_series(
@@ -240,8 +240,8 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             best_pts_conf = latest_pts_conf
 
                             # ［最短対局数］［最長対局数］
-                            shortest_time = best_pts_conf.number_shortest_time()
-                            longest_time = best_pts_conf.number_longest_time()
+                            shortest_time = best_pts_conf.number_of_shortest_time()
+                            longest_time = best_pts_conf.number_of_longest_time()
 
                             # 計算過程
                             one_process_text = f'[{best_p_error:.6f} {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_pts_conf.span}目 {shortest_time}～{longest_time}局]'

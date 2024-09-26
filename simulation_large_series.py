@@ -87,8 +87,8 @@ Example: 2000000
             series_result_list = []
 
             # ［最長対局数］は計算で求められます
-            shortest_times = pts_conf.number_shortest_time()
-            longest_times = pts_conf.number_longest_time()
+            shortest_times = pts_conf.number_of_shortest_time()
+            longest_times = pts_conf.number_of_longest_time()
             if longest_times < shortest_times:
                 text = f"［最短対局数］{shortest_times} が、［最長対局数］{longest_times} より長いです"
                 print(f"""\
@@ -121,16 +121,16 @@ pts_conf:
 
 
                 
-                if series_result.number_of_times < pts_conf.number_shortest_time():
-                    text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_shortest_time()} を下回った"
+                if series_result.number_of_times < pts_conf.number_of_shortest_time():
+                    text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_of_shortest_time()} を下回った"
                     print(f"""{text}
 {longest_times=}
 {series_result.stringify_dump('   ')}
 """)
                     raise ValueError(text)
 
-                if pts_conf.number_longest_time() < series_result.number_of_times:
-                    text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_longest_time()} を上回った"
+                if pts_conf.number_of_longest_time() < series_result.number_of_times:
+                    text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_of_longest_time()} を上回った"
                     print(f"""{text}
 {longest_times=}
 {series_result.stringify_dump('   ')}
@@ -173,11 +173,11 @@ pts_conf:
 
 
             # 表示とログ出力を終えた後でテスト
-            if large_series_trial_summary.shortest_time_th < pts_conf.number_shortest_time():
-                raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_shortest_time()} を下回った")
+            if large_series_trial_summary.shortest_time_th < pts_conf.number_of_shortest_time():
+                raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_of_shortest_time()} を下回った")
 
-            if pts_conf.number_longest_time() < large_series_trial_summary.longest_time_th:
-                raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_longest_time()} を上回った")
+            if pts_conf.number_of_longest_time() < large_series_trial_summary.longest_time_th:
+                raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_of_longest_time()} を上回った")
 
 
     except Exception as err:

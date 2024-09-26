@@ -105,10 +105,10 @@ def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theor
         seg_6 = specified_pts_conf.span
 
         # ［最短対局数］
-        seg_7 = specified_pts_conf.number_shortest_time()
+        seg_7 = specified_pts_conf.number_of_shortest_time()
 
         # ［最長対局数］
-        seg_8 = specified_pts_conf.number_longest_time()
+        seg_8 = specified_pts_conf.number_of_longest_time()
 
         # ［試行回数］
         seg_9 = number_of_series
@@ -170,8 +170,8 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, pts_conf, process_list):
     else:
         raise ValueError(f"{pts_conf.turn_system=}")
 
-    seg_3a = pts_conf.number_shortest_time()
-    seg_3b = pts_conf.number_longest_time()
+    seg_3a = pts_conf.number_of_shortest_time()
+    seg_3b = pts_conf.number_of_longest_time()
 
     seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
     seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
@@ -205,8 +205,8 @@ def print_even_table(p, best_p, best_p_error, best_number_of_series, pts_conf):
         # ［調整後の表が出る確率（％）と 0.5 との誤差］
         seg_1c = best_p_error * 100
         
-        seg_3a = pts_conf.number_shortest_time()
-        seg_3b = pts_conf.number_longest_time()
+        seg_3a = pts_conf.number_of_shortest_time()
+        seg_3b = pts_conf.number_of_longest_time()
 
         seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
         seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
@@ -228,8 +228,8 @@ def print_even_table(p, best_p, best_p_error, best_number_of_series, pts_conf):
         seg_1c = best_p_error * 100
 
         # 対局数
-        seg_3a = pts_conf.number_shortest_time()
-        seg_3b = pts_conf.number_longest_time()
+        seg_3a = pts_conf.number_of_shortest_time()
+        seg_3b = pts_conf.number_of_longest_time()
 
         seg_4a = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
         seg_4b = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
@@ -325,8 +325,8 @@ def stringify_series_log(
 
     # 対局数
     # ------
-    tm10 = pts_conf.number_shortest_time()  # ［最短対局数］理論値
-    tm11 = pts_conf.number_longest_time()   # ［最長対局数］
+    tm10 = pts_conf.number_of_shortest_time()  # ［最短対局数］理論値
+    tm11 = pts_conf.number_of_longest_time()   # ［最長対局数］
     tm20 = series_result.number_of_times                            # ［対局数］実践値
 
     # 勝ち点構成
@@ -404,8 +404,8 @@ def stringify_simulation_log(
 
     # ［以下、［かくきんシステム］が算出した設定］
     # -----------------------------------------
-    b_tm10 = pts_conf.number_shortest_time()        # ［最短対局数］理論値
-    b_tm11 = pts_conf.number_longest_time()         # ［最長対局数］
+    b_tm10 = pts_conf.number_of_shortest_time()        # ［最短対局数］理論値
+    b_tm11 = pts_conf.number_of_longest_time()         # ［最長対局数］
     # 勝ち点構成
     b_pt1 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)      # ［コインの表が出たときの勝ち点］
     b_pt2 = pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)      # ［コインの裏が出たときの勝ち点］
