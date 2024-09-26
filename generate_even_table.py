@@ -196,12 +196,40 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                 span=cur_span)
 
 
-                        if spec.turn_system == WHEN_FROZEN_TURN:
-                            # NOTE 理論値の場合
+                        # NOTE 理論値の場合
+                        if generation_algorythm == THEORETICAL:
                             latest_p = calculate_probability(
                                     p=p,
                                     H=latest_pts_conf.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                                     T=latest_pts_conf.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                            latest_p_error = latest_p - 0.5
+
+                        # TODO 力任せ探索の場合                        
+                        else:
+                            series_result_list = []
+
+                            for i in range(0, REQUIRED_MUMBER_OF_SERIES):
+
+                                # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+                                pseudo_series_result = PseudoSeriesResult.playout_pseudo(
+                                        p=p,
+                                        failure_rate=failure_rate,
+                                        longest_times=latest_pts_conf.number_longest_time())
+
+                                # 疑似のリストをもとに、シリーズとして見てみる
+                                series_result = judge_series(
+                                        pseudo_series_result=pseudo_series_result,
+                                        pts_conf=latest_pts_conf,
+                                        turn_system=turn_system)
+                                
+                                series_result_list.append(series_result)
+                            
+                            # シミュレーションの結果
+                            large_series_trial_summary = LargeSeriesTrialSummary(
+                                    series_result_list=series_result_list)
+
+                            # Ａさんが勝った回数
+                            latest_p = large_series_trial_summary.number_of_wons(winner=ALICE) / REQUIRED_MUMBER_OF_SERIES
                             latest_p_error = latest_p - 0.5
 
 
