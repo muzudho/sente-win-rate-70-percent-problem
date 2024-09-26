@@ -413,17 +413,16 @@ def stringify_simulation_log(
     b_tm11 = series_rule.number_of_longest_time                                             # ［最長対局数］
 
 
-    # ［以下、［かくきんシステム］を使って試行］３ブロック目（プレイヤー、引分除く）
-    # ---------------------------------------------
+    # コインの表裏の回数
+    # -----------------
     succ_a = S.won_rate(success_rate=1, winner=ALICE)             # 引分けを除いた［Ａさんが勝つ確率］実践値
     succ_ae = S.won_rate_error(success_rate=1, winner=ALICE)      # 引分けを除いた［Ａさんが勝つ確率と 0.5 との誤差］実践値
     succ_b = S.won_rate(success_rate=1, winner=BOB)             # 引分けを除いた［Ｂさんが勝つ確率］実践値
     succ_be = S.won_rate_error(success_rate=1, winner=BOB)      # 引分けを除いた［Ｂさんが勝つ確率と 0.5 との誤差］実践値
 
-
-    # コインの表裏の回数
-    # -----------------
-    ht_total_wins = S.number_of_wins(winner=HEAD) + S.number_of_wins(winner=TAIL)
+    h_wins = S.number_of_wins(winner=HEAD)
+    t_wins = S.number_of_wins(winner=TAIL)
+    ht_total_wins = h_wins + t_wins
     ht_total_fully_wins = S.number_of_fully_wins(elementary_event=HEAD) + S.number_of_fully_wins(elementary_event=TAIL)
     ht_total_points_wins = S.number_of_points_wins(winner=HEAD) + S.number_of_points_wins(winner=TAIL)
     ht_no_wins = S.number_of_no_wins(opponent_pair=FACE_OF_COIN)
@@ -450,13 +449,11 @@ def stringify_simulation_log(
     c11 = c13 + c15
     c12 = c14 + c16
 
-    # ［以下、［かくきんシステム］を使って試行］１ブロック目（色、引分除く）
-    # ---------------------------------------------
-    c21 = succ_p * 100           # 引分けを除いた［将棋の先手勝率（％）］実践値（引分除く）
-    c22 = succ_q * 100           # 引分けを除いた［将棋の後手勝率（％）］実践値（引分除く）
+    ht71 = h_wins / ht_total_wins * 100           # 引分けを除いた［将棋の先手勝率（％）］実践値（引分除く）
+    ht72 = t_wins / ht_total_wins * 100           # 引分けを除いた［将棋の後手勝率（％）］実践値（引分除く）
 
-    c31 = succ_pe * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
-    c32 = succ_qe * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
+    ht81 = (h_wins - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
+    ht82 = (t_wins - 0.5) / ht_total_wins * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
 
     # ［以下、［かくきんシステム］を使って試行］２ブロック目（色、引分込み）
     # ---------------------------------------------
@@ -468,15 +465,12 @@ def stringify_simulation_log(
     c52 = succ_series_rate_ht * succ_qe * 100       # 引分けを含んだ［将棋の後手勝率］誤差
     c57 = (no_won_series_rate_ht - failure_rate) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
 
-    c71 = succ_a * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
-    c72 = succ_b * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
-
-    c81 = succ_ae * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
-    c82 = succ_be * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     # プレイヤーの勝敗数
     # -----------------
-    ab_total_wins = S.number_of_wins(winner=ALICE) + S.number_of_wins(winner=BOB)
+    a_wins = S.number_of_wins(winner=ALICE)
+    b_wins = S.number_of_wins(winner=BOB)
+    ab_total_wins = a_wins + b_wins
     ab_total_fully_wins = S.number_of_fully_wins(elementary_event=ALICE) + S.number_of_fully_wins(elementary_event=BOB)
     ab_total_points_wins = S.number_of_points_wins(winner=ALICE) + S.number_of_points_wins(winner=BOB)
     ab_no_wins = S.number_of_no_wins(opponent_pair=PLAYERS)
@@ -489,6 +483,12 @@ def stringify_simulation_log(
     ab162 = ab_total / ab_total * 100
     ab164 = ab_total_fully_wins / ab_total * 100
     ab167 = (ab_total_points_wins + ab_no_wins) / ab_total * 100
+
+    ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
+    ab72 = b_wins / ab_total_wins * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
+
+    ab81 = (a_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ａさんが勝つ確率（％）と 0.5 との誤差］実践値
+    ab82 = (b_wins - 0.5) / ab_total_wins * 100         # 引分けを除いた［Ｂさんが勝つ確率（％）と 0.5 との誤差］実践値
 
     c101 = S.number_of_wins(winner=ALICE)                       # Ａさんの勝ちの総数
     c102 = S.number_of_wins(winner=BOB)                         # Ｂさんの勝ちの総数
@@ -533,13 +533,13 @@ def stringify_simulation_log(
               |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |               |
               |                   {ht162:>8.4f} ％ |                   {ht164:>8.4f} ％ |                                   {ht167:>8.4f} ％ |               |
               |                               |                               |                                               |               |
-              | 先手勝ち      | 後手勝ち      |               |               |               |               | 勝敗付かず    | 対局数        |
-              |   { c11:>8} 回 |   { c12:>8} 回 |               |               |               |               |   {c17:>8} 回 |               |
+              | 先手勝ち      | 後手勝ち      |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    | 対局数        |
+              |   { c11:>8} 回 |   { c12:>8} 回 |///////////////|///////////////|///////////////|///////////////|   {c17:>8} 回 |               |
               |               |               | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  |               | 対局数        |
               |               |               |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |               |               |
               |                                                                                                               |               |
-    引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
-              |（{ c31:+9.4f}）   （{ c32:+9.4f}）                                                                                  |               |
+    引分除く  |   {ht71:8.4f} ％     {ht72:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
+              |（{ht81:+9.4f}）   （{ht82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
     引分込み  |   { c41:8.4f} ％     { c42:8.4f} ％                                                                     { c47:8.4f} ％ |               |
               |（{ c51:+9.4f}）   （{ c52:+9.4f}）                                                                   （{ c57:+9.4f}）  |               |
@@ -548,13 +548,13 @@ def stringify_simulation_log(
               |                   {ab152:>8} 回 |                   {ab154:>8} 回 |                                   {ab157:>8} 回 |               |
               |                   {ab162:>8.4f} ％ |                   {ab164:>8.4f} ％ |                                   {ab167:>8.4f} ％ |               |
               |                               |                               |                                               |               |
-              | Ａさん勝ち    | Ｂさん勝ち    |               |               |               |               | 勝敗付かず    |               |
-              |   {c101:>8} 回 |   {c102:>8} 回 |               |               |               |               |   {c107:>8} 回 |               |
+              | Ａさん勝ち    | Ｂさん勝ち    |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    |               |
+              |   {c101:>8} 回 |   {c102:>8} 回 |///////////////|///////////////|///////////////|///////////////|   {c107:>8} 回 |               |
               |               |               | Ａさん満点勝ち| Ｂさん満点勝ち| Ａさん点数勝ち| Ｂさん点数勝ち|               |               |
               |               |               |   {c103:>8} 回 |   {c104:>8} 回 |   {c105:>8} 回 |   {c106:>8} 回 |               |               |
               |                                                                                                               |               |
-    引分除く  |   { c71:8.4f} ％     { c72:8.4f} ％                                                                                 |               |
-              |（{ c81:+9.4f}）   （{ c82:+9.4f}）                                                                                  |               |
+    引分除く  |   { ab71:8.4f} ％     { ab72:8.4f} ％                                                                                 |               |
+              |（{ ab81:+9.4f}）   （{ ab82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
     引分込み  |   {c111:8.4f} ％     {c112:8.4f} ％                                                                     {c117 :8.4f} ％ |               |
               |（{c141:+9.4f}）   （{c142:+9.4f}）                                                                   （{c147:+9.4f}）  |               |
