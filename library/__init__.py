@@ -1063,6 +1063,16 @@ class SeriesRule():
                 raise ValueError(f"{challenged=}")
 
 
+        def stringify_dump(self, indent):
+            two_indents = indent + indent
+            return f"""\
+{indent}StepTable
+{indent}---------
+{two_indents}{self._step_list=}
+{two_indents}{self._span=}
+"""
+
+
     def __init__(self, step_table, number_of_shortest_time, number_of_longest_time, turn_system):
         """初期化
         
@@ -1159,13 +1169,13 @@ class SeriesRule():
             text = f"［最短対局数］{number_of_shortest_time} が、［最長対局数］{number_of_longest_time} より長いです"
             print(f"""\
 {text}
-spec:
-{spec.stringify_dump('    ')}
+{failure_rate=}
+{turn_system=}
 {p_step=}
 {q_step=}
 {span=}
-series_rule:
-{series_rule.stringify_dump('   ')}
+step_table:
+{step_table.stringify_dump('   ')}
 """)
             raise ValueError(text)
 
@@ -1254,7 +1264,8 @@ series_rule:
                 10   8   6   4  2   0
             """
 
-            return q_step
+            # ［目標の点数］は最小公倍数なので割り切れる
+            return round_letro(span / q_step)
 
         if turn_system == WHEN_ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］

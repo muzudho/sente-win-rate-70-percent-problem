@@ -5,7 +5,7 @@ import os
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
-from library.file_paths import get_even_table_csv_file_path, get_muzudho_recommends_points_csv_file_path
+from library.file_paths import get_even_series_rule_csv_file_path, get_muzudho_recommends_points_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'
@@ -40,11 +40,11 @@ def append_default_record_to_df_even(df, p, failure_rate):
 
 def get_df_even(turn_system, generation_algorythm):
 
-    csv_file_path = get_even_table_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    csv_file_path = get_even_series_rule_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
 
     # ファイルが存在しなかった場合
     if not os.path.isfile(csv_file_path):
-        csv_file_path = get_even_table_csv_file_path()
+        csv_file_path = get_even_series_rule_csv_file_path()
 
 
     df = pd.read_csv(csv_file_path, encoding="utf8")
@@ -71,7 +71,7 @@ def get_df_even(turn_system, generation_algorythm):
 
 def df_even_to_csv(df, turn_system, generation_algorythm):
     # ファイルが存在しなかった場合、新規作成
-    csv_file_path = get_even_table_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    csv_file_path = get_even_series_rule_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
 
     # CSV保存
     df.to_csv(

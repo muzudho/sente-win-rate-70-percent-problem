@@ -142,16 +142,12 @@ Example: 10% is 0.1
         failure_rate = float(input())
 
 
-        # 理論値が使えるケースでは、試行回数を０回にします
-        if failure_rate == 0 and turn_system == WHEN_FROZEN_TURN:
-            number_of_series = 0
-
-        else:
-            print(f"""\
+        # 試行回数を尋ねる
+        print(f"""\
 How many times do you want to try the series?
 Example: 2000000
 ? """)
-            number_of_series = int(input())
+        number_of_series = int(input())
 
 
 # TODO

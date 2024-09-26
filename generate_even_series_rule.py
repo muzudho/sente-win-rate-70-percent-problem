@@ -1,6 +1,6 @@
 #
 # 生成
-# python generate_even_table.py
+# python generate_even_series_rule.py
 #
 #   TODO 実際値ではなく、理論値を記録したい。 alternating_turn の方がそれに対応してない
 #
@@ -15,9 +15,9 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, ElementaryEventSequence, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
-from library.file_paths import get_even_table_csv_file_path
+from library.file_paths import get_even_series_rule_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
-from library.views import print_even_table
+from library.views import print_even_series_rule
 
 
 # このラウンド数を満たさないデータは、再探索します
@@ -49,7 +49,7 @@ def update_dataframe(df, p, failure_rate,
     global start_time_for_save, is_dirty_csv
 
     # # 表示
-    # print_even_table(
+    # print_even_series_rule(
     #         p=p,
     #         best_p=best_p,
     #         best_p_error=best_p_error,
@@ -196,16 +196,16 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                 turn_system=spec.turn_system)
 
 
-                        # NOTE 理論値の場合
+                        # 理論値の場合
                         if generation_algorythm == THEORETICAL:
                             latest_p = calculate_probability(
                                     p=p,
-                                    H=latest_series_rule.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                                    T=latest_series_rule.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                                    H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                                    T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
                             latest_p_error = latest_p - 0.5
 
-                        # TODO 力任せ探索の場合                        
-                        else:
+                        # 力任せ探索の場合                        
+                        elif generation_algorythm == BRUTE_FORCE:
                             series_result_list = []
 
                             for i in range(0, REQUIRED_MUMBER_OF_SERIES):
@@ -236,6 +236,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             # Ａさんが勝った回数
                             latest_p = large_series_trial_summary.number_of_wons(winner=ALICE) / REQUIRED_MUMBER_OF_SERIES
                             latest_p_error = latest_p - 0.5
+                        
+                        else:
+                            raise ValueError(f"{generation_algorythm=}")
 
 
                         if abs(latest_p_error) < abs(best_p_error):

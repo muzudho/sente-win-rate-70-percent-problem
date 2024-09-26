@@ -92,13 +92,13 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
 # Even table
 #############
 
-def get_even_table_log_file_path(turn_system):
+def get_even_series_rule_log_file_path(turn_system):
     """勝ち点を探索したログ・ファイルへのパス"""
     subname = make_file_subname(turn_system=turn_system)
-    return f'output/even_table{subname}.log'
+    return f'output/even_series_rule{subname}.log'
 
 
-def get_even_table_csv_file_path(turn_system=None, generation_algorythm=None):
+def get_even_series_rule_csv_file_path(turn_system=None, generation_algorythm=None):
     """勝ち点を探索した記録ファイルへのパス
     
     Parameters
@@ -109,7 +109,7 @@ def get_even_table_csv_file_path(turn_system=None, generation_algorythm=None):
         ［データ生成アルゴリズム］
     """
     subname = make_file_subname(turn_system=turn_system, generation_algorythm=generation_algorythm)
-    return f'./data/even_table{subname}.csv'
+    return f'./data/even_series_rule{subname}.csv'
 
 
 ############################

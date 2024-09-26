@@ -185,7 +185,7 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, process_list
     return text
 
 
-def print_even_table(p, best_p, best_p_error, best_number_of_series, series_rule):
+def print_even_series_rule(p, best_p, best_p_error, best_number_of_series, series_rule):
 
     # 対局数
     if series_rule.turn_system == WHEN_FROZEN_TURN:
