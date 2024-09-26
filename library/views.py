@@ -423,23 +423,24 @@ def stringify_simulation_log(
 
     # コインの表裏の回数
     # -----------------
-    ht_total_wins = S.number_of_total_wins(opponent_pair=FACE_OF_COIN)
-    ht_total_fully_wins = S.number_of_total_fully_wins(opponent_pair=FACE_OF_COIN)
-    ht_total_points_wins = S.number_of_total_points_wins(opponent_pair=FACE_OF_COIN)
+    ht_total_wins = S.number_of_wins(winner=HEAD) + S.number_of_wins(winner=TAIL)
+    ht_total_fully_wins = S.number_of_fully_wins(elementary_event=HEAD) + S.number_of_fully_wins(elementary_event=TAIL)
+    ht_total_points_wins = S.number_of_points_wins(winner=HEAD) + S.number_of_points_wins(winner=TAIL)
     ht_no_wins = S.number_of_no_wins(opponent_pair=FACE_OF_COIN)
+    ht_total = ht_total_wins + ht_no_wins
 
     h_fully_wins = S.number_of_fully_wins(elementary_event=HEAD)
     t_fully_wins = S.number_of_fully_wins(elementary_event=TAIL)
     h_points_wins = S.number_of_points_wins(winner=HEAD)
     t_points_wins = S.number_of_points_wins(winner=TAIL)
 
-    ht152 = ht_total_wins
-    ht154 = ht_total_fully_wins
-    ht157 = ht_total_points_wins + ht_no_wins
+    ht152 = ht_total                                # 全シリーズ計
+    ht154 = ht_total_fully_wins                     # 引分け無しのシリーズ
+    ht157 = ht_total_points_wins + ht_no_wins       # 引分けを含んだシリーズ
 
-    ht162 = ht_total_wins / ht_total_wins * 100
-    ht164 = ht_total_fully_wins / ht_total_wins * 100
-    ht167 = (ht_total_points_wins + ht_no_wins) / ht_total_wins * 100
+    ht162 = ht_total / ht_total * 100
+    ht164 = ht_total_fully_wins / ht_total * 100
+    ht167 = (ht_total_points_wins + ht_no_wins) / ht_total * 100
 
     c13 = h_fully_wins                              # 先手満点勝ち
     c14 = t_fully_wins                              # 後手満点勝ち
@@ -475,21 +476,22 @@ def stringify_simulation_log(
 
     # プレイヤーの勝敗数
     # -----------------
-    ab_total_wins = S.number_of_total_wins(opponent_pair=PLAYERS)
-    ab_total_fully_wins = S.number_of_total_fully_wins(opponent_pair=PLAYERS)
-    ab_total_points_wins = S.number_of_total_points_wins(opponent_pair=PLAYERS)
+    ab_total_wins = S.number_of_wins(winner=ALICE) + S.number_of_wins(winner=BOB)
+    ab_total_fully_wins = S.number_of_fully_wins(elementary_event=ALICE) + S.number_of_fully_wins(elementary_event=BOB)
+    ab_total_points_wins = S.number_of_points_wins(winner=ALICE) + S.number_of_points_wins(winner=BOB)
     ab_no_wins = S.number_of_no_wins(opponent_pair=PLAYERS)
+    ab_total = ab_total_wins + ab_no_wins
 
-    ab152 = ab_total_wins   # 全シリーズ計
+    ab152 = ab_total   # 全シリーズ計
     ab154 = ab_total_fully_wins   # 引分け無しのシリーズ
     ab157 = ab_total_points_wins + ab_no_wins     # 引分けを含んだシリーズ
 
-    ab162 = ab_total_wins / ab_total_wins * 100
-    ab164 = ab_total_fully_wins / ab_total_wins * 100
-    ab167 = (ab_total_points_wins + ab_no_wins) / ab_total_wins * 100
+    ab162 = ab_total / ab_total * 100
+    ab164 = ab_total_fully_wins / ab_total * 100
+    ab167 = (ab_total_points_wins + ab_no_wins) / ab_total * 100
 
-    c101 = S.number_of_wons(winner=ALICE)                       # Ａさんの勝ちの総数
-    c102 = S.number_of_wons(winner=BOB)                         # Ｂさんの勝ちの総数
+    c101 = S.number_of_wins(winner=ALICE)                       # Ａさんの勝ちの総数
+    c102 = S.number_of_wins(winner=BOB)                         # Ｂさんの勝ちの総数
     c103 = S.number_of_fully_wins(elementary_event=ALICE)       # Ａさん満点勝ち
     c104 = S.number_of_fully_wins(elementary_event=BOB)         # Ｂさん満点勝ち
     c105 = S.number_of_points_wins(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
@@ -531,8 +533,11 @@ def stringify_simulation_log(
               |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |               |
               |                   {ht162:>8.4f} ％ |                   {ht164:>8.4f} ％ |                                   {ht167:>8.4f} ％ |               |
               |                               |                               |                                               |               |
-              | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗付かず    | 対局数        |
-              |   { c11:>8} 回 |   { c12:>8} 回 |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |   {c17:>8} 回 |               |
+              | 先手勝ち      | 後手勝ち      |               |               |               |               | 勝敗付かず    | 対局数        |
+              |   { c11:>8} 回 |   { c12:>8} 回 |               |               |               |               |   {c17:>8} 回 |               |
+              |               |               | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  |               | 対局数        |
+              |               |               |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |               |               |
+              |                                                                                                               |               |
     引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
               |（{ c31:+9.4f}）   （{ c32:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |

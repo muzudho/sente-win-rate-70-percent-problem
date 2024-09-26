@@ -1611,33 +1611,6 @@ class LargeSeriesTrialSummary():
         return self._longest_time_th
 
 
-    def number_of_total_wins(self, opponent_pair):
-        if opponent_pair == FACE_OF_COIN:
-            return self.number_of_wons(winner=HEAD) + self.number_of_wons(winner=TAIL)
-        elif opponent_pair == PLAYERS:
-            return self.number_of_wons(winner=ALICE) + self.number_of_wons(winner=BOB)
-        else:
-            raise ValueError(f'{opponent_pair=}')
-
-
-    def number_of_total_fully_wins(self, opponent_pair):
-        if opponent_pair == FACE_OF_COIN:
-            return self.number_of_fully_wins(elementary_event=HEAD) + self.number_of_fully_wins(elementary_event=TAIL)
-        elif opponent_pair == PLAYERS:
-            return self.number_of_fully_wins(elementary_event=ALICE) + self.number_of_fully_wins(elementary_event=BOB)
-        else:
-            raise ValueError(f'{opponent_pair=}')
-
-
-    def number_of_total_points_wins(self, opponent_pair):
-        if opponent_pair == FACE_OF_COIN:
-            return self.number_of_points_wins(winner=HEAD) + self.number_of_points_wins(winner=TAIL)
-        elif opponent_pair == PLAYERS:
-            return self.number_of_points_wins(winner=ALICE) + self.number_of_points_wins(winner=BOB)
-        else:
-            raise ValueError(f'{opponent_pair=}')
-
-
     @property
     def number_of_failed(self):
         """全シリーズ通算の引分けの対局数"""
@@ -1687,14 +1660,14 @@ class LargeSeriesTrialSummary():
         #   シリーズ数　－　［コインの表が出た回数］　－　［コインの裏が出た回数］
         #
         if opponent_pair == FACE_OF_COIN:
-            return self.number_of_series - self.number_of_wons(winner=HEAD) - self.number_of_wons(winner=TAIL)
+            return self.number_of_series - self.number_of_wins(winner=HEAD) - self.number_of_wins(winner=TAIL)
         
         # ［Ａさんが勝った回数］と［Ｂさんが勝った回数］を数えるメソッドの働きの確認をしている
         #
         #   シリーズ数　－　［Ａさんが勝った回数］　－　［Ｂさんが勝った回数］
         #
         if opponent_pair == PLAYERS:
-            return self.number_of_series - self.number_of_wons(winner=ALICE) - self.number_of_wons(winner=BOB)
+            return self.number_of_series - self.number_of_wins(winner=ALICE) - self.number_of_wins(winner=BOB)
         
         raise ValueError(f"{turn_system=}")
 
@@ -1711,7 +1684,7 @@ class LargeSeriesTrialSummary():
         winner : int
             ［コインの表］か［コインの裏］か［Ａさん］か［Ｂさん］
         """
-        return success_rate * self.number_of_wons(winner=winner) / self.number_of_series
+        return success_rate * self.number_of_wins(winner=winner) / self.number_of_series
 
 
     def won_rate_error(self, success_rate, winner):
@@ -1740,7 +1713,7 @@ class LargeSeriesTrialSummary():
         return self.number_of_no_won_series(opponent_pair=opponent_pair) / self.number_of_series
 
 
-    def number_of_wons(self, winner):
+    def number_of_wins(self, winner):
         """winner が loser に勝った数"""
         return self.number_of_fully_wins(elementary_event=winner) + self.number_of_points_wins(winner=winner)
 
