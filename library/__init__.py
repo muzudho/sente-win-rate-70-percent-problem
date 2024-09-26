@@ -1625,13 +1625,6 @@ class LargeSeriesTrialSummary():
             return self.number_of_fully_wons(elementary_event=ALICE) + self.number_of_fully_wons(elementary_event=BOB)
 
 
-    def number_of_total_points_wons(self, opponent_pair):
-        if opponent_pair == FACE_OF_COIN:
-            return self.number_of_points_wons(winner=HEAD) + self.number_of_points_wons(winner=TAIL)
-        elif opponent_pair == PLAYERS:
-            return self.number_of_points_wons(winner=ALICE) + self.number_of_points_wons(winner=BOB)
-
-
     @property
     def number_of_failed(self):
         """全シリーズ通算の引分けの対局数"""

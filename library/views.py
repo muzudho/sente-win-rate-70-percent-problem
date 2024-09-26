@@ -423,9 +423,9 @@ def stringify_simulation_log(
 
     # コインの表裏の回数
     # -----------------
-    ht_total_wons = S.number_of_total_wons(opponent_pair=FACE_OF_COIN)
-    ht_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=FACE_OF_COIN)
-    ht_total_points_wons = S.number_of_total_points_wons(opponent_pair=FACE_OF_COIN)
+    ht152 = S.number_of_total_wons(opponent_pair=FACE_OF_COIN)
+    ht154 = S.number_of_total_fully_wons(opponent_pair=FACE_OF_COIN)
+    ht157 = S.number_of_points_wons(winner=HEAD) + S.number_of_points_wons(winner=TAIL) + S.number_of_no_wons(opponent_pair=FACE_OF_COIN)
 
     c13 = S.number_of_fully_wons(elementary_event=HEAD)                              # 先手満点勝ち
     c14 = S.number_of_fully_wons(elementary_event=TAIL)                              # 後手満点勝ち
@@ -461,10 +461,12 @@ def stringify_simulation_log(
 
     # プレイヤーの勝敗数
     # -----------------
-    ab_total_wons = S.number_of_total_wons(opponent_pair=PLAYERS)
-    ab_total_fully_wons = S.number_of_total_fully_wons(opponent_pair=PLAYERS)
-    ab_total_points_wons = S.number_of_total_points_wons(opponent_pair=PLAYERS)
+    c152 = S.number_of_total_wons(opponent_pair=PLAYERS)   # 全シリーズ計
+    c154 = S.number_of_total_fully_wons(opponent_pair=PLAYERS)   # 引分け無しのシリーズ
+    c157 = S.number_of_points_wons(winner=ALICE) + S.number_of_points_wons(winner=BOB) + S.number_of_no_wons(opponent_pair=PLAYERS)     # 引分けを含んだシリーズ
 
+    c101 = S.number_of_wons(winner=ALICE)                       # Ａさんの勝ちの総数
+    c102 = S.number_of_wons(winner=BOB)                         # Ｂさんの勝ちの総数
     c103 = S.number_of_fully_wons(elementary_event=ALICE)       # Ａさん満点勝ち
     c104 = S.number_of_fully_wons(elementary_event=BOB)         # Ｂさん満点勝ち
     c105 = S.number_of_points_wons(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
@@ -502,23 +504,24 @@ def stringify_simulation_log(
               |                                                                          目標          {b_pt3:4.0f}点                 |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
               | 以下、［かくきんシステム］を使って試行                                                                                        |
-              | 計 {ht_total_wons:>8}                   | 引分け無しのシリーズ {ht_total_fully_wons:>8} | 引分けを含んだシリーズ {ht_total_points_wons:>8}               |               |
+              | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
+              |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |               |
               | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗付かず    | 対局数        |
-              |   { c11:>8} 回     { c12:>8} 回                                                                                 |               |
+              |   { c11:>8} 回 |   { c12:>8} 回 |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |   {c17:>8} 回 |               |
     引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
               |（{ c31:+9.4f}）   （{ c32:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
-              |                                   {c13:>8} 回     {c14:>8} 回     {c15:>8} 回      {c16:>8} 回    {c17:>8} 回 |               |
     引分込み  |   { c41:8.4f} ％     { c42:8.4f} ％                                                                     { c47:8.4f} ％ |               |
               |（{ c51:+9.4f}）   （{ c52:+9.4f}）                                                                   （{ c57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+               |
-              | 計 {ab_total_wons:>8}                   | 引分け無しのシリーズ {ab_total_fully_wons:>8} | 引分けを含んだシリーズ {ab_total_points_wons:>8}               |               |
+              | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
+              |                   {c152:>8} 回 |                   {c154:>8} 回 |                                   {c157:>8} 回 |               |
               | Ａさん勝ち    | Ｂさん勝ち    | Ａさん満点勝ち| Ｂさん満点勝ち| Ａさん点数勝ち| Ｂさん点数勝ち| 勝敗付かず    |               |
+              |   {c101:>8} 回 |   {c102:>8} 回 |   {c103:>8} 回 |   {c104:>8} 回 |   {c105:>8} 回 |   {c106:>8} 回 |   {c107:>8} 回 |               |
               |                                                                                                               |               |
     引分除く  |   { c71:8.4f} ％     { c72:8.4f} ％                                                                                 |               |
               |（{ c81:+9.4f}）   （{ c82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
-              |                                   {c103:>8} 回     {c104:>8} 回     {c105:>8} 回     {c106:>8} 回     {c107:>8} 回 |               |
     引分込み  |   {c111:8.4f} ％     {c112:8.4f} ％                                                                     {c117 :8.4f} ％ |               |
               |（{c141:+9.4f}）   （{c142:+9.4f}）                                                                   （{c147:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
