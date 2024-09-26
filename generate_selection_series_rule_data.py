@@ -14,7 +14,7 @@ import pandas as pd
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, make_generation_algorythm, round_letro, calculate_probability
 from library.file_paths import get_selection_series_rule_csv_file_path
 from library.database import get_df_even, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
-from library.views import parse_process_element
+from library.views import parse_candidate_element
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -56,8 +56,8 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
     ready_records(df=df_ssr, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
 
 
-    for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
-        zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
+    for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+        zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_p_step = round_letro(best_p_step)
@@ -73,37 +73,37 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
         #   NOTE ［計算過程］リストの後ろの方のデータの方が精度が高い
         #   NOTE ［最長対局数］を気にする。長すぎるものは採用しづらい
         #
-        if isinstance(process, float):  # nan が入ってる？
-            process_list = []
+        if isinstance(candidate, float):  # nan が入ってる？
+            candidate_list = []
         else:
-            process_list = process[1:-1].split('] [')
+            candidate_list = candidate[1:-1].split('] [')
 
 
         #
         #   ［計算過程］が量が多くて調べものをしづらいので、量を減らします。
         #   NOTE ［最小対局数］と［最長対局数］が同じデータもいっぱいあります。その場合、リストの最初に出てきたもの以外は捨てます
         #
-        process_element_dict = dict()
+        candidate_element_dict = dict()
 
 
-        for process_element in process_list:
-            p_error, head, tail, span, shortest, longest = parse_process_element(process_element)
+        for candidate_element in candidate_list:
+            p_error, head, tail, span, shortest, longest = parse_candidate_element(candidate_element)
 
             if p_error is not None:
                 key = (shortest, longest)
                 value = (p_error, head, tail, span, shortest, longest)
-                if key not in process_element_dict:
-                    process_element_dict[key] = value
+                if key not in candidate_element_dict:
+                    candidate_element_dict[key] = value
 
 
         comment_element_list = []
-        for key, value in process_element_dict.items():
+        for key, value in candidate_element_dict.items():
             p_error, head, tail, span, shortest, longest = value
             comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {head}表 {tail}裏 {span}目 {shortest}～{longest}局]')
 
 
         # ［計算過程］列を更新
-        df_ssr.loc[df_ssr['p']==p, ['process']] = ' '.join(comment_element_list)
+        df_ssr.loc[df_ssr['p']==p, ['candidates']] = ' '.join(comment_element_list)
 
 
         # CSV保存

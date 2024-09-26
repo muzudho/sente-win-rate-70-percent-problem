@@ -82,8 +82,8 @@ Which one(1-2)? """)
 
         df_msp = get_df_muzudho_single_points(turn_system=turn_system)
 
-        for             p,           p_step,           q_step,           span,           presentable,           comment,           process in\
-            zip(df_msp['p'], df_msp['p_step'], df_msp['q_step'], df_msp['span'], df_msp['presentable'], df_msp['comment'], df_msp['process']):
+        for             p,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
+            zip(df_msp['p'], df_msp['p_step'], df_msp['q_step'], df_msp['span'], df_msp['presentable'], df_msp['comment'], df_msp['candidates']):
 
             # 仕様
             spec = Specification(

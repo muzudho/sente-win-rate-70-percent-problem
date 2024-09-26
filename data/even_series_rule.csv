@@ -1,4 +1,4 @@
-p,failure_rate,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,process
+p,failure_rate,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,candidates
 0.50,0.0,0,0.51,2000000,0,1,1,0,0.51,2000000,0,1,1,""
 0.51,0.0,0,0.51,2000000,0,1,1,0,0.51,2000000,0,1,1,""
 0.52,0.0,0,0.51,2000000,0,1,1,0,0.51,2000000,0,1,1,""

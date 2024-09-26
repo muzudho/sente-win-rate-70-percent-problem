@@ -1,4 +1,4 @@
-p,failure_rate,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,process
+p,failure_rate,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,candidates
 0.5,0.0,0.5,0.0,2000000.0,1.0,1.0,1.0,0.5,0.0,2000000.0,1.0,1.0,1.0,[0.000000 1表 1裏 1目 1～1局]
 0.51,0.0,0.4905843552767246,-0.0094156447232753,2000000.0,11.0,12.0,241.0,0.012627833586419342,-0.48737216641358067,2000000.0,29.0,198.0,247.0,[0.010000 1表 1裏 1目 1～1局] [-0.009416 11表 12裏 241目 21～42局]
 0.52,0.0,0.4984898835372067,-0.0015101164627932,2000000.0,8.0,9.0,208.0,0.529984,0.02998400000000001,2000000.0,179.0,197.0,247.0,[0.020000 1表 1裏 1目 1～1局] [-0.016557 5表 6裏 55目 10～20局] [-0.009016 6表 7裏 71目 11～22局] [-0.002142 6表 7裏 78目 12～24局] [-0.001510 8表 9裏 208目 24～49局]

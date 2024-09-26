@@ -42,7 +42,7 @@ is_dirty_csv = False
 
 def update_dataframe(df, p, failure_rate,
         best_p, best_p_error, best_number_of_series, best_series_rule,
-        latest_p, latest_p_error, latest_number_of_series, latest_series_rule, process,
+        latest_p, latest_p_error, latest_number_of_series, latest_series_rule, candidates,
         turn_system):
     """データフレーム更新"""
 
@@ -80,8 +80,8 @@ def update_dataframe(df, p, failure_rate,
     df.loc[df['p']==p, ['best_span']] = best_series_rule.step_table.span
     df.loc[df['p']==p, ['latest_span']] = latest_series_rule.step_table.span
 
-    # ［計算過程］列を更新
-    df.loc[df['p']==p, ['process']] = process
+    # ［シリーズ・ルール候補］列を更新
+    df.loc[df['p']==p, ['candidates']] = candidates
 
     is_dirty_csv = True
 
@@ -125,8 +125,8 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
     ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
-    for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       process in\
-        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['process']):
+    for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_p_step = round_letro(best_p_step)
@@ -254,17 +254,17 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             longest_time = best_series_rule.number_of_longest_time
 
                             # 計算過程
-                            one_process_text = f'[{best_p_error:.6f} {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_series_rule.step_table.span}目 {shortest_time}～{longest_time}局]'
-                            print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {one_process_text}", flush=True) # すぐ表示
+                            one_candidate_text = f'[{best_p_error:.6f} {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_series_rule.step_table.span}目 {shortest_time}～{longest_time}局]'
+                            print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {one_candidate_text}", flush=True) # すぐ表示
 
                             # ［計算過程］列を更新
                             #
                             #   途中の計算式。半角空裏区切り
                             #
-                            if isinstance(process, str):
-                                process = f"{process} {one_process_text}"
+                            if isinstance(candidates, str):
+                                candidates = f"{candidates} {one_candidate_text}"
                             else:
-                                process = one_process_text
+                                candidates = one_candidate_text
 
                             # 表示とデータフレーム更新
                             update_dataframe(
@@ -279,7 +279,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                     latest_p_error=latest_p_error,
                                     latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
                                     latest_series_rule=latest_series_rule,
-                                    process=process,
+                                    candidates=candidates,
                                     turn_system=spec.turn_system)
 
                             # 指定間隔（秒）で保存
@@ -303,7 +303,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
                         else:
                             passage_count += 1
-                            latest_process = process
+                            latest_candidates = candidates
 
                             # # 進捗バー
                             # print('.', end='', flush=True)
@@ -347,7 +347,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                     latest_p_error=latest_p_error,
                     latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
                     latest_series_rule=latest_series_rule,
-                    process=latest_process,
+                    candidates=latest_candidates,
                     turn_system=turn_system)
 
             # 指定間隔（秒）で保存

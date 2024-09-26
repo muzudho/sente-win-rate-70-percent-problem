@@ -47,8 +47,8 @@ if __name__ == '__main__':
             best_p_time = 0
             best_q_time = 0
 
-            # 計算過程
-            process_list = []
+            # ［シリーズ・ルール候補］
+            candidate_list = []
 
             # p=0.5 は計算の対象外とします
             for p_time in range(1, 101):
@@ -75,10 +75,10 @@ if __name__ == '__main__':
                         best_p_time = p_time
                         best_q_time = q_time
 
-                        # 計算過程
-                        process = f"[{best_p_error:6.4f} 表{best_p_time:>3} 裏{best_q_time:>2}]"
-                        process_list.append(process)
-                        print(process, end='', flush=True) # すぐ表示
+                        # ［シリーズ・ルール候補］
+                        candidate = f"[{best_p_error:6.4f} 表{best_p_time:>3} 裏{best_q_time:>2}]"
+                        candidate_list.append(candidate)
+                        print(candidate, end='', flush=True) # すぐ表示
 
 
             # 計算過程の表示の切れ目
@@ -99,7 +99,7 @@ if __name__ == '__main__':
                         best_p=best_p,
                         best_p_error=best_p_error,
                         series_rule=series_rule,
-                        process_list=process_list)
+                        candidate_list=candidate_list)
 
                 print(text) # 表示
 

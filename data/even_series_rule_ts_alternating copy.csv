@@ -1,4 +1,4 @@
-p,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,process
+p,best_p,best_p_error,best_number_of_series,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_number_of_series,latest_p_step,latest_q_step,latest_span,candidates
 0.5,0.5,0.0,2000000,1,1,2,0.5,0.0,2000000,1,1,2,[0.000354 1表 1裏 1目 1～1局] [0.000000 1表 1裏 2目 2～3局]
 0.51,0.349007,-0.150993,2000000,1,1,5,0.349007,-0.150993,2000000,2,6,6,[0.009984 1表 1裏 1目 1～1局] [0.004878 1表 1裏 2目 2～3局] [0.004166 1表 1裏 3目 3～5局] [0.003154 1表 1裏 4目 4～7局] [0.002700 1表 1裏 5目 5～9局]
 0.52,0.4973235,-0.0026765,2000000,2,3,7,0.4973235,-0.0026765,2000000,2,3,7,[0.020023 1表 1裏 1目 1～1局] [0.009610 1表 1裏 2目 2～3局] [0.007509 1表 1裏 3目 3～5局] [0.006068 1表 1裏 4目 4～7局] [0.005536 1表 1裏 5目 5～9局] [0.004648 1表 1裏 6目 6～11局] [0.004541 1表 1裏 7目 7～13局] [-0.002677 2表 3裏 7目 3～6局]

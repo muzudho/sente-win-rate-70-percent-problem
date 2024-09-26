@@ -35,7 +35,7 @@ def append_default_record_to_df_even(df, p, failure_rate):
     df.loc[index, ['latest_p_step']] = 0
     df.loc[index, ['latest_q_step']] = 1
     df.loc[index, ['latest_span']] = 1
-    df.loc[index, ['process']] = ''
+    df.loc[index, ['candidates']] = ''
 
 
 def get_df_even(turn_system, generation_algorythm):
@@ -65,7 +65,7 @@ def get_df_even(turn_system, generation_algorythm):
     df['latest_p_step'].fillna(0).astype('int')
     df['latest_q_step'].fillna(0).astype('int')
     df['latest_span'].fillna(0).astype('int')
-    df['process'].fillna('').astype('string')
+    df['candidates'].fillna('').astype('string')
     return df
 
 
@@ -76,8 +76,8 @@ def df_even_to_csv(df, turn_system, generation_algorythm):
     # CSV保存
     df.to_csv(
             csv_file_path,
-            # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'process'],
+            # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
+            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_number_of_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_number_of_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -108,7 +108,7 @@ def append_default_record_to_df_ssr(df, p, failure_rate):
     df.loc[index, ['span']] = '1'
     df.loc[index, ['presentable']] = ''
     df.loc[index, ['comment']] = ''
-    df.loc[index, ['process']] = ''
+    df.loc[index, ['candidates']] = ''
 
 
 def get_df_selection_series_rule(turn_system):
@@ -128,7 +128,7 @@ def get_df_selection_series_rule(turn_system):
     df['span'].fillna(1).astype('int')
     df['presentable'].astype('string')
     df['comment'].astype('string')
-    df['process'].astype('string')
+    df['candidates'].astype('string')
 
     return df
 
@@ -136,7 +136,7 @@ def get_df_selection_series_rule(turn_system):
 def df_ssr_to_csv(df, turn_system):
     df.to_csv(get_selection_series_rule_csv_file_path(turn_system=turn_system),
             # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
+            columns=['p', 'failure_rate', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -153,7 +153,7 @@ def get_df_muzudho_single_points(turn_system):
         df['span'].fillna(1).astype('int')
         df['presentable'].astype('string')
         df['comment'].astype('string')
-        df['process'].astype('string')
+        df['candidates'].astype('string')
 
         return df
 

@@ -31,8 +31,8 @@ def generate_report(turn_system):
 
     df_ssr = get_df_selection_series_rule(turn_system=turn_system)
 
-    for             p,           number_of_series,           p_step,           q_step,           span,           presentable,           comment,           process in\
-        zip(df_ssr['p'], df_ssr['number_of_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['process']):
+    for             p,           number_of_series,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
+        zip(df_ssr['p'], df_ssr['number_of_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
 
         if p_step < 1:
             p_step = 1
@@ -67,7 +67,7 @@ def generate_report(turn_system):
                     latest_theoretical_p=latest_theoretical_p,
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
-                    process=process,
+                    candidate=candidate,
                     turn_system=WHEN_ALTERNATING_TURN)
             print(text) # 表示
 
@@ -105,7 +105,7 @@ def generate_report(turn_system):
                     latest_theoretical_p=latest_theoretical_p,
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
-                    process=process,
+                    candidate=candidate,
                     turn_system=spec.turn_system)
                     
             print(text) # 表示

@@ -1,4 +1,4 @@
-p,failure_rate,number_of_series,p_step,q_step,span,presentable,comment,process
+p,failure_rate,number_of_series,p_step,q_step,span,presentable,comment,candidates
 0.5,0.0,0.0,1.0,1.0,1.0,,,
 0.51,0.0,0.0,1.0,1.0,1.0,,,
 0.52,0.0,0.0,1.0,1.0,1.0,,,

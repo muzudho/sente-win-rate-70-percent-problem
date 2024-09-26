@@ -13,7 +13,7 @@ from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
 
 
-def simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process, turn_system):
+def simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, turn_system):
     """［シリーズ・ルール］をシミュレーションします"""
     # 仕様
     spec = Specification(
@@ -171,8 +171,8 @@ Which data source should I use?
 
             df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
+            for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
@@ -183,7 +183,7 @@ Which data source should I use?
                 q_step = round_letro(best_q_step)
                 span = round_letro(best_span)
 
-                simulate_series_rule(p, failure_rate, p_step, q_step, span, '', '', process, turn_system=specified_turn_system)
+                simulate_series_rule(p, failure_rate, p_step, q_step, span, '', '', turn_system=specified_turn_system)
 
 
         elif data_source == 2:
@@ -191,8 +191,8 @@ Which data source should I use?
 
             df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
-            for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           process in\
-                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['process']):
+            for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
+                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
@@ -208,7 +208,7 @@ Which data source should I use?
                     continue
 
 
-                simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process, turn_system=specified_turn_system)
+                simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, turn_system=specified_turn_system)
 
 
     except Exception as err:

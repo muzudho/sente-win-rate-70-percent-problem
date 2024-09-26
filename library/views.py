@@ -4,8 +4,8 @@ import re
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule
 
 
-def parse_process_element(process_element):
-    result = re.match(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局', process_element)
+def parse_candidate_element(candidate_element):
+    result = re.match(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局', candidate_element)
     if result:
         p_error = float(result.group(1))
         head = int(result.group(2))
@@ -19,7 +19,7 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_selection_series_rule(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, process, turn_system):
+def stringify_report_selection_series_rule(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, candidate, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
@@ -40,10 +40,10 @@ def stringify_report_selection_series_rule(p, number_of_series, latest_theoretic
 
         # NOTE ［先後交互制］では、理論値を出すのが難しいので、理論値ではなく、実際値を出力する
         #
-        # ［計算過程］
-        process_list = process[1:-1].split('] [')
-        for process_element in process_list:
-            p_error, p_step, q_step, span, shortest, longest = parse_process_element(process_element)
+        # ［シリーズ・ルール候補］
+        candidate_list = candidate[1:-1].split('] [')
+        for candidate_element in candidate_list:
+            p_error, p_step, q_step, span, shortest, longest = parse_candidate_element(candidate_element)
             if p_error is not None:
                 if p_step == specified_series_rule.p_step and q_step == specified_series_rule.q_step and span == specified_series_rule.step_table.span:
 
@@ -144,13 +144,13 @@ def stringify_calculate_probability(p, p_time, q_time, best_p, best_p_error):
     seg_3 = q_time
 
     # # 計算過程を追加する場合
-    # text += f"  {''.join(process_list)}"
+    # text += f"  {''.join(candidate_list)}"
 
     text = f"[{seg_0}]  先手勝率 {seg_1:2.0f} ％ --調整--> {seg_1b:6.4f} ％ （± {best_p_error:7.4f}）    先後固定制での回数　先手だけ：後手だけ＝{seg_2:>2}：{seg_3:>2}"
     return text
 
 
-def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, process_list):
+def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_list):
 
     # ［表が出る確率（％）］
     seg_1 = p*100
@@ -523,16 +523,16 @@ def stringify_simulation_log(
               |                                                                          目標          {b_pt3:4.0f}点                 |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
               | 以下、［かくきんシステム］を使って試行                                                                                        |
-              | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
-              |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |               |
+              | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        | 対局数        |
+              |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |{tm_s:>4} ～{tm_l:>4} 局 |
               |                   {ht162:>8.4f} ％ |                   {ht164:>8.4f} ％ |                                   {ht167:>8.4f} ％ |               |
               |                               |                               |                                               |               |
-              | 先手勝ち      | 後手勝ち      |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    | 対局数        |
+              | 先手勝ち      | 後手勝ち      |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    |               |
               |   { c11:>8} 回 |   { c12:>8} 回 |///////////////|///////////////|///////////////|///////////////|   {c17:>8} 回 |               |
               |               |               | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  |               | 対局数        |
               |               |               |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |               |               |
               |                                                                                                               |               |
-    引分除く  |   {ht71:8.4f} ％     {ht72:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
+    引分除く  |   {ht71:8.4f} ％     {ht72:8.4f} ％                                                                                 |               |
               |（{ht81:+9.4f}）   （{ht82:+9.4f}）                                                                                  |               |
               |                                                                                                               |               |
     引分込み  |   {ht41:8.4f} ％     {ht42:8.4f} ％                                                                     {ht47:8.4f} ％ |               |
