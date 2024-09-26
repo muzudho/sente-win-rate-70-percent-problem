@@ -423,15 +423,29 @@ def stringify_simulation_log(
 
     # コインの表裏の回数
     # -----------------
-    ht152 = S.number_of_total_wons(opponent_pair=FACE_OF_COIN)
-    ht154 = S.number_of_total_fully_wons(opponent_pair=FACE_OF_COIN)
-    ht157 = S.number_of_points_wons(winner=HEAD) + S.number_of_points_wons(winner=TAIL) + S.number_of_no_wons(opponent_pair=FACE_OF_COIN)
+    ht_total_wins = S.number_of_total_wins(opponent_pair=FACE_OF_COIN)
+    ht_total_fully_wins = S.number_of_total_fully_wins(opponent_pair=FACE_OF_COIN)
+    ht_total_points_wins = S.number_of_total_points_wins(opponent_pair=FACE_OF_COIN)
+    ht_no_wins = S.number_of_no_wins(opponent_pair=FACE_OF_COIN)
 
-    c13 = S.number_of_fully_wons(elementary_event=HEAD)                              # 先手満点勝ち
-    c14 = S.number_of_fully_wons(elementary_event=TAIL)                              # 後手満点勝ち
-    c15 = S.number_of_points_wons(winner=HEAD)              # 先手判定勝ち（引分けがなければ零です）
-    c16 = S.number_of_points_wons(winner=TAIL)              # 後手判定勝ち（引分けがなければ零です）
-    c17 = S.number_of_no_wons(opponent_pair=FACE_OF_COIN)     # コインの表も裏も出なかった
+    h_fully_wins = S.number_of_fully_wins(elementary_event=HEAD)
+    t_fully_wins = S.number_of_fully_wins(elementary_event=TAIL)
+    h_points_wins = S.number_of_points_wins(winner=HEAD)
+    t_points_wins = S.number_of_points_wins(winner=TAIL)
+
+    ht152 = ht_total_wins
+    ht154 = ht_total_fully_wins
+    ht157 = ht_total_points_wins + ht_no_wins
+
+    ht162 = ht_total_wins / ht_total_wins * 100
+    ht164 = ht_total_fully_wins / ht_total_wins * 100
+    ht167 = (ht_total_points_wins + ht_no_wins) / ht_total_wins * 100
+
+    c13 = h_fully_wins                              # 先手満点勝ち
+    c14 = t_fully_wins                              # 後手満点勝ち
+    c15 = h_points_wins              # 先手判定勝ち（引分けがなければ零です）
+    c16 = t_points_wins              # 後手判定勝ち（引分けがなければ零です）
+    c17 = ht_no_wins     # コインの表も裏も出なかった
     c11 = c13 + c15
     c12 = c14 + c16
 
@@ -461,17 +475,26 @@ def stringify_simulation_log(
 
     # プレイヤーの勝敗数
     # -----------------
-    c152 = S.number_of_total_wons(opponent_pair=PLAYERS)   # 全シリーズ計
-    c154 = S.number_of_total_fully_wons(opponent_pair=PLAYERS)   # 引分け無しのシリーズ
-    c157 = S.number_of_points_wons(winner=ALICE) + S.number_of_points_wons(winner=BOB) + S.number_of_no_wons(opponent_pair=PLAYERS)     # 引分けを含んだシリーズ
+    ab_total_wins = S.number_of_total_wins(opponent_pair=PLAYERS)
+    ab_total_fully_wins = S.number_of_total_fully_wins(opponent_pair=PLAYERS)
+    ab_total_points_wins = S.number_of_total_points_wins(opponent_pair=PLAYERS)
+    ab_no_wins = S.number_of_no_wins(opponent_pair=PLAYERS)
+
+    ab152 = ab_total_wins   # 全シリーズ計
+    ab154 = ab_total_fully_wins   # 引分け無しのシリーズ
+    ab157 = ab_total_points_wins + ab_no_wins     # 引分けを含んだシリーズ
+
+    ab162 = ab_total_wins / ab_total_wins * 100
+    ab164 = ab_total_fully_wins / ab_total_wins * 100
+    ab167 = (ab_total_points_wins + ab_no_wins) / ab_total_wins * 100
 
     c101 = S.number_of_wons(winner=ALICE)                       # Ａさんの勝ちの総数
     c102 = S.number_of_wons(winner=BOB)                         # Ｂさんの勝ちの総数
-    c103 = S.number_of_fully_wons(elementary_event=ALICE)       # Ａさん満点勝ち
-    c104 = S.number_of_fully_wons(elementary_event=BOB)         # Ｂさん満点勝ち
-    c105 = S.number_of_points_wons(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
-    c106 = S.number_of_points_wons(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
-    c107 = S.number_of_no_wons(opponent_pair=PLAYERS)           # ＡさんもＢさんも勝ちではなかった
+    c103 = S.number_of_fully_wins(elementary_event=ALICE)       # Ａさん満点勝ち
+    c104 = S.number_of_fully_wins(elementary_event=BOB)         # Ｂさん満点勝ち
+    c105 = S.number_of_points_wins(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
+    c106 = S.number_of_points_wins(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
+    c107 = ab_no_wins           # ＡさんもＢさんも勝ちではなかった
 
     c111 = succ_series_rate_ab * succ_a * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ａさんが勝つ確率］実践値（％）
     c112 = succ_series_rate_ab * succ_b * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ｂさんが勝つ確率］実践値（％）
@@ -506,6 +529,7 @@ def stringify_simulation_log(
               | 以下、［かくきんシステム］を使って試行                                                                                        |
               | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
               |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |               |
+              |                   {ht162:>8.4f} ％ |                   {ht164:>8.4f} ％ |                                   {ht167:>8.4f} ％ |               |
               | 先手勝ち      | 後手勝ち      | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  | 勝敗付かず    | 対局数        |
               |   { c11:>8} 回 |   { c12:>8} 回 |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |   {c17:>8} 回 |               |
     引分除く  |   { c21:8.4f} ％     { c22:8.4f} ％                                                                                 |{tm_s:>4} ～{tm_l:>4} 局 |
@@ -515,7 +539,8 @@ def stringify_simulation_log(
               |（{ c51:+9.4f}）   （{ c52:+9.4f}）                                                                   （{ c57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+               |
               | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
-              |                   {c152:>8} 回 |                   {c154:>8} 回 |                                   {c157:>8} 回 |               |
+              |                   {ab152:>8} 回 |                   {ab154:>8} 回 |                                   {ab157:>8} 回 |               |
+              |                   {ab162:>8.4f} ％ |                   {ab164:>8.4f} ％ |                                   {ab167:>8.4f} ％ |               |
               | Ａさん勝ち    | Ｂさん勝ち    | Ａさん満点勝ち| Ｂさん満点勝ち| Ａさん点数勝ち| Ｂさん点数勝ち| 勝敗付かず    |               |
               |   {c101:>8} 回 |   {c102:>8} 回 |   {c103:>8} 回 |   {c104:>8} 回 |   {c105:>8} 回 |   {c106:>8} 回 |   {c107:>8} 回 |               |
               |                                                                                                               |               |

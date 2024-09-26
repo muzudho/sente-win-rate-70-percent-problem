@@ -1569,13 +1569,13 @@ class LargeSeriesTrialSummary():
         self._number_of_failed = None
 
         # ［満点勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
-        self._number_of_fully_wons = [None, None, None, None, None]
+        self._number_of_fully_wins = [None, None, None, None, None]
 
         # ［勝ち点判定勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
-        self._number_of_points_wons = [None, None, None, None, None]
+        self._number_of_points_wins = [None, None, None, None, None]
 
         # ［勝者がなかった回数］。未使用、コインの表と裏、ＡさんとＢさんの順
-        self._number_of_no_wons = [None, None, None]
+        self._number_of_no_wins = [None, None, None]
 
 
     # 共通
@@ -1611,18 +1611,31 @@ class LargeSeriesTrialSummary():
         return self._longest_time_th
 
 
-    def number_of_total_wons(self, opponent_pair):
+    def number_of_total_wins(self, opponent_pair):
         if opponent_pair == FACE_OF_COIN:
             return self.number_of_wons(winner=HEAD) + self.number_of_wons(winner=TAIL)
         elif opponent_pair == PLAYERS:
             return self.number_of_wons(winner=ALICE) + self.number_of_wons(winner=BOB)
+        else:
+            raise ValueError(f'{opponent_pair=}')
 
 
-    def number_of_total_fully_wons(self, opponent_pair):
+    def number_of_total_fully_wins(self, opponent_pair):
         if opponent_pair == FACE_OF_COIN:
-            return self.number_of_fully_wons(elementary_event=HEAD) + self.number_of_fully_wons(elementary_event=TAIL)
+            return self.number_of_fully_wins(elementary_event=HEAD) + self.number_of_fully_wins(elementary_event=TAIL)
         elif opponent_pair == PLAYERS:
-            return self.number_of_fully_wons(elementary_event=ALICE) + self.number_of_fully_wons(elementary_event=BOB)
+            return self.number_of_fully_wins(elementary_event=ALICE) + self.number_of_fully_wins(elementary_event=BOB)
+        else:
+            raise ValueError(f'{opponent_pair=}')
+
+
+    def number_of_total_points_wins(self, opponent_pair):
+        if opponent_pair == FACE_OF_COIN:
+            return self.number_of_points_wins(winner=HEAD) + self.number_of_points_wins(winner=TAIL)
+        elif opponent_pair == PLAYERS:
+            return self.number_of_points_wins(winner=ALICE) + self.number_of_points_wins(winner=BOB)
+        else:
+            raise ValueError(f'{opponent_pair=}')
 
 
     @property
@@ -1637,27 +1650,27 @@ class LargeSeriesTrialSummary():
         return self._number_of_failed
 
 
-    def number_of_fully_wons(self, elementary_event):
+    def number_of_fully_wins(self, elementary_event):
         """elementary_event が［目標の点数］を集めて勝った回数"""
-        if self._number_of_fully_wons[elementary_event] is None:
-            self._number_of_fully_wons[elementary_event] = 0
+        if self._number_of_fully_wins[elementary_event] is None:
+            self._number_of_fully_wins[elementary_event] = 0
             for series_result in self._series_result_list:
                 if series_result.point_calculation.is_fully_won(elementary_event):
-                    self._number_of_fully_wons[elementary_event] += 1
+                    self._number_of_fully_wins[elementary_event] += 1
 
-        return self._number_of_fully_wons[elementary_event]
+        return self._number_of_fully_wins[elementary_event]
 
 
-    def number_of_points_wons(self, winner):
+    def number_of_points_wins(self, winner):
         """winner が［勝ち点差判定］で loser に勝った回数"""
         loser = opponent(winner)
-        if self._number_of_points_wons[winner] is None:
-            self._number_of_points_wons[winner] = 0
+        if self._number_of_points_wins[winner] is None:
+            self._number_of_points_wins[winner] = 0
             for series_result in self._series_result_list:
                 if series_result.is_points_won(winner=winner, loser=loser):
-                    self._number_of_points_wons[winner] += 1
+                    self._number_of_points_wins[winner] += 1
 
-        return self._number_of_points_wons[winner]
+        return self._number_of_points_wins[winner]
 
 
     def number_of_no_won_series(self, opponent_pair):
@@ -1729,15 +1742,15 @@ class LargeSeriesTrialSummary():
 
     def number_of_wons(self, winner):
         """winner が loser に勝った数"""
-        return self.number_of_fully_wons(elementary_event=winner) + self.number_of_points_wons(winner=winner)
+        return self.number_of_fully_wins(elementary_event=winner) + self.number_of_points_wins(winner=winner)
 
 
-    def number_of_no_wons(self, opponent_pair):
-        """［先後固定制］で勝者がなかった回数"""
-        if self._number_of_no_wons[opponent_pair] is None:
-            self._number_of_no_wons[opponent_pair] = 0
+    def number_of_no_wins(self, opponent_pair):
+        """勝者がなかった回数"""
+        if self._number_of_no_wins[opponent_pair] is None:
+            self._number_of_no_wins[opponent_pair] = 0
             for series_result in self._series_result_list:
                 if series_result.is_no_won(opponent_pair=opponent_pair):
-                    self._number_of_no_wons[opponent_pair] += 1
+                    self._number_of_no_wins[opponent_pair] += 1
 
-        return self._number_of_no_wons[opponent_pair]
+        return self._number_of_no_wins[opponent_pair]
