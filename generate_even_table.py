@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, round_letro, PseudoSeriesResult, judge_series, PointsConfiguration, calculate_probability, LargeSeriesTrialSummary, Specification
 from library.file_paths import get_even_table_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_table
@@ -86,7 +86,7 @@ def update_dataframe(df, p, failure_rate,
     is_dirty_csv = True
 
 
-def ready_records(df, specified_failure_rate, turn_system):
+def ready_records(df, specified_failure_rate, turn_system, generation_algorythm):
     """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
     is_append_new_record = False
 
@@ -104,10 +104,10 @@ def ready_records(df, specified_failure_rate, turn_system):
 
     if is_append_new_record:
         # CSV保存
-        df_even_to_csv(df=df, turn_system=turn_system)
+        df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
-def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system):
+def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
@@ -122,7 +122,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
 
     # まず、行の存在チェック。無ければ追加
-    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
+    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
     for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       process in\
@@ -252,7 +252,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                df_even_to_csv(df=df, turn_system=turn_system)
+                                df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -320,7 +320,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                df_even_to_csv(df=df, turn_system=turn_system)
+                df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
 ########################################
@@ -363,8 +363,16 @@ Example: 10% is 0.1
         specified_failure_rate = float(input())
 
 
-        df_ev = get_df_even(turn_system=turn_system)
-        print(df_ev)
+        if turn_system == WHEN_FROZEN_TURN and specified_failure_rate == 0:
+            generation_algorythm = THEORETICAL
+            print("理論値を求めます")
+        else:
+            generation_algorythm = BRUTE_FORCE
+            print("力任せ探索を行います")
+
+
+        df_ev = get_df_even(turn_system=turn_system, generation_algorythm=generation_algorythm)
+        #print(df_ev)
 
 
         start_time_for_save = time.time()
@@ -401,7 +409,8 @@ Example: 10% is 0.1
                     df_ev,
                     abs_limit_of_error,
                     specified_failure_rate=specified_failure_rate,
-                    turn_system=turn_system)
+                    turn_system=turn_system,
+                    generation_algorythm=generation_algorythm)
 
 
         if is_dirty_csv:
@@ -409,7 +418,7 @@ Example: 10% is 0.1
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            df_even_to_csv(df=df, turn_system=turn_system)
+            df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
     except Exception as err:

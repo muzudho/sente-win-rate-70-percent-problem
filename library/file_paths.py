@@ -1,4 +1,4 @@
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL
 
 
 ################
@@ -11,11 +11,11 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
     Parameters
     ----------
     failure_rate : float
-
+        ［表も裏も出ない確率］
     turn_system : int
-
+        ［先後が回ってくる制度］
     generation_algorythm : int
-
+        ［データ生成アルゴリズム］
     """
     subname = []
 
@@ -53,7 +53,12 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         raise ValueError(f"{generation_algorythm=}")
 
 
-    return '_'.join(subname)
+    subname = '_'.join(subname)
+
+    if len(subname) < 1:
+        return ''
+    
+    return f'_{subname}'
 
 
 ##################
@@ -62,7 +67,7 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
 
 def get_analysis_series_log_file_path(turn_system):
     subname = make_file_subname(turn_system=turn_system)
-    return f'output/analysis_series_{subname}.log'
+    return f'output/analysis_series{subname}.log'
 
 
 ##########################
@@ -80,7 +85,7 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
         ［先後の選び方の制度］
     """
     subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
-    return f'output/simulation_large_series_{subname}.log'
+    return f'output/simulation_large_series{subname}.log'
 
 
 #############
@@ -90,13 +95,21 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
 def get_even_table_log_file_path(turn_system):
     """勝ち点を探索したログ・ファイルへのパス"""
     subname = make_file_subname(turn_system=turn_system)
-    return f'output/even_table_{subname}.log'
+    return f'output/even_table{subname}.log'
 
 
-def get_even_table_csv_file_path(turn_system):
-    """勝ち点を探索した記録ファイルへのパス"""
-    subname = make_file_subname(turn_system=turn_system)
-    return f'./data/even_table_{subname}.csv'
+def get_even_table_csv_file_path(turn_system=None, generation_algorythm=None):
+    """勝ち点を探索した記録ファイルへのパス
+    
+    Parameters
+    ----------
+    turn_system : int
+        ［先後が回ってくる制度］
+    generation_algorythm : int
+        ［データ生成アルゴリズム］
+    """
+    subname = make_file_subname(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    return f'./data/even_table{subname}.csv'
 
 
 ############################
@@ -106,10 +119,10 @@ def get_even_table_csv_file_path(turn_system):
 def get_muzudho_recommends_points_csv_file_path(turn_system):
     """勝ち点ルールのむずでょセレクション"""
     subname = make_file_subname(turn_system=turn_system)
-    return f'./data/muzudho_recommends_points_{subname}.csv'
+    return f'./data/muzudho_recommends_points{subname}.csv'
 
 
 def get_muzudho_single_points_csv_file_path(turn_system):
     """勝ち点ルールのむずでょ１点セレクション"""
     subname = make_file_subname(turn_system=turn_system)
-    return f'./data/muzudho_single_points_{subname}.csv'
+    return f'./data/muzudho_single_points{subname}.csv'

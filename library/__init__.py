@@ -83,11 +83,11 @@ def opponent(elementary_event):
 # Generation Algorithm
 # --------------------
 
-# 理論から算出する
-THEORETICAL = 1
-
 # 力任せ探索
-BRUTE_FORCE = 2
+BRUTE_FORCE = 1
+
+# 理論から算出する
+THEORETICAL = 2
 
 
 class Functions():
