@@ -196,16 +196,8 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                 turn_system=spec.turn_system)
 
 
-                        # 理論値の場合
-                        if generation_algorythm == THEORETICAL:
-                            latest_p = calculate_probability(
-                                    p=p,
-                                    H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                                    T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
-                            latest_p_error = latest_p - 0.5
-
                         # 力任せ探索の場合                        
-                        elif generation_algorythm == BRUTE_FORCE:
+                        if generation_algorythm == BRUTE_FORCE:
                             series_result_list = []
 
                             for i in range(0, REQUIRED_MUMBER_OF_SERIES):
@@ -236,7 +228,17 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             # Ａさんが勝った回数
                             latest_p = large_series_trial_summary.number_of_wons(winner=ALICE) / REQUIRED_MUMBER_OF_SERIES
                             latest_p_error = latest_p - 0.5
-                        
+
+
+                        # 理論値の場合
+                        elif generation_algorythm == THEORETICAL:
+                            latest_p = calculate_probability(
+                                    p=p,
+                                    H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                                    T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                            latest_p_error = latest_p - 0.5
+
+
                         else:
                             raise ValueError(f"{generation_algorythm=}")
 
@@ -400,10 +402,10 @@ Example: 10% is 0.1
 
 
         generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
-        if generation_algorythm == THEORETICAL:
-            print("理論値を求めます")
-        elif generation_algorythm == BRUTE_FORCE:
+        if generation_algorythm == BRUTE_FORCE:
             print("力任せ探索を行います")
+        elif generation_algorythm == THEORETICAL:
+            print("理論値を求めます")
         else:
             raise ValueError(f"{generation_algorythm=}")
 

@@ -42,12 +42,12 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
 
     if generation_algorythm is None:
         pass
-
-    elif generation_algorythm == THEORETICAL:
-        subname.append('ga_theoretical')
     
     elif generation_algorythm == BRUTE_FORCE:
         subname.append('ga_bruteforce')
+
+    elif generation_algorythm == THEORETICAL:
+        subname.append('ga_theoretical')
 
     else:
         raise ValueError(f"{generation_algorythm=}")

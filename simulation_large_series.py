@@ -7,13 +7,13 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import get_df_selection_series_rule
+from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
 
 
-def simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process):
+def simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process, turn_system):
     """［シリーズ・ルール］をシミュレーションします"""
     # 仕様
     spec = Specification(
@@ -126,10 +126,10 @@ Which one(1-2)? """)
         choice = input()
 
         if choice == '1':
-            turn_system = WHEN_FROZEN_TURN
+            specified_turn_system = WHEN_FROZEN_TURN
 
         elif choice == '2':
-            turn_system = WHEN_ALTERNATING_TURN
+            specified_turn_system = WHEN_ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -139,7 +139,7 @@ Which one(1-2)? """)
 What is the failure rate?
 Example: 10% is 0.1
 ? """)
-        failure_rate = float(input())
+        specified_failure_rate = float(input())
 
 
         # 試行回数を尋ねる
@@ -159,15 +159,44 @@ Which data source should I use?
 
         # TODO
         if data_source == 1:
-            print(f"未実装")
+            title='イーブン［シリーズ・ルール］'
+
+            generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+            if generation_algorythm == BRUTE_FORCE:
+                print("力任せ探索を行います")
+            elif generation_algorythm == THEORETICAL:
+                print("理論値を求めます")
+            else:
+                raise ValueError(f"{generation_algorythm=}")
+
+            df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+
+            for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['process']):
+
+                # 対象外のものはスキップ
+                if specified_failure_rate != failure_rate:
+                    continue
+
+                # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+                p_step = round_letro(best_p_step)
+                q_step = round_letro(best_q_step)
+                span = round_letro(best_span)
+
+                simulate_series_rule(p, failure_rate, p_step, q_step, span, '', '', process, turn_system=specified_turn_system)
+
 
         elif data_source == 2:
-            title='セレクション'
+            title='セレクション［シリーズ・ルール］'
 
-            df_ssr = get_df_selection_series_rule(turn_system=turn_system)
+            df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
             for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           process in\
                 zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['process']):
+
+                # 対象外のものはスキップ
+                if specified_failure_rate != failure_rate:
+                    continue
 
                 # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
                 p_step = round_letro(p_step)
@@ -179,7 +208,7 @@ Which data source should I use?
                     continue
 
 
-                simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process)
+                simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process, turn_system=specified_turn_system)
 
 
     except Exception as err:
