@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, Specification, PointsConfiguration, PseudoSeriesResult, judge_series, LargeSeriesTrialSummary, make_all_pseudo_series_results
+from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, Specification, PointsConfiguration, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_analysis_series_log_file_path
 from library.database import get_df_muzudho_single_points
 from library.views import stringify_series_log, stringify_analysis_series
@@ -103,28 +103,28 @@ Which one(1-2)? """)
             series_result_list = []
 
             # FIXME 動作テスト
-            stats_result_data = make_all_pseudo_series_results(
+            list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
                     can_failure=False,
                     pts_conf=specified_pts_conf)
             
-            for face_of_coin_list in stats_result_data:
-                #print(f"動作テスト {face_of_coin_list=}")
+            for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
+                #print(f"動作テスト {list_of_face_of_coin=}")
 
-                pseudo_series_result = PseudoSeriesResult(
+                elementary_event_sequence = ElementaryEventSequence(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        longest_times=specified_pts_conf.number_of_longest_time(),
-                        face_of_coin_list=face_of_coin_list)
+                        number_of_longest_time=specified_pts_conf.number_of_longest_time(),
+                        list_of_face_of_coin=list_of_face_of_coin)
 
                 #
                 # 到達できない棋譜は除去しておきたい
                 #
 
-                old_number_of_times = len(face_of_coin_list)
+                old_number_of_times = len(list_of_face_of_coin)
 
                 # ［先後固定制］で、シリーズを勝った方の手番を返す
                 series_result = judge_series(
-                        pseudo_series_result=pseudo_series_result,
+                        elementary_event_sequence=elementary_event_sequence,
                         pts_conf=specified_pts_conf,
                         turn_system=turn_system)
 

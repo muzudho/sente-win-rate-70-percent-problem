@@ -338,11 +338,128 @@ def toss_a_coin(p, failure_rate=0.0):
     return TAIL
 
 
-class PseudoSeriesResult():
-    """疑似的にシリーズのコイントスした結果"""
 
 
-    def __init__(self, p, failure_rate, longest_times, face_of_coin_list):
+class SequenceOfFaceOfCoin():
+    """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印が並んだもの"""
+
+
+    @staticmethod
+    def make_list_of_all_pattern_face_of_coin(can_failure, pts_conf):
+        """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印の組み合わせが全て入っているリストを作成します
+
+        TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
+        
+        １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
+
+        Returns
+        -------
+        pts_conf : PointsConfiguration
+            ［勝ち点ルール］の構成
+        power_set_list : list
+            勝った方の色（引き分け含む）のリストが全パターン入っているリスト
+        """
+
+        # 要素数
+        if can_failure:
+            # 表勝ち、裏勝ち、勝者なしの３要素
+            elements = [HEAD, TAIL, EMPTY]
+        else:
+            # 表勝ち、裏勝ちけの２要素
+            elements = [HEAD, TAIL]
+
+        # 桁数
+        depth = pts_conf.number_of_longest_time()
+
+        # １シーズン分のコイントスの全ての結果
+        stats = []
+
+        position = []
+
+
+        def search(depth, stats, position, can_failure):
+
+            # 表勝ちを追加
+            position.append(HEAD)
+
+            # スタッツに、ポジションのコピーを追加
+            stats.append(list(position))
+
+            if 0 < depth:
+                search(depth - 1, stats, position, can_failure=False)
+
+            # 末尾の要素を削除
+            position.pop()
+
+
+            # 裏勝ちを追加
+            position.append(TAIL)
+
+            # スタッツに、ポジションのコピーを追加
+            stats.append(list(position))
+
+            if 0 < depth:
+                search(depth - 1, stats, position, can_failure=False)
+
+            # 末尾の要素を削除
+            position.pop()
+
+
+            if can_failure:
+                # 引分けを追加
+                position.append(EMPTY)
+
+                # スタッツに、ポジションのコピーを追加
+                stats.append(list(position))
+
+                if 0 < depth:
+                    search(depth - 1, stats, position, can_failure=False)
+
+                # 末尾の要素を削除
+                position.pop()
+
+
+
+        search(depth, stats, position, can_failure=False)
+
+        return stats
+
+
+    @staticmethod
+    def make_list_by_toss_a_coin(p, failure_rate, number_of_longest_time):
+        """１シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+
+        Parameters
+        ----------
+        p : float
+            ［表が出る確率］
+        failure_rate : float
+            ［引き分ける確率］
+        number_of_longest_time : int
+            ［最長対局数］
+        """
+
+        list_of_face_of_coin = []
+
+        # ［最長対局数］までやる
+        for time_th in range(1, number_of_longest_time + 1):
+
+            elementary_event = toss_a_coin(
+                    p=p,
+                    failure_rate=failure_rate)
+
+            list_of_face_of_coin.append(elementary_event)
+
+
+        return list_of_face_of_coin
+
+
+class ElementaryEventSequence():
+    """Elementary event（［コインの表］、［コインの裏］、［コインの表と裏のどちらでもないもの］のいずれか）の印をつけ、
+    その印を並べたもの"""
+
+
+    def __init__(self, p, failure_rate, number_of_longest_time, list_of_face_of_coin):
         """初期化
 
         Parameters
@@ -351,15 +468,15 @@ class PseudoSeriesResult():
             ［表が出る確率］ 例： ７割なら 0.7
         failure_rate : float
             ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
-        longest_times : int
+        number_of_longest_time : int
             ［最長対局数］
-        face_of_coin_list : list
+        list_of_face_of_coin : list
             コイントスした結果のリスト。引き分け含む
         """
         self._p = p,
         self._failure_rate = failure_rate
-        self._longest_times = longest_times
-        self._face_of_coin_list = face_of_coin_list
+        self._number_of_longest_time = number_of_longest_time
+        self._face_of_coin_list = list_of_face_of_coin
 
 
     @property
@@ -375,19 +492,19 @@ class PseudoSeriesResult():
 
 
     @property
-    def longest_times(self):
+    def number_of_longest_time(self):
         """最長対局数］"""
-        return self._longest_times
+        return self._number_of_longest_time
 
 
     @property
-    def face_of_coin_list(self):
+    def list_of_face_of_coin(self):
         """コイントスした結果のリスト。引き分け含む"""
         return self._face_of_coin_list
 
 
     @staticmethod
-    def playout_pseudo(p, failure_rate, longest_times):
+    def playout_by_toss_a_coin(p, failure_rate, number_of_longest_time):
         """１シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
 
         Parameters
@@ -396,27 +513,20 @@ class PseudoSeriesResult():
             ［表が出る確率］
         failure_rate : float
             ［引き分ける確率］
-        longest_times : int
+        number_of_longest_time : int
             ［最長対局数］
         """
 
-        face_of_coin_list = []
-
-        # ［最長対局数］までやる
-        for time_th in range(1, longest_times + 1):
-
-            elementary_event = toss_a_coin(
-                    p=p,
-                    failure_rate=failure_rate)
-
-            face_of_coin_list.append(elementary_event)
-
-
-        return PseudoSeriesResult(
+        list_of_face_of_coin = SequenceOfFaceOfCoin.make_list_by_toss_a_coin(
                 p=p,
                 failure_rate=failure_rate,
-                longest_times=longest_times,
-                face_of_coin_list=face_of_coin_list)
+                number_of_longest_time=number_of_longest_time)
+
+        return ElementaryEventSequence(
+                p=p,
+                failure_rate=failure_rate,
+                number_of_longest_time=number_of_longest_time,
+                list_of_face_of_coin=list_of_face_of_coin)
 
 
     def cut_down(self, number_of_times):
@@ -428,92 +538,13 @@ class PseudoSeriesResult():
     def stringify_dump(self, indent):
         """ダンプ"""
         return f"""\
-{indent}PseudoSeriesResult
+{indent}ElementaryEventSequence
 {indent}------------------
 {indent}{indent}{self._p=}
 {indent}{indent}{self._failure_rate=}
-{indent}{indent}{self._longest_times=}
+{indent}{indent}{self._number_of_longest_time=}
 {indent}{indent}{self._face_of_coin_list=}
 """
-
-
-def make_all_pseudo_series_results(can_failure, pts_conf):
-    """TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
-    
-    １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
-
-    Returns
-    -------
-    pts_conf : PointsConfiguration
-        ［勝ち点ルール］の構成
-    power_set_list : list
-        勝った方の色（引き分け含む）のリストが全パターン入っているリスト
-    """
-
-    # 要素数
-    if can_failure:
-        # 表勝ち、裏勝ち、勝者なしの３要素
-        elements = [HEAD, TAIL, EMPTY]
-    else:
-        # 表勝ち、裏勝ちけの２要素
-        elements = [HEAD, TAIL]
-
-    # 桁数
-    depth = pts_conf.number_of_longest_time()
-
-    # １シーズン分のコイントスの全ての結果
-    stats = []
-
-    position = []
-
-
-    def search(depth, stats, position, can_failure):
-
-        # 表勝ちを追加
-        position.append(HEAD)
-
-        # スタッツに、ポジションのコピーを追加
-        stats.append(list(position))
-
-        if 0 < depth:
-            search(depth - 1, stats, position, can_failure=False)
-
-        # 末尾の要素を削除
-        position.pop()
-
-
-        # 裏勝ちを追加
-        position.append(TAIL)
-
-        # スタッツに、ポジションのコピーを追加
-        stats.append(list(position))
-
-        if 0 < depth:
-            search(depth - 1, stats, position, can_failure=False)
-
-        # 末尾の要素を削除
-        position.pop()
-
-
-        if can_failure:
-            # 引分けを追加
-            position.append(EMPTY)
-
-            # スタッツに、ポジションのコピーを追加
-            stats.append(list(position))
-
-            if 0 < depth:
-                search(depth - 1, stats, position, can_failure=False)
-
-            # 末尾の要素を削除
-            position.pop()
-
-
-
-    search(depth, stats, position, can_failure=False)
-
-
-    return stats
 
 
 class PointCalculation():
@@ -694,16 +725,18 @@ def play_tie_break(p, failure_rate):
         return elementary_event
 
 
-def judge_series(pseudo_series_result, pts_conf, turn_system):
-    if turn_system == WHEN_FROZEN_TURN:
-        """１シリーズ分の疑似対局結果を読み取ります。［先後固定制］で判定します。
+def judge_series(elementary_event_sequence, pts_conf, turn_system):
+    """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
+    その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります"""
 
-        ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
+    # ［先後固定制］
+    if turn_system == WHEN_FROZEN_TURN:
+        """［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
         もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
 
         Parameters
         ----------
-        pseudo_series_result : PseudoSeriesResult
+        elementary_event_sequence : ElementaryEventSequence
             コイントス・リスト
         pts_conf : PointsConfiguration
             ［かくきんシステムのｐの構成］
@@ -723,7 +756,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         time_th = 0
 
         # 予め作った１シリーズ分の対局結果を読んでいく
-        for face_of_coin in pseudo_series_result.face_of_coin_list:
+        for face_of_coin in elementary_event_sequence.list_of_face_of_coin:
             time_th += 1
 
             # 引き分けを１局と数えるケース
@@ -746,14 +779,14 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
-                    pseudo_series_result.cut_down(time_th)
+                    elementary_event_sequence.cut_down(time_th)
 
                     return SeriesResult(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
                             span=pts_conf.span,
                             point_calculation=point_calculation,
-                            pseudo_series_result=pseudo_series_result)
+                            elementary_event_sequence=elementary_event_sequence)
 
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -762,15 +795,16 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
                 number_of_failed=number_of_failed,
                 span=pts_conf.span,
                 point_calculation=point_calculation,
-                pseudo_series_result=pseudo_series_result)
+                elementary_event_sequence=elementary_event_sequence)
 
 
+    # ［先後交互制］
     if turn_system == WHEN_ALTERNATING_TURN:
-        """［先後交互制］で１対局行う（どちらの勝ちが出るまでコイントスを行う）
+        """で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
         ----------
-        pseudo_series_result : PseudoSeriesResult
+        elementary_event_sequence : ElementaryEventSequence
             コイントス・リスト
         pts_conf : PointsConfiguration
             ［かくきんシステムのｐの構成］
@@ -790,7 +824,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
         time_th = 0
 
         # 予め作った１シリーズ分の対局結果を読んでいく
-        for face_of_coin in pseudo_series_result.face_of_coin_list:
+        for face_of_coin in elementary_event_sequence.list_of_face_of_coin:
             time_th += 1
 
             # 引き分けを１局と数えるケース
@@ -815,14 +849,14 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
-                    pseudo_series_result.cut_down(time_th)
+                    elementary_event_sequence.cut_down(time_th)
 
                     return SeriesResult(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
                             span=pts_conf.span,
                             point_calculation=point_calculation,
-                            pseudo_series_result=pseudo_series_result)
+                            elementary_event_sequence=elementary_event_sequence)
 
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
@@ -831,7 +865,7 @@ def judge_series(pseudo_series_result, pts_conf, turn_system):
                 number_of_failed=number_of_failed,
                 span=pts_conf.span,
                 point_calculation=point_calculation,
-                pseudo_series_result=pseudo_series_result)
+                elementary_event_sequence=elementary_event_sequence)
 
 
     raise ValueError(f"{turn_system=}")
@@ -1286,7 +1320,7 @@ class SeriesResult():
     """［シリーズ］の結果"""
 
 
-    def __init__(self, number_of_times, number_of_failed, span, point_calculation, pseudo_series_result):
+    def __init__(self, number_of_times, number_of_failed, span, point_calculation, elementary_event_sequence):
         """初期化
     
         Parameters
@@ -1299,7 +1333,7 @@ class SeriesResult():
             ［目標の点数］
         point_calculation : PointCalculation
             ［勝ち点計算］
-        pseudo_series_result : PseudoSeriesResult
+        elementary_event_sequence : ElementaryEventSequence
             １シリーズ分をフルにコイントスした結果
         """
 
@@ -1308,7 +1342,7 @@ class SeriesResult():
         self._number_of_failed = number_of_failed
         self._span = span
         self._point_calculation = point_calculation
-        self._pseudo_series_result = pseudo_series_result
+        self._elementary_event_sequence = elementary_event_sequence
 
 
     # 共通
@@ -1333,9 +1367,9 @@ class SeriesResult():
 
 
     @property
-    def pseudo_series_result(self):
+    def elementary_event_sequence(self):
         """１シリーズ分をフルにコイントスした結果"""
-        return self._pseudo_series_result
+        return self._elementary_event_sequence
 
 
     def is_points_won(self, winner, loser):
@@ -1383,8 +1417,8 @@ class SeriesResult():
 {indent}{indent}{self._span=}
 {indent}{indent}self._point_calculation:
 {self._point_calculation.stringify_dump(double_indent)}
-{indent}{indent}self._pseudo_series_result:
-{self._pseudo_series_result.stringify_dump(double_indent)}
+{indent}{indent}self._elementary_event_sequence:
+{self._elementary_event_sequence.stringify_dump(double_indent)}
 {indent}{indent}{self.is_points_won(winner=HEAD, loser=TAIL)=}
 {indent}{indent}{self.is_points_won(winner=TAIL, loser=HEAD)=}
 {indent}{indent}{self.is_points_won(winner=ALICE, loser=BOB)=}

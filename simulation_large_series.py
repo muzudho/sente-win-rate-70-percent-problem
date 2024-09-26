@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, PseudoSeriesResult
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_muzudho_recommends_points
 from library.views import stringify_simulation_log
@@ -88,9 +88,9 @@ Example: 2000000
 
             # ［最長対局数］は計算で求められます
             shortest_times = pts_conf.number_of_shortest_time()
-            longest_times = pts_conf.number_of_longest_time()
-            if longest_times < shortest_times:
-                text = f"［最短対局数］{shortest_times} が、［最長対局数］{longest_times} より長いです"
+            number_of_longest_time = pts_conf.number_of_longest_time()
+            if number_of_longest_time < shortest_times:
+                text = f"［最短対局数］{shortest_times} が、［最長対局数］{number_of_longest_time} より長いです"
                 print(f"""\
 {text}
 spec:
@@ -106,14 +106,20 @@ pts_conf:
             for round in range(0, number_of_series):
 
                 # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-                pseudo_series_result = PseudoSeriesResult.playout_pseudo(
-                        p=spec.p,
+                list_of_face_of_coin = SequenceOfFaceOfCoin.make_list_by_toss_a_coin(
+                        p=p,
                         failure_rate=spec.failure_rate,
-                        longest_times=longest_times)
+                        number_of_longest_time=number_of_longest_time)
+
+                elementary_event_sequence = ElementaryEventSequence(
+                        p=p,
+                        failure_rate=spec.failure_rate,
+                        number_of_longest_time=number_of_longest_time,
+                        list_of_face_of_coin=list_of_face_of_coin)
 
                 # シリーズの結果を返す
                 series_result = judge_series(
-                        pseudo_series_result=pseudo_series_result,
+                        elementary_event_sequence=elementary_event_sequence,
                         pts_conf=pts_conf,
                         turn_system=turn_system)
                 #print(f"{series_result.stringify_dump()}")
@@ -124,7 +130,7 @@ pts_conf:
                 if series_result.number_of_times < pts_conf.number_of_shortest_time():
                     text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_of_shortest_time()} を下回った"
                     print(f"""{text}
-{longest_times=}
+{number_of_longest_time=}
 {series_result.stringify_dump('   ')}
 """)
                     raise ValueError(text)
@@ -132,7 +138,7 @@ pts_conf:
                 if pts_conf.number_of_longest_time() < series_result.number_of_times:
                     text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_of_longest_time()} を上回った"
                     print(f"""{text}
-{longest_times=}
+{number_of_longest_time=}
 {series_result.stringify_dump('   ')}
 """)
                     raise ValueError(text)
