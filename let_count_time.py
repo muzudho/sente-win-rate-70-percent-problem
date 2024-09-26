@@ -44,10 +44,10 @@ if __name__ == '__main__':
                             turn_system=WHEN_ALTERNATING_TURN)
 
                     # ［最短対局数］［最長対局数］
-                    seg_3a = series_rule_ft.number_of_shortest_time()
-                    seg_3b = series_rule_ft.number_of_longest_time()
-                    seg_3c = series_rule_at.number_of_shortest_time()
-                    seg_3d = series_rule_at.number_of_longest_time()
+                    seg_3a = series_rule_ft.number_of_shortest_time
+                    seg_3b = series_rule_ft.number_of_longest_time
+                    seg_3c = series_rule_at.number_of_shortest_time
+                    seg_3d = series_rule_at.number_of_longest_time
 
                     seg_4a = p_step
                     seg_4b = q_step

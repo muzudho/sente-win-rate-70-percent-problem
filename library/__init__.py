@@ -417,7 +417,7 @@ class SequenceOfFaceOfCoin():
             elements = [HEAD, TAIL]
 
         # 桁数
-        depth = series_rule.number_of_longest_time()
+        depth = series_rule.number_of_longest_time
 
         # １シーズン分のコイントスの全ての結果
         stats = []
@@ -640,7 +640,7 @@ class PointCalculation():
         successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, turn_system)
 
         # ［勝ち点］
-        step = self._series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
+        step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
 
 
         self._point_list[successful_face_of_coin] += step
@@ -653,23 +653,23 @@ class PointCalculation():
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        self._point_list[HEAD] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        self._point_list[TAIL] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        self._point_list[HEAD] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        self._point_list[TAIL] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         if turn_system == WHEN_FROZEN_TURN:
-            self._point_list[ALICE] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            self._point_list[BOB] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[ALICE] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[BOB] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         elif turn_system == WHEN_ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
-                self._point_list[ALICE] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[BOB] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
             # 偶数回はＢさんが先手
             else:
-                self._point_list[BOB] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[ALICE] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             
         else:
             raise ValueError(f"{turn_system=}")
@@ -681,7 +681,7 @@ class PointCalculation():
 
     def is_fully_won(self, index):
         """点数を満たしているか？"""
-        return self._series_rule.span <= self.get_point_of(index)
+        return self._series_rule.step_table.span <= self.get_point_of(index)
 
 
     def x_has_more_than_y(self, x, y):
@@ -782,7 +782,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     turn_system=WHEN_FROZEN_TURN)
 
                 # 勝ち抜け
-                if series_rule.span <= point_calculation.get_point_of(face_of_coin):
+                if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -791,7 +791,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     return SeriesResult(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
-                            span=series_rule.span,
+                            span=series_rule.step_table.span,
                             point_calculation=point_calculation,
                             argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                             list_of_face_of_coin=list_of_face_of_coin)
@@ -801,7 +801,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
         return SeriesResult(
                 number_of_times=time_th,
                 number_of_failed=number_of_failed,
-                span=series_rule.span,
+                span=series_rule.step_table.span,
                 point_calculation=point_calculation,
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin)
@@ -852,7 +852,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                         turn_system=WHEN_ALTERNATING_TURN)
 
                 # 勝ち抜け
-                if series_rule.span <= point_calculation.get_point_of(successful_player):
+                if series_rule.step_table.span <= point_calculation.get_point_of(successful_player):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -861,7 +861,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     return SeriesResult(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
-                            span=series_rule.span,
+                            span=series_rule.step_table.span,
                             point_calculation=point_calculation,
                             argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                             list_of_face_of_coin=list_of_face_of_coin)
@@ -871,7 +871,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
         return SeriesResult(
                 number_of_times=time_th,
                 number_of_failed=number_of_failed,
-                span=series_rule.span,
+                span=series_rule.step_table.span,
                 point_calculation=point_calculation,
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin)
@@ -935,41 +935,156 @@ def calculate_probability(p, H, T):
 
 
 class SeriesRule():
-    """［シリーズ・ルール］"""
+    """［シリーズ・ルール］
+    
+    NOTE ［最短対局数］、［最長対局数］は指定できず、計算で求めるもの
+    """
 
 
-    def __init__(self, failure_rate, p_step, q_step, p_step_when_failed, q_step_when_failed, span, turn_system):
+    class StepTable():
+        """［１勝の点数テーブル］"""
+
+        
+        def __init__(self, p_step, q_step, p_step_when_failed, q_step_when_failed, span):
+            """初期化
+            
+            Parameters
+            ----------
+            p_step : int
+                ［表が出て勝ったときの点数］
+            q_step : int
+                ［裏が出て勝ったときの点数］
+            p_step_when_failed : float
+                ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            q_step_when_failed : float
+                ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+            span : int
+                ［目標の点数］
+            """
+
+            self._step_list = [
+                    # 0: ［未使用］
+                    None,
+                    # 1: ［コインの表が出たときの勝ち点］
+                    p_step,
+                    # 2: ［コインの裏が出たときの勝ち点］
+                    q_step,
+                    # 3: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                    p_step_when_failed,
+                    # 4: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+                    q_step_when_failed]
+
+            self._span = span
+
+
+        @property
+        def span(self):
+            """［目標の点数］"""
+            return self._span
+
+
+        def get_step_by(self, challenged, face_of_coin):
+            """［１勝の点数］を取得します
+            
+            Parameters
+            ----------
+            challenged : int
+                ［成功か失敗］
+            face_of_coin : int
+                ［コインの表か裏かそれ以外］
+            """
+
+            if challenged == SUCCESSFUL:
+                # ［コインの表が出たときの勝ち点］
+                if face_of_coin == HEAD:
+                    return self._step_list[1]
+
+                # ［コインの裏が出たときの勝ち点］
+                if face_of_coin == TAIL:
+                    return self._step_list[2]
+
+                raise ValueError(f"{face_of_coin=}")
+
+
+            if challenged == FAILED:
+                # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                if face_of_coin == HEAD:
+                    return self._step_list[3]
+                
+                # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+                if face_of_coin == TAIL:
+                    return self._step_list[4]
+                
+                raise ValueError(f"{face_of_coin=}")
+
+
+            raise ValueError(f"{challenged=}")
+
+
+        def get_time_by(self, challenged, face_of_coin):
+            """［対局数］を取得
+            """
+
+            if challenged == SUCCESSFUL:
+                if face_of_coin == HEAD:
+                    """
+                    筆算
+                    ----
+                    `10表 12裏 14目（先後固定制）`
+                        ・  表  表  で最長２局
+                        14  14  14
+                        14   4  -6
+                    """
+
+                    #
+                    #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+                    #
+                    return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)))
+
+                elif face_of_coin == TAIL:
+                    """［裏勝ちだけでの対局数］
+
+                    筆算
+                    ----
+                    `10表 12裏 14目（先後固定制）`
+                        ・  裏  で最長１局
+                        14   0
+                        14  14
+                    """
+
+                    #
+                    #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+                    #
+                    return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)))
+
+                else:
+                    raise ValueError(f"{face_of_coin=}")
+            else:
+                raise ValueError(f"{challenged=}")
+
+
+    def __init__(self, step_table, number_of_shortest_time, number_of_longest_time, turn_system):
         """初期化
         
         Parameters
         ----------
-        failure_rate : float
-            ［コインを投げて表も裏も出ない確率］
-        p_step : int
-            ［表が出て勝ったときの点数］
-        q_step : int
-            ［裏が出て勝ったときの点数］
-        p_step_when_failed : float
-            ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        q_step_when_failed : float
-            ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-        span : int
-            ［目標の点数］
+        step_table : StepTable
+            ［１勝の点数テーブル］
+        number_of_shortest_time : int
+            ［最短対局数］
+        number_of_longest_time : int
+            ［最長対局数］
+        turn_system : int
+            ［先後が回ってくる制度］
         """
 
-        self._span = span
+        self._step_table = step_table
 
-        self._step_list = [
-                # 0: ［未使用］
-                None,
-                # 1: ［コインの表が出たときの勝ち点］
-                p_step,
-                # 2: ［コインの裏が出たときの勝ち点］
-                q_step,
-                # 3: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                p_step_when_failed,
-                # 4: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-                q_step_when_failed]
+        # ［最短対局数］
+        self._number_of_shortest_time = number_of_shortest_time
+
+        # ［最長対局数］
+        self._number_of_longest_time = number_of_longest_time
 
         self._turn_system = turn_system
 
@@ -1020,14 +1135,25 @@ class SeriesRule():
         # if q_step_when_failed < p_step_when_failed:
         #     raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
 
-
-        return SeriesRule(
-                failure_rate=failure_rate,
+        step_table = SeriesRule.StepTable(
                 p_step=p_step,
                 q_step=q_step,
                 p_step_when_failed=p_step_when_failed,
                 q_step_when_failed=q_step_when_failed,
-                span=span,
+                span=span)
+
+        return SeriesRule(
+                step_table=step_table,
+                # ［最短対局数］
+                number_of_shortest_time=SeriesRule.let_number_of_shortest_time(
+                        p_step=p_step,
+                        q_step=q_step,
+                        span=span,
+                        turn_system=turn_system),
+                # ［最長対局数］
+                number_of_longest_time=SeriesRule.let_number_of_longest_time(
+                        p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                        q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)),
                 turn_system=turn_system)
 
 
@@ -1070,100 +1196,32 @@ class SeriesRule():
 
 
     @property
+    def step_table(self):
+        return self._step_table
+
+
+    @property
     def turn_system(self):
         return self._turn_system
 
 
-    def get_time_by(self, challenged, face_of_coin):
-        """［対局数］を取得
-        """
-
-        if challenged == SUCCESSFUL:
-            if face_of_coin == HEAD:
-                """
-                筆算
-                ----
-                `10表 12裏 14目（先後固定制）`
-                    ・  表  表  で最長２局
-                    14  14  14
-                    14   4  -6
-                """
-
-                #
-                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                #
-                return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)))
-
-            elif face_of_coin == TAIL:
-                """［裏勝ちだけでの対局数］
-
-                筆算
-                ----
-                `10表 12裏 14目（先後固定制）`
-                    ・  裏  で最長１局
-                    14   0
-                    14  14
-                """
-
-                #
-                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                #
-                return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)))
-
-            else:
-                raise ValueError(f"{face_of_coin=}")
-        else:
-            raise ValueError(f"{challenged=}")
-
-
-    def get_step_by(self, challenged, face_of_coin):
-        """［勝ち点］を取得します
-        
-        Parameters
-        ----------
-        challenged : int
-            ［成功か失敗］
-        face_of_coin : int
-            ［コインの表か裏かそれ以外］
-        """
-
-        if challenged == SUCCESSFUL:
-            # ［コインの表が出たときの勝ち点］
-            if face_of_coin == HEAD:
-                return self._step_list[1]
-
-            # ［コインの裏が出たときの勝ち点］
-            if face_of_coin == TAIL:
-                return self._step_list[2]
-
-            raise ValueError(f"{face_of_coin=}")
-
-
-        if challenged == FAILED:
-            # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            if face_of_coin == HEAD:
-                return self._step_list[3]
-            
-            # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-            if face_of_coin == TAIL:
-                return self._step_list[4]
-            
-            raise ValueError(f"{face_of_coin=}")
-
-
-        raise ValueError(f"{challenged=}")
+    @property
+    def number_of_shortest_time(self):
+        """［最短対局数］"""
+        return self._number_of_shortest_time
 
 
     @property
-    def span(self):
-        """［目標の点数］"""
-        return self._span
+    def number_of_longest_time(self):
+        """［最長対局数］"""
+        return self._number_of_longest_time
 
 
-    def number_of_shortest_time(self):
-        """［最短対局数］"""
+    @staticmethod
+    def let_number_of_shortest_time(p_step, q_step, span, turn_system):
+        """［最短対局数］を算出"""
 
-        if self._turn_system == WHEN_FROZEN_TURN:
+        if turn_system == WHEN_FROZEN_TURN:
             """［先後固定制］での［最短対局数］
             
             裏が全勝したときの回数と同じ
@@ -1174,9 +1232,9 @@ class SeriesRule():
                 10   8   6   4  2   0
             """
 
-            return self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+            return q_step
 
-        if self._turn_system == WHEN_ALTERNATING_TURN:
+        if turn_system == WHEN_ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］
             
             Ｂさんだけが勝ったときの回数と同じ。
@@ -1217,15 +1275,13 @@ class SeriesRule():
                      1   0
             """
 
-            remainder = self._span
+            remainder = span
 
-            p_step = self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-            q_step = self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
             successful_step = p_step + q_step
 
             if p_step + q_step <= remainder:
                 # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
-                new_remainder = self._span % successful_step
+                new_remainder = span % successful_step
                 # 余りから端数を引いて割り切れるようにしてから割る。先手と後手のペアだから、回数は２倍
                 time = math.floor((remainder - new_remainder) / successful_step) * 2
                 remainder = new_remainder
@@ -1248,20 +1304,21 @@ class SeriesRule():
 
                     # remainder は負数になっているはず（割り切れないはず）
                     if 0 <= remainder:
-                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {self._span=}  {p_step=}  {q_step=}")
+                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {span=}  {p_step=}  {q_step=}")
                 
                 # remainder は零か負数になっているはず
                 elif 0 < remainder:
-                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {self._span=}  {p_step=}  {q_step=}")
+                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {span=}  {p_step=}  {q_step=}")
 
             return time
 
 
-        raise ValueError(f"{self._turn_system=}")
+        raise ValueError(f"{turn_system=}")
 
 
-    def number_of_longest_time(self):
-        """［最長対局数］
+    @staticmethod
+    def let_number_of_longest_time(p_time, q_time):
+        """［最長対局数］を算出します
         
         ［先後固定制］
         -------------
@@ -1308,9 +1365,6 @@ class SeriesRule():
                     1   1
                     1   0
         """
-
-        p_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-        q_time = self.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
         # if self._turn_system == WHEN_FROZEN_TURN:
         #     failed_times = 0

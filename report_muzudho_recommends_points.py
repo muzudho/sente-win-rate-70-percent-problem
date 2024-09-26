@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
+from library import HEAD, TAIL, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
 from library.database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from library.views import stringify_report_muzudho_recommends_points
 
@@ -28,13 +28,23 @@ LIMIT_ERROR = 0.03
 
 
 def generate_report(turn_system):
-    if turn_system == WHEN_ALTERNATING_TURN:
-        """［先後交互制］"""
 
-        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_ALTERNATING_TURN)
+    df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
 
-        for            p,          number_of_series,          p_step,          q_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['number_of_series'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+    for             p,           number_of_series,           p_step,           q_step,           span,           presentable,           comment,           process in\
+        zip(df_mrp['p'], df_mrp['number_of_series'], df_mrp['p_step'], df_mrp['q_step'], df_mrp['span'], df_mrp['presentable'], df_mrp['comment'], df_mrp['process']):
+
+        if p_step < 1:
+            p_step = 1
+
+        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+        number_of_series = round_letro(number_of_series)
+        p_step = round_letro(p_step)
+        q_step = round_letro(q_step)
+        span = round_letro(span)
+
+        if turn_system == WHEN_ALTERNATING_TURN:
+            """［先後交互制］"""
 
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
@@ -47,8 +57,8 @@ def generate_report(turn_system):
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
             latest_theoretical_p = calculate_probability(
                     p=p,
-                    H=specified_series_rule.p_time,
-                    T=specified_series_rule.q_time)
+                    H=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                    T=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(
@@ -64,15 +74,9 @@ def generate_report(turn_system):
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
                 f.write(f"{text}\n")    # ログファイルへ出力
 
-        return
 
-    if turn_system == WHEN_FROZEN_TURN:
-        """［先後固定制］"""
-
-        df_mr = get_df_muzudho_recommends_points(turn_system=WHEN_FROZEN_TURN)
-
-        for            p,          number_of_series,          p_step,          q_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['number_of_series'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        elif turn_system == WHEN_FROZEN_TURN:
+            """［先後固定制］"""
 
             # 仕様
             spec = Specification(
@@ -91,8 +95,8 @@ def generate_report(turn_system):
             # NOTE 実際値ではなく、理論値を出力する
             latest_theoretical_p = calculate_probability(
                     p=p,
-                    H=specified_series_rule.p_time,
-                    T=specified_series_rule.q_time)
+                    H=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                    T=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(
@@ -111,8 +115,8 @@ def generate_report(turn_system):
             
             return
 
-
-    raise ValueError(f"{turn_system=}")
+        else:
+            raise ValueError(f"{turn_system=}")
 
 
 ########################################

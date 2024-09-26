@@ -99,12 +99,13 @@ def append_default_record_to_df_mrp(df, p, failure_rate):
     index = len(df.index)
 
     # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
+    # NOTE pandas の DataFrame に int 型の数値を入れると、小数点を付けて保存されてしまうため、 int 型の数は文字列として入れる。（ただし、取り出すときは float 型になる）
     df.loc[index, ['p']] = p
     df.loc[index, ['failure_rate']] = failure_rate
-    df.loc[index, ['number_of_series']] = 0
-    df.loc[index, ['p_step']] = 0
-    df.loc[index, ['q_step']] = 1
-    df.loc[index, ['span']] = 1
+    df.loc[index, ['number_of_series']] = '0'
+    df.loc[index, ['p_step']] = '0'
+    df.loc[index, ['q_step']] = '1'
+    df.loc[index, ['span']] = '1'
     df.loc[index, ['presentable']] = ''
     df.loc[index, ['comment']] = ''
     df.loc[index, ['process']] = ''

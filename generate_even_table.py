@@ -69,16 +69,16 @@ def update_dataframe(df, p, failure_rate,
     df.loc[df['p']==p, ['latest_number_of_series']] = latest_number_of_series
 
     # ［表勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_p_step']] = best_series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    df.loc[df['p']==p, ['latest_p_step']] = latest_series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==p, ['latest_p_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
     # ［裏勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_q_step']] = best_series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
-    df.loc[df['p']==p, ['latest_q_step']] = latest_series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==p, ['best_q_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==p, ['latest_q_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
-    df.loc[df['p']==p, ['best_span']] = best_series_rule.span
-    df.loc[df['p']==p, ['latest_span']] = latest_series_rule.span
+    df.loc[df['p']==p, ['best_span']] = best_series_rule.step_table.span
+    df.loc[df['p']==p, ['latest_span']] = latest_series_rule.step_table.span
 
     # ［計算過程］列を更新
     df.loc[df['p']==p, ['process']] = process
@@ -214,7 +214,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                 argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
                                         p=p,
                                         failure_rate=failure_rate,
-                                        number_of_longest_time=latest_series_rule.number_of_longest_time())
+                                        number_of_longest_time=latest_series_rule.number_of_longest_time)
 
                                 # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
                                 list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -245,11 +245,11 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             best_series_rule = latest_series_rule
 
                             # ［最短対局数］［最長対局数］
-                            shortest_time = best_series_rule.number_of_shortest_time()
-                            longest_time = best_series_rule.number_of_longest_time()
+                            shortest_time = best_series_rule.number_of_shortest_time
+                            longest_time = best_series_rule.number_of_longest_time
 
                             # 計算過程
-                            one_process_text = f'[{best_p_error:.6f} {best_series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_series_rule.span}目 {shortest_time}～{longest_time}局]'
+                            one_process_text = f'[{best_p_error:.6f} {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_series_rule.step_table.span}目 {shortest_time}～{longest_time}局]'
                             print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {one_process_text}", flush=True) # すぐ表示
 
                             # ［計算過程］列を更新

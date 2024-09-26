@@ -80,10 +80,10 @@ Which one(1-2)? """)
             raise ValueError(f"{choice=}")
 
 
-        df_mr = get_df_muzudho_single_points(turn_system=turn_system)
+        df_msp = get_df_muzudho_single_points(turn_system=turn_system)
 
-        for            p,          p_step,          q_step,          span,          presentable,          comment,          process in\
-            zip(df_mr['p'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
+        for             p,           p_step,           q_step,           span,           presentable,           comment,           process in\
+            zip(df_msp['p'], df_msp['p_step'], df_msp['q_step'], df_msp['span'], df_msp['presentable'], df_msp['comment'], df_msp['process']):
 
             # 仕様
             spec = Specification(
@@ -114,7 +114,7 @@ Which one(1-2)? """)
                 argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        number_of_longest_time=specified_series_rule.number_of_longest_time())
+                        number_of_longest_time=specified_series_rule.number_of_longest_time)
 
                 #
                 # 到達できない棋譜は除去しておきたい
@@ -134,9 +134,9 @@ Which one(1-2)? """)
                     #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_series_rule.number_of_shortest_time():
+                elif old_number_of_times < specified_series_rule.number_of_shortest_time:
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.number_of_shortest_time()=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.number_of_shortest_time=}")
                     pass
 
                 #
