@@ -116,10 +116,10 @@ def get_even_series_rule_csv_file_path(turn_system=None, generation_algorythm=No
 # Muzudho recommends points
 ############################
 
-def get_muzudho_recommends_points_csv_file_path(turn_system):
+def get_selection_series_rule_csv_file_path(turn_system):
     """勝ち点ルールのむずでょセレクション"""
     subname = make_file_subname(turn_system=turn_system)
-    return f'./data/muzudho_recommends_points{subname}.csv'
+    return f'./data/selection_series_rule{subname}.csv'
 
 
 def get_muzudho_single_points_csv_file_path(turn_system):

@@ -1,6 +1,6 @@
 #
 # レポート作成
-# python report_muzudho_recommends_points.py
+# python report_selection_series_rule.py
 #
 #   ［表勝ち１つの点数］、［裏勝ち１つの点数］、［目標の点数］をテキストにまとめる。
 #
@@ -12,12 +12,12 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
-from library.database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
-from library.views import stringify_report_muzudho_recommends_points
+from library.database import get_df_selection_series_rule, get_df_selection_series_rule
+from library.views import stringify_report_selection_series_rule
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
-REPORT_FILE_PATH = 'reports/report_muzudho_recommends_points.log'
+REPORT_FILE_PATH = 'reports/report_selection_series_rule.log'
 
 FAILURE_RATE = 0.0
 
@@ -29,10 +29,10 @@ LIMIT_ERROR = 0.03
 
 def generate_report(turn_system):
 
-    df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
+    df_ssr = get_df_selection_series_rule(turn_system=turn_system)
 
     for             p,           number_of_series,           p_step,           q_step,           span,           presentable,           comment,           process in\
-        zip(df_mrp['p'], df_mrp['number_of_series'], df_mrp['p_step'], df_mrp['q_step'], df_mrp['span'], df_mrp['presentable'], df_mrp['comment'], df_mrp['process']):
+        zip(df_ssr['p'], df_ssr['number_of_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['process']):
 
         if p_step < 1:
             p_step = 1
@@ -61,7 +61,7 @@ def generate_report(turn_system):
                     T=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
             # 文言の作成
-            text = stringify_report_muzudho_recommends_points(
+            text = stringify_report_selection_series_rule(
                     p=p,
                     number_of_series=number_of_series,
                     latest_theoretical_p=latest_theoretical_p,
@@ -99,7 +99,7 @@ def generate_report(turn_system):
                     T=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
             # 文言の作成
-            text = stringify_report_muzudho_recommends_points(
+            text = stringify_report_selection_series_rule(
                     p=p,
                     number_of_series=number_of_series,
                     latest_theoretical_p=latest_theoretical_p,

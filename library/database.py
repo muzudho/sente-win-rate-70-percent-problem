@@ -5,11 +5,11 @@ import os
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
-from library.file_paths import get_even_series_rule_csv_file_path, get_muzudho_recommends_points_csv_file_path
+from library.file_paths import get_even_series_rule_csv_file_path, get_selection_series_rule_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'
-CSV_FILE_PATH_MRP = './data/report_muzudho_recommends_points.csv'
+CSV_FILE_PATH_MRP = './data/report_selection_series_rule.csv'
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
@@ -95,7 +95,7 @@ def get_df_p():
 # Muzudho recommended points table
 ###################################
 
-def append_default_record_to_df_mrp(df, p, failure_rate):
+def append_default_record_to_df_ssr(df, p, failure_rate):
     index = len(df.index)
 
     # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
@@ -111,12 +111,12 @@ def append_default_record_to_df_mrp(df, p, failure_rate):
     df.loc[index, ['process']] = ''
 
 
-def get_df_muzudho_recommends_points(turn_system):
-    csv_file_path = get_muzudho_recommends_points_csv_file_path(turn_system=turn_system)
+def get_df_selection_series_rule(turn_system):
+    csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
 
     # ファイルが存在しなかった場合
     if not os.path.isfile(csv_file_path):
-        csv_file_path = get_muzudho_recommends_points_csv_file_path(turn_system=None)
+        csv_file_path = get_selection_series_rule_csv_file_path(turn_system=None)
 
     df = pd.read_csv(csv_file_path, encoding="utf8")
 
@@ -133,8 +133,8 @@ def get_df_muzudho_recommends_points(turn_system):
     return df
 
 
-def df_mrp_to_csv(df, turn_system):
-    df.to_csv(get_muzudho_recommends_points_csv_file_path(turn_system=turn_system),
+def df_ssr_to_csv(df, turn_system):
+    df.to_csv(get_selection_series_rule_csv_file_path(turn_system=turn_system),
             # ［計算過程］列は長くなるので末尾に置きたい
             columns=['p', 'failure_rate', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'process'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
@@ -161,7 +161,7 @@ def get_df_muzudho_single_points(turn_system):
     raise ValueError(f"{turn_system=}")
 
 
-def get_df_report_muzudho_recommends_points():
+def get_df_report_selection_series_rule():
     df = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
     df['p'].astype('float')
     df['p_time'].fillna(0).astype('int')

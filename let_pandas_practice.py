@@ -4,7 +4,7 @@
 import traceback
 import pandas as pd
 
-from library.database import get_df_report_muzudho_recommends_points
+from library.database import get_df_report_selection_series_rule
 
 
 ########################################
@@ -16,15 +16,15 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        df_mrp = get_df_report_muzudho_recommends_points()
-        print(df_mrp)
+        df_ssr = get_df_report_selection_series_rule()
+        print(df_ssr)
 
 
-        for column_name in df_mrp:
+        for column_name in df_ssr:
             print(f"{column_name=}")
 
 
-        for p, p_time, q_time in zip(df_mrp['p'], df_mrp['p_time'], df_mrp['q_time']):
+        for p, p_time, q_time in zip(df_ssr['p'], df_ssr['p_time'], df_ssr['q_time']):
             print(f"{p=}  {p_time=}  {q_time}")
 
 

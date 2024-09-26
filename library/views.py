@@ -19,7 +19,7 @@ def parse_process_element(process_element):
     return None, None, None, None, None, None
 
 
-def stringify_report_muzudho_recommends_points(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, process, turn_system):
+def stringify_report_selection_series_rule(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, process, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 

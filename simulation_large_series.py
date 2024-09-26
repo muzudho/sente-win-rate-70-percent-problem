@@ -9,7 +9,7 @@ import traceback
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import get_df_muzudho_recommends_points
+from library.database import get_df_selection_series_rule
 from library.views import stringify_simulation_log
 
 
@@ -150,33 +150,36 @@ Example: 2000000
         number_of_series = int(input())
 
 
-# TODO
-#         data_source = int(input(f"""\
-# (1) even series rule
-# (2) selection series rule
-# Which data source should I use?
-# > """))
+        data_source = int(input(f"""\
+(1) even series rule
+(2) selection series rule
+Which data source should I use?
+> """))
 
 
-        title='むずでょセレクション'
+        # TODO
+        if data_source == 1:
+            print(f"未実装")
+
+        elif data_source == 2:
+            title='セレクション'
+
+            df_ssr = get_df_selection_series_rule(turn_system=turn_system)
+
+            for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           process in\
+                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['process']):
+
+                # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+                p_step = round_letro(p_step)
+                q_step = round_letro(q_step)
+                span = round_letro(span)
+
+                if p_step < 1:
+                    print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
+                    continue
 
 
-        df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
-
-        for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           process in\
-            zip(df_mrp['p'], df_mrp['failure_rate'], df_mrp['p_step'], df_mrp['q_step'], df_mrp['span'], df_mrp['presentable'], df_mrp['comment'], df_mrp['process']):
-
-            # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-            p_step = round_letro(p_step)
-            q_step = round_letro(q_step)
-            span = round_letro(span)
-
-            if p_step < 1:
-                print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
-                continue
-
-
-            simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process)
+                simulate_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, process)
 
 
     except Exception as err:

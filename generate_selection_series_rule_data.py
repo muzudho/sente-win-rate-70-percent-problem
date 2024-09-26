@@ -1,6 +1,6 @@
 #
 # 生成
-# python generate_muzudho_recommends_points_data.py
+# python generate_selection_series_rule_data.py
 #
 #   TODO むずでょが推奨する［かくきんシステムのｐの構成］一覧の各種 CSV を生成する。
 #
@@ -12,13 +12,13 @@ import math
 import pandas as pd
 
 from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, make_generation_algorythm, round_letro, calculate_probability
-from library.file_paths import get_muzudho_recommends_points_csv_file_path
-from library.database import get_df_even, get_df_muzudho_recommends_points, df_mrp_to_csv, get_df_p, append_default_record_to_df_mrp
+from library.file_paths import get_selection_series_rule_csv_file_path
+from library.database import get_df_even, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
 from library.views import parse_process_element
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
-REPORT_FILE_PATH = 'reports/report_muzudho_recommends_points.log'
+REPORT_FILE_PATH = 'reports/report_selection_series_rule.log'
 
 OUT_OF_ERROR = 0.51
 
@@ -36,7 +36,7 @@ def ready_records(df, specified_failure_rate, turn_system):
     for p in df_p['p']:
         # 存在しなければデフォルトのレコード追加
         if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate)).any():
-            append_default_record_to_df_mrp(
+            append_default_record_to_df_ssr(
                     df=df,
                     p=p,
                     failure_rate=specified_failure_rate)
@@ -44,16 +44,16 @@ def ready_records(df, specified_failure_rate, turn_system):
 
     if is_append_new_record:
         # CSV保存
-        df_mrp_to_csv(df=df, turn_system=turn_system)
+        df_ssr_to_csv(df=df, turn_system=turn_system)
 
 
 def generate_data(specified_failure_rate, turn_system, generation_algorythm):
 
     df_ev = get_df_even(turn_system=turn_system, generation_algorythm=generation_algorythm)
-    df_mrp = get_df_muzudho_recommends_points(turn_system=turn_system)
+    df_ssr = get_df_selection_series_rule(turn_system=turn_system)
 
     # まず、行の存在チェック。無ければ追加
-    ready_records(df=df_mrp, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
+    ready_records(df=df_ssr, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
 
 
     for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          process in\
@@ -103,11 +103,11 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
 
 
         # ［計算過程］列を更新
-        df_mrp.loc[df_mrp['p']==p, ['process']] = ' '.join(comment_element_list)
+        df_ssr.loc[df_ssr['p']==p, ['process']] = ' '.join(comment_element_list)
 
 
         # CSV保存
-        df_mrp_to_csv(df=df_mrp, turn_system=turn_system)
+        df_ssr_to_csv(df=df_ssr, turn_system=turn_system)
 
 
 ########################################
