@@ -5,7 +5,7 @@ import traceback
 import datetime
 import math
 
-from library import PointsConfiguration
+from library import SeriesRule
 
 LOG_FILE_PATH = 'output/let_count_time.log'
 
@@ -29,25 +29,25 @@ if __name__ == '__main__':
             for q_step in range(1, span):
                 # ［表勝ち１つの点数］
                 for p_step in range(1, q_step):
-                    pts_conf_ft = PointsConfiguration(
+                    series_rule_ft = SeriesRule.make_series_rule_base(
                             failure_rate=FAILURE_RATE,
-                            turn_system=WHEN_FROZEN_TURN,
                             p_step=p_step,
                             q_step=q_step,
-                            span=span)
+                            span=span,
+                            turn_system=WHEN_FROZEN_TURN)
 
-                    pts_conf_at = PointsConfiguration(
+                    series_rule_at = SeriesRule.make_series_rule_base(
                             failure_rate=FAILURE_RATE,
-                            turn_system=WHEN_ALTERNATING_TURN,
                             p_step=p_step,
                             q_step=q_step,
-                            span=span)
+                            span=span,
+                            turn_system=WHEN_ALTERNATING_TURN)
 
                     # ［最短対局数］［最長対局数］
-                    seg_3a = pts_conf_ft.number_of_shortest_time()
-                    seg_3b = pts_conf_ft.number_of_longest_time()
-                    seg_3c = pts_conf_at.number_of_shortest_time()
-                    seg_3d = pts_conf_at.number_of_longest_time()
+                    seg_3a = series_rule_ft.number_of_shortest_time()
+                    seg_3b = series_rule_ft.number_of_longest_time()
+                    seg_3c = series_rule_at.number_of_shortest_time()
+                    seg_3d = series_rule_at.number_of_longest_time()
 
                     seg_4a = p_step
                     seg_4b = q_step

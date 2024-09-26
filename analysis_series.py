@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, Specification, PointsConfiguration, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
+from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, Specification, SeriesRule, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_analysis_series_log_file_path
 from library.database import get_df_muzudho_single_points
 from library.views import stringify_series_log, stringify_analysis_series
@@ -23,15 +23,15 @@ FAILURE_RATE = 0.0     # 引分けなし
 #FAILURE_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
-def analysis_series(series_result, spec, pts_conf, title, turn_system):
+def analysis_series(series_result, spec, series_rule, title, turn_system):
     """シリーズ１つを分析します
     
     Parameters
     ----------
     spec : Specification
         ［仕様］
-    pts_conf : PointsConfiguration
-        ［勝ち点ルール］の構成
+    series_rule : SeriesRule
+        ［シリーズ・ルール］
     """
 
     text = stringify_series_log(
@@ -39,7 +39,7 @@ def analysis_series(series_result, spec, pts_conf, title, turn_system):
             p=spec.p,
             failure_rate=FAILURE_RATE,
             # ［かくきんシステムのｐの構成］
-            pts_conf=pts_conf,
+            series_rule=series_rule,
             # シリーズの結果
             series_result=series_result,
             # タイトル
@@ -91,13 +91,13 @@ Which one(1-2)? """)
                     failure_rate=FAILURE_RATE,
                     turn_system=turn_system)
 
-            # ［かくきんシステムのｐの構成］。任意に指定します
-            specified_pts_conf = PointsConfiguration(
+            # ［シリーズ・ルール］。任意に指定します
+            specified_series_rule = SeriesRule.make_series_rule_base(
                     failure_rate=FAILURE_RATE,
-                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
-                    span=span)
+                    span=span,
+                    turn_system=turn_system)
 
 
             series_result_list = []
@@ -105,7 +105,7 @@ Which one(1-2)? """)
             # FIXME 動作テスト
             list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
                     can_failure=False,
-                    pts_conf=specified_pts_conf)
+                    series_rule=specified_series_rule)
             
             for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
                 #print(f"動作テスト {list_of_face_of_coin=}")
@@ -114,7 +114,7 @@ Which one(1-2)? """)
                 argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
                         p=None,                 # FIXME 未設定
                         failure_rate=FAILURE_RATE,
-                        number_of_longest_time=specified_pts_conf.number_of_longest_time())
+                        number_of_longest_time=specified_series_rule.number_of_longest_time())
 
                 #
                 # 到達できない棋譜は除去しておきたい
@@ -126,7 +126,7 @@ Which one(1-2)? """)
                 series_result = judge_series(
                         argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                         list_of_face_of_coin=list_of_face_of_coin,
-                        pts_conf=specified_pts_conf,
+                        series_rule=specified_series_rule,
                         turn_system=turn_system)
 
                 if series_result.number_of_times < old_number_of_times:
@@ -134,9 +134,9 @@ Which one(1-2)? """)
                     #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
                     pass
 
-                elif old_number_of_times < specified_pts_conf.number_of_shortest_time():
+                elif old_number_of_times < specified_series_rule.number_of_shortest_time():
                     # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_pts_conf.number_of_shortest_time()=}")
+                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.number_of_shortest_time()=}")
                     pass
 
                 #
@@ -160,7 +160,7 @@ Which one(1-2)? """)
                 analysis_series(
                         series_result=series_result,
                         spec=spec,
-                        pts_conf=specified_pts_conf,
+                        series_rule=specified_series_rule,
                         title='（先後固定制）    むずでょセレクション',
                         turn_system=turn_system)
 

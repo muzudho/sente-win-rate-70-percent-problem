@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, PointsConfiguration, Specification
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
 from library.database import get_df_muzudho_recommends_points, get_df_muzudho_recommends_points
 from library.views import stringify_report_muzudho_recommends_points
 
@@ -36,26 +36,26 @@ def generate_report(turn_system):
         for            p,          number_of_series,          p_step,          q_step,          span,          presentable,          comment,          process in\
             zip(df_mr['p'], df_mr['number_of_series'], df_mr['p_step'], df_mr['q_step'], df_mr['span'], df_mr['presentable'], df_mr['comment'], df_mr['process']):
 
-            # ［かくきんシステムのｐの構成］。任意に指定します
-            specified_pts_conf = PointsConfiguration(
+            # ［シリーズ・ルール］。任意に指定します
+            specified_series_rule = SeriesRule.make_series_rule_base(
                     failure_rate=FAILURE_RATE,
-                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
-                    span=span)
+                    span=span,
+                    turn_system=turn_system)
 
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
             latest_theoretical_p = calculate_probability(
                     p=p,
-                    H=specified_pts_conf.p_time,
-                    T=specified_pts_conf.q_time)
+                    H=specified_series_rule.p_time,
+                    T=specified_series_rule.q_time)
 
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(
                     p=p,
                     number_of_series=number_of_series,
                     latest_theoretical_p=latest_theoretical_p,
-                    specified_pts_conf=specified_pts_conf,    # TODO 任意のポイントを指定したい
+                    specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
                     process=process,
                     turn_system=WHEN_ALTERNATING_TURN)
@@ -80,26 +80,26 @@ def generate_report(turn_system):
                     failure_rate=FAILURE_RATE,
                     turn_system=WHEN_ALTERNATING_TURN)
 
-            # ［かくきんシステムのｐの構成］。任意に指定します
-            specified_pts_conf = PointsConfiguration(
+            # ［シリーズ・ルール］。任意に指定します
+            specified_series_rule = SeriesRule.make_series_rule_base(
                     failure_rate=FAILURE_RATE,
-                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
-                    span=span)
+                    span=span,
+                    turn_system=turn_system)
 
             # NOTE 実際値ではなく、理論値を出力する
             latest_theoretical_p = calculate_probability(
                     p=p,
-                    H=specified_pts_conf.p_time,
-                    T=specified_pts_conf.q_time)
+                    H=specified_series_rule.p_time,
+                    T=specified_series_rule.q_time)
 
             # 文言の作成
             text = stringify_report_muzudho_recommends_points(
                     p=p,
                     number_of_series=number_of_series,
                     latest_theoretical_p=latest_theoretical_p,
-                    specified_pts_conf=specified_pts_conf,    # TODO 任意のポイントを指定したい
+                    specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
                     process=process,
                     turn_system=spec.turn_system)

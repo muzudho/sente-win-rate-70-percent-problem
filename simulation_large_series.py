@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, PointsConfiguration, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_muzudho_recommends_points
 from library.views import stringify_simulation_log
@@ -76,19 +76,19 @@ Example: 2000000
                     failure_rate=failure_rate,
                     turn_system=turn_system)
 
-            # ［かくきんシステムのｐの構成］。任意に指定します
-            pts_conf = PointsConfiguration(
+            # ［シリーズ・ルール］。任意に指定します
+            series_rule = SeriesRule.make_series_rule_base(
                     failure_rate=spec.failure_rate,
-                    turn_system=turn_system,
                     p_step=p_step,
                     q_step=q_step,
-                    span=span)
+                    span=span,
+                    turn_system=turn_system)
 
             series_result_list = []
 
             # ［最長対局数］は計算で求められます
-            shortest_times = pts_conf.number_of_shortest_time()
-            number_of_longest_time = pts_conf.number_of_longest_time()
+            shortest_times = series_rule.number_of_shortest_time()
+            number_of_longest_time = series_rule.number_of_longest_time()
             if number_of_longest_time < shortest_times:
                 text = f"［最短対局数］{shortest_times} が、［最長対局数］{number_of_longest_time} より長いです"
                 print(f"""\
@@ -98,8 +98,8 @@ spec:
 {p_step=}
 {q_step=}
 {span=}
-pts_conf:
-{pts_conf.stringify_dump('   ')}
+series_rule:
+{series_rule.stringify_dump('   ')}
 """)
                 raise ValueError(text)
 
@@ -119,23 +119,23 @@ pts_conf:
                 series_result = judge_series(
                         argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                         list_of_face_of_coin=list_of_face_of_coin,
-                        pts_conf=pts_conf,
+                        series_rule=series_rule,
                         turn_system=turn_system)
                 #print(f"{series_result.stringify_dump()}")
 
 
 
                 
-                if series_result.number_of_times < pts_conf.number_of_shortest_time():
-                    text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_of_shortest_time()} を下回った"
+                if series_result.number_of_times < series_rule.number_of_shortest_time():
+                    text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {series_rule.number_of_shortest_time()} を下回った"
                     print(f"""{text}
 {number_of_longest_time=}
 {series_result.stringify_dump('   ')}
 """)
                     raise ValueError(text)
 
-                if pts_conf.number_of_longest_time() < series_result.number_of_times:
-                    text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {pts_conf.number_of_longest_time()} を上回った"
+                if series_rule.number_of_longest_time() < series_result.number_of_times:
+                    text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {series_rule.number_of_longest_time()} を上回った"
                     print(f"""{text}
 {number_of_longest_time=}
 {series_result.stringify_dump('   ')}
@@ -160,7 +160,7 @@ pts_conf:
                     # ［先後運用制度］
                     turn_system=turn_system,
                     # ［かくきんシステムのｐの構成］
-                    pts_conf=pts_conf,
+                    series_rule=series_rule,
                     # シミュレーションの結果
                     large_series_trial_summary=large_series_trial_summary,
                     # タイトル
@@ -178,11 +178,11 @@ pts_conf:
 
 
             # 表示とログ出力を終えた後でテスト
-            if large_series_trial_summary.shortest_time_th < pts_conf.number_of_shortest_time():
-                raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {pts_conf.number_of_shortest_time()} を下回った")
+            if large_series_trial_summary.shortest_time_th < series_rule.number_of_shortest_time():
+                raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {series_rule.number_of_shortest_time()} を下回った")
 
-            if pts_conf.number_of_longest_time() < large_series_trial_summary.longest_time_th:
-                raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {pts_conf.number_of_longest_time()} を上回った")
+            if series_rule.number_of_longest_time() < large_series_trial_summary.longest_time_th:
+                raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {series_rule.number_of_longest_time()} を上回った")
 
 
     except Exception as err:

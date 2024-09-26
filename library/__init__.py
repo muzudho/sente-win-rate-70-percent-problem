@@ -393,7 +393,7 @@ class SequenceOfFaceOfCoin():
 
 
     @staticmethod
-    def make_list_of_all_pattern_face_of_coin(can_failure, pts_conf):
+    def make_list_of_all_pattern_face_of_coin(can_failure, series_rule):
         """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印の組み合わせが全て入っているリストを作成します
 
         TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
@@ -402,8 +402,8 @@ class SequenceOfFaceOfCoin():
 
         Returns
         -------
-        pts_conf : PointsConfiguration
-            ［勝ち点ルール］の構成
+        series_rule : SeriesRule
+            ［シリーズ・ルール］
         power_set_list : list
             勝った方の色（引き分け含む）のリストが全パターン入っているリスト
         """
@@ -417,7 +417,7 @@ class SequenceOfFaceOfCoin():
             elements = [HEAD, TAIL]
 
         # 桁数
-        depth = pts_conf.number_of_longest_time()
+        depth = series_rule.number_of_longest_time()
 
         # １シーズン分のコイントスの全ての結果
         stats = []
@@ -552,25 +552,25 @@ class PointCalculation():
     """勝ち点計算に使う"""
 
 
-    def __init__(self, pts_conf):
+    def __init__(self, series_rule):
         """初期化
         
         Parameters
         ----------
-        pts_conf : PointsConfiguration
-            ［勝ち点ルール］の構成
+        series_rule : SeriesRule
+            ［シリーズ・ルール］
         """
 
-        self._pts_conf = pts_conf
+        self._series_rule = series_rule
 
         # ［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん
         self._point_list = [0, 0, 0, 0, 0]
 
 
     @property
-    def pts_conf(self):
+    def series_rule(self):
         """［勝ち点ルール］の構成"""
-        return self._pts_conf
+        return self._series_rule
 
 
     @property
@@ -640,7 +640,7 @@ class PointCalculation():
         successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, turn_system)
 
         # ［勝ち点］
-        step = self._pts_conf.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
+        step = self._series_rule.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
 
 
         self._point_list[successful_face_of_coin] += step
@@ -653,23 +653,23 @@ class PointCalculation():
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        self._point_list[HEAD] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        self._point_list[TAIL] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        self._point_list[HEAD] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        self._point_list[TAIL] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         if turn_system == WHEN_FROZEN_TURN:
-            self._point_list[ALICE] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            self._point_list[BOB] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[ALICE] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[BOB] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         elif turn_system == WHEN_ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
-                self._point_list[ALICE] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[BOB] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
             # 偶数回はＢさんが先手
             else:
-                self._point_list[BOB] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=HEAD)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[ALICE] += self._pts_conf.get_step_by(challenged=FAILED, face_of_coin=TAIL)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=HEAD)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += self._series_rule.get_step_by(challenged=FAILED, face_of_coin=TAIL)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             
         else:
             raise ValueError(f"{turn_system=}")
@@ -681,7 +681,7 @@ class PointCalculation():
 
     def is_fully_won(self, index):
         """点数を満たしているか？"""
-        return self._pts_conf.span <= self.get_point_of(index)
+        return self._series_rule.span <= self.get_point_of(index)
 
 
     def x_has_more_than_y(self, x, y):
@@ -694,8 +694,8 @@ class PointCalculation():
         return f"""\
 {indent}PointCalculation
 {indent}----------------
-{two_indents}self._pts_conf:
-{self._pts_conf.stringify_dump(two_indents)}
+{two_indents}self._series_rule:
+{self._series_rule.stringify_dump(two_indents)}
 {two_indents}{self._point_list=}
 """
 
@@ -726,7 +726,7 @@ def play_tie_break(p, failure_rate):
         return elementary_event
 
 
-def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf, turn_system):
+def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_rule, turn_system):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
 
@@ -745,8 +745,8 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
 
         Parameters
         ----------
-        pts_conf : PointsConfiguration
-            ［かくきんシステムのｐの構成］
+        series_rule : SeriesRule
+            ［シリーズ・ルール］
         
         Returns
         -------
@@ -755,7 +755,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
         """
 
         # ［勝ち点計算］
-        point_calculation = PointCalculation(pts_conf=pts_conf)
+        point_calculation = PointCalculation(series_rule=series_rule)
 
         # ［このシリーズで引き分けた対局数］
         number_of_failed = 0
@@ -782,7 +782,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
                     turn_system=WHEN_FROZEN_TURN)
 
                 # 勝ち抜け
-                if pts_conf.span <= point_calculation.get_point_of(face_of_coin):
+                if series_rule.span <= point_calculation.get_point_of(face_of_coin):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -791,7 +791,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
                     return SeriesResult(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
-                            span=pts_conf.span,
+                            span=series_rule.span,
                             point_calculation=point_calculation,
                             argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                             list_of_face_of_coin=list_of_face_of_coin)
@@ -801,7 +801,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
         return SeriesResult(
                 number_of_times=time_th,
                 number_of_failed=number_of_failed,
-                span=pts_conf.span,
+                span=series_rule.span,
                 point_calculation=point_calculation,
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin)
@@ -813,8 +813,8 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
         
         Parameters
         ----------
-        pts_conf : PointsConfiguration
-            ［かくきんシステムのｐの構成］
+        series_rule : SeriesRule
+            ［シリーズ・ルール］
         
         Returns
         -------
@@ -823,7 +823,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
         """
 
         # ［勝ち点計算］
-        point_calculation = PointCalculation(pts_conf=pts_conf)
+        point_calculation = PointCalculation(series_rule=series_rule)
 
         # ［このシリーズで引き分けた対局数］
         number_of_failed = 0
@@ -852,7 +852,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
                         turn_system=WHEN_ALTERNATING_TURN)
 
                 # 勝ち抜け
-                if pts_conf.span <= point_calculation.get_point_of(successful_player):
+                if series_rule.span <= point_calculation.get_point_of(successful_player):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -861,7 +861,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
                     return SeriesResult(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
-                            span=pts_conf.span,
+                            span=series_rule.span,
                             point_calculation=point_calculation,
                             argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                             list_of_face_of_coin=list_of_face_of_coin)
@@ -871,7 +871,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, pts_conf
         return SeriesResult(
                 number_of_times=time_th,
                 number_of_failed=number_of_failed,
-                span=pts_conf.span,
+                span=series_rule.span,
                 point_calculation=point_calculation,
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin)
@@ -934,24 +934,48 @@ def calculate_probability(p, H, T):
     return probability
 
 
-class PointsConfiguration():
-    """［かくきんシステムのｐの構成］"""
+class SeriesRule():
+    """［シリーズ・ルール］"""
 
 
-    def __init__(self, failure_rate, p_step, q_step, span, turn_system):
+    def __init__(self, failure_rate, p_step, q_step, p_step_when_failed, q_step_when_failed, span, turn_system):
         """初期化
         
         Parameters
         ----------
         failure_rate : float
-            ［将棋の引分け率］
+            ［コインを投げて表も裏も出ない確率］
         p_step : int
-            ［表勝ち１つの点数］
+            ［表が出て勝ったときの点数］
         q_step : int
-            ［裏勝ち１つの点数］
+            ［裏が出て勝ったときの点数］
+        p_step_when_failed : float
+            ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        q_step_when_failed : float
+            ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
         span : int
             ［目標の点数］
         """
+
+        self._span = span
+
+        self._step_list = [
+                # 0: ［未使用］
+                None,
+                # 1: ［コインの表が出たときの勝ち点］
+                p_step,
+                # 2: ［コインの裏が出たときの勝ち点］
+                q_step,
+                # 3: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                p_step_when_failed,
+                # 4: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+                q_step_when_failed]
+
+        self._turn_system = turn_system
+
+
+    @staticmethod
+    def make_series_rule_base(failure_rate, p_step, q_step, span, turn_system):
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
         if not isinstance(p_step, int):
@@ -978,8 +1002,6 @@ class PointsConfiguration():
         if span < q_step:
             raise ValueError(f"［コインの裏が出たときの勝ち点］{q_step=} が、［目標の点数］{span} を上回るのはおかしいです")
 
-        self._failure_rate = failure_rate
-        self._span = span
 
         # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
         p_step_when_failed = Functions.point_when_failed(
@@ -995,28 +1017,56 @@ class PointsConfiguration():
                 step=q_step,
                 face_of_coin=TAIL)
 
-        if q_step_when_failed < p_step_when_failed:
-            raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
-
-        self._step_list = [
-                # 0: ［未使用］
-                None,
-                # 1: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                p_step_when_failed,
-                # 2: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-                q_step_when_failed,
-                # 3: ［コインの表が出たときの勝ち点］
-                p_step,
-                # 4: ［コインの裏が出たときの勝ち点］
-                q_step]
-
-        self._turn_system = turn_system
+        # if q_step_when_failed < p_step_when_failed:
+        #     raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
 
 
-    @property
-    def failure_rate(self):
-        """［将棋の引分け率］"""
-        return self._failure_rate
+        return SeriesRule(
+                failure_rate=failure_rate,
+                p_step=p_step,
+                q_step=q_step,
+                p_step_when_failed=p_step_when_failed,
+                q_step_when_failed=q_step_when_failed,
+                span=span,
+                turn_system=turn_system)
+
+
+    @staticmethod
+    def make_series_rule_auto_span(failure_rate, p_time, q_time, turn_system):
+        """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
+        
+        Parameters
+        ----------
+        failure_rate : float
+            ［将棋の引分け率］
+        p_time : int
+            ［表勝ちだけでの対局数］
+        q_time : int
+            ［裏勝ちだけでの対局数］
+        """
+        # DO 通分したい。最小公倍数を求める
+        lcm = math.lcm(p_time, q_time)
+        # ［表勝ち１つの点数］
+        #
+        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
+        #
+        p_step = round_letro(lcm / p_time)
+        # ［裏勝ち１つの点数］
+        q_step = round_letro(lcm / q_time)
+        # ［目標の点数］
+        span = round_letro(q_time * q_step)
+
+        # データチェック
+        span_w = round_letro(p_time * p_step)
+        if span != span_w:
+            raise ValueError(f"{span=}  {span_w=}")
+
+        return SeriesRule.make_series_rule_base(
+                failure_rate=failure_rate,
+                p_step=p_step,
+                q_step=q_step,
+                span=span,
+                turn_system=turn_system)
 
 
     @property
@@ -1077,27 +1127,27 @@ class PointsConfiguration():
             ［コインの表か裏かそれ以外］
         """
 
-        if challenged == FAILED:
-            # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            if face_of_coin == HEAD:
-                return self._step_list[1]
-            
-            # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-            if face_of_coin == TAIL:
-                return self._step_list[2]
-            
-            raise ValueError(f"{face_of_coin=}")
-
-
-        elif challenged == SUCCESSFUL:
+        if challenged == SUCCESSFUL:
             # ［コインの表が出たときの勝ち点］
             if face_of_coin == HEAD:
-                return self._step_list[3]
+                return self._step_list[1]
 
             # ［コインの裏が出たときの勝ち点］
             if face_of_coin == TAIL:
-                return self._step_list[4]
+                return self._step_list[2]
 
+            raise ValueError(f"{face_of_coin=}")
+
+
+        if challenged == FAILED:
+            # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            if face_of_coin == HEAD:
+                return self._step_list[3]
+            
+            # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+            if face_of_coin == TAIL:
+                return self._step_list[4]
+            
             raise ValueError(f"{face_of_coin=}")
 
 
@@ -1108,44 +1158,6 @@ class PointsConfiguration():
     def span(self):
         """［目標の点数］"""
         return self._span
-
-
-    @staticmethod
-    def let_points_from_time(failure_rate, p_time, q_time, turn_system):
-        """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
-        
-        Parameters
-        ----------
-        failure_rate : float
-            ［将棋の引分け率］
-        p_time : int
-            ［表勝ちだけでの対局数］
-        q_time : int
-            ［裏勝ちだけでの対局数］
-        """
-        # DO 通分したい。最小公倍数を求める
-        lcm = math.lcm(p_time, q_time)
-        # ［表勝ち１つの点数］
-        #
-        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
-        #
-        p_step = round_letro(lcm / p_time)
-        # ［裏勝ち１つの点数］
-        q_step = round_letro(lcm / q_time)
-        # ［目標の点数］
-        span = round_letro(q_time * q_step)
-
-        # データチェック
-        span_w = round_letro(p_time * p_step)
-        if span != span_w:
-            raise ValueError(f"{span=}  {span_w=}")
-
-        return PointsConfiguration(
-                failure_rate=failure_rate,
-                turn_system=turn_system,
-                p_step=p_step,
-                q_step=q_step,
-                span=span)
 
 
     def number_of_shortest_time(self):
@@ -1316,12 +1328,12 @@ class PointsConfiguration():
 
 
     def stringify_dump(self, indent):
+        two_indents = indent + indent
         return f"""\
-{indent}PointsConfiguration
+{indent}SeriesRule
 {indent}-------------------
-{indent}{indent}{self._failure_rate=}
-{indent}{indent}{self._span=}
-{indent}{indent}{self._step_list=}
+{two_indents}{self._span=}
+{two_indents}{self._step_list=}
 """
 
 

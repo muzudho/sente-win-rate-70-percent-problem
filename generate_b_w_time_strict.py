@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, PointsConfiguration
+from library import calculate_probability, SeriesRule
 from library.database import get_df_p
 from library.views import stringify_p_q_time_strict
 
@@ -87,8 +87,8 @@ if __name__ == '__main__':
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
-                # ［かくきんシステムのｐの構成］
-                pts_conf = PointsConfiguration.let_points_from_time(
+                # ［シリーズ・ルール］
+                series_rule = SeriesRule.make_series_rule_auto_span(
                     failure_rate=FAILURE_RATE,
                     turn_system=WHEN_FROZEN_TURN,
                     p_time=best_p_time,
@@ -98,7 +98,7 @@ if __name__ == '__main__':
                         p=p,
                         best_p=best_p,
                         best_p_error=best_p_error,
-                        pts_conf=pts_conf,
+                        series_rule=series_rule,
                         process_list=process_list)
 
                 print(text) # 表示
