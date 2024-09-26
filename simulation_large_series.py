@@ -167,7 +167,6 @@ pts_conf:
 
             # ログ出力
             with open(get_simulation_large_series_log_file_path(
-                    p=p,
                     failure_rate=spec.failure_rate,
                     turn_system=turn_system), 'a', encoding='utf8') as f:
                 f.write(f"{text}\n")    # ファイルへ出力
