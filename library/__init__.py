@@ -1142,18 +1142,40 @@ class SeriesRule():
                 q_step_when_failed=q_step_when_failed,
                 span=span)
 
+
+        # ［最短対局数］
+        number_of_shortest_time = SeriesRule.let_number_of_shortest_time(
+                p_step=p_step,
+                q_step=q_step,
+                span=span,
+                turn_system=turn_system)
+
+        # ［最長対局数］
+        number_of_longest_time = SeriesRule.let_number_of_longest_time(
+                p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+
+        if number_of_longest_time < number_of_shortest_time:
+            text = f"［最短対局数］{number_of_shortest_time} が、［最長対局数］{number_of_longest_time} より長いです"
+            print(f"""\
+{text}
+spec:
+{spec.stringify_dump('    ')}
+{p_step=}
+{q_step=}
+{span=}
+series_rule:
+{series_rule.stringify_dump('   ')}
+""")
+            raise ValueError(text)
+
+
         return SeriesRule(
                 step_table=step_table,
                 # ［最短対局数］
-                number_of_shortest_time=SeriesRule.let_number_of_shortest_time(
-                        p_step=p_step,
-                        q_step=q_step,
-                        span=span,
-                        turn_system=turn_system),
+                number_of_shortest_time=number_of_shortest_time,
                 # ［最長対局数］
-                number_of_longest_time=SeriesRule.let_number_of_longest_time(
-                        p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                        q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL)),
+                number_of_longest_time=number_of_longest_time,
                 turn_system=turn_system)
 
 
