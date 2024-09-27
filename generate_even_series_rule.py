@@ -24,7 +24,7 @@ from library.views import print_even_series_rule
 ABS_OUT_OF_ERROR = 0.51
 
 # 十分小さいエラー
-ABS_SMALL_ERROR = 0.00009
+ABS_SMALL_ERROR = 0.0000009
 
 # 探索の上限
 LIMIT_SPAN = 1001

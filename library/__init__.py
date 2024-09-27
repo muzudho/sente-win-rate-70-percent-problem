@@ -713,30 +713,30 @@ class PointCalculation():
 """
 
 
-def play_tie_break(p, failure_rate):
-    """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
+# def play_tie_break(p, failure_rate):
+#     """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
 
-    Parameters
-    ----------
-    p : float
-        ［表が出る確率］ 例： ７割なら 0.7
-    failure_rate : float
-        ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
+#     Parameters
+#     ----------
+#     p : float
+#         ［表が出る確率］ 例： ７割なら 0.7
+#     failure_rate : float
+#         ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
     
-    Returns
-    -------
-    winner_color : int
-        勝った方の色。引き分けなら裏勝ち
-    """
+#     Returns
+#     -------
+#     winner_color : int
+#         勝った方の色。引き分けなら裏勝ち
+#     """
 
-    elementary_event = toss_a_coin(p, failure_rate) 
+#     elementary_event = toss_a_coin(p, failure_rate) 
 
-    # 引き分けなら裏勝ち
-    if elementary_event == EMPTY:
-        return TAIL
+#     # 引き分けなら裏勝ち
+#     if elementary_event == EMPTY:
+#         return TAIL
 
-    else:
-        return elementary_event
+#     else:
+#         return elementary_event
 
 
 def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_rule):
@@ -1143,18 +1143,20 @@ class SeriesRule():
 
 
         # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        p_step_when_failed = Functions.point_when_failed(
-                failure_rate=failure_rate,
-                turn_system=turn_system,
-                step=p_step,
-                face_of_coin=HEAD)
+        # p_step_when_failed = Functions.point_when_failed(
+        #         failure_rate=failure_rate,
+        #         turn_system=turn_system,
+        #         step=p_step,
+        #         face_of_coin=HEAD)
+        p_step_when_failed = 0
 
         # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-        q_step_when_failed = Functions.point_when_failed(
-                failure_rate=failure_rate,
-                turn_system=turn_system,
-                step=q_step,
-                face_of_coin=TAIL)
+        # q_step_when_failed = Functions.point_when_failed(
+        #         failure_rate=failure_rate,
+        #         turn_system=turn_system,
+        #         step=q_step,
+        #         face_of_coin=TAIL)
+        q_step_when_failed = 0
 
         # if q_step_when_failed < p_step_when_failed:
         #     raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
