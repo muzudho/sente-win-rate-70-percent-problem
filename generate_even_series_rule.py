@@ -209,8 +209,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                 series_result = judge_series(
                                         argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                                         list_of_face_of_coin=list_of_face_of_coin,
-                                        series_rule=latest_series_rule,
-                                        turn_system=turn_system)
+                                        series_rule=latest_series_rule)
                                 
                                 series_result_list.append(series_result)
                             

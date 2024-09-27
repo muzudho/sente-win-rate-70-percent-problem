@@ -57,6 +57,15 @@ WHEN_FROZEN_TURN = 1
 WHEN_ALTERNATING_TURN = 2
 
 
+_turn_system_to_str = {
+    WHEN_FROZEN_TURN : '先後固定制',
+    WHEN_ALTERNATING_TURN : '先後交互制',
+}
+
+def turn_system_to_str(turn_system):
+    return _turn_system_to_str[turn_system]
+
+
 # Opponent pair
 # -------------
 
@@ -730,7 +739,7 @@ def play_tie_break(p, failure_rate):
         return elementary_event
 
 
-def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_rule, turn_system):
+def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_rule):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
 
@@ -743,7 +752,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
     """
 
     # ［先後固定制］
-    if turn_system == WHEN_FROZEN_TURN:
+    if series_rule.turn_system == WHEN_FROZEN_TURN:
         """［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
         もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
 
@@ -777,13 +786,13 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
             if face_of_coin == EMPTY:
                 number_of_failed += 1
 
-                point_calculation.append_failure(time_th, turn_system=WHEN_FROZEN_TURN)
+                point_calculation.append_failure(time_th, turn_system=series_rule.turn_system)
             
             else:
                 point_calculation.append_won(
                     successful_face_of_coin=face_of_coin,
                     time_th=time_th,
-                    turn_system=WHEN_FROZEN_TURN)
+                    turn_system=series_rule.turn_system)
 
                 # 勝ち抜け
                 if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin):
@@ -812,7 +821,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
 
 
     # ［先後交互制］
-    if turn_system == WHEN_ALTERNATING_TURN:
+    if series_rule.turn_system == WHEN_ALTERNATING_TURN:
         """で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
@@ -845,15 +854,15 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
             if face_of_coin == EMPTY:
                 number_of_failed += 1
 
-                point_calculation.append_failure(time_th, turn_system=WHEN_ALTERNATING_TURN)
+                point_calculation.append_failure(time_th, turn_system=series_rule.turn_system)
 
             else:
-                successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=WHEN_ALTERNATING_TURN)
+                successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=series_rule.turn_system)
 
                 point_calculation.append_won(
                         successful_face_of_coin=face_of_coin,
                         time_th=time_th,
-                        turn_system=WHEN_ALTERNATING_TURN)
+                        turn_system=series_rule.turn_system)
 
                 # 勝ち抜け
                 if series_rule.step_table.span <= point_calculation.get_point_of(successful_player):
@@ -881,7 +890,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                 list_of_face_of_coin=list_of_face_of_coin)
 
 
-    raise ValueError(f"{turn_system=}")
+    raise ValueError(f"{series_rule.turn_system=}")
 
 
 def calculate_probability(p, H, T):
@@ -1505,9 +1514,9 @@ class SeriesResult():
         Parameters
         ----------
         number_of_times : int
-            行われた対局数
+            ［行われた対局数］
         number_of_failed : int
-            引分けだった対局数
+            ［表も裏も出なかった対局数］
         span : int
             ［目標の点数］
         point_calculation : PointCalculation

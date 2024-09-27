@@ -126,8 +126,7 @@ Which one(1-2)? """)
                 series_result = judge_series(
                         argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                         list_of_face_of_coin=list_of_face_of_coin,
-                        series_rule=specified_series_rule,
-                        turn_system=turn_system)
+                        series_rule=specified_series_rule)
 
                 if series_result.number_of_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
