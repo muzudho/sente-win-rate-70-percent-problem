@@ -1574,8 +1574,10 @@ class SeriesResult():
         return not self._point_calculation.is_fully_won(winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
-    def is_won(self, winner, loser):
-        """FIXME winner が loser に勝った"""
+    def is_won(self, winner):
+        """FIXME このシリーズで winner が loser に勝ったか？"""
+
+        loser = opponent(winner)
 
         # 両者が満点勝ちしているという状況はない
         if self.point_calculation.is_fully_won(winner) and self.point_calculation.is_fully_won(loser):
