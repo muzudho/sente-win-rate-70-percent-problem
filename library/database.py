@@ -25,13 +25,13 @@ def append_default_record_to_df_even(df, p, failure_rate):
     df.loc[index, ['failure_rate']] = failure_rate
     df.loc[index, ['best_p']] = 0
     df.loc[index, ['best_p_error']] = 0.51
-    df.loc[index, ['best_number_of_series']] = 2000000
+    df.loc[index, ['best_number_of_series']] = 1
     df.loc[index, ['best_p_step']] = 0
     df.loc[index, ['best_q_step']] = 1
     df.loc[index, ['best_span']] = 1
     df.loc[index, ['latest_p']] = 0
     df.loc[index, ['latest_p_error']] = 0.51
-    df.loc[index, ['latest_number_of_series']] = 2000000
+    df.loc[index, ['latest_number_of_series']] = 1
     df.loc[index, ['latest_p_step']] = 0
     df.loc[index, ['latest_q_step']] = 1
     df.loc[index, ['latest_span']] = 1

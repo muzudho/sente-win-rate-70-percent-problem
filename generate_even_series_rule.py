@@ -466,7 +466,7 @@ Example: 2000000
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+            df_even_to_csv(df=df_ev, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
 
     except Exception as err:
