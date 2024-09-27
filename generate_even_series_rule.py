@@ -129,6 +129,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
         zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+        best_number_of_series = round_letro(best_number_of_series)
         best_p_step = round_letro(best_p_step)
         best_q_step = round_letro(best_q_step)
         best_span = round_letro(best_span)
@@ -256,6 +257,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
+                                    number_of_series=best_number_of_series,
                                     p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                                     q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule.step_table.span,

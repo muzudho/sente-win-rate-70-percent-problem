@@ -1733,8 +1733,28 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, p_step, q_step, span, number_of_shortest_time, number_of_longest_time):
+    def __init__(self, p_error, number_of_series, p_step, q_step, span, number_of_shortest_time, number_of_longest_time):
+
+        if not isinstance(number_of_series, int):
+            raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {number_of_series=}")
+
+        if not isinstance(p_step, int):
+            raise ValueError(f"［表番の勝ち１つ分の点数］は int 型である必要があります {p_step=}")
+
+        if not isinstance(q_step, int):
+            raise ValueError(f"［裏番の勝ち１つ分の点数］は int 型である必要があります {q_step=}")
+
+        if not isinstance(span, int):
+            raise ValueError(f"［目標の点数］は int 型である必要があります {span=}")
+
+        if not isinstance(number_of_shortest_time, int):
+            raise ValueError(f"［最短対局数］は int 型である必要があります {number_of_shortest_time=}")
+
+        if not isinstance(number_of_longest_time, int):
+            raise ValueError(f"［最長対局数］は int 型である必要があります {number_of_longest_time=}")
+
         self._p_error = p_error
+        self._number_of_series = number_of_series
         self._p_step = p_step
         self._q_step = q_step
         self._span = span
@@ -1745,6 +1765,11 @@ class Candidate():
     @property
     def p_error(self):
         return self._p_error
+
+
+    @property
+    def number_of_series(self):
+        return self._number_of_series
 
 
     @property
@@ -1774,7 +1799,7 @@ class Candidate():
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._number_of_shortest_time}～{self._number_of_longest_time}局]'
+        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._number_of_shortest_time}～{self._number_of_longest_time}局 {self._number_of_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -1783,12 +1808,13 @@ class Candidate():
     def parse_candidate(clazz, candidate):
 
         if clazz._re_pattern_of_candidate is None:
-            clazz._re_pattern_of_candidate = re.compile(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局')
+            clazz._re_pattern_of_candidate = re.compile(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局 (\d+)試')
 
         result = _re_pattern_of_candidate.match(candidate)
         if result:
             return Candidate(
                     p_error=float(result.group(1)),
+                    number_of_series=float(result.group(7)),
                     p_step=int(result.group(2)),
                     q_step=int(result.group(3)),
                     span=int(result.group(4)),
