@@ -1633,19 +1633,19 @@ class TrialResultsForOneSeries():
     
 
 class LargeSeriesTrialSummary():
-    """大量のシリーズを試行した結果"""
+    """［大量のシリーズを試行した結果］"""
 
 
-    def __init__(self, series_result_list):
+    def __init__(self, list_of_trial_results_for_one_series):
         """初期化
         
         Parameters
         ----------
-        series_result_list : list
+        list_of_trial_results_for_one_series : list
             ［シリーズ］の結果のリスト
         """
 
-        self._series_result_list = series_result_list
+        self._series_result_list = list_of_trial_results_for_one_series
         self._shortest_time_th = None
         self._longest_time_th = None
         self._number_of_failed = None

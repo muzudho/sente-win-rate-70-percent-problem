@@ -132,12 +132,11 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        print(f"""\
+        prompt = f"""\
 (1) Frozen turn
 (2) Alternating turn
-Which one(1-2)? """)
-
-        choice = input()
+Which one(1-2)? """
+        choice = input(prompt)
 
         if choice == '1':
             specified_turn_system = WHEN_FROZEN_TURN
@@ -149,18 +148,19 @@ Which one(1-2)? """)
             raise ValueError(f"{choice=}")
 
 
-        print(f"""\
+        prompt = f"""\
 What is the failure rate?
 Example: 10% is 0.1
-? """)
-        specified_failure_rate = float(input())
+? """
+        specified_failure_rate = float(input(prompt))
 
 
-        data_source = int(input(f"""\
+        prompt = f"""\
 (1) even series rule
 (2) selection series rule
 Which data source should I use?
-> """))
+> """
+        data_source = int(input(prompt))
 
 
         text = stringify_header(specified_turn_system)

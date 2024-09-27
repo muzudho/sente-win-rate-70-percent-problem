@@ -191,7 +191,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                         # 力任せ探索の場合                        
                         if generation_algorythm == BRUTE_FORCE:
-                            series_result_list = []
+                            list_of_trial_results_for_one_series = []
 
                             for i in range(0, specified_number_of_series):
 
@@ -211,11 +211,11 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                         list_of_face_of_coin=list_of_face_of_coin,
                                         series_rule=latest_series_rule)
                                 
-                                series_result_list.append(trial_results_for_one_series)
+                                list_of_trial_results_for_one_series.append(trial_results_for_one_series)
                             
                             # シミュレーションの結果
                             large_series_trial_summary = LargeSeriesTrialSummary(
-                                    series_result_list=series_result_list)
+                                    list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
                             # Ａさんが勝った回数
                             latest_p = large_series_trial_summary.number_of_wins(winner=ALICE) / specified_number_of_series
@@ -370,19 +370,19 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-#         print(f"""\
+#         prompt = f"""\
 # What is the probability of flipping a coin and getting heads?
 # Example: 70% is 0.7
-# ? """)
-#         p = float(input())
+# ? """
+#         p = float(input(prompt))
 
 
         # ［先後が回ってくる制度］を尋ねる
-        print(f"""\
+        prompt = f"""\
 (1) Frozen turn
 (2) Alternating turn
-Which one(1-2)? """)
-        choice = input()
+Which one(1-2)? """
+        choice = input(prompt)
         if choice == '1':
             specified_turn_system = WHEN_FROZEN_TURN
         elif choice == '2':
@@ -391,21 +391,19 @@ Which one(1-2)? """)
             raise ValueError(f"{choice=}")
 
 
-        print(f"""\
+        prompt = f"""\
 What is the failure rate?
 Example: 10% is 0.1
-? """)
-        specified_failure_rate = float(input())
+? """
+        specified_failure_rate = float(input(prompt))
 
 
         # ［試行シリーズ回数］を尋ねる
-        print(f"""\
+        prompt = f"""\
 How many times do you want to try the series?
 Example: 2000000
-? """)
-        specified_number_of_series = int(input())
-
-
+? """
+        specified_number_of_series = int(input(prompt))
 
 
         generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)

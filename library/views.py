@@ -541,7 +541,7 @@ def stringify_simulation_log(
 """
 
 
-def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
+def stringify_analysis_series(p, failure_rate, list_of_trial_results_for_one_series, turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         """シリーズ分析中のログ"""
 
@@ -549,7 +549,7 @@ def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
         head_wons = 0
         no_wons_color = 0
         tail_wons = 0
-        for trial_results_for_one_series in series_result_list:
+        for trial_results_for_one_series in list_of_trial_results_for_one_series:
             if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
                 head_wons += 1
             elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
@@ -558,15 +558,15 @@ def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
                 no_wons_color += 1
         
         # 結果としての表の勝率
-        result_head_wons_without_failure = head_wons / (len(series_result_list) - no_wons_color)
-        result_head_wons_with_failure = head_wons / len(series_result_list)
+        result_head_wons_without_failure = head_wons / (len(list_of_trial_results_for_one_series) - no_wons_color)
+        result_head_wons_with_failure = head_wons / len(list_of_trial_results_for_one_series)
 
         # 結果としての引分け率
-        result_no_wons_color_with_failure = no_wons_color / len(series_result_list)
+        result_no_wons_color_with_failure = no_wons_color / len(list_of_trial_results_for_one_series)
 
         # 結果としての裏の勝率
-        result_tail_wons_without_failure = tail_wons / (len(series_result_list) - no_wons_color)
-        result_tail_wons_with_failure = tail_wons / len(series_result_list)
+        result_tail_wons_without_failure = tail_wons / (len(list_of_trial_results_for_one_series) - no_wons_color)
+        result_tail_wons_with_failure = tail_wons / len(list_of_trial_results_for_one_series)
 
         # 将棋の先手勝率など
         shw1 = p * 100

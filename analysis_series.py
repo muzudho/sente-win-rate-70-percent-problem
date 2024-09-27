@@ -63,12 +63,11 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        print(f"""\
+        prompt = f"""\
 (1) Frozen turn
 (2) Alternating turn
-Which one(1-2)? """)
-
-        choice = input()
+Which one(1-2)? """
+        choice = input(prompt)
 
         if choice == '1':
             turn_system = WHEN_FROZEN_TURN
@@ -100,7 +99,7 @@ Which one(1-2)? """)
                     turn_system=turn_system)
 
 
-            series_result_list = []
+            list_of_trial_results_for_one_series = []
 
             # FIXME 動作テスト
             list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
@@ -146,16 +145,16 @@ Which one(1-2)? """)
                     pass
 
                 else:
-                    series_result_list.append(trial_results_for_one_series)
+                    list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
             # 表示
             print(stringify_analysis_series(
                     p=p,
                     failure_rate=FAILURE_RATE,
-                    series_result_list=series_result_list,
+                    list_of_trial_results_for_one_series=list_of_trial_results_for_one_series,
                     turn_system=turn_system))
 
-            for trial_results_for_one_series in series_result_list:
+            for trial_results_for_one_series in list_of_trial_results_for_one_series:
                 analysis_series(
                         trial_results_for_one_series=trial_results_for_one_series,
                         spec=spec,

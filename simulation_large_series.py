@@ -29,7 +29,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
             span=span,
             turn_system=turn_system)
 
-    series_result_list = []
+    list_of_trial_results_for_one_series = []
 
     for round in range(0, number_of_series):
 
@@ -68,12 +68,12 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
             raise ValueError(text)
 
 
-        series_result_list.append(trial_results_for_one_series)
+        list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
 
-    # シミュレーションの結果
+    # ［大量のシリーズを試行した結果］
     large_series_trial_summary = LargeSeriesTrialSummary(
-            series_result_list=series_result_list)
+            list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
 
     text = stringify_simulation_log(
@@ -117,12 +117,11 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        print(f"""\
+        prompt = f"""\
 (1) Frozen turn
 (2) Alternating turn
-Which one(1-2)? """)
-
-        choice = input()
+Which one(1-2)? """
+        choice = input(prompt)
 
         if choice == '1':
             specified_turn_system = WHEN_FROZEN_TURN
@@ -134,26 +133,27 @@ Which one(1-2)? """)
             raise ValueError(f"{choice=}")
 
 
-        print(f"""\
+        prompt = f"""\
 What is the failure rate?
 Example: 10% is 0.1
-? """)
-        specified_failure_rate = float(input())
+? """
+        specified_failure_rate = float(input(prompt))
 
 
         # 試行回数を尋ねる
-        print(f"""\
+        prompt = f"""\
 How many times do you want to try the series?
 Example: 2000000
-? """)
-        number_of_series = int(input())
+? """
+        number_of_series = int(input(prompt))
 
 
-        data_source = int(input(f"""\
+        prompt = f"""\
 (1) even series rule
 (2) selection series rule
 Which data source should I use?
-> """))
+> """
+        data_source = int(input(prompt))
 
 
         # TODO

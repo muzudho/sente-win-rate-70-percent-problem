@@ -115,18 +115,18 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-#         print(f"""\
+#         prompt = f"""\
 # What is the probability of flipping a coin and getting heads?
 # Example: 70% is 0.7
-# ? """)
-#         p = float(input())
+# ? """
+#         p = float(input(prompt))
 
 
-        print(f"""\
+        prompt = f"""\
 What is the failure rate?
 Example: 10% is 0.1
-? """)
-        specified_failure_rate = float(input())
+? """
+        specified_failure_rate = float(input(prompt))
 
 
 
