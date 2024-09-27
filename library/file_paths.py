@@ -24,7 +24,7 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         pass
 
     else:
-        subname.append('f_{failure_rate}')
+        subname.append(f'f_{failure_rate}')
 
 
     if turn_system is None:

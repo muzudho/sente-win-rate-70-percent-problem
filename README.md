@@ -6,7 +6,14 @@
 📖 [用語集](./docs/terms.md)  
 
 
-## インポート
+# 文字フォント
+
+ 文字フォントは `Cascadia Next JP ExtraLight` を使ってプログラミングしています
+
+* 📖 [https://github.com/microsoft/cascadia-code/releases/tag/cascadia-next](https://github.com/microsoft/cascadia-code/releases/tag/cascadia-next)
+
+
+# インポート
 
 足りなかったら、インポートすること（使うとは限りません）  
 
@@ -15,6 +22,7 @@ python -m pip install scipy
 python -m pip install pandas
 ```
 
-## 参考
+
+# 参考
 
 * 📖 [光学技術の基礎用語 ＞ 確率の英語表現](https://www.optics-words.com/english_for_science/probability.html) - 確率の英語表現一覧
