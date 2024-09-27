@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import HEAD, TAIL, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, turn_system_to_str, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, turn_system_to_str, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even, EvenTable, SelectionSeriesRuleTable
 from library.views import stringify_simulation_log
