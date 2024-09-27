@@ -97,6 +97,10 @@ def make_generation_algorythm(failure_rate, turn_system):
     return BRUTE_FORCE
 
 
+# p_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
+IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
+
+
 class Functions():
     """数式"""
 
@@ -1112,14 +1116,15 @@ class SeriesRule():
         if not isinstance(span, int):
             raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
 
-        if p_step < 1:
-            raise ValueError(f"正の整数であることが必要 {p_step=}  {p_step=}")
+        # ベスト値が未設定の場合、 p_step は 0 が入っています
+        if p_step < IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+            raise ValueError(f"非負の整数であることが必要 {p_step=}")
 
         if q_step < 1:
-            raise ValueError(f"正の整数であることが必要 {q_step=}  {q_step=}")
+            raise ValueError(f"正の整数であることが必要 {q_step=}")
 
         if span < 1:
-            raise ValueError(f"正の整数であることが必要 {span=}  {span=}")
+            raise ValueError(f"正の整数であることが必要 {span=}")
 
         if q_step < p_step:
             raise ValueError(f"［コインの表が出たときの勝ち点］{p_step=} が、［コインの裏が出たときの勝ち点］ {q_step} を上回るのはおかしいです")
@@ -1153,17 +1158,27 @@ class SeriesRule():
                 span=span)
 
 
-        # ［最短対局数］
-        number_of_shortest_time = SeriesRule.let_number_of_shortest_time(
-                p_step=p_step,
-                q_step=q_step,
-                span=span,
-                turn_system=turn_system)
+        # 0除算を避ける
+        if p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+            # ［最短対局数］
+            number_of_shortest_time = 0
 
-        # ［最長対局数］
-        number_of_longest_time = SeriesRule.let_number_of_longest_time(
-                p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+            # ［最長対局数］
+            number_of_longest_time = 0
+
+        else:
+            # ［最短対局数］
+            number_of_shortest_time = SeriesRule.let_number_of_shortest_time(
+                    p_step=p_step,
+                    q_step=q_step,
+                    span=span,
+                    turn_system=turn_system)
+
+            # ［最長対局数］
+            number_of_longest_time = SeriesRule.let_number_of_longest_time(
+                    p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                    q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+
 
         if number_of_longest_time < number_of_shortest_time:
             text = f"［最短対局数］{number_of_shortest_time} が、［最長対局数］{number_of_longest_time} より長いです"

@@ -140,15 +140,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
             continue
 
 
-        # ［シリーズ・ルール］
-        if 0 < best_p_step:
-            temp_best_p_step = best_p_step
-        else:
-            temp_best_p_step = 1
-
         best_series_rule = SeriesRule.make_series_rule_base(
                 failure_rate=failure_rate,
-                p_step=temp_best_p_step,
+                p_step=best_p_step,
                 q_step=best_q_step,
                 span=best_span,
                 turn_system=turn_system)
@@ -162,10 +156,11 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
         # エラーが十分小さければスキップ
         if specified_number_of_series < best_number_of_series or abs(best_p_error) <= ABS_SMALL_ERROR:
             is_automatic = False
+            # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
 
         # アルゴリズムで求めるケース
         else:
-            # print(f"[p={p}]", end='', flush=True)
+            #print(f"[p={p}]", end='', flush=True)
             is_automatic = True
 
             # 仕様

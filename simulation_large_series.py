@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
@@ -176,6 +176,10 @@ Which data source should I use?
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
+                    continue
+
+                if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+                    print(f"[P={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
                     continue
 
                 # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
