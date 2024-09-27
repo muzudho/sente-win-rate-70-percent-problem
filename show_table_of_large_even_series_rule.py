@@ -6,6 +6,7 @@
 #
 
 import traceback
+import re
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FACE_OF_COIN, PLAYERS, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, turn_system_to_str, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
 from library.file_paths import get_show_table_of_large_even_series_rule_csv_file_path
@@ -13,24 +14,29 @@ from library.database import get_df_selection_series_rule, get_df_even, EvenTabl
 from library.views import stringify_simulation_log
 
 
-def stringify_header(turn_system):
-    return f"""\
-turn system={turn_system_to_str(turn_system)}
+def stringify_header():
+    """\
+    +---------------------------+------------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+    | Spec                      | Series rule                              | Large Series Trial Summary                                                                                            |
+    +-------------+-------------+----------+----------+--------+-----------+-----------------------------------------------------------------------------------------------------------------------+
+    | p           | Failure     | p_step   | q_step   | span   | longest   | Total ht (of face of coin)        ____________________________________________________________________________________|
+    |             |             |          |          |        |           |           ________________________| Successful series ________________| Failed series ________________________________|
+    |             |             |          |          |        |           |           | wins h    | wins t    |           |           |           |           |           |           | no wins ht|
+    |             |             |          |          |        |           |           |           |           |           | ful_wins h| ful_wins t|           | pts_wins h| pts_wins t|           |
+    +-------------+-------------+----------+----------+--------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+    |                                                                      | Total ab (of players)             ____________________________________________________________________________________|
+    |                                                                      |           ________________________|           ________________________|           ____________________________________|
+    |                                                                      |           | wins a    | wins b    |           |           |           |           |           |           | no wins ab|
+    |                                                                      |           |           |           |           | ful_wins a| ful_wins b|           | pts_wins a| pts_wins b|           |
+    +----------------------------------------------------------------------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+    """
 
-+---------------------------+------------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
-| Spec                      | Series rule                              | Large Series Trial Summary                                                                                            |
-+-------------+-------------+----------+----------+--------+-----------+-----------------------------------------------------------------------------------------------------------------------+
-| p           | Failure     | p_step   | q_step   | span   | longest   | Total ht (of face of coin)        ____________________________________________________________________________________|
-|             |             |          |          |        |           |           ________________________| Successful series ________________| Failed series ________________________________|
-|             |             |          |          |        |           |           | wins h    | wins t    |           |           |           |           |           |           | no wins ht|
-|             |             |          |          |        |           |           |           |           |           | ful_wins h| ful_wins t|           | pts_wins h| pts_wins t|           |
-+-------------+-------------+----------+----------+--------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
-|                                                                      | Total ab (of players)             ____________________________________________________________________________________|
-|                                                                      |           ________________________|           ________________________|           ____________________________________|
-|                                                                      |           | wins a    | wins b    |           |           |           |           |           |           | no wins ab|
-|                                                                      |           |           |           |           | ful_wins a| ful_wins b|           | pts_wins a| pts_wins b|           |
-+----------------------------------------------------------------------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+    # CSV
+    text = f"""\
+p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最長=,longest,局 計=,total_ht,シリ 表勝=,wins_h,シリ 裏勝=,wins_t,シリ 成功=,succ,シリ 表満点=,ful_wins_h,シリ 裏満点=,ful_wins_t,シリ 失敗=,fail,シリ 表点差勝=,pts_wins_h,シリ 裏点差勝=,pts_wins_t,シリ 無勝負=,no_wins_ht,シリ 計=,total_ab,シリ Ａ勝=,wins_a,シリ Ｂ勝=,wins_b,シリ Ａ満点=,ful_wins_a,シリ Ｂ満点=,ful_wins_b,シリ Ａ点差勝=,pts_wins_a,シリ Ｂ点差勝=,pts_wins_b,シリ 無勝負=,no_wins_ab,シリ\
 """
+
+    return text
 
 
 def stringify_csv_of_body(p, spec, series_rule, presentable, comment, argument_of_sequence_of_playout, large_series_trial_summary):
@@ -57,31 +63,31 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, argument_o
     S = large_series_trial_summary
 
 
-    t1 = f"{p*100:.4f}"                                 # p
-    t2 = f"{spec.failure_rate*100:.4f}"                 # failure_rate
+    t1 = f"{p*100:.4f}"                                         # p
+    t2 = f"{spec.failure_rate*100:.4f}"                         # failure_rate
     t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # p_step
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # q_step
-    t5 = f"{series_rule.step_table.span}"               # span
+    t5 = f"{series_rule.step_table.span}"                       # span
     t6 = f"{argument_of_sequence_of_playout.number_of_longest_time}" # longest
-    t7 = f"{S.total(opponent_pair=FACE_OF_COIN)}"       # Total (of face of coin)
-    t8 = f"{S.successful_series}"                       # Successful series
-    t9 = f"{S.failed_series}"                           # Failed series
-    t10 = f"{S.wins(winner=HEAD)}"                      # wins h
-    t11 = f"{S.wins(winner=TAIL)}"                      # wins t
-    t12 = f"{S.no_wins(opponent_pair=FACE_OF_COIN)}"    # no wins ht
-    t13 = f"{S.ful_wins(winner=HEAD)}"                  # ful_wins h
-    t14 = f"{S.ful_wins(winner=TAIL)}"                  # ful_wins t
-    t15 = f"{S.pts_wins(winner=HEAD)}"                  # pts_wins h
-    t16 = f"{S.pts_wins(winner=TAIL)}"                  # pts_wins t
+    t7 = f"{S.total(opponent_pair=FACE_OF_COIN)}"               # Total (of face of coin)
+    t8 = f"{S.successful_series(opponent_pair=FACE_OF_COIN)}"   # Successful series
+    t9 = f"{S.failed_series(opponent_pair=FACE_OF_COIN)}"       # Failed series
+    t10 = f"{S.wins(winner=HEAD)}"                              # wins h
+    t11 = f"{S.wins(winner=TAIL)}"                              # wins t
+    t12 = f"{S.no_wins(opponent_pair=FACE_OF_COIN)}"            # no wins ht
+    t13 = f"{S.ful_wins(winner=HEAD)}"                          # ful_wins h
+    t14 = f"{S.ful_wins(winner=TAIL)}"                          # ful_wins t
+    t15 = f"{S.pts_wins(winner=HEAD)}"                          # pts_wins h
+    t16 = f"{S.pts_wins(winner=TAIL)}"                          # pts_wins t
 
-    t17 = f"{S.total(opponent_pair=PLAYERS)}"           # Total (of players)
-    t18 = f"{S.wins(winner=ALICE)}"                     # wins a
-    t19 = f"{S.wins(winner=BOB)}"                       # wins b
-    t20 = f"{S.ful_wins(winner=ALICE)}"                 # ful_wins a
-    t21 = f"{S.ful_wins(winner=BOB)}"                   # ful_wins b
-    t22 = f"{S.pts_wins(winner=ALICE)}"                 # pts_wins a
-    t23 = f"{S.pts_wins(winner=BOB)}"                   # pts_wins b
-    t24 = f"{S.no_wins(opponent_pair=PLAYERS)}"         # no wins ab
+    t17 = f"{S.total(opponent_pair=PLAYERS)}"                   # Total (of players)
+    t18 = f"{S.wins(winner=ALICE)}"                             # wins a
+    t19 = f"{S.wins(winner=BOB)}"                               # wins b
+    t20 = f"{S.ful_wins(winner=ALICE)}"                         # ful_wins a
+    t21 = f"{S.ful_wins(winner=BOB)}"                           # ful_wins b
+    t22 = f"{S.pts_wins(winner=ALICE)}"                         # pts_wins a
+    t23 = f"{S.pts_wins(winner=BOB)}"                           # pts_wins b
+    t24 = f"{S.no_wins(opponent_pair=PLAYERS)}"                 # no wins ab
 
 
 
@@ -99,12 +105,15 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, argument_o
 #----------------------------------------------------------------------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
 
     # CSV
-    return f"""\
-p=,{ t1},％ f=,{ t2},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最長=,{ t6},局 計=,{ t7},シリ      ,     ,         ,     ,         ,     ,            ,     ,           ,     ,         ,     ,             ,     ,             ,    ,            ,     ,    計=,{t17},シリ     ,     ,         ,     ,           ,     ,           ,     ,             ,     ,             ,     ,          ,
-  ,     ,     ,     ,     ,     ,   ,     ,   ,     ,     ,     ,      ,    ,          ,     ,         ,     ,    成功=,{ t8},シリ        ,     ,           ,     ,    失敗=,{ t9},シリ          ,     ,             ,     ,           ,     ,       ,     ,          ,     ,         ,     ,           ,     ,           ,     ,            ,     ,             ,     ,          ,
-  ,     ,     ,     ,     ,     ,   ,     ,   ,     ,     ,     ,      ,    ,     表勝=,{t10},シリ 裏勝=,{t11},シリ     ,     ,            ,     ,           ,     ,         ,     ,,            ,     ,             ,     ,     勝負無=,{t12},シリ   ,     ,     Ａ勝=,{t18},シリ Ｂ勝=,{t19},シリ       ,     ,           ,     ,            ,     ,             ,     ,    無勝負=,{t24}
-  ,     ,     ,     ,     ,     ,   ,     ,   ,     ,     ,     ,      ,    ,          ,     ,         ,     ,         ,     ,     表満点=,{t13},シリ 裏満点=,{t14},シリ      ,     ,    表点差勝=,{t15},シリ 裏点差勝=,{t16},シリ        ,     ,      ,     ,         ,     ,          ,     ,    Ａ満点=,{t20},シリ Ｂ満点=,{t21},シリ Ａ点差勝=,{t22},シリ Ｂ点差勝=,{t23},シリ       ,\
+    text = f"""\
+p=,{ t1},％ f=,{ t2},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最長=,{ t6},局 計=,{ t7},シリ 表勝=,{t10},シリ 裏勝=,{t11},シリ 成功=,{ t8},シリ 表満点=,{t13},シリ 裏満点=,{t14},シリ 失敗=,{ t9},シリ 表点差勝=,{t15},シリ 裏点差勝=,{t16},シリ 勝負無=,{t12},シリ 計=,{t17},シリ Ａ勝=,{t18},シリ Ｂ勝=,{t19},シリ  Ａ満点=,{t20},シリ Ｂ満点=,{t21},シリ Ａ点差勝=,{t22},シリ Ｂ点差勝=,{t23},シリ 無勝負=,{t24},シリ\
 """
+
+
+    # 空白だけのセルは詰める
+    text = re.sub(r",\s+,", ",,", text)
+
+    return text
 
 
 def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step, span, presentable, comment, turn_system):
@@ -219,16 +228,16 @@ Example: 2000000
         specified_number_of_series = int(input(prompt))
 
 
-        text = stringify_header(specified_turn_system)
+        header_csv = stringify_header()
 
-        print(text) # 表示
+        print(header_csv) # 表示
 
         # ログ出力
         csv_file_path = get_show_table_of_large_even_series_rule_csv_file_path(
                 failure_rate=specified_failure_rate,
                 turn_system=specified_turn_system)
         with open(csv_file_path, 'a', encoding='utf8') as f:
-            f.write(f"{text}\n")    # ファイルへ出力
+            f.write(f"{header_csv}\n")    # ファイルへ出力
 
 
         # TODO
