@@ -43,8 +43,8 @@ def generate_report(turn_system):
         q_step = round_letro(q_step)
         span = round_letro(span)
 
+        # ［先後交互制］
         if turn_system == WHEN_ALTERNATING_TURN:
-            """［先後交互制］"""
 
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
@@ -75,8 +75,8 @@ def generate_report(turn_system):
                 f.write(f"{text}\n")    # ログファイルへ出力
 
 
+        # ［先後固定制］
         elif turn_system == WHEN_FROZEN_TURN:
-            """［先後固定制］"""
 
             # 仕様
             spec = Specification(

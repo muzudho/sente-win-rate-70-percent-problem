@@ -20,9 +20,6 @@ from library.database import append_default_record_to_df_even, get_df_even, get_
 from library.views import print_even_series_rule
 
 
-# このラウンド数を満たさないデータは、再探索します
-REQUIRED_MUMBER_OF_SERIES = 2_000_000
-
 # 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
 ABS_OUT_OF_ERROR = 0.51
 
@@ -107,7 +104,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm)
         df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
-def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_system, generation_algorythm):
+def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_number_of_series, turn_system, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
@@ -163,7 +160,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if REQUIRED_MUMBER_OF_SERIES < best_number_of_series or abs(best_p_error) <= ABS_SMALL_ERROR:
+        if specified_number_of_series < best_number_of_series or abs(best_p_error) <= ABS_SMALL_ERROR:
             is_automatic = False
 
         # アルゴリズムで求めるケース
@@ -201,7 +198,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                         if generation_algorythm == BRUTE_FORCE:
                             series_result_list = []
 
-                            for i in range(0, REQUIRED_MUMBER_OF_SERIES):
+                            for i in range(0, specified_number_of_series):
 
                                 # 引数作成
                                 argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
@@ -227,7 +224,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                     series_result_list=series_result_list)
 
                             # Ａさんが勝った回数
-                            latest_p = large_series_trial_summary.number_of_wins(winner=ALICE) / REQUIRED_MUMBER_OF_SERIES
+                            latest_p = large_series_trial_summary.number_of_wins(winner=ALICE) / specified_number_of_series
                             latest_p_error = latest_p - 0.5
 
 
@@ -282,11 +279,11 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                                     failure_rate=failure_rate,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
-                                    best_number_of_series=REQUIRED_MUMBER_OF_SERIES,
+                                    best_number_of_series=specified_number_of_series,
                                     best_series_rule=best_series_rule,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
-                                    latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
+                                    latest_number_of_series=specified_number_of_series,
                                     latest_series_rule=latest_series_rule,
                                     candidates=candidates,
                                     turn_system=spec.turn_system)
@@ -350,11 +347,11 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                     failure_rate=failure_rate,
                     best_p=best_p,
                     best_p_error=best_p_error,
-                    best_number_of_series=REQUIRED_MUMBER_OF_SERIES,
+                    best_number_of_series=specified_number_of_series,
                     best_series_rule=best_series_rule,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
-                    latest_number_of_series=REQUIRED_MUMBER_OF_SERIES,
+                    latest_number_of_series=specified_number_of_series,
                     latest_series_rule=latest_series_rule,
                     candidates=latest_candidates,
                     turn_system=turn_system)
@@ -379,23 +376,6 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        print(f"""\
-(1) Frozen turn
-(2) Alternating turn
-Which one(1-2)? """)
-
-        choice = input()
-
-        if choice == '1':
-            specified_turn_system = WHEN_FROZEN_TURN
-
-        elif choice == '2':
-            specified_turn_system = WHEN_ALTERNATING_TURN
-
-        else:
-            raise ValueError(f"{choice=}")
-
-
 #         print(f"""\
 # What is the probability of flipping a coin and getting heads?
 # Example: 70% is 0.7
@@ -403,11 +383,35 @@ Which one(1-2)? """)
 #         p = float(input())
 
 
+        # ［先後が回ってくる制度］を尋ねる
+        print(f"""\
+(1) Frozen turn
+(2) Alternating turn
+Which one(1-2)? """)
+        choice = input()
+        if choice == '1':
+            specified_turn_system = WHEN_FROZEN_TURN
+        elif choice == '2':
+            specified_turn_system = WHEN_ALTERNATING_TURN
+        else:
+            raise ValueError(f"{choice=}")
+
+
         print(f"""\
 What is the failure rate?
 Example: 10% is 0.1
 ? """)
         specified_failure_rate = float(input())
+
+
+        # ［試行シリーズ回数］を尋ねる
+        print(f"""\
+How many times do you want to try the series?
+Example: 2000000
+? """)
+        specified_number_of_series = int(input())
+
+
 
 
         generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
@@ -457,6 +461,7 @@ Example: 10% is 0.1
                     df_ev,
                     abs_limit_of_error,
                     specified_failure_rate=specified_failure_rate,
+                    specified_number_of_series=specified_number_of_series,
                     turn_system=specified_turn_system,
                     generation_algorythm=generation_algorythm)
 
