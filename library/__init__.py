@@ -666,8 +666,11 @@ class PointCalculation():
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        h_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)
-        t_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)
+        # FIXME デバッグ中。機能をオフにしておく
+        # h_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)
+        # t_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)
+        h_step_when_failed = 0
+        t_step_when_failed = 0
 
         self._point_list[HEAD] += h_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
         self._point_list[TAIL] += t_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
@@ -1530,8 +1533,11 @@ step_table:
         return f"""\
 {indent}SeriesRule
 {indent}-------------------
-{two_indents}{self._span=}
-{two_indents}{self._step_list=}
+{two_indents}self._step_table.stringify_dump(two_indents):
+{two_indents}{self._step_table.stringify_dump(two_indents)}
+{two_indents}{self._number_of_shortest_time=}
+{two_indents}{self._number_of_longest_time=}
+{two_indents}{self._turn_system=}
 """
 
 
@@ -1612,10 +1618,18 @@ class TrialResultsForOneSeries():
 
         # 両者が満点勝ちしている、これはおかしい
         if self.point_calculation.is_fully_won(winner) and self.point_calculation.is_fully_won(loser):
+            print(f"""\
+self.point_calculation.stringify_dump:
+{self.point_calculation.stringify_dump('    ')}
+""")
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._span=}")
 
         # 両者が判定勝ちしている、これはおかしい
         if self.is_points_won(winner=winner, loser=loser) and self.is_points_won(winner=loser, loser=winner):
+            print(f"""\
+self.point_calculation.stringify_dump:
+{self.point_calculation.stringify_dump('    ')}
+""")
             raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner, loser=loser)=}  {self.is_points_won(winner=loser, loser=winner)=}  {self._span=}")
 
         # 満点勝ちなら確定、判定勝ちでもOK 
