@@ -376,7 +376,7 @@ def stringify_simulation_log(
     a_shw1 = p * 100                # ［将棋の先手勝率（％）］指定値
     a_d1 = failure_rate * 100       # ［将棋の引分け率］指定値
     a_shl1 = (1 - p) * 100          # ［将棋の後手勝率（％）］指定値
-    a_sr0 = S.number_of_series      # 全シリーズ数
+    a_sr0 = S.total(opponent_pair=PLAYERS)      # 全シリーズ数
 
     # 全角文字の横幅は文字数を揃えること。全角文字の幅が半角のちょうど2倍ではないのでずれるので、書式設定の桁数を指定してもずれるから。
     if turn_system == WHEN_FROZEN_TURN:
@@ -405,18 +405,18 @@ def stringify_simulation_log(
     succ_b = S.won_rate(success_rate=1, winner=BOB)             # 引分けを除いた［Ｂさんが勝つ確率］実践値
     succ_be = S.won_rate_error(success_rate=1, winner=BOB)      # 引分けを除いた［Ｂさんが勝つ確率と 0.5 との誤差］実践値
 
-    h_wins = S.number_of_wins(winner=HEAD)
-    t_wins = S.number_of_wins(winner=TAIL)
+    h_wins = S.wins(winner=HEAD)
+    t_wins = S.wins(winner=TAIL)
     ht_total_wins = h_wins + t_wins
-    ht_total_fully_wins = S.number_of_fully_wins(elementary_event=HEAD) + S.number_of_fully_wins(elementary_event=TAIL)
-    ht_total_points_wins = S.number_of_points_wins(winner=HEAD) + S.number_of_points_wins(winner=TAIL)
-    ht_no_wins = S.number_of_no_wins(opponent_pair=FACE_OF_COIN)
+    ht_total_fully_wins = S.ful_wins(winner=HEAD) + S.ful_wins(winner=TAIL)
+    ht_total_points_wins = S.pts_wins(winner=HEAD) + S.pts_wins(winner=TAIL)
+    ht_no_wins = S.no_wins(opponent_pair=FACE_OF_COIN)
     ht_total = ht_total_wins + ht_no_wins
 
-    h_fully_wins = S.number_of_fully_wins(elementary_event=HEAD)
-    t_fully_wins = S.number_of_fully_wins(elementary_event=TAIL)
-    h_points_wins = S.number_of_points_wins(winner=HEAD)
-    t_points_wins = S.number_of_points_wins(winner=TAIL)
+    h_fully_wins = S.ful_wins(winner=HEAD)
+    t_fully_wins = S.ful_wins(winner=TAIL)
+    h_points_wins = S.pts_wins(winner=HEAD)
+    t_points_wins = S.pts_wins(winner=TAIL)
 
     ht152 = ht_total                                # 全シリーズ計
     ht154 = ht_total_fully_wins                     # 引分け無しのシリーズ
@@ -449,12 +449,12 @@ def stringify_simulation_log(
 
     # プレイヤーの勝敗数
     # -----------------
-    a_wins = S.number_of_wins(winner=ALICE)
-    b_wins = S.number_of_wins(winner=BOB)
-    ab_no_wins = S.number_of_no_wins(opponent_pair=PLAYERS)
+    a_wins = S.wins(winner=ALICE)
+    b_wins = S.wins(winner=BOB)
+    ab_no_wins = S.no_wins(opponent_pair=PLAYERS)
     ab_total_wins = a_wins + b_wins
-    ab_total_fully_wins = S.number_of_fully_wins(elementary_event=ALICE) + S.number_of_fully_wins(elementary_event=BOB)
-    ab_total_points_wins = S.number_of_points_wins(winner=ALICE) + S.number_of_points_wins(winner=BOB)
+    ab_total_fully_wins = S.ful_wins(winner=ALICE) + S.ful_wins(winner=BOB)
+    ab_total_points_wins = S.pts_wins(winner=ALICE) + S.pts_wins(winner=BOB)
     ab_total = ab_total_wins + ab_no_wins
 
     ab152 = ab_total   # 全シリーズ計
@@ -465,12 +465,12 @@ def stringify_simulation_log(
     ab164 = ab_total_fully_wins / ab_total * 100
     ab167 = (ab_total_points_wins + ab_no_wins) / ab_total * 100
 
-    c101 = S.number_of_wins(winner=ALICE)                       # Ａさんの勝ちの総数
-    c102 = S.number_of_wins(winner=BOB)                         # Ｂさんの勝ちの総数
-    c103 = S.number_of_fully_wins(elementary_event=ALICE)       # Ａさん満点勝ち
-    c104 = S.number_of_fully_wins(elementary_event=BOB)         # Ｂさん満点勝ち
-    c105 = S.number_of_points_wins(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
-    c106 = S.number_of_points_wins(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
+    c101 = S.wins(winner=ALICE)                       # Ａさんの勝ちの総数
+    c102 = S.wins(winner=BOB)                         # Ｂさんの勝ちの総数
+    c103 = S.ful_wins(winner=ALICE)       # Ａさん満点勝ち
+    c104 = S.ful_wins(winner=BOB)         # Ｂさん満点勝ち
+    c105 = S.pts_wins(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
+    c106 = S.pts_wins(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
     c107 = ab_no_wins           # ＡさんもＢさんも勝ちではなかった
 
     ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値

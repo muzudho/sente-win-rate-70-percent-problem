@@ -71,6 +71,24 @@ def get_analysis_series_log_file_path(turn_system):
 
 
 ##########################
+# show_table_of_large_event_series_rule.py
+##########################
+
+def get_show_table_of_large_even_series_rule_csv_file_path(failure_rate, turn_system):
+    """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
+
+    Parameters
+    ----------
+    failure_rate : float
+        ［コインを投げて表も裏も出ない確率］
+    turn_system : float
+        ［先後の選び方の制度］
+    """
+    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
+    return f'logs/large_even_series_rule{subname}.csv'
+
+
+##########################
 # Simulation large series
 ##########################
 
@@ -85,7 +103,7 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
         ［先後の選び方の制度］
     """
     subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
-    return f'output/simulation_large_series{subname}.log'
+    return f'logs/simulation_large_series{subname}.log'
 
 
 #############

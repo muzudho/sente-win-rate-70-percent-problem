@@ -218,7 +218,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                     list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
                             # Ａさんが勝った回数
-                            latest_p = large_series_trial_summary.number_of_wins(winner=ALICE) / specified_number_of_series
+                            latest_p = large_series_trial_summary.wins(winner=ALICE) / specified_number_of_series
                             latest_p_error = latest_p - 0.5
 
 

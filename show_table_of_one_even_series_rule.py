@@ -39,7 +39,7 @@ def stringify_body(p, spec, series_rule, presentable, comment, argument_of_seque
     t5 = f"{series_rule.step_table.span:>4}"
     t6 = f"{argument_of_sequence_of_playout.number_of_longest_time:>7}"
     t7 = f"{trial_results_for_one_series.number_of_times:>7}"  # ［行われた対局数］
-    t8 = f"{trial_results_for_one_series.number_of_failed:>7}"  # ［表も裏も出なかった対局数］
+    t8 = f"{trial_results_for_one_series.failed_coins:>7}"  # ［表も裏も出なかった対局数］
 
     if spec.turn_system == WHEN_FROZEN_TURN:
         if trial_results_for_one_series.is_won(winner=HEAD):
