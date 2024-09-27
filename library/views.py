@@ -1,25 +1,10 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule, Candidate
 
 
-def parse_candidate_element(candidate_element):
-    result = re.match(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局', candidate_element)
-    if result:
-        p_error = float(result.group(1))
-        head = int(result.group(2))
-        tail = int(result.group(3))
-        span = int(result.group(4))
-        shortest = int(result.group(5))
-        longest = int(result.group(6))
-
-        return p_error, head, tail, span, shortest, longest
-
-    return None, None, None, None, None, None
-
-
-def stringify_report_selection_series_rule(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, candidate, turn_system):
+def stringify_report_selection_series_rule(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, candidates, turn_system):
     if turn_system == WHEN_ALTERNATING_TURN:
         """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
@@ -41,32 +26,32 @@ def stringify_report_selection_series_rule(p, number_of_series, latest_theoretic
         # NOTE ［先後交互制］では、理論値を出すのが難しいので、理論値ではなく、実際値を出力する
         #
         # ［シリーズ・ルール候補］
-        candidate_list = candidate[1:-1].split('] [')
+        candidate_list = candidates[1:-1].split('] [')
         for candidate_element in candidate_list:
-            p_error, p_step, q_step, span, shortest, longest = parse_candidate_element(candidate_element)
-            if p_error is not None:
-                if p_step == specified_series_rule.p_step and q_step == specified_series_rule.q_step and span == specified_series_rule.step_table.span:
+            candidate_obj = Candidate.parse_candidate(candidate_element)
+            if candidate_obj.p_error is not None:
+                if candidate_obj.p_step == specified_series_rule.p_step and candidate_obj.q_step == specified_series_rule.q_step and candidate_obj.span == specified_series_rule.step_table.span:
 
                     # ［調整後の表が出る確率（％）］
-                    seg_2 = p_error*100+50
+                    seg_2 = candidate_obj.p_error * 100 + 50
 
                     # 誤差（％）
-                    seg_3 = p_error*100
+                    seg_3 = candidate_obj.p_error * 100
 
                     # ［表勝ち１つの点数］
-                    seg_4 = p_step
+                    seg_4 = candidate_obj.p_step
 
                     # ［裏勝ち１つの点数］
-                    seg_5 = q_step
+                    seg_5 = candidate_obj.q_step
 
                     # ［目標の点数］
-                    seg_6 = span
+                    seg_6 = candidate_obj.span
 
                     # ［先後交互制］での［最短対局数］
-                    seg_7 = shortest
+                    seg_7 = candidate_obj.number_of_shortest_time
 
                     # ［先後交互制］での［最長対局数］
-                    seg_8 = longest
+                    seg_8 = candidate_obj.number_of_longest_time
 
                     # ［試行回数］
                     seg_9 = number_of_series

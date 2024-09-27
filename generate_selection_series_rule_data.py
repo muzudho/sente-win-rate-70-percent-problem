@@ -11,10 +11,9 @@ import random
 import math
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, make_generation_algorythm, round_letro, calculate_probability
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, make_generation_algorythm, round_letro, calculate_probability, Candidate
 from library.file_paths import get_selection_series_rule_csv_file_path
 from library.database import get_df_even, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
-from library.views import parse_candidate_element
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -87,19 +86,17 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
 
 
         for candidate_element in candidate_list:
-            p_error, head, tail, span, shortest, longest = parse_candidate_element(candidate_element)
+            candidate_obj = Candidate.parse_candidate(candidate_element)
 
-            if p_error is not None:
-                key = (shortest, longest)
-                value = (p_error, head, tail, span, shortest, longest)
+            if candidate_obj.p_error is not None:
+                key = (candidate_obj.number_of_shortest_time, candidate_obj.number_of_longest_time)
                 if key not in candidate_element_dict:
-                    candidate_element_dict[key] = value
+                    candidate_element_dict[key] = candidate_obj
 
 
         comment_element_list = []
-        for key, value in candidate_element_dict.items():
-            p_error, head, tail, span, shortest, longest = value
-            comment_element_list.append(f'[{p_error*100+50:.4f} ％（{p_error*100:+.4f}） {head}表 {tail}裏 {span}目 {shortest}～{longest}局]')
+        for key, candidate_obj in candidate_element_dict.items():
+            comment_element_list.append(candidate_obj.as_str())
 
 
         # ［計算過程］列を更新

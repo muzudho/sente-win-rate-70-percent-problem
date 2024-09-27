@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, ElementaryEventSequence, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, ElementaryEventSequence, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
 from library.file_paths import get_even_series_rule_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
@@ -253,18 +253,25 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, turn_syste
                             shortest_time = best_series_rule.number_of_shortest_time
                             longest_time = best_series_rule.number_of_longest_time
 
-                            # 計算過程
-                            one_candidate_text = f'[{best_p_error:.6f} {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}表 {best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}裏 {best_series_rule.step_table.span}目 {shortest_time}～{longest_time}局]'
-                            print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {one_candidate_text}", flush=True) # すぐ表示
+                            # ［シリーズ・ルール候補］
+                            candidate_obj = Candidate(
+                                    p_error=best_p_error,
+                                    p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                                    q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+                                    span=best_series_rule.step_table.span,
+                                    number_of_shortest_time=shortest_time,
+                                    number_of_longest_time=longest_time)
+                            candidate_str = candidate_obj.as_str()
+                            print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {candidate_str}", flush=True) # すぐ表示
 
-                            # ［計算過程］列を更新
+                            # ［シリーズ・ルール候補］列を更新
                             #
                             #   途中の計算式。半角空裏区切り
                             #
                             if isinstance(candidates, str):
-                                candidates = f"{candidates} {one_candidate_text}"
+                                candidates = f"{candidates} {candidate_str}"
                             else:
-                                candidates = one_candidate_text
+                                candidates = candidate_str
 
                             # 表示とデータフレーム更新
                             update_dataframe(

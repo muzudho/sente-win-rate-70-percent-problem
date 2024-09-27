@@ -1727,3 +1727,72 @@ class LargeSeriesTrialSummary():
                     self._number_of_no_wins[opponent_pair] += 1
 
         return self._number_of_no_wins[opponent_pair]
+
+
+class Candidate():
+    """［シリーズ・ルール候補］"""
+
+
+    def __init__(self, p_error, p_step, q_step, span, number_of_shortest_time, number_of_longest_time):
+        self._p_error = p_error
+        self._p_step = p_step
+        self._q_step = q_step
+        self._span = span
+        self._number_of_shortest_time = number_of_shortest_time
+        self._number_of_longest_time = number_of_longest_time
+
+
+    @property
+    def p_error(self):
+        return self._p_error
+
+
+    @property
+    def p_step(self):
+        return self._p_step
+
+
+    @property
+    def q_step(self):
+        return self._q_step
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def number_of_shortest_time(self):
+        return self._number_of_shortest_time
+
+
+    @property
+    def number_of_longest_time(self):
+        return self._number_of_longest_time
+
+
+    def as_str(self):
+        # NOTE 可読性があり、かつ、パースのしやすい書式にする
+        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._number_of_shortest_time}～{self._number_of_longest_time}局]'
+
+
+    _re_pattern_of_candidate = None
+
+    @classmethod
+    def parse_candidate(clazz, candidate):
+
+        if clazz._re_pattern_of_candidate is None:
+            clazz._re_pattern_of_candidate = re.compile(r'([0-9.-]+) (\d+)表 (\d+)裏 (\d+)目 (\d+)～(\d+)局')
+
+        result = _re_pattern_of_candidate.match(candidate)
+        if result:
+            return Candidate(
+                    p_error=float(result.group(1)),
+                    p_step=int(result.group(2)),
+                    q_step=int(result.group(3)),
+                    span=int(result.group(4)),
+                    number_of_shortest_time=int(result.group(5)),
+                    number_of_longest_time=int(result.group(6)))
+
+        raise ValueError(f"パースできません {candidate=}")

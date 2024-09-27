@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, SeriesRule
+from library import calculate_probability, SeriesRule, WHEN_FROZEN_TURN
 from library.database import get_df_p
 from library.views import stringify_p_q_time_strict
 
@@ -21,6 +21,7 @@ from library.views import stringify_p_q_time_strict
 LOG_FILE_PATH = 'output/generate_b_q_time_strict.log'
 
 FAILURE_RATE = 0.0
+TURN_SYSTEM = WHEN_FROZEN_TURN
 
 # ［先後固定制］で、［裏勝ちだけでの対局数］の上限
 MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
@@ -75,10 +76,34 @@ if __name__ == '__main__':
                         best_p_time = p_time
                         best_q_time = q_time
 
+                        # 仕様
+                        spec = Specification(
+                                p=p,
+                                failure_rate=failure_rate,
+                                turn_system=FAILURE_RATE)
+
+                        # ［シリーズ・ルール］
+                        # TODO データをちゃんと入れたい
+                        latest_series_rule = SeriesRule.make_series_rule_base(
+                                failure_rate=spec.failure_rate,
+                                # FIXME タイムではなくステップが欲しい
+                                p_step=-1,
+                                q_step=-1,
+                                span=-1,
+                                turn_system=spec.turn_system)
+
+                        candidate_obj = Candidate(
+                                p_error=best_p_error,
+                                p_step=latest_series_rule.p_step,
+                                q_step=latest_series_rule.q_step,
+                                span=latest_series_rule.span,
+                                number_of_shortest_time=latest_series_rule.number_of_shortest_time,
+                                number_of_longest_time=latest_series_rule.number_of_longest_time)
+                        
                         # ［シリーズ・ルール候補］
-                        candidate = f"[{best_p_error:6.4f} 表{best_p_time:>3} 裏{best_q_time:>2}]"
-                        candidate_list.append(candidate)
-                        print(candidate, end='', flush=True) # すぐ表示
+                        candidate_str = candidate_obj.as_str()
+                        candidate_list.append(candidate_str)
+                        print(candidate_str, end='', flush=True) # すぐ表示
 
 
             # 計算過程の表示の切れ目
