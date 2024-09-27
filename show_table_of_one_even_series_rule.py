@@ -1,6 +1,6 @@
 #
 # 表示
-# python show_table_of_even_series_rule.py
+# python show_table_of_one_even_series_rule.py
 #
 #   テーブル形式でただ表示するだけ
 #
@@ -25,7 +25,7 @@ turn system={turn_system_to_str(turn_system)}
 """
 
 
-def stringify_body(p, spec, series_rule, presentable, comment, argument_of_sequence_of_playout, series_result):
+def stringify_body(p, spec, series_rule, presentable, comment, argument_of_sequence_of_playout, trial_results_for_one_series):
     """データ部を文字列化
 
     Parameters
@@ -38,21 +38,21 @@ def stringify_body(p, spec, series_rule, presentable, comment, argument_of_seque
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL):>6}"
     t5 = f"{series_rule.step_table.span:>4}"
     t6 = f"{argument_of_sequence_of_playout.number_of_longest_time:>7}"
-    t7 = f"{series_result.number_of_times:>7}"  # ［行われた対局数］
-    t8 = f"{series_result.number_of_failed:>7}"  # ［表も裏も出なかった対局数］
+    t7 = f"{trial_results_for_one_series.number_of_times:>7}"  # ［行われた対局数］
+    t8 = f"{trial_results_for_one_series.number_of_failed:>7}"  # ［表も裏も出なかった対局数］
 
     if spec.turn_system == WHEN_FROZEN_TURN:
-        if series_result.is_won(winner=HEAD):
+        if trial_results_for_one_series.is_won(winner=HEAD):
             t9 = f"表番  "  # ［先後固定制のシリーズで表番が勝ったか？］
-        elif series_result.is_won(winner=TAIL):
+        elif trial_results_for_one_series.is_won(winner=TAIL):
             t9 = f"裏番  "  # ［先後固定制のシリーズで裏番が勝ったか？］
         else:
             t9 = f"引分  "  # ［先後固定制のシリーズで引分けだったか？］
 
     elif spec.turn_system == WHEN_ALTERNATING_TURN:
-        if series_result.is_won(winner=ALICE):
+        if trial_results_for_one_series.is_won(winner=ALICE):
             t9 = f"Ａさん"  # ［先後交互制のシリーズでＡさんが勝ったか？］
-        elif series_result.is_won(winner=BOB):
+        elif trial_results_for_one_series.is_won(winner=BOB):
             t9 = f"Ｂさん"  # ［先後交互制のシリーズでＢさんが勝ったか？］
         else:
             t9 = f"引分  "  # ［先後交互制のシリーズで引分けだったか？］
@@ -99,8 +99,8 @@ def show_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment
     list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
             argument_of_sequence_of_playout=argument_of_sequence_of_playout)
 
-    # シリーズの結果を返す
-    series_result = judge_series(
+    # ［シリーズ］１つ分の試行結果を返す
+    trial_results_for_one_series = judge_series(
             argument_of_sequence_of_playout=argument_of_sequence_of_playout,
             list_of_face_of_coin=list_of_face_of_coin,
             series_rule=series_rule)
@@ -113,7 +113,7 @@ def show_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment
             presentable=presentable,
             comment=comment,
             argument_of_sequence_of_playout=argument_of_sequence_of_playout,
-            series_result=series_result)
+            trial_results_for_one_series=trial_results_for_one_series)
 
     print(text) # 表示
 

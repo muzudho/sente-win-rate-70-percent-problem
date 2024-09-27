@@ -763,8 +763,8 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
         
         Returns
         -------
-        series_result : SeriesResult
-            ［シリーズ］の結果
+        trial_results_for_one_series : TrialResultsForOneSeries
+            ［シリーズ］１つ分の試行結果
         """
 
         # ［勝ち点計算］
@@ -801,7 +801,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     # 対局は必ずしも［最長対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
 
-                    return SeriesResult(
+                    return TrialResultsForOneSeries(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
                             span=series_rule.step_table.span,
@@ -811,7 +811,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
 
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
-        return SeriesResult(
+        return TrialResultsForOneSeries(
                 number_of_times=time_th,
                 number_of_failed=number_of_failed,
                 span=series_rule.step_table.span,
@@ -831,8 +831,8 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
         
         Returns
         -------
-        series_result : SeriesResult
-            ［シリーズ］の結果
+        trial_results_for_one_series : TrialResultsForOneSeries
+            ［シリーズ］１つ分の試行結果
         """
 
         # ［勝ち点計算］
@@ -871,7 +871,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     # 対局は必ずしも［最長対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
 
-                    return SeriesResult(
+                    return TrialResultsForOneSeries(
                             number_of_times=time_th,
                             number_of_failed=number_of_failed,
                             span=series_rule.step_table.span,
@@ -881,7 +881,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
 
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
-        return SeriesResult(
+        return TrialResultsForOneSeries(
                 number_of_times=time_th,
                 number_of_failed=number_of_failed,
                 span=series_rule.step_table.span,
@@ -1504,8 +1504,8 @@ step_table:
 """
 
 
-class SeriesResult():
-    """［シリーズ］の結果"""
+class TrialResultsForOneSeries():
+    """［シリーズ］１つ分の試行結果"""
 
 
     def __init__(self, number_of_times, number_of_failed, span, point_calculation, argument_of_sequence_of_playout, list_of_face_of_coin):
@@ -1609,8 +1609,8 @@ class SeriesResult():
     def stringify_dump(self, indent):
         two_indents = indent + indent
         return f"""\
-{indent}SeriesResult
-{indent}------------
+{indent}TrialResultsForOneSeries
+{indent}------------------------
 {two_indents}{self._number_of_times=}
 {two_indents}{self._number_of_failed=}
 {two_indents}{self._span=}
@@ -1674,9 +1674,9 @@ class LargeSeriesTrialSummary():
         """［最短対局数］"""
         if self._shortest_time_th is None:
             self._shortest_time_th = 2_147_483_647
-            for series_result in self._series_result_list:
-                if series_result.number_of_times < self._shortest_time_th:
-                    self._shortest_time_th = series_result.number_of_times
+            for trial_results_for_one_series in self._series_result_list:
+                if trial_results_for_one_series.number_of_times < self._shortest_time_th:
+                    self._shortest_time_th = trial_results_for_one_series.number_of_times
 
         return self._shortest_time_th
 
@@ -1686,9 +1686,9 @@ class LargeSeriesTrialSummary():
         """［最長対局数］"""
         if self._longest_time_th is None:
             self._longest_time_th = 0
-            for series_result in self._series_result_list:
-                if self._longest_time_th < series_result.number_of_times:
-                    self._longest_time_th = series_result.number_of_times
+            for trial_results_for_one_series in self._series_result_list:
+                if self._longest_time_th < trial_results_for_one_series.number_of_times:
+                    self._longest_time_th = trial_results_for_one_series.number_of_times
 
         return self._longest_time_th
 
@@ -1698,8 +1698,8 @@ class LargeSeriesTrialSummary():
         """全シリーズ通算の引分けの対局数"""
         if self._number_of_failed is None:
             self._number_of_failed = 0
-            for series_result in self._series_result_list:
-                if series_result.number_of_failed:
+            for trial_results_for_one_series in self._series_result_list:
+                if trial_results_for_one_series.number_of_failed:
                     self._number_of_failed += 1
 
         return self._number_of_failed
@@ -1709,8 +1709,8 @@ class LargeSeriesTrialSummary():
         """elementary_event が［目標の点数］を集めて勝った回数"""
         if self._number_of_fully_wins[elementary_event] is None:
             self._number_of_fully_wins[elementary_event] = 0
-            for series_result in self._series_result_list:
-                if series_result.point_calculation.is_fully_won(elementary_event):
+            for trial_results_for_one_series in self._series_result_list:
+                if trial_results_for_one_series.point_calculation.is_fully_won(elementary_event):
                     self._number_of_fully_wins[elementary_event] += 1
 
         return self._number_of_fully_wins[elementary_event]
@@ -1721,8 +1721,8 @@ class LargeSeriesTrialSummary():
         loser = opponent(winner)
         if self._number_of_points_wins[winner] is None:
             self._number_of_points_wins[winner] = 0
-            for series_result in self._series_result_list:
-                if series_result.is_points_won(winner=winner, loser=loser):
+            for trial_results_for_one_series in self._series_result_list:
+                if trial_results_for_one_series.is_points_won(winner=winner, loser=loser):
                     self._number_of_points_wins[winner] += 1
 
         return self._number_of_points_wins[winner]
@@ -1804,8 +1804,8 @@ class LargeSeriesTrialSummary():
         """勝者がなかった回数"""
         if self._number_of_no_wins[opponent_pair] is None:
             self._number_of_no_wins[opponent_pair] = 0
-            for series_result in self._series_result_list:
-                if series_result.is_no_won(opponent_pair=opponent_pair):
+            for trial_results_for_one_series in self._series_result_list:
+                if trial_results_for_one_series.is_no_won(opponent_pair=opponent_pair):
                     self._number_of_no_wins[opponent_pair] += 1
 
         return self._number_of_no_wins[opponent_pair]

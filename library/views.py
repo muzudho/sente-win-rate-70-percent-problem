@@ -230,7 +230,7 @@ def print_even_series_rule(p, best_p, best_p_error, best_number_of_series, serie
 
 
 def stringify_series_log(
-        p, failure_rate, series_rule, series_result, title, turn_system):
+        p, failure_rate, series_rule, trial_results_for_one_series, title, turn_system):
     """シリーズのログの文言作成
     
     Parameters
@@ -241,8 +241,8 @@ def stringify_series_log(
         ［引き分ける確率］
     series_rule : SeriesRule
         ［シリーズ・ルール］
-    series_result : SeriesResult
-        シリーズの結果
+    trial_results_for_one_series : TrialResultsForOneSeries
+        ［シリーズ１つ分の試行結果］
     title : str
         タイトル
     """
@@ -256,7 +256,7 @@ def stringify_series_log(
     line_2_list = [f'{b_rest:>4}']
     line_3_list = [f'{w_rest:>4}']
 
-    for winner_color in series_result.list_of_face_of_coin:
+    for winner_color in trial_results_for_one_series.list_of_face_of_coin:
         # 表石        
         if winner_color == HEAD:
             line_1_list.append('   x')
@@ -288,18 +288,18 @@ def stringify_series_log(
     # ［将棋の先手勝率］
     # -----------------
     shw1 = p * 100                                                             # ［将棋の先手勝率（％）］指定値
-    if series_result.is_won(winner=HEAD, loser=TAIL):
+    if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
         shw2 = "表"
-    elif series_result.is_won(winner=TAIL, loser=HEAD):
+    elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
         shw2 = "裏"
     else:
         shw2 = "引"
 
     # ［Ａさんの勝率］
     # ---------------
-    if series_result.is_won(winner=HEAD, loser=TAIL):
+    if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
         aw1 = "Ａさん"
-    elif series_result.is_won(winner=TAIL, loser=HEAD):
+    elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
         aw1 = "Ｂさん"
     else:
         aw1 = "引"
@@ -312,7 +312,7 @@ def stringify_series_log(
     # ------
     tm10 = series_rule.number_of_shortest_time  # ［最短対局数］理論値
     tm11 = series_rule.number_of_longest_time   # ［最長対局数］
-    tm20 = series_result.number_of_times                            # ［対局数］実践値
+    tm20 = trial_results_for_one_series.number_of_times                            # ［対局数］実践値
 
     # 勝ち点構成
     # ---------
@@ -549,12 +549,12 @@ def stringify_analysis_series(p, failure_rate, series_result_list, turn_system):
         head_wons = 0
         no_wons_color = 0
         tail_wons = 0
-        for series_result in series_result_list:
-            if series_result.is_won(winner=HEAD, loser=TAIL):
+        for trial_results_for_one_series in series_result_list:
+            if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
                 head_wons += 1
-            elif series_result.is_won(winner=TAIL, loser=HEAD):
+            elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
                 tail_wons += 1
-            elif series_result.is_no_won(opponent_pair=FACE_OF_COIN):
+            elif trial_results_for_one_series.is_no_won(opponent_pair=FACE_OF_COIN):
                 no_wons_color += 1
         
         # 結果としての表の勝率

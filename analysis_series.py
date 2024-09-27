@@ -23,8 +23,8 @@ FAILURE_RATE = 0.0     # 引分けなし
 #FAILURE_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
-def analysis_series(series_result, spec, series_rule, title, turn_system):
-    """シリーズ１つを分析します
+def analysis_series(trial_results_for_one_series, spec, series_rule, title, turn_system):
+    """［シリーズ］１つ分を分析します
     
     Parameters
     ----------
@@ -40,8 +40,8 @@ def analysis_series(series_result, spec, series_rule, title, turn_system):
             failure_rate=FAILURE_RATE,
             # ［かくきんシステムのｐの構成］
             series_rule=series_rule,
-            # シリーズの結果
-            series_result=series_result,
+            # ［シリーズ］１つ分の試行結果
+            trial_results_for_one_series=trial_results_for_one_series,
             # タイトル
             title=title,
             turn_system=turn_system)
@@ -122,15 +122,15 @@ Which one(1-2)? """)
 
                 old_number_of_times = len(list_of_face_of_coin)
 
-                # ［先後固定制］で、シリーズを勝った方の手番を返す
-                series_result = judge_series(
+                # ［シリーズ］１つ分の試行結果を返す
+                trial_results_for_one_series = judge_series(
                         argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                         list_of_face_of_coin=list_of_face_of_coin,
                         series_rule=specified_series_rule)
 
-                if series_result.number_of_times < old_number_of_times:
+                if trial_results_for_one_series.number_of_times < old_number_of_times:
                     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
-                    #print(f"到達できない棋譜を除去 {series_result.number_of_times=}  {old_number_of_times=}")
+                    #print(f"到達できない棋譜を除去 {trial_results_for_one_series.number_of_times=}  {old_number_of_times=}")
                     pass
 
                 elif old_number_of_times < specified_series_rule.number_of_shortest_time:
@@ -141,12 +141,12 @@ Which one(1-2)? """)
                 #
                 # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
                 #
-                elif FAILURE_RATE == 0.0 and series_result.is_no_won(opponent_pair=FACE_OF_COIN):
+                elif FAILURE_RATE == 0.0 and trial_results_for_one_series.is_no_won(opponent_pair=FACE_OF_COIN):
                     #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {FAILURE_RATE=}")
                     pass
 
                 else:
-                    series_result_list.append(series_result)
+                    series_result_list.append(trial_results_for_one_series)
 
             # 表示
             print(stringify_analysis_series(
@@ -155,9 +155,9 @@ Which one(1-2)? """)
                     series_result_list=series_result_list,
                     turn_system=turn_system))
 
-            for series_result in series_result_list:
+            for trial_results_for_one_series in series_result_list:
                 analysis_series(
-                        series_result=series_result,
+                        trial_results_for_one_series=trial_results_for_one_series,
                         spec=spec,
                         series_rule=specified_series_rule,
                         title='（先後固定制）    むずでょセレクション',

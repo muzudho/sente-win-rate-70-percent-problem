@@ -43,32 +43,32 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout)
 
-        # シリーズの結果を返す
-        series_result = judge_series(
+        # ［シリーズ］１つ分の試行結果を返す
+        trial_results_for_one_series = judge_series(
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin,
                 series_rule=series_rule)
-        #print(f"{series_result.stringify_dump()}")
+        #print(f"{trial_results_for_one_series.stringify_dump()}")
 
         
-        if series_result.number_of_times < series_rule.number_of_shortest_time:
-            text = f"{spec.p=} 最短対局数の実際値 {series_result.number_of_times} が理論値 {series_rule.number_of_shortest_time} を下回った"
+        if trial_results_for_one_series.number_of_times < series_rule.number_of_shortest_time:
+            text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.number_of_shortest_time} を下回った"
             print(f"""{text}
 {series_rule.number_of_longest_time=}
-{series_result.stringify_dump('   ')}
+{trial_results_for_one_series.stringify_dump('   ')}
 """)
             raise ValueError(text)
 
-        if series_rule.number_of_longest_time < series_result.number_of_times:
-            text = f"{spec.p=} 最長対局数の実際値 {series_result.number_of_times} が理論値 {series_rule.number_of_longest_time} を上回った"
+        if series_rule.number_of_longest_time < trial_results_for_one_series.number_of_times:
+            text = f"{spec.p=} 最長対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.number_of_longest_time} を上回った"
             print(f"""{text}
 {series_rule.number_of_shortest_time=}
-{series_result.stringify_dump('   ')}
+{trial_results_for_one_series.stringify_dump('   ')}
 """)
             raise ValueError(text)
 
 
-        series_result_list.append(series_result)
+        series_result_list.append(trial_results_for_one_series)
 
 
     # シミュレーションの結果
