@@ -12,15 +12,10 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, Specification, SeriesRule, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
+from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, SeriesRule, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_analysis_series_log_file_path
 from library.database import get_df_muzudho_single_points
 from library.views import stringify_series_log, stringify_analysis_series
-
-
-# 引き分けになる確率
-FAILURE_RATE = 0.0     # 引分けなし
-#FAILURE_RATE = 10.0     # １０％。コンピュータ将棋など
 
 
 def analysis_series(trial_results_for_one_series, spec, series_rule, title, turn_system):
@@ -37,7 +32,7 @@ def analysis_series(trial_results_for_one_series, spec, series_rule, title, turn
     text = stringify_series_log(
             # ［表が出る確率］（指定値）
             p=spec.p,
-            failure_rate=FAILURE_RATE,
+            failure_rate=spec.failure_rate,
             # ［かくきんシステムのｐの構成］
             series_rule=series_rule,
             # ［シリーズ］１つ分の試行結果
@@ -64,6 +59,41 @@ if __name__ == '__main__':
 
     try:
         prompt = f"""\
+What is the probability of flipping a coin and getting heads?
+Example: 70% is 0.7
+? """
+        specified_p = float(input(prompt))
+
+
+        prompt = f"""\
+What is the failure rate?
+Example: 10% is 0.1
+? """
+        specified_failure_rate = float(input(prompt))
+
+
+        prompt = f"""\
+p_step?
+Example: 2
+? """
+        specified_p_step = int(input(prompt))
+
+
+        prompt = f"""\
+q_step?
+Example: 3
+? """
+        specified_q_step = int(input(prompt))
+
+
+        prompt = f"""\
+Span?
+Example: 6
+? """
+        specified_span = int(input(prompt))
+
+
+        prompt = f"""\
 (1) Frozen turn
 (2) Alternating turn
 Which one(1-2)? """
@@ -79,88 +109,81 @@ Which one(1-2)? """
             raise ValueError(f"{choice=}")
 
 
-        df_msp = get_df_muzudho_single_points(turn_system=turn_system)
+        # 仕様
+        spec = Specification(
+                p=specified_p,
+                failure_rate=specified_failure_rate,
+                turn_system=turn_system)
 
-        for             p,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
-            zip(df_msp['p'], df_msp['p_step'], df_msp['q_step'], df_msp['span'], df_msp['presentable'], df_msp['comment'], df_msp['candidates']):
-
-            # 仕様
-            spec = Specification(
-                    p=p,
-                    failure_rate=FAILURE_RATE,
-                    turn_system=turn_system)
-
-            # ［シリーズ・ルール］。任意に指定します
-            specified_series_rule = SeriesRule.make_series_rule_base(
-                    failure_rate=FAILURE_RATE,
-                    p_step=p_step,
-                    q_step=q_step,
-                    span=span,
-                    turn_system=turn_system)
+        # ［シリーズ・ルール］。任意に指定します
+        specified_series_rule = SeriesRule.make_series_rule_base(
+                failure_rate=specified_failure_rate,
+                p_step=specified_p_step,
+                q_step=specified_q_step,
+                span=specified_span,
+                turn_system=turn_system)
 
 
-            list_of_trial_results_for_one_series = []
+        list_of_trial_results_for_one_series = []
 
-            # FIXME 動作テスト
-            list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
-                    can_failure=False,
+        # FIXME 動作テスト
+        list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
+                can_failure=False,
+                series_rule=specified_series_rule)
+        
+        for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
+            #print(f"動作テスト {list_of_face_of_coin=}")
+
+            # 引数作成
+            argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
+                    p=spec.p,
+                    failure_rate=spec.failure_rate,
+                    number_of_longest_time=specified_series_rule.number_of_longest_time)
+
+            #
+            # 到達できない棋譜は除去しておきたい
+            #
+
+            old_number_of_times = len(list_of_face_of_coin)
+
+            # ［シリーズ］１つ分の試行結果を返す
+            trial_results_for_one_series = judge_series(
+                    argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                    list_of_face_of_coin=list_of_face_of_coin,
                     series_rule=specified_series_rule)
-            
-            for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
-                #print(f"動作テスト {list_of_face_of_coin=}")
 
-                # 引数作成
-                argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
-                        p=None,                 # FIXME 未設定
-                        failure_rate=FAILURE_RATE,
-                        number_of_longest_time=specified_series_rule.number_of_longest_time)
+            if trial_results_for_one_series.number_of_times < old_number_of_times:
+                # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
+                #print(f"到達できない棋譜を除去 {trial_results_for_one_series.number_of_times=}  {old_number_of_times=}")
+                pass
 
-                #
-                # 到達できない棋譜は除去しておきたい
-                #
+            elif old_number_of_times < specified_series_rule.number_of_shortest_time:
+                # 棋譜の長さが足りていないということは、最後までプレイしていない
+                #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.number_of_shortest_time=}")
+                pass
 
-                old_number_of_times = len(list_of_face_of_coin)
+            #
+            # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
+            #
+            elif specified_failure_rate == 0.0 and trial_results_for_one_series.is_no_won(opponent_pair=FACE_OF_COIN):
+                #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {specified_failure_rate=}")
+                pass
 
-                # ［シリーズ］１つ分の試行結果を返す
-                trial_results_for_one_series = judge_series(
-                        argument_of_sequence_of_playout=argument_of_sequence_of_playout,
-                        list_of_face_of_coin=list_of_face_of_coin,
-                        series_rule=specified_series_rule)
+            else:
+                list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
-                if trial_results_for_one_series.number_of_times < old_number_of_times:
-                    # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
-                    #print(f"到達できない棋譜を除去 {trial_results_for_one_series.number_of_times=}  {old_number_of_times=}")
-                    pass
+        # 表示
+        print(stringify_analysis_series(
+                spec=spec,
+                list_of_trial_results_for_one_series=list_of_trial_results_for_one_series))
 
-                elif old_number_of_times < specified_series_rule.number_of_shortest_time:
-                    # 棋譜の長さが足りていないということは、最後までプレイしていない
-                    #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.number_of_shortest_time=}")
-                    pass
-
-                #
-                # 引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去したい
-                #
-                elif FAILURE_RATE == 0.0 and trial_results_for_one_series.is_no_won(opponent_pair=FACE_OF_COIN):
-                    #print(f"引分け不可のときに、［最短対局数］までプレイして［目標の点数］へ足りていない棋譜が混ざっているなら、除去 {FAILURE_RATE=}")
-                    pass
-
-                else:
-                    list_of_trial_results_for_one_series.append(trial_results_for_one_series)
-
-            # 表示
-            print(stringify_analysis_series(
-                    p=p,
-                    failure_rate=FAILURE_RATE,
-                    list_of_trial_results_for_one_series=list_of_trial_results_for_one_series,
-                    turn_system=turn_system))
-
-            for trial_results_for_one_series in list_of_trial_results_for_one_series:
-                analysis_series(
-                        trial_results_for_one_series=trial_results_for_one_series,
-                        spec=spec,
-                        series_rule=specified_series_rule,
-                        title='（先後固定制）    むずでょセレクション',
-                        turn_system=turn_system)
+        for trial_results_for_one_series in list_of_trial_results_for_one_series:
+            analysis_series(
+                    trial_results_for_one_series=trial_results_for_one_series,
+                    spec=spec,
+                    series_rule=specified_series_rule,
+                    title='（先後固定制）    むずでょセレクション',
+                    turn_system=turn_system)
 
 
     except Exception as err:

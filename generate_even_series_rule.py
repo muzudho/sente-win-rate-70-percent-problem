@@ -377,6 +377,13 @@ if __name__ == '__main__':
 #         p = float(input(prompt))
 
 
+        prompt = f"""\
+What is the failure rate?
+Example: 10% is 0.1
+? """
+        specified_failure_rate = float(input(prompt))
+
+
         # ［先後が回ってくる制度］を尋ねる
         prompt = f"""\
 (1) Frozen turn
@@ -389,13 +396,6 @@ Which one(1-2)? """
             specified_turn_system = WHEN_ALTERNATING_TURN
         else:
             raise ValueError(f"{choice=}")
-
-
-        prompt = f"""\
-What is the failure rate?
-Example: 10% is 0.1
-? """
-        specified_failure_rate = float(input(prompt))
 
 
         # ［試行シリーズ回数］を尋ねる

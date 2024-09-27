@@ -288,18 +288,18 @@ def stringify_series_log(
     # ［将棋の先手勝率］
     # -----------------
     shw1 = p * 100                                                             # ［将棋の先手勝率（％）］指定値
-    if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
+    if trial_results_for_one_series.is_won(winner=HEAD):
         shw2 = "表"
-    elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
+    elif trial_results_for_one_series.is_won(winner=TAIL):
         shw2 = "裏"
     else:
         shw2 = "引"
 
     # ［Ａさんの勝率］
     # ---------------
-    if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
+    if trial_results_for_one_series.is_won(winner=HEAD):
         aw1 = "Ａさん"
-    elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
+    elif trial_results_for_one_series.is_won(winner=TAIL):
         aw1 = "Ｂさん"
     else:
         aw1 = "引"
@@ -541,8 +541,8 @@ def stringify_simulation_log(
 """
 
 
-def stringify_analysis_series(p, failure_rate, list_of_trial_results_for_one_series, turn_system):
-    if turn_system == WHEN_FROZEN_TURN:
+def stringify_analysis_series(spec, list_of_trial_results_for_one_series):
+    if spec.turn_system == WHEN_FROZEN_TURN:
         """シリーズ分析中のログ"""
 
         # 集計
@@ -569,9 +569,9 @@ def stringify_analysis_series(p, failure_rate, list_of_trial_results_for_one_ser
         result_tail_wons_with_failure = tail_wons / len(list_of_trial_results_for_one_series)
 
         # 将棋の先手勝率など
-        shw1 = p * 100
-        shd1 = failure_rate
-        shl1 = (1 - p) * 100
+        shw1 = spec.p * 100
+        shd1 = spec.failure_rate
+        shl1 = (1 - spec.p) * 100
 
         bw1 = result_head_wons_without_failure * 100
         bw2 = result_head_wons_with_failure * 100
@@ -596,5 +596,10 @@ def stringify_analysis_series(p, failure_rate, list_of_trial_results_for_one_ser
 
         return
 
+    if spec.turn_system == WHEN_ALTERNATING_TURN:
+        print("［先後交互制］には未対応")
 
-    raise ValueError(f"{turn_system=}")
+        return
+
+
+    raise ValueError(f"{spec.turn_system=}")
