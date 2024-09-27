@@ -197,8 +197,68 @@ def get_df_p():
 
 
 ###################################
-# Muzudho recommended points table
+# Selection series rule table
 ###################################
+
+class SelectionSeriesRuleTable():
+
+
+    def __init__(self, p, failure_rate, p_step, q_step, span, presentable, comment, candidates):
+
+        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+        p_step = round_letro(p_step)
+        q_step = round_letro(q_step)
+        span = round_letro(span)
+
+        self._p=p
+        self._failure_rate=failure_rate
+        self._p_step=p_step
+        self._q_step=q_step
+        self._span=span
+        self._presentable=presentable
+        self._comment=comment
+        self._candidates=candidates
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def p_step(self):
+        return self._p_step
+
+
+    @property
+    def q_step(self):
+        return self._q_step
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def presentable(self):
+        return self._presentable
+
+
+    @property
+    def comment(self):
+        return self._comment
+
+
+    @property
+    def candidates(self):
+        return self._candidates
+
 
 def append_default_record_to_df_ssr(df, p, failure_rate):
     index = len(df.index)
