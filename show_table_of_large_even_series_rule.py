@@ -70,8 +70,8 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, argument_o
     t5 = f"{series_rule.step_table.span}"                       # span
     t6 = f"{argument_of_sequence_of_playout.number_of_longest_time}" # longest
     t7 = f"{S.total(opponent_pair=FACE_OF_COIN)}"               # Total (of face of coin)
-    t8 = f"{S.successful_series(opponent_pair=FACE_OF_COIN)}"   # Successful series
-    t9 = f"{S.failed_series(opponent_pair=FACE_OF_COIN)}"       # Failed series
+    t8 = f"{S.successful_series}"   # Successful series
+    t9 = f"{S.failed_series}"       # Failed series
     t10 = f"{S.wins(winner=HEAD)}"                              # wins h
     t11 = f"{S.wins(winner=TAIL)}"                              # wins t
     t12 = f"{S.no_wins(opponent_pair=FACE_OF_COIN)}"            # no wins ht

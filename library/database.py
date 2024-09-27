@@ -156,21 +156,21 @@ def get_df_even(turn_system, generation_algorythm):
     #
     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
     #
-    df['p'].astype('float')
-    df['failure_rate'].astype('float')
-    df['best_p'].fillna(0.0).astype('float')
-    df['best_p_error'].fillna(0.0).astype('float')
-    df['best_number_of_series'].fillna(0).astype('int')
-    df['best_p_step'].fillna(0).astype('int')
-    df['best_q_step'].fillna(0).astype('int')
-    df['best_span'].fillna(0).astype('int')
-    df['latest_p'].fillna(0.0).astype('float')
-    df['latest_p_error'].fillna(0.0).astype('float')
-    df['latest_number_of_series'].fillna(0).astype('int')
-    df['latest_p_step'].fillna(0).astype('int')
-    df['latest_q_step'].fillna(0).astype('int')
-    df['latest_span'].fillna(0).astype('int')
-    df['candidates'].fillna('').astype('string')
+    df['p'].astype('float64')
+    df['failure_rate'].astype('float64')
+    df['best_p'].fillna(0.0).astype('float64')
+    df['best_p_error'].fillna(0.0).astype('float64')
+    df['best_number_of_series'].fillna(0).astype('int64')
+    df['best_p_step'].fillna(0).astype('int64')
+    df['best_q_step'].fillna(0).astype('int64')
+    df['best_span'].fillna(0).astype('int64')
+    df['latest_p'].fillna(0.0).astype('float64')
+    df['latest_p_error'].fillna(0.0).astype('float64')
+    df['latest_number_of_series'].fillna(0).astype('int64')
+    df['latest_p_step'].fillna(0).astype('int64')
+    df['latest_q_step'].fillna(0).astype('int64')
+    df['latest_span'].fillna(0).astype('int64')
+    df['candidates'].fillna('').astype('object')    # string 型は無い？
     return df
 
 
@@ -285,15 +285,15 @@ def get_df_selection_series_rule(turn_system):
 
     df = pd.read_csv(csv_file_path, encoding="utf8")
 
-    df['p'].astype('float')
-    df['failure_rate'].astype('float')
-    df['number_of_series'].fillna(0).astype('int')
-    df['p_step'].fillna(0).astype('int')
-    df['q_step'].fillna(1).astype('int')
-    df['span'].fillna(1).astype('int')
-    df['presentable'].astype('string')
-    df['comment'].astype('string')
-    df['candidates'].astype('string')
+    df['p'].astype('float64')
+    df['failure_rate'].astype('float64')
+    df['number_of_series'].fillna(0).astype('int64')
+    df['p_step'].fillna(0).astype('int64')
+    df['q_step'].fillna(1).astype('int64')
+    df['span'].fillna(1).astype('int64')
+    df['presentable'].astype('object')    # string 型は無い？
+    df['comment'].astype('object')    # string 型は無い？
+    df['candidates'].astype('object')    # string 型は無い？
 
     return df
 
@@ -312,13 +312,13 @@ def df_ssr_to_csv(df, turn_system):
 def get_df_muzudho_single_points(turn_system):
     if turn_system == WHEN_FROZEN_TURN:
         df = pd.read_csv(get_muzudho_single_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
-        df['p'].astype('float')
-        df['p_step'].fillna(0).astype('int')
-        df['q_step'].fillna(1).astype('int')
-        df['span'].fillna(1).astype('int')
-        df['presentable'].astype('string')
-        df['comment'].astype('string')
-        df['candidates'].astype('string')
+        df['p'].astype('float64')
+        df['p_step'].fillna(0).astype('int64')
+        df['q_step'].fillna(1).astype('int64')
+        df['span'].fillna(1).astype('int64')
+        df['presentable'].astype('string')    # string 型は無い？
+        df['comment'].astype('string')    # string 型は無い？
+        df['candidates'].astype('string')    # string 型は無い？
 
         return df
 
@@ -328,9 +328,9 @@ def get_df_muzudho_single_points(turn_system):
 
 def get_df_report_selection_series_rule():
     df = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
-    df['p'].astype('float')
-    df['p_time'].fillna(0).astype('int')
-    df['q_time'].fillna(0).astype('int')
+    df['p'].astype('float64')
+    df['p_time'].fillna(0).astype('int64')
+    df['q_time'].fillna(0).astype('int64')
 
     return df
 

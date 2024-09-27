@@ -1647,7 +1647,7 @@ class LargeSeriesTrialSummary():
             ［シリーズ］の結果のリスト
         """
 
-        self._series_result_list = list_of_trial_results_for_one_series
+        self._list_of_trial_results_for_one_series = list_of_trial_results_for_one_series
         self._shortest_time_th = None
         self._longest_time_th = None
         self._successful_series = None
@@ -1670,17 +1670,18 @@ class LargeSeriesTrialSummary():
     def total(self, opponent_pair):
         """シリーズ数"""
 
+        succ = self.successful_series
+        fail = self.failed_series
+        total_2 = succ + fail
+
         if opponent_pair == FACE_OF_COIN:
             wins_h = self.wins(winner=HEAD)
             wins_t = self.wins(winner=TAIL)
-            succ = self.successful_series(opponent_pair)
-            fail = self.failed_series(opponent_pair)
-
-            total_1 = wins_h + wins_t
-            total_2 = succ + fail
+            no_wins = self.no_wins(opponent_pair=opponent_pair)
+            total_1 = wins_h + wins_t + no_wins
 
             if total_1 != total_2:
-                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_h=}  {wins_t=}  {succ=}  {fail=}")
+                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_h=}  {wins_t=}  {no_wins=}  {succ=}  {fail=}")
 
             return total_1
 
@@ -1688,14 +1689,11 @@ class LargeSeriesTrialSummary():
         elif opponent_pair == PLAYERS:
             wins_a = self.wins(winner=ALICE)
             wins_b = self.wins(winner=BOB)
-            succ = self.successful_series(opponent_pair)
-            fail = self.failed_series(opponent_pair)
-
-            total_1 = wins_a + wins_b
-            total_2 = succ + fail
+            no_wins = self.no_wins(opponent_pair=opponent_pair)
+            total_1 = wins_a + wins_b + no_wins
 
             if total_1 != total_2:
-                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}  {wins_b=}  {succ=}  {fail=}")
+                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}  {wins_b=}  {no_wins=}  {succ=}  {fail=}")
 
             return total_1
 
@@ -1709,9 +1707,9 @@ class LargeSeriesTrialSummary():
         """［最短対局数］"""
         if self._shortest_time_th is None:
             self._shortest_time_th = 2_147_483_647
-            for trial_results_for_one_series in self._series_result_list:
-                if trial_results_for_one_series.number_of_times < self._shortest_time_th:
-                    self._shortest_time_th = trial_results_for_one_series.number_of_times
+            for s in self._list_of_trial_results_for_one_series:
+                if s.number_of_times < self._shortest_time_th:
+                    self._shortest_time_th = s.number_of_times
 
         return self._shortest_time_th
 
@@ -1721,30 +1719,32 @@ class LargeSeriesTrialSummary():
         """［最長対局数］"""
         if self._longest_time_th is None:
             self._longest_time_th = 0
-            for trial_results_for_one_series in self._series_result_list:
-                if self._longest_time_th < trial_results_for_one_series.number_of_times:
-                    self._longest_time_th = trial_results_for_one_series.number_of_times
+            for s in self._list_of_trial_results_for_one_series:
+                if self._longest_time_th < s.number_of_times:
+                    self._longest_time_th = s.number_of_times
 
         return self._longest_time_th
 
 
-    def successful_series(self, opponent_pair):
+    @property
+    def successful_series(self):
         """［表も裏も出なかった対局を含まないシリーズ数］"""
         if self._successful_series is None:
             self._successful_series = 0
-            for trial_results_for_one_series in self._series_result_list:
-                if trial_results_for_one_series.failed_coins < 1:
+            for s in self._list_of_trial_results_for_one_series:
+                if s.failed_coins < 1:
                     self._successful_series += 1
 
         return self._successful_series
 
 
-    def failed_series(self, opponent_pair):
+    @property
+    def failed_series(self):
         """［表も裏も出なかった対局を含むシリーズ数］"""
         if self._failed_series is None:
             self._failed_series = 0
-            for trial_results_for_one_series in self._series_result_list:
-                if 0 < trial_results_for_one_series.failed_coins:
+            for s in self._list_of_trial_results_for_one_series:
+                if 0 < s.failed_coins:
                     self._failed_series += 1
 
         return self._failed_series
@@ -1754,8 +1754,8 @@ class LargeSeriesTrialSummary():
         """elementary_event が［目標の点数］を集めて勝った回数"""
         if self._ful_wins[winner] is None:
             self._ful_wins[winner] = 0
-            for trial_results_for_one_series in self._series_result_list:
-                if trial_results_for_one_series.point_calculation.is_fully_won(winner):
+            for s in self._list_of_trial_results_for_one_series:
+                if s.point_calculation.is_fully_won(winner):
                     self._ful_wins[winner] += 1
 
         return self._ful_wins[winner]
@@ -1766,8 +1766,8 @@ class LargeSeriesTrialSummary():
         loser = opponent(winner)
         if self._pts_wins[winner] is None:
             self._pts_wins[winner] = 0
-            for trial_results_for_one_series in self._series_result_list:
-                if trial_results_for_one_series.is_points_won(winner=winner, loser=loser):
+            for s in self._list_of_trial_results_for_one_series:
+                if s.is_points_won(winner=winner, loser=loser):
                     self._pts_wins[winner] += 1
 
         return self._pts_wins[winner]
@@ -1851,8 +1851,8 @@ class LargeSeriesTrialSummary():
         """勝者がなかった回数"""
         if self._no_wins[opponent_pair] is None:
             self._no_wins[opponent_pair] = 0
-            for trial_results_for_one_series in self._series_result_list:
-                if trial_results_for_one_series.is_no_won(opponent_pair=opponent_pair):
+            for s in self._list_of_trial_results_for_one_series:
+                if s.is_no_won(opponent_pair=opponent_pair):
                     self._no_wins[opponent_pair] += 1
 
         return self._no_wins[opponent_pair]
