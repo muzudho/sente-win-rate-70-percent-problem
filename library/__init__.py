@@ -660,29 +660,32 @@ class PointCalculation():
         self._point_list[successful_player] += step
 
 
-    def append_failure(self, time_th, turn_system):
+    def append_step_when_failure(self, time_th, turn_system):
         """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
 
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
         """
 
-        self._point_list[HEAD] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        self._point_list[TAIL] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)      # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        h_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)
+        t_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)
+
+        self._point_list[HEAD] += h_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        self._point_list[TAIL] += t_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         if turn_system == WHEN_FROZEN_TURN:
-            self._point_list[ALICE] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            self._point_list[BOB] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._point_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         elif turn_system == WHEN_ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
-                self._point_list[ALICE] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[BOB] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
             # 偶数回はＢさんが先手
             else:
-                self._point_list[BOB] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[ALICE] += self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[BOB] += h_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._point_list[ALICE] += t_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             
         else:
             raise ValueError(f"{turn_system=}")
@@ -739,6 +742,13 @@ class PointCalculation():
 #         return elementary_event
 
 
+def assert_list_of_face_of_coin(list_of_face_of_coin):
+    """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］のいずれかしか含んでいないはずです"""
+    for mark in list_of_face_of_coin:
+        if mark not in [HEAD, TAIL, EMPTY]:
+            raise ValueError(f"予期しない値がリストに入っています  {mark=}")
+
+
 def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_rule):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
@@ -750,6 +760,10 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
     list_of_face_of_coin : list
         コイントスした結果のリスト。引き分け含む
     """
+
+    # FIXME 検算
+    assert_list_of_face_of_coin(list_of_face_of_coin=list_of_face_of_coin)
+
 
     # ［先後固定制］
     if series_rule.turn_system == WHEN_FROZEN_TURN:
@@ -786,7 +800,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
             if face_of_coin == EMPTY:
                 failed_coins += 1
 
-                point_calculation.append_failure(time_th, turn_system=series_rule.turn_system)
+                point_calculation.append_step_when_failure(time_th, turn_system=series_rule.turn_system)
             
             else:
                 point_calculation.append_won(
@@ -854,7 +868,7 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
             if face_of_coin == EMPTY:
                 failed_coins += 1
 
-                point_calculation.append_failure(time_th, turn_system=series_rule.turn_system)
+                point_calculation.append_step_when_failure(time_th, turn_system=series_rule.turn_system)
 
             else:
                 successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=series_rule.turn_system)
@@ -870,6 +884,21 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
+
+
+                    # FIXME 検算。長さ
+                    if len(list_of_face_of_coin) != time_th:
+                        raise ValueError(f"検算で長さが一致しません {len(list_of_face_of_coin)=}  {time_th=}")
+
+
+                    # FIXME カットダウン後のテープと、引き分けの数を確認
+                    failed_coins_2 = 0
+                    for face_of_coin_2 in list_of_face_of_coin:
+                        if face_of_coin_2 == EMPTY:
+                            failed_coins_2 += 1
+                    if failed_coins != failed_coins_2:
+                        raise ValueError(f"検算で、引き分けの数が一致しません {failed_coins=}  {failed_coins_2=}  {list_of_face_of_coin=}")
+
 
                     return TrialResultsForOneSeries(
                             number_of_times=time_th,
@@ -1594,7 +1623,7 @@ class TrialResultsForOneSeries():
 
 
     def is_no_won(self, opponent_pair):
-        """勝者なし。 x 、 y の［勝ち点］が等しいとき"""
+        """TODO 勝者なし。 x 、 y の［勝ち点］が等しいとき"""
 
         if opponent_pair == FACE_OF_COIN:
             x = HEAD
@@ -1677,29 +1706,36 @@ class LargeSeriesTrialSummary():
         if opponent_pair == FACE_OF_COIN:
             wins_h = self.wins(winner=HEAD)
             wins_t = self.wins(winner=TAIL)
-            no_wins = self.no_wins(opponent_pair=opponent_pair)
-            total_1 = wins_h + wins_t + no_wins
+            no_wins_ht = self.no_wins(opponent_pair=opponent_pair)
+            total_1 = wins_h + wins_t + no_wins_ht
 
             if total_1 != total_2:
-                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_h=}  {wins_t=}  {no_wins=}  {succ=}  {fail=}")
+                ful_wins_h = self.ful_wins(winner=HEAD)
+                ful_wins_t = self.ful_wins(winner=TAIL)
+                ful_pts_h = self.pts_wins(winner=HEAD)
+                ful_pts_t = self.pts_wins(winner=TAIL)
+                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_h=}({ful_wins_h=} + {ful_pts_h=})  {wins_t=}({ful_wins_t=} + {ful_pts_t=})  {no_wins_ht=}  {succ=}  {fail=}")
 
             return total_1
 
 
-        elif opponent_pair == PLAYERS:
+        if opponent_pair == PLAYERS:
             wins_a = self.wins(winner=ALICE)
             wins_b = self.wins(winner=BOB)
-            no_wins = self.no_wins(opponent_pair=opponent_pair)
-            total_1 = wins_a + wins_b + no_wins
+            no_wins_ab = self.no_wins(opponent_pair=opponent_pair)
+            total_1 = wins_a + wins_b + no_wins_ab
 
             if total_1 != total_2:
-                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}  {wins_b=}  {no_wins=}  {succ=}  {fail=}")
+                ful_wins_a = self.ful_wins(winner=ALICE)
+                ful_wins_b = self.ful_wins(winner=BOB)
+                ful_pts_a = self.pts_wins(winner=ALICE)
+                ful_pts_b = self.pts_wins(winner=BOB)
+                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}({ful_wins_a=} + {ful_pts_a=})  {wins_b=}({ful_wins_b=} + {ful_pts_b=})  {no_wins_ab=}  {succ=}  {fail=}")
 
             return total_1
 
         
-        else:
-            raise ValueError(f"{opponent_pair=}")
+        raise ValueError(f"{opponent_pair=}")
 
 
     @property
