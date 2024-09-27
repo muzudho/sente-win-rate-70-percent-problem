@@ -1176,8 +1176,10 @@ class SeriesRule():
 
             # ［最長対局数］
             number_of_longest_time = SeriesRule.let_number_of_longest_time(
+                    failure_rate=failure_rate,
                     p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                    q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                    q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+                    turn_system=turn_system)
 
 
         if number_of_longest_time < number_of_shortest_time:
@@ -1365,35 +1367,42 @@ step_table:
 
 
     @staticmethod
-    def let_number_of_longest_time(p_time, q_time):
-        """［最長対局数］を算出します
-        
-        ［先後固定制］
-        -------------
+    def let_number_of_longest_time_without_failure_rate(p_time, q_time, turn_system):
+        """［最長対局数］を算出します        
+        """
 
-        裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
+        # ［先後固定制］
+        if turn_system == WHEN_FROZEN_TURN:
+            """
+            裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
 
-        NOTE 例えば３本勝負というとき、２本取れば勝ち。最大３本勝負という感じ。３本取るゲームではない。先後非対称のとき、裏と表は何本取ればいいのか明示しなければ、伝わらない
-        NOTE 先手が１本、後手が１本取ればいいとき、最大で１本の勝負が行われる（先 or 後）から、１本勝負と呼ぶ
-        NOTE 先手が２本、後手が１本取ればいいとき、最大で２本の勝負が行われる（先先 or 先後）から、２本勝負と呼ぶ
+            筆算
+            ----
+                `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
+                    ・  表  表  表  表  表  表  表  表  表  裏  裏  裏  裏  裏  で、最長１４局
+                    10   9   8   7   6   5  4   3   2   1  1   1   1   1   1
+                    10  10  10  10  10  10 10  10  10  10  8   6   4   2   0
 
-        `先手勝ち 1点、後手勝ち 2点　目標 10点` のとき、先後固定制で最長は？
-            ・  表  表  表  表  表  表  表  表  表  裏  裏  裏  裏  裏  で、最長１４局
-            10   9   8   7   6   5  4   3   2   1  1   1   1   1   1
-            10  10  10  10  10  10 10  10  10  10  8   6   4   2   0
-        
-        `10表 12裏 14目（先後固定制）`
-            ・  裏  表  表  で最長３局
-            14   2   2   2
-            14  14   4  -6
+                    ・  裏  裏  裏   裏  表  表  表  表  表  表  表  表  表  表  で、最長１４局
+                    10  10  10  10  10   9   8   7   6  5   4   3   2   1   0  
+                    10   8   6   4   2   2   2   2   2  2   2   2   2   2   2
+
+                `10表 12裏 14目（先後固定制）`
+                    ・  表  裏  で最長２局
+                    14   4   4
+                    14  14   0
+
+                    ・  裏  表  表  で最長３局
+                    14   2   2   2
+                    14  14   4  -6
+            """
+            return  p_time + q_time - 1
 
 
-        ［先後交互制］
-        -------------
-
-        ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
-        TODO ［表も裏も出ない確率］が 0.99 なら、 99回分の引分けの按分を足す必要があるか？ ----> 引分け用の点数を少なくすることで対応？
-        TODO ［表も裏も出ない確率］が 0.99 なら、［後手勝ち］の基本［勝ち点］も減らす必要がある？ 先手の勝つ機会が減ってるんで。
+        # ［先後交互制］
+        elif turn_system == WHEN_ALTERNATING_TURN:
+            """
+            ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
 
         筆算
         ----
@@ -1413,20 +1422,67 @@ step_table:
                     1   1
                     1   0
         """
-
-        # if self._turn_system == WHEN_FROZEN_TURN:
-        #     failed_times = 0
-
-        # elif self._turn_system == WHEN_ALTERNATING_TURN:
-        #     # ［表も裏も出なかった対局数］
-        #     failed_times = math.ceil(1 / self._failure_rate)
-
-        # else:
-        #     raise ValueError(f"{self._turn_system=}")
+            return 2 * p_time - 1
 
 
-        #return  (p_time - 1) + (q_time - 1) + 1 + failed_times
-        return  (p_time - 1) + (q_time - 1) + 1
+        else:
+            raise ValueError(f"{turn_system=}")
+
+
+    @staticmethod
+    def let_number_of_longest_time_with_failure_rate(failure_rate, number_of_longest_time_without_failure_rate):
+        """［最長対局数］を算出します
+        
+        ［表も裏も出ない確率］の考え方
+        ----------------------------
+
+        例えば failure_rate=0.1 のとき、つまり１０回に１回は引き分けのとき、本来１０回対局することを想定しているのに１０回対局できないので、計算式が合わなくなります。
+
+            10 * (1 - 0.1) = 9
+        
+        そこで、
+
+            y * (1 - 0.1) = 10
+        
+        の y を求めたい。 y は試行シリーズ数。（10 は、failure_rate=0 のときの試行シリーズ数）
+
+            = n * (1 - 0.1) = 10
+            = n             = 10 / (1 - 0.1)
+            = n             =  11.1111...
+        
+        仮に小数点以下切り上げして 12 とします。
+
+            12 * (1 - 0.1) = 10.8
+        
+        １２回対局すれば、その１割が引き分けでも、１０回の対局は決着するようです。
+
+        小数点以下四捨五入なら 11 なので
+
+            11 * (1 - 0.1) = 9.9
+        
+        四捨五入（または切り捨て）だと１０回に足りないようです。
+
+            y = n * (1 - failure_rate)
+        
+                n は、failure_rate=0 のときの試行シリーズ数
+                y は、0 < failure_rate のときの試行シリーズ数
+        """
+        return math.ceil(number_of_longest_time_without_failure_rate / (1 - failure_rate))
+
+
+    @staticmethod
+    def let_number_of_longest_time(failure_rate, p_time, q_time, turn_system):
+        """［最長対局数］を算出します
+        """
+
+        number_of_longest_time_without_failure_rate = SeriesRule.let_number_of_longest_time_without_failure_rate(
+                p_time=p_time,
+                q_time=q_time,
+                turn_system=turn_system)
+
+        return SeriesRule.let_number_of_longest_time_with_failure_rate(
+                failure_rate=failure_rate,
+                number_of_longest_time_without_failure_rate=number_of_longest_time_without_failure_rate)
 
 
     def stringify_dump(self, indent):
