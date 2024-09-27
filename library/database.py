@@ -4,7 +4,7 @@
 import os
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro
 from library.file_paths import get_even_series_rule_csv_file_path, get_selection_series_rule_csv_file_path
 
 
@@ -16,6 +16,111 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 #############
 # Even table
 #############
+
+class EvenTable():
+
+
+    def __init__(self, p, failure_rate, best_p, best_p_error, best_number_of_series, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_number_of_series, latest_p_step, latest_q_step, latest_span, candidates):
+
+        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+        best_p_step = round_letro(best_p_step)
+        best_q_step = round_letro(best_q_step)
+        best_span = round_letro(best_span)
+        latest_p_step = round_letro(latest_p_step)
+        latest_q_step = round_letro(latest_q_step)
+        latest_span = round_letro(latest_span)
+
+        self._p=p
+        self._failure_rate=failure_rate
+        self._best_p=best_p
+        self._best_p_error=best_p_error
+        self._best_number_of_series=best_number_of_series
+        self._best_p_step=best_p_step
+        self._best_q_step=best_q_step
+        self._best_span=best_span
+        self._latest_p=latest_p
+        self._latest_p_error=latest_p_error
+        self._latest_number_of_series=latest_number_of_series
+        self._latest_p_step=latest_p_step
+        self._latest_q_step=latest_q_step
+        self._latest_span=latest_span
+        self._candidates=candidates
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def best_p(self):
+        return self._best_p
+
+
+    @property
+    def best_p_error(self):
+        return self._best_p_error
+
+
+    @property
+    def best_number_of_series(self):
+        return self._best_number_of_series
+
+
+    @property
+    def best_p_step(self):
+        return self._best_p_step
+
+
+    @property
+    def best_q_step(self):
+        return self._best_q_step
+
+
+    @property
+    def best_span(self):
+        return self._best_span
+
+
+    @property
+    def latest_p(self):
+        return self._latest_p
+
+
+    @property
+    def latest_p_error(self):
+        return self._latest_p_error
+
+
+    @property
+    def latest_number_of_series(self):
+        return self._latest_number_of_series
+
+
+    @property
+    def latest_p_step(self):
+        return self._latest_p_step
+
+
+    @property
+    def latest_q_step(self):
+        return self._latest_q_step
+
+
+    @property
+    def latest_span(self):
+        return self._latest_span
+
+
+    @property
+    def candidates(self):
+        return self._candidates
+
 
 def append_default_record_to_df_even(df, p, failure_rate):
     index = len(df.index)

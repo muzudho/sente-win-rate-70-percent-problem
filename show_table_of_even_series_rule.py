@@ -1,15 +1,15 @@
 #
 # 表示
-# python show_even_series_rule.py
+# python show_table_of_even_series_rule.py
 #
-#   テーブルをただ表示するだけ
+#   テーブル形式でただ表示するだけ
 #
 
 import traceback
 
 from library import HEAD, TAIL, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, turn_system_to_str, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import get_df_selection_series_rule, get_df_even
+from library.database import get_df_selection_series_rule, get_df_even, EvenTable
 from library.views import stringify_simulation_log
 
 
@@ -17,8 +17,11 @@ def stringify_header(turn_system):
     return f"""\
 turn system={turn_system_to_str(turn_system)}
 
-p           Failure     p_step   q_step   span   longest   n_times   f_times
------------ ----------- -------- -------- ------ --------- --------- ---------
++---------------------------+------------------------------------------------------------------+
+| Spec                      | Series rule                                                      |
++-------------+-------------+----------+----------+--------+-----------+-----------+-----------+
+| p           | Failure     | p_step   | q_step   | span   | longest   | n_times   | f_times   |
++-------------+-------------+----------+----------+--------+-----------+-----------+-----------+
 """
 
 
@@ -38,11 +41,14 @@ def stringify_body(p, spec, series_rule, presentable, comment, argument_of_seque
     t7 = f"{series_result.number_of_times:>7}"  # ［行われた対局数］
     t8 = f"{series_result.number_of_failed:>7}"  # ［表も裏も出なかった対局数］
 
-# P         Failure     p_step   q_step   span   longest   n_times   f_times
-# --------- ----------- -------- -------- ------ --------- --------- ---------
+# --------------------------+------------------------------------------+-----------------------+
+# Spec                      | Series rule                              | Trial                 |
+# ------------+-------------+----------+----------+--------+-----------+-----------+-----------+
+# p           | Failure     | p_step   | q_step   | span   | longest   | n_times   | f_times   |
+# ------------+-------------+----------+----------+--------+-----------+-----------+-----------+
 
     return f"""\
-p={t1   }％ f={t2   }％ {t3  }表 {t4  }裏 {t5}目 {t6   }局 {t7   }回 {t8   }回
+  p={t1   }％   f={t2   }％   {t3  }表    {t4  }裏   {t5}目   {t6   }局   {t7   }回   {t8   }回\
 """
 
 
@@ -166,20 +172,40 @@ Which data source should I use?
             for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
                 zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
+                even_table = EvenTable(
+                        p=p,
+                        failure_rate=failure_rate,
+                        best_p=best_p,
+                        best_p_error=best_p_error,
+                        best_number_of_series=best_number_of_series,
+                        best_p_step=best_p_step,
+                        best_q_step=best_q_step,
+                        best_span=best_span,
+                        latest_p=latest_p,
+                        latest_p_error=latest_p_error,
+                        latest_number_of_series=latest_number_of_series,
+                        latest_p_step=latest_p_step,
+                        latest_q_step=latest_q_step,
+                        latest_span=latest_span,
+                        candidates=candidates)
+
                 # 対象外のものはスキップ
-                if specified_failure_rate != failure_rate:
+                if specified_failure_rate != even_table.failure_rate:
                     continue
 
-                if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-                    print(f"[P={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
+                if even_table.best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+                    print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
                     continue
 
-                # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-                p_step = round_letro(best_p_step)
-                q_step = round_letro(best_q_step)
-                span = round_letro(best_span)
-
-                show_series_rule(p, failure_rate, p_step, q_step, span, '', '', turn_system=specified_turn_system)
+                show_series_rule(
+                        p=p,
+                        failure_rate=failure_rate,
+                        p_step=even_table.best_p_step,
+                        q_step=even_table.best_q_step,
+                        span=even_table.best_span,
+                        presentable='',
+                        comment='',
+                        turn_system=specified_turn_system)
 
 
         elif data_source == 2:
