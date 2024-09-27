@@ -1617,18 +1617,26 @@ class TrialResultsForOneSeries():
         loser = opponent(winner)
 
         # 両者が満点勝ちしている、これはおかしい
-        if self.point_calculation.is_fully_won(winner) and self.point_calculation.is_fully_won(loser):
+        if self._point_calculation.is_fully_won(winner) and self._point_calculation.is_fully_won(loser):
+            indent = '    '
             print(f"""\
-self.point_calculation.stringify_dump:
-{self.point_calculation.stringify_dump('    ')}
+TrialResultsForOneSeries
+------------------------
+self._point_calculation.stringify_dump:
+{self._point_calculation.stringify_dump(indent)}
+{self._list_of_face_of_coin=}
 """)
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._span=}")
 
         # 両者が判定勝ちしている、これはおかしい
         if self.is_points_won(winner=winner, loser=loser) and self.is_points_won(winner=loser, loser=winner):
+            indent = '    '
             print(f"""\
-self.point_calculation.stringify_dump:
-{self.point_calculation.stringify_dump('    ')}
+TrialResultsForOneSeries
+------------------------
+self._point_calculation.stringify_dump:
+{self._point_calculation.stringify_dump(indent)}
+{self._list_of_face_of_coin=}
 """)
             raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner, loser=loser)=}  {self.is_points_won(winner=loser, loser=winner)=}  {self._span=}")
 
