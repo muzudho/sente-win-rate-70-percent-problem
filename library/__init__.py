@@ -1610,20 +1610,20 @@ class TrialResultsForOneSeries():
 
         loser = opponent(winner)
 
-        # 両者が満点勝ちしているという状況はない
+        # 両者が満点勝ちしている、これはおかしい
         if self.point_calculation.is_fully_won(winner) and self.point_calculation.is_fully_won(loser):
-            raise ValueError(f"両者が満点勝ちしているという状況はない {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}")
+            raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._span=}")
 
-        # 両者が判定勝ちしているという状況はない
+        # 両者が判定勝ちしている、これはおかしい
         if self.is_points_won(winner=winner, loser=loser) and self.is_points_won(winner=loser, loser=winner):
-            raise ValueError(f"両者が判定勝ちしているという状況はない {winner=}  {loser=}  {self.is_points_won(winner=winner, loser=loser)=}  {self.is_points_won(winner=loser, loser=winner)=}")
+            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner, loser=loser)=}  {self.is_points_won(winner=loser, loser=winner)=}  {self._span=}")
 
         # 満点勝ちなら確定、判定勝ちでもOK 
         return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner, loser=loser)
 
 
     def is_no_won(self, opponent_pair):
-        """TODO 勝者なし。 x 、 y の［勝ち点］が等しいとき"""
+        """TODO 勝者なし。どちらも勝者でないとき"""
 
         if opponent_pair == FACE_OF_COIN:
             x = HEAD
@@ -1634,7 +1634,8 @@ class TrialResultsForOneSeries():
         else:
             raise ValueError(f"{opponent_pair=}")
 
-        return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
+        return not self.is_won(x) and not self.is_won(y)
+        #return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
 
 
     def stringify_dump(self, indent):
