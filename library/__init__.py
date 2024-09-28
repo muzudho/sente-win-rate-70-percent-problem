@@ -12,6 +12,10 @@ from fractions import Fraction
 from decimal import Decimal, ROUND_HALF_UP
 
 
+# デバッグ・ログ用のインデント
+INDENT = '    '
+
+
 # Elementary event
 # ----------------
 
@@ -225,12 +229,13 @@ class Specification():
 
 
     def stringify_dump(self, indent):
+        succ_indent = indent + INDENT
         return f"""\
 {indent}Specification
 {indent}-------------
-{indent}{indent}{self._p=}
-{indent}{indent}{self._failure_rate=}
-{indent}{indent}{self._turn_system=}
+{succ_indent}{self._p=}
+{succ_indent}{self._failure_rate=}
+{succ_indent}{self._turn_system=}
 """
 
 
@@ -392,12 +397,13 @@ class ArgumentOfSequenceOfPlayout():
 
     def stringify_dump(self, indent):
         """ダンプ"""
+        succ_indent = indent + INDENT
         return f"""\
 {indent}ArgumentOfSequenceOfPlayout
 {indent}---------------------------
-{indent}{indent}{self._p=}
-{indent}{indent}{self._failure_rate=}
-{indent}{indent}{self._number_of_longest_time=}
+{succ_indent}{self._p=}
+{succ_indent}{self._failure_rate=}
+{succ_indent}{self._number_of_longest_time=}
 """
 
 
@@ -551,13 +557,13 @@ class ElementaryEventSequence():
 
     def stringify_dump(self, indent):
         """ダンプ"""
-        two_indents = indent + indent
+        succ_indent = indent + INDENT
         return f"""\
 {indent}ElementaryEventSequence
 {indent}-----------------------
-{two_indents}self._argument_of_sequence_of_playout:
-{self._argument_of_sequence_of_playout.stringify_dump(two_indents)}
-{two_indents}{self._list_of_face_of_coin=}
+{succ_indent}self._argument_of_sequence_of_playout:
+{self._argument_of_sequence_of_playout.stringify_dump(succ_indent)}
+{succ_indent}{self._list_of_face_of_coin=}
 """
 
 
@@ -676,12 +682,11 @@ class PointCalculation():
 
         # 検算
         if self._series_rule.step_table.span <= self._point_list[HEAD] and self._series_rule.step_table.span <= self._point_list[TAIL]:
-            indent = '    '
             print(f"""\
 PointCalculation
 ----------------
 self.stringify_dump:
-{self.stringify_dump(indent)}
+{self.stringify_dump(INDENT)}
 {old_point_list=}
 """)
             raise ValueError(f"表番と裏番がどちらも満点勝ちしている、これはおかしい")
@@ -689,12 +694,11 @@ self.stringify_dump:
 
         # 検算
         if self._series_rule.step_table.span <= self._point_list[ALICE] and self._series_rule.step_table.span <= self._point_list[BOB]:
-            indent = '    '
             print(f"""\
 PointCalculation
 ----------------
 self.stringify_dump:
-{self.stringify_dump(indent)}
+{self.stringify_dump(INDENT)}
 {old_point_list=}
 """)
             raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい")
@@ -749,13 +753,13 @@ self.stringify_dump:
 
 
     def stringify_dump(self, indent):
-        two_indents = indent + indent
+        succ_indent = indent + INDENT
         return f"""\
 {indent}PointCalculation
 {indent}----------------
-{two_indents}self._series_rule:
-{self._series_rule.stringify_dump(two_indents)}
-{two_indents}{self._point_list=}
+{succ_indent}self._series_rule:
+{self._series_rule.stringify_dump(succ_indent)}
+{succ_indent}{self._point_list=}
 """
 
 
@@ -1163,12 +1167,12 @@ class SeriesRule():
 
 
         def stringify_dump(self, indent):
-            two_indents = indent + indent
+            succ_indent = indent + INDENT
             return f"""\
 {indent}StepTable
 {indent}---------
-{two_indents}{self._step_list=}
-{two_indents}{self._span=}
+{succ_indent}{self._step_list=}
+{succ_indent}{self._span=}
 """
 
 
@@ -1301,6 +1305,12 @@ step_table:
                 # ［最長対局数］
                 number_of_longest_time=number_of_longest_time,
                 turn_system=turn_system)
+
+
+    @property
+    def is_enabled(self):
+        """このシリーズ・ルールは有効な値かどうか？"""
+        return self._step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) != IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO
 
 
     @staticmethod
@@ -1583,15 +1593,15 @@ step_table:
 
 
     def stringify_dump(self, indent):
-        two_indents = indent + indent
+        succ_indent = indent + INDENT
         return f"""\
 {indent}SeriesRule
 {indent}-------------------
-{two_indents}self._step_table.stringify_dump(two_indents):
-{two_indents}{self._step_table.stringify_dump(two_indents)}
-{two_indents}{self._number_of_shortest_time=}
-{two_indents}{self._number_of_longest_time=}
-{two_indents}{self._turn_system=}
+{succ_indent}self._step_table.stringify_dump(succ_indent):
+{self._step_table.stringify_dump(succ_indent)}
+{succ_indent}{self._number_of_shortest_time=}
+{succ_indent}{self._number_of_longest_time=}
+{succ_indent}{self._turn_system=}
 """
 
 
@@ -1660,8 +1670,9 @@ class TrialResultsForOneSeries():
         return self._list_of_face_of_coin
 
 
-    def is_points_won(self, winner, loser):
+    def is_points_won(self, winner):
         """winner の［勝ち点］は［目標の点数］に達していないが、 loser の［勝ち点］より多くて winner さんの勝ち"""
+        loser = opponent(winner)
         return not self._point_calculation.is_fully_won(winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
@@ -1672,30 +1683,28 @@ class TrialResultsForOneSeries():
 
         # 両者が満点勝ちしている、これはおかしい
         if self._point_calculation.is_fully_won(winner) and self._point_calculation.is_fully_won(loser):
-            indent = '    '
             print(f"""\
 TrialResultsForOneSeries
 ------------------------
 self._point_calculation.stringify_dump:
-{self._point_calculation.stringify_dump(indent)}
+{self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._span=}")
 
         # 両者が判定勝ちしている、これはおかしい
-        if self.is_points_won(winner=winner, loser=loser) and self.is_points_won(winner=loser, loser=winner):
-            indent = '    '
+        if self.is_points_won(winner=winner) and self.is_points_won(winner=loser):
             print(f"""\
 TrialResultsForOneSeries
 ------------------------
 self._point_calculation.stringify_dump:
-{self._point_calculation.stringify_dump(indent)}
+{self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
-            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner, loser=loser)=}  {self.is_points_won(winner=loser, loser=winner)=}  {self._span=}")
+            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner)=}  {self.is_points_won(winner=loser)=}  {self._span=}")
 
         # 満点勝ちなら確定、判定勝ちでもOK 
-        return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner, loser=loser)
+        return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner)
 
 
     def is_no_won(self, opponent_pair):
@@ -1715,28 +1724,28 @@ self._point_calculation.stringify_dump:
 
 
     def stringify_dump(self, indent):
-        two_indents = indent + indent
+        succ_indent = indent + INDENT
         return f"""\
 {indent}TrialResultsForOneSeries
 {indent}------------------------
-{two_indents}{self._number_of_times=}
-{two_indents}{self._failed_coins=}
-{two_indents}{self._span=}
-{two_indents}self._point_calculation:
-{self._point_calculation.stringify_dump(two_indents)}
-{two_indents}self._argument_of_sequence_of_playout:
-{two_indents}{self._argument_of_sequence_of_playout.stringify_dump(two_indents)}
-{two_indents}{self._list_of_face_of_coin=}
-{two_indents}{self.is_points_won(winner=HEAD, loser=TAIL)=}
-{two_indents}{self.is_points_won(winner=TAIL, loser=HEAD)=}
-{two_indents}{self.is_points_won(winner=ALICE, loser=BOB)=}
-{two_indents}{self.is_points_won(winner=BOB, loser=ALICE)=}
-{two_indents}{self.is_won(winner=HEAD, loser=TAIL)=}
-{two_indents}{self.is_won(winner=TAIL, loser=HEAD)=}
-{two_indents}{self.is_won(winner=ALICE, loser=BOB)=}
-{two_indents}{self.is_won(winner=BOB, loser=ALICE)=}
-{two_indents}{self.is_no_won(opponent_pair=FACE_OF_COIN)}
-{two_indents}{self.is_no_won(opponent_pair=PLAYERS)}
+{succ_indent}{self._number_of_times=}
+{succ_indent}{self._failed_coins=}
+{succ_indent}{self._span=}
+{succ_indent}self._point_calculation:
+{self._point_calculation.stringify_dump(succ_indent)}
+{succ_indent}self._argument_of_sequence_of_playout:
+{self._argument_of_sequence_of_playout.stringify_dump(succ_indent)}
+{succ_indent}{self._list_of_face_of_coin=}
+{succ_indent}{self.is_points_won(winner=HEAD)=}
+{succ_indent}{self.is_points_won(winner=TAIL)=}
+{succ_indent}{self.is_points_won(winner=ALICE)=}
+{succ_indent}{self.is_points_won(winner=BOB)=}
+{succ_indent}{self.is_won(winner=HEAD)=}
+{succ_indent}{self.is_won(winner=TAIL)=}
+{succ_indent}{self.is_won(winner=ALICE)=}
+{succ_indent}{self.is_won(winner=BOB)=}
+{succ_indent}{self.is_no_won(opponent_pair=FACE_OF_COIN)}
+{succ_indent}{self.is_no_won(opponent_pair=PLAYERS)}
 """
     
 
@@ -1880,7 +1889,7 @@ class LargeSeriesTrialSummary():
         if self._pts_wins[winner] is None:
             self._pts_wins[winner] = 0
             for s in self._list_of_trial_results_for_one_series:
-                if s.is_points_won(winner=winner, loser=loser):
+                if s.is_points_won(winner=winner):
                     self._pts_wins[winner] += 1
 
         return self._pts_wins[winner]

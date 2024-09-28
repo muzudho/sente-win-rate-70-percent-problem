@@ -550,9 +550,9 @@ def stringify_analysis_series(spec, list_of_trial_results_for_one_series):
         no_wons_color = 0
         tail_wons = 0
         for trial_results_for_one_series in list_of_trial_results_for_one_series:
-            if trial_results_for_one_series.is_won(winner=HEAD, loser=TAIL):
+            if trial_results_for_one_series.is_won(winner=HEAD):
                 head_wons += 1
-            elif trial_results_for_one_series.is_won(winner=TAIL, loser=HEAD):
+            elif trial_results_for_one_series.is_won(winner=TAIL):
                 tail_wons += 1
             elif trial_results_for_one_series.is_no_won(opponent_pair=FACE_OF_COIN):
                 no_wons_color += 1

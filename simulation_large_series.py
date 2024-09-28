@@ -29,6 +29,12 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
             span=span,
             turn_system=turn_system)
 
+
+    if not series_rule.is_enabled:
+        print("この［シリーズ・ルール］は有効な内容ではないので、スキップします")
+        return
+
+
     list_of_trial_results_for_one_series = []
 
     for round in range(0, number_of_series):
@@ -54,6 +60,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
         if trial_results_for_one_series.number_of_times < series_rule.number_of_shortest_time:
             text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.number_of_shortest_time} を下回った"
             print(f"""{text}
+{list_of_face_of_coin=}
 {series_rule.number_of_longest_time=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
@@ -62,6 +69,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
         if series_rule.number_of_longest_time < trial_results_for_one_series.number_of_times:
             text = f"{spec.p=} 最長対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.number_of_longest_time} を上回った"
             print(f"""{text}
+{list_of_face_of_coin=}
 {series_rule.number_of_shortest_time=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
@@ -145,7 +153,7 @@ Example: 10% is 0.1
 How many times do you want to try the series?
 Example: 2000000
 ? """
-        number_of_series = int(input(prompt))
+        specified_number_of_series = int(input(prompt))
 
 
         prompt = f"""\
@@ -186,7 +194,16 @@ Which data source should I use?
                 q_step = round_letro(best_q_step)
                 span = round_letro(best_span)
 
-                simulate_series_rule(p, failure_rate, p_step, q_step, span, '', '', turn_system=specified_turn_system)
+                simulate_series_rule(
+                        p=p,
+                        failure_rate=failure_rate,
+                        number_of_series=specified_number_of_series,
+                        p_step=p_step,
+                        q_step=q_step,
+                        span=span,
+                        presentable='',
+                        comment='',
+                        turn_system=specified_turn_system)
 
 
         elif data_source == 2:
@@ -211,7 +228,16 @@ Which data source should I use?
                     continue
 
 
-                simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span, presentable, comment, turn_system=specified_turn_system)
+                simulate_series_rule(
+                        p=p,
+                        failure_rate=failure_rate,
+                        number_of_series=specified_number_of_series,
+                        p_step=p_step,
+                        q_step=q_step,
+                        span=span,
+                        presentable=presentable,
+                        comment=comment,
+                        turn_system=specified_turn_system)
 
 
     except Exception as err:
