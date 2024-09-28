@@ -2318,7 +2318,7 @@ Score Sheet
         b_point = span
 
         round_list = []
-        round_list.append(['S', '', '', a_point, b_point])
+        round_list.append(['S', '', '  ', a_point, b_point])
 
         for round_th, face_of_coin in enumerate(self._list_of_face_of_coin, 1):
             last_round = round_list[-1]
@@ -2352,18 +2352,18 @@ Score Sheet
             round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
 
 
-        list_of_round_number = ['']        # ラウンド番号
-        list_of_head_player = ['表番']
-        list_of_face_of_coin_str = ['出目']
+        list_of_round_number = ['      ']        # ラウンド番号
+        list_of_head_player = ['表番  ']
+        list_of_face_of_coin_str = ['出目  ']
         list_of_a_points = ['Ａさん']
         list_of_b_points = ['Ｂさん']
 
         for round in round_list:
-            list_of_round_number.append(str(round[0]))
-            list_of_head_player.append(round[1])
-            list_of_face_of_coin_str.append(round[2])
-            list_of_a_points.append(str(round[3]))
-            list_of_b_points.append(str(round[4]))
+            list_of_round_number.append(f"{round[0]:>3}")
+            list_of_head_player.append(f"{round[1]:>3}")
+            list_of_face_of_coin_str.append(f" {round[2]}")
+            list_of_a_points.append(f"{round[3]:>3}")
+            list_of_b_points.append(f"{round[4]:>3}")
 
         csv += f"""\
 {','.join(list_of_round_number)}
