@@ -28,7 +28,7 @@ def stringify_header():
 
     # CSV
     text = f"""\
-p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最短=,shortest,局 最長=,longest,局 計=,total_ab,シリ Ａ勝=,wins_a,シリ Ｂ勝=,wins_b,シリ 成功=,succ,シリ 成Ａ満点=,s_ful_wins_a,シリ 成Ｂ満点=,s_ful_wins_b,シリ 成Ａ点差勝=,s_pts_wins_a,シリ 成Ｂ点差勝=,s_pts_wins_b,シリ 失敗=,fail,シリ 失Ａ満点=,f_ful_wins_a,シリ 失Ｂ満点=,f_ful_wins_b,シリ  失Ａ点差勝=,f_pts_wins_a,シリ 失Ｂ点差勝=,f_pts_wins_b,シリ 無勝負=,no_wins_ab,シリ\
+p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最短=,shortest,局 上限=,longest,局 計=,total_ab,シリ Ａ勝=,wins_a,シリ Ｂ勝=,wins_b,シリ 成功=,succ,シリ 成Ａ満点=,s_ful_wins_a,シリ 成Ｂ満点=,s_ful_wins_b,シリ 成Ａ点差勝=,s_pts_wins_a,シリ 成Ｂ点差勝=,s_pts_wins_b,シリ 失敗=,fail,シリ 失Ａ満点=,f_ful_wins_a,シリ 失Ｂ満点=,f_ful_wins_b,シリ  失Ａ点差勝=,f_pts_wins_a,シリ 失Ｂ点差勝=,f_pts_wins_b,シリ 勝敗付かず=,no_wins_ab,シリ\
 """
 
     return text
@@ -53,48 +53,54 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, large_seri
     S = large_series_trial_summary
 
 
+    s_wins_a = S.wins(challenged=SUCCESSFUL, winner=ALICE)
+    f_wins_a = S.wins(challenged=FAILED, winner=ALICE)
+    f_full_wins_a = S.ful_wins(challenged=FAILED, winner=ALICE)
+
+    s_wins_b = S.wins(challenged=SUCCESSFUL, winner=BOB)
+    f_wins_b = S.wins(challenged=FAILED, winner=BOB)
+
+
     t1 = f"{p*100:.4f}"                                         # p
     t2 = f"{spec.failure_rate*100:.4f}"                         # failure_rate
-    t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # p_step
-    t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # q_step
-    t5 = f"{series_rule.step_table.span}"                       # span
-    t6a = f"{series_rule.shortest_coins}" # shortest
-    t6b = f"{series_rule.longest_coins}" # longest
-    t8 = f"{S.successful_series}"   # Successful series
-    t9 = f"{S.failed_series}"       # Failed series
+    t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # 表
+    t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # 裏
+    t5 = f"{series_rule.step_table.span}"                       # 目
+    t6a = f"{series_rule.shortest_coins}"   # 最短
+    t6b = f"{series_rule.longest_coins}"    # 上限
+    t8 = f"{S.successful_series}"           # 成功
+    t9 = f"{S.failed_series}"               # 失敗
 
-    t17 = f"{S.total}"                   # Total (of players)
+    t17 = f"{S.total}"                      # 計
 
-    t18 = f"{S.wins(challenged=SUCCESSFUL, winner=ALICE)}"                             # s_wins a
-    t19 = f"{S.wins(challenged=SUCCESSFUL, winner=BOB)}"                               # s_wins b
-    t18b = f"{S.wins(challenged=FAILED, winner=ALICE)}"                             # f_wins a
-    t19b = f"{S.wins(challenged=FAILED, winner=BOB)}"                               # f_wins b
+    t18 = f"{s_wins_a + f_wins_a}"          # Ａ勝
+    t19 = f"{s_wins_b + f_wins_b}"          # Ｂ勝
 
-    t20 = f"{S.ful_wins(challenged=SUCCESSFUL, winner=ALICE)}"                         # s_ful_wins a
-    t21 = f"{S.ful_wins(challenged=SUCCESSFUL, winner=BOB)}"                           # s_ful_wins b
-    t20b = f"{S.pts_wins(challenged=SUCCESSFUL, winner=ALICE)}"                         # FIXME pts_wins a
-    t21b = f"{S.pts_wins(challenged=SUCCESSFUL, winner=BOB)}"                           # FIXME pts_wins b
+    t20 = f"{S.ful_wins(challenged=SUCCESSFUL, winner=ALICE)}"      # 成Ａ満点
+    t21 = f"{S.ful_wins(challenged=SUCCESSFUL, winner=BOB)}"        # 成Ｂ満点
+    t20b = f"{S.pts_wins(challenged=SUCCESSFUL, winner=ALICE)}"     # 成Ａ点差勝
+    t21b = f"{S.pts_wins(challenged=SUCCESSFUL, winner=BOB)}"       # 成Ｂ点差勝
 
-    t22b = f"{S.ful_wins(challenged=FAILED, winner=ALICE)}"
-    t23b = f"{S.ful_wins(challenged=FAILED, winner=BOB)}"
-    t22 = f"{S.pts_wins(challenged=FAILED, winner=ALICE)}"                         # FIXME pts_wins a
-    t23 = f"{S.pts_wins(challenged=FAILED, winner=BOB)}"                           # FIXME pts_wins b
+    t22b = f"{f_full_wins_a}"                               # 失Ａ満点
+    t23b = f"{S.ful_wins(challenged=FAILED, winner=BOB)}"   # 失Ｂ満点
+    t22 = f"{S.pts_wins(challenged=FAILED, winner=ALICE)}"  # 失Ａ点差勝
+    t23 = f"{S.pts_wins(challenged=FAILED, winner=BOB)}"    # 失Ｂ点差勝
 
-    t24 = f"{S.no_wins}"                 # no wins ab
+    t24 = f"{S.no_wins}"                 # 勝敗付かず
 
 
 
 
-#-------------+-------------+----------+----------+--------+-----------+-----------+-----------------------------------------------------------------------------------------------------------------------------------------------+
-# t1          | t2          | t3       | t4       | t5     | t6a       | t6b       | t17                               ____________________________________________________________________________________________________________|
-#             |             |          |          |        |           |           |           ________________________| t8        ________________________________________________| t9        ____________________________________|
-#             |             |          |          |        |           |           |           | t18       | t19       |           |           |           |           |           |           |           |           | t24       |
-#             |             |          |          |        |           |           |           |           |           |           | t20       | t21       | t20b      | t21b      |           | t22       | t23       |           |
-#-------------+-------------+----------+----------+--------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
+#-------------+-------------+----------+----------+--------+-----------+-----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+# t1          | t2          | t3       | t4       | t5     | t6a       | t6b       | t17                               ____________________________________________________________________________________________________________________________________|
+#             |             |          |          |        |           |           |           ________________________| t8        ________________________________________________| t9        ____________________________________________________________|
+#             |             |          |          |        |           |           |           | t18       | t19       |           |           |           |           |           |           |           |           |           |           | t24       |
+#             |             |          |          |        |           |           |           |           |           |           | t20       | t21       | t20b      | t21b      |           | t22b      | t23b      | t22       | t23       |           |
+#-------------+-------------+----------+----------+--------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+
 
     # CSV
     text = f"""\
-p=,{ t1},％ f=,{ t2},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最短=,{t6a},局 最長=,{t6b},局 計=,{t17},シリ Ａ勝=,{t18},シリ Ｂ勝=,{t19},シリ 成功=,{ t8},シリ Ａ満点=,{t20},シリ Ｂ満点=,{t21},シリ Ａ点差勝=,{t20b},シリ Ｂ点差勝=,{t21b},シリ 失敗=,{ t9},シリ Ａ点差勝=,{t22},シリ Ｂ点差勝=,{t23},シリ 無勝負=,{t24},シリ\
+p=,{ t1},％ f=,{ t2},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最短=,{t6a},局 上限=,{t6b},局 計=,{t17},シリ Ａ勝=,{t18},シリ Ｂ勝=,{t19},シリ 成功=,{t8},シリ 成Ａ満点=,{t20},シリ 成Ｂ満点=,{t21},シリ 成Ａ点差勝=,{t20b},シリ 成Ｂ点差勝=,{t21b},シリ 失敗=,{t9},シリ 失Ａ満点=,{t22b},シリ 失Ｂ満点=,{t23b},シリ 失Ａ点差勝=,{t22},シリ 失Ｂ点差勝=,{t23},シリ 勝敗付かず=,{t24},シリ\
 """
 
 
