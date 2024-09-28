@@ -857,8 +857,9 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                     time_th=time_th,
                     turn_system=series_rule.turn_system)
 
-                # 勝ち抜け
-                if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin_or_player=face_of_coin):
+
+                # 終局
+                if point_calculation.is_gameover():
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -933,8 +934,9 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                         time_th=time_th,
                         turn_system=series_rule.turn_system)
 
-                # 勝ち抜け
-                if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin_or_player=successful_player):
+
+                # 終局
+                if point_calculation.is_gameover:
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
