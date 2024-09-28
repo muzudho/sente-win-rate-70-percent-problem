@@ -172,6 +172,7 @@ Which one(1-2)? """
 
             # 既に処理済みのものはスキップ
             if id in distinct_set:
+                print(f"スキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
                 continue
 
             distinct_set.add(id)
@@ -182,9 +183,9 @@ Which one(1-2)? """
             #     #print(f"到達できない棋譜を除去 {trial_results_for_one_series.number_of_times=}  {old_number_of_times=}")
             #     pass
 
-            # elif old_number_of_times < specified_series_rule.number_of_shortest_time:
+            # elif old_number_of_times < specified_series_rule.shortest_coins:
             #     # 棋譜の長さが足りていないということは、最後までプレイしていない
-            #     #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.number_of_shortest_time=}")
+            #     #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.shortest_coins=}")
             #     pass
 
             # #

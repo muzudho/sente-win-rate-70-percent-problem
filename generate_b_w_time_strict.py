@@ -98,7 +98,7 @@ if __name__ == '__main__':
                                 p_step=latest_series_rule.p_step,
                                 q_step=latest_series_rule.q_step,
                                 span=latest_series_rule.span,
-                                number_of_shortest_time=latest_series_rule.number_of_shortest_time,
+                                shortest_coins=latest_series_rule.shortest_coins,
                                 longest_coins=latest_series_rule.longest_coins)
                         
                         # ［シリーズ・ルール候補］

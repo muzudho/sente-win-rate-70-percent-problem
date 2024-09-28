@@ -48,7 +48,7 @@ def stringify_report_selection_series_rule(p, number_of_series, latest_theoretic
                     seg_6 = candidate_obj.span
 
                     # ［先後交互制］での［最短対局数］
-                    seg_7 = candidate_obj.number_of_shortest_time
+                    seg_7 = candidate_obj.shortest_coins
 
                     # ［先後交互制］での［最長対局数］
                     seg_8 = candidate_obj.longest_coins
@@ -90,7 +90,7 @@ def stringify_report_selection_series_rule(p, number_of_series, latest_theoretic
         seg_6 = specified_series_rule.step_table.span
 
         # ［最短対局数］
-        seg_7 = specified_series_rule.number_of_shortest_time
+        seg_7 = specified_series_rule.shortest_coins
 
         # ［最長対局数］
         seg_8 = specified_series_rule.longest_coins
@@ -155,7 +155,7 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     else:
         raise ValueError(f"{series_rule.turn_system=}")
 
-    seg_3a = series_rule.number_of_shortest_time
+    seg_3a = series_rule.shortest_coins
     seg_3b = series_rule.longest_coins
 
     seg_4a = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
@@ -190,7 +190,7 @@ def print_even_series_rule(p, best_p, best_p_error, best_number_of_series, serie
         # ［調整後の表が出る確率（％）と 0.5 との誤差］
         seg_1c = best_p_error * 100
         
-        seg_3a = series_rule.number_of_shortest_time
+        seg_3a = series_rule.shortest_coins
         seg_3b = series_rule.longest_coins
 
         seg_4a = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
@@ -213,7 +213,7 @@ def print_even_series_rule(p, best_p, best_p_error, best_number_of_series, serie
         seg_1c = best_p_error * 100
 
         # 対局数
-        seg_3a = series_rule.number_of_shortest_time
+        seg_3a = series_rule.shortest_coins
         seg_3b = series_rule.longest_coins
 
         seg_4a = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
@@ -310,7 +310,7 @@ def stringify_series_log(
 
     # 対局数
     # ------
-    tm10 = series_rule.number_of_shortest_time  # ［最短対局数］理論値
+    tm10 = series_rule.shortest_coins  # ［最短対局数］理論値
     tm11 = series_rule.longest_coins   # ［最長対局数］
     tm20 = trial_results_for_one_series.number_of_times                            # ［対局数］実践値
 
@@ -394,7 +394,7 @@ def stringify_simulation_log(
     b_pt3 = series_rule.step_table.span                                                     # ［目標の点数］
     b_pt4 = series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)        # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
     b_pt5 = series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)        # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-    b_tm10 = series_rule.number_of_shortest_time                                            # ［最短対局数］
+    b_tm10 = series_rule.shortest_coins                                            # ［最短対局数］
     b_tm11 = series_rule.longest_coins                                             # ［最長対局数］
 
 

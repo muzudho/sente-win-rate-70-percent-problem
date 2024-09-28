@@ -89,7 +89,7 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
             candidate_obj = Candidate.parse_candidate(candidate_element)
 
             if candidate_obj.p_error is not None:
-                key = (candidate_obj.number_of_shortest_time, candidate_obj.longest_coins)
+                key = (candidate_obj.shortest_coins, candidate_obj.longest_coins)
                 if key not in candidate_element_dict:
                     candidate_element_dict[key] = candidate_obj
 

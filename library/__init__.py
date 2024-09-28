@@ -1178,14 +1178,14 @@ class SeriesRule():
 """
 
 
-    def __init__(self, step_table, number_of_shortest_time, longest_coins, turn_system):
+    def __init__(self, step_table, shortest_coins, longest_coins, turn_system):
         """初期化
         
         Parameters
         ----------
         step_table : StepTable
             ［１勝の点数テーブル］
-        number_of_shortest_time : int
+        shortest_coins : int
             ［最短対局数］
         longest_coins : int
             ［最長対局数］
@@ -1196,7 +1196,7 @@ class SeriesRule():
         self._step_table = step_table
 
         # ［最短対局数］
-        self._number_of_shortest_time = number_of_shortest_time
+        self._shortest_coins = shortest_coins
 
         # ［最長対局数］
         self._longest_coins = longest_coins
@@ -1264,14 +1264,14 @@ class SeriesRule():
         # 0除算を避ける
         if p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
             # ［最短対局数］
-            number_of_shortest_time = 0
+            shortest_coins = 0
 
             # ［最長対局数］
             longest_coins = 0
 
         else:
             # ［最短対局数］
-            number_of_shortest_time = SeriesRule.let_number_of_shortest_time(
+            shortest_coins = SeriesRule.let_shortest_coins(
                     p_step=p_step,
                     q_step=q_step,
                     span=span,
@@ -1285,8 +1285,8 @@ class SeriesRule():
                     turn_system=turn_system)
 
 
-        if longest_coins < number_of_shortest_time:
-            text = f"［最短対局数］{number_of_shortest_time} が、［最長対局数］{longest_coins} より長いです"
+        if longest_coins < shortest_coins:
+            text = f"［最短対局数］{shortest_coins} が、［最長対局数］{longest_coins} より長いです"
             print(f"""\
 {text}
 {failure_rate=}
@@ -1303,7 +1303,7 @@ step_table:
         return SeriesRule(
                 step_table=step_table,
                 # ［最短対局数］
-                number_of_shortest_time=number_of_shortest_time,
+                shortest_coins=shortest_coins,
                 # ［最長対局数］
                 longest_coins=longest_coins,
                 turn_system=turn_system)
@@ -1364,9 +1364,9 @@ step_table:
 
 
     @property
-    def number_of_shortest_time(self):
+    def shortest_coins(self):
         """［最短対局数］"""
-        return self._number_of_shortest_time
+        return self._shortest_coins
 
 
     @property
@@ -1376,7 +1376,7 @@ step_table:
 
 
     @staticmethod
-    def let_number_of_shortest_time(p_step, q_step, span, turn_system):
+    def let_shortest_coins(p_step, q_step, span, turn_system):
         """［最短対局数］を算出"""
 
         if turn_system == WHEN_FROZEN_TURN:
@@ -1601,7 +1601,7 @@ step_table:
 {indent}-------------------
 {succ_indent}self._step_table.stringify_dump(succ_indent):
 {self._step_table.stringify_dump(succ_indent)}
-{succ_indent}{self._number_of_shortest_time=}
+{succ_indent}{self._shortest_coins=}
 {succ_indent}{self._longest_coins=}
 {succ_indent}{self._turn_system=}
 """
@@ -1994,7 +1994,7 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, number_of_series, p_step, q_step, span, number_of_shortest_time, longest_coins):
+    def __init__(self, p_error, number_of_series, p_step, q_step, span, shortest_coins, longest_coins):
 
         if not isinstance(number_of_series, int):
             raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {number_of_series=}")
@@ -2008,8 +2008,8 @@ class Candidate():
         if not isinstance(span, int):
             raise ValueError(f"［目標の点数］は int 型である必要があります {span=}")
 
-        if not isinstance(number_of_shortest_time, int):
-            raise ValueError(f"［最短対局数］は int 型である必要があります {number_of_shortest_time=}")
+        if not isinstance(shortest_coins, int):
+            raise ValueError(f"［最短対局数］は int 型である必要があります {shortest_coins=}")
 
         if not isinstance(longest_coins, int):
             raise ValueError(f"［最長対局数］は int 型である必要があります {longest_coins=}")
@@ -2019,7 +2019,7 @@ class Candidate():
         self._p_step = p_step
         self._q_step = q_step
         self._span = span
-        self._number_of_shortest_time = number_of_shortest_time
+        self._shortest_coins = shortest_coins
         self._longest_coins = longest_coins
 
 
@@ -2049,8 +2049,8 @@ class Candidate():
 
 
     @property
-    def number_of_shortest_time(self):
-        return self._number_of_shortest_time
+    def shortest_coins(self):
+        return self._shortest_coins
 
 
     @property
@@ -2060,7 +2060,7 @@ class Candidate():
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._number_of_shortest_time}～{self._longest_coins}局 {self._number_of_series}試]'
+        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._shortest_coins}～{self._longest_coins}局 {self._number_of_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -2079,7 +2079,7 @@ class Candidate():
                     p_step=int(result.group(2)),
                     q_step=int(result.group(3)),
                     span=int(result.group(4)),
-                    number_of_shortest_time=int(result.group(5)),
+                    shortest_coins=int(result.group(5)),
                     longest_coins=int(result.group(6)))
 
         raise ValueError(f"パースできません {candidate=}")
@@ -2174,6 +2174,8 @@ class ScoreBoard():
         span = self._series_rule.step_table.span
         h_step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
         t_step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+        shortest_coins = self._series_rule.shortest_coins
+        longest_coins = self._series_rule.longest_coins
 
         t11 = f"{self._spec.p * 100:7.4f}"
         t12 = f"{self._spec.failure_rate * 100:7.4f}"
@@ -2182,6 +2184,8 @@ class ScoreBoard():
         t21 = f"{h_step}"
         t22 = f"{t_step}"
         t23 = f"{span}"
+        t24 = f"{shortest_coins}"
+        t25 = f"{longest_coins}"
 
         csv = f"""\
 Specification
@@ -2189,8 +2193,11 @@ p    , failure_rate, turn_system
 {t11}, {t12}       , {t13}
 
 Series Rule
-h_step, t_step, span
-{t21} , {t22} , {t23}
+h_step, t_step, span , shortest_coins, longest_coins
+{t21} , {t22} , {t23}, {t24}         , {t25}
+
+Source Data
+{self._list_of_face_of_coin=}
 
 Score Sheet
 """

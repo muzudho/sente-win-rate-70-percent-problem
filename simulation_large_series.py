@@ -53,8 +53,8 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
         #print(f"{trial_results_for_one_series.stringify_dump()}")
 
         
-        if trial_results_for_one_series.number_of_times < series_rule.number_of_shortest_time:
-            text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.number_of_shortest_time} を下回った"
+        if trial_results_for_one_series.number_of_times < series_rule.shortest_coins:
+            text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.shortest_coins} を下回った"
             print(f"""{text}
 {list_of_face_of_coin=}
 {series_rule.longest_coins=}
@@ -66,7 +66,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
             text = f"{spec.p=} 最長対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.longest_coins} を上回った"
             print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.number_of_shortest_time=}
+{series_rule.shortest_coins=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
             raise ValueError(text)
@@ -106,8 +106,8 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
 
     # 表示とログ出力を終えた後でテスト
-    if large_series_trial_summary.shortest_time_th < series_rule.number_of_shortest_time:
-        raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {series_rule.number_of_shortest_time} を下回った")
+    if large_series_trial_summary.shortest_time_th < series_rule.shortest_coins:
+        raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {series_rule.shortest_coins} を下回った")
 
     if series_rule.longest_coins < large_series_trial_summary.longest_time_th:
         raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {series_rule.longest_coins} を上回った")
