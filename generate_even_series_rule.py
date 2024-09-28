@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
 from library.file_paths import get_even_series_rule_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
@@ -223,7 +223,9 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                     list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
                             # Ａさんが勝った回数
-                            latest_p = large_series_trial_summary.wins(winner=ALICE) / specified_number_of_series
+                            s_wins_a = large_series_trial_summary.wins(challenged=SUCCESSFUL, winner=ALICE)
+                            f_wins_a = large_series_trial_summary.wins(challenged=FAILED, winner=ALICE)
+                            latest_p = (s_wins_a + f_wins_a) / specified_number_of_series
                             latest_p_error = latest_p - 0.5
 
 

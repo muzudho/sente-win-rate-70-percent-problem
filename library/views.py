@@ -398,45 +398,7 @@ def stringify_simulation_log(
     succ_b = S.won_rate(success_rate=1, winner=BOB)             # 引分けを除いた［Ｂさんが勝つ確率］実践値
     succ_be = S.won_rate_error(success_rate=1, winner=BOB)      # 引分けを除いた［Ｂさんが勝つ確率と 0.5 との誤差］実践値
 
-    h_wins = S.wins(winner=HEAD)
-    t_wins = S.wins(winner=TAIL)
-    ht_total_wins = h_wins + t_wins
-    ht_total_fully_wins = S.ful_wins(winner=HEAD) + S.ful_wins(winner=TAIL)
-    ht_total_points_wins = S.pts_wins(winner=HEAD) + S.pts_wins(winner=TAIL)
-    ht_total = ht_total_wins + S.no_wins
-
-    h_fully_wins = S.ful_wins(winner=HEAD)
-    t_fully_wins = S.ful_wins(winner=TAIL)
-    h_points_wins = S.pts_wins(winner=HEAD)
-    t_points_wins = S.pts_wins(winner=TAIL)
-
-    ht152 = ht_total                                # 全シリーズ計
-    ht154 = ht_total_fully_wins                     # 引分け無しのシリーズ
-    ht157 = ht_total_points_wins + S.no_wins       # 引分けを含んだシリーズ
-
-    ht162 = ht_total / ht_total * 100
-    ht164 = ht_total_fully_wins / ht_total * 100
-    ht167 = (ht_total_points_wins + S.no_wins) / ht_total * 100
-
-    c13 = h_fully_wins                              # 先手満点勝ち
-    c14 = t_fully_wins                              # 後手満点勝ち
-    c15 = h_points_wins              # 先手判定勝ち（引分けがなければ零です）
-    c16 = t_points_wins              # 後手判定勝ち（引分けがなければ零です）
     c17 = S.no_wins     # コインの表も裏も出なかった
-    c11 = c13 + c15
-    c12 = c14 + c16
-
-    ht71 = h_wins / ht_total_wins * 100           # 引分けを除いた［将棋の先手勝率（％）］実践値（引分除く）
-    ht72 = t_wins / ht_total_wins * 100           # 引分けを除いた［将棋の後手勝率（％）］実践値（引分除く）
-    ht81 = (h_wins / ht_total_wins - 0.5) * 100    # 引分けを除いた［将棋の先手勝率（％）と 0.5 との誤差］実践値（引分除く）
-    ht82 = (t_wins / ht_total_wins - 0.5) * 100    # 引分けを除いた［将棋の後手勝率（％）と 0.5 との誤差］実践値
-
-    ht41 = h_wins / ht_total * 100              # 引分けを含んだ［将棋の先手勝率］
-    ht42 = t_wins / ht_total * 100              # 引分けを含んだ［将棋の後手勝率］
-    ht47 = S.no_wins / ht_total * 100                             # 引分けを含んだ［将棋の引分け率］実践値
-    ht51 = (h_wins / ht_total - 0.5) * 100       # 引分けを含んだ［将棋の先手勝率］誤差
-    ht52 = (t_wins / ht_total - 0.5) * 100       # 引分けを含んだ［将棋の後手勝率］誤差
-    ht57 = (S.no_wins / ht_total - 0.5) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
 
 
     # プレイヤーの勝敗数
@@ -444,8 +406,8 @@ def stringify_simulation_log(
     a_wins = S.wins(winner=ALICE)
     b_wins = S.wins(winner=BOB)
     ab_total_wins = a_wins + b_wins
-    ab_total_fully_wins = S.ful_wins(winner=ALICE) + S.ful_wins(winner=BOB)
-    ab_total_points_wins = S.pts_wins(winner=ALICE) + S.pts_wins(winner=BOB)
+    ab_total_fully_wins = S.ful_wins(challenged=SUCCESSFUL, winner=ALICE) + S.ful_wins(challenged=SUCCESSFUL, winner=BOB) + S.ful_wins(challenged=FAILED, winner=ALICE) + S.ful_wins(challenged=FAILED, winner=BOB)
+    ab_total_points_wins = S.pts_wins(challenged=SUCCESSFUL, winner=ALICE) + S.pts_wins(challenged=SUCCESSFUL, winner=BOB) + S.pts_wins(challenged=FAILED, winner=ALICE) + S.pts_wins(challenged=FAILED, winner=BOB)
     ab_total = ab_total_wins + S.no_wins
 
     ab152 = ab_total   # 全シリーズ計
@@ -458,10 +420,17 @@ def stringify_simulation_log(
 
     c101 = S.wins(winner=ALICE)                       # Ａさんの勝ちの総数
     c102 = S.wins(winner=BOB)                         # Ｂさんの勝ちの総数
-    c103 = S.ful_wins(winner=ALICE)       # Ａさん満点勝ち
-    c104 = S.ful_wins(winner=BOB)         # Ｂさん満点勝ち
-    c105 = S.pts_wins(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
-    c106 = S.pts_wins(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
+
+    c103 = S.ful_wins(challenged=SUCCESSFUL, winner=ALICE)       # Ａさん満点勝ち
+    c104 = S.ful_wins(challenged=SUCCESSFUL, winner=BOB)         # Ｂさん満点勝ち
+    c103b = S.pts_wins(challenged=SUCCESSFUL, winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
+    c104b = S.pts_wins(challenged=SUCCESSFUL, winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
+
+    c105b = S.ful_wins(challenged=FAILED, winner=ALICE)       # Ａさん満点勝ち
+    c106b = S.ful_wins(challenged=FAILED, winner=BOB)         # Ｂさん満点勝ち
+    c105 = S.pts_wins(challenged=FAILED, winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
+    c106 = S.pts_wins(challenged=FAILED, winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
+
     c107 = S.no_wins           # ＡさんもＢさんも勝ちではなかった
 
     ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
@@ -500,19 +469,19 @@ def stringify_simulation_log(
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
               | 以下、［かくきんシステム］を使って試行                                                                                        |
               | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        | 対局数        |
-              |                   {ht152:>8} 回 |                   {ht154:>8} 回 |                                   {ht157:>8} 回 |{tm_s:>4} ～{tm_l:>4} 局 |
-              |                   {ht162:>8.4f} ％ |                   {ht164:>8.4f} ％ |                                   {ht167:>8.4f} ％ |               |
+              |                                 |                              |                                             |{tm_s:>4} ～{tm_l:>4} 局 |
+              |                                   |                                  |                                                   |               |
               |                               |                               |                                               |               |
               | 先手勝ち      | 後手勝ち      |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    |               |
-              |   { c11:>8} 回 |   { c12:>8} 回 |///////////////|///////////////|///////////////|///////////////|   {c17:>8} 回 |               |
+              |                |                |///////////////|///////////////|///////////////|///////////////|   {c17:>8} 回 |               |
               |               |               | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  |               | 対局数        |
-              |               |               |   {c13:>8} 回 |   {c14:>8} 回 |   {c15:>8} 回 |   {c16:>8} 回 |               |               |
+              |               |               |              |               |              |               |               |               |
               |                                                                                                               |               |
-    引分除く  |   {ht71:8.4f} ％     {ht72:8.4f} ％                                                                                 |               |
-              |（{ht81:+9.4f}）   （{ht82:+9.4f}）                                                                                  |               |
+    引分除く  |                                                                                                                |               |
+              |                                                                                                                   |               |
               |                                                                                                               |               |
-    引分込み  |   {ht41:8.4f} ％     {ht42:8.4f} ％                                                                     {ht47:8.4f} ％ |               |
-              |（{ht51:+9.4f}）   （{ht52:+9.4f}）                                                                   （{ht57:+9.4f}）  |               |
+    引分込み  |                                                                                                                 |               |
+              |                                                                                                              |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+               |
               | 全シリーズ計                  | 引分け無しのシリーズ          | 引分けを含んだシリーズ                        |               |
               |                   {ab152:>8} 回 |                   {ab154:>8} 回 |                                   {ab157:>8} 回 |               |

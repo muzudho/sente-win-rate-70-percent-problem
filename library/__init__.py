@@ -746,7 +746,7 @@ self.stringify_dump:
 
 
     def is_fully_won(self, player):
-        """点数を満たしているか？"""
+        """［目標の点数］を満たしているか？"""
         return self._series_rule.step_table.span <= self.get_pts_of(player=player)
 
 
@@ -1768,10 +1768,13 @@ class TrialResultsForOneSeries():
         return self._list_of_face_of_coin
 
 
-    def is_points_won(self, winner):
-        """winner の［勝ち点］は［目標の点数］に達していないが、 loser の［勝ち点］より多くて winner さんの勝ち"""
+    def is_pts_won(self, winner):
+        """winner の［勝ち点］は［目標の点数］に達していないが、 loser の［勝ち点］より多くて winner さんの勝ち
+        
+        FIXME Points Won というのは、シリーズ中に引き分けの対局が１つ以上あって、かつ、相手より点数が多く、かつ、自分が［目標の点数］に達していない状態
+        """
         loser = opponent(winner)
-        return not self._point_calculation.is_fully_won(player=winner) and self._point_calculation.x_has_more_than_y(winner, loser)
+        return 0 < self.failed_coins and not self._point_calculation.is_fully_won(player=winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
     def is_won(self, winner):
@@ -1798,7 +1801,7 @@ self._point_calculation.stringify_dump:
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
 
         # 両者が判定勝ちしている、これはおかしい
-        if self.is_points_won(winner=winner) and self.is_points_won(winner=loser):
+        if self.is_pts_won(winner=winner) and self.is_pts_won(winner=loser):
             print(f"""\
 TrialResultsForOneSeries
 ------------------------
@@ -1806,10 +1809,10 @@ self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
-            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner)=}  {self.is_points_won(winner=loser)=}  {self._series_rule.step_table.span=}")
+            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_pts_won(winner=winner)=}  {self.is_pts_won(winner=loser)=}  {self._series_rule.step_table.span=}")
 
         # 満点勝ちなら確定、判定勝ちでもOK 
-        return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner)
+        return self.point_calculation.is_fully_won(winner) or self.is_pts_won(winner=winner)
 
 
     def is_no_won(self):
@@ -1831,8 +1834,8 @@ self._point_calculation.stringify_dump:
 {succ_indent}self._point_calculation:
 {self._point_calculation.stringify_dump(succ_indent)}
 {succ_indent}{self._list_of_face_of_coin=}
-{succ_indent}{self.is_points_won(winner=ALICE)=}
-{succ_indent}{self.is_points_won(winner=BOB)=}
+{succ_indent}{self.is_pts_won(winner=ALICE)=}
+{succ_indent}{self.is_pts_won(winner=BOB)=}
 {succ_indent}{self.is_won(winner=ALICE)=}
 {succ_indent}{self.is_won(winner=BOB)=}
 {succ_indent}{self.is_no_won()}
@@ -1858,11 +1861,45 @@ class LargeSeriesTrialSummary():
         self._successful_series = None
         self._failed_series = None
 
-        # （Fully wins）［満点勝ち］の件数。 未使用、未使用、未使用、Ａさん、Ｂさんの順。初期値は None
-        self._ful_wins = [None, None, None, None, None]
+        # （Fully wins）［満点勝ち］数。二次元配列[challenged][PLAYERS]
+        self._ful_wins = [
+            # 未使用
+            None,
+            # ［引き分けが起こらなかったシリーズ］
+            [
+                None,   # 未使用
+                None,   # 未使用
+                None,   # 未使用
+                None,   # Ａさんの［満点勝ち］数
+                None],  # Ｂさんの［満点勝ち］数
+            # ［引き分けが起こったシリーズ］
+            [
+                None,   # 未使用
+                None,   # 未使用
+                None,   # 未使用
+                None,   # Ａさんの［満点勝ち］数
+                None],  # Ｂさんの［満点勝ち］数
+        ]
 
-        # （Points wins）［勝ち点判定勝ち］の件数。 未使用、未使用、未使用、Ａさん、Ｂさんの順。初期値は None
-        self._pts_wins = [None, None, None, None, None]
+        # （Points wins）［勝ち点判定勝ち］の件数。二次元配列[challenged][PLAYERS]
+        self._pts_wins = [
+            # 未使用
+            None,
+            # ［引き分けが起こらなかったシリーズ］
+            [
+                None,   # 未使用
+                None,   # 未使用
+                None,   # 未使用
+                None,   # Ａさんの［満点勝ち］数
+                None],  # Ｂさんの［満点勝ち］数
+            # ［引き分けが起こったシリーズ］
+            [
+                None,   # 未使用
+                None,   # 未使用
+                None,   # 未使用
+                None,   # Ａさんの［満点勝ち］数
+                None],  # Ｂさんの［満点勝ち］数
+        ]
 
         # ［勝者がなかった回数］。ＡさんとＢさんについて。初期値は None
         self._no_wins = None
@@ -1875,20 +1912,65 @@ class LargeSeriesTrialSummary():
     def total(self):
         """シリーズ数"""
 
+        # FIXME 検算をしている
+
+        # 全部＝［表でも裏でもないものは出なかったシリーズの数］＋［表でも裏でもないものが出たシリーズの数］
         succ = self.successful_series
         fail = self.failed_series
         total_2 = succ + fail
 
-        wins_a = self.wins(winner=ALICE)
-        wins_b = self.wins(winner=BOB)
-        total_1 = wins_a + wins_b + self.no_wins
+        s_wins_a = self.wins(challenged=SUCCESSFUL, winner=ALICE)
+        s_wins_b = self.wins(challenged=SUCCESSFUL, winner=BOB)
+        f_wins_a = self.wins(challenged=FAILED, winner=ALICE)
+        f_wins_b = self.wins(challenged=FAILED, winner=BOB)
+
+        s_ful_wins_a = self.ful_wins(challenged=SUCCESSFUL, winner=ALICE)
+        s_pts_wins_a = self.pts_wins(challenged=SUCCESSFUL, winner=ALICE)
+        s_ful_wins_b = self.ful_wins(challenged=SUCCESSFUL, winner=BOB)
+        s_pts_wins_b = self.pts_wins(challenged=SUCCESSFUL, winner=BOB)
+        f_ful_wins_a = self.ful_wins(challenged=FAILED, winner=ALICE)
+        f_pts_wins_a = self.pts_wins(challenged=FAILED, winner=ALICE)
+        f_ful_wins_b = self.ful_wins(challenged=FAILED, winner=BOB)
+        f_pts_wins_b = self.pts_wins(challenged=FAILED, winner=BOB)
+
+        if s_wins_a != (s_ful_wins_a + s_pts_wins_a):
+            raise ValueError(f"合計が合いません {s_wins_a=} != ({s_ful_wins_a=} + {s_pts_wins_a=})")
+
+        if s_wins_b != (s_ful_wins_b + s_pts_wins_b):
+            raise ValueError(f"合計が合いません {s_wins_b=} != ({s_ful_wins_b=} + {s_pts_wins_b=})")
+
+        if f_wins_a != (f_ful_wins_a + f_pts_wins_a):
+            raise ValueError(f"合計が合いません {f_wins_a=} != ({f_ful_wins_a=} + {f_pts_wins_a=})")
+
+        if f_wins_b != (f_ful_wins_b + f_pts_wins_b):
+            raise ValueError(f"合計が合いません {f_wins_b=} != ({f_ful_wins_b=} + {f_pts_wins_b=})")
+
+
+        # 全部  ＝  ［表でも裏でもないものは出なかったシリーズでＡさんが勝った数］＋
+        #           ［表でも裏でもないものは出なかったシリーズでＢさんが勝った数］＋
+        #           NOTE これはない？ ［表でも裏でもないものは出なかったシリーズで、かつ勝ち負け付かずのシリーズの数］＋
+        #           ［表でも裏でもないものが出たシリーズでＡさんが勝った数］＋
+        #           ［表でも裏でもないものが出たシリーズでＢさんが勝った数］＋
+        #           ［勝ち負け付かずのシリーズ数］
+        #
+        # FIXME 合計が合いません。
+        #   total_1=21638  total_2=20000
+        #   s_wins_a=0(s_ful_wins_a=0 + s_pts_wins_a=0) +
+        #   s_wins_b=0(s_ful_wins_b=0 + s_pts_wins_b=0) +
+        #   f_wins_a= 9155(f_ful_wins_a=9141 + f_pts_wins_a=14) +
+        #   f_wins_b=10793(f_ful_wins_b=10775 + f_pts_wins_b=18) +
+        #   self.no_wins=52
+        #   succ=13269  fail=6731
+        total_1 = s_wins_a + s_wins_b + f_wins_a + f_wins_b + self.no_wins
 
         if total_1 != total_2:
-            ful_wins_a = self.ful_wins(winner=ALICE)
-            ful_wins_b = self.ful_wins(winner=BOB)
-            ful_pts_a = self.pts_wins(winner=ALICE)
-            ful_pts_b = self.pts_wins(winner=BOB)
-            raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}({ful_wins_a=} + {ful_pts_a=})  {wins_b=}({ful_wins_b=} + {ful_pts_b=})  {self.no_wins=}  {succ=}  {fail=}")
+            raise ValueError(f"""合計が合いません。 {total_1=}  {total_2=}\
+   {s_wins_a=}({s_ful_wins_a=} + {s_pts_wins_a=})\
+ + {s_wins_b=}({s_ful_wins_b=} + {s_pts_wins_b=})\
+ + {f_wins_a=}({f_ful_wins_a=} + {f_pts_wins_a=})\
+ + {f_wins_b=}({f_ful_wins_b=} + {f_pts_wins_b=})\
+ + {self.no_wins=}\
+ {succ=}  {fail=}""")
 
         return total_1
 
@@ -1907,7 +1989,7 @@ class LargeSeriesTrialSummary():
 
     @property
     def longest_time_th(self):
-        """［最長対局数］"""
+        """［上限対局数］"""
         if self._longest_time_th is None:
             self._longest_time_th = 0
             for s in self._list_of_trial_results_for_one_series:
@@ -1941,27 +2023,68 @@ class LargeSeriesTrialSummary():
         return self._failed_series
 
 
-    def ful_wins(self, winner):
-        """elementary_event が［目標の点数］を集めて勝った回数"""
-        if self._ful_wins[winner] is None:
-            self._ful_wins[winner] = 0
+    def ful_wins(self, challenged, winner):
+        """elementary_event が［目標の点数］を集めて勝った回数
+
+        TODO 勝利数は、［引き分けが起こったシリーズか、起こってないシリーズか］［目標の点数に達したか、点数差での判定勝ちか］も分けてカウントしたい
+        """
+        if self._ful_wins[challenged][winner] is None:
+            self._ful_wins[challenged][winner] = 0
             for s in self._list_of_trial_results_for_one_series:
-                if s.point_calculation.is_fully_won(winner):
-                    self._ful_wins[winner] += 1
 
-        return self._ful_wins[winner]
+                if challenged == SUCCESSFUL:
+                    if 0 < self.failed_series:
+                        # ［引き分けが起こらなかったシリーズ］ではない
+                        continue
+                
+                elif challenged == FAILED:
+                    if self.failed_series < 1:
+                        # ［引き分けが起こったシリーズ］ではない
+                        continue
+                
+                else:
+                    raise ValueError(f"{challenged=}")
+
+                if not s.point_calculation.is_fully_won(winner):
+                    # ［目標の点数］を満たしてない
+                    continue
+
+                self._ful_wins[challenged][winner] += 1
+
+        return self._ful_wins[challenged][winner]
 
 
-    def pts_wins(self, winner):
-        """winner が［勝ち点差判定］で loser に勝った回数"""
+    def pts_wins(self, challenged, winner):
+        """winner が［勝ち点差判定］で loser に勝った回数
+
+        TODO 勝利数は、［引き分けが起こったシリーズか、起こってないシリーズか］［目標の点数に達したか、点数差での判定勝ちか］も分けてカウントしたい
+        """
         loser = opponent(winner)
-        if self._pts_wins[winner] is None:
-            self._pts_wins[winner] = 0
+        if self._pts_wins[challenged][winner] is None:
+            self._pts_wins[challenged][winner] = 0
             for s in self._list_of_trial_results_for_one_series:
-                if s.is_points_won(winner=winner):
-                    self._pts_wins[winner] += 1
 
-        return self._pts_wins[winner]
+                if challenged == SUCCESSFUL:
+                    if 0 < self.failed_series:
+                        # ［引き分けが起こらなかったシリーズ］ではない
+                        continue
+                
+                elif challenged == FAILED:
+                    if self.failed_series < 1:
+                        # ［引き分けが起こったシリーズ］ではない
+                        continue
+                
+                else:
+                    raise ValueError(f"{challenged=}")
+
+                if not s.is_pts_won(winner=winner):
+                    # ［点差による勝ち］ではないい
+                    continue
+
+                self._pts_wins[challenged][winner] += 1
+
+
+        return self._pts_wins[challenged][winner]
 
 
     @property
@@ -1972,7 +2095,12 @@ class LargeSeriesTrialSummary():
         #
         #   シリーズ数　－　［Ａさんが勝った回数］　－　［Ｂさんが勝った回数］
         #
-        return self.total - self.wins(winner=ALICE) - self.wins(winner=BOB)
+        s_wins_a = self.wins(challenged=SUCCESSFUL, winner=ALICE)
+        s_wins_b = self.wins(challenged=SUCCESSFUL, winner=BOB)
+        f_wins_a = self.wins(challenged=FAILED, winner=ALICE)
+        f_wins_b = self.wins(challenged=FAILED, winner=BOB)
+
+        return self.total - (s_wins_a + s_wins_b + f_wins_a + f_wins_b)
 
 
     def won_rate(self, success_rate, winner):
@@ -2011,9 +2139,9 @@ class LargeSeriesTrialSummary():
         return self.number_of_no_won_series / self.total
 
 
-    def wins(self, winner):
+    def wins(self, challenged, winner):
         """winner が loser に勝った数"""
-        return self.ful_wins(winner=winner) + self.pts_wins(winner=winner)
+        return self.ful_wins(challenged=challenged, winner=winner) + self.pts_wins(challenged=challenged, winner=winner)
 
 
     @property
