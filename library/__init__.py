@@ -502,23 +502,25 @@ class SequenceOfFaceOfCoin():
 
 
     @staticmethod
-    def make_sequence_of_playout(argument_of_sequence_of_playout):
+    def make_sequence_of_playout(spec, longest_coins):
         """［コイントスの結果］を並べたものを作成します
 
         Parameters
         ----------
-        argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
-            引数のセット
+        spec : Specification
+            ［仕様］
+        longest_coins : int
+            ［最長対局数］
         """
 
         list_of_face_of_coin = []
 
         # ［最長対局数］までやる
-        for time_th in range(1, argument_of_sequence_of_playout.number_of_longest_time + 1):
+        for time_th in range(1, longest_coins + 1):
 
             face_of_coin = toss_a_coin(
-                    p=argument_of_sequence_of_playout.p,
-                    failure_rate=argument_of_sequence_of_playout.failure_rate)
+                    p=spec.p,
+                    failure_rate=spec.failure_rate)
 
             list_of_face_of_coin.append(face_of_coin)
 
@@ -762,7 +764,7 @@ def assert_list_of_face_of_coin(list_of_face_of_coin):
             raise ValueError(f"予期しない値がリストに入っています  {mark=}")
 
 
-def judge_series(spec, argument_of_sequence_of_playout, list_of_face_of_coin, series_rule):
+def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
 
@@ -770,8 +772,8 @@ def judge_series(spec, argument_of_sequence_of_playout, list_of_face_of_coin, se
     ----------
     spec : Specification
         仕様
-    argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
-        引数のセット
+    longest_coins : int
+        ［最長対局数］
     list_of_face_of_coin : list
         コイントスした結果のリスト。引き分け含む
     """
@@ -838,21 +840,23 @@ def judge_series(spec, argument_of_sequence_of_playout, list_of_face_of_coin, se
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
 
                     return TrialResultsForOneSeries(
+                            spec=spec,
+                            longest_coins=longest_coins,
                             number_of_times=time_th,
                             failed_coins=failed_coins,
                             span=series_rule.step_table.span,
                             point_calculation=point_calculation,
-                            argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                             list_of_face_of_coin=list_of_face_of_coin)
 
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return TrialResultsForOneSeries(
+                spec=spec,
+                longest_coins=longest_coins,
                 number_of_times=time_th,
                 failed_coins=failed_coins,
                 span=series_rule.step_table.span,
                 point_calculation=point_calculation,
-                argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin)
 
 
@@ -930,21 +934,23 @@ def judge_series(spec, argument_of_sequence_of_playout, list_of_face_of_coin, se
 
 
                     return TrialResultsForOneSeries(
+                            spec=spec,
+                            longest_coins=longest_coins,
                             number_of_times=time_th,
                             failed_coins=failed_coins,
                             span=series_rule.step_table.span,
                             point_calculation=point_calculation,
-                            argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                             list_of_face_of_coin=list_of_face_of_coin)
 
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return TrialResultsForOneSeries(
+                spec=spec,
+                longest_coins=longest_coins,
                 number_of_times=time_th,
                 failed_coins=failed_coins,
                 span=series_rule.step_table.span,
                 point_calculation=point_calculation,
-                argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin)
 
 
@@ -1577,11 +1583,15 @@ class TrialResultsForOneSeries():
     """［シリーズ］１つ分の試行結果"""
 
 
-    def __init__(self, number_of_times, failed_coins, span, point_calculation, argument_of_sequence_of_playout, list_of_face_of_coin):
+    def __init__(self, spec, longest_coins, number_of_times, failed_coins, span, point_calculation, list_of_face_of_coin):
         """初期化
     
         Parameters
         ----------
+        spec : Specification
+            ［仕様］
+        longest_coins : int
+            ［最長対局数］
         number_of_times : int
             ［行われた対局数］
         failed_coins : int
@@ -1590,23 +1600,32 @@ class TrialResultsForOneSeries():
             ［目標の点数］
         point_calculation : PointCalculation
             ［勝ち点計算］
-        argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
-            引数
         list_of_face_of_coin : list
 
         """
 
         # 共通
+        self._spec = spec
+        self._longest_coins = longest_coins
         self._number_of_times = number_of_times
         self._failed_coins = failed_coins
         self._span = span
         self._point_calculation = point_calculation
-        self._argument_of_sequence_of_playout = argument_of_sequence_of_playout
         self._list_of_face_of_coin = list_of_face_of_coin
 
 
     # 共通
     # ----
+
+    @property
+    def spec(self):
+        return self._spec
+    
+
+    @property
+    def longest_coins(self):
+        return self._longest_coins
+
 
     @property
     def point_calculation(self):
@@ -1624,12 +1643,6 @@ class TrialResultsForOneSeries():
     def failed_coins(self):
         """［表も裏も出なかった対局数］"""
         return self._failed_coins
-
-
-    @property
-    def argument_of_sequence_of_playout(self):
-        """引数"""
-        return self._argument_of_sequence_of_playout
 
 
     @property
@@ -1696,13 +1709,14 @@ self._point_calculation.stringify_dump:
         return f"""\
 {indent}TrialResultsForOneSeries
 {indent}------------------------
+{succ_indent}self._spec:
+{self._spec.stringify_dump(succ_indent)}
+{succ_indent}{self._longest_coins=}
 {succ_indent}{self._number_of_times=}
 {succ_indent}{self._failed_coins=}
 {succ_indent}{self._span=}
 {succ_indent}self._point_calculation:
 {self._point_calculation.stringify_dump(succ_indent)}
-{succ_indent}self._argument_of_sequence_of_playout:
-{self._argument_of_sequence_of_playout.stringify_dump(succ_indent)}
 {succ_indent}{self._list_of_face_of_coin=}
 {succ_indent}{self.is_points_won(winner=HEAD)=}
 {succ_indent}{self.is_points_won(winner=TAIL)=}
@@ -2043,8 +2057,9 @@ class Candidate():
         raise ValueError(f"パースできません {candidate=}")
 
 
-class SeriesResultBoard():
-    """以下の表のようなものを作る。CSVで出力する
+class ScoreBoard():
+    """１シリーズ分の経過の記録。
+    以下の表のようなものを作る。CSVで出力する
 
     ［先後固定制］
     -------------
@@ -2082,24 +2097,31 @@ class SeriesResultBoard():
     """
 
 
-    def __init__(self, argument_of_sequence_of_playout, list_of_face_of_coin):
+    def __init__(self, spec, longest_coins, list_of_face_of_coin):
         """初期化
 
         Parameters
         ----------
-        argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
-            引数のセット
+        spec : Specification
+            ［仕様］
+        longest_coins : int
+            ［最長対局数］
         list_of_face_of_coin : list
             コイントスした結果のリスト。引き分け含む
         """
-        self._argument_of_sequence_of_playout = argument_of_sequence_of_playout,
+        self._spec = spec
+        self._longest_coins = longest_coins
         self._list_of_face_of_coin = list_of_face_of_coin
 
 
     @property
-    def argument_of_sequence_of_playout(self):
-        """引数のセット"""
-        return self._argument_of_sequence_of_playout
+    def spec(self):
+        return self._spec
+    
+
+    @property
+    def longest_coins(self):
+        return self._longest_coins
 
 
     @property
@@ -2114,7 +2136,8 @@ class SeriesResultBoard():
         return f"""\
 {indent}ElementaryEventSequence
 {indent}-----------------------
-{succ_indent}self._argument_of_sequence_of_playout:
-{self._argument_of_sequence_of_playout.stringify_dump(succ_indent)}
+{succ_indent}self._spec:
+{self._spec.stringify_dump(succ_indent)}
+{succ_indent}{self._longest_coins=}
 {succ_indent}{self._list_of_face_of_coin=}
 """

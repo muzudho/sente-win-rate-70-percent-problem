@@ -133,13 +133,6 @@ Which one(1-2)? """
         for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
             #print(f"動作テスト {list_of_face_of_coin=}")
 
-            # 引数作成
-            argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
-                    spec=spec,
-                    p=spec.p,
-                    failure_rate=spec.failure_rate,
-                    number_of_longest_time=specified_series_rule.number_of_longest_time)
-
             #
             # 到達できない棋譜は除去しておきたい
             #
@@ -149,7 +142,7 @@ Which one(1-2)? """
             # ［シリーズ］１つ分の試行結果を返す
             trial_results_for_one_series = judge_series(
                     spec=spec,
-                    argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                    longest_coins=specified_series_rule.number_of_longest_time,
                     list_of_face_of_coin=list_of_face_of_coin,
                     series_rule=specified_series_rule)
 

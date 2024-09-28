@@ -39,21 +39,15 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
     for round in range(0, number_of_series):
 
-        # 引数作成
-        argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
-                spec=spec,
-                p=p,
-                failure_rate=spec.failure_rate,
-                number_of_longest_time=series_rule.number_of_longest_time)
-
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
-                argument_of_sequence_of_playout=argument_of_sequence_of_playout)
+                spec=spec,
+                longest_coins=series_rule.number_of_longest_time)
 
         # ［シリーズ］１つ分の試行結果を返す
         trial_results_for_one_series = judge_series(
                 spec=spec,
-                argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                longest_coins=series_rule.number_of_longest_time,
                 list_of_face_of_coin=list_of_face_of_coin,
                 series_rule=series_rule)
         #print(f"{trial_results_for_one_series.stringify_dump()}")

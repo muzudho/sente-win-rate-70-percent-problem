@@ -39,7 +39,7 @@ p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最長=,longest,�
     return text
 
 
-def stringify_csv_of_body(p, spec, series_rule, presentable, comment, argument_of_sequence_of_playout, large_series_trial_summary):
+def stringify_csv_of_body(p, spec, longest_coins, series_rule, presentable, comment, large_series_trial_summary):
     """データ部を文字列化
 
     Parameters
@@ -68,7 +68,7 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, argument_o
     t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # p_step
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # q_step
     t5 = f"{series_rule.step_table.span}"                       # span
-    t6 = f"{argument_of_sequence_of_playout.number_of_longest_time}" # longest
+    t6 = f"{longest_coins}" # longest
     t7 = f"{S.total(opponent_pair=FACE_OF_COIN)}"               # Total (of face of coin)
     t8 = f"{S.successful_series}"   # Successful series
     t9 = f"{S.failed_series}"       # Failed series
@@ -133,26 +133,19 @@ def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step
             turn_system=turn_system)
 
 
-    # 引数作成
-    argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
-            spec=spec,
-            p=p,
-            failure_rate=spec.failure_rate,
-            number_of_longest_time=series_rule.number_of_longest_time)
-
-
     list_of_trial_results_for_one_series = []
 
     for round in range(0, specified_number_of_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
-                argument_of_sequence_of_playout=argument_of_sequence_of_playout)
+                spec=spec,
+                longest_coins=series_rule.number_of_longest_time)
 
         # ［シリーズ］１つ分の試行結果を返す
         trial_results_for_one_series = judge_series(
                 spec=spec,
-                argument_of_sequence_of_playout=argument_of_sequence_of_playout,
+                longest_coins=series_rule.number_of_longest_time,
                 list_of_face_of_coin=list_of_face_of_coin,
                 series_rule=series_rule)
 
@@ -167,10 +160,10 @@ def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step
     csv = stringify_csv_of_body(
             p=p,
             spec=spec,
+            longest_coins=series_rule.number_of_longest_time,
             series_rule=series_rule,
             presentable=presentable,
             comment=comment,
-            argument_of_sequence_of_playout=argument_of_sequence_of_playout,
             large_series_trial_summary=large_series_trial_summary)
 
 
