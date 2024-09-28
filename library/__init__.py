@@ -641,7 +641,17 @@ class PointCalculation():
         raise ValueError(f"{turn_system=}")
 
 
-    def append_won(self, successful_face_of_coin, time_th, turn_system):
+    def is_gameover(self):
+        """TODO 終局しているか？"""
+
+        # 表番が満点、裏番が満点、Ａさんが満点、Ｂさんが満点
+        if (self._series_rule.step_table.span <= self._point_list[HEAD]) or (self._series_rule.step_table.span <= self._point_list[TAIL]) or (self._series_rule.step_table.span <= self._point_list[ALICE]) or (self._series_rule.step_table.span <= self._point_list[BOB]):
+            return True
+
+        return False
+
+
+    def append_point_when_won(self, successful_face_of_coin, time_th, turn_system):
         """加点
 
         Parameters
@@ -724,18 +734,18 @@ self.stringify_dump:
             raise ValueError(f"{turn_system=}")
 
 
-    def get_point_of(self, index):
-        return self._point_list[index]
+    def get_point_of(self, face_of_coin_or_player):
+        return self._point_list[face_of_coin_or_player]
 
 
     def is_fully_won(self, index):
         """点数を満たしているか？"""
-        return self._series_rule.step_table.span <= self.get_point_of(index)
+        return self._series_rule.step_table.span <= self.get_point_of(face_of_coin_or_player=index)
 
 
     def x_has_more_than_y(self, x, y):
         """xの方がyより勝ち点が多いか？"""
-        return self.get_point_of(y) < self.get_point_of(x)
+        return self.get_point_of(face_of_coin_or_player=y) < self.get_point_of(face_of_coin_or_player=x)
 
 
     def stringify_dump(self, indent):
@@ -836,13 +846,19 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                 point_calculation.append_step_when_failure(time_th, turn_system=series_rule.turn_system)
             
             else:
-                point_calculation.append_won(
+                
+                # FIXME 検算
+                if point_calculation.is_gameover():
+                    raise ValueError("終局後に加点してはいけません1")
+
+
+                point_calculation.append_point_when_won(
                     successful_face_of_coin=face_of_coin,
                     time_th=time_th,
                     turn_system=series_rule.turn_system)
 
                 # 勝ち抜け
-                if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin):
+                if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin_or_player=face_of_coin):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -904,15 +920,21 @@ def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_r
                 point_calculation.append_step_when_failure(time_th, turn_system=series_rule.turn_system)
 
             else:
+
+                # FIXME 検算
+                if point_calculation.is_gameover():
+                    raise ValueError("終局後に加点してはいけません2")
+
+
                 successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=series_rule.turn_system)
 
-                point_calculation.append_won(
+                point_calculation.append_point_when_won(
                         successful_face_of_coin=face_of_coin,
                         time_th=time_th,
                         turn_system=series_rule.turn_system)
 
                 # 勝ち抜け
-                if series_rule.step_table.span <= point_calculation.get_point_of(successful_player):
+                if series_rule.step_table.span <= point_calculation.get_point_of(face_of_coin_or_player=successful_player):
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
@@ -1687,7 +1709,7 @@ self._point_calculation.stringify_dump:
             raise ValueError(f"{opponent_pair=}")
 
         return not self.is_won(x) and not self.is_won(y)
-        #return self._point_calculation.get_point_of(x) == self._point_calculation.get_point_of(y)
+        #return self._point_calculation.get_point_of(face_of_coin_or_player=x) == self._point_calculation.get_point_of(face_of_coin_or_player=y)
 
 
     def stringify_dump(self, indent):
