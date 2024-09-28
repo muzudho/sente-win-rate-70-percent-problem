@@ -99,7 +99,7 @@ if __name__ == '__main__':
                                 q_step=latest_series_rule.q_step,
                                 span=latest_series_rule.span,
                                 number_of_shortest_time=latest_series_rule.number_of_shortest_time,
-                                number_of_longest_time=latest_series_rule.number_of_longest_time)
+                                longest_coins=latest_series_rule.longest_coins)
                         
                         # ［シリーズ・ルール候補］
                         candidate_str = candidate_obj.as_str()

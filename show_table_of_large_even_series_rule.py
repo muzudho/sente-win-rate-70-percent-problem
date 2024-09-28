@@ -140,12 +140,12 @@ def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                 spec=spec,
-                longest_coins=series_rule.number_of_longest_time)
+                longest_coins=series_rule.longest_coins)
 
         # ［シリーズ］１つ分の試行結果を返す
         trial_results_for_one_series = judge_series(
                 spec=spec,
-                longest_coins=series_rule.number_of_longest_time,
+                longest_coins=series_rule.longest_coins,
                 list_of_face_of_coin=list_of_face_of_coin,
                 series_rule=series_rule)
 
@@ -160,7 +160,7 @@ def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step
     csv = stringify_csv_of_body(
             p=p,
             spec=spec,
-            longest_coins=series_rule.number_of_longest_time,
+            longest_coins=series_rule.longest_coins,
             series_rule=series_rule,
             presentable=presentable,
             comment=comment,

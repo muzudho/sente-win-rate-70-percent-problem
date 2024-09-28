@@ -61,13 +61,41 @@ WHEN_FROZEN_TURN = 1
 WHEN_ALTERNATING_TURN = 2
 
 
-_turn_system_to_str = {
-    WHEN_FROZEN_TURN : '先後固定制',
-    WHEN_ALTERNATING_TURN : '先後交互制',
-}
+_face_of_coin_to_str = None
+
+def face_of_coin_to_str(face_of_coin):
+    global _face_of_coin_to_str
+
+    if _face_of_coin_to_str is None:
+        _face_of_coin_to_str = {
+            HEAD : '表',
+            TAIL : '裏',
+        }
+    
+    return _face_of_coin_to_str[face_of_coin]
+
+
+_turn_system_to_str = None
 
 def turn_system_to_str(turn_system):
+    global _turn_system_to_str
+
+    if _turn_system_to_str is None:
+        _turn_system_to_str = {
+            WHEN_FROZEN_TURN : '先後固定制',
+            WHEN_ALTERNATING_TURN : '先後交互制',
+        }
+
     return _turn_system_to_str[turn_system]
+
+
+_turn_system_to_code = {
+    WHEN_FROZEN_TURN : 'frozen',
+    WHEN_ALTERNATING_TURN : 'alternating',
+}
+
+def turn_system_to_code(turn_system):
+    return _turn_system_to_code[turn_system]
 
 
 # Opponent pair
@@ -360,7 +388,7 @@ class ArgumentOfSequenceOfPlayout():
     """SequenceOfPlayout を作成するための引数"""
 
 
-    def __init__(self, spec, p, failure_rate, number_of_longest_time):
+    def __init__(self, spec, p, failure_rate, longest_coins):
         """初期化
 
         Parameters
@@ -369,13 +397,13 @@ class ArgumentOfSequenceOfPlayout():
             ［表が出る確率］
         failure_rate : float
             ［引き分ける確率］
-        number_of_longest_time : int
+        longest_coins : int
             ［最長対局数］
         """
         self._spec = spec
         self._p = p
         self._failure_rate = failure_rate
-        self._number_of_longest_time = number_of_longest_time
+        self._longest_coins = longest_coins
 
 
     @property
@@ -397,9 +425,9 @@ class ArgumentOfSequenceOfPlayout():
 
 
     @property
-    def number_of_longest_time(self):
+    def longest_coins(self):
         """［最長対局数］"""
-        return self._number_of_longest_time
+        return self._longest_coins
 
 
     def stringify_dump(self, indent):
@@ -412,7 +440,7 @@ class ArgumentOfSequenceOfPlayout():
 {self._spec.stringify_dump(succ_indent)}
 {succ_indent}{self._p=}
 {succ_indent}{self._failure_rate=}
-{succ_indent}{self._number_of_longest_time=}
+{succ_indent}{self._longest_coins=}
 """
 
 
@@ -445,7 +473,7 @@ class SequenceOfFaceOfCoin():
             elements = [HEAD, TAIL]
 
         # 桁数
-        depth = series_rule.number_of_longest_time
+        depth = series_rule.longest_coins
 
         # １シーズン分のコイントスの全ての結果
         stats = []
@@ -1150,7 +1178,7 @@ class SeriesRule():
 """
 
 
-    def __init__(self, step_table, number_of_shortest_time, number_of_longest_time, turn_system):
+    def __init__(self, step_table, number_of_shortest_time, longest_coins, turn_system):
         """初期化
         
         Parameters
@@ -1159,7 +1187,7 @@ class SeriesRule():
             ［１勝の点数テーブル］
         number_of_shortest_time : int
             ［最短対局数］
-        number_of_longest_time : int
+        longest_coins : int
             ［最長対局数］
         turn_system : int
             ［先後が回ってくる制度］
@@ -1171,7 +1199,7 @@ class SeriesRule():
         self._number_of_shortest_time = number_of_shortest_time
 
         # ［最長対局数］
-        self._number_of_longest_time = number_of_longest_time
+        self._longest_coins = longest_coins
 
         self._turn_system = turn_system
 
@@ -1239,7 +1267,7 @@ class SeriesRule():
             number_of_shortest_time = 0
 
             # ［最長対局数］
-            number_of_longest_time = 0
+            longest_coins = 0
 
         else:
             # ［最短対局数］
@@ -1250,15 +1278,15 @@ class SeriesRule():
                     turn_system=turn_system)
 
             # ［最長対局数］
-            number_of_longest_time = SeriesRule.let_number_of_longest_time(
+            longest_coins = SeriesRule.let_longest_coins(
                     failure_rate=failure_rate,
                     p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                     q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                     turn_system=turn_system)
 
 
-        if number_of_longest_time < number_of_shortest_time:
-            text = f"［最短対局数］{number_of_shortest_time} が、［最長対局数］{number_of_longest_time} より長いです"
+        if longest_coins < number_of_shortest_time:
+            text = f"［最短対局数］{number_of_shortest_time} が、［最長対局数］{longest_coins} より長いです"
             print(f"""\
 {text}
 {failure_rate=}
@@ -1277,7 +1305,7 @@ step_table:
                 # ［最短対局数］
                 number_of_shortest_time=number_of_shortest_time,
                 # ［最長対局数］
-                number_of_longest_time=number_of_longest_time,
+                longest_coins=longest_coins,
                 turn_system=turn_system)
 
 
@@ -1342,9 +1370,9 @@ step_table:
 
 
     @property
-    def number_of_longest_time(self):
+    def longest_coins(self):
         """［最長対局数］"""
-        return self._number_of_longest_time
+        return self._longest_coins
 
 
     @staticmethod
@@ -1448,7 +1476,7 @@ step_table:
 
 
     @staticmethod
-    def let_number_of_longest_time_without_failure_rate(p_time, q_time, turn_system):
+    def let_longest_coins_without_failure_rate(p_time, q_time, turn_system):
         """［最長対局数］を算出します        
         """
 
@@ -1511,7 +1539,7 @@ step_table:
 
 
     @staticmethod
-    def let_number_of_longest_time_with_failure_rate(failure_rate, number_of_longest_time_without_failure_rate):
+    def let_longest_coins_with_failure_rate(failure_rate, number_of_longest_time_without_failure_rate):
         """［最長対局数］を算出します
         
         ［表も裏も出ない確率］の考え方
@@ -1552,16 +1580,16 @@ step_table:
 
 
     @staticmethod
-    def let_number_of_longest_time(failure_rate, p_time, q_time, turn_system):
+    def let_longest_coins(failure_rate, p_time, q_time, turn_system):
         """［最長対局数］を算出します
         """
 
-        number_of_longest_time_without_failure_rate = SeriesRule.let_number_of_longest_time_without_failure_rate(
+        number_of_longest_time_without_failure_rate = SeriesRule.let_longest_coins_without_failure_rate(
                 p_time=p_time,
                 q_time=q_time,
                 turn_system=turn_system)
 
-        return SeriesRule.let_number_of_longest_time_with_failure_rate(
+        return SeriesRule.let_longest_coins_with_failure_rate(
                 failure_rate=failure_rate,
                 number_of_longest_time_without_failure_rate=number_of_longest_time_without_failure_rate)
 
@@ -1574,7 +1602,7 @@ step_table:
 {succ_indent}self._step_table.stringify_dump(succ_indent):
 {self._step_table.stringify_dump(succ_indent)}
 {succ_indent}{self._number_of_shortest_time=}
-{succ_indent}{self._number_of_longest_time=}
+{succ_indent}{self._longest_coins=}
 {succ_indent}{self._turn_system=}
 """
 
@@ -1966,7 +1994,7 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, number_of_series, p_step, q_step, span, number_of_shortest_time, number_of_longest_time):
+    def __init__(self, p_error, number_of_series, p_step, q_step, span, number_of_shortest_time, longest_coins):
 
         if not isinstance(number_of_series, int):
             raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {number_of_series=}")
@@ -1983,8 +2011,8 @@ class Candidate():
         if not isinstance(number_of_shortest_time, int):
             raise ValueError(f"［最短対局数］は int 型である必要があります {number_of_shortest_time=}")
 
-        if not isinstance(number_of_longest_time, int):
-            raise ValueError(f"［最長対局数］は int 型である必要があります {number_of_longest_time=}")
+        if not isinstance(longest_coins, int):
+            raise ValueError(f"［最長対局数］は int 型である必要があります {longest_coins=}")
 
         self._p_error = p_error
         self._number_of_series = number_of_series
@@ -1992,7 +2020,7 @@ class Candidate():
         self._q_step = q_step
         self._span = span
         self._number_of_shortest_time = number_of_shortest_time
-        self._number_of_longest_time = number_of_longest_time
+        self._longest_coins = longest_coins
 
 
     @property
@@ -2026,13 +2054,13 @@ class Candidate():
 
 
     @property
-    def number_of_longest_time(self):
-        return self._number_of_longest_time
+    def longest_coins(self):
+        return self._longest_coins
 
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._number_of_shortest_time}～{self._number_of_longest_time}局 {self._number_of_series}試]'
+        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._number_of_shortest_time}～{self._longest_coins}局 {self._number_of_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -2052,7 +2080,7 @@ class Candidate():
                     q_step=int(result.group(3)),
                     span=int(result.group(4)),
                     number_of_shortest_time=int(result.group(5)),
-                    number_of_longest_time=int(result.group(6)))
+                    longest_coins=int(result.group(6)))
 
         raise ValueError(f"パースできません {candidate=}")
 
@@ -2064,9 +2092,13 @@ class ScoreBoard():
     ［先後固定制］
     -------------
 
+        Specification
+        p        failure_rate  turn_system
+        70.0000  10.0000       frozen
+
         Series Rule
-        p    failure_rate  p_step  q_step  span  turn_system
-        0.7  0.1           2       3       6     FrozenTurn
+        p_step  q_step  span
+        2       3       6
 
         Score Sheet
                  S   1   2   3  4   5
@@ -2081,9 +2113,13 @@ class ScoreBoard():
     ［先後交互制］
     -------------
 
+        Specification
+        p        failure_rate  turn_system
+        70.0000  10.0000       alternating
+
         Series Rule
-        p    failure_rate  p_step  q_step  span  turn_system
-        0.7  0.1           2       3       6     AlternatingTurn
+        p_step  q_step  span
+        2       3       6
 
         Score Sheet
                 S   1   2   3   4   5
@@ -2097,37 +2133,139 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, spec, longest_coins, list_of_face_of_coin):
+    def __init__(self, spec, series_rule, list_of_face_of_coin):
         """初期化
 
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        longest_coins : int
-            ［最長対局数］
+        series_rule : SeriesRule
+            ［シリーズ・ルール］
         list_of_face_of_coin : list
             コイントスした結果のリスト。引き分け含む
         """
         self._spec = spec
-        self._longest_coins = longest_coins
+        self._series_rule = series_rule
         self._list_of_face_of_coin = list_of_face_of_coin
 
 
     @property
     def spec(self):
+        """［仕様］"""
         return self._spec
     
 
     @property
-    def longest_coins(self):
-        return self._longest_coins
+    def series_rule(self):
+        """［シリーズ・ルール］"""
+        return self._series_rule
 
 
     @property
     def list_of_face_of_coin(self):
         """コイントスした結果のリスト。引き分け含む"""
         return self._list_of_face_of_coin
+
+
+    def stringify_csv(self):
+        """TODO"""
+
+        span = self._series_rule.step_table.span
+        h_step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+        t_step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+
+        t11 = f"{self._spec.p * 100:7.4f}"
+        t12 = f"{self._spec.failure_rate * 100:7.4f}"
+        t13 = turn_system_to_code(self._spec.turn_system)
+
+        t21 = f"{h_step}"
+        t22 = f"{t_step}"
+        t23 = f"{span}"
+
+        csv = f"""\
+Specification
+p    , failure_rate, turn_system  
+{t11}, {t12}       , {t13}
+
+Series Rule
+h_step, t_step, span
+{t21} , {t22} , {t23}
+
+Score Sheet
+"""
+
+        round_list = []
+        round_list.append(['S', '', '', span, span])
+
+        for round_th, face_of_coin in enumerate(self._list_of_face_of_coin, 1):
+            last_round = round_list[-1]
+
+            if last_round[1] in ['', 'B']:
+                head_player = 'A'
+            else:
+                head_player = 'B'
+
+            face_of_coin_str = face_of_coin_to_str(face_of_coin)
+
+            a_point = span
+            b_point = span
+
+            if face_of_coin == HEAD:
+                if head_player == 'A':
+                    a_point -= h_step
+                else:
+                    b_point -= h_step
+
+            elif face_of_coin == TAIL:
+                if head_player == 'A':
+                    b_point -= h_step
+                else:
+                    a_point -= h_step
+
+            elif face_of_coin == EMPTY:
+                pass
+
+            else:
+                raise ValueError(f"{face_of_coin=}")
+            
+
+            round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
+
+
+        list_of_round_number = ['']        # ラウンド番号
+        list_of_head_player = ['表番']
+        list_of_face_of_coin_str = ['出目']
+        list_of_a_points = ['Ａさん']
+        list_of_b_points = ['Ｂさん']
+
+        for round in round_list:
+            list_of_round_number.append(str(round[0]))
+            list_of_head_player.append(round[1])
+            list_of_face_of_coin_str.append(round[2])
+            list_of_a_points.append(str(round[3]))
+            list_of_b_points.append(str(round[4]))
+
+        csv += f"""\
+{','.join(list_of_round_number)}
+{','.join(list_of_head_player)}
+{','.join(list_of_face_of_coin_str)}
+{','.join(list_of_a_points)}
+{','.join(list_of_b_points)}
+
+"""
+
+        if list_of_a_points[-1] < list_of_b_points[-1]:
+            csv += "Ａさんの勝ち"
+
+        elif list_of_b_points[-1] < list_of_a_points[-1]:
+            csv += "Ｂさんの勝ち"
+        
+        else:
+            csv += "勝者なし"
+
+
+        return csv
 
 
     def stringify_dump(self, indent):

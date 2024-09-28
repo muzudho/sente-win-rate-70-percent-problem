@@ -198,12 +198,12 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                 # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
                                 list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                                         spec=spec,
-                                        longest_coins=latest_series_rule.number_of_longest_time)
+                                        longest_coins=latest_series_rule.longest_coins)
 
                                 # 疑似のリストをもとに、シリーズとして見てみる
                                 trial_results_for_one_series = judge_series(
                                         spec=spec,
-                                        longest_coins=latest_series_rule.number_of_longest_time,
+                                        longest_coins=latest_series_rule.longest_coins,
                                         list_of_face_of_coin=list_of_face_of_coin,
                                         series_rule=latest_series_rule)
                                 
@@ -239,7 +239,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                             # ［最短対局数］［最長対局数］
                             shortest_time = best_series_rule.number_of_shortest_time
-                            longest_time = best_series_rule.number_of_longest_time
+                            longest_time = best_series_rule.longest_coins
 
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
@@ -249,7 +249,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                     q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule.step_table.span,
                                     number_of_shortest_time=shortest_time,
-                                    number_of_longest_time=longest_time)
+                                    longest_coins=longest_time)
                             candidate_str = candidate_obj.as_str()
                             print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {candidate_str}", flush=True) # すぐ表示
 
