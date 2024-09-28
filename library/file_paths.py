@@ -138,9 +138,3 @@ def get_selection_series_rule_csv_file_path(turn_system):
     """勝ち点ルールのむずでょセレクション"""
     subname = make_file_subname(turn_system=turn_system)
     return f'./data/selection_series_rule{subname}.csv'
-
-
-def get_muzudho_single_points_csv_file_path(turn_system):
-    """勝ち点ルールのむずでょ１点セレクション"""
-    subname = make_file_subname(turn_system=turn_system)
-    return f'./data/muzudho_single_points{subname}.csv'

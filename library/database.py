@@ -305,36 +305,6 @@ def df_ssr_to_csv(df, turn_system):
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
-##############################
-# Muzudho single points table
-##############################
-
-def get_df_muzudho_single_points(turn_system):
-    if turn_system == WHEN_FROZEN_TURN:
-        df = pd.read_csv(get_muzudho_single_points_csv_file_path(turn_system=WHEN_FROZEN_TURN), encoding="utf8")
-        df['p'].astype('float64')
-        df['p_step'].fillna(0).astype('int64')
-        df['q_step'].fillna(1).astype('int64')
-        df['span'].fillna(1).astype('int64')
-        df['presentable'].astype('string')    # string 型は無い？
-        df['comment'].astype('string')    # string 型は無い？
-        df['candidates'].astype('string')    # string 型は無い？
-
-        return df
-
-
-    raise ValueError(f"{turn_system=}")
-
-
-def get_df_report_selection_series_rule():
-    df = pd.read_csv(CSV_FILE_PATH_MRP, encoding="utf8")
-    df['p'].astype('float64')
-    df['p_time'].fillna(0).astype('int64')
-    df['q_time'].fillna(0).astype('int64')
-
-    return df
-
-
 ########################
 # Calculate probability
 ########################

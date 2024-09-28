@@ -14,7 +14,6 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, SeriesRule, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_analysis_series_log_file_path
-from library.database import get_df_muzudho_single_points
 from library.views import stringify_series_log, stringify_analysis_series
 
 
