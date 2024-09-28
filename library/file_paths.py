@@ -113,7 +113,9 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
 def get_even_series_rule_log_file_path(turn_system):
     """勝ち点を探索したログ・ファイルへのパス"""
     subname = make_file_subname(turn_system=turn_system)
-    return f'output/even_series_rule{subname}.log'
+    # ファイル名は長くなりすぎないようにする
+    return f'output/even{subname}.log'
+    #return f'output/even_series_rule{subname}.log'
 
 
 def get_even_series_rule_csv_file_path(turn_system=None, generation_algorythm=None):
@@ -127,7 +129,10 @@ def get_even_series_rule_csv_file_path(turn_system=None, generation_algorythm=No
         ［データ生成アルゴリズム］
     """
     subname = make_file_subname(turn_system=turn_system, generation_algorythm=generation_algorythm)
-    return f'./data/even_series_rule{subname}.csv'
+
+    # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
+    return f'./data/even{subname}.csv'
+    #return f'./data/even_series_rule{subname}.csv'
 
 
 ############################

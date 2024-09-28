@@ -144,6 +144,15 @@ def append_default_record_to_df_even(df, p, failure_rate):
 
 
 def get_df_even(turn_system, generation_algorythm):
+    """
+
+    Parameters
+    ----------
+    turn_system : int
+        ［手番が回ってくる制度］
+    generation_algorythm : int
+        ［生成アルゴリズム］
+    """
 
     csv_file_path = get_even_series_rule_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
 

@@ -877,7 +877,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                 point_calculation.append_point_when_won(
                         successful_face_of_coin=face_of_coin,
                         time_th=time_th,
-                        list_of_face_of_coin=list_of_face_of_coin[0,time_th])
+                        list_of_face_of_coin=list_of_face_of_coin[0:time_th])
 
 
                 # 終局
@@ -2033,12 +2033,12 @@ class LargeSeriesTrialSummary():
             for s in self._list_of_trial_results_for_one_series:
 
                 if challenged == SUCCESSFUL:
-                    if 0 < self.failed_series:
+                    if 0 < s.failed_coins:
                         # ［引き分けが起こらなかったシリーズ］ではない
                         continue
                 
                 elif challenged == FAILED:
-                    if self.failed_series < 1:
+                    if s.failed_coins < 1:
                         # ［引き分けが起こったシリーズ］ではない
                         continue
                 
@@ -2065,12 +2065,12 @@ class LargeSeriesTrialSummary():
             for s in self._list_of_trial_results_for_one_series:
 
                 if challenged == SUCCESSFUL:
-                    if 0 < self.failed_series:
+                    if 0 < s.failed_coins:
                         # ［引き分けが起こらなかったシリーズ］ではない
                         continue
                 
                 elif challenged == FAILED:
-                    if self.failed_series < 1:
+                    if s.failed_coins < 1:
                         # ［引き分けが起こったシリーズ］ではない
                         continue
                 
