@@ -162,9 +162,8 @@ Which one(1-2)? """
             # ［シリーズ］１つ分の試行結果を返す
             trial_results_for_one_series = judge_series(
                     spec=spec,
-                    longest_coins=specified_series_rule.longest_coins,
-                    list_of_face_of_coin=list_of_face_of_coin,
-                    series_rule=specified_series_rule)
+                    series_rule=specified_series_rule,
+                    list_of_face_of_coin=list_of_face_of_coin)
 
 
             # コインの出目のリストはサイズが切り詰められて縮まってるケースがある

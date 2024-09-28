@@ -567,15 +567,18 @@ class PointCalculation():
     """勝ち点計算に使う"""
 
 
-    def __init__(self, series_rule):
+    def __init__(self, spec, series_rule):
         """初期化
         
         Parameters
         ----------
+        spec : Specification
+            ［仕様］
         series_rule : SeriesRule
             ［シリーズ・ルール］
         """
 
+        self._spec = spec
         self._series_rule = series_rule
 
         # ［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん
@@ -586,12 +589,6 @@ class PointCalculation():
     def series_rule(self):
         """［勝ち点ルール］の構成"""
         return self._series_rule
-
-
-    # @property
-    # def point_list(self):
-    #     """［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん"""
-    #     return self._point_list
 
 
     @staticmethod
@@ -644,16 +641,23 @@ class PointCalculation():
 
 
     def is_gameover(self):
-        """TODO 終局しているか？"""
+        """TODO 終局しているか？
+        
+        NOTE ［先後交互制］では、表番が満点でも勝利条件ではないことに注意すること。［先後固定制］にしろ、［先後交互制］にしろ、プレイヤーの勝ち負けを見ればよい
+        """
 
-        # 表番が満点、裏番が満点、Ａさんが満点、Ｂさんが満点
-        if (self._series_rule.step_table.span <= self._point_list[HEAD]) or (self._series_rule.step_table.span <= self._point_list[TAIL]) or (self._series_rule.step_table.span <= self._point_list[ALICE]) or (self._series_rule.step_table.span <= self._point_list[BOB]):
-            return True
+        a_fully_won = self._series_rule.step_table.span <= self._point_list[ALICE]
+        b_fully_won = self._series_rule.step_table.span <= self._point_list[BOB]
 
-        return False
+        # 両者が同時に満点を取っているケースはおかしい
+        if a_fully_won and b_fully_won:
+            raise ValueError(f"両者が同時に満点を取っているケースはおかしい  {a_fully_won=}  {b_fully_won=}")
+
+        # Ａさんが満点、または、Ｂさんが満点なら終局
+        return a_fully_won or b_fully_won
 
 
-    def append_point_when_won(self, successful_face_of_coin, time_th, turn_system):
+    def append_point_when_won(self, successful_face_of_coin, time_th):
         """加点
 
         Parameters
@@ -662,7 +666,7 @@ class PointCalculation():
             ［コインの表か裏］
         """
 
-        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, turn_system)
+        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._series_rule.turn_system)
 
         # ［勝ち点］
         step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
@@ -700,7 +704,7 @@ self.stringify_dump:
             raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい")
 
 
-    def append_step_when_failure(self, time_th, turn_system):
+    def append_step_when_failure(self, time_th):
         """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
 
         引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
@@ -715,11 +719,11 @@ self.stringify_dump:
         self._point_list[HEAD] += h_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
         self._point_list[TAIL] += t_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
-        if turn_system == WHEN_FROZEN_TURN:
+        if self._series_rule.turn_system == WHEN_FROZEN_TURN:
             self._point_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             self._point_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
-        elif turn_system == WHEN_ALTERNATING_TURN:
+        elif self._series_rule.turn_system == WHEN_ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
                 self._point_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
@@ -731,7 +735,7 @@ self.stringify_dump:
                 self._point_list[ALICE] += t_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             
         else:
-            raise ValueError(f"{turn_system=}")
+            raise ValueError(f"{self._series_rule.turn_system=}")
 
 
     def get_point_of(self, face_of_coin_or_player):
@@ -792,7 +796,7 @@ def assert_list_of_face_of_coin(list_of_face_of_coin):
             raise ValueError(f"予期しない値がリストに入っています  {mark=}")
 
 
-def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
+def judge_series(spec, series_rule, list_of_face_of_coin):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
 
@@ -800,8 +804,8 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
     ----------
     spec : Specification
         仕様
-    longest_coins : int
-        ［最長対局数］
+    series_rule : int
+        ［シリーズ・ルール］
     list_of_face_of_coin : list
         コイントスした結果のリスト。引き分け含む
     """
@@ -827,7 +831,9 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
         """
 
         # ［勝ち点計算］
-        point_calculation = PointCalculation(series_rule=series_rule)
+        point_calculation = PointCalculation(
+                spec=spec,
+                series_rule=series_rule)
 
         # ［このシリーズで引き分けた対局数］
         failed_coins = 0
@@ -845,7 +851,7 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
             if face_of_coin == EMPTY:
                 failed_coins += 1
 
-                point_calculation.append_step_when_failure(time_th, turn_system=series_rule.turn_system)
+                point_calculation.append_step_when_failure(time_th=time_th)
             
             else:
                 
@@ -856,8 +862,7 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
 
                 point_calculation.append_point_when_won(
                     successful_face_of_coin=face_of_coin,
-                    time_th=time_th,
-                    turn_system=series_rule.turn_system)
+                    time_th=time_th)
 
 
                 # 終局
@@ -869,10 +874,8 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
 
                     return TrialResultsForOneSeries(
                             spec=spec,
-                            longest_coins=longest_coins,
-                            number_of_times=time_th,
+                            series_rule=series_rule,
                             failed_coins=failed_coins,
-                            span=series_rule.step_table.span,
                             point_calculation=point_calculation,
                             list_of_face_of_coin=list_of_face_of_coin)
 
@@ -880,10 +883,8 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return TrialResultsForOneSeries(
                 spec=spec,
-                longest_coins=longest_coins,
-                number_of_times=time_th,
+                series_rule=series_rule,
                 failed_coins=failed_coins,
-                span=series_rule.step_table.span,
                 point_calculation=point_calculation,
                 list_of_face_of_coin=list_of_face_of_coin)
 
@@ -904,7 +905,9 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
         """
 
         # ［勝ち点計算］
-        point_calculation = PointCalculation(series_rule=series_rule)
+        point_calculation = PointCalculation(
+                spec=spec,
+                series_rule=series_rule)
 
         # ［このシリーズで引き分けた対局数］
         failed_coins = 0
@@ -922,7 +925,7 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
             if face_of_coin == EMPTY:
                 failed_coins += 1
 
-                point_calculation.append_step_when_failure(time_th, turn_system=series_rule.turn_system)
+                point_calculation.append_step_when_failure(time_th=time_th)
 
             else:
 
@@ -935,8 +938,7 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
 
                 point_calculation.append_point_when_won(
                         successful_face_of_coin=face_of_coin,
-                        time_th=time_th,
-                        turn_system=series_rule.turn_system)
+                        time_th=time_th)
 
 
                 # 終局
@@ -963,10 +965,8 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
 
                     return TrialResultsForOneSeries(
                             spec=spec,
-                            longest_coins=longest_coins,
-                            number_of_times=time_th,
+                            series_rule=series_rule,
                             failed_coins=failed_coins,
-                            span=series_rule.step_table.span,
                             point_calculation=point_calculation,
                             list_of_face_of_coin=list_of_face_of_coin)
 
@@ -974,10 +974,8 @@ def judge_series(spec, longest_coins, list_of_face_of_coin, series_rule):
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return TrialResultsForOneSeries(
                 spec=spec,
-                longest_coins=longest_coins,
-                number_of_times=time_th,
+                series_rule=series_rule,
                 failed_coins=failed_coins,
-                span=series_rule.step_table.span,
                 point_calculation=point_calculation,
                 list_of_face_of_coin=list_of_face_of_coin)
 
@@ -1611,21 +1609,17 @@ class TrialResultsForOneSeries():
     """［シリーズ］１つ分の試行結果"""
 
 
-    def __init__(self, spec, longest_coins, number_of_times, failed_coins, span, point_calculation, list_of_face_of_coin):
+    def __init__(self, spec, series_rule, failed_coins, point_calculation, list_of_face_of_coin):
         """初期化
     
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        longest_coins : int
-            ［最長対局数］
-        number_of_times : int
-            ［行われた対局数］
+        series_rule : SeriesRule
+            ［シリーズ・ルール］。値チェック用
         failed_coins : int
             ［表も裏も出なかった対局数］
-        span : int
-            ［目標の点数］
         point_calculation : PointCalculation
             ［勝ち点計算］
         list_of_face_of_coin : list
@@ -1634,10 +1628,8 @@ class TrialResultsForOneSeries():
 
         # 共通
         self._spec = spec
-        self._longest_coins = longest_coins
-        self._number_of_times = number_of_times
         self._failed_coins = failed_coins
-        self._span = span
+        self._series_rule = series_rule
         self._point_calculation = point_calculation
         self._list_of_face_of_coin = list_of_face_of_coin
 
@@ -1651,11 +1643,6 @@ class TrialResultsForOneSeries():
     
 
     @property
-    def longest_coins(self):
-        return self._longest_coins
-
-
-    @property
     def point_calculation(self):
         """［勝ち点計算］"""
         return self._point_calculation
@@ -1664,7 +1651,7 @@ class TrialResultsForOneSeries():
     @property
     def number_of_times(self):
         """行われた対局数"""
-        return self._number_of_times
+        return len(self._list_of_face_of_coin)
 
 
     @property
@@ -1699,7 +1686,7 @@ self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
-            raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._span=}")
+            raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
 
         # 両者が判定勝ちしている、これはおかしい
         if self.is_points_won(winner=winner) and self.is_points_won(winner=loser):
@@ -1710,7 +1697,7 @@ self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
-            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner)=}  {self.is_points_won(winner=loser)=}  {self._span=}")
+            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_points_won(winner=winner)=}  {self.is_points_won(winner=loser)=}  {self._series_rule.step_table.span=}")
 
         # 満点勝ちなら確定、判定勝ちでもOK 
         return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner)
@@ -1739,10 +1726,10 @@ self._point_calculation.stringify_dump:
 {indent}------------------------
 {succ_indent}self._spec:
 {self._spec.stringify_dump(succ_indent)}
-{succ_indent}{self._longest_coins=}
-{succ_indent}{self._number_of_times=}
+{succ_indent}{self.number_of_times=}
 {succ_indent}{self._failed_coins=}
-{succ_indent}{self._span=}
+{succ_indent}self._series_rule.stringify_dump(succ_indent):
+{self._series_rule.stringify_dump(succ_indent)=}
 {succ_indent}self._point_calculation:
 {self._point_calculation.stringify_dump(succ_indent)}
 {succ_indent}{self._list_of_face_of_coin=}
