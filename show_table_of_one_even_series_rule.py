@@ -41,24 +41,12 @@ def stringify_body(p, spec, longest_coins, series_rule, presentable, comment, tr
     t7 = f"{trial_results_for_one_series.number_of_times:>7}"  # ［行われた対局数］
     t8 = f"{trial_results_for_one_series.failed_coins:>7}"  # ［表も裏も出なかった対局数］
 
-    if spec.turn_system == WHEN_FROZEN_TURN:
-        if trial_results_for_one_series.is_won(winner=HEAD):
-            t9 = f"表番  "  # ［先後固定制のシリーズで表番が勝ったか？］
-        elif trial_results_for_one_series.is_won(winner=TAIL):
-            t9 = f"裏番  "  # ［先後固定制のシリーズで裏番が勝ったか？］
-        else:
-            t9 = f"引分  "  # ［先後固定制のシリーズで引分けだったか？］
-
-    elif spec.turn_system == WHEN_ALTERNATING_TURN:
-        if trial_results_for_one_series.is_won(winner=ALICE):
-            t9 = f"Ａさん"  # ［先後交互制のシリーズでＡさんが勝ったか？］
-        elif trial_results_for_one_series.is_won(winner=BOB):
-            t9 = f"Ｂさん"  # ［先後交互制のシリーズでＢさんが勝ったか？］
-        else:
-            t9 = f"引分  "  # ［先後交互制のシリーズで引分けだったか？］
-    
+    if trial_results_for_one_series.is_won(winner=ALICE):
+        t9 = f"Ａさん"  # ［先後交互制のシリーズでＡさんが勝ったか？］
+    elif trial_results_for_one_series.is_won(winner=BOB):
+        t9 = f"Ｂさん"  # ［先後交互制のシリーズでＢさんが勝ったか？］
     else:
-        raise ValueError(f"{spec.turn_system=}")
+        t9 = f"引分  "  # ［先後交互制のシリーズで引分けだったか？］
 
 
 # --------------------------+------------------------------------------+--------------------------------+

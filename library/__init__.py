@@ -582,8 +582,8 @@ class PointCalculation():
         self._spec = spec
         self._series_rule = series_rule
 
-        # ［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん
-        self._point_list = [0, 0, 0, 0, 0]
+        # （Points list）［勝ち点］のリスト。要素は、未使用、未使用、未使用、Ａさん、Ｂさん
+        self._pts_list = [None, None, None, 0, 0]
 
 
     @property
@@ -647,8 +647,8 @@ class PointCalculation():
         NOTE ［先後交互制］では、表番が満点でも勝利条件ではないことに注意すること。［先後固定制］にしろ、［先後交互制］にしろ、プレイヤーの勝ち負けを見ればよい
         """
 
-        a_fully_won = self._series_rule.step_table.span <= self._point_list[ALICE]
-        b_fully_won = self._series_rule.step_table.span <= self._point_list[BOB]
+        a_fully_won = self._series_rule.step_table.span <= self._pts_list[ALICE]
+        b_fully_won = self._series_rule.step_table.span <= self._pts_list[BOB]
 
         # 両者が同時に満点を取っているケースはおかしい
         if a_fully_won and b_fully_won:
@@ -684,23 +684,21 @@ class PointCalculation():
 
 
         # FIXME 検算用
-        old_point_list = list(self._point_list)
+        old_pts_list = list(self._pts_list)
+
+        self._pts_list[successful_player] += step
 
 
-        self._point_list[successful_face_of_coin] += step
-        self._point_list[successful_player] += step
-
-
-        # 検算
-        if self._spec.turn_system == WHEN_FROZEN_TURN and self._series_rule.step_table.span <= self._point_list[HEAD] and self._series_rule.step_table.span <= self._point_list[TAIL]:
+        # FIXME 検算
+        if self._series_rule.step_table.span <= self._pts_list[ALICE] and self._series_rule.step_table.span <= self._pts_list[BOB]:
             print(f"""\
 PointCalculation
 ----------------
 self.stringify_dump:
 {self.stringify_dump(INDENT)}
-{step=}
-{old_point_list=}
+{old_pts_list=}
 """)
+
             # スコアボード表示
             score_board = ScoreBoard(
                     spec=self._spec,
@@ -708,20 +706,7 @@ self.stringify_dump:
                     list_of_face_of_coin=list_of_face_of_coin)
             print(score_board.stringify_csv())
 
-            # NOTE ［先後交互制］では、表番と裏版のどちらかが満点になっていて、もう片方も満点になるケースがある
-            raise ValueError(f"［先後固定制］で、表番と裏番がどちらも満点勝ちしている、これはおかしい1  {self._point_list[HEAD]=}  {self._point_list[TAIL]=}")
-
-
-        # 検算
-        if self._series_rule.step_table.span <= self._point_list[ALICE] and self._series_rule.step_table.span <= self._point_list[BOB]:
-            print(f"""\
-PointCalculation
-----------------
-self.stringify_dump:
-{self.stringify_dump(INDENT)}
-{old_point_list=}
-""")
-            raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい")
+            raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい  {self._pts_list[ALICE]=}  {self._pts_list[BOB]=}")
 
 
     def append_step_when_failure(self, time_th):
@@ -736,40 +721,38 @@ self.stringify_dump:
         h_step_when_failed = 0
         t_step_when_failed = 0
 
-        self._point_list[HEAD] += h_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        self._point_list[TAIL] += t_step_when_failed    # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         if self._series_rule.turn_system == WHEN_FROZEN_TURN:
-            self._point_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            self._point_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._pts_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+            self._pts_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
         elif self._series_rule.turn_system == WHEN_ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
-                self._point_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._pts_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._pts_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
             # 偶数回はＢさんが先手
             else:
-                self._point_list[BOB] += h_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._point_list[ALICE] += t_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._pts_list[BOB] += h_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+                self._pts_list[ALICE] += t_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             
         else:
             raise ValueError(f"{self._series_rule.turn_system=}")
 
 
-    def get_point_of(self, face_of_coin_or_player):
-        return self._point_list[face_of_coin_or_player]
+    def get_pts_of(self, player):
+        return self._pts_list[player]
 
 
-    def is_fully_won(self, index):
+    def is_fully_won(self, player):
         """点数を満たしているか？"""
-        return self._series_rule.step_table.span <= self.get_point_of(face_of_coin_or_player=index)
+        return self._series_rule.step_table.span <= self.get_pts_of(player=player)
 
 
     def x_has_more_than_y(self, x, y):
         """xの方がyより勝ち点が多いか？"""
-        return self.get_point_of(face_of_coin_or_player=y) < self.get_point_of(face_of_coin_or_player=x)
+        return self.get_pts_of(player=y) < self.get_pts_of(player=x)
 
 
     def stringify_dump(self, indent):
@@ -779,7 +762,7 @@ self.stringify_dump:
 {indent}----------------
 {succ_indent}self._series_rule:
 {self._series_rule.stringify_dump(succ_indent)}
-{succ_indent}{self._point_list=}
+{succ_indent}{self._pts_list=}
 """
 
 
@@ -1788,7 +1771,7 @@ class TrialResultsForOneSeries():
     def is_points_won(self, winner):
         """winner の［勝ち点］は［目標の点数］に達していないが、 loser の［勝ち点］より多くて winner さんの勝ち"""
         loser = opponent(winner)
-        return not self._point_calculation.is_fully_won(winner) and self._point_calculation.x_has_more_than_y(winner, loser)
+        return not self._point_calculation.is_fully_won(player=winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
     def is_won(self, winner):
@@ -1829,20 +1812,9 @@ self._point_calculation.stringify_dump:
         return self.point_calculation.is_fully_won(winner) or self.is_points_won(winner=winner)
 
 
-    def is_no_won(self, opponent_pair):
+    def is_no_won(self):
         """TODO 勝者なし。どちらも勝者でないとき"""
-
-        if opponent_pair == FACE_OF_COIN:
-            x = HEAD
-            y = TAIL
-        elif opponent_pair == PLAYERS:
-            x = ALICE
-            y = BOB
-        else:
-            raise ValueError(f"{opponent_pair=}")
-
-        return not self.is_won(x) and not self.is_won(y)
-        #return self._point_calculation.get_point_of(face_of_coin_or_player=x) == self._point_calculation.get_point_of(face_of_coin_or_player=y)
+        return not self.is_won(ALICE) and not self.is_won(BOB)
 
 
     def stringify_dump(self, indent):
@@ -1859,16 +1831,11 @@ self._point_calculation.stringify_dump:
 {succ_indent}self._point_calculation:
 {self._point_calculation.stringify_dump(succ_indent)}
 {succ_indent}{self._list_of_face_of_coin=}
-{succ_indent}{self.is_points_won(winner=HEAD)=}
-{succ_indent}{self.is_points_won(winner=TAIL)=}
 {succ_indent}{self.is_points_won(winner=ALICE)=}
 {succ_indent}{self.is_points_won(winner=BOB)=}
-{succ_indent}{self.is_won(winner=HEAD)=}
-{succ_indent}{self.is_won(winner=TAIL)=}
 {succ_indent}{self.is_won(winner=ALICE)=}
 {succ_indent}{self.is_won(winner=BOB)=}
-{succ_indent}{self.is_no_won(opponent_pair=FACE_OF_COIN)}
-{succ_indent}{self.is_no_won(opponent_pair=PLAYERS)}
+{succ_indent}{self.is_no_won()}
 """
     
 
@@ -1891,60 +1858,39 @@ class LargeSeriesTrialSummary():
         self._successful_series = None
         self._failed_series = None
 
-        # （Fully wins）［満点勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
+        # （Fully wins）［満点勝ち］の件数。 未使用、未使用、未使用、Ａさん、Ｂさんの順。初期値は None
         self._ful_wins = [None, None, None, None, None]
 
-        # （Points wins）［勝ち点判定勝ち］の件数。 未使用、表、裏、Ａさん、Ｂさんの順。初期値は None
+        # （Points wins）［勝ち点判定勝ち］の件数。 未使用、未使用、未使用、Ａさん、Ｂさんの順。初期値は None
         self._pts_wins = [None, None, None, None, None]
 
-        # ［勝者がなかった回数］。未使用、コインの表と裏、ＡさんとＢさんの順
-        self._no_wins = [None, None, None]
+        # ［勝者がなかった回数］。ＡさんとＢさんについて。初期値は None
+        self._no_wins = None
 
 
     # 共通
     # ----
 
-    # FIXME 旧: number_of_series
-    def total(self, opponent_pair):
+    @property
+    def total(self):
         """シリーズ数"""
 
         succ = self.successful_series
         fail = self.failed_series
         total_2 = succ + fail
 
-        if opponent_pair == FACE_OF_COIN:
-            wins_h = self.wins(winner=HEAD)
-            wins_t = self.wins(winner=TAIL)
-            no_wins_ht = self.no_wins(opponent_pair=opponent_pair)
-            total_1 = wins_h + wins_t + no_wins_ht
+        wins_a = self.wins(winner=ALICE)
+        wins_b = self.wins(winner=BOB)
+        total_1 = wins_a + wins_b + self.no_wins
 
-            if total_1 != total_2:
-                ful_wins_h = self.ful_wins(winner=HEAD)
-                ful_wins_t = self.ful_wins(winner=TAIL)
-                ful_pts_h = self.pts_wins(winner=HEAD)
-                ful_pts_t = self.pts_wins(winner=TAIL)
-                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_h=}({ful_wins_h=} + {ful_pts_h=})  {wins_t=}({ful_wins_t=} + {ful_pts_t=})  {no_wins_ht=}  {succ=}  {fail=}")
+        if total_1 != total_2:
+            ful_wins_a = self.ful_wins(winner=ALICE)
+            ful_wins_b = self.ful_wins(winner=BOB)
+            ful_pts_a = self.pts_wins(winner=ALICE)
+            ful_pts_b = self.pts_wins(winner=BOB)
+            raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}({ful_wins_a=} + {ful_pts_a=})  {wins_b=}({ful_wins_b=} + {ful_pts_b=})  {self.no_wins=}  {succ=}  {fail=}")
 
-            return total_1
-
-
-        if opponent_pair == PLAYERS:
-            wins_a = self.wins(winner=ALICE)
-            wins_b = self.wins(winner=BOB)
-            no_wins_ab = self.no_wins(opponent_pair=opponent_pair)
-            total_1 = wins_a + wins_b + no_wins_ab
-
-            if total_1 != total_2:
-                ful_wins_a = self.ful_wins(winner=ALICE)
-                ful_wins_b = self.ful_wins(winner=BOB)
-                ful_pts_a = self.pts_wins(winner=ALICE)
-                ful_pts_b = self.pts_wins(winner=BOB)
-                raise ValueError(f"合計が合いません。 {total_1=}  {total_2=}  {wins_a=}({ful_wins_a=} + {ful_pts_a=})  {wins_b=}({ful_wins_b=} + {ful_pts_b=})  {no_wins_ab=}  {succ=}  {fail=}")
-
-            return total_1
-
-        
-        raise ValueError(f"{opponent_pair=}")
+        return total_1
 
 
     @property
@@ -2018,33 +1964,18 @@ class LargeSeriesTrialSummary():
         return self._pts_wins[winner]
 
 
-    def number_of_no_won_series(self, opponent_pair):
-        """［勝敗付かず］で終わったシリーズ数
-        
-        Parameters
-        ----------
-        opponent_pair : int
-            ［コインの表裏］か［プレイヤー］
-        """
+    @property
+    def number_of_no_won_series(self):
+        """［勝敗付かず］で終わったシリーズ数"""
 
-        # ［コインの表が出た回数］と［コインの裏が出た回数］を数えるメソッドの働きの確認をしている
-        #
-        #   シリーズ数　－　［コインの表が出た回数］　－　［コインの裏が出た回数］
-        #
-        if opponent_pair == FACE_OF_COIN:
-            return self.total(opponent_pair=opponent_pair) - self.wins(winner=HEAD) - self.wins(winner=TAIL)
-        
         # ［Ａさんが勝った回数］と［Ｂさんが勝った回数］を数えるメソッドの働きの確認をしている
         #
         #   シリーズ数　－　［Ａさんが勝った回数］　－　［Ｂさんが勝った回数］
         #
-        if opponent_pair == PLAYERS:
-            return self.total(opponent_pair=opponent_pair) - self.wins(winner=ALICE) - self.wins(winner=BOB)
-        
-        raise ValueError(f"{turn_system=}")
+        return self.total - self.wins(winner=ALICE) - self.wins(winner=BOB)
 
 
-    def won_rate(self, success_rate, winner, opponent_pair):
+    def won_rate(self, success_rate, winner):
         """試行した結果、 winner が loser に勝った率
 
         ［コインの表か裏が出た確率］ × ［winner が loser に勝った回数］ / ［シリーズ数］
@@ -2054,11 +1985,10 @@ class LargeSeriesTrialSummary():
         success_rate : float
             ［コインの表か裏が出た確率］
         winner : int
-            ［コインの表］か［コインの裏］か［Ａさん］か［Ｂさん］
-        opponent_pair : int
+            ［Ａさん］か［Ｂさん］
 
         """
-        return success_rate * self.wins(winner=winner) / self.total(opponent_pair=opponent_pair)
+        return success_rate * self.wins(winner=winner) / self.total
 
 
     def won_rate_error(self, success_rate, winner):
@@ -2076,15 +2006,9 @@ class LargeSeriesTrialSummary():
         return self.won_rate(success_rate=success_rate, winner=winner) - 0.5
 
 
-    def trial_no_won_series_rate(self, opponent_pair):
-        """試行した結果、［勝敗付かず］で終わったシリーズの割合
-        
-        Parameters
-        ----------
-        opponent_pair : int
-            ［コインの表裏］か［プレイヤー］
-        """
-        return self.number_of_no_won_series(opponent_pair=opponent_pair) / self.total(opponent_pair=opponent_pair)
+    def trial_no_won_series_rate(self):
+        """試行した結果、［勝敗付かず］で終わったシリーズの割合"""
+        return self.number_of_no_won_series / self.total
 
 
     def wins(self, winner):
@@ -2092,15 +2016,16 @@ class LargeSeriesTrialSummary():
         return self.ful_wins(winner=winner) + self.pts_wins(winner=winner)
 
 
-    def no_wins(self, opponent_pair):
+    @property
+    def no_wins(self):
         """勝者がなかった回数"""
-        if self._no_wins[opponent_pair] is None:
-            self._no_wins[opponent_pair] = 0
+        if self._no_wins is None:
+            self._no_wins = 0
             for s in self._list_of_trial_results_for_one_series:
-                if s.is_no_won(opponent_pair=opponent_pair):
-                    self._no_wins[opponent_pair] += 1
+                if s.is_no_won():
+                    self._no_wins += 1
 
-        return self._no_wins[opponent_pair]
+        return self._no_wins
 
 
 class Candidate():

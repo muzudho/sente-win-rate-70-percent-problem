@@ -69,25 +69,25 @@ def stringify_csv_of_body(p, spec, longest_coins, series_rule, presentable, comm
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # q_step
     t5 = f"{series_rule.step_table.span}"                       # span
     t6 = f"{longest_coins}" # longest
-    t7 = f"{S.total(opponent_pair=FACE_OF_COIN)}"               # Total (of face of coin)
+    t7 = f""               # Total (of face of coin)
     t8 = f"{S.successful_series}"   # Successful series
     t9 = f"{S.failed_series}"       # Failed series
-    t10 = f"{S.wins(winner=HEAD)}"                              # wins h
-    t11 = f"{S.wins(winner=TAIL)}"                              # wins t
-    t12 = f"{S.no_wins(opponent_pair=FACE_OF_COIN)}"            # no wins ht
-    t13 = f"{S.ful_wins(winner=HEAD)}"                          # ful_wins h
-    t14 = f"{S.ful_wins(winner=TAIL)}"                          # ful_wins t
-    t15 = f"{S.pts_wins(winner=HEAD)}"                          # pts_wins h
-    t16 = f"{S.pts_wins(winner=TAIL)}"                          # pts_wins t
+    t10 = ""                              # wins h
+    t11 = ""                              # wins t
+    t12 = ""            # no wins ht
+    t13 = ""                          # ful_wins h
+    t14 = ""                          # ful_wins t
+    t15 = ""                          # pts_wins h
+    t16 = ""                          # pts_wins t
 
-    t17 = f"{S.total(opponent_pair=PLAYERS)}"                   # Total (of players)
+    t17 = f"{S.total}"                   # Total (of players)
     t18 = f"{S.wins(winner=ALICE)}"                             # wins a
     t19 = f"{S.wins(winner=BOB)}"                               # wins b
     t20 = f"{S.ful_wins(winner=ALICE)}"                         # ful_wins a
     t21 = f"{S.ful_wins(winner=BOB)}"                           # ful_wins b
     t22 = f"{S.pts_wins(winner=ALICE)}"                         # pts_wins a
     t23 = f"{S.pts_wins(winner=BOB)}"                           # pts_wins b
-    t24 = f"{S.no_wins(opponent_pair=PLAYERS)}"                 # no wins ab
+    t24 = f"{S.no_wins}"                 # no wins ab
 
 
 

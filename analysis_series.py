@@ -14,7 +14,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, ScoreBoard
 from library.file_paths import get_analysis_series_log_file_path
-from library.views import stringify_series_log, stringify_analysis_series
+from library.views import stringify_series_log
 
 
 def analysis_series(spec, series_rule, trial_results_for_one_series, title):
@@ -225,10 +225,6 @@ Which one(1-2)? """
 
             list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
-        # # 表示
-        # print(stringify_analysis_series(
-        #         spec=spec,
-        #         list_of_trial_results_for_one_series=list_of_trial_results_for_one_series))
 
         for trial_results_for_one_series in list_of_trial_results_for_one_series:
             analysis_series(

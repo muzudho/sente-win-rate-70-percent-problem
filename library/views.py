@@ -354,9 +354,7 @@ def stringify_simulation_log(
     S = large_series_trial_summary  # Summary
 
     
-    no_won_series_rate_ht = S.trial_no_won_series_rate(opponent_pair=FACE_OF_COIN)  # 試行した結果、［勝敗付かず］で終わったシリーズの割合
-    no_won_series_rate_ab = S.trial_no_won_series_rate(opponent_pair=PLAYERS)       # 試行した結果、［勝敗付かず］で終わったシリーズの割合
-    succ_series_rate_ht = 1 - no_won_series_rate_ht                                 # 試行した結果、［勝敗が付いた］シリーズの割合
+    no_won_series_rate_ab = S.trial_no_won_series_rate()       # 試行した結果、［勝敗付かず］で終わったシリーズの割合
     succ_series_rate_ab = 1 - no_won_series_rate_ab                                 # 試行した結果、［勝敗が付いた］シリーズの割合
 
 
@@ -365,18 +363,13 @@ def stringify_simulation_log(
     time1 = datetime.datetime.now()     # ［タイムスタンプ］
     ti1 = title                         # タイトル
 
-    succ_p = S.won_rate(success_rate=1, winner=HEAD)            # 試行した結果、引分けを含まない割合で［表番が勝つ確率］
-    succ_pe = S.won_rate_error(success_rate=1, winner=HEAD)     # その誤差
-    succ_q = S.won_rate(success_rate=1, winner=TAIL)            # 試行した結果、引分けを含まない割合で［裏番が勝つ確率］
-    succ_qe = S.won_rate_error(success_rate=1, winner=TAIL)     # その誤差
-
 
     # ［以下、指定したもの］
     # ---------------------
     a_shw1 = p * 100                # ［将棋の先手勝率（％）］指定値
     a_d1 = failure_rate * 100       # ［将棋の引分け率］指定値
     a_shl1 = (1 - p) * 100          # ［将棋の後手勝率（％）］指定値
-    a_sr0 = S.total(opponent_pair=PLAYERS)      # 全シリーズ数
+    a_sr0 = S.total      # 全シリーズ数
 
     # 全角文字の横幅は文字数を揃えること。全角文字の幅が半角のちょうど2倍ではないのでずれるので、書式設定の桁数を指定してもずれるから。
     if turn_system == WHEN_FROZEN_TURN:
@@ -410,8 +403,7 @@ def stringify_simulation_log(
     ht_total_wins = h_wins + t_wins
     ht_total_fully_wins = S.ful_wins(winner=HEAD) + S.ful_wins(winner=TAIL)
     ht_total_points_wins = S.pts_wins(winner=HEAD) + S.pts_wins(winner=TAIL)
-    ht_no_wins = S.no_wins(opponent_pair=FACE_OF_COIN)
-    ht_total = ht_total_wins + ht_no_wins
+    ht_total = ht_total_wins + S.no_wins
 
     h_fully_wins = S.ful_wins(winner=HEAD)
     t_fully_wins = S.ful_wins(winner=TAIL)
@@ -420,17 +412,17 @@ def stringify_simulation_log(
 
     ht152 = ht_total                                # 全シリーズ計
     ht154 = ht_total_fully_wins                     # 引分け無しのシリーズ
-    ht157 = ht_total_points_wins + ht_no_wins       # 引分けを含んだシリーズ
+    ht157 = ht_total_points_wins + S.no_wins       # 引分けを含んだシリーズ
 
     ht162 = ht_total / ht_total * 100
     ht164 = ht_total_fully_wins / ht_total * 100
-    ht167 = (ht_total_points_wins + ht_no_wins) / ht_total * 100
+    ht167 = (ht_total_points_wins + S.no_wins) / ht_total * 100
 
     c13 = h_fully_wins                              # 先手満点勝ち
     c14 = t_fully_wins                              # 後手満点勝ち
     c15 = h_points_wins              # 先手判定勝ち（引分けがなければ零です）
     c16 = t_points_wins              # 後手判定勝ち（引分けがなければ零です）
-    c17 = ht_no_wins     # コインの表も裏も出なかった
+    c17 = S.no_wins     # コインの表も裏も出なかった
     c11 = c13 + c15
     c12 = c14 + c16
 
@@ -441,29 +433,28 @@ def stringify_simulation_log(
 
     ht41 = h_wins / ht_total * 100              # 引分けを含んだ［将棋の先手勝率］
     ht42 = t_wins / ht_total * 100              # 引分けを含んだ［将棋の後手勝率］
-    ht47 = ht_no_wins / ht_total * 100                             # 引分けを含んだ［将棋の引分け率］実践値
+    ht47 = S.no_wins / ht_total * 100                             # 引分けを含んだ［将棋の引分け率］実践値
     ht51 = (h_wins / ht_total - 0.5) * 100       # 引分けを含んだ［将棋の先手勝率］誤差
     ht52 = (t_wins / ht_total - 0.5) * 100       # 引分けを含んだ［将棋の後手勝率］誤差
-    ht57 = (ht_no_wins / ht_total - 0.5) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
+    ht57 = (S.no_wins / ht_total - 0.5) * 100           # 引分けを含んだ［将棋の引分け率］実践値と指定値の誤差
 
 
     # プレイヤーの勝敗数
     # -----------------
     a_wins = S.wins(winner=ALICE)
     b_wins = S.wins(winner=BOB)
-    ab_no_wins = S.no_wins(opponent_pair=PLAYERS)
     ab_total_wins = a_wins + b_wins
     ab_total_fully_wins = S.ful_wins(winner=ALICE) + S.ful_wins(winner=BOB)
     ab_total_points_wins = S.pts_wins(winner=ALICE) + S.pts_wins(winner=BOB)
-    ab_total = ab_total_wins + ab_no_wins
+    ab_total = ab_total_wins + S.no_wins
 
     ab152 = ab_total   # 全シリーズ計
     ab154 = ab_total_fully_wins   # 引分け無しのシリーズ
-    ab157 = ab_total_points_wins + ab_no_wins     # 引分けを含んだシリーズ
+    ab157 = ab_total_points_wins + S.no_wins     # 引分けを含んだシリーズ
 
     ab162 = ab_total / ab_total * 100
     ab164 = ab_total_fully_wins / ab_total * 100
-    ab167 = (ab_total_points_wins + ab_no_wins) / ab_total * 100
+    ab167 = (ab_total_points_wins + S.no_wins) / ab_total * 100
 
     c101 = S.wins(winner=ALICE)                       # Ａさんの勝ちの総数
     c102 = S.wins(winner=BOB)                         # Ｂさんの勝ちの総数
@@ -471,7 +462,7 @@ def stringify_simulation_log(
     c104 = S.ful_wins(winner=BOB)         # Ｂさん満点勝ち
     c105 = S.pts_wins(winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
     c106 = S.pts_wins(winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
-    c107 = ab_no_wins           # ＡさんもＢさんも勝ちではなかった
+    c107 = S.no_wins           # ＡさんもＢさんも勝ちではなかった
 
     ab71 = a_wins / ab_total_wins * 100           # 引分けを除いた［Ａさんが勝つ確率（％）］実践値
     ab72 = b_wins / ab_total_wins * 100           # 引分けを除いた［Ｂさんが勝つ確率（％）］実践値
@@ -480,10 +471,10 @@ def stringify_simulation_log(
 
     ab41 = a_wins / ab_total * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ａさんが勝つ確率］実践値（％）
     ab42 = b_wins / ab_total * 100                    # ［表も裏も出なかった確率］も含んだ割合で、［Ｂさんが勝つ確率］実践値（％）
-    ab47 = ab_no_wins / ab_total * 100                             # ［表も裏も出なかった確率］実践値（％）
+    ab47 = S.no_wins / ab_total * 100                             # ［表も裏も出なかった確率］実践値（％）
     ab51 = (a_wins / ab_total - 0.5) * 100                   # 茣蓙の実践値（％）
     ab52 = (b_wins / ab_total - 0.5) * 100                   # 茣蓙の実践値（％）
-    ab57 = (ab_no_wins / ab_total - 0.5) * 100            # 茣蓙の実践値（％）
+    ab57 = (S.no_wins / ab_total - 0.5) * 100            # 茣蓙の実践値（％）
 
     # 対局数
     # ------
@@ -539,67 +530,3 @@ def stringify_simulation_log(
               |（{ab51:+9.4f}）   （{ab52:+9.4f}）                                                                   （{ab57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 """
-
-
-def stringify_analysis_series(spec, list_of_trial_results_for_one_series):
-    if spec.turn_system == WHEN_FROZEN_TURN:
-        """シリーズ分析中のログ"""
-
-        # 集計
-        head_wons = 0
-        no_wons_color = 0
-        tail_wons = 0
-        for trial_results_for_one_series in list_of_trial_results_for_one_series:
-            if trial_results_for_one_series.is_won(winner=HEAD):
-                head_wons += 1
-            elif trial_results_for_one_series.is_won(winner=TAIL):
-                tail_wons += 1
-            elif trial_results_for_one_series.is_no_won(opponent_pair=FACE_OF_COIN):
-                no_wons_color += 1
-        
-        # 結果としての表の勝率
-        result_head_wons_without_failure = head_wons / (len(list_of_trial_results_for_one_series) - no_wons_color)
-        result_head_wons_with_failure = head_wons / len(list_of_trial_results_for_one_series)
-
-        # 結果としての引分け率
-        result_no_wons_color_with_failure = no_wons_color / len(list_of_trial_results_for_one_series)
-
-        # 結果としての裏の勝率
-        result_tail_wons_without_failure = tail_wons / (len(list_of_trial_results_for_one_series) - no_wons_color)
-        result_tail_wons_with_failure = tail_wons / len(list_of_trial_results_for_one_series)
-
-        # 将棋の先手勝率など
-        shw1 = spec.p * 100
-        shd1 = spec.failure_rate
-        shl1 = (1 - spec.p) * 100
-
-        bw1 = result_head_wons_without_failure * 100
-        bw2 = result_head_wons_with_failure * 100
-
-        bd2 = result_no_wons_color_with_failure * 100
-
-        ww1 = result_tail_wons_without_failure * 100
-        ww2 = result_tail_wons_with_failure * 100
-
-        print(f"""\
-        +--------------------------------------------------------------+
-        | 以下、指定したもの                                           |
-        |  将棋の先手勝率        将棋の引分け率        将棋の後手勝率  |
-        |  {shw1:8.4f} ％           {shd1:8.4f} ％           {shl1:8.4f} ％     |
-        +--------------------------------------------------------------+
-        | 以下、［かくきんシステム］が設定したハンディキャップ         |
-        |  先手勝率              引分け率              後手勝率        |
-引分除く |  {bw1:8.4f} ％                                 {  ww1:8.4f} ％     |
-引分込み |  {bw2:8.4f} ％           {bd2:8.4f} ％           {ww2:8.4f} ％     |
-        +--------------------------------------------------------------+
-""")
-
-        return
-
-    if spec.turn_system == WHEN_ALTERNATING_TURN:
-        print("［先後交互制］には未対応")
-
-        return
-
-
-    raise ValueError(f"{spec.turn_system=}")
