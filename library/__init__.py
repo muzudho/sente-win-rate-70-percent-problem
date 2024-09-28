@@ -665,13 +665,15 @@ class PointCalculation():
         return None
 
 
-    def append_point_when_won(self, successful_face_of_coin, time_th):
+    def append_point_when_won(self, successful_face_of_coin, time_th, list_of_face_of_coin):
         """加点
 
         Parameters
         ----------
         successful_face_of_coin : int
             ［コインの表か裏］
+        list_of_face_of_coin : list
+            ［検証用］
         """
 
         successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._series_rule.turn_system)
@@ -697,6 +699,13 @@ self.stringify_dump:
 {self.stringify_dump(INDENT)}
 {old_point_list=}
 """)
+            # スコアボード表示
+            score_board = ScoreBoard(
+                    spec=self._spec,
+                    series_rule=self._series_rule,
+                    list_of_face_of_coin=list_of_face_of_coin)
+            print(score_board.stringify_csv())
+
             raise ValueError(f"表番と裏番がどちらも満点勝ちしている、これはおかしい")
 
 
@@ -881,7 +890,8 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
                 point_calculation.append_point_when_won(
                     successful_face_of_coin=face_of_coin,
-                    time_th=time_th)
+                    time_th=time_th,
+                    list_of_face_of_coin=list_of_face_of_coin[0,time_th])
 
 
                 # 終局
@@ -1004,7 +1014,8 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
                 point_calculation.append_point_when_won(
                         successful_face_of_coin=face_of_coin,
-                        time_th=time_th)
+                        time_th=time_th,
+                        list_of_face_of_coin=list_of_face_of_coin[0:time_th])
 
 
                 # 終局
