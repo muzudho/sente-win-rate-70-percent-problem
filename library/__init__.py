@@ -691,12 +691,13 @@ class PointCalculation():
 
 
         # 検算
-        if self._series_rule.step_table.span <= self._point_list[HEAD] and self._series_rule.step_table.span <= self._point_list[TAIL]:
+        if self._spec.turn_system == WHEN_FROZEN_TURN and self._series_rule.step_table.span <= self._point_list[HEAD] and self._series_rule.step_table.span <= self._point_list[TAIL]:
             print(f"""\
 PointCalculation
 ----------------
 self.stringify_dump:
 {self.stringify_dump(INDENT)}
+{step=}
 {old_point_list=}
 """)
             # スコアボード表示
@@ -706,7 +707,8 @@ self.stringify_dump:
                     list_of_face_of_coin=list_of_face_of_coin)
             print(score_board.stringify_csv())
 
-            raise ValueError(f"表番と裏番がどちらも満点勝ちしている、これはおかしい")
+            # NOTE ［先後交互制］では、表番と裏版のどちらかが満点になっていて、もう片方も満点になるケースがある
+            raise ValueError(f"［先後固定制］で、表番と裏番がどちらも満点勝ちしている、これはおかしい1  {self._point_list[HEAD]=}  {self._point_list[TAIL]=}")
 
 
         # 検算
@@ -889,9 +891,9 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
                 point_calculation.append_point_when_won(
-                    successful_face_of_coin=face_of_coin,
-                    time_th=time_th,
-                    list_of_face_of_coin=list_of_face_of_coin[0,time_th])
+                        successful_face_of_coin=face_of_coin,
+                        time_th=time_th,
+                        list_of_face_of_coin=list_of_face_of_coin[0,time_th])
 
 
                 # 終局
