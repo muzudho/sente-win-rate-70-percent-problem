@@ -200,12 +200,21 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                         spec=spec,
                                         longest_coins=latest_series_rule.longest_coins)
 
+                                # FIXME 検証
+                                if len(list_of_face_of_coin) < latest_series_rule.shortest_coins:
+                                    text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {latest_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+                                    print(f"""{text}
+{list_of_face_of_coin=}
+{latest_series_rule.longest_coins=}
+""")
+                                    raise ValueError(text)
+
+
                                 # 疑似のリストをもとに、シリーズとして見てみる
                                 trial_results_for_one_series = judge_series(
                                         spec=spec,
-                                        longest_coins=latest_series_rule.longest_coins,
-                                        list_of_face_of_coin=list_of_face_of_coin,
-                                        series_rule=latest_series_rule)
+                                        series_rule=latest_series_rule,
+                                        list_of_face_of_coin=list_of_face_of_coin)
                                 
                                 list_of_trial_results_for_one_series.append(trial_results_for_one_series)
                             

@@ -44,12 +44,21 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
                 spec=spec,
                 longest_coins=series_rule.longest_coins)
 
+        # FIXME 検証
+        if len(list_of_face_of_coin) < series_rule.shortest_coins:
+            text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.longest_coins=}
+""")
+            raise ValueError(text)
+
+
         # ［シリーズ］１つ分の試行結果を返す
         trial_results_for_one_series = judge_series(
                 spec=spec,
-                longest_coins=series_rule.longest_coins,
-                list_of_face_of_coin=list_of_face_of_coin,
-                series_rule=series_rule)
+                series_rule=series_rule,
+                list_of_face_of_coin=list_of_face_of_coin)
         #print(f"{trial_results_for_one_series.stringify_dump()}")
 
         

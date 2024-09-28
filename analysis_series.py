@@ -159,6 +159,11 @@ Which one(1-2)? """
 
             #old_number_of_times = len(list_of_face_of_coin)
 
+            # 最短対局数を下回る対局シートはスキップします
+            if len(list_of_face_of_coin) < specified_series_rule.shortest_coins:
+                #print(f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {specified_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
+                continue
+
             # ［シリーズ］１つ分の試行結果を返す
             trial_results_for_one_series = judge_series(
                     spec=spec,
