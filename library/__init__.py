@@ -68,6 +68,7 @@ def face_of_coin_to_str(face_of_coin):
 
     if _face_of_coin_to_str is None:
         _face_of_coin_to_str = {
+            EMPTY: '失',    # 失敗の頭文字
             HEAD : '表',
             TAIL : '裏',
         }
@@ -1804,6 +1805,13 @@ self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
+
+            score_board = ScoreBoard(
+                    spec=self._spec,
+                    series_rule=self._series_rule,
+                    list_of_face_of_coin=self._list_of_face_of_coin)
+            print(score_board.stringify_csv())
+
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
 
         # 両者が判定勝ちしている、これはおかしい
