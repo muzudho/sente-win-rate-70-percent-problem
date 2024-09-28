@@ -640,8 +640,8 @@ class PointCalculation():
         raise ValueError(f"{turn_system=}")
 
 
-    def is_gameover(self):
-        """TODO 終局しているか？
+    def get_gameover_reason(self):
+        """TODO 終局している場合、その理由を記述した文字列を返す。終局していなければナン
         
         NOTE ［先後交互制］では、表番が満点でも勝利条件ではないことに注意すること。［先後固定制］にしろ、［先後交互制］にしろ、プレイヤーの勝ち負けを見ればよい
         """
@@ -653,8 +653,16 @@ class PointCalculation():
         if a_fully_won and b_fully_won:
             raise ValueError(f"両者が同時に満点を取っているケースはおかしい  {a_fully_won=}  {b_fully_won=}")
 
-        # Ａさんが満点、または、Ｂさんが満点なら終局
-        return a_fully_won or b_fully_won
+        # Ａさんが満点
+        if a_fully_won:
+            return 'a_fully_won'
+
+        # Ｂさんが満点
+        if b_fully_won:
+            return 'b_fully_won'
+
+        # 終局していない
+        return None
 
 
     def append_point_when_won(self, successful_face_of_coin, time_th):
@@ -856,8 +864,9 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             else:
                 
                 # FIXME 検算
-                if point_calculation.is_gameover():
-                    raise ValueError("終局後に加点してはいけません1")
+                gameover_reason = point_calculation.get_gameover_reason()
+                if gameover_reason is not None:
+                    raise ValueError(f"終局後に加点してはいけません1  {gameover_reason=}")
 
 
                 point_calculation.append_point_when_won(
@@ -866,11 +875,35 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
                 # 終局
-                if point_calculation.is_gameover():
+                gameover_reason = point_calculation.get_gameover_reason()
+                if gameover_reason is not None:
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
+
+                    # FIXME 検証
+                    if len(list_of_face_of_coin) != time_th:
+                        raise ValueError(f"テープの長さがおかしい1 {len(list_of_face_of_coin)=}  {time_th=}  {gameover_reason=}")
+
+                    # FIXME 検証
+                    if time_th < series_rule.shortest_coins:
+                        text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った1  {gameover_reason=}"
+                        print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.longest_coins=}
+""")
+                        raise ValueError(text)
+
+                    # FIXME 検証
+                    if series_rule.longest_coins < time_th:
+                        text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った1"
+                        print(f"""{text}
+{list_of_face_of_coin=}
+{shortest_coins=}
+""")
+                        raise ValueError(text)
+
 
                     return TrialResultsForOneSeries(
                             spec=spec,
@@ -879,6 +912,28 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                             point_calculation=point_calculation,
                             list_of_face_of_coin=list_of_face_of_coin)
 
+
+        # FIXME 検証
+        if len(list_of_face_of_coin) != time_th:
+            raise ValueError(f"テープの長さがおかしい2 {len(list_of_face_of_coin)=}  {time_th=}")
+
+        # FIXME 検証
+        if time_th < series_rule.shortest_coins:
+            text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った2"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.longest_coins=}
+""")
+            raise ValueError(text)
+
+        # FIXME 検証
+        if series_rule.longest_coins < time_th:
+            text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った2"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{shortest_coins=}
+""")
+            raise ValueError(text)
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return TrialResultsForOneSeries(
@@ -930,8 +985,9 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             else:
 
                 # FIXME 検算
-                if point_calculation.is_gameover():
-                    raise ValueError("終局後に加点してはいけません2")
+                gameover_reason = point_calculation.get_gameover_reason()
+                if gameover_reason is not None:
+                    raise ValueError(f"終局後に加点してはいけません2  {gameover_reason=}")
 
 
                 successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=series_rule.turn_system)
@@ -942,17 +998,34 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
                 # 終局
-                if point_calculation.is_gameover:
+                gameover_reason = point_calculation.get_gameover_reason()
+                if gameover_reason is not None:
 
                     # コイントスの結果のリストの長さを切ります。
                     # 対局は必ずしも［最長対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
 
-
-                    # FIXME 検算。長さ
+                    # FIXME 検証
                     if len(list_of_face_of_coin) != time_th:
-                        raise ValueError(f"検算で長さが一致しません {len(list_of_face_of_coin)=}  {time_th=}")
+                        raise ValueError(f"テープの長さがおかしい3 {len(list_of_face_of_coin)=}  {time_th=}  {gameover_reason=}")
 
+                    # FIXME 検証
+                    if time_th < series_rule.shortest_coins:
+                        text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った3  {gameover_reason=}"
+                        print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.longest_coins=}
+""")
+                        raise ValueError(text)
+
+                    # FIXME 検証
+                    if series_rule.longest_coins < time_th:
+                        text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った3  {gameover_reason=}"
+                        print(f"""{text}
+{list_of_face_of_coin=}
+{shortest_coins=}
+""")
+                        raise ValueError(text)
 
                     # FIXME カットダウン後のテープと、引き分けの数を確認
                     failed_coins_2 = 0
@@ -960,7 +1033,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                         if face_of_coin_2 == EMPTY:
                             failed_coins_2 += 1
                     if failed_coins != failed_coins_2:
-                        raise ValueError(f"検算で、引き分けの数が一致しません {failed_coins=}  {failed_coins_2=}  {list_of_face_of_coin=}")
+                        raise ValueError(f"検算で、引き分けの数が一致しません {failed_coins=}  {failed_coins_2=}  {list_of_face_of_coin=}  {gameover_reason=}")
 
 
                     return TrialResultsForOneSeries(
@@ -970,6 +1043,28 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                             point_calculation=point_calculation,
                             list_of_face_of_coin=list_of_face_of_coin)
 
+
+        # FIXME 検証
+        if len(list_of_face_of_coin) != time_th:
+            raise ValueError(f"テープの長さがおかしい4 {len(list_of_face_of_coin)=}  {time_th=}")
+
+        # FIXME 検証
+        if time_th < series_rule.shortest_coins:
+            text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った4"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.longest_coins=}
+""")
+            raise ValueError(text)
+
+        # FIXME 検証
+        if series_rule.longest_coins < time_th:
+            text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った4"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{shortest_coins=}
+""")
+            raise ValueError(text)
 
         # タイブレークをするかどうかは、この関数の呼び出し側に任せます
         return TrialResultsForOneSeries(

@@ -166,6 +166,28 @@ Which one(1-2)? """
                     list_of_face_of_coin=list_of_face_of_coin)
 
 
+            # FIXME 検証
+            if trial_results_for_one_series.number_of_times < specified_series_rule.shortest_coins:
+                text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.shortest_coins} を下回った"
+                print(f"""{text}
+{list_of_face_of_coin=}
+{specified_series_rule.longest_coins=}
+{trial_results_for_one_series.stringify_dump('   ')}
+""")
+                raise ValueError(text)
+
+            # FIXME 検証
+            if specified_series_rule.longest_coins < trial_results_for_one_series.number_of_times:
+                text = f"{spec.p=} 最長対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.longest_coins} を上回った"
+                print(f"""{text}
+{list_of_face_of_coin=}
+{specified_series_rule.shortest_coins=}
+{trial_results_for_one_series.stringify_dump('   ')}
+""")
+                raise ValueError(text)
+
+
+
             # コインの出目のリストはサイズが切り詰められて縮まってるケースがある
             id = ''.join([str(num) for num in trial_results_for_one_series.list_of_face_of_coin])
 
