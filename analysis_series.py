@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, SeriesRule, ElementaryEventSequence, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
+from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_analysis_series_log_file_path
 from library.views import stringify_series_log, stringify_analysis_series
 
@@ -135,6 +135,7 @@ Which one(1-2)? """
 
             # 引数作成
             argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
+                    spec=spec,
                     p=spec.p,
                     failure_rate=spec.failure_rate,
                     number_of_longest_time=specified_series_rule.number_of_longest_time)
@@ -147,6 +148,7 @@ Which one(1-2)? """
 
             # ［シリーズ］１つ分の試行結果を返す
             trial_results_for_one_series = judge_series(
+                    spec=spec,
                     argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                     list_of_face_of_coin=list_of_face_of_coin,
                     series_rule=specified_series_rule)

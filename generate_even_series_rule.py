@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, ElementaryEventSequence, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
 from library.file_paths import get_even_series_rule_csv_file_path
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
@@ -197,6 +197,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                                 # 引数作成
                                 argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
+                                        spec=spec,
                                         p=p,
                                         failure_rate=failure_rate,
                                         number_of_longest_time=latest_series_rule.number_of_longest_time)
@@ -207,6 +208,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                                 # 疑似のリストをもとに、シリーズとして見てみる
                                 trial_results_for_one_series = judge_series(
+                                        spec=spec,
                                         argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                                         list_of_face_of_coin=list_of_face_of_coin,
                                         series_rule=latest_series_rule)

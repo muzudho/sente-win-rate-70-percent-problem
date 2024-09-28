@@ -360,7 +360,7 @@ class ArgumentOfSequenceOfPlayout():
     """SequenceOfPlayout を作成するための引数"""
 
 
-    def __init__(self, p, failure_rate, number_of_longest_time):
+    def __init__(self, spec, p, failure_rate, number_of_longest_time):
         """初期化
 
         Parameters
@@ -372,9 +372,16 @@ class ArgumentOfSequenceOfPlayout():
         number_of_longest_time : int
             ［最長対局数］
         """
+        self._spec = spec
         self._p = p
         self._failure_rate = failure_rate
         self._number_of_longest_time = number_of_longest_time
+
+
+    @property
+    def spec(self):
+        """仕様"""
+        return self._spec
 
 
     @property
@@ -401,6 +408,8 @@ class ArgumentOfSequenceOfPlayout():
         return f"""\
 {indent}ArgumentOfSequenceOfPlayout
 {indent}---------------------------
+{succ_indent}self._spec:
+{self._spec.stringify_dump(succ_indent)}
 {succ_indent}{self._p=}
 {succ_indent}{self._failure_rate=}
 {succ_indent}{self._number_of_longest_time=}
@@ -522,49 +531,6 @@ class SequenceOfFaceOfCoin():
         """コイントスの結果のリストの長さを切ります。
         対局は必ずしも［最長対局数］になるわけではありません"""
         return list_of_face_of_coin[0:number_of_times]
-
-
-class ElementaryEventSequence():
-    """Elementary event（［コインの表］、［コインの裏］、［コインの表と裏のどちらでもないもの］のいずれか）の印をつけ、
-    その印を並べたもの"""
-
-
-    def __init__(self, argument_of_sequence_of_playout, list_of_face_of_coin):
-        """初期化
-
-        Parameters
-        ----------
-        argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
-            引数のセット
-        list_of_face_of_coin : list
-            コイントスした結果のリスト。引き分け含む
-        """
-        self._argument_of_sequence_of_playout = argument_of_sequence_of_playout,
-        self._list_of_face_of_coin = list_of_face_of_coin
-
-
-    @property
-    def argument_of_sequence_of_playout(self):
-        """引数のセット"""
-        return self._argument_of_sequence_of_playout
-
-
-    @property
-    def list_of_face_of_coin(self):
-        """コイントスした結果のリスト。引き分け含む"""
-        return self._list_of_face_of_coin
-
-
-    def stringify_dump(self, indent):
-        """ダンプ"""
-        succ_indent = indent + INDENT
-        return f"""\
-{indent}ElementaryEventSequence
-{indent}-----------------------
-{succ_indent}self._argument_of_sequence_of_playout:
-{self._argument_of_sequence_of_playout.stringify_dump(succ_indent)}
-{succ_indent}{self._list_of_face_of_coin=}
-"""
 
 
 class PointCalculation():
@@ -796,12 +762,14 @@ def assert_list_of_face_of_coin(list_of_face_of_coin):
             raise ValueError(f"予期しない値がリストに入っています  {mark=}")
 
 
-def judge_series(argument_of_sequence_of_playout, list_of_face_of_coin, series_rule):
+def judge_series(spec, argument_of_sequence_of_playout, list_of_face_of_coin, series_rule):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
 
     Parameters
     ----------
+    spec : Specification
+        仕様
     argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
         引数のセット
     list_of_face_of_coin : list
@@ -2073,3 +2041,80 @@ class Candidate():
                     number_of_longest_time=int(result.group(6)))
 
         raise ValueError(f"パースできません {candidate=}")
+
+
+class SeriesResultBoard():
+    """以下の表のようなものを作る。CSVで出力する
+
+    ［先後固定制］
+    -------------
+
+        Series Rule
+        p    failure_rate  p_step  q_step  span  turn_system
+        0.7  0.1           2       3       6     FrozenTurn
+
+        Score Sheet
+                 S   1   2   3  4   5
+        表番        Ａ  Ａ  Ａ  Ａ  Ａ
+        出目        表  表  裏  失  表
+        Ａさん   6   4   2   2   2  0
+        Ｂさん   6   6   6   3   3  3
+
+        Result
+        Ａさんの勝ち
+
+    ［先後交互制］
+    -------------
+
+        Series Rule
+        p    failure_rate  p_step  q_step  span  turn_system
+        0.7  0.1           2       3       6     AlternatingTurn
+
+        Score Sheet
+                S   1   2   3   4   5
+        表番        Ａ  Ｂ  Ａ  Ｂ  Ａ
+        出目        表  表  裏  失  表
+        Ａさん  6    4   4   1   1  -1
+        Ｂさん  6    6   4   4   4   4
+
+        Result
+        Ａさんの勝ち
+    """
+
+
+    def __init__(self, argument_of_sequence_of_playout, list_of_face_of_coin):
+        """初期化
+
+        Parameters
+        ----------
+        argument_of_sequence_of_playout : ArgumentOfSequenceOfPlayout
+            引数のセット
+        list_of_face_of_coin : list
+            コイントスした結果のリスト。引き分け含む
+        """
+        self._argument_of_sequence_of_playout = argument_of_sequence_of_playout,
+        self._list_of_face_of_coin = list_of_face_of_coin
+
+
+    @property
+    def argument_of_sequence_of_playout(self):
+        """引数のセット"""
+        return self._argument_of_sequence_of_playout
+
+
+    @property
+    def list_of_face_of_coin(self):
+        """コイントスした結果のリスト。引き分け含む"""
+        return self._list_of_face_of_coin
+
+
+    def stringify_dump(self, indent):
+        """ダンプ"""
+        succ_indent = indent + INDENT
+        return f"""\
+{indent}ElementaryEventSequence
+{indent}-----------------------
+{succ_indent}self._argument_of_sequence_of_playout:
+{self._argument_of_sequence_of_playout.stringify_dump(succ_indent)}
+{succ_indent}{self._list_of_face_of_coin=}
+"""

@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, ElementaryEventSequence, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
+from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
@@ -41,6 +41,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
         # 引数作成
         argument_of_sequence_of_playout = ArgumentOfSequenceOfPlayout(
+                spec=spec,
                 p=p,
                 failure_rate=spec.failure_rate,
                 number_of_longest_time=series_rule.number_of_longest_time)
@@ -51,6 +52,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
         # ［シリーズ］１つ分の試行結果を返す
         trial_results_for_one_series = judge_series(
+                spec=spec,
                 argument_of_sequence_of_playout=argument_of_sequence_of_playout,
                 list_of_face_of_coin=list_of_face_of_coin,
                 series_rule=series_rule)
