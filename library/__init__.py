@@ -586,10 +586,10 @@ class PointCalculation():
         return self._series_rule
 
 
-    @property
-    def point_list(self):
-        """［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん"""
-        return self._point_list
+    # @property
+    # def point_list(self):
+    #     """［勝ち点］のリスト。要素は、未使用、表番、裏番、Ａさん、Ｂさん"""
+    #     return self._point_list
 
 
     @staticmethod
@@ -656,8 +656,38 @@ class PointCalculation():
         step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
 
 
+        # FIXME 検算用
+        old_point_list = list(self._point_list)
+
+
         self._point_list[successful_face_of_coin] += step
         self._point_list[successful_player] += step
+
+
+        # 検算
+        if self._series_rule.step_table.span <= self._point_list[HEAD] and self._series_rule.step_table.span <= self._point_list[TAIL]:
+            indent = '    '
+            print(f"""\
+PointCalculation
+----------------
+self.stringify_dump:
+{self.stringify_dump(indent)}
+{old_point_list=}
+""")
+            raise ValueError(f"表番と裏番がどちらも満点勝ちしている、これはおかしい")
+
+
+        # 検算
+        if self._series_rule.step_table.span <= self._point_list[ALICE] and self._series_rule.step_table.span <= self._point_list[BOB]:
+            indent = '    '
+            print(f"""\
+PointCalculation
+----------------
+self.stringify_dump:
+{self.stringify_dump(indent)}
+{old_point_list=}
+""")
+            raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい")
 
 
     def append_step_when_failure(self, time_th, turn_system):
