@@ -2280,6 +2280,13 @@ class ScoreBoard():
         shortest_coins = self._series_rule.shortest_coins
         longest_coins = self._series_rule.longest_coins
 
+        if h_step < 1:
+            raise ValueError(f"正の整数でなければいけません {h_step=}")
+
+        if t_step < 1:
+            raise ValueError(f"正の整数でなければいけません {t_step=}")
+
+
         t11 = f"{self._spec.p * 100:7.4f}"
         t12 = f"{self._spec.failure_rate * 100:7.4f}"
         t13 = turn_system_to_code(self._spec.turn_system)
@@ -2305,8 +2312,11 @@ Source Data
 Score Sheet
 """
 
+        a_point = span
+        b_point = span
+
         round_list = []
-        round_list.append(['S', '', '', span, span])
+        round_list.append(['S', '', '', a_point, b_point])
 
         for round_th, face_of_coin in enumerate(self._list_of_face_of_coin, 1):
             last_round = round_list[-1]
@@ -2318,9 +2328,6 @@ Score Sheet
 
             face_of_coin_str = face_of_coin_to_str(face_of_coin)
 
-            a_point = span
-            b_point = span
-
             if face_of_coin == HEAD:
                 if head_player == 'A':
                     a_point -= h_step
@@ -2329,9 +2336,9 @@ Score Sheet
 
             elif face_of_coin == TAIL:
                 if head_player == 'A':
-                    b_point -= h_step
+                    b_point -= t_step
                 else:
-                    a_point -= h_step
+                    a_point -= t_step
 
             elif face_of_coin == EMPTY:
                 pass
