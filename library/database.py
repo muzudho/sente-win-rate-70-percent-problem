@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, round_letro
-from library.file_paths import get_even_series_rule_csv_file_path, get_selection_series_rule_csv_file_path
+from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'
@@ -155,11 +155,11 @@ def get_df_even(turn_system, generation_algorythm):
         ［生成アルゴリズム］
     """
 
-    csv_file_path = get_even_series_rule_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
 
     # ファイルが存在しなかった場合
     if not os.path.isfile(csv_file_path):
-        csv_file_path = get_even_series_rule_csv_file_path()
+        csv_file_path = get_even_data_csv_file_path()
 
 
     df = pd.read_csv(csv_file_path, encoding="utf8")
@@ -186,7 +186,7 @@ def get_df_even(turn_system, generation_algorythm):
 
 def df_even_to_csv(df, turn_system, generation_algorythm):
     # ファイルが存在しなかった場合、新規作成
-    csv_file_path = get_even_series_rule_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
 
     print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 

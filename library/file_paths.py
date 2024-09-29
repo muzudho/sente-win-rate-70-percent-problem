@@ -31,10 +31,14 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         pass
 
     elif turn_system == FROZEN_TURN:
-        subname.append('ts_frozen')
+        # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
+        # frozen turn の略
+        subname.append('froze')
     
     elif turn_system == ALTERNATING_TURN:
-        subname.append('ts_alternating')
+        # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
+        # alternating turn の略
+        subname.append('alter')
 
     else:
         raise ValueError(f"{turn_system=}")
@@ -44,10 +48,14 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         pass
     
     elif generation_algorythm == BRUTE_FORCE:
-        subname.append('ga_bruteforce')
+        # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
+        # brute-force の略
+        subname.append('brute')
 
     elif generation_algorythm == THEORETICAL:
-        subname.append('ga_theoretical')
+        # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
+        # theoretical の略
+        subname.append('theor')
 
     else:
         raise ValueError(f"{generation_algorythm=}")
@@ -71,22 +79,6 @@ def get_analysis_series_log_file_path(turn_system):
 
 
 ##########################
-# show_table_of_large_event_series_rule.py
-##########################
-
-def get_show_table_of_large_even_series_rule_csv_file_path(spec):
-    """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
-
-    Parameters
-    ----------
-    spec : Specification
-        ［仕様］
-    """
-    subname = make_file_subname(failure_rate=spec.failure_rate, turn_system=spec.turn_system)
-    return f'logs/large_even_series_rule{subname}.csv'
-
-
-##########################
 # Simulation large series
 ##########################
 
@@ -104,19 +96,30 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
     return f'logs/simulation_large_series{subname}.log'
 
 
-#############
-# Even table
-#############
+##########################
+# show_table_of_large_event_series_rule.py (表示データの方)
+##########################
 
-def get_even_series_rule_log_file_path(turn_system):
-    """勝ち点を探索したログ・ファイルへのパス"""
-    subname = make_file_subname(turn_system=turn_system)
+def get_even_view_csv_file_path(spec):
+    """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
+    Excel で表示するためのデータファイル
+
+    Parameters
+    ----------
+    spec : Specification
+        ［仕様］
+    """
+    subname = make_file_subname(failure_rate=spec.failure_rate, turn_system=spec.turn_system)
     # ファイル名は長くなりすぎないようにする
-    return f'output/even{subname}.log'
-    #return f'output/even_series_rule{subname}.log'
+    return f'logs/even_view{subname}.csv'
+    #return f'logs/large_even_series_rule{subname}.csv'
 
 
-def get_even_series_rule_csv_file_path(turn_system=None, generation_algorythm=None):
+#############
+# Even table (元データの方)
+#############
+
+def get_even_data_csv_file_path(turn_system=None, generation_algorythm=None):
     """勝ち点を探索した記録ファイルへのパス
     
     Parameters

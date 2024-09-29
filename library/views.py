@@ -312,7 +312,7 @@ def stringify_series_log(
     # ------
     tm10 = series_rule.shortest_coins  # ［最短対局数］理論値
     tm11 = series_rule.upper_limit_coins   # ［上限対局数］
-    tm20 = trial_results_for_one_series.number_of_times                            # ［対局数］実践値
+    tm20 = trial_results_for_one_series.number_of_coins                            # ［対局数］実践値
 
     # 勝ち点構成
     # ---------
@@ -442,8 +442,8 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 
     # 対局数
     # ------
-    tm_s = S.shortest_time_th    # ［最短対局数］実践値
-    tm_l = S.longest_time_th     # ［上限対局数］
+    tm_s = S.trial_shortest_coins    # ［最短対局数］実践値
+    tm_l = S.trial_upper_limit_coins     # ［上限対局数］
 
     #                                                                                              1         1         1
     #    1         2         3         4         5         6         7         8         9         0         1         2

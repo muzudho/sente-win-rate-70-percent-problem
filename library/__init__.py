@@ -428,10 +428,10 @@ class SequenceOfFaceOfCoin():
 
 
     @staticmethod
-    def cut_down(list_of_face_of_coin, number_of_times):
+    def cut_down(list_of_face_of_coin, number_of_coins):
         """コイントスの結果のリストの長さを切ります。
         対局は必ずしも［上限対局数］になるわけではありません"""
-        return list_of_face_of_coin[0:number_of_times]
+        return list_of_face_of_coin[0:number_of_coins]
 
 
 class PointCalculation():
@@ -1447,7 +1447,7 @@ step_table:
 
 
     @staticmethod
-    def let_upper_limit_coins_with_failure_rate(spec, number_of_longest_time_without_failure_rate):
+    def let_upper_limit_coins_with_failure_rate(spec, upper_limit_coins_without_failure_rate):
         """［上限対局数］を算出します
 
         Parameters
@@ -1489,7 +1489,7 @@ step_table:
                 n は、failure_rate=0 のときの試行シリーズ数
                 y は、0 < failure_rate のときの試行シリーズ数
         """
-        return math.ceil(number_of_longest_time_without_failure_rate / (1 - spec.failure_rate))
+        return math.ceil(upper_limit_coins_without_failure_rate / (1 - spec.failure_rate))
 
 
     @staticmethod
@@ -1502,14 +1502,14 @@ step_table:
             ［仕様］
         """
 
-        number_of_longest_time_without_failure_rate = SeriesRule.let_upper_limit_coins_without_failure_rate(
+        upper_limit_coins_without_failure_rate = SeriesRule.let_upper_limit_coins_without_failure_rate(
                 spec=spec,
                 p_time=p_time,
                 q_time=q_time)
 
         return SeriesRule.let_upper_limit_coins_with_failure_rate(
                 spec=spec,
-                number_of_longest_time_without_failure_rate=number_of_longest_time_without_failure_rate)
+                upper_limit_coins_without_failure_rate=upper_limit_coins_without_failure_rate)
 
 
     def stringify_dump(self, indent):
@@ -1570,7 +1570,7 @@ class TrialResultsForOneSeries():
 
 
     @property
-    def number_of_times(self):
+    def number_of_coins(self):
         """行われた対局数"""
         return len(self._list_of_face_of_coin)
 
@@ -1646,7 +1646,7 @@ self._point_calculation.stringify_dump:
 {indent}------------------------
 {succ_indent}self._spec:
 {self._spec.stringify_dump(succ_indent)}
-{succ_indent}{self.number_of_times=}
+{succ_indent}{self.number_of_coins=}
 {succ_indent}{self._failed_coins=}
 {succ_indent}self._series_rule.stringify_dump(succ_indent):
 {self._series_rule.stringify_dump(succ_indent)=}
@@ -1675,8 +1675,8 @@ class LargeSeriesTrialSummary():
         """
 
         self._list_of_trial_results_for_one_series = list_of_trial_results_for_one_series
-        self._shortest_time_th = None
-        self._longest_time_th = None
+        self._trial_shortest_coins = None
+        self._trial_upper_limit_coins = None
         self._successful_series = None
         self._failed_series = None
 
@@ -1795,27 +1795,27 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def shortest_time_th(self):
+    def trial_shortest_coins(self):
         """［最短対局数］"""
-        if self._shortest_time_th is None:
-            self._shortest_time_th = 2_147_483_647
+        if self._trial_shortest_coins is None:
+            self._trial_shortest_coins = 2_147_483_647
             for s in self._list_of_trial_results_for_one_series:
-                if s.number_of_times < self._shortest_time_th:
-                    self._shortest_time_th = s.number_of_times
+                if s.number_of_coins < self._trial_shortest_coins:
+                    self._trial_shortest_coins = s.number_of_coins
 
-        return self._shortest_time_th
+        return self._trial_shortest_coins
 
 
     @property
-    def longest_time_th(self):
+    def trial_upper_limit_coins(self):
         """［上限対局数］"""
-        if self._longest_time_th is None:
-            self._longest_time_th = 0
+        if self._trial_upper_limit_coins is None:
+            self._trial_upper_limit_coins = 0
             for s in self._list_of_trial_results_for_one_series:
-                if self._longest_time_th < s.number_of_times:
-                    self._longest_time_th = s.number_of_times
+                if self._trial_upper_limit_coins < s.number_of_coins:
+                    self._trial_upper_limit_coins = s.number_of_coins
 
-        return self._longest_time_th
+        return self._trial_upper_limit_coins
 
 
     @property

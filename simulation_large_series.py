@@ -56,8 +56,8 @@ def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentab
         #print(f"{trial_results_for_one_series.stringify_dump()}")
 
         
-        if trial_results_for_one_series.number_of_times < series_rule.shortest_coins:
-            text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.shortest_coins} を下回った"
+        if trial_results_for_one_series.number_of_coins < series_rule.shortest_coins:
+            text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.shortest_coins} を下回った"
             print(f"""{text}
 {list_of_face_of_coin=}
 {series_rule.upper_limit_coins=}
@@ -65,8 +65,8 @@ def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentab
 """)
             raise ValueError(text)
 
-        if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_times:
-            text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.upper_limit_coins} を上回った"
+        if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
+            text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.upper_limit_coins} を上回った"
             print(f"""{text}
 {list_of_face_of_coin=}
 {series_rule.shortest_coins=}
@@ -105,11 +105,11 @@ def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentab
 
 
     # 表示とログ出力を終えた後でテスト
-    if large_series_trial_summary.shortest_time_th < series_rule.shortest_coins:
-        raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {series_rule.shortest_coins} を下回った")
+    if large_series_trial_summary.trial_shortest_coins < series_rule.shortest_coins:
+        raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.trial_shortest_coins} が理論値 {series_rule.shortest_coins} を下回った")
 
-    if series_rule.upper_limit_coins < large_series_trial_summary.longest_time_th:
-        raise ValueError(f"{spec.p=} 上限対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {series_rule.upper_limit_coins} を上回った")
+    if series_rule.upper_limit_coins < large_series_trial_summary.trial_upper_limit_coins:
+        raise ValueError(f"{spec.p=} 上限対局数の実際値 {large_series_trial_summary.trial_upper_limit_coins} が理論値 {series_rule.upper_limit_coins} を上回った")
 
 
 ########################################

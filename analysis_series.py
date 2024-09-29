@@ -156,7 +156,7 @@ Which one(1-2)? """
             # 到達できない棋譜は除去しておきたい
             #
 
-            #old_number_of_times = len(list_of_face_of_coin)
+            #old_number_of_coins = len(list_of_face_of_coin)
 
             # 最短対局数を下回る対局シートはスキップします
             if len(list_of_face_of_coin) < specified_series_rule.shortest_coins:
@@ -171,8 +171,8 @@ Which one(1-2)? """
 
 
             # FIXME 検証
-            if trial_results_for_one_series.number_of_times < specified_series_rule.shortest_coins:
-                text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.shortest_coins} を下回った"
+            if trial_results_for_one_series.number_of_coins < specified_series_rule.shortest_coins:
+                text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {specified_series_rule.shortest_coins} を下回った"
                 print(f"""{text}
 {list_of_face_of_coin=}
 {specified_series_rule.upper_limit_coins=}
@@ -181,8 +181,8 @@ Which one(1-2)? """
                 raise ValueError(text)
 
             # FIXME 検証
-            if specified_series_rule.upper_limit_coins < trial_results_for_one_series.number_of_times:
-                text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.upper_limit_coins} を上回った"
+            if specified_series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
+                text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {specified_series_rule.upper_limit_coins} を上回った"
                 print(f"""{text}
 {list_of_face_of_coin=}
 {specified_series_rule.shortest_coins=}
@@ -203,14 +203,14 @@ Which one(1-2)? """
             distinct_set.add(id)
 
 
-            # if trial_results_for_one_series.number_of_times < old_number_of_times:
+            # if trial_results_for_one_series.number_of_coins < old_number_of_coins:
             #     # 棋譜の長さが短くなったということは、到達できない記録が混ざっていたということです。
-            #     #print(f"到達できない棋譜を除去 {trial_results_for_one_series.number_of_times=}  {old_number_of_times=}")
+            #     #print(f"到達できない棋譜を除去 {trial_results_for_one_series.number_of_coins=}  {old_number_of_coins=}")
             #     pass
 
-            # elif old_number_of_times < specified_series_rule.shortest_coins:
+            # elif old_number_of_coins < specified_series_rule.shortest_coins:
             #     # 棋譜の長さが足りていないということは、最後までプレイしていない
-            #     #print(f"最後までプレイしていない棋譜を除去 {old_number_of_times=}  {specified_series_rule.shortest_coins=}")
+            #     #print(f"最後までプレイしていない棋譜を除去 {old_number_of_coins=}  {specified_series_rule.shortest_coins=}")
             #     pass
 
             # #

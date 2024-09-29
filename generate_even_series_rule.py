@@ -249,19 +249,15 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                             best_p_error = latest_p_error
                             best_series_rule = latest_series_rule
 
-                            # ［最短対局数］［上限対局数］
-                            shortest_time = best_series_rule.shortest_coins
-                            longest_time = best_series_rule.upper_limit_coins
-
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
                                     number_of_series=best_number_of_series,
-                                    p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                                    p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule.step_table.span,
-                                    shortest_coins=shortest_time,
-                                    upper_limit_coins=longest_time)
+                                    shortest_coins=best_series_rule.shortest_coins,             # ［最短対局数］
+                                    upper_limit_coins=best_series_rule.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
                             print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {candidate_str}", flush=True) # すぐ表示
 

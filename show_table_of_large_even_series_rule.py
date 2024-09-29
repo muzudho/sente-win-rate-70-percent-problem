@@ -9,7 +9,7 @@ import traceback
 import re
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FACE_OF_COIN, PLAYERS, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
-from library.file_paths import get_show_table_of_large_even_series_rule_csv_file_path
+from library.file_paths import get_even_view_csv_file_path
 from library.database import get_df_selection_series_rule, get_df_even, EvenTable, SelectionSeriesRuleTable
 
 
@@ -18,8 +18,8 @@ def stringify_header():
     +---------------------------+------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
     | Spec                      | Series rule                                          | Large Series Trial Summary                                                                                                                                                    |
     +-------------+-------------+----------+----------+--------+-----------+-----------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-    | p           | Failure     | p_step   | q_step   | span   | shortest  | longest   | Total ab (of players)             ____________________________________________________________________________________________________________________________________________|
-    |             |             |          |          |        |           |           |           ________________________| Successful series ____________________________________________| Failed series ____________________________________________________________|
+    | p           | Failure     | p_step   | q_step   | span   | shortest  | upper     | Total ab (of players)             ____________________________________________________________________________________________________________________________________________|
+    |             |             |          |          |        |           | limit     |           ________________________| Successful series ____________________________________________| Failed series ____________________________________________________________|
     |             |             |          |          |        |           |           |           | wins a    | wins b    |           |            |            |            |            |           |            |            |            |            | no wins ab|
     |             |             |          |          |        |           |           |           |           |           |           |s_ful_wins a|s_ful_wins b|s_pts_wins a|s_pts_wins b|           |f_ful_wins a|f_ful_wins b|f_pts_wins a|f_pts_wins b|           |
     +-------------+-------------+----------+----------+--------+-----------+-----------+-----------+-----------+-----------+-----------+------------+------------+------------+------------+-----------+------------+------------+------------+------------+-----------+
@@ -27,7 +27,7 @@ def stringify_header():
 
     # CSV
     text = f"""\
-p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最短=,shortest,局 上限=,longest,局 計=,total_ab,シリ Ａ勝=,wins_a,シリ Ｂ勝=,wins_b,シリ 成功=,succ,シリ 成Ａ満点=,s_ful_wins_a,シリ 成Ｂ満点=,s_ful_wins_b,シリ 成Ａ点差勝=,s_pts_wins_a,シリ 成Ｂ点差勝=,s_pts_wins_b,シリ 失敗=,fail,シリ 失Ａ満点=,f_ful_wins_a,シリ 失Ｂ満点=,f_ful_wins_b,シリ  失Ａ点差勝=,f_pts_wins_a,シリ 失Ｂ点差勝=,f_pts_wins_b,シリ 勝敗付かず=,no_wins_ab,シリ\
+p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最短=,shortest,局 上限=,upper_limit,局 計=,total_ab,シリ Ａ勝=,wins_a,シリ Ｂ勝=,wins_b,シリ 成功=,succ,シリ 成Ａ満点=,s_ful_wins_a,シリ 成Ｂ満点=,s_ful_wins_b,シリ 成Ａ点差勝=,s_pts_wins_a,シリ 成Ｂ点差勝=,s_pts_wins_b,シリ 失敗=,fail,シリ 失Ａ満点=,f_ful_wins_a,シリ 失Ｂ満点=,f_ful_wins_b,シリ  失Ａ点差勝=,f_pts_wins_a,シリ 失Ｂ点差勝=,f_pts_wins_b,シリ 勝敗付かず=,no_wins_ab,シリ\
 """
 
     return text
@@ -166,7 +166,7 @@ def show_series_rule(spec, specified_number_of_series, p_step, q_step, span, pre
     print(csv) # 表示
 
     # ログ出力
-    csv_file_path = get_show_table_of_large_even_series_rule_csv_file_path(spec=spec)
+    csv_file_path = get_even_view_csv_file_path(spec=spec)
     with open(csv_file_path, 'a', encoding='utf8') as f:
         f.write(f"{csv}\n")    # ファイルへ出力
 
@@ -229,7 +229,7 @@ Example: 2000000
                 turn_system=specified_turn_system)
 
         # ログ出力
-        csv_file_path = get_show_table_of_large_even_series_rule_csv_file_path(spec=spec)
+        csv_file_path = get_even_view_csv_file_path(spec=spec)
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(f"{header_csv}\n")    # ファイルへ出力
 

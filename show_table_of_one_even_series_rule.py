@@ -19,7 +19,7 @@ turn system={Converter.turn_system_to_str(turn_system)}
 +---------------------------+------------------------------------------+--------------------------------+
 | Spec                      | Series rule                              | 1 Trial                        |
 +-------------+-------------+----------+----------+--------+-----------+-----------+-----------+--------+
-| p           | Failure     | p_step   | q_step   | span   | longest   | n_times   | f_times   | Won    |
+| p           | Failure     | p_step   | q_step   | span   | upr_limit | n_times   | f_times   | Won    |
 +-------------+-------------+----------+----------+--------+-----------+-----------+-----------+--------+
 """
 
@@ -37,7 +37,7 @@ def stringify_body(p, spec, series_rule, presentable, comment, trial_results_for
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL):>6}"
     t5 = f"{series_rule.step_table.span:>4}"
     t6 = f"{series_rule.upper_limit_coins:>7}"
-    t7 = f"{trial_results_for_one_series.number_of_times:>7}"  # ［行われた対局数］
+    t7 = f"{trial_results_for_one_series.number_of_coins:>7}"  # ［行われた対局数］
     t8 = f"{trial_results_for_one_series.failed_coins:>7}"  # ［表も裏も出なかった対局数］
 
     if trial_results_for_one_series.is_won(winner=ALICE):
@@ -51,7 +51,7 @@ def stringify_body(p, spec, series_rule, presentable, comment, trial_results_for
 # --------------------------+------------------------------------------+--------------------------------+
 # Spec                      | Series rule                              | 1 Trial                        |
 # ------------+-------------+----------+----------+--------+-----------+-----------+-----------+--------+
-# p           | Failure     | p_step   | q_step   | span   | longest   | n_times   | f_times   | Won    |
+# p           | Failure     | p_step   | q_step   | span   | upr_limit | n_times   | f_times   | Won    |
 # ------------+-------------+----------+----------+--------+-----------+-----------+-----------+--------+
 
     return f"""\
