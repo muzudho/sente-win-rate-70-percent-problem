@@ -19,6 +19,7 @@ def simulate_series_rule(spec, trials_series, p_step, q_step, span, presentable,
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
+            trials_series=trials_series,
             p_step=p_step,
             q_step=q_step,
             span=span)

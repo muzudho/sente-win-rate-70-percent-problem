@@ -25,6 +25,9 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        # FIXME 便宜的に［試行シリーズ数］は 1 固定
+        specified_trials_series = 1
+
         # ［目標の点数］
         for span in range(1,101):
             # ［裏勝ち１つの点数］
@@ -40,6 +43,7 @@ if __name__ == '__main__':
 
                     series_rule_ft = SeriesRule.make_series_rule_base(
                             spec=spec_ft,
+                            trials_series=specified_trials_series,
                             p_step=p_step,
                             q_step=q_step,
                             span=span)
@@ -52,6 +56,7 @@ if __name__ == '__main__':
 
                     series_rule_at = SeriesRule.make_series_rule_base(
                             spec=spec_at,
+                            trials_series=specified_trials_series,
                             p_step=p_step,
                             q_step=q_step,
                             span=span)

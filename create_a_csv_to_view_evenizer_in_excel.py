@@ -104,6 +104,7 @@ def show_series_rule(spec, specified_trials_series, p_step, q_step, span, presen
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
+            trials_series=specified_trials_series,
             p_step=p_step,
             q_step=q_step,
             span=span)

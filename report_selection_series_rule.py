@@ -53,6 +53,7 @@ def generate_report(specified_turn_system):
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
                     spec=spec,
+                    trials_series=trials_series,
                     p_step=p_step,
                     q_step=q_step,
                     span=span)
@@ -84,6 +85,7 @@ def generate_report(specified_turn_system):
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
                     spec=spec,
+                    trials_series=trials_series,
                     p_step=p_step,
                     q_step=q_step,
                     span=span)

@@ -148,6 +148,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
         best_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
+                trials_series=trials_series,
                 p_step=best_p_step,
                 q_step=best_q_step,
                 span=best_span)
@@ -189,6 +190,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
+                                trials_series=trials_series,
                                 p_step=cur_p_step,
                                 q_step=cur_q_step,
                                 span=cur_span)

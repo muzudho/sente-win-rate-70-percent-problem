@@ -1153,13 +1153,15 @@ class SeriesRule():
 """
 
 
-    def __init__(self, spec, step_table, shortest_coins, upper_limit_coins):
+    def __init__(self, spec, trials_series, step_table, shortest_coins, upper_limit_coins):
         """初期化
         
         Parameters
         ----------
         spec : Specification
             ［仕様］
+        trials_series : int
+            この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
         step_table : StepTable
             ［１勝の点数テーブル］
         shortest_coins : int
@@ -1169,23 +1171,21 @@ class SeriesRule():
         """
 
         self._spec = spec
-
+        self._trials_series = trials_series
         self._step_table = step_table
-
-        # ［最短対局数］
         self._shortest_coins = shortest_coins
-
-        # ［上限対局数］
         self._upper_limit_coins = upper_limit_coins
 
 
     @staticmethod
-    def make_series_rule_base(spec, p_step, q_step, span):
+    def make_series_rule_base(spec, trials_series, p_step, q_step, span):
         """
         Parameters
         ----------
         spec : Specification
             ［仕様］
+        trials_series : int
+            この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
         """
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
@@ -1272,27 +1272,22 @@ step_table:
 
         return SeriesRule(
                 spec=spec,
+                trials_series=trials_series,            # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
                 step_table=step_table,
-                # ［最短対局数］
-                shortest_coins=shortest_coins,
-                # ［上限対局数］
-                upper_limit_coins=upper_limit_coins)
-
-
-    @property
-    def is_enabled(self):
-        """このシリーズ・ルールは有効な値かどうか？"""
-        return self._step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) != IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO
+                shortest_coins=shortest_coins,          # ［最短対局数］
+                upper_limit_coins=upper_limit_coins)    # ［上限対局数］
 
 
     @staticmethod
-    def make_series_rule_auto_span(spec, p_time, q_time):
+    def make_series_rule_auto_span(spec, trials_series, p_time, q_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
         spec : Specificetion
             ［仕様］
+        trials_series : int
+            ［試行シリーズ数］
         p_time : int
             ［表勝ちだけでの対局数］
         q_time : int
@@ -1317,20 +1312,33 @@ step_table:
 
         return SeriesRule.make_series_rule_base(
                 spec=spec,
+                trials_series=trials_series,
                 p_step=p_step,
                 q_step=q_step,
                 span=span)
 
 
     @property
-    def step_table(self):
-        return self._step_table
+    def is_enabled(self):
+        """このシリーズ・ルールは有効な値かどうか？"""
+        return self._step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) != IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO
 
 
     @property
     def spec(self):
         """［仕様］"""
         return self._spec
+
+
+    @property
+    def trials_series(self):
+        """この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］"""
+        return self_trials_series
+
+
+    @property
+    def step_table(self):
+        return self._step_table
 
 
     @property

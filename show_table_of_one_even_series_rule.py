@@ -59,12 +59,13 @@ def stringify_body(p, spec, series_rule, presentable, comment, trial_results_for
 """
 
 
-def show_series_rule(spec, p_step, q_step, span, presentable, comment):
+def show_series_rule(spec, trials_series, p_step, q_step, span, presentable, comment):
     """［シリーズ・ルール］を表示します"""
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
+            trials_series=trials_series,
             p_step=p_step,
             q_step=q_step,
             span=span)
@@ -208,6 +209,7 @@ Which data source should I use?
 
                 show_series_rule(
                         spec=spec,
+                        trials_series=trials_series,
                         p_step=even_table.best_p_step,
                         q_step=even_table.best_q_step,
                         span=even_table.best_span,
@@ -250,6 +252,7 @@ Which data source should I use?
 
                 show_series_rule(
                         spec=spec,
+                        trials_series=-1,   # FIXME 記録がない
                         p_step=ssr_table.p_step,
                         q_step=ssr_table.q_step,
                         span=ssr_table.span,

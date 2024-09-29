@@ -124,6 +124,10 @@ Which one(1-2)? """
             raise ValueError(f"{choice=}")
 
 
+        # FIXME 便宜的に［試行シリーズ数］は 1 固定
+        specified_trials_series = 1
+
+
         # 仕様
         spec = Specification(
                 p=specified_p,
@@ -133,6 +137,7 @@ Which one(1-2)? """
         # ［シリーズ・ルール］。任意に指定します
         specified_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
+                trials_series=specified_trials_series,      # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
                 p_step=specified_p_step,
                 q_step=specified_q_step,
                 span=specified_span)

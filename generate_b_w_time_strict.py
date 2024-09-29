@@ -35,6 +35,9 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        # FIXME 便宜的に［試行シリーズ数］は 1 固定
+        specified_trials_series = 1
+
         df = get_df_p()
 
         # ［コインを投げて表が出る確率］
@@ -84,6 +87,7 @@ if __name__ == '__main__':
                         # TODO データをちゃんと入れたい
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
+                                trials_series=specified_trials_series,
                                 # FIXME タイムではなくステップが欲しい
                                 p_step=-1,
                                 q_step=-1,
@@ -91,7 +95,7 @@ if __name__ == '__main__':
 
                         candidate_obj = Candidate(
                                 p_error=best_p_error,
-                                trials_series=1, # FIXME
+                                trials_series=specified_trials_series,
                                 p_step=latest_series_rule.p_step,
                                 q_step=latest_series_rule.q_step,
                                 span=latest_series_rule.span,
@@ -119,6 +123,7 @@ if __name__ == '__main__':
                 # ［シリーズ・ルール］
                 series_rule = SeriesRule.make_series_rule_auto_span(
                     spec=spec,
+                    trials_series=specified_trials_series,
                     p_time=best_p_time,
                     q_time=best_q_time)
 
