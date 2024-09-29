@@ -315,66 +315,6 @@ def toss_a_coin(p, failure_rate=0.0):
     return TAIL
 
 
-class ArgumentOfSequenceOfPlayout():
-    """SequenceOfPlayout を作成するための引数"""
-
-
-    def __init__(self, spec, p, failure_rate, upper_limit_coins):
-        """初期化
-
-        Parameters
-        ----------
-        p : float
-            ［表が出る確率］
-        failure_rate : float
-            ［引き分ける確率］
-        upper_limit_coins : int
-            ［上限対局数］
-        """
-        self._spec = spec
-        self._p = p
-        self._failure_rate = failure_rate
-        self._upper_limit_coins = upper_limit_coins
-
-
-    @property
-    def spec(self):
-        """仕様"""
-        return self._spec
-
-
-    @property
-    def p(self):
-        """［表が出る確率］"""
-        return self._p
-
-
-    @property
-    def failure_rate(self):
-        """［引き分ける確率］"""
-        return self._failure_rate
-
-
-    @property
-    def upper_limit_coins(self):
-        """［上限対局数］"""
-        return self._upper_limit_coins
-
-
-    def stringify_dump(self, indent):
-        """ダンプ"""
-        succ_indent = indent + INDENT
-        return f"""\
-{indent}ArgumentOfSequenceOfPlayout
-{indent}---------------------------
-{succ_indent}self._spec:
-{self._spec.stringify_dump(succ_indent)}
-{succ_indent}{self._p=}
-{succ_indent}{self._failure_rate=}
-{succ_indent}{self._upper_limit_coins=}
-"""
-
-
 class SequenceOfFaceOfCoin():
     """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印が並んだもの"""
 
@@ -607,7 +547,7 @@ class PointCalculation():
             ［検証用］
         """
 
-        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._series_rule.turn_system)
+        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._spec.turn_system)
 
         # ［勝ち点］
         step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
@@ -639,38 +579,6 @@ self.stringify_dump:
             raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい  {self._pts_list[ALICE]=}  {self._pts_list[BOB]=}")
 
 
-    def append_step_when_failure(self, time_th):
-        """TODO 引分け。全員に、以下の点を加点します（勝ち点が実数になるので計算機を使ってください）
-
-        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
-        """
-
-        # FIXME デバッグ中。機能をオフにしておく
-        # h_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)
-        # t_step_when_failed = self._series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)
-        h_step_when_failed = 0
-        t_step_when_failed = 0
-
-
-        if self._series_rule.turn_system == FROZEN_TURN:
-            self._pts_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            self._pts_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-
-        elif self._series_rule.turn_system == ALTERNATING_TURN:
-            # 奇数回はＡさんが先手
-            if time_th % 2 == 1:
-                self._pts_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._pts_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-
-            # 偶数回はＢさんが先手
-            else:
-                self._pts_list[BOB] += h_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                self._pts_list[ALICE] += t_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            
-        else:
-            raise ValueError(f"{self._series_rule.turn_system=}")
-
-
     def get_pts_of(self, player):
         return self._pts_list[player]
 
@@ -694,32 +602,6 @@ self.stringify_dump:
 {self._series_rule.stringify_dump(succ_indent)}
 {succ_indent}{self._pts_list=}
 """
-
-
-# def play_tie_break(p, failure_rate):
-#     """［タイブレーク］を行います。１局勝負で、引き分けの場合は裏勝ちです。
-
-#     Parameters
-#     ----------
-#     p : float
-#         ［表が出る確率］ 例： ７割なら 0.7
-#     failure_rate : float
-#         ［将棋の引分け率】 例： １割の確率で引き分けになるのなら 0.1
-    
-#     Returns
-#     -------
-#     winner_color : int
-#         勝った方の色。引き分けなら裏勝ち
-#     """
-
-#     elementary_event = toss_a_coin(p, failure_rate) 
-
-#     # 引き分けなら裏勝ち
-#     if elementary_event == EMPTY:
-#         return TAIL
-
-#     else:
-#         return elementary_event
 
 
 def assert_list_of_face_of_coin(list_of_face_of_coin):
@@ -758,7 +640,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
     # ［先後固定制］
-    if series_rule.turn_system == FROZEN_TURN:
+    if spec.turn_system == FROZEN_TURN:
         """［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
         もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
 
@@ -793,8 +675,6 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             #
             if face_of_coin == EMPTY:
                 failed_coins += 1
-
-                point_calculation.append_step_when_failure(time_th=time_th)
             
             else:
                 
@@ -881,7 +761,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
     # ［先後交互制］
-    if series_rule.turn_system == ALTERNATING_TURN:
+    if spec.turn_system == ALTERNATING_TURN:
         """で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
@@ -916,8 +796,6 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             if face_of_coin == EMPTY:
                 failed_coins += 1
 
-                point_calculation.append_step_when_failure(time_th=time_th)
-
             else:
 
                 # FIXME 検算
@@ -926,7 +804,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                     raise ValueError(f"終局後に加点してはいけません2  {gameover_reason=}")
 
 
-                successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=series_rule.turn_system)
+                successful_player = PointCalculation.get_successful_player(face_of_coin, time_th, turn_system=spec.turn_system)
 
                 point_calculation.append_point_when_won(
                         successful_face_of_coin=face_of_coin,
@@ -1012,7 +890,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                 list_of_face_of_coin=list_of_face_of_coin)
 
 
-    raise ValueError(f"{series_rule.turn_system=}")
+    raise ValueError(f"{spec.turn_system=}")
 
 
 def calculate_probability(p, H, T):
@@ -1208,20 +1086,22 @@ class SeriesRule():
 """
 
 
-    def __init__(self, step_table, shortest_coins, upper_limit_coins, turn_system):
+    def __init__(self, spec, step_table, shortest_coins, upper_limit_coins):
         """初期化
         
         Parameters
         ----------
+        spec : Specification
+            ［仕様］
         step_table : StepTable
             ［１勝の点数テーブル］
         shortest_coins : int
             ［最短対局数］
         upper_limit_coins : int
             ［上限対局数］
-        turn_system : int
-            ［先後の決め方］
         """
+
+        self._spec = spec
 
         self._step_table = step_table
 
@@ -1230,8 +1110,6 @@ class SeriesRule():
 
         # ［上限対局数］
         self._upper_limit_coins = upper_limit_coins
-
-        self._turn_system = turn_system
 
 
     @staticmethod
@@ -1303,10 +1181,9 @@ class SeriesRule():
 
             # ［上限対局数］
             upper_limit_coins = SeriesRule.let_upper_limit_coins(
-                    failure_rate=spec.failure_rate,
+                    spec=spec,
                     p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                    q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
-                    turn_system=spec.turn_system)
+                    q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
 
         if upper_limit_coins < shortest_coins:
@@ -1327,12 +1204,12 @@ step_table:
 
 
         return SeriesRule(
+                spec=spec,
                 step_table=step_table,
                 # ［最短対局数］
                 shortest_coins=shortest_coins,
                 # ［上限対局数］
-                upper_limit_coins=upper_limit_coins,
-                turn_system=spec.turn_system)
+                upper_limit_coins=upper_limit_coins)
 
 
     @property
@@ -1384,8 +1261,9 @@ step_table:
 
 
     @property
-    def turn_system(self):
-        return self._turn_system
+    def spec(self):
+        """［仕様］"""
+        return self._spec
 
 
     @property
@@ -1501,12 +1379,17 @@ step_table:
 
 
     @staticmethod
-    def let_upper_limit_coins_without_failure_rate(p_time, q_time, turn_system):
-        """［上限対局数］を算出します        
+    def let_upper_limit_coins_without_failure_rate(spec, p_time, q_time):
+        """［上限対局数］を算出します
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
         """
 
         # ［先後固定制］
-        if turn_system == FROZEN_TURN:
+        if spec.turn_system == FROZEN_TURN:
             """
             裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
 
@@ -1534,7 +1417,7 @@ step_table:
 
 
         # ［先後交互制］
-        elif turn_system == ALTERNATING_TURN:
+        elif spec.turn_system == ALTERNATING_TURN:
             """
             ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
 
@@ -1560,12 +1443,17 @@ step_table:
 
 
         else:
-            raise ValueError(f"{turn_system=}")
+            raise ValueError(f"{spec.turn_system=}")
 
 
     @staticmethod
-    def let_upper_limit_coins_with_failure_rate(failure_rate, number_of_longest_time_without_failure_rate):
+    def let_upper_limit_coins_with_failure_rate(spec, number_of_longest_time_without_failure_rate):
         """［上限対局数］を算出します
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
         
         ［表も裏も出ない確率］の考え方
         ----------------------------
@@ -1601,21 +1489,26 @@ step_table:
                 n は、failure_rate=0 のときの試行シリーズ数
                 y は、0 < failure_rate のときの試行シリーズ数
         """
-        return math.ceil(number_of_longest_time_without_failure_rate / (1 - failure_rate))
+        return math.ceil(number_of_longest_time_without_failure_rate / (1 - spec.failure_rate))
 
 
     @staticmethod
-    def let_upper_limit_coins(failure_rate, p_time, q_time, turn_system):
+    def let_upper_limit_coins(spec, p_time, q_time):
         """［上限対局数］を算出します
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
         """
 
         number_of_longest_time_without_failure_rate = SeriesRule.let_upper_limit_coins_without_failure_rate(
+                spec=spec,
                 p_time=p_time,
-                q_time=q_time,
-                turn_system=turn_system)
+                q_time=q_time)
 
         return SeriesRule.let_upper_limit_coins_with_failure_rate(
-                failure_rate=failure_rate,
+                spec=spec,
                 number_of_longest_time_without_failure_rate=number_of_longest_time_without_failure_rate)
 
 
@@ -1624,11 +1517,12 @@ step_table:
         return f"""\
 {indent}SeriesRule
 {indent}-------------------
-{succ_indent}self._step_table.stringify_dump(succ_indent):
+{succ_indent}self._step_table:
 {self._step_table.stringify_dump(succ_indent)}
 {succ_indent}{self._shortest_coins=}
 {succ_indent}{self._upper_limit_coins=}
-{succ_indent}{self._turn_system=}
+{succ_indent}self._spec:
+{self._spec.stringify_dump(succ_indent)=}
 """
 
 

@@ -7,19 +7,14 @@
 
 import traceback
 
-from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
+from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
 
 
-def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span, presentable, comment, turn_system):
+def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentable, comment):
     """［シリーズ・ルール］をシミュレーションします"""
-    # 仕様
-    spec = Specification(
-            p=p,
-            failure_rate=failure_rate,
-            turn_system=turn_system)
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
@@ -89,12 +84,7 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
 
     text = stringify_simulation_log(
-            # ［表が出る確率］（指定値）
-            p=spec.p,
-            # ［表も裏も出ない率］
-            failure_rate=spec.failure_rate,
-            # ［先後運用制度］
-            turn_system=turn_system,
+            spec=spec,
             # ［かくきんシステムのｐの構成］
             series_rule=series_rule,
             # シミュレーションの結果
@@ -107,9 +97,10 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
 
     # ログ出力
-    with open(get_simulation_large_series_log_file_path(
+    log_file_path = get_simulation_large_series_log_file_path(
             failure_rate=spec.failure_rate,
-            turn_system=turn_system), 'a', encoding='utf8') as f:
+            turn_system=spec.turn_system)
+    with open(log_file_path, 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 
@@ -198,16 +189,20 @@ Which data source should I use?
                 q_step = round_letro(best_q_step)
                 span = round_letro(best_span)
 
-                simulate_series_rule(
+                # 仕様
+                spec = Specification(
                         p=p,
                         failure_rate=failure_rate,
+                        turn_system=specified_turn_system)
+
+                simulate_series_rule(
+                        spec=spec,
                         number_of_series=specified_number_of_series,
                         p_step=p_step,
                         q_step=q_step,
                         span=span,
                         presentable='',
-                        comment='',
-                        turn_system=specified_turn_system)
+                        comment='')
 
 
         elif data_source == 2:
@@ -231,17 +226,20 @@ Which data source should I use?
                     print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
                     continue
 
-
-                simulate_series_rule(
+                # 仕様
+                spec = Specification(
                         p=p,
                         failure_rate=failure_rate,
+                        turn_system=specified_turn_system)
+
+                simulate_series_rule(
+                        spec=spec,
                         number_of_series=specified_number_of_series,
                         p_step=p_step,
                         q_step=q_step,
                         span=span,
                         presentable=presentable,
-                        comment=comment,
-                        turn_system=specified_turn_system)
+                        comment=comment)
 
 
     except Exception as err:

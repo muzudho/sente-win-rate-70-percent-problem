@@ -33,25 +33,25 @@ if __name__ == '__main__':
                 for p_step in range(1, q_step):
 
                     # 仕様
-                    spec = Specification(
+                    spec_ft = Specification(
                             p=PROBABILITY,
                             failure_rate=FAILURE_RATE,
                             turn_system=FROZEN_TURN)
 
                     series_rule_ft = SeriesRule.make_series_rule_base(
-                            spec=spec,
+                            spec=spec_ft,
                             p_step=p_step,
                             q_step=q_step,
                             span=span)
 
                     # 仕様
-                    spec = Specification(
+                    spec_at = Specification(
                             p=PROBABILITY,
                             failure_rate=FAILURE_RATE,
                             turn_system=ALTERNATING_TURN)
 
                     series_rule_at = SeriesRule.make_series_rule_base(
-                            spec=spec,
+                            spec=spec_at,
                             p_step=p_step,
                             q_step=q_step,
                             span=span)

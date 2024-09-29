@@ -7,10 +7,9 @@
 
 import traceback
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even, EvenTable, SelectionSeriesRuleTable
-from library.views import stringify_simulation_log
 
 
 def stringify_header(turn_system):
@@ -25,7 +24,7 @@ turn system={Converter.turn_system_to_str(turn_system)}
 """
 
 
-def stringify_body(p, spec, upper_limit_coins, series_rule, presentable, comment, trial_results_for_one_series):
+def stringify_body(p, spec, series_rule, presentable, comment, trial_results_for_one_series):
     """データ部を文字列化
 
     Parameters
@@ -37,7 +36,7 @@ def stringify_body(p, spec, upper_limit_coins, series_rule, presentable, comment
     t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD):>6}"
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL):>6}"
     t5 = f"{series_rule.step_table.span:>4}"
-    t6 = f"{upper_limit_coins:>7}"
+    t6 = f"{series_rule.upper_limit_coins:>7}"
     t7 = f"{trial_results_for_one_series.number_of_times:>7}"  # ［行われた対局数］
     t8 = f"{trial_results_for_one_series.failed_coins:>7}"  # ［表も裏も出なかった対局数］
 
@@ -95,7 +94,6 @@ def show_series_rule(spec, p_step, q_step, span, presentable, comment):
     text = stringify_body(
             p=p,
             spec=spec,
-            upper_limit_coins=series_rule.upper_limit_coins,
             series_rule=series_rule,
             presentable=presentable,
             comment=comment,

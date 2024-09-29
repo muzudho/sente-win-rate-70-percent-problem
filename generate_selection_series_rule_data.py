@@ -25,7 +25,7 @@ OUT_OF_ERROR = 0.51
 LIMIT_ERROR = 0.03
 
 
-def ready_records(df, specified_failure_rate, turn_system):
+def ready_records(df, specified_failure_rate, specified_turn_system):
     """MRPテーブルについて、まず、行の存在チェック。無ければ追加"""
     is_append_new_record = False
 
@@ -43,16 +43,16 @@ def ready_records(df, specified_failure_rate, turn_system):
 
     if is_append_new_record:
         # CSV保存
-        df_ssr_to_csv(df=df, turn_system=turn_system)
+        df_ssr_to_csv(df=df, turn_system=specified_turn_system)
 
 
-def generate_data(specified_failure_rate, turn_system, generation_algorythm):
+def generate_data(specified_failure_rate, specified_turn_system, generation_algorythm):
 
-    df_ev = get_df_even(turn_system=turn_system, generation_algorythm=generation_algorythm)
-    df_ssr = get_df_selection_series_rule(turn_system=turn_system)
+    df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+    df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
     # まず、行の存在チェック。無ければ追加
-    ready_records(df=df_ssr, specified_failure_rate=specified_failure_rate, turn_system=turn_system)
+    ready_records(df=df_ssr, specified_failure_rate=specified_failure_rate, specified_turn_system=specified_turn_system)
 
 
     for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
@@ -104,7 +104,7 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
 
 
         # CSV保存
-        df_ssr_to_csv(df=df_ssr, turn_system=turn_system)
+        df_ssr_to_csv(df=df_ssr, turn_system=specified_turn_system)
 
 
 ########################################
@@ -131,12 +131,14 @@ Example: 10% is 0.1
 
 
         # ［先後固定制］
-        generation_algorythm_ft = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=FROZEN_TURN)
-        generate_data(specified_failure_rate=specified_failure_rate, turn_system=FROZEN_TURN, generation_algorythm=generation_algorythm_ft)
+        specified_turn_system = FROZEN_TURN
+        generation_algorythm_ft = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        generate_data(specified_failure_rate=specified_failure_rate, specified_turn_system=specified_turn_system, generation_algorythm=generation_algorythm_ft)
 
         # ［先後交互制］
-        generation_algorythm_at = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=ALTERNATING_TURN)
-        generate_data(specified_failure_rate=specified_failure_rate, turn_system=ALTERNATING_TURN, generation_algorythm=generation_algorythm_at)
+        specified_turn_system = ALTERNATING_TURN
+        generation_algorythm_at = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        generate_data(specified_failure_rate=specified_failure_rate, specified_turn_system=specified_turn_system, generation_algorythm=generation_algorythm_at)
 
 
     except Exception as err:

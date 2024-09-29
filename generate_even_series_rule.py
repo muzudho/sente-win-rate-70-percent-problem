@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
 
@@ -36,11 +36,16 @@ start_time_for_save = None
 is_dirty_csv = False
 
 
-def update_dataframe(df, p, failure_rate,
+def update_dataframe(df, spec,
         best_p, best_p_error, best_number_of_series, best_series_rule,
-        latest_p, latest_p_error, latest_number_of_series, latest_series_rule, candidates,
-        turn_system):
-    """データフレーム更新"""
+        latest_p, latest_p_error, latest_number_of_series, latest_series_rule, candidates):
+    """データフレーム更新
+    
+    Parameters
+    ----------
+    spec : Specification
+        ［仕様］
+    """
 
     global start_time_for_save, is_dirty_csv
 
@@ -53,31 +58,31 @@ def update_dataframe(df, p, failure_rate,
     #         series_rule=best_series_rule)
 
     # ［調整後の表が出る確率］列を更新
-    df.loc[df['p']==p, ['best_p']] = best_p
-    df.loc[df['p']==p, ['latest_p']] = latest_p
+    df.loc[df['p']==spec.p, ['best_p']] = best_p
+    df.loc[df['p']==spec.p, ['latest_p']] = latest_p
 
     # ［調整後の表が出る確率の５割との誤差］列を更新
-    df.loc[df['p']==p, ['best_p_error']] = best_p_error
-    df.loc[df['p']==p, ['latest_p_error']] = latest_p_error
+    df.loc[df['p']==spec.p, ['best_p_error']] = best_p_error
+    df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
 
     # ［試行回数］列を更新
-    df.loc[df['p']==p, ['best_number_of_series']] = best_number_of_series
-    df.loc[df['p']==p, ['latest_number_of_series']] = latest_number_of_series
+    df.loc[df['p']==spec.p, ['best_number_of_series']] = best_number_of_series
+    df.loc[df['p']==spec.p, ['latest_number_of_series']] = latest_number_of_series
 
     # ［表勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    df.loc[df['p']==p, ['latest_p_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==spec.p, ['latest_p_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
     # ［裏勝ち１つの点数］列を更新
-    df.loc[df['p']==p, ['best_q_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
-    df.loc[df['p']==p, ['latest_q_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==spec.p, ['best_q_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==spec.p, ['latest_q_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
-    df.loc[df['p']==p, ['best_span']] = best_series_rule.step_table.span
-    df.loc[df['p']==p, ['latest_span']] = latest_series_rule.step_table.span
+    df.loc[df['p']==spec.p, ['best_span']] = best_series_rule.step_table.span
+    df.loc[df['p']==spec.p, ['latest_span']] = latest_series_rule.step_table.span
 
     # ［シリーズ・ルール候補］列を更新
-    df.loc[df['p']==p, ['candidates']] = candidates
+    df.loc[df['p']==spec.p, ['candidates']] = candidates
 
     is_dirty_csv = True
 
@@ -103,7 +108,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm)
         df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
-def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_number_of_series, turn_system, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_limit_of_error, specified_number_of_series, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
@@ -118,7 +123,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
 
     # まず、行の存在チェック。無ければ追加
-    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm)
+    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
 
     for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
@@ -142,7 +147,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
         spec = Specification(
                 p=p,
                 failure_rate=specified_failure_rate,
-                turn_system=turn_system)
+                turn_system=specified_turn_system)
 
         best_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
@@ -165,12 +170,6 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
         else:
             #print(f"[p={p}]", end='', flush=True)
             is_automatic = True
-
-            # 仕様
-            spec = Specification(
-                    p=p,
-                    failure_rate=failure_rate,
-                    turn_system=turn_system)
 
             #
             # ［目標の点数］、［裏勝ち１つの点数］、［表勝ち１つの点数］を１つずつ進めていく探索です。
@@ -278,8 +277,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                             # 表示とデータフレーム更新
                             update_dataframe(
                                     df=df,
-                                    p=p,
-                                    failure_rate=failure_rate,
+                                    spec=spec,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
                                     best_number_of_series=specified_number_of_series,
@@ -288,8 +286,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                                     latest_p_error=latest_p_error,
                                     latest_number_of_series=specified_number_of_series,
                                     latest_series_rule=latest_series_rule,
-                                    candidates=candidates,
-                                    turn_system=spec.turn_system)
+                                    candidates=candidates)
 
                             # 指定間隔（秒）で保存
                             end_time_for_save = time.time()
@@ -299,7 +296,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
+                                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -346,8 +343,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
             # 表示とデータフレーム更新
             update_dataframe(
                     df=df,
-                    p=p,
-                    failure_rate=failure_rate,
+                    spec=spec,
                     best_p=best_p,
                     best_p_error=best_p_error,
                     best_number_of_series=specified_number_of_series,
@@ -356,8 +352,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
                     latest_p_error=latest_p_error,
                     latest_number_of_series=specified_number_of_series,
                     latest_series_rule=latest_series_rule,
-                    candidates=latest_candidates,
-                    turn_system=turn_system)
+                    candidates=latest_candidates)
 
             # 指定間隔（秒）で保存
             end_time_for_save = time.time()
@@ -367,7 +362,7 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
+                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
 
 ########################################
@@ -459,11 +454,11 @@ Example: 2000000
             abs_limit_of_error = worst_abs_best_p_error * 9 / 10
 
             iteration_deeping(
-                    df_ev,
-                    abs_limit_of_error,
+                    df=df_ev,
                     specified_failure_rate=specified_failure_rate,
+                    specified_turn_system=specified_turn_system,
+                    abs_limit_of_error=abs_limit_of_error,
                     specified_number_of_series=specified_number_of_series,
-                    turn_system=specified_turn_system,
                     generation_algorythm=generation_algorythm)
 
 

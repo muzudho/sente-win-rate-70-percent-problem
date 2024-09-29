@@ -330,18 +330,13 @@ def stringify_series_log(
 """
 
 
-def stringify_simulation_log(
-        p, failure_rate, turn_system, series_rule, large_series_trial_summary, title):
+def stringify_simulation_log(spec, series_rule, large_series_trial_summary, title):
     """シミュレーションのログの文言作成
     
     Parameters
     ----------
-    p : float
-        ［表が出る確率］（先手勝率）
-    failure_rate : float
-        ［引き分ける確率］
-    turn_system : int
-        ［先後運用制度］
+    spec : Specification
+        ［仕様］
     series_rule : SeriesRule
         ［シリーズ・ルール］
     large_series_trial_summary : LargeSeriesTrialSummary
@@ -366,18 +361,18 @@ def stringify_simulation_log(
 
     # ［以下、指定したもの］
     # ---------------------
-    a_shw1 = p * 100                # ［将棋の先手勝率（％）］指定値
-    a_d1 = failure_rate * 100       # ［将棋の引分け率］指定値
-    a_shl1 = (1 - p) * 100          # ［将棋の後手勝率（％）］指定値
+    a_shw1 = spec.p * 100                # ［将棋の先手勝率（％）］指定値
+    a_d1 = spec.failure_rate * 100       # ［将棋の引分け率］指定値
+    a_shl1 = (1 - spec.p) * 100          # ［将棋の後手勝率（％）］指定値
     a_sr0 = S.total      # 全シリーズ数
 
     # 全角文字の横幅は文字数を揃えること。全角文字の幅が半角のちょうど2倍ではないのでずれるので、書式設定の桁数を指定してもずれるから。
-    if turn_system == FROZEN_TURN:
+    if spec.turn_system == FROZEN_TURN:
         a_trn = "［先後固定制］上手と下手のように、Ａさんはずっと先手、Ｂさんはずっと後手"
-    elif turn_system == ALTERNATING_TURN:
+    elif spec.turn_system == ALTERNATING_TURN:
         a_trn = "［先後交互制］Ａさんの先手、Ｂさんの後手で始まり、１局毎に先後を入替える"
     else:
-        raise ValueError(f"{turn_system=}")
+        raise ValueError(f"{spec.turn_system=}")
 
 
     # ［以下、［かくきんシステム］が算出したシリーズ・ルール］

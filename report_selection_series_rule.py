@@ -27,9 +27,9 @@ OUT_OF_ERROR = 0.51
 LIMIT_ERROR = 0.03
 
 
-def generate_report(turn_system):
+def generate_report(specified_turn_system):
 
-    df_ssr = get_df_selection_series_rule(turn_system=turn_system)
+    df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
     for             p,           number_of_series,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
         zip(df_ssr['p'], df_ssr['number_of_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
@@ -43,14 +43,14 @@ def generate_report(turn_system):
         q_step = round_letro(q_step)
         span = round_letro(span)
 
-        # ［先後交互制］
-        if turn_system == ALTERNATING_TURN:
+        # 仕様
+        spec = Specification(
+                p=p,
+                failure_rate=FAILURE_RATE,
+                turn_system=specified_turn_system)
 
-            # 仕様
-            spec = Specification(
-                    p=p,
-                    failure_rate=FAILURE_RATE,
-                    turn_system=turn_system)
+        # ［先後交互制］
+        if specified_turn_system == ALTERNATING_TURN:
 
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
@@ -73,7 +73,7 @@ def generate_report(turn_system):
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
                     candidate=candidate,
-                    turn_system=ALTERNATING_TURN)
+                    turn_system=specified_turn_system)
             print(text) # 表示
 
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
@@ -81,13 +81,7 @@ def generate_report(turn_system):
 
 
         # ［先後固定制］
-        elif turn_system == FROZEN_TURN:
-
-            # 仕様
-            spec = Specification(
-                    p=p,
-                    failure_rate=FAILURE_RATE,
-                    turn_system=turn_system)
+        elif specified_turn_system == FROZEN_TURN:
 
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
@@ -120,7 +114,7 @@ def generate_report(turn_system):
             return
 
         else:
-            raise ValueError(f"{turn_system=}")
+            raise ValueError(f"{specified_turn_system=}")
 
 
 ########################################
@@ -132,10 +126,10 @@ if __name__ == '__main__':
 
     try:
         # ［先後交互制］
-        generate_report(turn_system=ALTERNATING_TURN)
+        generate_report(specified_turn_system=ALTERNATING_TURN)
 
         # ［先後固定制］
-        generate_report(turn_system=FROZEN_TURN)
+        generate_report(specified_turn_system=FROZEN_TURN)
 
 
     except Exception as err:
