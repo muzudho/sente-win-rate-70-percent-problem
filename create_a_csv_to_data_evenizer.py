@@ -38,7 +38,7 @@ is_dirty_csv = False
 
 def update_dataframe(df, spec,
         best_p, best_p_error, best_trials_series, best_series_rule,
-        latest_p, latest_p_error, latest_trials_series, latest_series_rule, candidates):
+        latest_p, latest_p_error, latest_series_rule, candidates):
     """データフレーム更新
     
     Parameters
@@ -67,7 +67,6 @@ def update_dataframe(df, spec,
 
     # ［試行シリーズ回数］列を更新
     df.loc[df['p']==spec.p, ['best_trials_series']] = best_trials_series
-    df.loc[df['p']==spec.p, ['latest_trials_series']] = latest_trials_series
 
     # ［表勝ち１つの点数］列を更新
     df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
@@ -129,8 +128,8 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
     # TODO 試行シリーズ回数が違うものを１つのファイルに混ぜたくない。ファイルを分けたい
 
 
-    for         p,       failure_rate,       best_p,       best_p_error,       best_trials_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_trials_series,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_trials_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_trials_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
+    for         p,       failure_rate,       best_p,       best_p_error,       best_trials_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_trials_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_trials_series = round_letro(best_trials_series)
@@ -283,7 +282,6 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                                     best_series_rule=best_series_rule,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
-                                    latest_trials_series=specified_trials_series,
                                     latest_series_rule=latest_series_rule,
                                     candidates=candidates)
 
@@ -349,7 +347,6 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                     best_series_rule=best_series_rule,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
-                    latest_trials_series=specified_trials_series,
                     latest_series_rule=latest_series_rule,
                     candidates=latest_candidates)
 
@@ -373,13 +370,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-#         prompt = f"""\
-# What is the probability of flipping a coin and getting heads?
-# Example: 70% is 0.7
-# ? """
-#         p = float(input(prompt))
-
-
+        # ［将棋の引分け率］を尋ねる
         prompt = f"""\
 What is the failure rate?
 Example: 10% is 0.1

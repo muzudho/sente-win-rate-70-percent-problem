@@ -5,7 +5,7 @@ from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL
 # File sub-name
 ################
 
-def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=None):
+def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None):
     """ファイル名の部分を作成
 
     Parameters
@@ -16,6 +16,8 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         ［先後の決め方］
     generation_algorythm : int
         ［データ生成アルゴリズム］
+    trials_series : int
+        ［試行シリーズ回数］
     """
     subname = []
 
@@ -63,6 +65,15 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
 
     else:
         raise ValueError(f"{generation_algorythm=}")
+
+
+    # ［試行シリーズ回数］
+    if trials_series is None:
+        pass
+
+    else:
+        # try は number of trials series の略
+        subname.append(f'try{trials_series}')
 
 
     subname = '_'.join(subname)
@@ -123,7 +134,7 @@ def get_even_view_csv_file_path(spec):
 # Even table (元データの方)
 #############
 
-def get_even_data_csv_file_path(turn_system=None, generation_algorythm=None):
+def get_even_data_csv_file_path(turn_system=None, generation_algorythm=None, trials_series=None):
     """勝ち点を探索した記録ファイルへのパス
     
     Parameters
@@ -132,8 +143,10 @@ def get_even_data_csv_file_path(turn_system=None, generation_algorythm=None):
         ［先後の決め方］
     generation_algorythm : int
         ［データ生成アルゴリズム］
+    trials_series : int
+        ［試行シリーズ回数］
     """
-    subname = make_file_subname(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    subname = make_file_subname(turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 
     # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
     return f'./data/even{subname}.csv'

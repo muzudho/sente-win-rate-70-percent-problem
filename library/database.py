@@ -144,7 +144,7 @@ def append_default_record_to_df_even(df, p, failure_rate):
     df.loc[index, ['candidates']] = ''
 
 
-def get_df_even(turn_system, generation_algorythm):
+def get_df_even(turn_system, generation_algorythm, trials_series):
     """
 
     Parameters
@@ -153,9 +153,11 @@ def get_df_even(turn_system, generation_algorythm):
         ［手番が回ってくる制度］
     generation_algorythm : int
         ［生成アルゴリズム］
+    trials_series : int
+        ［試行シリーズ回数］
     """
 
-    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 
     # ファイルが存在しなかった場合
     if not os.path.isfile(csv_file_path):
