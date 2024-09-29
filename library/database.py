@@ -21,7 +21,7 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class EvenTable():
 
 
-    def __init__(self, p, failure_rate, best_p, best_p_error, best_trials_series, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_trials_series, latest_p_step, latest_q_step, latest_span, candidates):
+    def __init__(self, p, failure_rate, best_p, best_p_error, best_trials_series, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_p_step, latest_q_step, latest_span, candidates):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_p_step = round_letro(best_p_step)
@@ -41,7 +41,6 @@ class EvenTable():
         self._best_span=best_span
         self._latest_p=latest_p
         self._latest_p_error=latest_p_error
-        self._latest_trials_series=latest_trials_series
         self._latest_p_step=latest_p_step
         self._latest_q_step=latest_q_step
         self._latest_span=latest_span
@@ -99,11 +98,6 @@ class EvenTable():
 
 
     @property
-    def latest_trials_series(self):
-        return self._latest_trials_series
-
-
-    @property
     def latest_p_step(self):
         return self._latest_p_step
 
@@ -137,7 +131,6 @@ def append_default_record_to_df_even(df, p, failure_rate):
     df.loc[index, ['best_span']] = 1
     df.loc[index, ['latest_p']] = 0
     df.loc[index, ['latest_p_error']] = 0.51
-    df.loc[index, ['latest_trials_series']] = 1
     df.loc[index, ['latest_p_step']] = 0
     df.loc[index, ['latest_q_step']] = 1
     df.loc[index, ['latest_span']] = 1
@@ -178,7 +171,6 @@ def get_df_even(turn_system, generation_algorythm, trials_series):
     df['best_span'].fillna(0).astype('int64')
     df['latest_p'].fillna(0.0).astype('float64')
     df['latest_p_error'].fillna(0.0).astype('float64')
-    df['latest_trials_series'].fillna(0).astype('int64')
     df['latest_p_step'].fillna(0).astype('int64')
     df['latest_q_step'].fillna(0).astype('int64')
     df['latest_span'].fillna(0).astype('int64')
@@ -196,7 +188,7 @@ def df_even_to_csv(df, turn_system, generation_algorythm):
     df.to_csv(
             csv_file_path,
             # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_trials_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_trials_series', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
+            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_trials_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 

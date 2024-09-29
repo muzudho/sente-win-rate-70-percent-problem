@@ -10,7 +10,6 @@
 * `best_span` - ［目標の点数］ 初期値は 1
 * `latest_p` - 探索の最後。初期値は 0
 * `latest_p_error` - 探索の最後。初期値は 0.51
-* `latest_trials_series` - 探索の最後の［試行シリーズ回数］初期値は 1
 * `latest_p_step` - 探索の最後。初期値は 0
 * `latest_q_step` - 探索の最後。初期値は 1
 * `latest_span` - 探索の最後。初期値は 1
