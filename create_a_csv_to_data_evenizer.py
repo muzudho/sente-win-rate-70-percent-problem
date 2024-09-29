@@ -86,7 +86,7 @@ def update_dataframe(df, spec,
     is_dirty_csv = True
 
 
-def ready_records(df, specified_failure_rate, turn_system, generation_algorythm):
+def ready_records(df, specified_failure_rate, turn_system, generation_algorythm, specified_trials_series):
     """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
     is_append_new_record = False
 
@@ -95,19 +95,20 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm)
     # ［コインを投げて表が出る確率］
     for p in df_p['p']:
         # 存在しなければデフォルトのレコード追加
-        if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate)).any():
+        if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate) & (df['trials_series'] == specified_trials_series)).any():
             append_default_record_to_df_even(
                     df=df,
                     p=p,
-                    failure_rate=specified_failure_rate)
+                    failure_rate=specified_failure_rate,
+                    trials_series=specified_trials_series)
             is_append_new_record = True
 
     if is_append_new_record:
         # CSV保存
-        df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
+        df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_limit_of_error, specified_trials_series, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, abs_limit_of_error, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
@@ -122,14 +123,14 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
 
 
     # まず、行の存在チェック。無ければ追加
-    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, specified_trials_series=specified_trials_series)
 
 
     # TODO 試行シリーズ回数が違うものを１つのファイルに混ぜたくない。ファイルを分けたい
 
 
-    for         p,       failure_rate,       best_trials,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['best_trials'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
+    for         p,       failure_rate,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         trials_series = round_letro(trials_series)
@@ -162,10 +163,15 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
         is_cutoff = False
         is_good = False
 
-        # FIXME specified_trials_series と trials_series は必ず一致する前提にしたい
+
+        # FIXME 自明のチェック。 specified_trials_series と trials_series は必ず一致する
+        if specified_trials_series != trials_series:
+            raise ValueError(f"{specified_trials_series=} != {trials_series=}")
+
+
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if specified_trials_series < trials_series or abs(best_p_error) <= ABS_SMALL_ERROR:
+        if abs(best_p_error) <= ABS_SMALL_ERROR:
             is_automatic = False
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
 
@@ -255,14 +261,14 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
-                                    trials_series=trials_series,
+                                    trials_series=specified_trials_series,
                                     p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule.step_table.span,
                                     shortest_coins=best_series_rule.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[p={p*100:2.0f} ％  failure_rate={specified_failure_rate*100:2.0f} ％] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
@@ -294,7 +300,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+                                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -359,7 +365,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
 ########################################
@@ -413,7 +419,7 @@ Example: 2000000
 
 
 
-        df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+        df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
         #print(df_ev)
 
 
@@ -451,8 +457,8 @@ Example: 2000000
                     df=df_ev,
                     specified_failure_rate=specified_failure_rate,
                     specified_turn_system=specified_turn_system,
-                    abs_limit_of_error=abs_limit_of_error,
                     specified_trials_series=specified_trials_series,
+                    abs_limit_of_error=abs_limit_of_error,
                     generation_algorythm=generation_algorythm)
 
 
@@ -461,7 +467,7 @@ Example: 2000000
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            df_even_to_csv(df=df_ev, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+            df_even_to_csv(df=df_ev, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
     except Exception as err:

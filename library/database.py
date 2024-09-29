@@ -117,13 +117,13 @@ class EvenTable():
         return self._candidates
 
 
-def append_default_record_to_df_even(df, p, failure_rate):
+def append_default_record_to_df_even(df, p, failure_rate, trials_series):
     index = len(df.index)
 
     # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
     df.loc[index, ['p']] = p
     df.loc[index, ['failure_rate']] = failure_rate
-    df.loc[index, ['trials_series']] = 1
+    df.loc[index, ['trials_series']] = trials_series
     df.loc[index, ['best_p']] = 0
     df.loc[index, ['best_p_error']] = 0.51
     df.loc[index, ['best_p_step']] = 0
@@ -178,9 +178,9 @@ def get_df_even(turn_system, generation_algorythm, trials_series):
     return df
 
 
-def df_even_to_csv(df, turn_system, generation_algorythm):
+def df_even_to_csv(df, turn_system, generation_algorythm, trials_series):
     # ファイルが存在しなかった場合、新規作成
-    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
+    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 
     print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 

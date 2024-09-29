@@ -234,13 +234,18 @@ Example: 2000000
             else:
                 raise ValueError(f"{generation_algorythm=}")
 
-            df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+
+            df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
             for            p,          failure_rate,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
                 zip(df_ev['p'], df_ev['failure_rate'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
-                # 対象外のものはスキップ
+                # 対象外のものはスキップ　［将棋の引分け率］
                 if specified_failure_rate != failure_rate:
+                    continue
+
+                # 対象外のものはスキップ　［試行シリーズ回数］
+                if specified_trials_series != trials_series:
                     continue
 
                 if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
@@ -290,6 +295,11 @@ Example: 2000000
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
                     continue
+
+                # FIXME セレクションは没機能？
+                # # 対象外のものはスキップ　［試行シリーズ回数］
+                # if specified_trials_series != trials_series:
+                #     continue
 
                 if p_step < 1:
                     print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
