@@ -62,14 +62,19 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
     f_wins_b = S.wins(challenged=FAILED, winner=BOB)
 
 
+    # ［前提条件］
     str_p = f"{spec.p*100:.4f}"                                                 # ［将棋の先手勝率］ p （Probability）
     str_failure_rate = f"{spec.failure_rate*100:.4f}"                           # ［将棋の引分け率］
     str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system)}"      # ［手番の決め方］
+
+    # ［大会のルール設定］
     str_head_step = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
     str_tail_step = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
     str_span = f"{series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
     str_shortest_coins = f"{series_rule.shortest_coins}"                        # ［最短対局数］
     str_upper_limit_coins = f"{series_rule.upper_limit_coins}"                  # ［上限対局数］
+
+    # ［シミュレーション結果］
     str_total_series = f"{S.total}"                                             # ［試行シリーズ総数］
     str_series_shortest_coins = f"{S.series_shortest_coins}"                    # ［シリーズ最短局数］
     str_series_longest_coins = f"{S.series_longest_coins}"                      # ［シリーズ最長局数］

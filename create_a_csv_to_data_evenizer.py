@@ -398,21 +398,24 @@ Which one(1-2)? """
             raise ValueError(f"{choice=}")
 
 
-        # ［試行シリーズ回数］を尋ねる
-        prompt = f"""\
-How many times do you want to try the series?
-Example: 2000000
-? """
-        specified_number_of_series = int(input(prompt))
-
-
         generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
         if generation_algorythm == BRUTE_FORCE:
             print("力任せ探索を行います")
+            # ［試行シリーズ回数］を尋ねる
+            prompt = f"""\
+How many times do you want to try the series?
+Example: 2000000
+? """
+            specified_number_of_series = int(input(prompt))
+
         elif generation_algorythm == THEORETICAL:
-            print("理論値を求めます")
+            print("理論値を求めます。便宜的に試行回数は 1 と記入することにします")
+            specified_number_of_series = 1
+
         else:
             raise ValueError(f"{generation_algorythm=}")
+
+
 
 
         df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
