@@ -137,11 +137,13 @@ def append_default_record_to_df_even(df, p, failure_rate, trials_series):
     df.loc[index, ['candidates']] = ''
 
 
-def get_df_even(turn_system, generation_algorythm, trials_series):
+def get_df_even(failure_rate, turn_system, generation_algorythm, trials_series):
     """
 
     Parameters
     ----------
+    failure_rate : float
+        ［将棋の引分け率］
     turn_system : int
         ［手番が回ってくる制度］
     generation_algorythm : int
@@ -150,7 +152,7 @@ def get_df_even(turn_system, generation_algorythm, trials_series):
         ［試行シリーズ回数］
     """
 
-    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+    csv_file_path = get_even_data_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 
     # ファイルが存在しなかった場合
     if not os.path.isfile(csv_file_path):
@@ -178,9 +180,9 @@ def get_df_even(turn_system, generation_algorythm, trials_series):
     return df
 
 
-def df_even_to_csv(df, turn_system, generation_algorythm, trials_series):
+def df_even_to_csv(df, failure_rate, turn_system, generation_algorythm, trials_series):
     # ファイルが存在しなかった場合、新規作成
-    csv_file_path = get_even_data_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+    csv_file_path = get_even_data_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 
     print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 

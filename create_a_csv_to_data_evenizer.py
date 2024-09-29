@@ -99,7 +99,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
 
     if is_append_new_record:
         # CSV保存
-        df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+        df_even_to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
 def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, abs_limit_of_error, generation_algorythm):
@@ -295,7 +295,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                                df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -360,7 +360,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                df_even_to_csv(df=df, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
 ########################################
@@ -427,7 +427,7 @@ Example: 3
 
 
 
-        df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+        df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
         #print(df_ev)
 
 
@@ -479,7 +479,7 @@ Example: 3
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            df_even_to_csv(df=df_ev, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+            df_even_to_csv(df=df_ev, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
     except Exception as err:

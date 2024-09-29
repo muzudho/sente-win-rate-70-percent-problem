@@ -127,18 +127,19 @@ def get_even_view_csv_file_path(spec):
     subname = make_file_subname(failure_rate=spec.failure_rate, turn_system=spec.turn_system)
     # ファイル名は長くなりすぎないようにする
     return f'logs/even_view{subname}.csv'
-    #return f'logs/large_even_series_rule{subname}.csv'
 
 
 #############
 # Even table (元データの方)
 #############
 
-def get_even_data_csv_file_path(turn_system=None, generation_algorythm=None, trials_series=None):
+def get_even_data_csv_file_path(failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None):
     """勝ち点を探索した記録ファイルへのパス
     
     Parameters
     ----------
+    failure_rate : float
+        ［将棋の引分け率］
     turn_system : int
         ［先後の決め方］
     generation_algorythm : int
@@ -146,11 +147,10 @@ def get_even_data_csv_file_path(turn_system=None, generation_algorythm=None, tri
     trials_series : int
         ［試行シリーズ回数］
     """
-    subname = make_file_subname(turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 
     # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
     return f'./data/even{subname}.csv'
-    #return f'./data/even_series_rule{subname}.csv'
 
 
 ############################
