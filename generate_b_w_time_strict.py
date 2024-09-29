@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
                         candidate_obj = Candidate(
                                 p_error=best_p_error,
-                                number_of_series=1, # FIXME
+                                trials_series=1, # FIXME
                                 p_step=latest_series_rule.p_step,
                                 q_step=latest_series_rule.q_step,
                                 span=latest_series_rule.span,

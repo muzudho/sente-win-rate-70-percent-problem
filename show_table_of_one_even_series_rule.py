@@ -173,8 +173,8 @@ Which data source should I use?
 
             df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+            for            p,          failure_rate,          best_p,          best_p_error,          best_trials_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_trials_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_trials_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_trials_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
@@ -189,13 +189,13 @@ Which data source should I use?
                         failure_rate=failure_rate,
                         best_p=best_p,
                         best_p_error=best_p_error,
-                        best_number_of_series=best_number_of_series,
+                        best_trials_series=best_trials_series,
                         best_p_step=best_p_step,
                         best_q_step=best_q_step,
                         best_span=best_span,
                         latest_p=latest_p,
                         latest_p_error=latest_p_error,
-                        latest_number_of_series=latest_number_of_series,
+                        latest_trials_series=latest_trials_series,
                         latest_p_step=latest_p_step,
                         latest_q_step=latest_q_step,
                         latest_span=latest_span,

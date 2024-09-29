@@ -22,7 +22,7 @@ def stringify_header():
     | Specification                                  | Series rule                                                               | Large Series Trial Summary                                                                                                                                                                                                                              |
     | 前提条件                                        | 大会のルール設定                                                           | シミュレーション結果                                                                                                                                                                                                                                      |
     +---------------+------------------+-------------+-------------+-------------+-----------+---------------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-    | p             | failure_rate     | turn_system | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | total_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                             |
+    | p             | failure_rate     | turn_system | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | trials_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                            |
     | 将棋の先手勝率 | 将棋の引分け率    | 先後の決め方 | 先手で勝った  | 後手で勝った | シリーズ  | 最短対局数     | 上限対局数         | 試行シリーズ総数  シリーズ最短対局数      シリーズ最長対局数                                                                                                                                                                                                 |
     | ％            | ％               |             | ときの勝ち点  | ときの勝ち点 | 勝利条件  |               |                   |                                                                                            ______________________________________________________________________________________________________________________________________________________________|
     |               |                  |             |              |             |          |               |                   |                                                                                           | succucessful_series                                                   | failed_series                                                                       |
@@ -40,7 +40,7 @@ def stringify_header():
     """
 
     # CSV
-    return f"p,failure_rate,turn_system,head_step,tail_step,span,shortest_coins,upper_limit_coins,total_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
+    return f"p,failure_rate,turn_system,head_step,tail_step,span,shortest_coins,upper_limit_coins,trials_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
 
 
 def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_trial_summary):
@@ -76,7 +76,7 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
                                                                                 # NOTE ルール設定を求めたときの試行回数も記録しようかと思ったが、作り方についてそんなに信用できる記録でもないので止めた
 
     # ［シミュレーション結果］
-    str_total_series = f"{S.total}"                                             # ［試行シリーズ総数］
+    str_trials_series = f"{S.total}"                                             # ［試行シリーズ総数］
     str_series_shortest_coins = f"{S.series_shortest_coins}"                    # ［シリーズ最短局数］
     str_series_longest_coins = f"{S.series_longest_coins}"                      # ［シリーズ最長局数］
     str_wins_a = f"{s_wins_a + f_wins_a}"                                       # ［Ａさんの勝ちシリーズ数］
@@ -95,10 +95,10 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
 
 
     # CSV
-    return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_total_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
+    return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_trials_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
 
 
-def show_series_rule(spec, specified_number_of_series, p_step, q_step, span, presentable, comment):
+def show_series_rule(spec, specified_trials_series, p_step, q_step, span, presentable, comment):
     """［シリーズ・ルール］を表示します"""
 
     # ［シリーズ・ルール］。任意に指定します
@@ -111,7 +111,7 @@ def show_series_rule(spec, specified_number_of_series, p_step, q_step, span, pre
 
     list_of_trial_results_for_one_series = []
 
-    for round in range(0, specified_number_of_series):
+    for round in range(0, specified_trials_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -202,7 +202,7 @@ Which data source should I use?
 How many times do you want to try the series?
 Example: 2000000
 ? """
-        specified_number_of_series = int(input(prompt))
+        specified_trials_series = int(input(prompt))
 
 
         header_csv = stringify_header()
@@ -236,8 +236,8 @@ Example: 2000000
 
             df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+            for            p,          failure_rate,          best_p,          best_p_error,          best_trials_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_trials_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_trials_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_trials_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
@@ -252,13 +252,13 @@ Example: 2000000
                         failure_rate=failure_rate,
                         best_p=best_p,
                         best_p_error=best_p_error,
-                        best_number_of_series=best_number_of_series,
+                        best_trials_series=best_trials_series,
                         best_p_step=best_p_step,
                         best_q_step=best_q_step,
                         best_span=best_span,
                         latest_p=latest_p,
                         latest_p_error=latest_p_error,
-                        latest_number_of_series=latest_number_of_series,
+                        latest_trials_series=latest_trials_series,
                         latest_p_step=latest_p_step,
                         latest_q_step=latest_q_step,
                         latest_span=latest_span,
@@ -272,7 +272,7 @@ Example: 2000000
 
                 show_series_rule(
                         spec=spec,
-                        specified_number_of_series=specified_number_of_series,
+                        specified_trials_series=specified_trials_series,
                         p_step=even_table.best_p_step,
                         q_step=even_table.best_q_step,
                         span=even_table.best_span,
@@ -315,7 +315,7 @@ Example: 2000000
 
                 show_series_rule(
                         spec=spec,
-                        specified_number_of_series=specified_number_of_series,
+                        specified_trials_series=specified_trials_series,
                         p_step=ssr_table.p_step,
                         q_step=ssr_table.q_step,
                         span=ssr_table.span,

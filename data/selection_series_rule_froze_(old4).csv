@@ -1,4 +1,4 @@
-p,failure_rate,number_of_series,p_step,q_step,span,presentable,comment,candidates
+p,failure_rate,trials_series,p_step,q_step,span,presentable,comment,candidates
 0.5,0.0,0.0,1.0,1.0,1.0,,,[50.0000 ％（+0.0000） 1表 1裏 1目 1～1局]
 0.51,0.0,0.0,1.0,1.0,1.0,,,[51.0000 ％（+1.0000） 1表 1裏 1目 1～1局]
 0.52,0.0,0.0,1.0,1.0,1.0,,,[52.0000 ％（+2.0000） 1表 1裏 1目 1～1局] [48.3443 ％（-1.6557） 5表 6裏 55目 10～20局] [49.0984 ％（-0.9016） 6表 7裏 71目 11～22局] [49.7858 ％（-0.2142） 6表 7裏 78目 12～24局]

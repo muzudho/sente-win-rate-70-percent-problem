@@ -4,13 +4,13 @@
 * `failure_rate` - ［表も裏もでない確率］ 初期値は 0.0
 * `best_p` - ［調整後の表が出る確率］ 初期値は 0
 * `best_p_error` - ［調整後の表が出る確率の 0.5 からの差の絶対値］ 初期値は 0.51
-* `best_number_of_series` - 対局回数。初期値は 1
+* `best_trials_series` - ［試行シリーズ回数］初期値は 1
 * `best_p_step` - ［表番での勝ち１つ分の点数］。ここに 0 が入っているときは、ベスト値が見つかっていないという意味なので、この行データは有効ではありません。 初期値は 0
 * `best_q_step` - ［裏番での勝ち１つ分の点数］ 初期値は 1
 * `best_span` - ［目標の点数］ 初期値は 1
 * `latest_p` - 探索の最後。初期値は 0
 * `latest_p_error` - 探索の最後。初期値は 0.51
-* `latest_number_of_series` - 探索の最後。初期値は 1
+* `latest_trials_series` - 探索の最後の［試行シリーズ回数］初期値は 1
 * `latest_p_step` - 探索の最後。初期値は 0
 * `latest_q_step` - 探索の最後。初期値は 1
 * `latest_span` - 探索の最後。初期値は 1

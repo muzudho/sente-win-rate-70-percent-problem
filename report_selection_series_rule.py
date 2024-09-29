@@ -31,14 +31,14 @@ def generate_report(specified_turn_system):
 
     df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
-    for             p,           number_of_series,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
-        zip(df_ssr['p'], df_ssr['number_of_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
+    for             p,           trials_series,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
+        zip(df_ssr['p'], df_ssr['trials_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
 
         if p_step < 1:
             p_step = 1
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        number_of_series = round_letro(number_of_series)
+        trials_series = round_letro(trials_series)
         p_step = round_letro(p_step)
         q_step = round_letro(q_step)
         span = round_letro(span)
@@ -68,7 +68,7 @@ def generate_report(specified_turn_system):
             # 文言の作成
             text = stringify_report_selection_series_rule(
                     p=p,
-                    number_of_series=number_of_series,
+                    trials_series=trials_series,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
@@ -99,7 +99,7 @@ def generate_report(specified_turn_system):
             # 文言の作成
             text = stringify_report_selection_series_rule(
                     p=p,
-                    number_of_series=number_of_series,
+                    trials_series=trials_series,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,

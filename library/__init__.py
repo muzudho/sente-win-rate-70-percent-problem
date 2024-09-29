@@ -1979,10 +1979,10 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, number_of_series, p_step, q_step, span, shortest_coins, upper_limit_coins):
+    def __init__(self, p_error, trials_series, p_step, q_step, span, shortest_coins, upper_limit_coins):
 
-        if not isinstance(number_of_series, int):
-            raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {number_of_series=}")
+        if not isinstance(trials_series, int):
+            raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {trials_series=}")
 
         if not isinstance(p_step, int):
             raise ValueError(f"［表番の勝ち１つ分の点数］は int 型である必要があります {p_step=}")
@@ -2000,7 +2000,7 @@ class Candidate():
             raise ValueError(f"［上限対局数］は int 型である必要があります {upper_limit_coins=}")
 
         self._p_error = p_error
-        self._number_of_series = number_of_series
+        self._trials_series = trials_series
         self._p_step = p_step
         self._q_step = q_step
         self._span = span
@@ -2014,8 +2014,8 @@ class Candidate():
 
 
     @property
-    def number_of_series(self):
-        return self._number_of_series
+    def trials_series(self):
+        return self._trials_series
 
 
     @property
@@ -2045,7 +2045,7 @@ class Candidate():
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._number_of_series}試]'
+        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._trials_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -2060,7 +2060,7 @@ class Candidate():
         if result:
             return Candidate(
                     p_error=float(result.group(1)),
-                    number_of_series=float(result.group(7)),
+                    trials_series=float(result.group(7)),
                     p_step=int(result.group(2)),
                     q_step=int(result.group(3)),
                     span=int(result.group(4)),

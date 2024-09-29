@@ -13,7 +13,7 @@ from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
 
 
-def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentable, comment):
+def simulate_series_rule(spec, trials_series, p_step, q_step, span, presentable, comment):
     """［シリーズ・ルール］をシミュレーションします"""
 
     # ［シリーズ・ルール］。任意に指定します
@@ -31,7 +31,7 @@ def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentab
 
     list_of_trial_results_for_one_series = []
 
-    for round in range(0, number_of_series):
+    for round in range(0, trials_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -148,7 +148,7 @@ Example: 10% is 0.1
 How many times do you want to try the series?
 Example: 2000000
 ? """
-        specified_number_of_series = int(input(prompt))
+        specified_trials_series = int(input(prompt))
 
 
         prompt = f"""\
@@ -173,8 +173,8 @@ Which data source should I use?
 
             df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            for            p,          failure_rate,          best_p,          best_p_error,          best_number_of_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_number_of_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_number_of_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_number_of_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+            for            p,          failure_rate,          best_p,          best_p_error,          best_trials_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_trials_series,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_trials_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_trials_series'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
@@ -197,7 +197,7 @@ Which data source should I use?
 
                 simulate_series_rule(
                         spec=spec,
-                        number_of_series=specified_number_of_series,
+                        trials_series=specified_trials_series,
                         p_step=p_step,
                         q_step=q_step,
                         span=span,
@@ -234,7 +234,7 @@ Which data source should I use?
 
                 simulate_series_rule(
                         spec=spec,
-                        number_of_series=specified_number_of_series,
+                        trials_series=specified_trials_series,
                         p_step=p_step,
                         q_step=q_step,
                         span=span,

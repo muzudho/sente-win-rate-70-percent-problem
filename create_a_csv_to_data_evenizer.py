@@ -37,8 +37,8 @@ is_dirty_csv = False
 
 
 def update_dataframe(df, spec,
-        best_p, best_p_error, best_number_of_series, best_series_rule,
-        latest_p, latest_p_error, latest_number_of_series, latest_series_rule, candidates):
+        best_p, best_p_error, best_trials_series, best_series_rule,
+        latest_p, latest_p_error, latest_trials_series, latest_series_rule, candidates):
     """データフレーム更新
     
     Parameters
@@ -54,7 +54,7 @@ def update_dataframe(df, spec,
     #         p=p,
     #         best_p=best_p,
     #         best_p_error=best_p_error,
-    #         best_number_of_series=best_number_of_series,
+    #         best_trials_series=best_trials_series,
     #         series_rule=best_series_rule)
 
     # ［調整後の表が出る確率］列を更新
@@ -65,9 +65,9 @@ def update_dataframe(df, spec,
     df.loc[df['p']==spec.p, ['best_p_error']] = best_p_error
     df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
 
-    # ［試行回数］列を更新
-    df.loc[df['p']==spec.p, ['best_number_of_series']] = best_number_of_series
-    df.loc[df['p']==spec.p, ['latest_number_of_series']] = latest_number_of_series
+    # ［試行シリーズ回数］列を更新
+    df.loc[df['p']==spec.p, ['best_trials_series']] = best_trials_series
+    df.loc[df['p']==spec.p, ['latest_trials_series']] = latest_trials_series
 
     # ［表勝ち１つの点数］列を更新
     df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
@@ -108,7 +108,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm)
         df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_limit_of_error, specified_number_of_series, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_limit_of_error, specified_trials_series, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
@@ -126,11 +126,14 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
     ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
 
-    for         p,       failure_rate,       best_p,       best_p_error,       best_number_of_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_number_of_series,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_number_of_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_number_of_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
+    # TODO 試行シリーズ回数が違うものを１つのファイルに混ぜたくない。ファイルを分けたい
+
+
+    for         p,       failure_rate,       best_p,       best_p_error,       best_trials_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_trials_series,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_trials_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_trials_series'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        best_number_of_series = round_letro(best_number_of_series)
+        best_trials_series = round_letro(best_trials_series)
         best_p_step = round_letro(best_p_step)
         best_q_step = round_letro(best_q_step)
         best_span = round_letro(best_span)
@@ -162,7 +165,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if specified_number_of_series < best_number_of_series or abs(best_p_error) <= ABS_SMALL_ERROR:
+        if specified_trials_series < best_trials_series or abs(best_p_error) <= ABS_SMALL_ERROR:
             is_automatic = False
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
 
@@ -194,7 +197,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                         if generation_algorythm == BRUTE_FORCE:
                             list_of_trial_results_for_one_series = []
 
-                            for i in range(0, specified_number_of_series):
+                            for i in range(0, specified_trials_series):
 
                                 # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
                                 list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -226,7 +229,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                             # Ａさんが勝った回数
                             s_wins_a = large_series_trial_summary.wins(challenged=SUCCESSFUL, winner=ALICE)
                             f_wins_a = large_series_trial_summary.wins(challenged=FAILED, winner=ALICE)
-                            latest_p = (s_wins_a + f_wins_a) / specified_number_of_series
+                            latest_p = (s_wins_a + f_wins_a) / specified_trials_series
                             latest_p_error = latest_p - 0.5
 
 
@@ -252,7 +255,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
-                                    number_of_series=best_number_of_series,
+                                    trials_series=best_trials_series,
                                     p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule.step_table.span,
@@ -276,11 +279,11 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                                     spec=spec,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
-                                    best_number_of_series=specified_number_of_series,
+                                    best_trials_series=specified_trials_series,
                                     best_series_rule=best_series_rule,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
-                                    latest_number_of_series=specified_number_of_series,
+                                    latest_trials_series=specified_trials_series,
                                     latest_series_rule=latest_series_rule,
                                     candidates=candidates)
 
@@ -342,11 +345,11 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                     spec=spec,
                     best_p=best_p,
                     best_p_error=best_p_error,
-                    best_number_of_series=specified_number_of_series,
+                    best_trials_series=specified_trials_series,
                     best_series_rule=best_series_rule,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
-                    latest_number_of_series=specified_number_of_series,
+                    latest_trials_series=specified_trials_series,
                     latest_series_rule=latest_series_rule,
                     candidates=latest_candidates)
 
@@ -406,11 +409,11 @@ Which one(1-2)? """
 How many times do you want to try the series?
 Example: 2000000
 ? """
-            specified_number_of_series = int(input(prompt))
+            specified_trials_series = int(input(prompt))
 
         elif generation_algorythm == THEORETICAL:
             print("理論値を求めます。便宜的に試行回数は 1 と記入することにします")
-            specified_number_of_series = 1
+            specified_trials_series = 1
 
         else:
             raise ValueError(f"{generation_algorythm=}")
@@ -457,7 +460,7 @@ Example: 2000000
                     specified_failure_rate=specified_failure_rate,
                     specified_turn_system=specified_turn_system,
                     abs_limit_of_error=abs_limit_of_error,
-                    specified_number_of_series=specified_number_of_series,
+                    specified_trials_series=specified_trials_series,
                     generation_algorythm=generation_algorythm)
 
 
