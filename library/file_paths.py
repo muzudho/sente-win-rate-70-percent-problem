@@ -1,4 +1,4 @@
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL
+from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL
 
 
 ################
@@ -30,10 +30,10 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
     if turn_system is None:
         pass
 
-    elif turn_system == WHEN_FROZEN_TURN:
+    elif turn_system == FROZEN_TURN:
         subname.append('ts_frozen')
     
-    elif turn_system == WHEN_ALTERNATING_TURN:
+    elif turn_system == ALTERNATING_TURN:
         subname.append('ts_alternating')
 
     else:
@@ -74,17 +74,15 @@ def get_analysis_series_log_file_path(turn_system):
 # show_table_of_large_event_series_rule.py
 ##########################
 
-def get_show_table_of_large_even_series_rule_csv_file_path(failure_rate, turn_system):
+def get_show_table_of_large_even_series_rule_csv_file_path(spec):
     """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
 
     Parameters
     ----------
-    failure_rate : float
-        ［コインを投げて表も裏も出ない確率］
-    turn_system : float
-        ［先後の選び方の制度］
+    spec : Specification
+        ［仕様］
     """
-    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
+    subname = make_file_subname(failure_rate=spec.failure_rate, turn_system=spec.turn_system)
     return f'logs/large_even_series_rule{subname}.csv'
 
 

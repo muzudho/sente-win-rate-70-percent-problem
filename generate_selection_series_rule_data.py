@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, make_generation_algorythm, round_letro, calculate_probability, Candidate
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, round_letro, calculate_probability, Candidate
 from library.file_paths import get_selection_series_rule_csv_file_path
 from library.database import get_df_even, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
 
@@ -131,12 +131,12 @@ Example: 10% is 0.1
 
 
         # ［先後固定制］
-        generation_algorythm_ft = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=WHEN_FROZEN_TURN)
-        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_FROZEN_TURN, generation_algorythm=generation_algorythm_ft)
+        generation_algorythm_ft = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=FROZEN_TURN)
+        generate_data(specified_failure_rate=specified_failure_rate, turn_system=FROZEN_TURN, generation_algorythm=generation_algorythm_ft)
 
         # ［先後交互制］
-        generation_algorythm_at = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=WHEN_ALTERNATING_TURN)
-        generate_data(specified_failure_rate=specified_failure_rate, turn_system=WHEN_ALTERNATING_TURN, generation_algorythm=generation_algorythm_at)
+        generation_algorythm_at = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=ALTERNATING_TURN)
+        generate_data(specified_failure_rate=specified_failure_rate, turn_system=ALTERNATING_TURN, generation_algorythm=generation_algorythm_at)
 
 
     except Exception as err:

@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, SeriesRule, WHEN_FROZEN_TURN
+from library import calculate_probability, SeriesRule, FROZEN_TURN
 from library.database import get_df_p
 from library.views import stringify_p_q_time_strict
 
@@ -21,7 +21,7 @@ from library.views import stringify_p_q_time_strict
 LOG_FILE_PATH = 'output/generate_b_q_time_strict.log'
 
 FAILURE_RATE = 0.0
-TURN_SYSTEM = WHEN_FROZEN_TURN
+TURN_SYSTEM = FROZEN_TURN
 
 # ［先後固定制］で、［裏勝ちだけでの対局数］の上限
 MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
@@ -80,17 +80,16 @@ if __name__ == '__main__':
                         spec = Specification(
                                 p=p,
                                 failure_rate=failure_rate,
-                                turn_system=FAILURE_RATE)
+                                turn_system=TURN_SYSTEM)
 
                         # ［シリーズ・ルール］
                         # TODO データをちゃんと入れたい
                         latest_series_rule = SeriesRule.make_series_rule_base(
-                                failure_rate=spec.failure_rate,
+                                spec=spec,
                                 # FIXME タイムではなくステップが欲しい
                                 p_step=-1,
                                 q_step=-1,
-                                span=-1,
-                                turn_system=spec.turn_system)
+                                span=-1)
 
                         candidate_obj = Candidate(
                                 p_error=best_p_error,
@@ -113,10 +112,15 @@ if __name__ == '__main__':
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
 
+                # 仕様
+                spec = Specification(
+                        p=p,
+                        failure_rate=FAILURE_RATE,
+                        turn_system=FROZEN_TURN)
+
                 # ［シリーズ・ルール］
                 series_rule = SeriesRule.make_series_rule_auto_span(
-                    failure_rate=FAILURE_RATE,
-                    turn_system=WHEN_FROZEN_TURN,
+                    spec=spec,
                     p_time=best_p_time,
                     q_time=best_q_time)
 

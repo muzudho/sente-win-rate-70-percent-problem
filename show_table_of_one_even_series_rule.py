@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, turn_system_to_str, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even, EvenTable, SelectionSeriesRuleTable
 from library.views import stringify_simulation_log
@@ -15,7 +15,7 @@ from library.views import stringify_simulation_log
 
 def stringify_header(turn_system):
     return f"""\
-turn system={turn_system_to_str(turn_system)}
+turn system={Converter.turn_system_to_str(turn_system)}
 
 +---------------------------+------------------------------------------+--------------------------------+
 | Spec                      | Series rule                              | 1 Trial                        |
@@ -60,21 +60,15 @@ def stringify_body(p, spec, longest_coins, series_rule, presentable, comment, tr
 """
 
 
-def show_series_rule(p, failure_rate, p_step, q_step, span, presentable, comment, turn_system):
+def show_series_rule(spec, p_step, q_step, span, presentable, comment):
     """［シリーズ・ルール］を表示します"""
-    # 仕様
-    spec = Specification(
-            p=p,
-            failure_rate=failure_rate,
-            turn_system=turn_system)
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
-            failure_rate=spec.failure_rate,
+            spec=spec,
             p_step=p_step,
             q_step=q_step,
-            span=span,
-            turn_system=turn_system)
+            span=span)
 
     # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
     list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -131,10 +125,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = WHEN_FROZEN_TURN
+            specified_turn_system = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = WHEN_ALTERNATING_TURN
+            specified_turn_system = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -171,7 +165,7 @@ Which data source should I use?
         if data_source == 1:
             title='イーブン［シリーズ・ルール］'
 
-            generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+            generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
             if generation_algorythm == BRUTE_FORCE:
                 print("力任せ探索で行われたデータです")
             elif generation_algorythm == THEORETICAL:
@@ -209,15 +203,19 @@ Which data source should I use?
                         latest_span=latest_span,
                         candidates=candidates)
 
-                show_series_rule(
+                # 仕様
+                spec = Specification(
                         p=p,
                         failure_rate=failure_rate,
+                        turn_system=specified_turn_system)
+
+                show_series_rule(
+                        spec=spec,
                         p_step=even_table.best_p_step,
                         q_step=even_table.best_q_step,
                         span=even_table.best_span,
                         presentable='',
-                        comment='',
-                        turn_system=specified_turn_system)
+                        comment='')
 
 
         elif data_source == 2:
@@ -247,16 +245,19 @@ Which data source should I use?
                         comment=comment,
                         candidates=candidates)
 
-
-                show_series_rule(
+                # 仕様
+                spec = Specification(
                         p=ssr_table.p,
                         failure_rate=ssr_table.failure_rate,
+                        turn_system=specified_turn_system)
+
+                show_series_rule(
+                        spec=spec,
                         p_step=ssr_table.p_step,
                         q_step=ssr_table.q_step,
                         span=ssr_table.span,
                         presentable=ssr_table.presentable,
-                        comment=ssr_table.comment,
-                        turn_system=specified_turn_system)
+                        comment=ssr_table.comment)
 
 
     except Exception as err:

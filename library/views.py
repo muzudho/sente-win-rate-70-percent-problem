@@ -1,11 +1,11 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule, Candidate
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule, Candidate
 
 
 def stringify_report_selection_series_rule(p, number_of_series, latest_theoretical_p, specified_series_rule, presentable, candidates, turn_system):
-    if turn_system == WHEN_ALTERNATING_TURN:
+    if turn_system == ALTERNATING_TURN:
         """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
         Parameters
@@ -62,7 +62,7 @@ def stringify_report_selection_series_rule(p, number_of_series, latest_theoretic
         return f"先手勝率 {seg_1:2.0f} ％ --試行後--> （該当なし）{seg_10}"
 
 
-    if turn_system == WHEN_FROZEN_TURN:
+    if turn_system == FROZEN_TURN:
         """［先後固定制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
         Parameters
@@ -148,9 +148,9 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
 
     # 対局数
 
-    if series_rule.turn_system == WHEN_FROZEN_TURN:
+    if series_rule.turn_system == FROZEN_TURN:
         ts = '先後固定制'
-    elif series_rule.turn_system == WHEN_ALTERNATING_TURN:
+    elif series_rule.turn_system == ALTERNATING_TURN:
         ts = '先後交互制'
     else:
         raise ValueError(f"{series_rule.turn_system=}")
@@ -173,14 +173,14 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
 def print_even_series_rule(p, best_p, best_p_error, best_number_of_series, series_rule):
 
     # 対局数
-    if series_rule.turn_system == WHEN_FROZEN_TURN:
+    if series_rule.turn_system == FROZEN_TURN:
         ts = '先後固定制'
-    elif series_rule.turn_system == WHEN_ALTERNATING_TURN:
+    elif series_rule.turn_system == ALTERNATING_TURN:
         ts = '先後交互制'
     else:
         raise ValueError(f'{series_rule.turn_system=}')
 
-    if series_rule.turn_system == WHEN_ALTERNATING_TURN:
+    if series_rule.turn_system == ALTERNATING_TURN:
         # ［表が出る確率（％）］
         seg_1a = p*100
 
@@ -202,7 +202,7 @@ def print_even_series_rule(p, best_p, best_p_error, best_number_of_series, serie
         print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_number_of_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
-    if series_rule.turn_system == WHEN_FROZEN_TURN:
+    if series_rule.turn_system == FROZEN_TURN:
         # ［表が出る確率（％）］
         seg_1a = p*100
 
@@ -372,9 +372,9 @@ def stringify_simulation_log(
     a_sr0 = S.total      # 全シリーズ数
 
     # 全角文字の横幅は文字数を揃えること。全角文字の幅が半角のちょうど2倍ではないのでずれるので、書式設定の桁数を指定してもずれるから。
-    if turn_system == WHEN_FROZEN_TURN:
+    if turn_system == FROZEN_TURN:
         a_trn = "［先後固定制］上手と下手のように、Ａさんはずっと先手、Ｂさんはずっと後手"
-    elif turn_system == WHEN_ALTERNATING_TURN:
+    elif turn_system == ALTERNATING_TURN:
         a_trn = "［先後交互制］Ａさんの先手、Ｂさんの後手で始まり、１局毎に先後を入替える"
     else:
         raise ValueError(f"{turn_system=}")

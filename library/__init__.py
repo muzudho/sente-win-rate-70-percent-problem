@@ -55,48 +55,10 @@ FAILED = 2
 # -----------
 
 # ［先後固定制］。配列のインデックスに使う
-WHEN_FROZEN_TURN = 1
+FROZEN_TURN = 1
 
 # ［先後交互制］。配列のインデックスに使う
-WHEN_ALTERNATING_TURN = 2
-
-
-_face_of_coin_to_str = None
-
-def face_of_coin_to_str(face_of_coin):
-    global _face_of_coin_to_str
-
-    if _face_of_coin_to_str is None:
-        _face_of_coin_to_str = {
-            EMPTY: '失',    # 失敗の頭文字
-            HEAD : '表',
-            TAIL : '裏',
-        }
-    
-    return _face_of_coin_to_str[face_of_coin]
-
-
-_turn_system_to_str = None
-
-def turn_system_to_str(turn_system):
-    global _turn_system_to_str
-
-    if _turn_system_to_str is None:
-        _turn_system_to_str = {
-            WHEN_FROZEN_TURN : '先後固定制',
-            WHEN_ALTERNATING_TURN : '先後交互制',
-        }
-
-    return _turn_system_to_str[turn_system]
-
-
-_turn_system_to_code = {
-    WHEN_FROZEN_TURN : 'frozen',
-    WHEN_ALTERNATING_TURN : 'alternating',
-}
-
-def turn_system_to_code(turn_system):
-    return _turn_system_to_code[turn_system]
+ALTERNATING_TURN = 2
 
 
 # Opponent pair
@@ -109,19 +71,6 @@ FACE_OF_COIN = 1
 PLAYERS = 2
 
 
-# 反対
-_opponent = {
-    HEAD : TAIL,
-    TAIL : HEAD,
-    ALICE : BOB,
-    BOB : ALICE,
-}
-
-
-def opponent(elementary_event):
-    return _opponent[elementary_event]
-
-
 # Generation Algorithm
 # --------------------
 
@@ -132,15 +81,70 @@ BRUTE_FORCE = 1
 THEORETICAL = 2
 
 
-def make_generation_algorythm(failure_rate, turn_system):
-    # 現在のところ、［先後固定制］で、かつ［表も裏も出ない確率］が 0 のときのみ、理論値を求めることができます
-    if failure_rate == 0 and turn_system == WHEN_FROZEN_TURN:
-        return THEORETICAL
-    return BRUTE_FORCE
-
-
 # p_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
 IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
+
+
+class Converter():
+    """変換する機能まとめ"""
+
+
+    _face_of_coin_to_str = None
+
+    @classmethod
+    def face_of_coin_to_str(clazz, face_of_coin):
+        if clazz._face_of_coin_to_str is None:
+            clazz._face_of_coin_to_str = {
+                EMPTY: '失',    # 失敗の頭文字
+                HEAD : '表',
+                TAIL : '裏',
+            }
+        
+        return clazz._face_of_coin_to_str[face_of_coin]
+
+
+    _turn_system_to_str = None
+
+    @classmethod
+    def turn_system_to_str(clazz, turn_system):
+        if clazz._turn_system_to_str is None:
+            clazz._turn_system_to_str = {
+                FROZEN_TURN : '先後固定制',
+                ALTERNATING_TURN : '先後交互制',
+            }
+
+        return clazz._turn_system_to_str[turn_system]
+
+
+    _turn_system_to_code = {
+        FROZEN_TURN : 'frozen',
+        ALTERNATING_TURN : 'alternating',
+    }
+
+    @classmethod
+    def turn_system_to_code(clazz, turn_system):
+        return clazz._turn_system_to_code[turn_system]
+
+
+    # 反対
+    _opponent = {
+        HEAD : TAIL,
+        TAIL : HEAD,
+        ALICE : BOB,
+        BOB : ALICE,
+    }
+
+    @classmethod
+    def opponent(clazz, elementary_event):
+        return clazz._opponent[elementary_event]
+
+
+    @staticmethod
+    def make_generation_algorythm(failure_rate, turn_system):
+        # 現在のところ、［先後固定制］で、かつ［表も裏も出ない確率］が 0 のときのみ、理論値を求めることができます
+        if failure_rate == 0 and turn_system == FROZEN_TURN:
+            return THEORETICAL
+        return BRUTE_FORCE
 
 
 class Functions():
@@ -176,7 +180,7 @@ class Functions():
         # 引分けは、ちょうどプレイヤー数で割って半分ずつに按分します
         player_number = 2
 
-        if turn_system == WHEN_FROZEN_TURN:
+        if turn_system == FROZEN_TURN:
             # 例： ［勝ち点] 1、［表も裏も出なかった確率］ 0.3
             #   = 1 * (1 - 0.3) / 2
             #   =        0.7    / 2
@@ -185,7 +189,7 @@ class Functions():
             #
             return step * (1 - failure_rate) / player_number
 
-        if turn_system == WHEN_ALTERNATING_TURN:
+        if turn_system == ALTERNATING_TURN:
             # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
 
             # 例： ［勝ち点] 1、［表も裏も出なかった確率］ 0.3
@@ -596,7 +600,7 @@ class PointCalculation():
     def get_successful_player(elementary_event, time_th, turn_system):
 
         # ［先後交互制］
-        if turn_system == WHEN_ALTERNATING_TURN:
+        if turn_system == ALTERNATING_TURN:
             # 表が出た
             if elementary_event == HEAD:
 
@@ -624,7 +628,7 @@ class PointCalculation():
             raise ValueError(f"{elementary_event=}")
 
         # ［先後固定制］
-        if turn_system == WHEN_FROZEN_TURN:
+        if turn_system == FROZEN_TURN:
             if elementary_event == HEAD:
                 return ALICE
 
@@ -722,11 +726,11 @@ self.stringify_dump:
         t_step_when_failed = 0
 
 
-        if self._series_rule.turn_system == WHEN_FROZEN_TURN:
+        if self._series_rule.turn_system == FROZEN_TURN:
             self._pts_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
             self._pts_list[BOB] += t_step_when_failed       # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
 
-        elif self._series_rule.turn_system == WHEN_ALTERNATING_TURN:
+        elif self._series_rule.turn_system == ALTERNATING_TURN:
             # 奇数回はＡさんが先手
             if time_th % 2 == 1:
                 self._pts_list[ALICE] += h_step_when_failed     # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
@@ -828,7 +832,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
     # ［先後固定制］
-    if series_rule.turn_system == WHEN_FROZEN_TURN:
+    if series_rule.turn_system == FROZEN_TURN:
         """［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
         もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
 
@@ -951,7 +955,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
     # ［先後交互制］
-    if series_rule.turn_system == WHEN_ALTERNATING_TURN:
+    if series_rule.turn_system == ALTERNATING_TURN:
         """で１対局行う（どちらの勝ちが出るまでコイントスを行う）
         
         Parameters
@@ -1305,7 +1309,13 @@ class SeriesRule():
 
 
     @staticmethod
-    def make_series_rule_base(failure_rate, p_step, q_step, span, turn_system):
+    def make_series_rule_base(spec, p_step, q_step, span):
+        """
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        """
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
         if not isinstance(p_step, int):
@@ -1334,7 +1344,7 @@ class SeriesRule():
             raise ValueError(f"［コインの裏が出たときの勝ち点］{q_step=} が、［目標の点数］{span} を上回るのはおかしいです")
 
 
-        # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
+        # FIXME 削除方針。 ［コインの表も裏も出なかったときの、表番の方の勝ち点］
         # p_step_when_failed = Functions.point_when_failed(
         #         failure_rate=failure_rate,
         #         turn_system=turn_system,
@@ -1342,7 +1352,7 @@ class SeriesRule():
         #         face_of_coin=HEAD)
         p_step_when_failed = 0
 
-        # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
+        # FIXME 削除方針。 ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
         # q_step_when_failed = Functions.point_when_failed(
         #         failure_rate=failure_rate,
         #         turn_system=turn_system,
@@ -1375,22 +1385,24 @@ class SeriesRule():
                     p_step=p_step,
                     q_step=q_step,
                     span=span,
-                    turn_system=turn_system)
+                    turn_system=spec.turn_system)
 
             # ［最長対局数］
             longest_coins = SeriesRule.let_longest_coins(
-                    failure_rate=failure_rate,
+                    failure_rate=spec.failure_rate,
                     p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                     q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
-                    turn_system=turn_system)
+                    turn_system=spec.turn_system)
 
 
         if longest_coins < shortest_coins:
             text = f"［最短対局数］{shortest_coins} が、［最長対局数］{longest_coins} より長いです"
+
+            succ_indent = INDENT
             print(f"""\
+spec:
+{spec.stringify_dump(succ_indent)}
 {text}
-{failure_rate=}
-{turn_system=}
 {p_step=}
 {q_step=}
 {span=}
@@ -1406,7 +1418,7 @@ step_table:
                 shortest_coins=shortest_coins,
                 # ［最長対局数］
                 longest_coins=longest_coins,
-                turn_system=turn_system)
+                turn_system=spec.turn_system)
 
 
     @property
@@ -1416,13 +1428,13 @@ step_table:
 
 
     @staticmethod
-    def make_series_rule_auto_span(failure_rate, p_time, q_time, turn_system):
+    def make_series_rule_auto_span(spec, p_time, q_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
-        failure_rate : float
-            ［将棋の引分け率］
+        spec : Specificetion
+            ［仕様］
         p_time : int
             ［表勝ちだけでの対局数］
         q_time : int
@@ -1446,11 +1458,10 @@ step_table:
             raise ValueError(f"{span=}  {span_w=}")
 
         return SeriesRule.make_series_rule_base(
-                failure_rate=failure_rate,
+                spec=spec,
                 p_step=p_step,
                 q_step=q_step,
-                span=span,
-                turn_system=turn_system)
+                span=span)
 
 
     @property
@@ -1479,7 +1490,7 @@ step_table:
     def let_shortest_coins(p_step, q_step, span, turn_system):
         """［最短対局数］を算出"""
 
-        if turn_system == WHEN_FROZEN_TURN:
+        if turn_system == FROZEN_TURN:
             """［先後固定制］での［最短対局数］
             
             裏が全勝したときの回数と同じ
@@ -1493,7 +1504,7 @@ step_table:
             # ［目標の点数］は最小公倍数なので割り切れる
             return round_letro(span / q_step)
 
-        if turn_system == WHEN_ALTERNATING_TURN:
+        if turn_system == ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］
             
             Ｂさんだけが勝ったときの回数と同じ。
@@ -1581,7 +1592,7 @@ step_table:
         """
 
         # ［先後固定制］
-        if turn_system == WHEN_FROZEN_TURN:
+        if turn_system == FROZEN_TURN:
             """
             裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
 
@@ -1609,7 +1620,7 @@ step_table:
 
 
         # ［先後交互制］
-        elif turn_system == WHEN_ALTERNATING_TURN:
+        elif turn_system == ALTERNATING_TURN:
             """
             ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
 
@@ -1773,14 +1784,14 @@ class TrialResultsForOneSeries():
         
         FIXME Points Won というのは、シリーズ中に引き分けの対局が１つ以上あって、かつ、相手より点数が多く、かつ、自分が［目標の点数］に達していない状態
         """
-        loser = opponent(winner)
+        loser = Converter.opponent(winner)
         return 0 < self.failed_coins and not self._point_calculation.is_fully_won(player=winner) and self._point_calculation.x_has_more_than_y(winner, loser)
 
 
     def is_won(self, winner):
         """FIXME このシリーズで winner が loser に勝ったか？"""
 
-        loser = opponent(winner)
+        loser = Converter.opponent(winner)
 
         # 両者が満点勝ちしている、これはおかしい
         if self._point_calculation.is_fully_won(winner) and self._point_calculation.is_fully_won(loser):
@@ -2059,7 +2070,7 @@ class LargeSeriesTrialSummary():
 
         TODO 勝利数は、［引き分けが起こったシリーズか、起こってないシリーズか］［目標の点数に達したか、点数差での判定勝ちか］も分けてカウントしたい
         """
-        loser = opponent(winner)
+        loser = Converter.opponent(winner)
         if self._pts_wins[challenged][winner] is None:
             self._pts_wins[challenged][winner] = 0
             for s in self._list_of_trial_results_for_one_series:
@@ -2352,7 +2363,7 @@ class ScoreBoard():
 
         t11 = f"{self._spec.p * 100:7.4f}"
         t12 = f"{self._spec.failure_rate * 100:7.4f}"
-        t13 = turn_system_to_code(self._spec.turn_system)
+        t13 = Converter.turn_system_to_code(self._spec.turn_system)
 
         t21 = f"{h_step}"
         t22 = f"{t_step}"
@@ -2389,7 +2400,7 @@ Score Sheet
             else:
                 head_player = 'B'
 
-            face_of_coin_str = face_of_coin_to_str(face_of_coin)
+            face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
 
             if face_of_coin == HEAD:
                 if head_player == 'A':

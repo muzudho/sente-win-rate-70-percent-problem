@@ -10,6 +10,8 @@ from library import SeriesRule
 LOG_FILE_PATH = 'output/let_count_time.log'
 
 
+PROBABILITY = 0.5
+
 # ［将棋の引分け率］
 FAILURE_RATE = 0.0
 
@@ -29,19 +31,30 @@ if __name__ == '__main__':
             for q_step in range(1, span):
                 # ［表勝ち１つの点数］
                 for p_step in range(1, q_step):
-                    series_rule_ft = SeriesRule.make_series_rule_base(
+
+                    # 仕様
+                    spec = Specification(
+                            p=PROBABILITY,
                             failure_rate=FAILURE_RATE,
+                            turn_system=FROZEN_TURN)
+
+                    series_rule_ft = SeriesRule.make_series_rule_base(
+                            spec=spec,
                             p_step=p_step,
                             q_step=q_step,
-                            span=span,
-                            turn_system=WHEN_FROZEN_TURN)
+                            span=span)
+
+                    # 仕様
+                    spec = Specification(
+                            p=PROBABILITY,
+                            failure_rate=FAILURE_RATE,
+                            turn_system=ALTERNATING_TURN)
 
                     series_rule_at = SeriesRule.make_series_rule_base(
-                            failure_rate=FAILURE_RATE,
+                            spec=spec,
                             p_step=p_step,
                             q_step=q_step,
-                            span=span,
-                            turn_system=WHEN_ALTERNATING_TURN)
+                            span=span)
 
                     # ［最短対局数］［最長対局数］
                     seg_3a = series_rule_ft.shortest_coins

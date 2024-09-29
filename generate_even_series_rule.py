@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, make_generation_algorythm, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, Candidate
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
 
@@ -138,13 +138,17 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
         if specified_failure_rate != failure_rate:
             continue
 
+        # 仕様
+        spec = Specification(
+                p=p,
+                failure_rate=specified_failure_rate,
+                turn_system=turn_system)
 
         best_series_rule = SeriesRule.make_series_rule_base(
-                failure_rate=failure_rate,
+                spec=spec,
                 p_step=best_p_step,
                 q_step=best_q_step,
-                span=best_span,
-                turn_system=turn_system)
+                span=best_span)
 
         update_count = 0
         passage_count = 0
@@ -181,11 +185,10 @@ def iteration_deeping(df, abs_limit_of_error, specified_failure_rate, specified_
 
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
-                                failure_rate=failure_rate,
+                                spec=spec,
                                 p_step=cur_p_step,
                                 q_step=cur_q_step,
-                                span=cur_span,
-                                turn_system=spec.turn_system)
+                                span=cur_span)
 
 
                         # 力任せ探索の場合                        
@@ -397,9 +400,9 @@ Example: 10% is 0.1
 Which one(1-2)? """
         choice = input(prompt)
         if choice == '1':
-            specified_turn_system = WHEN_FROZEN_TURN
+            specified_turn_system = FROZEN_TURN
         elif choice == '2':
-            specified_turn_system = WHEN_ALTERNATING_TURN
+            specified_turn_system = ALTERNATING_TURN
         else:
             raise ValueError(f"{choice=}")
 
@@ -412,7 +415,7 @@ Example: 2000000
         specified_number_of_series = int(input(prompt))
 
 
-        generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
         if generation_algorythm == BRUTE_FORCE:
             print("力任せ探索を行います")
         elif generation_algorythm == THEORETICAL:

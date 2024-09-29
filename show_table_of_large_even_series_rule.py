@@ -8,7 +8,7 @@
 import traceback
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FACE_OF_COIN, PLAYERS, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, turn_system_to_str, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FACE_OF_COIN, PLAYERS, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_show_table_of_large_even_series_rule_csv_file_path
 from library.database import get_df_selection_series_rule, get_df_even, EvenTable, SelectionSeriesRuleTable
 from library.views import stringify_simulation_log
@@ -34,16 +34,17 @@ p=,p,％ f=,failure_rate,％ 表=,p_step,裏=,q_step,目=,span,最短=,shortest,
     return text
 
 
-def stringify_csv_of_body(p, spec, series_rule, presentable, comment, large_series_trial_summary):
+def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_trial_summary):
     """データ部を文字列化
 
     Parameters
     ----------
-
+    spec : Specification
+        ［仕様］
     """
 
 #+-------------+-------------+----------+----------+--------+-----------+-----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-#| t1          | t2          | t3       | t4       | t5     | t6a       | t6b       | t17                               ____________________________________________________________________________________________________________________________________|
+#| o1o0        | o2o0        | t3       | t4       | t5     | t6a       | t6b       | t17                               ____________________________________________________________________________________________________________________________________|
 #|             |             |          |          |        |           |           |           ________________________| t8        ________________________________________________| t9        ____________________________________________________________|
 #|             |             |          |          |        |           |           |           | t18       | t19       |           |           |           |           |           |           |           |           |           |           | t24       |
 #|             |             |          |          |        |           |           |           |           |           |           | t20       | t21       | t20b      | t21b      |           | t22a      | t23b      | t22       | t23       |           |
@@ -61,8 +62,9 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, large_seri
     f_wins_b = S.wins(challenged=FAILED, winner=BOB)
 
 
-    t1 = f"{p*100:.4f}"                                         # p
-    t2 = f"{spec.failure_rate*100:.4f}"                         # failure_rate
+    o1o0 = f"{spec.p*100:.4f}"                                  # p
+    o2o0 = f"{spec.failure_rate*100:.4f}"                       # failure_rate
+    o3o0 = f"{spec.turn_system}"                                # turn_system
     t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # 表
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # 裏
     t5 = f"{series_rule.step_table.span}"                       # 目
@@ -92,7 +94,7 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, large_seri
 
 
 #-------------+-------------+----------+----------+--------+-----------+-----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-# t1          | t2          | t3       | t4       | t5     | t6a       | t6b       | t17                               ____________________________________________________________________________________________________________________________________|
+# o1o0        | o2o0        | t3       | t4       | t5     | t6a       | t6b       | t17                               ____________________________________________________________________________________________________________________________________|
 #             |             |          |          |        |           |           |           ________________________| t8        ________________________________________________| t9        ____________________________________________________________|
 #             |             |          |          |        |           |           |           | t18       | t19       |           |           |           |           |           |           |           |           |           |           | t24       |
 #             |             |          |          |        |           |           |           |           |           |           | t20       | t21       | t20b      | t21b      |           | t22b      | t23b      | t22       | t23       |           |
@@ -100,7 +102,7 @@ def stringify_csv_of_body(p, spec, series_rule, presentable, comment, large_seri
 
     # CSV
     text = f"""\
-p=,{ t1},％ f=,{ t2},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最短=,{t6a},局 上限=,{t6b},局 計=,{t17},シリ Ａ勝=,{t18},シリ Ｂ勝=,{t19},シリ 成功=,{t8},シリ 成Ａ満点=,{t20},シリ 成Ｂ満点=,{t21},シリ 成Ａ点差勝=,{t20b},シリ 成Ｂ点差勝=,{t21b},シリ 失敗=,{t9},シリ 失Ａ満点=,{t22b},シリ 失Ｂ満点=,{t23b},シリ 失Ａ点差勝=,{t22},シリ 失Ｂ点差勝=,{t23},シリ 勝敗付かず=,{t24},シリ\
+p=,{o1o0},％ f=,{o2o0},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最短=,{t6a},局 上限=,{t6b},局 計=,{t17},シリ Ａ勝=,{t18},シリ Ｂ勝=,{t19},シリ 成功=,{t8},シリ 成Ａ満点=,{t20},シリ 成Ｂ満点=,{t21},シリ 成Ａ点差勝=,{t20b},シリ 成Ｂ点差勝=,{t21b},シリ 失敗=,{t9},シリ 失Ａ満点=,{t22b},シリ 失Ｂ満点=,{t23b},シリ 失Ａ点差勝=,{t22},シリ 失Ｂ点差勝=,{t23},シリ 勝敗付かず=,{t24},シリ\
 """
 
 
@@ -110,21 +112,15 @@ p=,{ t1},％ f=,{ t2},％ 表=,{ t3},裏=,{ t4},目=,{ t5},最短=,{t6a},局 上
     return text
 
 
-def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step, span, presentable, comment, turn_system):
+def show_series_rule(spec, specified_number_of_series, p_step, q_step, span, presentable, comment):
     """［シリーズ・ルール］を表示します"""
-    # 仕様
-    spec = Specification(
-            p=p,
-            failure_rate=failure_rate,
-            turn_system=turn_system)
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
-            failure_rate=spec.failure_rate,
+            spec=spec,
             p_step=p_step,
             q_step=q_step,
-            span=span,
-            turn_system=turn_system)
+            span=span)
 
 
     list_of_trial_results_for_one_series = []
@@ -161,7 +157,6 @@ def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step
 
 
     csv = stringify_csv_of_body(
-            p=p,
             spec=spec,
             series_rule=series_rule,
             presentable=presentable,
@@ -172,9 +167,8 @@ def show_series_rule(p, failure_rate, specified_number_of_series, p_step, q_step
     print(csv) # 表示
 
     # ログ出力
-    with open(get_show_table_of_large_even_series_rule_csv_file_path(
-            failure_rate=spec.failure_rate,
-            turn_system=turn_system), 'a', encoding='utf8') as f:
+    csv_file_path = get_show_table_of_large_even_series_rule_csv_file_path(spec=spec)
+    with open(csv_file_path, 'a', encoding='utf8') as f:
         f.write(f"{csv}\n")    # ファイルへ出力
 
 
@@ -193,10 +187,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = WHEN_FROZEN_TURN
+            specified_turn_system = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = WHEN_ALTERNATING_TURN
+            specified_turn_system = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -229,10 +223,14 @@ Example: 2000000
 
         print(header_csv) # 表示
 
-        # ログ出力
-        csv_file_path = get_show_table_of_large_even_series_rule_csv_file_path(
+        # 仕様
+        spec = Specification(
+                p=None,
                 failure_rate=specified_failure_rate,
                 turn_system=specified_turn_system)
+
+        # ログ出力
+        csv_file_path = get_show_table_of_large_even_series_rule_csv_file_path(spec=spec)
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(f"{header_csv}\n")    # ファイルへ出力
 
@@ -241,7 +239,7 @@ Example: 2000000
         if data_source == 1:
             title='イーブン［シリーズ・ルール］'
 
-            generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+            generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
             if generation_algorythm == BRUTE_FORCE:
                 print("力任せ探索で行われたデータです")
             elif generation_algorythm == THEORETICAL:
@@ -279,16 +277,20 @@ Example: 2000000
                         latest_span=latest_span,
                         candidates=candidates)
 
-                show_series_rule(
+                # 仕様
+                spec = Specification(
                         p=p,
                         failure_rate=failure_rate,
+                        turn_system=specified_turn_system)
+
+                show_series_rule(
+                        spec=spec,
                         specified_number_of_series=specified_number_of_series,
                         p_step=even_table.best_p_step,
                         q_step=even_table.best_q_step,
                         span=even_table.best_span,
                         presentable='',
-                        comment='',
-                        turn_system=specified_turn_system)
+                        comment='')
 
 
         elif data_source == 2:
@@ -318,17 +320,20 @@ Example: 2000000
                         comment=comment,
                         candidates=candidates)
 
-
-                show_series_rule(
+                # 仕様
+                spec = Specification(
                         p=ssr_table.p,
                         failure_rate=ssr_table.failure_rate,
+                        turn_system=specified_turn_system)
+
+                show_series_rule(
+                        spec=spec,
                         specified_number_of_series=specified_number_of_series,
                         p_step=ssr_table.p_step,
                         q_step=ssr_table.q_step,
                         span=ssr_table.span,
                         presentable=ssr_table.presentable,
-                        comment=ssr_table.comment,
-                        turn_system=specified_turn_system)
+                        comment=ssr_table.comment)
 
 
     except Exception as err:

@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import HEAD, TAIL, SUCCESSFUL, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
+from library import HEAD, TAIL, SUCCESSFUL, FROZEN_TURN, ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
 from library.database import get_df_selection_series_rule, get_df_selection_series_rule
 from library.views import stringify_report_selection_series_rule
 
@@ -44,15 +44,20 @@ def generate_report(turn_system):
         span = round_letro(span)
 
         # ［先後交互制］
-        if turn_system == WHEN_ALTERNATING_TURN:
+        if turn_system == ALTERNATING_TURN:
+
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=FAILURE_RATE,
+                    turn_system=turn_system)
 
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
-                    failure_rate=FAILURE_RATE,
+                    spec=spec,
                     p_step=p_step,
                     q_step=q_step,
-                    span=span,
-                    turn_system=turn_system)
+                    span=span)
 
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
             latest_theoretical_p = calculate_probability(
@@ -68,7 +73,7 @@ def generate_report(turn_system):
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
                     candidate=candidate,
-                    turn_system=WHEN_ALTERNATING_TURN)
+                    turn_system=ALTERNATING_TURN)
             print(text) # 表示
 
             with open(REPORT_FILE_PATH, 'a', encoding='utf8') as f:
@@ -76,21 +81,20 @@ def generate_report(turn_system):
 
 
         # ［先後固定制］
-        elif turn_system == WHEN_FROZEN_TURN:
+        elif turn_system == FROZEN_TURN:
 
             # 仕様
             spec = Specification(
                     p=p,
                     failure_rate=FAILURE_RATE,
-                    turn_system=WHEN_ALTERNATING_TURN)
+                    turn_system=turn_system)
 
             # ［シリーズ・ルール］。任意に指定します
             specified_series_rule = SeriesRule.make_series_rule_base(
-                    failure_rate=FAILURE_RATE,
+                    spec=spec,
                     p_step=p_step,
                     q_step=q_step,
-                    span=span,
-                    turn_system=turn_system)
+                    span=span)
 
             # NOTE 実際値ではなく、理論値を出力する
             latest_theoretical_p = calculate_probability(
@@ -128,10 +132,10 @@ if __name__ == '__main__':
 
     try:
         # ［先後交互制］
-        generate_report(turn_system=WHEN_ALTERNATING_TURN)
+        generate_report(turn_system=ALTERNATING_TURN)
 
         # ［先後固定制］
-        generate_report(turn_system=WHEN_FROZEN_TURN)
+        generate_report(turn_system=FROZEN_TURN)
 
 
     except Exception as err:

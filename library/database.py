@@ -2,9 +2,10 @@
 # NOTE pandas のデータフレームの列の型の初期値が float なので、いちいち設定する手間を省くため、読み込み時にそれぞれ型を明示しておく
 #
 import os
+import datetime
 import pandas as pd
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, round_letro
+from library import FROZEN_TURN, ALTERNATING_TURN, round_letro
 from library.file_paths import get_even_series_rule_csv_file_path, get_selection_series_rule_csv_file_path
 
 
@@ -187,6 +188,8 @@ def df_even_to_csv(df, turn_system, generation_algorythm):
     # ファイルが存在しなかった場合、新規作成
     csv_file_path = get_even_series_rule_csv_file_path(turn_system=turn_system, generation_algorythm=generation_algorythm)
 
+    print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
+
     # CSV保存
     df.to_csv(
             csv_file_path,
@@ -308,7 +311,12 @@ def get_df_selection_series_rule(turn_system):
 
 
 def df_ssr_to_csv(df, turn_system):
-    df.to_csv(get_selection_series_rule_csv_file_path(turn_system=turn_system),
+
+    csv_flie_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
+
+    print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
+
+    df.to_csv(csv_flie_path,
             # ［計算過程］列は長くなるので末尾に置きたい
             columns=['p', 'failure_rate', 'number_of_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた

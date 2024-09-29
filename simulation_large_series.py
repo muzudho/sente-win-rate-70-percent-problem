@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, make_generation_algorythm
+from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
@@ -23,11 +23,10 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
-            failure_rate=spec.failure_rate,
+            spec=spec,
             p_step=p_step,
             q_step=q_step,
-            span=span,
-            turn_system=turn_system)
+            span=span)
 
 
     if not series_rule.is_enabled:
@@ -137,10 +136,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = WHEN_FROZEN_TURN
+            specified_turn_system = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = WHEN_ALTERNATING_TURN
+            specified_turn_system = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -173,7 +172,7 @@ Which data source should I use?
         if data_source == 1:
             title='イーブン［シリーズ・ルール］'
 
-            generation_algorythm = make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+            generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
             if generation_algorythm == BRUTE_FORCE:
                 print("力任せ探索を行います")
             elif generation_algorythm == THEORETICAL:

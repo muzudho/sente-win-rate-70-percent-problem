@@ -12,7 +12,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FACE_OF_COIN, WHEN_FROZEN_TURN, WHEN_ALTERNATING_TURN, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, ScoreBoard
+from library import HEAD, TAIL, ALICE, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ArgumentOfSequenceOfPlayout, ScoreBoard
 from library.file_paths import get_analysis_series_log_file_path
 from library.views import stringify_series_log
 
@@ -43,7 +43,7 @@ def analysis_series(spec, series_rule, trial_results_for_one_series, title):
 
 
     # # FIXME ［先後固定制］と［先後交互制］の処理を同じにしたい
-    # if turn_system == WHEN_FROZEN_TURN:
+    # if turn_system == FROZEN_TURN:
     #     text = stringify_series_log(
     #             # ［表が出る確率］（指定値）
     #             p=spec.p,
@@ -115,10 +115,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            turn_system = WHEN_FROZEN_TURN
+            turn_system = FROZEN_TURN
 
         elif choice == '2':
-            turn_system = WHEN_ALTERNATING_TURN
+            turn_system = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -132,11 +132,10 @@ Which one(1-2)? """
 
         # ［シリーズ・ルール］。任意に指定します
         specified_series_rule = SeriesRule.make_series_rule_base(
-                failure_rate=specified_failure_rate,
+                spec=spec,
                 p_step=specified_p_step,
                 q_step=specified_q_step,
-                span=specified_span,
-                turn_system=turn_system)
+                span=specified_span)
 
 
         list_of_trial_results_for_one_series = []
