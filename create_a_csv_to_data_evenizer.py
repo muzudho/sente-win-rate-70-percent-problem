@@ -1,6 +1,6 @@
 #
 # 生成
-# python generate_even_series_rule.py
+# python create_a_csv_to_data_evenizer.py
 #
 #   TODO 実際値ではなく、理論値を記録したい。 alternating_turn の方がそれに対応してない
 #

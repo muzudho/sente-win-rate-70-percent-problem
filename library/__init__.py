@@ -103,17 +103,17 @@ class Converter():
         return clazz._face_of_coin_to_str[face_of_coin]
 
 
-    _turn_system_to_str = None
+    _turn_system_to_readable = None
 
     @classmethod
-    def turn_system_to_str(clazz, turn_system):
-        if clazz._turn_system_to_str is None:
-            clazz._turn_system_to_str = {
+    def turn_system_to_readable(clazz, turn_system):
+        if clazz._turn_system_to_readable is None:
+            clazz._turn_system_to_readable = {
                 FROZEN_TURN : '先後固定制',
                 ALTERNATING_TURN : '先後交互制',
             }
 
-        return clazz._turn_system_to_str[turn_system]
+        return clazz._turn_system_to_readable[turn_system]
 
 
     _turn_system_to_code = {
@@ -1675,8 +1675,8 @@ class LargeSeriesTrialSummary():
         """
 
         self._list_of_trial_results_for_one_series = list_of_trial_results_for_one_series
-        self._trial_shortest_coins = None
-        self._trial_upper_limit_coins = None
+        self._series_shortest_coins = None
+        self._series_longest_coins = None
         self._successful_series = None
         self._failed_series = None
 
@@ -1795,27 +1795,27 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def trial_shortest_coins(self):
-        """［最短対局数］"""
-        if self._trial_shortest_coins is None:
-            self._trial_shortest_coins = 2_147_483_647
+    def series_shortest_coins(self):
+        """［シリーズ最短対局数］"""
+        if self._series_shortest_coins is None:
+            self._series_shortest_coins = 2_147_483_647
             for s in self._list_of_trial_results_for_one_series:
-                if s.number_of_coins < self._trial_shortest_coins:
-                    self._trial_shortest_coins = s.number_of_coins
+                if s.number_of_coins < self._series_shortest_coins:
+                    self._series_shortest_coins = s.number_of_coins
 
-        return self._trial_shortest_coins
+        return self._series_shortest_coins
 
 
     @property
-    def trial_upper_limit_coins(self):
-        """［上限対局数］"""
-        if self._trial_upper_limit_coins is None:
-            self._trial_upper_limit_coins = 0
+    def series_longest_coins(self):
+        """［シリーズ最長対局数］"""
+        if self._series_longest_coins is None:
+            self._series_longest_coins = 0
             for s in self._list_of_trial_results_for_one_series:
-                if self._trial_upper_limit_coins < s.number_of_coins:
-                    self._trial_upper_limit_coins = s.number_of_coins
+                if self._series_longest_coins < s.number_of_coins:
+                    self._series_longest_coins = s.number_of_coins
 
-        return self._trial_upper_limit_coins
+        return self._series_longest_coins
 
 
     @property

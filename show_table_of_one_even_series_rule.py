@@ -14,7 +14,7 @@ from library.database import get_df_selection_series_rule, get_df_even, EvenTabl
 
 def stringify_header(turn_system):
     return f"""\
-turn system={Converter.turn_system_to_str(turn_system)}
+turn system={Converter.turn_system_to_readable(turn_system)}
 
 +---------------------------+------------------------------------------+--------------------------------+
 | Spec                      | Series rule                              | 1 Trial                        |

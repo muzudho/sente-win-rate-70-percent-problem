@@ -442,8 +442,8 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 
     # 対局数
     # ------
-    tm_s = S.trial_shortest_coins    # ［最短対局数］実践値
-    tm_l = S.trial_upper_limit_coins     # ［上限対局数］
+    tm_s = S.series_shortest_coins    # ［シリーズ最短対局数］実践値
+    tm_l = S.series_longest_coins     # ［シリーズ最長対局数］
 
     #                                                                                              1         1         1
     #    1         2         3         4         5         6         7         8         9         0         1         2

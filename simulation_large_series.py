@@ -105,11 +105,11 @@ def simulate_series_rule(spec, number_of_series, p_step, q_step, span, presentab
 
 
     # 表示とログ出力を終えた後でテスト
-    if large_series_trial_summary.trial_shortest_coins < series_rule.shortest_coins:
-        raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.trial_shortest_coins} が理論値 {series_rule.shortest_coins} を下回った")
+    if large_series_trial_summary.series_shortest_coins < series_rule.shortest_coins:
+        raise ValueError(f"{spec.p=} シリーズ最短対局数の実際値 {large_series_trial_summary.series_shortest_coins} が理論値 {series_rule.shortest_coins} を下回った")
 
-    if series_rule.upper_limit_coins < large_series_trial_summary.trial_upper_limit_coins:
-        raise ValueError(f"{spec.p=} 上限対局数の実際値 {large_series_trial_summary.trial_upper_limit_coins} が理論値 {series_rule.upper_limit_coins} を上回った")
+    if series_rule.upper_limit_coins < large_series_trial_summary.series_longest_coins:
+        raise ValueError(f"{spec.p=} シリーズ最長対局数の実際値 {large_series_trial_summary.series_longest_coins} が理論値 {series_rule.upper_limit_coins} を上回った")
 
 
 ########################################
