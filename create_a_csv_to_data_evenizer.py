@@ -37,7 +37,7 @@ is_dirty_csv = False
 
 
 def update_dataframe(df, spec,
-        best_p, best_p_error, best_trials_series, best_series_rule,
+        trials_series, best_p, best_p_error, best_series_rule,
         latest_p, latest_p_error, latest_series_rule, candidates):
     """データフレーム更新
     
@@ -52,10 +52,13 @@ def update_dataframe(df, spec,
     # # 表示
     # print_even_series_rule(
     #         p=p,
+    #         trials_series=trials_series,
     #         best_p=best_p,
     #         best_p_error=best_p_error,
-    #         best_trials_series=best_trials_series,
     #         series_rule=best_series_rule)
+
+    # ［試行シリーズ回数］列を更新
+    df.loc[df['p']==spec.p, ['trials_series']] = trials_series
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==spec.p, ['best_p']] = best_p
@@ -64,9 +67,6 @@ def update_dataframe(df, spec,
     # ［調整後の表が出る確率の５割との誤差］列を更新
     df.loc[df['p']==spec.p, ['best_p_error']] = best_p_error
     df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
-
-    # ［試行シリーズ回数］列を更新
-    df.loc[df['p']==spec.p, ['best_trials_series']] = best_trials_series
 
     # ［表勝ち１つの点数］列を更新
     df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
@@ -128,11 +128,11 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
     # TODO 試行シリーズ回数が違うものを１つのファイルに混ぜたくない。ファイルを分けたい
 
 
-    for         p,       failure_rate,       best_p,       best_p_error,       best_trials_series,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['best_p'], df['best_p_error'], df['best_trials_series'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
+    for         p,       failure_rate,       best_trials,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['best_trials'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        best_trials_series = round_letro(best_trials_series)
+        trials_series = round_letro(trials_series)
         best_p_step = round_letro(best_p_step)
         best_q_step = round_letro(best_q_step)
         best_span = round_letro(best_span)
@@ -162,9 +162,10 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
         is_cutoff = False
         is_good = False
 
+        # FIXME specified_trials_series と trials_series は必ず一致する前提にしたい
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if specified_trials_series < best_trials_series or abs(best_p_error) <= ABS_SMALL_ERROR:
+        if specified_trials_series < trials_series or abs(best_p_error) <= ABS_SMALL_ERROR:
             is_automatic = False
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
 
@@ -254,7 +255,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
-                                    trials_series=best_trials_series,
+                                    trials_series=trials_series,
                                     p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule.step_table.span,
@@ -276,9 +277,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
                             update_dataframe(
                                     df=df,
                                     spec=spec,
+                                    trials_series=specified_trials_series,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
-                                    best_trials_series=specified_trials_series,
                                     best_series_rule=best_series_rule,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
@@ -341,9 +342,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, abs_lim
             update_dataframe(
                     df=df,
                     spec=spec,
+                    trials_series=specified_trials_series,
                     best_p=best_p,
                     best_p_error=best_p_error,
-                    best_trials_series=specified_trials_series,
                     best_series_rule=best_series_rule,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,

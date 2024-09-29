@@ -236,8 +236,8 @@ Example: 2000000
 
             df_ev = get_df_even(turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            for            p,          failure_rate,          best_p,          best_p_error,          best_trials_series,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_trials_series'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+            for            p,          failure_rate,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
@@ -250,9 +250,9 @@ Example: 2000000
                 even_table = EvenTable(
                         p=p,
                         failure_rate=failure_rate,
+                        trials_series=trials_series,
                         best_p=best_p,
                         best_p_error=best_p_error,
-                        best_trials_series=best_trials_series,
                         best_p_step=best_p_step,
                         best_q_step=best_q_step,
                         best_span=best_span,

@@ -21,7 +21,7 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class EvenTable():
 
 
-    def __init__(self, p, failure_rate, best_p, best_p_error, best_trials_series, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_p_step, latest_q_step, latest_span, candidates):
+    def __init__(self, p, failure_rate, trials_series, best_p, best_p_error, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_p_step, latest_q_step, latest_span, candidates):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_p_step = round_letro(best_p_step)
@@ -33,9 +33,9 @@ class EvenTable():
 
         self._p=p
         self._failure_rate=failure_rate
+        self._trials_series=trials_series
         self._best_p=best_p
         self._best_p_error=best_p_error
-        self._best_trials_series=best_trials_series
         self._best_p_step=best_p_step
         self._best_q_step=best_q_step
         self._best_span=best_span
@@ -68,8 +68,8 @@ class EvenTable():
 
 
     @property
-    def best_trials_series(self):
-        return self._best_trials_series
+    def trials_series(self):
+        return self._trials_series
 
 
     @property
@@ -123,9 +123,9 @@ def append_default_record_to_df_even(df, p, failure_rate):
     # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
     df.loc[index, ['p']] = p
     df.loc[index, ['failure_rate']] = failure_rate
+    df.loc[index, ['trials_series']] = 1
     df.loc[index, ['best_p']] = 0
     df.loc[index, ['best_p_error']] = 0.51
-    df.loc[index, ['best_trials_series']] = 1
     df.loc[index, ['best_p_step']] = 0
     df.loc[index, ['best_q_step']] = 1
     df.loc[index, ['best_span']] = 1
@@ -163,9 +163,9 @@ def get_df_even(turn_system, generation_algorythm, trials_series):
     #
     df['p'].astype('float64')
     df['failure_rate'].astype('float64')
+    df['trials_series'].fillna(0).astype('int64')
     df['best_p'].fillna(0.0).astype('float64')
     df['best_p_error'].fillna(0.0).astype('float64')
-    df['best_trials_series'].fillna(0).astype('int64')
     df['best_p_step'].fillna(0).astype('int64')
     df['best_q_step'].fillna(0).astype('int64')
     df['best_span'].fillna(0).astype('int64')
@@ -188,7 +188,7 @@ def df_even_to_csv(df, turn_system, generation_algorythm):
     df.to_csv(
             csv_file_path,
             # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'best_p', 'best_p_error', 'best_trials_series', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
+            columns=['p', 'failure_rate', 'trials_series', 'best_p', 'best_p_error', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 

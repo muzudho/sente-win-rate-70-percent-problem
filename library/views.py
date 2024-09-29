@@ -170,7 +170,7 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     return text
 
 
-def print_even_series_rule(p, best_p, best_p_error, best_trials_series, series_rule):
+def print_even_series_rule(p, trials_series, best_p, best_p_error, series_rule):
 
     # 対局数
     if series_rule.turn_system == FROZEN_TURN:
@@ -199,7 +199,7 @@ def print_even_series_rule(p, best_p, best_p_error, best_trials_series, series_r
         # ［目標の点数］
         seg_4c = series_rule.step_table.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_trials_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
     if series_rule.turn_system == FROZEN_TURN:
@@ -222,7 +222,7 @@ def print_even_series_rule(p, best_p, best_p_error, best_trials_series, series_r
         # ［目標の点数］
         seg_4c = series_rule.step_table.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{best_trials_series:6}回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
 
