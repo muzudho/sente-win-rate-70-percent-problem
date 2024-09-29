@@ -30,8 +30,7 @@ start_time_for_save = None
 is_dirty_csv = False
 
 
-def update_dataframe(df, spec,
-        trials_series, best_p, best_p_error, best_series_rule,
+def update_dataframe(df, spec, best_p, best_p_error, best_series_rule_if_it_exists,
         latest_p, latest_p_error, latest_series_rule, candidates):
     """データフレーム更新
     
@@ -46,13 +45,15 @@ def update_dataframe(df, spec,
     # # 表示
     # print_even_series_rule(
     #         p=p,
-    #         trials_series=trials_series,
     #         best_p=best_p,
     #         best_p_error=best_p_error,
-    #         series_rule=best_series_rule)
+    #         series_rule=best_series_rule_if_it_exists)
 
     # ［試行シリーズ数］列を更新
-    df.loc[df['p']==spec.p, ['trials_series']] = trials_series
+    #
+    #   NOTE best と latest のどちらにも同じ値が入っているはずです
+    #
+    df.loc[df['p']==spec.p, ['trials_series']] = latest_series_rule.trials_series
 
     # ［調整後の表が出る確率］列を更新
     df.loc[df['p']==spec.p, ['best_p']] = best_p
@@ -63,15 +64,15 @@ def update_dataframe(df, spec,
     df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
 
     # ［表勝ち１つの点数］列を更新
-    df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
     df.loc[df['p']==spec.p, ['latest_p_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
     # ［裏勝ち１つの点数］列を更新
-    df.loc[df['p']==spec.p, ['best_q_step']] = best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==spec.p, ['best_q_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
     df.loc[df['p']==spec.p, ['latest_q_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
-    df.loc[df['p']==spec.p, ['best_span']] = best_series_rule.step_table.span
+    df.loc[df['p']==spec.p, ['best_span']] = best_series_rule_if_it_exists.step_table.span
     df.loc[df['p']==spec.p, ['latest_span']] = latest_series_rule.step_table.span
 
     # ［シリーズ・ルール候補］列を更新
@@ -90,10 +91,16 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
     for p in df_p['p']:
         # 存在しなければデフォルトのレコード追加
         if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate) & (df['trials_series'] == specified_trials_series)).any():
-            append_default_record_to_df_even(
-                    df=df,
+
+            # ［仕様］
+            spec = Specification(
                     p=p,
                     failure_rate=specified_failure_rate,
+                    turn_system=turn_system)
+            
+            append_default_record_to_df_even(
+                    df=df,
+                    spec=spec,
                     trials_series=specified_trials_series)
             is_append_new_record = True
 
@@ -140,13 +147,20 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         if specified_failure_rate != failure_rate:
             continue
 
+
+        # FIXME 自明のチェック。 specified_trials_series と trials_series は必ず一致する
+        if specified_trials_series != trials_series:
+            raise ValueError(f"{specified_trials_series=} != {trials_series=}")
+
+
         # 仕様
         spec = Specification(
                 p=p,
                 failure_rate=specified_failure_rate,
                 turn_system=specified_turn_system)
 
-        best_series_rule = SeriesRule.make_series_rule_base(
+        # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
+        best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
                 spec=spec,
                 trials_series=trials_series,
                 p_step=best_p_step,
@@ -157,12 +171,6 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         passage_count = 0
         is_cutoff = False
         is_good = False
-
-
-        # FIXME 自明のチェック。 specified_trials_series と trials_series は必ず一致する
-        if specified_trials_series != trials_series:
-            raise ValueError(f"{specified_trials_series=} != {trials_series=}")
-
 
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
@@ -253,17 +261,17 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             update_count += 1
                             best_p = latest_p
                             best_p_error = latest_p_error
-                            best_series_rule = latest_series_rule
+                            best_series_rule_if_it_exists = latest_series_rule
 
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
                                     trials_series=specified_trials_series,
-                                    p_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
-                                    q_step=best_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
-                                    span=best_series_rule.step_table.span,
-                                    shortest_coins=best_series_rule.shortest_coins,             # ［最短対局数］
-                                    upper_limit_coins=best_series_rule.upper_limit_coins)       # ［上限対局数］
+                                    p_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
+                                    q_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+                                    span=best_series_rule_if_it_exists.step_table.span,
+                                    shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
+                                    upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
                             print(f"[p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
 
@@ -280,10 +288,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             update_dataframe(
                                     df=df,
                                     spec=spec,
-                                    trials_series=specified_trials_series,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
-                                    best_series_rule=best_series_rule,
+                                    best_series_rule_if_it_exists=best_series_rule_if_it_exists,
                                     latest_p=latest_p,
                                     latest_p_error=latest_p_error,
                                     latest_series_rule=latest_series_rule,
@@ -345,10 +352,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
             update_dataframe(
                     df=df,
                     spec=spec,
-                    trials_series=specified_trials_series,
                     best_p=best_p,
                     best_p_error=best_p_error,
-                    best_series_rule=best_series_rule,
+                    best_series_rule_if_it_exists=best_series_rule_if_it_exists,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
                     latest_series_rule=latest_series_rule,
@@ -445,35 +451,41 @@ Example: 3
         #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
         #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
         #
-        abs_limit_of_error = ABS_OUT_OF_ERROR
+        # ループに最初に１回入るためだけの設定
+        worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
-        while specified_abs_small_error < abs_limit_of_error:
+        # 指定の誤差の最小値より、誤差が大きい間繰り返す
+        while specified_abs_small_error < worst_abs_best_p_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
             worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
-            # print(f"{worst_abs_best_p_error=}")
+
+            # # nan が入っていることがある
+            # if worst_abs_best_p_error is None:
+            #     raise ValueError(f"誤差値が見つからない  {worst_abs_best_p_error}")
+
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
             #
             #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
             #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
             #
-            # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-            abs_limit_of_error = worst_abs_best_p_error * 9 / 10
-
             iteration_deeping(
                     df=df_ev,
                     specified_failure_rate=specified_failure_rate,
                     specified_turn_system=specified_turn_system,
                     specified_trials_series=specified_trials_series,
                     specified_abs_small_error=specified_abs_small_error,
-                    abs_limit_of_error=abs_limit_of_error,
+
+                    # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
+                    abs_limit_of_error=worst_abs_best_p_error * 9 / 10,
+
                     generation_algorythm=generation_algorythm)
 
 
-        print(f"誤差 {specified_abs_small_error} より小さなデータの作成完了。 {worst_abs_best_p_error=}")
+        print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
 
 
         if is_dirty_csv:

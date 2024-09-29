@@ -228,6 +228,9 @@ Example: 3
 
 
         # ヘッダー出力（ファイルは上書きします）
+        #
+        #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
+        #
         csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
         with open(csv_file_path, 'w', encoding='utf8') as f:
             f.write(f"{header_csv}\n")
@@ -248,8 +251,8 @@ Example: 3
 
             df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
-            for            p,          failure_rate,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+            for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ　［将棋の引分け率］
                 if specified_failure_rate != failure_rate:

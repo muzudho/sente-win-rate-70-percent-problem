@@ -1333,7 +1333,7 @@ step_table:
     @property
     def trials_series(self):
         """この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］"""
-        return self_trials_series
+        return self._trials_series
 
 
     @property

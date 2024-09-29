@@ -5,7 +5,7 @@ import os
 import datetime
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, round_letro
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro
 from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path
 
 
@@ -21,7 +21,7 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class EvenTable():
 
 
-    def __init__(self, p, failure_rate, trials_series, best_p, best_p_error, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_p_step, latest_q_step, latest_span, candidates):
+    def __init__(self, p, failure_rate, turn_system, trials_series, best_p, best_p_error, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_p_step, latest_q_step, latest_span, candidates):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_p_step = round_letro(best_p_step)
@@ -33,6 +33,7 @@ class EvenTable():
 
         self._p=p
         self._failure_rate=failure_rate
+        self._turn_system=turn_system
         self._trials_series=trials_series
         self._best_p=best_p
         self._best_p_error=best_p_error
@@ -55,6 +56,11 @@ class EvenTable():
     @property
     def failure_rate(self):
         return self._failure_rate
+
+
+    @property
+    def turn_system(self):
+        return self._turn_system
 
 
     @property
@@ -117,12 +123,19 @@ class EvenTable():
         return self._candidates
 
 
-def append_default_record_to_df_even(df, p, failure_rate, trials_series):
+def append_default_record_to_df_even(df, spec, trials_series):
+    """
+    Parameters
+    ----------
+    spec : Specification
+        ［仕様］
+    """
     index = len(df.index)
 
     # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
-    df.loc[index, ['p']] = p
-    df.loc[index, ['failure_rate']] = failure_rate
+    df.loc[index, ['p']] = spec.p
+    df.loc[index, ['failure_rate']] = spec.failure_rate
+    df.loc[index, ['turn_system']] = Converter.turn_system_to_code(spec.turn_system)
     df.loc[index, ['trials_series']] = trials_series
     df.loc[index, ['best_p']] = 0
     df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
@@ -160,11 +173,13 @@ def get_df_even(failure_rate, turn_system, generation_algorythm, trials_series):
 
 
     df = pd.read_csv(csv_file_path, encoding="utf8")
+
     #
     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
     #
     df['p'].astype('float64')
     df['failure_rate'].astype('float64')
+    df['turn_system'].fillna(0).astype('object')    # string 型は無い？
     df['trials_series'].fillna(0).astype('int64')
     df['best_p'].fillna(0.0).astype('float64')
     df['best_p_error'].fillna(0.0).astype('float64')
@@ -177,6 +192,7 @@ def get_df_even(failure_rate, turn_system, generation_algorythm, trials_series):
     df['latest_q_step'].fillna(0).astype('int64')
     df['latest_span'].fillna(0).astype('int64')
     df['candidates'].fillna('').astype('object')    # string 型は無い？
+
     return df
 
 
@@ -190,7 +206,7 @@ def df_even_to_csv(df, failure_rate, turn_system, generation_algorythm, trials_s
     df.to_csv(
             csv_file_path,
             # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'trials_series', 'best_p', 'best_p_error', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
+            columns=['p', 'failure_rate', 'turn_system', 'trials_series', 'best_p', 'best_p_error', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 

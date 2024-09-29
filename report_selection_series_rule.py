@@ -67,7 +67,6 @@ def generate_report(specified_turn_system):
             # 文言の作成
             text = stringify_report_selection_series_rule(
                     p=p,
-                    trials_series=trials_series,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,
@@ -99,7 +98,6 @@ def generate_report(specified_turn_system):
             # 文言の作成
             text = stringify_report_selection_series_rule(
                     p=p,
-                    trials_series=trials_series,
                     latest_theoretical_p=latest_theoretical_p,
                     specified_series_rule=specified_series_rule,    # TODO 任意のポイントを指定したい
                     presentable=presentable,

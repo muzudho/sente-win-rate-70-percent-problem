@@ -4,12 +4,14 @@ import re
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule, Candidate
 
 
-def stringify_report_selection_series_rule(p, trials_series, latest_theoretical_p, specified_series_rule, presentable, candidates, turn_system):
+def stringify_report_selection_series_rule(p, latest_theoretical_p, specified_series_rule, presentable, candidates, turn_system):
     if turn_system == ALTERNATING_TURN:
         """［先後交互制］での、むずでょが推奨する［かくきんシステムのｐの構成］
 
         Parameters
         ----------
+        specified_series_rule : SeriesRule
+            ［シリーズ・ルール］
         presentable : str
             表示用の説明文
         """
@@ -54,7 +56,7 @@ def stringify_report_selection_series_rule(p, trials_series, latest_theoretical_
                     seg_8 = candidate_obj.upper_limit_coins
 
                     # ［試行シリーズ数］
-                    seg_9 = trials_series
+                    seg_9 = specified_series_rule.trials_series
 
                     return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回{seg_10}"
 
@@ -96,7 +98,7 @@ def stringify_report_selection_series_rule(p, trials_series, latest_theoretical_
         seg_8 = specified_series_rule.upper_limit_coins
 
         # ［試行シリーズ数］
-        seg_9 = trials_series
+        seg_9 = specified_series_rule.trials_series
 
         # 表示用の説明文
         if isinstance(presentable, str):    # float NaN が入っていることがある
@@ -170,7 +172,7 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     return text
 
 
-def print_even_series_rule(p, trials_series, best_p, best_p_error, series_rule):
+def print_even_series_rule(p, best_p, best_p_error, series_rule):
 
     # 対局数
     if series_rule.turn_system == FROZEN_TURN:
@@ -199,7 +201,7 @@ def print_even_series_rule(p, trials_series, best_p, best_p_error, series_rule):
         # ［目標の点数］
         seg_4c = series_rule.step_table.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{series_rule.trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
     if series_rule.turn_system == FROZEN_TURN:
@@ -222,7 +224,7 @@ def print_even_series_rule(p, trials_series, best_p, best_p_error, series_rule):
         # ［目標の点数］
         seg_4c = series_rule.step_table.span
 
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
+        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{series_rule.trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
         return
 
 
