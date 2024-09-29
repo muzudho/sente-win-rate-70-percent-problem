@@ -41,14 +41,14 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                 spec=spec,
-                longest_coins=series_rule.longest_coins)
+                upper_limit_coins=series_rule.upper_limit_coins)
 
         # FIXME 検証
         if len(list_of_face_of_coin) < series_rule.shortest_coins:
             text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
             print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
             raise ValueError(text)
 
@@ -65,13 +65,13 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
             text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.shortest_coins} を下回った"
             print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
             raise ValueError(text)
 
-        if series_rule.longest_coins < trial_results_for_one_series.number_of_times:
-            text = f"{spec.p=} 最長対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.longest_coins} を上回った"
+        if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_times:
+            text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {series_rule.upper_limit_coins} を上回った"
             print(f"""{text}
 {list_of_face_of_coin=}
 {series_rule.shortest_coins=}
@@ -117,8 +117,8 @@ def simulate_series_rule(p, failure_rate, number_of_series, p_step, q_step, span
     if large_series_trial_summary.shortest_time_th < series_rule.shortest_coins:
         raise ValueError(f"{spec.p=} 最短対局数の実際値 {large_series_trial_summary.shortest_time_th} が理論値 {series_rule.shortest_coins} を下回った")
 
-    if series_rule.longest_coins < large_series_trial_summary.longest_time_th:
-        raise ValueError(f"{spec.p=} 最長対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {series_rule.longest_coins} を上回った")
+    if series_rule.upper_limit_coins < large_series_trial_summary.longest_time_th:
+        raise ValueError(f"{spec.p=} 上限対局数の実際値 {large_series_trial_summary.longest_time_th} が理論値 {series_rule.upper_limit_coins} を上回った")
 
 
 ########################################

@@ -175,14 +175,14 @@ Which one(1-2)? """
                 text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.shortest_coins} を下回った"
                 print(f"""{text}
 {list_of_face_of_coin=}
-{specified_series_rule.longest_coins=}
+{specified_series_rule.upper_limit_coins=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
                 raise ValueError(text)
 
             # FIXME 検証
-            if specified_series_rule.longest_coins < trial_results_for_one_series.number_of_times:
-                text = f"{spec.p=} 最長対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.longest_coins} を上回った"
+            if specified_series_rule.upper_limit_coins < trial_results_for_one_series.number_of_times:
+                text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_times} が理論値 {specified_series_rule.upper_limit_coins} を上回った"
                 print(f"""{text}
 {list_of_face_of_coin=}
 {specified_series_rule.shortest_coins=}

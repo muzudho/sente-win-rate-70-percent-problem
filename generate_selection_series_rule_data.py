@@ -70,7 +70,7 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
         # ［計算過程］一覧
         #
         #   NOTE ［計算過程］リストの後ろの方のデータの方が精度が高い
-        #   NOTE ［最長対局数］を気にする。長すぎるものは採用しづらい
+        #   NOTE ［上限対局数］を気にする。長すぎるものは採用しづらい
         #
         if isinstance(candidate, float):  # nan が入ってる？
             candidate_list = []
@@ -80,7 +80,7 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
 
         #
         #   ［計算過程］が量が多くて調べものをしづらいので、量を減らします。
-        #   NOTE ［最小対局数］と［最長対局数］が同じデータもいっぱいあります。その場合、リストの最初に出てきたもの以外は捨てます
+        #   NOTE ［最小対局数］と［上限対局数］が同じデータもいっぱいあります。その場合、リストの最初に出てきたもの以外は捨てます
         #
         candidate_element_dict = dict()
 
@@ -89,7 +89,7 @@ def generate_data(specified_failure_rate, turn_system, generation_algorythm):
             candidate_obj = Candidate.parse_candidate(candidate_element)
 
             if candidate_obj.p_error is not None:
-                key = (candidate_obj.shortest_coins, candidate_obj.longest_coins)
+                key = (candidate_obj.shortest_coins, candidate_obj.upper_limit_coins)
                 if key not in candidate_element_dict:
                     candidate_element_dict[key] = candidate_obj
 

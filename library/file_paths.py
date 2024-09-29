@@ -13,7 +13,7 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
     failure_rate : float
         ［表も裏も出ない確率］
     turn_system : int
-        ［先後が回ってくる制度］
+        ［先後の決め方］
     generation_algorythm : int
         ［データ生成アルゴリズム］
     """
@@ -122,7 +122,7 @@ def get_even_series_rule_csv_file_path(turn_system=None, generation_algorythm=No
     Parameters
     ----------
     turn_system : int
-        ［先後が回ってくる制度］
+        ［先後の決め方］
     generation_algorythm : int
         ［データ生成アルゴリズム］
     """

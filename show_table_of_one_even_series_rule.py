@@ -25,7 +25,7 @@ turn system={Converter.turn_system_to_str(turn_system)}
 """
 
 
-def stringify_body(p, spec, longest_coins, series_rule, presentable, comment, trial_results_for_one_series):
+def stringify_body(p, spec, upper_limit_coins, series_rule, presentable, comment, trial_results_for_one_series):
     """データ部を文字列化
 
     Parameters
@@ -37,7 +37,7 @@ def stringify_body(p, spec, longest_coins, series_rule, presentable, comment, tr
     t3 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD):>6}"
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL):>6}"
     t5 = f"{series_rule.step_table.span:>4}"
-    t6 = f"{longest_coins:>7}"
+    t6 = f"{upper_limit_coins:>7}"
     t7 = f"{trial_results_for_one_series.number_of_times:>7}"  # ［行われた対局数］
     t8 = f"{trial_results_for_one_series.failed_coins:>7}"  # ［表も裏も出なかった対局数］
 
@@ -73,14 +73,14 @@ def show_series_rule(spec, p_step, q_step, span, presentable, comment):
     # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
     list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
             spec=spec,
-            longest_coins=series_rule.longest_coins)
+            upper_limit_coins=series_rule.upper_limit_coins)
 
     # FIXME 検証
     if len(list_of_face_of_coin) < series_rule.shortest_coins:
         text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
         raise ValueError(text)
 
@@ -95,7 +95,7 @@ def show_series_rule(spec, p_step, q_step, span, presentable, comment):
     text = stringify_body(
             p=p,
             spec=spec,
-            longest_coins=series_rule.longest_coins,
+            upper_limit_coins=series_rule.upper_limit_coins,
             series_rule=series_rule,
             presentable=presentable,
             comment=comment,

@@ -69,7 +69,7 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
     t4 = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # 裏
     t5 = f"{series_rule.step_table.span}"                       # 目
     t6a = f"{series_rule.shortest_coins}"   # 最短
-    t6b = f"{series_rule.longest_coins}"    # 上限
+    t6b = f"{series_rule.upper_limit_coins}"    # 上限
     t8 = f"{S.successful_series}"           # 成功
     t9 = f"{S.failed_series}"               # 失敗
 
@@ -130,14 +130,14 @@ def show_series_rule(spec, specified_number_of_series, p_step, q_step, span, pre
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                 spec=spec,
-                longest_coins=series_rule.longest_coins)
+                upper_limit_coins=series_rule.upper_limit_coins)
 
         # FIXME 検証
         if len(list_of_face_of_coin) < series_rule.shortest_coins:
             text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
             print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
             raise ValueError(text)
 

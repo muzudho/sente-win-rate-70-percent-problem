@@ -147,80 +147,6 @@ class Converter():
         return BRUTE_FORCE
 
 
-class Functions():
-    """数式"""
-
-
-    @staticmethod
-    def point_when_failed(failure_rate, turn_system, face_of_coin, step):
-        """TODO 引分け時の［勝ち点］の算出。
-
-        引分け時の勝ち点 = 勝ち点 * ( 1 - 将棋の引分け率 ) / 2
-
-        // ２で割ってるのは、両者が１つの勝ちを半分ずつに按分するから。
-
-        例： 勝ち点３で、将棋の引分け率を 0.1 と指定したとき、
-        引分け時の勝ち点 = 3 * ( 1 - 0.1 ) / 2 = 1.35
-
-        例： 勝ち点３で、将棋の引分け率を 0.9 と指定したとき、
-        引分け時の勝ち点 = 3 * ( 1 - 0.9 ) / 2 = 0.15
-
-        Parameters
-        ----------
-        failure_rate : int
-            ［コインの表も裏も出なかった確率］
-        turn_system : int
-            ［先後が回ってくる制度］
-        step : int
-            ［勝ち点］
-        face_of_coin : int
-            ［コインの表か裏］
-        """
-
-        # 引分けは、ちょうどプレイヤー数で割って半分ずつに按分します
-        player_number = 2
-
-        if turn_system == FROZEN_TURN:
-            # 例： ［勝ち点] 1、［表も裏も出なかった確率］ 0.3
-            #   = 1 * (1 - 0.3) / 2
-            #   =        0.7    / 2
-            #   =             0.35
-            # ［勝ち点］は［表か裏が出たとき］が 1 で、［表も裏も出なかったとき］は 0.35 に減る
-            #
-            return step * (1 - failure_rate) / player_number
-
-        if turn_system == ALTERNATING_TURN:
-            # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
-
-            # 例： ［勝ち点] 1、［表も裏も出なかった確率］ 0.3
-            #   = 1 * 0.5 / 0.3
-            #   =   1.6666...
-            # ［勝ち点］は［表か裏が出たとき］が 1 で、［表も裏も出なかったとき］は 1.6666... に増える
-            #
-
-            # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            # TODO ［表も裏も出ない確率］が 0.99 なら、［コインの表も裏も出なかったときの、表番の方の勝ち点］を増やす必要がある？ 先手の勝つ機会が減ってるんで。
-            if face_of_coin == HEAD:
-                return step * (1 - failure_rate) / player_number
-
-                # NOTE ［表が出たときの勝ち点］を増やすと、［勝ち点］調整がおかしいと、［両者満点勝ち］という不具合が起きてしまう
-                #return (step * (1 - failure_rate) / player_number) / failure_rate
-
-            # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-            # TODO ［表も裏も出ない確率］が 0.99 なら、［後手勝ち］の基本［勝ち点］も減らす必要がある？ 先手の勝つ機会が減ってるんで。
-            elif face_of_coin == TAIL:
-                return step * (1 - failure_rate) / player_number
-
-                #return step / player_number
-
-            else:
-                raise ValueError(f"{face_of_coin=}")
-            
-
-        else:
-            raise ValueError(f"{self._turn_system=}")
-
-
 class Specification():
     """仕様"""
 
@@ -235,7 +161,7 @@ class Specification():
         failure_rate : float
             ［表も裏も出ない確率］。例： １割が引き分けなら 0.1
         turn_system : int
-            ［先後運営制度］
+            ［先後の決め方］
         """
 
         self._p = p
@@ -393,7 +319,7 @@ class ArgumentOfSequenceOfPlayout():
     """SequenceOfPlayout を作成するための引数"""
 
 
-    def __init__(self, spec, p, failure_rate, longest_coins):
+    def __init__(self, spec, p, failure_rate, upper_limit_coins):
         """初期化
 
         Parameters
@@ -402,13 +328,13 @@ class ArgumentOfSequenceOfPlayout():
             ［表が出る確率］
         failure_rate : float
             ［引き分ける確率］
-        longest_coins : int
-            ［最長対局数］
+        upper_limit_coins : int
+            ［上限対局数］
         """
         self._spec = spec
         self._p = p
         self._failure_rate = failure_rate
-        self._longest_coins = longest_coins
+        self._upper_limit_coins = upper_limit_coins
 
 
     @property
@@ -430,9 +356,9 @@ class ArgumentOfSequenceOfPlayout():
 
 
     @property
-    def longest_coins(self):
-        """［最長対局数］"""
-        return self._longest_coins
+    def upper_limit_coins(self):
+        """［上限対局数］"""
+        return self._upper_limit_coins
 
 
     def stringify_dump(self, indent):
@@ -445,7 +371,7 @@ class ArgumentOfSequenceOfPlayout():
 {self._spec.stringify_dump(succ_indent)}
 {succ_indent}{self._p=}
 {succ_indent}{self._failure_rate=}
-{succ_indent}{self._longest_coins=}
+{succ_indent}{self._upper_limit_coins=}
 """
 
 
@@ -478,7 +404,7 @@ class SequenceOfFaceOfCoin():
             elements = [HEAD, TAIL]
 
         # 桁数
-        depth = series_rule.longest_coins
+        depth = series_rule.upper_limit_coins
 
         # １シーズン分のコイントスの全ての結果
         stats = []
@@ -535,21 +461,21 @@ class SequenceOfFaceOfCoin():
 
 
     @staticmethod
-    def make_sequence_of_playout(spec, longest_coins):
+    def make_sequence_of_playout(spec, upper_limit_coins):
         """［コイントスの結果］を並べたものを作成します
 
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        longest_coins : int
-            ［最長対局数］
+        upper_limit_coins : int
+            ［上限対局数］
         """
 
         list_of_face_of_coin = []
 
-        # ［最長対局数］までやる
-        for time_th in range(1, longest_coins + 1):
+        # ［上限対局数］までやる
+        for time_th in range(1, upper_limit_coins + 1):
 
             face_of_coin = toss_a_coin(
                     p=spec.p,
@@ -564,7 +490,7 @@ class SequenceOfFaceOfCoin():
     @staticmethod
     def cut_down(list_of_face_of_coin, number_of_times):
         """コイントスの結果のリストの長さを切ります。
-        対局は必ずしも［最長対局数］になるわけではありません"""
+        対局は必ずしも［上限対局数］になるわけではありません"""
         return list_of_face_of_coin[0:number_of_times]
 
 
@@ -822,7 +748,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
         text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
         raise ValueError(text)
 
@@ -889,7 +815,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                 if gameover_reason is not None:
 
                     # コイントスの結果のリストの長さを切ります。
-                    # 対局は必ずしも［最長対局数］になるわけではありません
+                    # 対局は必ずしも［上限対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
 
                     # FIXME 検証
@@ -901,13 +827,13 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                         text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った1  {gameover_reason=}"
                         print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
                         raise ValueError(text)
 
                     # FIXME 検証
-                    if series_rule.longest_coins < time_th:
-                        text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った1"
+                    if series_rule.upper_limit_coins < time_th:
+                        text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った1"
                         print(f"""{text}
 {list_of_face_of_coin=}
 {shortest_coins=}
@@ -932,13 +858,13 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った2"
             print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
             raise ValueError(text)
 
         # FIXME 検証
-        if series_rule.longest_coins < time_th:
-            text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った2"
+        if series_rule.upper_limit_coins < time_th:
+            text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った2"
             print(f"""{text}
 {list_of_face_of_coin=}
 {shortest_coins=}
@@ -1013,7 +939,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                 if gameover_reason is not None:
 
                     # コイントスの結果のリストの長さを切ります。
-                    # 対局は必ずしも［最長対局数］になるわけではありません
+                    # 対局は必ずしも［上限対局数］になるわけではありません
                     list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
 
                     # FIXME 検証
@@ -1025,13 +951,13 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                         text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った3  {gameover_reason=}"
                         print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
                         raise ValueError(text)
 
                     # FIXME 検証
-                    if series_rule.longest_coins < time_th:
-                        text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った3  {gameover_reason=}"
+                    if series_rule.upper_limit_coins < time_th:
+                        text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った3  {gameover_reason=}"
                         print(f"""{text}
 {list_of_face_of_coin=}
 {shortest_coins=}
@@ -1064,13 +990,13 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った4"
             print(f"""{text}
 {list_of_face_of_coin=}
-{series_rule.longest_coins=}
+{series_rule.upper_limit_coins=}
 """)
             raise ValueError(text)
 
         # FIXME 検証
-        if series_rule.longest_coins < time_th:
-            text = f"{spec.p=} 対局数の実際値 {time_th} が最長対局数の理論値 {series_rule.longest_coins} を上回った4"
+        if series_rule.upper_limit_coins < time_th:
+            text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った4"
             print(f"""{text}
 {list_of_face_of_coin=}
 {shortest_coins=}
@@ -1146,7 +1072,7 @@ def calculate_probability(p, H, T):
 class SeriesRule():
     """［シリーズ・ルール］
     
-    NOTE ［最短対局数］、［最長対局数］は指定できず、計算で求めるもの
+    NOTE ［最短対局数］、［上限対局数］は指定できず、計算で求めるもの
     """
 
 
@@ -1282,7 +1208,7 @@ class SeriesRule():
 """
 
 
-    def __init__(self, step_table, shortest_coins, longest_coins, turn_system):
+    def __init__(self, step_table, shortest_coins, upper_limit_coins, turn_system):
         """初期化
         
         Parameters
@@ -1291,10 +1217,10 @@ class SeriesRule():
             ［１勝の点数テーブル］
         shortest_coins : int
             ［最短対局数］
-        longest_coins : int
-            ［最長対局数］
+        upper_limit_coins : int
+            ［上限対局数］
         turn_system : int
-            ［先後が回ってくる制度］
+            ［先後の決め方］
         """
 
         self._step_table = step_table
@@ -1302,8 +1228,8 @@ class SeriesRule():
         # ［最短対局数］
         self._shortest_coins = shortest_coins
 
-        # ［最長対局数］
-        self._longest_coins = longest_coins
+        # ［上限対局数］
+        self._upper_limit_coins = upper_limit_coins
 
         self._turn_system = turn_system
 
@@ -1344,20 +1270,8 @@ class SeriesRule():
             raise ValueError(f"［コインの裏が出たときの勝ち点］{q_step=} が、［目標の点数］{span} を上回るのはおかしいです")
 
 
-        # FIXME 削除方針。 ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-        # p_step_when_failed = Functions.point_when_failed(
-        #         failure_rate=failure_rate,
-        #         turn_system=turn_system,
-        #         step=p_step,
-        #         face_of_coin=HEAD)
         p_step_when_failed = 0
 
-        # FIXME 削除方針。 ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-        # q_step_when_failed = Functions.point_when_failed(
-        #         failure_rate=failure_rate,
-        #         turn_system=turn_system,
-        #         step=q_step,
-        #         face_of_coin=TAIL)
         q_step_when_failed = 0
 
         # if q_step_when_failed < p_step_when_failed:
@@ -1376,8 +1290,8 @@ class SeriesRule():
             # ［最短対局数］
             shortest_coins = 0
 
-            # ［最長対局数］
-            longest_coins = 0
+            # ［上限対局数］
+            upper_limit_coins = 0
 
         else:
             # ［最短対局数］
@@ -1387,16 +1301,16 @@ class SeriesRule():
                     span=span,
                     turn_system=spec.turn_system)
 
-            # ［最長対局数］
-            longest_coins = SeriesRule.let_longest_coins(
+            # ［上限対局数］
+            upper_limit_coins = SeriesRule.let_upper_limit_coins(
                     failure_rate=spec.failure_rate,
                     p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                     q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                     turn_system=spec.turn_system)
 
 
-        if longest_coins < shortest_coins:
-            text = f"［最短対局数］{shortest_coins} が、［最長対局数］{longest_coins} より長いです"
+        if upper_limit_coins < shortest_coins:
+            text = f"［最短対局数］{shortest_coins} が、［上限対局数］{upper_limit_coins} より長いです"
 
             succ_indent = INDENT
             print(f"""\
@@ -1416,8 +1330,8 @@ step_table:
                 step_table=step_table,
                 # ［最短対局数］
                 shortest_coins=shortest_coins,
-                # ［最長対局数］
-                longest_coins=longest_coins,
+                # ［上限対局数］
+                upper_limit_coins=upper_limit_coins,
                 turn_system=spec.turn_system)
 
 
@@ -1481,9 +1395,9 @@ step_table:
 
 
     @property
-    def longest_coins(self):
-        """［最長対局数］"""
-        return self._longest_coins
+    def upper_limit_coins(self):
+        """［上限対局数］"""
+        return self._upper_limit_coins
 
 
     @staticmethod
@@ -1587,8 +1501,8 @@ step_table:
 
 
     @staticmethod
-    def let_longest_coins_without_failure_rate(p_time, q_time, turn_system):
-        """［最長対局数］を算出します        
+    def let_upper_limit_coins_without_failure_rate(p_time, q_time, turn_system):
+        """［上限対局数］を算出します        
         """
 
         # ［先後固定制］
@@ -1650,8 +1564,8 @@ step_table:
 
 
     @staticmethod
-    def let_longest_coins_with_failure_rate(failure_rate, number_of_longest_time_without_failure_rate):
-        """［最長対局数］を算出します
+    def let_upper_limit_coins_with_failure_rate(failure_rate, number_of_longest_time_without_failure_rate):
+        """［上限対局数］を算出します
         
         ［表も裏も出ない確率］の考え方
         ----------------------------
@@ -1691,16 +1605,16 @@ step_table:
 
 
     @staticmethod
-    def let_longest_coins(failure_rate, p_time, q_time, turn_system):
-        """［最長対局数］を算出します
+    def let_upper_limit_coins(failure_rate, p_time, q_time, turn_system):
+        """［上限対局数］を算出します
         """
 
-        number_of_longest_time_without_failure_rate = SeriesRule.let_longest_coins_without_failure_rate(
+        number_of_longest_time_without_failure_rate = SeriesRule.let_upper_limit_coins_without_failure_rate(
                 p_time=p_time,
                 q_time=q_time,
                 turn_system=turn_system)
 
-        return SeriesRule.let_longest_coins_with_failure_rate(
+        return SeriesRule.let_upper_limit_coins_with_failure_rate(
                 failure_rate=failure_rate,
                 number_of_longest_time_without_failure_rate=number_of_longest_time_without_failure_rate)
 
@@ -1713,7 +1627,7 @@ step_table:
 {succ_indent}self._step_table.stringify_dump(succ_indent):
 {self._step_table.stringify_dump(succ_indent)}
 {succ_indent}{self._shortest_coins=}
-{succ_indent}{self._longest_coins=}
+{succ_indent}{self._upper_limit_coins=}
 {succ_indent}{self._turn_system=}
 """
 
@@ -2171,7 +2085,7 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, number_of_series, p_step, q_step, span, shortest_coins, longest_coins):
+    def __init__(self, p_error, number_of_series, p_step, q_step, span, shortest_coins, upper_limit_coins):
 
         if not isinstance(number_of_series, int):
             raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {number_of_series=}")
@@ -2188,8 +2102,8 @@ class Candidate():
         if not isinstance(shortest_coins, int):
             raise ValueError(f"［最短対局数］は int 型である必要があります {shortest_coins=}")
 
-        if not isinstance(longest_coins, int):
-            raise ValueError(f"［最長対局数］は int 型である必要があります {longest_coins=}")
+        if not isinstance(upper_limit_coins, int):
+            raise ValueError(f"［上限対局数］は int 型である必要があります {upper_limit_coins=}")
 
         self._p_error = p_error
         self._number_of_series = number_of_series
@@ -2197,7 +2111,7 @@ class Candidate():
         self._q_step = q_step
         self._span = span
         self._shortest_coins = shortest_coins
-        self._longest_coins = longest_coins
+        self._upper_limit_coins = upper_limit_coins
 
 
     @property
@@ -2231,13 +2145,13 @@ class Candidate():
 
 
     @property
-    def longest_coins(self):
-        return self._longest_coins
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
 
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._shortest_coins}～{self._longest_coins}局 {self._number_of_series}試]'
+        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._number_of_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -2257,7 +2171,7 @@ class Candidate():
                     q_step=int(result.group(3)),
                     span=int(result.group(4)),
                     shortest_coins=int(result.group(5)),
-                    longest_coins=int(result.group(6)))
+                    upper_limit_coins=int(result.group(6)))
 
         raise ValueError(f"パースできません {candidate=}")
 
@@ -2352,7 +2266,7 @@ class ScoreBoard():
         h_step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
         t_step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
         shortest_coins = self._series_rule.shortest_coins
-        longest_coins = self._series_rule.longest_coins
+        upper_limit_coins = self._series_rule.upper_limit_coins
 
         if h_step < 1:
             raise ValueError(f"正の整数でなければいけません {h_step=}")
@@ -2369,7 +2283,7 @@ class ScoreBoard():
         t22 = f"{t_step}"
         t23 = f"{span}"
         t24 = f"{shortest_coins}"
-        t25 = f"{longest_coins}"
+        t25 = f"{upper_limit_coins}"
 
         csv = f"""\
 Specification
@@ -2377,7 +2291,7 @@ p    , failure_rate, turn_system
 {t11}, {t12}       , {t13}
 
 Series Rule
-h_step, t_step, span , shortest_coins, longest_coins
+h_step, t_step, span , shortest_coins, upper_limit_coins
 {t21} , {t22} , {t23}, {t24}         , {t25}
 
 Source Data
@@ -2467,6 +2381,6 @@ Score Sheet
 {indent}-----------------------
 {succ_indent}self._spec:
 {self._spec.stringify_dump(succ_indent)}
-{succ_indent}{self._longest_coins=}
+{succ_indent}{self._upper_limit_coins=}
 {succ_indent}{self._list_of_face_of_coin=}
 """
