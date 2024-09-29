@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, SeriesRule, FROZEN_TURN
+from library import calculate_probability, SeriesRule, FROZEN_TURN, ABS_OUT_OF_ERROR
 from library.database import get_df_p
 from library.views import stringify_p_q_time_strict
 
@@ -25,8 +25,6 @@ TURN_SYSTEM = FROZEN_TURN
 
 # ［先後固定制］で、［裏勝ちだけでの対局数］の上限
 MAX_W_REPEAT_WHEN_FROZEN_TURN = 6 # 99999
-
-OUT_OF_ERROR = 0.51
 
 
 ########################################
@@ -44,7 +42,7 @@ if __name__ == '__main__':
 
             # ベストな調整後の先手勝率と、その誤差
             best_p = None
-            best_p_error = OUT_OF_ERROR
+            best_p_error = ABS_OUT_OF_ERROR
             best_p_time = 0
             best_q_time = 0
 

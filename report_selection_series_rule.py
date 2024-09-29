@@ -21,8 +21,6 @@ REPORT_FILE_PATH = 'reports/report_selection_series_rule.log'
 
 FAILURE_RATE = 0.0
 
-OUT_OF_ERROR = 0.51
-
 # 先手勝率が 5割 +-0.03未満なら良い
 LIMIT_ERROR = 0.03
 

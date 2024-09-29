@@ -5,7 +5,7 @@ import os
 import datetime
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, round_letro
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, round_letro
 from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path
 
 
@@ -125,12 +125,12 @@ def append_default_record_to_df_even(df, p, failure_rate, trials_series):
     df.loc[index, ['failure_rate']] = failure_rate
     df.loc[index, ['trials_series']] = trials_series
     df.loc[index, ['best_p']] = 0
-    df.loc[index, ['best_p_error']] = 0.51
+    df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
     df.loc[index, ['best_p_step']] = 0
     df.loc[index, ['best_q_step']] = 1
     df.loc[index, ['best_span']] = 1
     df.loc[index, ['latest_p']] = 0
-    df.loc[index, ['latest_p_error']] = 0.51
+    df.loc[index, ['latest_p_error']] = ABS_OUT_OF_ERROR
     df.loc[index, ['latest_p_step']] = 0
     df.loc[index, ['latest_q_step']] = 1
     df.loc[index, ['latest_span']] = 1

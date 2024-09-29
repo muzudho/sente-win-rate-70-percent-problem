@@ -36,7 +36,7 @@ if __name__ == '__main__':
         # * `p_time` - ［表勝ちだけでの対局数］
         # * `q_time` - ［裏勝ちだけでの対局数］
         # * `best_p` - 調整後の先手が勝つ確率
-        # * `best_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は 0.51
+        # * `best_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は ABS_OUT_OF_ERROR
         # * `comment` - この行データの説明
         # 
         for         p,       p_time,       q_time,       best_p,       best_p_error,       comment in\

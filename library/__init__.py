@@ -85,6 +85,10 @@ THEORETICAL = 2
 IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
 
 
+# 誤差の範囲外のありえない値の絶対値。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差の絶対値は 0.5 が最大
+ABS_OUT_OF_ERROR = 0.51
+
+
 class Converter():
     """変換する機能まとめ"""
 

@@ -19,8 +19,6 @@ from library.database import get_df_even, get_df_selection_series_rule, df_ssr_t
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
 REPORT_FILE_PATH = 'reports/report_selection_series_rule.log'
 
-OUT_OF_ERROR = 0.51
-
 # 先手勝率が 5割 +-0.03未満なら良い
 LIMIT_ERROR = 0.03
 

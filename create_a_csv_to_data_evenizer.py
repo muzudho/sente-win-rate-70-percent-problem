@@ -14,13 +14,10 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, ABS_OUT_OF_ERROR, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
 
-
-# 勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差は 0.5 が最大
-ABS_OUT_OF_ERROR = 0.51
 
 # 十分小さいエラー
 ABS_SMALL_ERROR = 0.0000009
@@ -460,6 +457,9 @@ Example: 2000000
                     specified_trials_series=specified_trials_series,
                     abs_limit_of_error=abs_limit_of_error,
                     generation_algorythm=generation_algorythm)
+
+
+        print(f"誤差 {ABS_SMALL_ERROR} より小さなデータの作成完了。 {worst_abs_best_p_error=}")
 
 
         if is_dirty_csv:
