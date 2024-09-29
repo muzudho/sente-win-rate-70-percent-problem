@@ -20,13 +20,7 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
     subname = []
 
 
-    if failure_rate is None:
-        pass
-
-    else:
-        subname.append(f'f_{failure_rate}')
-
-
+    # ［手番の決め方］
     if turn_system is None:
         pass
 
@@ -44,9 +38,19 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         raise ValueError(f"{turn_system=}")
 
 
+    # ［表も裏も出ない確率（％）］
+    if failure_rate is None:
+        pass
+
+    else:
+        subname.append(f'f{failure_rate*100}')
+
+
     if generation_algorythm is None:
         pass
     
+
+    # ［生成アルゴリズム］
     elif generation_algorythm == BRUTE_FORCE:
         # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
         # brute-force の略

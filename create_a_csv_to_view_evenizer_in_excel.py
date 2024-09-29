@@ -73,6 +73,7 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
     str_span = f"{series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
     str_shortest_coins = f"{series_rule.shortest_coins}"                        # ［最短対局数］
     str_upper_limit_coins = f"{series_rule.upper_limit_coins}"                  # ［上限対局数］
+                                                                                # NOTE ルール設定を求めたときの試行回数も記録しようかと思ったが、作り方についてそんなに信用できる記録でもないので止めた
 
     # ［シミュレーション結果］
     str_total_series = f"{S.total}"                                             # ［試行シリーズ総数］
