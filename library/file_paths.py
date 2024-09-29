@@ -115,7 +115,7 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
 # show_table_of_large_event_series_rule.py (表示データの方)
 ##########################
 
-def get_even_view_csv_file_path(spec):
+def get_even_view_csv_file_path(spec, trials_series=None):
     """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
     Excel で表示するためのデータファイル
 
@@ -124,7 +124,7 @@ def get_even_view_csv_file_path(spec):
     spec : Specification
         ［仕様］
     """
-    subname = make_file_subname(failure_rate=spec.failure_rate, turn_system=spec.turn_system)
+    subname = make_file_subname(failure_rate=spec.failure_rate, turn_system=spec.turn_system, trials_series=trials_series)
     # ファイル名は長くなりすぎないようにする
     return f'logs/even_view{subname}.csv'
 

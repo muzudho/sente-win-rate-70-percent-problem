@@ -153,7 +153,7 @@ def show_series_rule(spec, specified_trials_series, p_step, q_step, span, presen
     print(csv) # 表示
 
     # ログ出力
-    csv_file_path = get_even_view_csv_file_path(spec=spec)
+    csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
     with open(csv_file_path, 'a', encoding='utf8') as f:
         f.write(f"{csv}\n")    # ファイルへ出力
 
@@ -227,7 +227,7 @@ Example: 3
 
 
         # ヘッダー出力（ファイルは上書きします）
-        csv_file_path = get_even_view_csv_file_path(spec=spec)
+        csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
         with open(csv_file_path, 'w', encoding='utf8') as f:
             f.write(f"{header_csv}\n")
 
