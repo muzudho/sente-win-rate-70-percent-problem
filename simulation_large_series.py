@@ -144,7 +144,7 @@ Example: 10% is 0.1
         specified_failure_rate = float(input(prompt))
 
 
-        # ［試行シリーズ回数］を尋ねる
+        # ［試行シリーズ数］を尋ねる
         prompt = f"""\
 How many times do you want to try the series?
 

@@ -198,7 +198,7 @@ Which data source should I use?
         data_source = int(input(prompt))
 
 
-        # ［試行シリーズ回数］を尋ねる
+        # ［試行シリーズ数］を尋ねる
         prompt = f"""\
 How many times do you want to try the series?
 
@@ -255,7 +255,7 @@ Example: 3
                 if specified_failure_rate != failure_rate:
                     continue
 
-                # 対象外のものはスキップ　［試行シリーズ回数］
+                # 対象外のものはスキップ　［試行シリーズ数］
                 if specified_trials_series != trials_series:
                     continue
 
@@ -308,7 +308,7 @@ Example: 3
                     continue
 
                 # FIXME セレクションは没機能？
-                # # 対象外のものはスキップ　［試行シリーズ回数］
+                # # 対象外のものはスキップ　［試行シリーズ数］
                 # if specified_trials_series != trials_series:
                 #     continue
 

@@ -2057,7 +2057,7 @@ class Candidate():
     def __init__(self, p_error, trials_series, p_step, q_step, span, shortest_coins, upper_limit_coins):
 
         if not isinstance(trials_series, int):
-            raise ValueError(f"［試行シリーズ回数］は int 型である必要があります {trials_series=}")
+            raise ValueError(f"［試行シリーズ数］は int 型である必要があります {trials_series=}")
 
         if not isinstance(p_step, int):
             raise ValueError(f"［表番の勝ち１つ分の点数］は int 型である必要があります {p_step=}")

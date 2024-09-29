@@ -53,7 +53,7 @@ def stringify_report_selection_series_rule(p, trials_series, latest_theoretical_
                     # ［先後交互制］での［上限対局数］
                     seg_8 = candidate_obj.upper_limit_coins
 
-                    # ［試行シリーズ回数］
+                    # ［試行シリーズ数］
                     seg_9 = trials_series
 
                     return f"先手勝率 {seg_1:2.0f} ％ --試行後--> {seg_2:7.4f} ％（{seg_3:+8.4f}）   先手勝ち{seg_4:>3}点、後手勝ち{seg_5:>3}点、目標{seg_6:>3}点    {seg_7:>3}～{seg_8:>3}局（先後交互制）    試行{seg_9}回{seg_10}"
@@ -95,7 +95,7 @@ def stringify_report_selection_series_rule(p, trials_series, latest_theoretical_
         # ［上限対局数］
         seg_8 = specified_series_rule.upper_limit_coins
 
-        # ［試行シリーズ回数］
+        # ［試行シリーズ数］
         seg_9 = trials_series
 
         # 表示用の説明文

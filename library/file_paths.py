@@ -17,7 +17,7 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
     generation_algorythm : int
         ［データ生成アルゴリズム］
     trials_series : int
-        ［試行シリーズ回数］
+        ［試行シリーズ数］
     """
     subname = []
 
@@ -67,7 +67,7 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         raise ValueError(f"{generation_algorythm=}")
 
 
-    # ［試行シリーズ回数］
+    # ［試行シリーズ数］
     if trials_series is None:
         pass
 
@@ -145,7 +145,7 @@ def get_even_data_csv_file_path(failure_rate=None, turn_system=None, generation_
     generation_algorythm : int
         ［データ生成アルゴリズム］
     trials_series : int
-        ［試行シリーズ回数］
+        ［試行シリーズ数］
     """
     subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
 

@@ -149,7 +149,7 @@ def get_df_even(failure_rate, turn_system, generation_algorythm, trials_series):
     generation_algorythm : int
         ［生成アルゴリズム］
     trials_series : int
-        ［試行シリーズ回数］
+        ［試行シリーズ数］
     """
 
     csv_file_path = get_even_data_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)

@@ -51,7 +51,7 @@ def update_dataframe(df, spec,
     #         best_p_error=best_p_error,
     #         series_rule=best_series_rule)
 
-    # ［試行シリーズ回数］列を更新
+    # ［試行シリーズ数］列を更新
     df.loc[df['p']==spec.p, ['trials_series']] = trials_series
 
     # ［調整後の表が出る確率］列を更新
@@ -120,7 +120,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, specified_trials_series=specified_trials_series)
 
 
-    # TODO 試行シリーズ回数が違うものを１つのファイルに混ぜたくない。ファイルを分けたい
+    # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
 
 
     for         p,       failure_rate,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
@@ -400,7 +400,7 @@ Which one(1-2)? """
         if generation_algorythm == BRUTE_FORCE:
             print("力任せ探索を行います")
 
-            # ［試行シリーズ回数］を尋ねる
+            # ［試行シリーズ数］を尋ねる
             prompt = f"""\
 How many times do you want to try the series?
 
