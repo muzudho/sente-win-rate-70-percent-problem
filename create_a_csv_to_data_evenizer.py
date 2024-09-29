@@ -399,12 +399,23 @@ Which one(1-2)? """
         generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
         if generation_algorythm == BRUTE_FORCE:
             print("力任せ探索を行います")
+
             # ［試行シリーズ回数］を尋ねる
             prompt = f"""\
 How many times do you want to try the series?
-Example: 2000000
-? """
-            specified_trials_series = int(input(prompt))
+
+(0) Try       2 series
+(1) Try      20 series
+(2) Try     200 series
+(3) Try    2000 series
+(4) Try   20000 series
+(5) Try  200000 series
+(6) Try 2000000 series
+
+Example: 3
+(0-6)? """
+            precision = int(input(prompt))
+            specified_trials_series = Converter.precision_to_trials_series(precision)
 
         elif generation_algorythm == THEORETICAL:
             print("理論値を求めます。便宜的に試行回数は 1 と記入することにします")

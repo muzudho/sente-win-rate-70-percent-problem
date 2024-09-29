@@ -200,9 +200,19 @@ Which data source should I use?
         # ［試行シリーズ回数］を尋ねる
         prompt = f"""\
 How many times do you want to try the series?
-Example: 2000000
-? """
-        specified_trials_series = int(input(prompt))
+
+(0) Try       2 series
+(1) Try      20 series
+(2) Try     200 series
+(3) Try    2000 series
+(4) Try   20000 series
+(5) Try  200000 series
+(6) Try 2000000 series
+
+Example: 3
+(0-6)? """
+        precision = int(input(prompt))
+        specified_trials_series = Converter.precision_to_trials_series(precision)
 
 
         header_csv = stringify_header()

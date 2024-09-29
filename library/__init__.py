@@ -151,6 +151,41 @@ class Converter():
         return BRUTE_FORCE
 
 
+    _precision_to_trials_series = {
+        -1: 1
+    }
+
+
+    @staticmethod
+    def precision_to_trials_series(precision):
+        """
+        下式の n が precision
+
+            2 * 10^n
+
+        NOTE n を 0 にしても 2 になるので、 1 にするには 0.3000...ちょっとの数だから整数では precision を指定できない
+
+        precision  trials_series
+        ---------  -------------
+                0              2
+                1             20
+                2            200
+                3           2000
+                4          20000
+                5         200000
+                6        2000000
+        
+        ゼロの数と覚えると覚えやすい
+
+        Parameters
+        ----------
+        precision : int
+            ［精度］
+        """
+        return 2 * 10 ** precision
+
+
+
 class Specification():
     """仕様"""
 
