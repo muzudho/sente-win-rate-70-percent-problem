@@ -159,9 +159,11 @@ class Converter():
     @staticmethod
     def precision_to_trials_series(precision):
         """
-        下式の n が precision
+        下式の通り
 
-            2 * 10^n
+            trials_series = 2 * 10 ^ precision
+
+            # 逆関数は precision = lg(trials_series / 2)
 
         NOTE n を 0 にしても 2 になるので、 1 にするには 0.3000...ちょっとの数だから整数では precision を指定できない
 
@@ -175,7 +177,7 @@ class Converter():
                 5         200000
                 6        2000000
         
-        ゼロの数と覚えると覚えやすい
+        precision はゼロの数と覚えると覚えやすい
 
         Parameters
         ----------
@@ -184,6 +186,32 @@ class Converter():
         """
         return 2 * 10 ** precision
 
+
+    @staticmethod
+    def precision_to_small_error(precision):
+        """誤差がこの数以下なら十分だ、といったように判定するのに使う閾値。precision_to_trials_series() に対応。
+
+        small_error = 0.9 * 10^-precision
+
+        precision  small_error
+        ---------  -----------
+                0  0.9
+                1  0.09
+                2  0.009
+                3  0.0009
+                4  0.00009
+                5  0.000009
+                6  0.0000009
+                       
+        
+        precision は小数点以下のゼロの数と覚えると覚えやすい
+
+        Parameters
+        ----------
+        precision : int
+            ［精度］
+        """
+        return 0.9 * 10 ** -precision
 
 
 class Specification():

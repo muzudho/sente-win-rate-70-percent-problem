@@ -19,9 +19,6 @@ from library.database import append_default_record_to_df_even, get_df_even, get_
 from library.views import print_even_series_rule
 
 
-# 十分小さいエラー
-ABS_SMALL_ERROR = 0.0000009
-
 # 探索の上限
 LIMIT_SPAN = 1001
 
@@ -105,7 +102,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
         df_even_to_csv(df=df, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, abs_limit_of_error, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, abs_limit_of_error, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
@@ -166,9 +163,10 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
             raise ValueError(f"{specified_trials_series=} != {trials_series=}")
 
 
+
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if abs(best_p_error) <= ABS_SMALL_ERROR:
+        if abs(best_p_error) <= specified_abs_small_error:
             is_automatic = False
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
 
@@ -416,10 +414,12 @@ Example: 3
 (0-6)? """
             precision = int(input(prompt))
             specified_trials_series = Converter.precision_to_trials_series(precision)
+            specified_abs_small_error = Converter.precision_to_small_error(precision)
 
         elif generation_algorythm == THEORETICAL:
             print("理論値を求めます。便宜的に試行回数は 1 と記入することにします")
             specified_trials_series = 1
+            specified_abs_small_error = 0.0000009   # 便宜的
 
         else:
             raise ValueError(f"{generation_algorythm=}")
@@ -445,7 +445,7 @@ Example: 3
         #
         abs_limit_of_error = ABS_OUT_OF_ERROR
 
-        while ABS_SMALL_ERROR < abs_limit_of_error:
+        while specified_abs_small_error < abs_limit_of_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
@@ -466,11 +466,12 @@ Example: 3
                     specified_failure_rate=specified_failure_rate,
                     specified_turn_system=specified_turn_system,
                     specified_trials_series=specified_trials_series,
+                    specified_abs_small_error=specified_abs_small_error,
                     abs_limit_of_error=abs_limit_of_error,
                     generation_algorythm=generation_algorythm)
 
 
-        print(f"誤差 {ABS_SMALL_ERROR} より小さなデータの作成完了。 {worst_abs_best_p_error=}")
+        print(f"誤差 {specified_abs_small_error} より小さなデータの作成完了。 {worst_abs_best_p_error=}")
 
 
         if is_dirty_csv:
