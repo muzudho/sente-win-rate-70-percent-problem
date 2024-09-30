@@ -109,14 +109,14 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
         df_even_to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, abs_limit_of_error, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_limit_of_error, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
     ----------
     df : DataFrame
         データフレーム
-    abs_limit_of_error : float
+    current_abs_limit_of_error : float
         リミット
     
     Returns
@@ -315,7 +315,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
-                            if abs(best_p_error) < abs_limit_of_error or 2 < update_count:
+                            if abs(best_p_error) < current_abs_limit_of_error or 2 < update_count:
                                 is_good = True
                                 is_cutoff = True
                                 # # 進捗バー
@@ -403,7 +403,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
     #
 
     speed = 10
-    abs_limit_of_error = None
+    current_abs_limit_of_error = None
 
     # ループに最初に１回入るためだけの設定
     worst_abs_best_p_error = ABS_OUT_OF_ERROR
@@ -418,7 +418,9 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
         #
         #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
         #
-        worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
+        best_p_error_min = df_ev['best_p_error'].min()
+        best_p_error_max = df_ev['best_p_error'].max()
+        worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
 
         # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
@@ -427,16 +429,19 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
 
         # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-        if abs_limit_of_error is None:
-            abs_limit_of_error = worst_abs_best_p_error * 9/speed
+        if current_abs_limit_of_error is None:
+            current_abs_limit_of_error = worst_abs_best_p_error * 9/speed
         else:
-            abs_limit_of_error *= 9/speed 
+            current_abs_limit_of_error *= 9/speed
+        
+        if current_abs_limit_of_error < specified_abs_small_error:
+            current_abs_limit_of_error = specified_abs_small_error
 
 
         #
         # NOTE 小数点以下の桁を長く出しても見づらい
         #
-        print(f"{speed=}  {abs_limit_of_error=:.7f}  {worst_abs_best_p_error=:.7f}  {specified_abs_small_error=:.7f}")
+        print(f"[{datetime.datetime.now()}][failure_rate={specified_failure_rate}]  {speed=}  {worst_abs_best_p_error=:.7f}({best_p_error_min=}  {best_p_error_max=})  {current_abs_limit_of_error=:.7f}  {specified_abs_small_error=:.7f}")
 
 
         # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
@@ -451,7 +456,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
                 specified_trials_series=specified_trials_series,
                 specified_abs_small_error=specified_abs_small_error,
 
-                abs_limit_of_error=abs_limit_of_error,
+                current_abs_limit_of_error=current_abs_limit_of_error,
 
                 generation_algorythm=generation_algorythm)
 
