@@ -148,8 +148,8 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-    for         p,       failure_rate,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
+    for         p,       failure_rate,       turn_system,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         trials_series = round_letro(trials_series)
@@ -298,7 +298,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[{datetime.datetime.now()}][p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％  turn_system={Converter.turn_system_to_code(turn_system)}] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
