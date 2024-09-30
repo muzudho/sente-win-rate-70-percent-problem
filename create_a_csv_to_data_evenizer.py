@@ -298,7 +298,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
