@@ -484,22 +484,28 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
         # タイムシェアリングのために、処理を譲ることがオーバーヘッドになってきそうなら        
         if 0 < number_of_passaged:
-            passage_upper_limit += 1
+            # 初期値が 10 なら 1.1 倍で必ず 1 は増える
+            passage_upper_limit = int(passage_upper_limit * 1.1)
 
-        # タイムシェアリングのために、処理を譲っているというわけでもないとき
-        elif number_of_yield < 1:
-            # スピードがどんどん上がっていく
-            if not is_update_table:
-                speed += 1
+        else:
+            passage_upper_limit = int(passage_upper_limit * 0.9)
+            if  passage_upper_limit < 10:
+                passage_upper_limit = 10
 
-                # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-                if current_abs_lower_limit_of_error is None:
-                    current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
-                else:
-                    current_abs_lower_limit_of_error *= 9/speed
-                
-                if current_abs_lower_limit_of_error < specified_abs_small_error:
-                    current_abs_lower_limit_of_error = specified_abs_small_error
+            # タイムシェアリングのために、処理を譲っているというわけでもないとき
+            if number_of_yield < 1:
+                # スピードがどんどん上がっていく
+                if not is_update_table:
+                    speed += 1
+
+                    # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
+                    if current_abs_lower_limit_of_error is None:
+                        current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
+                    else:
+                        current_abs_lower_limit_of_error *= 9/speed
+                    
+                    if current_abs_lower_limit_of_error < specified_abs_small_error:
+                        current_abs_lower_limit_of_error = specified_abs_small_error
 
 
     print(f"ループから抜けました")
