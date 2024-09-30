@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
         for specified_turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
-            for specified_failure_rate_percent in range(0, 105, 5): # 100 も含めたい
+            for specified_failure_rate_percent in range(0, 100, 5): # NOTE 100 を含めると 0除算エラー が起こるから、含めません
                 specified_failure_rate = specified_failure_rate_percent / 100
 
                 progress = f"[{datetime.datetime.now()}] {specified_failure_rate=}"
