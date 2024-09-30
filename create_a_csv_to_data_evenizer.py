@@ -109,7 +109,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
         df_even_to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_lower_limit_of_error, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_lower_limit_of_error, generation_algorythm, passage_upper_limit):
     """反復深化探索の１セット
 
     Parameters
@@ -145,6 +145,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     number_of_target = 0        # 処理対象の数
     number_of_smalled = 0       # 処理完了の数
     number_of_yield = 0         # 処理を途中で譲った数
+    number_of_passaged = 0      # 空振りで終わったレコード数
 
 
     for         p,       failure_rate,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
@@ -348,9 +349,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             # print('.', end='', flush=True)
 
                             # 空振りが多いとき、探索を打ち切ります
-                            if 30 < passage_count:
+                            if passage_upper_limit < passage_count:
                                 is_cutoff = True
-                                number_of_yield += 1
+                                number_of_passaged += 1
 
                                 # # 進捗バー
                                 # print('cutoff (procrastinate)', flush=True)
@@ -398,7 +399,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                 df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-    return is_update_table, number_of_target, number_of_smalled, number_of_yield
+    return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
 
 
 def automatic(specified_failure_rate, specified_turn_system, generation_algorythm, specified_trials_series, specified_abs_small_error):
@@ -424,6 +425,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
     speed = 10
     current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
+    passage_upper_limit = 10
 
     # ループに最初に１回入るためだけの設定
     worst_abs_best_p_error = ABS_OUT_OF_ERROR
@@ -455,7 +457,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
         #
         #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
         #
-        is_update_table, number_of_target, number_of_smalled, number_of_yield = iteration_deeping(
+        is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged = iteration_deeping(
                 df=df_ev,
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system=specified_turn_system,
@@ -464,13 +466,14 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
                 current_abs_lower_limit_of_error=current_abs_lower_limit_of_error,
 
-                generation_algorythm=generation_algorythm)
+                generation_algorythm=generation_algorythm,
+                passage_upper_limit=passage_upper_limit)
 
 
         #
         # NOTE 小数点以下の桁を長く出しても見づらい
         #
-        print(f"[{datetime.datetime.now()}][failure_rate={specified_failure_rate}]  update={is_update_table}  target={number_of_target}  smalled={number_of_smalled}  yield={number_of_yield}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={current_abs_lower_limit_of_error:.7f}  small_error={specified_abs_small_error:.7f}")
+        print(f"[{datetime.datetime.now()}][failure_rate={specified_failure_rate}]  update={is_update_table}  target={number_of_target}  smalled={number_of_smalled}  yield={number_of_yield}  passaged={number_of_passaged}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={current_abs_lower_limit_of_error:.7f}  small_error={specified_abs_small_error:.7f}  {passage_upper_limit=}")
 
 
         # 処理が完了したから、ループを抜ける
@@ -479,8 +482,12 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
             break
 
 
+        # タイムシェアリングのために、処理を譲ることがオーバーヘッドになってきそうなら        
+        if 0 < number_of_passaged:
+            passage_upper_limit += 1
+
         # タイムシェアリングのために、処理を譲っているというわけでもないとき
-        if number_of_yield < 1:
+        elif number_of_yield < 1:
             # スピードがどんどん上がっていく
             if not is_update_table:
                 speed += 1
