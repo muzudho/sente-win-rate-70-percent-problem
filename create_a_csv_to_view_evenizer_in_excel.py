@@ -161,6 +161,138 @@ def show_series_rule(spec, specified_trials_series, p_step, q_step, span, presen
         f.write(f"{csv}\n")    # ファイルへ出力
 
 
+def automatic(specified_failure_rate, specified_turn_system, specified_data_source, specified_trials_series):
+    header_csv = stringify_header()
+
+    print(header_csv) # 表示
+
+    # 仕様
+    spec = Specification(
+            p=None,
+            failure_rate=specified_failure_rate,
+            turn_system=specified_turn_system)
+
+
+    # ヘッダー出力（ファイルは上書きします）
+    #
+    #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
+    #
+    csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
+    with open(csv_file_path, 'w', encoding='utf8') as f:
+        f.write(f"{header_csv}\n")
+
+
+    # TODO
+    if specified_data_source == 1:
+        title='イーブン［シリーズ・ルール］'
+
+        generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        if generation_algorythm == BRUTE_FORCE:
+            print("力任せ探索で行われたデータです")
+        elif generation_algorythm == THEORETICAL:
+            print("理論値で求められたデータです")
+        else:
+            raise ValueError(f"{generation_algorythm=}")
+
+
+        df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+
+        for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
+            zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+
+            # 対象外のものはスキップ　［将棋の引分け率］
+            if specified_failure_rate != failure_rate:
+                continue
+
+            # 対象外のものはスキップ　［試行シリーズ数］
+            if specified_trials_series != trials_series:
+                continue
+
+            if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+                print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
+                continue
+
+            even_table = EvenTable(
+                    p=p,
+                    failure_rate=failure_rate,
+                    turn_system=turn_system,
+                    trials_series=trials_series,
+                    best_p=best_p,
+                    best_p_error=best_p_error,
+                    best_p_step=best_p_step,
+                    best_q_step=best_q_step,
+                    best_span=best_span,
+                    latest_p=latest_p,
+                    latest_p_error=latest_p_error,
+                    latest_p_step=latest_p_step,
+                    latest_q_step=latest_q_step,
+                    latest_span=latest_span,
+                    candidates=candidates)
+
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=failure_rate,
+                    turn_system=specified_turn_system)
+
+            show_series_rule(
+                    spec=spec,
+                    specified_trials_series=specified_trials_series,
+                    p_step=even_table.best_p_step,
+                    q_step=even_table.best_q_step,
+                    span=even_table.best_span,
+                    presentable='',
+                    comment='')
+
+
+    elif specified_data_source == 2:
+        title='セレクション［シリーズ・ルール］'
+
+        df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
+
+        for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
+            zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
+
+            # 対象外のものはスキップ
+            if specified_failure_rate != failure_rate:
+                continue
+
+            # FIXME セレクションは没機能？
+            # # 対象外のものはスキップ　［試行シリーズ数］
+            # if specified_trials_series != trials_series:
+            #     continue
+
+            if p_step < 1:
+                print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
+                continue
+
+
+            ssr_table = SelectionSeriesRuleTable(
+                    p=p,
+                    failure_rate=failure_rate,
+                    p_step=p_step,
+                    q_step=q_step,
+                    span=span,
+                    presentable=presentable,
+                    comment=comment,
+                    candidates=candidates)
+
+            # 仕様
+            spec = Specification(
+                    p=ssr_table.p,
+                    failure_rate=ssr_table.failure_rate,
+                    turn_system=specified_turn_system)
+
+            show_series_rule(
+                    spec=spec,
+                    specified_trials_series=specified_trials_series,
+                    p_step=ssr_table.p_step,
+                    q_step=ssr_table.q_step,
+                    span=ssr_table.span,
+                    presentable=ssr_table.presentable,
+                    comment=ssr_table.comment)
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -197,7 +329,7 @@ Which one(1-2)? """
 (2) selection series rule
 Which data source should I use?
 > """
-        data_source = int(input(prompt))
+        specified_data_source = int(input(prompt))
 
 
         # ［試行シリーズ数］を尋ねる
@@ -218,135 +350,11 @@ Example: 3
         specified_trials_series = Converter.precision_to_trials_series(precision)
 
 
-        header_csv = stringify_header()
-
-        print(header_csv) # 表示
-
-        # 仕様
-        spec = Specification(
-                p=None,
-                failure_rate=specified_failure_rate,
-                turn_system=specified_turn_system)
-
-
-        # ヘッダー出力（ファイルは上書きします）
-        #
-        #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
-        #
-        csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
-        with open(csv_file_path, 'w', encoding='utf8') as f:
-            f.write(f"{header_csv}\n")
-
-
-        # TODO
-        if data_source == 1:
-            title='イーブン［シリーズ・ルール］'
-
-            generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
-            if generation_algorythm == BRUTE_FORCE:
-                print("力任せ探索で行われたデータです")
-            elif generation_algorythm == THEORETICAL:
-                print("理論値で求められたデータです")
-            else:
-                raise ValueError(f"{generation_algorythm=}")
-
-
-            df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
-
-            for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
-
-                # 対象外のものはスキップ　［将棋の引分け率］
-                if specified_failure_rate != failure_rate:
-                    continue
-
-                # 対象外のものはスキップ　［試行シリーズ数］
-                if specified_trials_series != trials_series:
-                    continue
-
-                if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-                    print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
-                    continue
-
-                even_table = EvenTable(
-                        p=p,
-                        failure_rate=failure_rate,
-                        turn_system=turn_system,
-                        trials_series=trials_series,
-                        best_p=best_p,
-                        best_p_error=best_p_error,
-                        best_p_step=best_p_step,
-                        best_q_step=best_q_step,
-                        best_span=best_span,
-                        latest_p=latest_p,
-                        latest_p_error=latest_p_error,
-                        latest_p_step=latest_p_step,
-                        latest_q_step=latest_q_step,
-                        latest_span=latest_span,
-                        candidates=candidates)
-
-                # 仕様
-                spec = Specification(
-                        p=p,
-                        failure_rate=failure_rate,
-                        turn_system=specified_turn_system)
-
-                show_series_rule(
-                        spec=spec,
-                        specified_trials_series=specified_trials_series,
-                        p_step=even_table.best_p_step,
-                        q_step=even_table.best_q_step,
-                        span=even_table.best_span,
-                        presentable='',
-                        comment='')
-
-
-        elif data_source == 2:
-            title='セレクション［シリーズ・ルール］'
-
-            df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
-
-            for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
-                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
-
-                # 対象外のものはスキップ
-                if specified_failure_rate != failure_rate:
-                    continue
-
-                # FIXME セレクションは没機能？
-                # # 対象外のものはスキップ　［試行シリーズ数］
-                # if specified_trials_series != trials_series:
-                #     continue
-
-                if p_step < 1:
-                    print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
-                    continue
-
-
-                ssr_table = SelectionSeriesRuleTable(
-                        p=p,
-                        failure_rate=failure_rate,
-                        p_step=p_step,
-                        q_step=q_step,
-                        span=span,
-                        presentable=presentable,
-                        comment=comment,
-                        candidates=candidates)
-
-                # 仕様
-                spec = Specification(
-                        p=ssr_table.p,
-                        failure_rate=ssr_table.failure_rate,
-                        turn_system=specified_turn_system)
-
-                show_series_rule(
-                        spec=spec,
-                        specified_trials_series=specified_trials_series,
-                        p_step=ssr_table.p_step,
-                        q_step=ssr_table.q_step,
-                        span=ssr_table.span,
-                        presentable=ssr_table.presentable,
-                        comment=ssr_table.comment)
+        automatic(
+                specified_failure_rate=specified_failure_rate,
+                specified_turn_system=specified_turn_system,
+                specified_data_source=specified_data_source,
+                specified_trials_series=specified_trials_series)
 
 
     except Exception as err:
