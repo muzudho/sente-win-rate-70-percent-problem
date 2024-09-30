@@ -454,17 +454,25 @@ Example: 3
         # ループに最初に１回入るためだけの設定
         worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
+        # １件もデータがない、または
         # 指定の誤差の最小値より、誤差が大きい間繰り返す
-        while specified_abs_small_error < worst_abs_best_p_error:
+        #
+        #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
+        #
+        while len(df_ev) < 1 or specified_abs_small_error < worst_abs_best_p_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
             worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
 
-            # # nan が入っていることがある
-            # if worst_abs_best_p_error is None:
-            #     raise ValueError(f"誤差値が見つからない  {worst_abs_best_p_error}")
+
+            # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
+            if pd.isnull(worst_abs_best_p_error):
+                worst_abs_best_p_error = ABS_OUT_OF_ERROR
+
+
+            print(f"{worst_abs_best_p_error=}")
 
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
