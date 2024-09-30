@@ -118,10 +118,16 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         データフレーム
     abs_limit_of_error : float
         リミット
+    
+    Returns
+    -------
+    is_update_table : bool
+        更新が有ったか？
     """
 
     global start_time_for_save, is_dirty_csv
 
+    is_update_table = False
 
     # まず、行の存在チェック。無ければ追加
     ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, specified_trials_series=specified_trials_series)
@@ -258,6 +264,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
 
                         if abs(latest_p_error) < abs(best_p_error):
+                            is_update_table = True
                             update_count += 1
                             best_p = latest_p
                             best_p_error = latest_p_error
@@ -371,6 +378,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                 df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
+    return is_update_table
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -451,6 +461,10 @@ Example: 3
         #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
         #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
         #
+
+        speed = 10
+        abs_limit_of_error = None
+
         # ループに最初に１回入るためだけの設定
         worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
@@ -472,7 +486,14 @@ Example: 3
                 worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
 
-            print(f"{worst_abs_best_p_error=}")
+            # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
+            if abs_limit_of_error is None:
+                abs_limit_of_error = worst_abs_best_p_error * 9/speed
+            else:
+                abs_limit_of_error *= 9/speed 
+
+
+            print(f"{speed=}  {abs_limit_of_error=:.20f}  {worst_abs_best_p_error=:.20f}")
 
 
             # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
@@ -480,17 +501,21 @@ Example: 3
             #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
             #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
             #
-            iteration_deeping(
+            is_update_table = iteration_deeping(
                     df=df_ev,
                     specified_failure_rate=specified_failure_rate,
                     specified_turn_system=specified_turn_system,
                     specified_trials_series=specified_trials_series,
                     specified_abs_small_error=specified_abs_small_error,
 
-                    # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-                    abs_limit_of_error=worst_abs_best_p_error * 9 / 10,
+                    abs_limit_of_error=abs_limit_of_error,
 
                     generation_algorythm=generation_algorythm)
+
+
+            # スピードがどんどん上がっていく
+            if not is_update_table:
+                speed += 1
 
 
         print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
