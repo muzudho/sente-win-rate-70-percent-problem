@@ -9,6 +9,7 @@
 
 import traceback
 import re
+import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FACE_OF_COIN, PLAYERS, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_even_view_csv_file_path
@@ -155,6 +156,7 @@ def show_series_rule(spec, specified_trials_series, p_step, q_step, span, presen
 
     # ログ出力
     csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
+    print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
     with open(csv_file_path, 'a', encoding='utf8') as f:
         f.write(f"{csv}\n")    # ファイルへ出力
 
@@ -269,6 +271,7 @@ Example: 3
                 even_table = EvenTable(
                         p=p,
                         failure_rate=failure_rate,
+                        turn_system=turn_system,
                         trials_series=trials_series,
                         best_p=best_p,
                         best_p_error=best_p_error,
