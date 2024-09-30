@@ -109,20 +109,26 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
         df_even_to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_limit_of_error, generation_algorythm):
+def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_lower_limit_of_error, generation_algorythm):
     """反復深化探索の１セット
 
     Parameters
     ----------
     df : DataFrame
         データフレーム
-    current_abs_limit_of_error : float
-        リミット
+    current_abs_lower_limit_of_error : float
+        下限
     
     Returns
     -------
     is_update_table : bool
         更新が有ったか？
+    number_of_target : int
+        処理対象の数
+    number_of_smalled : int
+        処理完了の数
+    number_of_yield : int
+        処理を途中で譲った数
     """
 
     global start_time_for_save, is_dirty_csv
@@ -134,6 +140,11 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
 
     # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
+
+
+    number_of_target = 0        # 処理対象の数
+    number_of_smalled = 0       # 処理完了の数
+    number_of_yield = 0         # 処理を途中で譲った数
 
 
     for         p,       failure_rate,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
@@ -149,14 +160,18 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         latest_span = round_letro(latest_span)
 
 
-        # 該当行以外は無視
+        # FIXME 自明のチェック。１つのファイルには、同じ［将棋の引分け率］のデータしかない
         if specified_failure_rate != failure_rate:
-            continue
+            raise ValueError(f"{specified_failure_rate=} != {failure_rate=}")
 
 
         # FIXME 自明のチェック。 specified_trials_series と trials_series は必ず一致する
         if specified_trials_series != trials_series:
             raise ValueError(f"{specified_trials_series=} != {trials_series=}")
+
+
+        # ここから先、処理対象行
+        number_of_target += 1
 
 
         # 仕様
@@ -183,7 +198,9 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         # エラーが十分小さければスキップ
         if abs(best_p_error) <= specified_abs_small_error:
             is_automatic = False
+
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
+            number_of_smalled += 1
 
         # アルゴリズムで求めるケース
         else:
@@ -315,9 +332,10 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
-                            if abs(best_p_error) < current_abs_limit_of_error or 2 < update_count:
+                            if abs(best_p_error) < current_abs_lower_limit_of_error or 2 < update_count:
                                 is_good = True
                                 is_cutoff = True
+                                number_of_yield += 1
                                 # # 進捗バー
                                 # print('cutoff (good)', flush=True)
                                 break
@@ -332,6 +350,8 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             # 空振りが多いとき、探索を打ち切ります
                             if 30 < passage_count:
                                 is_cutoff = True
+                                number_of_yield += 1
+
                                 # # 進捗バー
                                 # print('cutoff (procrastinate)', flush=True)
                                 break
@@ -378,7 +398,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                 df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
-    return is_update_table
+    return is_update_table, number_of_target, number_of_smalled, number_of_yield
 
 
 def automatic(specified_failure_rate, specified_turn_system, generation_algorythm, specified_trials_series, specified_abs_small_error):
@@ -403,7 +423,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
     #
 
     speed = 10
-    current_abs_limit_of_error = None
+    current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
 
     # ループに最初に１回入るためだけの設定
     worst_abs_best_p_error = ABS_OUT_OF_ERROR
@@ -428,45 +448,54 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
             worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
 
-        # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-        if current_abs_limit_of_error is None:
-            current_abs_limit_of_error = worst_abs_best_p_error * 9/speed
-        else:
-            current_abs_limit_of_error *= 9/speed
-        
-        if current_abs_limit_of_error < specified_abs_small_error:
-            current_abs_limit_of_error = specified_abs_small_error
-
-
-        #
-        # NOTE 小数点以下の桁を長く出しても見づらい
-        #
-        print(f"[{datetime.datetime.now()}][failure_rate={specified_failure_rate}]  {speed=}  {worst_abs_best_p_error=:.7f}({best_p_error_min=}  {best_p_error_max=})  {current_abs_limit_of_error=:.7f}  {specified_abs_small_error=:.7f}")
-
-
         # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
         #
         #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
         #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
         #
-        is_update_table = iteration_deeping(
+        #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
+        #
+        is_update_table, number_of_target, number_of_smalled, number_of_yield = iteration_deeping(
                 df=df_ev,
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system=specified_turn_system,
                 specified_trials_series=specified_trials_series,
                 specified_abs_small_error=specified_abs_small_error,
 
-                current_abs_limit_of_error=current_abs_limit_of_error,
+                current_abs_lower_limit_of_error=current_abs_lower_limit_of_error,
 
                 generation_algorythm=generation_algorythm)
 
 
-        # スピードがどんどん上がっていく
-        if not is_update_table:
-            speed += 1
+        #
+        # NOTE 小数点以下の桁を長く出しても見づらい
+        #
+        print(f"[{datetime.datetime.now()}][failure_rate={specified_failure_rate}]  update={is_update_table}  target={number_of_target}  smalled={number_of_smalled}  yield={number_of_yield}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={current_abs_lower_limit_of_error:.7f}  small_error={specified_abs_small_error:.7f}")
 
 
-    print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
+        # 処理が完了したから、ループを抜ける
+        if number_of_target == number_of_smalled:
+            print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
+            break
+
+
+        # タイムシェアリングのために、処理を譲っているというわけでもないとき
+        if number_of_yield < 1:
+            # スピードがどんどん上がっていく
+            if not is_update_table:
+                speed += 1
+
+                # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
+                if current_abs_lower_limit_of_error is None:
+                    current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
+                else:
+                    current_abs_lower_limit_of_error *= 9/speed
+                
+                if current_abs_lower_limit_of_error < specified_abs_small_error:
+                    current_abs_lower_limit_of_error = specified_abs_small_error
+
+
+    print(f"ループから抜けました")
 
 
     if is_dirty_csv:
