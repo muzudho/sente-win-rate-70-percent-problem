@@ -381,6 +381,97 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     return is_update_table
 
 
+def automatic(specified_failure_rate, specified_turn_system, generation_algorythm, specified_trials_series, specified_abs_small_error):
+
+    global start_time_for_save, is_dirty_csv
+
+    df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    #print(df_ev)
+
+
+    start_time_for_save = time.time()
+    is_dirty_csv = False
+
+
+    # 反復深化探索
+    # ===========
+    #
+    #   ［エラー］が 0 になることを目指していますが、最初から 0 を目指すと、もしかするとエラーは 0 にならなくて、
+    #   処理が永遠に終わらないかもしれません。
+    #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
+    #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
+    #
+
+    speed = 10
+    abs_limit_of_error = None
+
+    # ループに最初に１回入るためだけの設定
+    worst_abs_best_p_error = ABS_OUT_OF_ERROR
+
+    # １件もデータがない、または
+    # 指定の誤差の最小値より、誤差が大きい間繰り返す
+    #
+    #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
+    #
+    while len(df_ev) < 1 or specified_abs_small_error < worst_abs_best_p_error:
+        # ［エラー］列で一番大きい値を取得します
+        #
+        #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
+        #
+        worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
+
+
+        # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
+        if pd.isnull(worst_abs_best_p_error):
+            worst_abs_best_p_error = ABS_OUT_OF_ERROR
+
+
+        # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
+        if abs_limit_of_error is None:
+            abs_limit_of_error = worst_abs_best_p_error * 9/speed
+        else:
+            abs_limit_of_error *= 9/speed 
+
+
+        #
+        # NOTE 小数点以下の桁を長く出しても見づらい
+        #
+        print(f"{speed=}  {abs_limit_of_error=:.7f}  {worst_abs_best_p_error=:.7f}  {specified_abs_small_error=:.7f}")
+
+
+        # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
+        #
+        #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
+        #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
+        #
+        is_update_table = iteration_deeping(
+                df=df_ev,
+                specified_failure_rate=specified_failure_rate,
+                specified_turn_system=specified_turn_system,
+                specified_trials_series=specified_trials_series,
+                specified_abs_small_error=specified_abs_small_error,
+
+                abs_limit_of_error=abs_limit_of_error,
+
+                generation_algorythm=generation_algorythm)
+
+
+        # スピードがどんどん上がっていく
+        if not is_update_table:
+            speed += 1
+
+
+    print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
+
+
+    if is_dirty_csv:
+        is_dirty_csv = False
+
+        # 最後に CSV保存
+        print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
+        df_even_to_csv(df=df_ev, failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -443,90 +534,12 @@ Example: 3
             raise ValueError(f"{generation_algorythm=}")
 
 
-
-
-        df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
-        #print(df_ev)
-
-
-        start_time_for_save = time.time()
-        is_dirty_csv = False
-
-
-        # 反復深化探索
-        # ===========
-        #
-        #   ［エラー］が 0 になることを目指していますが、最初から 0 を目指すと、もしかするとエラーは 0 にならなくて、
-        #   処理が永遠に終わらないかもしれません。
-        #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
-        #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
-        #
-
-        speed = 10
-        abs_limit_of_error = None
-
-        # ループに最初に１回入るためだけの設定
-        worst_abs_best_p_error = ABS_OUT_OF_ERROR
-
-        # １件もデータがない、または
-        # 指定の誤差の最小値より、誤差が大きい間繰り返す
-        #
-        #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
-        #
-        while len(df_ev) < 1 or specified_abs_small_error < worst_abs_best_p_error:
-            # ［エラー］列で一番大きい値を取得します
-            #
-            #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
-            #
-            worst_abs_best_p_error = max(abs(df_ev['best_p_error'].min()), abs(df_ev['best_p_error'].max()))
-
-
-            # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
-            if pd.isnull(worst_abs_best_p_error):
-                worst_abs_best_p_error = ABS_OUT_OF_ERROR
-
-
-            # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-            if abs_limit_of_error is None:
-                abs_limit_of_error = worst_abs_best_p_error * 9/speed
-            else:
-                abs_limit_of_error *= 9/speed 
-
-
-            print(f"{speed=}  {abs_limit_of_error=:.20f}  {worst_abs_best_p_error=:.20f}")
-
-
-            # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
-            #
-            #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
-            #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
-            #
-            is_update_table = iteration_deeping(
-                    df=df_ev,
-                    specified_failure_rate=specified_failure_rate,
-                    specified_turn_system=specified_turn_system,
-                    specified_trials_series=specified_trials_series,
-                    specified_abs_small_error=specified_abs_small_error,
-
-                    abs_limit_of_error=abs_limit_of_error,
-
-                    generation_algorythm=generation_algorythm)
-
-
-            # スピードがどんどん上がっていく
-            if not is_update_table:
-                speed += 1
-
-
-        print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
-
-
-        if is_dirty_csv:
-            is_dirty_csv = False
-
-            # 最後に CSV保存
-            print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            df_even_to_csv(df=df_ev, failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+        automatic(
+                specified_failure_rate=specified_failure_rate,
+                specified_turn_system=specified_turn_system,
+                generation_algorythm=generation_algorythm,
+                specified_trials_series=specified_trials_series,
+                specified_abs_small_error=specified_abs_small_error)
 
 
     except Exception as err:
