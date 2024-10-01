@@ -1,6 +1,6 @@
 #
 # 分析
-# python create_csv_to_data_score_board.py
+# python create_csv_to_view_score_board.py
 #
 #   １シリーズのコインの出目について、全パターン網羅した表を作成します
 #
@@ -11,9 +11,9 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import get_score_board_log_file_path, get_score_board_csv_file_path
-from library.views import stringify_series_log
+from library.views import stringify_series_log, stringify_csv_of_score_board
 
 
 def analysis_series(spec, series_rule, trial_results_for_one_series, title):
@@ -32,14 +32,21 @@ def analysis_series(spec, series_rule, trial_results_for_one_series, title):
             series_rule=series_rule,
             list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
     
-    csv = score_board.stringify_csv()
+    csv = stringify_csv_of_score_board(scoreboard=score_board)
 
     print(csv) # 表示
 
-    # ログ出力
-    csv_file_path = get_score_board_csv_file_path(turn_system=turn_system)
+    # CSVファイル出力
+    csv_file_path = get_score_board_csv_file_path(
+            p=spec.p,
+            failure_rate=spec.failure_rate,
+            turn_system=turn_system,
+            h_step=series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+            t_step=series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+            span=series_rule.step_table.span)
+    print(f"write csv to `{csv_file_path}` file ...")
     with open(csv_file_path, 'a', encoding='utf8') as f:
-        f.write(f"{csv}\n")    # ファイルへ出力
+        f.write(f"{csv}\n")
 
 
 ########################################
@@ -106,6 +113,25 @@ Span?
 Example: 6
 ? """
         specified_span = int(input(prompt))
+
+
+        # CSVファイル出力（上書き）
+        #
+        #   ファイルをクリアーしたいだけ
+        #
+        csv_file_path = get_score_board_csv_file_path(
+                p=specified_p,
+                failure_rate=specified_failure_rate,
+                turn_system=turn_system,
+                h_step=specified_h_step,
+                t_step=specified_t_step,
+                span=specified_span)
+        print(f"write csv to `{csv_file_path}` file ...")
+        with open(csv_file_path, 'w', encoding='utf8') as f:
+            f.write(f"""\
+スコアボード
+
+""")
 
 
         # FIXME 便宜的に［試行シリーズ数］は 1 固定

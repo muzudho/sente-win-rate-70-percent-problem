@@ -5,11 +5,13 @@ from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL
 # File sub-name
 ################
 
-def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None):
+def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None, h_step=None, t_step=None, span=None):
     """ファイル名の部分を作成
 
     Parameters
     ----------
+    p : float
+        ［表が出る確率］
     failure_rate : float
         ［表も裏も出ない確率］
     turn_system : int
@@ -18,6 +20,12 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         ［データ生成アルゴリズム］
     trials_series : int
         ［試行シリーズ数］
+    h_step : int
+        ［表番で勝ったときの勝ち点］
+    t_step : int
+        ［裏番で勝ったときの勝ち点］
+    span : int
+        ［目標の点数］
     """
     subname = []
 
@@ -38,6 +46,18 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
 
     else:
         raise ValueError(f"{turn_system=}")
+
+
+    # ［表が出る確率（％）］
+    if p is None:
+        pass
+
+    else:
+        subname.append(f'p{p*100}')
+
+
+    if generation_algorythm is None:
+        pass
 
 
     # ［表も裏も出ない確率（％）］
@@ -76,6 +96,35 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
         subname.append(f'try{trials_series}')
 
 
+    # ［表番で勝ったときの勝ち点］
+    if h_step is None:
+        pass
+
+    else:
+        subname.append(f'h{h_step}')
+
+
+    # ［裏番で勝ったときの勝ち点］
+    if t_step is None:
+        pass
+
+    else:
+        subname.append(f't{t_step}')
+
+
+    # ［目標の点数］
+    if span is None:
+        pass
+
+    else:
+        subname.append(f's{span}')
+
+
+    if generation_algorythm is None:
+        pass
+
+
+    # サブ・ファイル名の連結
     subname = '_'.join(subname)
 
     if len(subname) < 1:
@@ -92,8 +141,8 @@ def get_score_board_log_file_path(turn_system):
     subname = make_file_subname(turn_system=turn_system)
     return f'output/score_board{subname}.log'
 
-def get_score_board_csv_file_path(turn_system):
-    subname = make_file_subname(turn_system=turn_system)
+def get_score_board_csv_file_path(p, failure_rate, turn_system, h_step, t_step, span):
+    subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system, h_step=h_step, t_step=t_step, span=span)
     return f'output/score_board{subname}.csv'
 
 

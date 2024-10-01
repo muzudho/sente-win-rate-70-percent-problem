@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, SeriesRule, Candidate
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, Converter, SeriesRule, Candidate
 
 
 def stringify_report_selection_series_rule(p, latest_theoretical_p, specified_series_rule, presentable, candidates, turn_system):
@@ -496,3 +496,117 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
               |（{ab51:+9.4f}）   （{ab52:+9.4f}）                                                                   （{ab57:+9.4f}）  |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 """
+
+
+def stringify_csv_of_score_board(scoreboard):
+    """スコアボードCSV作成"""
+
+    span = scoreboard._series_rule.step_table.span
+    h_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    t_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    shortest_coins = scoreboard._series_rule.shortest_coins
+    upper_limit_coins = scoreboard._series_rule.upper_limit_coins
+
+    if h_step < 1:
+        raise ValueError(f"正の整数でなければいけません {h_step=}")
+
+    if t_step < 1:
+        raise ValueError(f"正の整数でなければいけません {t_step=}")
+
+
+    str_p = f"{scoreboard._spec.p * 100:7.4f}"
+    str_failure_rate = f"      {scoreboard._spec.failure_rate * 100:7.4f}"
+    str_turn_system = f"{Converter.turn_system_to_code(scoreboard._spec.turn_system):>12}"
+
+    str_h_step = f"{h_step:>6}"
+    str_t_step = f"{t_step:>7}"
+    str_span = f"{span:>5}"
+    str_shortest_coins = f"{shortest_coins:>15}"
+    str_upper_limit_coins = f"{upper_limit_coins:>18}"
+
+    csv = f"""\
+Specification
+      p, failure_rate, turn_system  
+{str_p},{str_failure_rate},{str_turn_system}
+
+Series Rule
+h_step, t_step, span, shortest_coins, upper_limit_coins
+{str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
+
+Source Data
+{scoreboard._list_of_face_of_coin=}
+
+Score Board
+"""
+
+    a_point = span
+    b_point = span
+
+    round_list = []
+    round_list.append(['S', '', '  ', a_point, b_point])
+
+    for round_th, face_of_coin in enumerate(scoreboard._list_of_face_of_coin, 1):
+        last_round = round_list[-1]
+
+        if last_round[1] in ['', 'B']:
+            head_player = 'A'
+        else:
+            head_player = 'B'
+
+        face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
+
+        if face_of_coin == HEAD:
+            if head_player == 'A':
+                a_point -= h_step
+            else:
+                b_point -= h_step
+
+        elif face_of_coin == TAIL:
+            if head_player == 'A':
+                b_point -= t_step
+            else:
+                a_point -= t_step
+
+        elif face_of_coin == EMPTY:
+            pass
+
+        else:
+            raise ValueError(f"{face_of_coin=}")
+        
+
+        round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
+
+
+    list_of_round_number = ['      ']        # ラウンド番号
+    list_of_head_player = ['表番  ']
+    list_of_face_of_coin_str = ['出目  ']
+    list_of_a_points = ['Ａさん']
+    list_of_b_points = ['Ｂさん']
+
+    for round in round_list:
+        list_of_round_number.append(f"{round[0]:>3}")
+        list_of_head_player.append(f"{round[1]:>3}")
+        list_of_face_of_coin_str.append(f" {round[2]}")
+        list_of_a_points.append(f"{round[3]:>3}")
+        list_of_b_points.append(f"{round[4]:>3}")
+
+    csv += f"""\
+{','.join(list_of_round_number)}
+{','.join(list_of_head_player)}
+{','.join(list_of_face_of_coin_str)}
+{','.join(list_of_a_points)}
+{','.join(list_of_b_points)}
+
+"""
+
+    if list_of_a_points[-1] < list_of_b_points[-1]:
+        csv += "Ａさんの勝ち"
+
+    elif list_of_b_points[-1] < list_of_a_points[-1]:
+        csv += "Ｂさんの勝ち"
+    
+    else:
+        csv += "勝者なし"
+
+
+    return csv
