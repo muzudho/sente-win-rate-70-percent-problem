@@ -79,6 +79,7 @@ What is the failure rate? """
 
 (1) Frozen turn
 (2) Alternating turn
+Example: Alternating turn is 2
 Which one(1-2)? """
         choice = input(prompt)
 
@@ -148,11 +149,7 @@ Span? """
                 span=specified_span)
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'w', encoding='utf8') as f:
-            f.write(f"""\
-スコアボード
-
-{stringify_csv_of_score_board_header(spec=spec, series_rule=specified_series_rule)}
-""")
+            f.write(stringify_csv_of_score_board_header(spec=spec, series_rule=specified_series_rule))
 
 
         list_of_trial_results_for_one_series = []

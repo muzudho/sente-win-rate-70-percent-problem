@@ -523,13 +523,19 @@ def stringify_csv_of_score_board_header(spec, series_rule):
 
     # CSV
     return f"""\
-Specification
-      p, failure_rate, turn_system  
-{str_p},{str_failure_rate},{str_turn_system}
+ヘッダー
+--------
 
-Series Rule
-h_step, t_step, span, shortest_coins, upper_limit_coins
-{str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
+    ,前提条件
+    ,--------
+    ,      p, failure_rate, turn_system  
+    ,{str_p},{str_failure_rate},{str_turn_system}
+
+    ,大会で設定するルール
+    ,-------------------
+    ,h_step, t_step, span, shortest_coins, upper_limit_coins
+    ,{str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
+
 
 """
 
@@ -564,10 +570,10 @@ def stringify_csv_of_score_board_body(scoreboard):
 
 
     return f"""\
-Score Board
+スコアボード
 -----------
 
-    ,Source Data,{source_data}
+    ,元データ,{source_data}
 
     ,{','.join(scoreboard.list_of_round_number_str)}
     ,{','.join(scoreboard.list_of_head_player_str)}
