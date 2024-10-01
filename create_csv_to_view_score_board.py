@@ -11,7 +11,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import get_score_board_log_file_path, get_score_board_csv_file_path
 from library.views import stringify_series_log, stringify_csv_of_score_board_header, stringify_csv_of_score_board_body, stringify_csv_of_score_board_footer
 
@@ -216,6 +216,9 @@ Span? """
 
 
         all_patterns_p = 0
+        a_win_rate = 0
+        b_win_rate = 0
+        no_win_rate = 0
 
 
         for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
@@ -231,6 +234,23 @@ Span? """
             
             all_patterns_p += score_board.pattern_p
 
+            # 満点で,Ａさんの勝ち
+            # 勝ち点差で,Ａさんの勝ち
+            if score_board.game_results == ALICE_FULLY_WON or score_board.game_results == ALICE_POINTS_WON:
+                a_win_rate += score_board.pattern_p
+
+            # 満点で,Ｂさんの勝ち
+            # 勝ち点差で,Ｂさんの勝ち
+            elif score_board.game_results == BOB_FULLY_WON or score_board.game_results == BOB_POINTS_WON:
+                b_win_rate += score_board.pattern_p
+            
+            # 勝者なし
+            elif score_board.game_results == NO_WIN_MATCH:
+                no_win_rate += score_board.pattern_p
+            
+            else:
+                raise ValueError(f"{score_board.game_results=}")
+
 
         # CSVファイル出力（追記）
         csv_file_path = get_score_board_csv_file_path(
@@ -242,7 +262,11 @@ Span? """
                 span=specified_span)
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
-            f.write(stringify_csv_of_score_board_footer(all_patterns_p=all_patterns_p))
+            f.write(stringify_csv_of_score_board_footer(
+                    a_win_rate=a_win_rate,
+                    b_win_rate=b_win_rate,
+                    no_win_rate=no_win_rate,
+                    all_patterns_p=all_patterns_p))
 
 
     except Exception as err:

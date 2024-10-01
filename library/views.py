@@ -630,16 +630,15 @@ def stringify_csv_of_score_board_body(scoreboard):
 """
 
 
-def stringify_csv_of_score_board_footer(all_patterns_p):
+def stringify_csv_of_score_board_footer(a_win_rate, b_win_rate, no_win_rate, all_patterns_p):
     """スコアボードCSVフッター作成"""
-
-
-    str_all_patterns_p = str(all_patterns_p)
-
 
     return f"""\
 
 ,フッター
 ,--------
-,,確率合計,{str_all_patterns_p}
+,,Ａさんが勝つ確率,{a_win_rate}
+,,Ｂさんが勝つ確率,{b_win_rate}
+,,勝ち負けが付かない確率,{no_win_rate}
+,,確率合計,{all_patterns_p}
 """
