@@ -36,13 +36,137 @@ def analysis_series(score_board):
     csv_file_path = get_score_board_csv_file_path(
             p=score_board.spec.p,
             failure_rate=score_board.spec.failure_rate,
-            turn_system=turn_system,
+            turn_system=score_board.spec.turn_system,
             h_step=score_board.series_rule.step_table.get_step_by(face_of_coin=HEAD),
             t_step=score_board.series_rule.step_table.get_step_by(face_of_coin=TAIL),
             span=score_board.series_rule.step_table.span)
     print(f"write csv to `{csv_file_path}` file ...")
     with open(csv_file_path, 'a', encoding='utf8') as f:
         f.write(f"{csv}\n")
+
+
+def automatic(series_rule):
+
+    # CSVファイル出力（上書き）
+    #
+    #   ファイルをクリアーしたいだけ
+    #
+    csv_file_path = get_score_board_csv_file_path(
+            p=series_rule.spec.p,
+            failure_rate=series_rule.spec.failure_rate,
+            turn_system=series_rule.spec.turn_system,
+            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD),
+            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+            span=series_rule.step_table.span)
+    print(f"write csv to `{csv_file_path}` file ...")
+    with open(csv_file_path, 'w', encoding='utf8') as f:
+        f.write(stringify_csv_of_score_board_header(spec=series_rule.spec, series_rule=series_rule))
+
+
+    list_of_trial_results_for_one_series = []
+
+    # ［出目シーケンス］の全パターンを網羅します
+    list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
+            can_failure=0 < series_rule.spec.failure_rate,
+            series_rule=series_rule)
+    
+
+    distinct_set = set()
+
+
+    for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
+        #print(f"動作テスト {list_of_face_of_coin=}")
+
+        #
+        # 到達できない棋譜は除去しておきたい
+        #
+
+        #old_number_of_coins = len(list_of_face_of_coin)
+
+        # 最短対局数を下回る対局シートはスキップします
+        if len(list_of_face_of_coin) < series_rule.shortest_coins:
+            #print(f"{series_rule.spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
+            continue
+
+        # ［シリーズ］１つ分の試行結果を返す
+        trial_results_for_one_series = judge_series(
+                spec=series_rule.spec,
+                series_rule=series_rule,
+                list_of_face_of_coin=list_of_face_of_coin)
+
+
+        # FIXME 検証
+        if trial_results_for_one_series.number_of_coins < series_rule.shortest_coins:
+            text = f"{series_rule.spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.shortest_coins} を下回った"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.upper_limit_coins=}
+{trial_results_for_one_series.stringify_dump('   ')}
+""")
+            raise ValueError(text)
+
+        # FIXME 検証
+        if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
+            text = f"{series_rule.spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.upper_limit_coins} を上回った"
+            print(f"""{text}
+{list_of_face_of_coin=}
+{series_rule.shortest_coins=}
+{trial_results_for_one_series.stringify_dump('   ')}
+""")
+            raise ValueError(text)
+
+
+        # コインの出目のリストはサイズが切り詰められて縮まってるケースがある
+        id = ''.join([str(num) for num in trial_results_for_one_series.list_of_face_of_coin])
+
+        # 既に処理済みのものはスキップ
+        if id in distinct_set:
+            print(f"スキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
+            continue
+
+        distinct_set.add(id)
+
+        list_of_trial_results_for_one_series.append(trial_results_for_one_series)
+
+
+    all_patterns_p = 0
+    a_win_rate = 0
+    b_win_rate = 0
+    no_win_rate = 0
+
+
+    for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
+
+        score_board = ScoreBoard.make_score_board(
+                pattern_no=pattern_no,
+                spec=series_rule.spec,
+                series_rule=series_rule,
+                list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
+
+        analysis_series(
+                score_board=score_board)
+        
+        all_patterns_p += score_board.pattern_p
+
+        # 満点で,Ａさんの勝ち
+        # 勝ち点差で,Ａさんの勝ち
+        if score_board.game_results == ALICE_FULLY_WON or score_board.game_results == ALICE_POINTS_WON:
+            a_win_rate += score_board.pattern_p
+
+        # 満点で,Ｂさんの勝ち
+        # 勝ち点差で,Ｂさんの勝ち
+        elif score_board.game_results == BOB_FULLY_WON or score_board.game_results == BOB_POINTS_WON:
+            b_win_rate += score_board.pattern_p
+        
+        # 勝者なし
+        elif score_board.game_results == NO_WIN_MATCH:
+            no_win_rate += score_board.pattern_p
+        
+        else:
+            raise ValueError(f"{score_board.game_results=}")
+
+    
+    return a_win_rate, b_win_rate, no_win_rate, all_patterns_p
 
 
 ########################################
@@ -80,10 +204,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            turn_system = FROZEN_TURN
+            specified_turn_system = FROZEN_TURN
 
         elif choice == '2':
-            turn_system = ALTERNATING_TURN
+            specified_turn_system = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -113,15 +237,14 @@ Span? """
         specified_span = int(input(prompt))
 
 
-        # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        specified_trials_series = 1
-
-
         # 仕様
         spec = Specification(
                 p=specified_p,
                 failure_rate=specified_failure_rate,
-                turn_system=turn_system)
+                turn_system=specified_turn_system)
+
+        # FIXME 便宜的に［試行シリーズ数］は 1 固定
+        specified_trials_series = 1
 
         # ［シリーズ・ルール］。任意に指定します
         specified_series_rule = SeriesRule.make_series_rule_base(
@@ -132,134 +255,17 @@ Span? """
                 span=specified_span)
 
 
-        # CSVファイル出力（上書き）
-        #
-        #   ファイルをクリアーしたいだけ
-        #
-        csv_file_path = get_score_board_csv_file_path(
-                p=specified_p,
-                failure_rate=specified_failure_rate,
-                turn_system=turn_system,
-                h_step=specified_h_step,
-                t_step=specified_t_step,
-                span=specified_span)
-        print(f"write csv to `{csv_file_path}` file ...")
-        with open(csv_file_path, 'w', encoding='utf8') as f:
-            f.write(stringify_csv_of_score_board_header(spec=spec, series_rule=specified_series_rule))
-
-
-        list_of_trial_results_for_one_series = []
-
-        # ［出目シーケンス］の全パターンを網羅します
-        list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
-                can_failure=0 < specified_failure_rate,
-                series_rule=specified_series_rule)
-        
-
-        distinct_set = set()
-
-
-        for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
-            #print(f"動作テスト {list_of_face_of_coin=}")
-
-            #
-            # 到達できない棋譜は除去しておきたい
-            #
-
-            #old_number_of_coins = len(list_of_face_of_coin)
-
-            # 最短対局数を下回る対局シートはスキップします
-            if len(list_of_face_of_coin) < specified_series_rule.shortest_coins:
-                #print(f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {specified_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
-                continue
-
-            # ［シリーズ］１つ分の試行結果を返す
-            trial_results_for_one_series = judge_series(
-                    spec=spec,
-                    series_rule=specified_series_rule,
-                    list_of_face_of_coin=list_of_face_of_coin)
-
-
-            # FIXME 検証
-            if trial_results_for_one_series.number_of_coins < specified_series_rule.shortest_coins:
-                text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {specified_series_rule.shortest_coins} を下回った"
-                print(f"""{text}
-{list_of_face_of_coin=}
-{specified_series_rule.upper_limit_coins=}
-{trial_results_for_one_series.stringify_dump('   ')}
-""")
-                raise ValueError(text)
-
-            # FIXME 検証
-            if specified_series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
-                text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {specified_series_rule.upper_limit_coins} を上回った"
-                print(f"""{text}
-{list_of_face_of_coin=}
-{specified_series_rule.shortest_coins=}
-{trial_results_for_one_series.stringify_dump('   ')}
-""")
-                raise ValueError(text)
-
-
-
-            # コインの出目のリストはサイズが切り詰められて縮まってるケースがある
-            id = ''.join([str(num) for num in trial_results_for_one_series.list_of_face_of_coin])
-
-            # 既に処理済みのものはスキップ
-            if id in distinct_set:
-                print(f"スキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
-                continue
-
-            distinct_set.add(id)
-
-            list_of_trial_results_for_one_series.append(trial_results_for_one_series)
-
-
-        all_patterns_p = 0
-        a_win_rate = 0
-        b_win_rate = 0
-        no_win_rate = 0
-
-
-        for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
-
-            score_board = ScoreBoard.make_score_board(
-                    pattern_no=pattern_no,
-                    spec=spec,
-                    series_rule=specified_series_rule,
-                    list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
-
-            analysis_series(
-                    score_board=score_board)
-            
-            all_patterns_p += score_board.pattern_p
-
-            # 満点で,Ａさんの勝ち
-            # 勝ち点差で,Ａさんの勝ち
-            if score_board.game_results == ALICE_FULLY_WON or score_board.game_results == ALICE_POINTS_WON:
-                a_win_rate += score_board.pattern_p
-
-            # 満点で,Ｂさんの勝ち
-            # 勝ち点差で,Ｂさんの勝ち
-            elif score_board.game_results == BOB_FULLY_WON or score_board.game_results == BOB_POINTS_WON:
-                b_win_rate += score_board.pattern_p
-            
-            # 勝者なし
-            elif score_board.game_results == NO_WIN_MATCH:
-                no_win_rate += score_board.pattern_p
-            
-            else:
-                raise ValueError(f"{score_board.game_results=}")
+        a_win_rate, b_win_rate, no_win_rate, all_patterns_p = automatic(series_rule=specified_series_rule)
 
 
         # CSVファイル出力（追記）
         csv_file_path = get_score_board_csv_file_path(
-                p=specified_p,
-                failure_rate=specified_failure_rate,
-                turn_system=turn_system,
-                h_step=specified_h_step,
-                t_step=specified_t_step,
-                span=specified_span)
+                p=specified_series_rule.spec.p,
+                failure_rate=specified_series_rule.spec.failure_rate,
+                turn_system=specified_series_rule.spec.turn_system,
+                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                span=specified_series_rule.step_table.span)
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(stringify_csv_of_score_board_footer(
