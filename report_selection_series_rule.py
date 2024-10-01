@@ -59,10 +59,17 @@ def generate_report(specified_turn_system):
                     span=span)
 
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
-            latest_theoretical_p = calculate_probability(
+            # TODO オーバーフロー例外に対応したプログラミングをすること
+            latest_theoretical_p, err = calculate_probability(
                     p=p,
                     H=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                     T=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+
+            # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+            if err is not None:
+                pass
+            else:
+                pass
 
             # 文言の作成
             text = stringify_report_selection_series_rule(
@@ -90,10 +97,17 @@ def generate_report(specified_turn_system):
                     span=span)
 
             # NOTE 実際値ではなく、理論値を出力する
-            latest_theoretical_p = calculate_probability(
+            # TODO オーバーフロー例外に対応したプログラミングをすること
+            latest_theoretical_p, err = calculate_probability(
                     p=p,
                     H=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                     T=specified_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+
+            # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+            if err is not None:
+                pass
+            else:
+                pass
 
             # 文言の作成
             text = stringify_report_selection_series_rule(

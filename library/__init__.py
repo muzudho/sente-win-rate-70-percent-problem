@@ -85,6 +85,10 @@ THEORETICAL = 2
 IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
 
 
+# 範囲外のあり得ない値。浮動小数点が大きすぎてオーバーフロー例外が出て計算不可能だったケースなど
+OUT_OF_P = 1.01
+
+
 # 誤差の範囲外のありえない値の絶対値。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差の絶対値は 0.5 が最大
 ABS_OUT_OF_ERROR = 0.51
 
@@ -963,6 +967,8 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 def calculate_probability(p, H, T):
     """［表側を持っているプレイヤー］が勝つ確率を返します
 
+    TODO オーバーフロー例外に対応したプログラミングをすること
+
     NOTE ＡさんとＢさんは、表、裏を入れ替えて持つことがあるので、［表側を持っているプレイヤー］が必ずＡさんとは限らない
 
     ［表側を持っているプレイヤー］が勝つ条件：　表が H 回出る前に裏が T 回出ないこと
@@ -975,7 +981,10 @@ def calculate_probability(p, H, T):
     T = 3    # ［裏側を持っているプレイヤー］が必要な裏の回数
 
     # 計算の実行例
-    probability = calculate_probability(p, H, T)
+    probability, err = calculate_probability(p, H, T)
+    if err is not None:
+        pass # エラー時対応
+
     print(f"［表側を持っているプレイヤー］が勝つ確率: {probability * 100:.2f}%")
 
     Parameters
@@ -991,27 +1000,40 @@ def calculate_probability(p, H, T):
     -------
     probability : float
         ［表側を持っているプレイヤー］が勝つ確率
+    err : str
+        エラーが有ればメッセージを、無ければナンを返す
     """
 
     from math import comb
 
-    # 裏が出る確率
-    q = 1 - p
+    try:
 
-    # 試行回数
-    N = H + T - 1
+        err = None
 
-    # Ａさんが勝つ確率を初期化
-    probability = 0.0
+        # 裏が出る確率
+        q = 1 - p
 
-    # 表が H 回から N 回出る確率を計算
-    for n in range(H, N + 1):
-        # 📖 ［累計二項分布］を調べること
-        combinations = comb(N, n)   # 組み合わせの数
-        prob = combinations * (p ** n) * (q ** (N - n))
-        probability += prob
+        # 試行回数
+        N = H + T - 1
 
-    return probability
+        # Ａさんが勝つ確率を初期化
+        probability = 0.0
+
+        # 表が H 回から N 回出る確率を計算
+        for n in range(H, N + 1):
+            # 📖 ［累計二項分布］を調べること
+            combinations = comb(N, n)   # 組み合わせの数
+
+            # この累乗で、浮動小数点数が大きすぎてオーバーフロー例外を投げることがある
+            prob = combinations * (p ** n) * (q ** (N - n))
+
+            probability += prob
+
+        return probability, err
+    
+    except OverflowError as ex:
+        err = f"{ex}"
+        return OUT_OF_P, err
 
 
 class SeriesRule():

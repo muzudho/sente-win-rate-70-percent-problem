@@ -42,13 +42,18 @@ if __name__ == '__main__':
         for         p,       p_time,       q_time,       best_p,       best_p_error,       comment in\
             zip(df['p'], df['p_time'], df['q_time'], df['best_p'], df['best_p_error'], df['comment']):
 
-            temp_best_p = calculate_probability(
+            # オーバーフロー例外に対応したプログラミングをすること
+            temp_best_p, err = calculate_probability(
                     p=p,
                     H=p_time,
                     T=q_time)
 
-            # 誤差
-            temp_best_p_error = temp_best_p - 0.5
+            # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+            if err is not None:
+                temp_best_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
+            else:
+                # 誤差
+                temp_best_p_error = temp_best_p - 0.5
 
 
             with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:

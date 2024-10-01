@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, SeriesRule, FROZEN_TURN, ABS_OUT_OF_ERROR
+from library import calculate_probability, SeriesRule, FROZEN_TURN, OUT_OF_P, ABS_OUT_OF_ERROR
 from library.database import get_df_p
 from library.views import stringify_p_q_time_strict
 
@@ -63,13 +63,18 @@ if __name__ == '__main__':
                 for q_time in range (1, max_q_time+1):
 
                     # 理論値
-                    latest_theoretical_p = calculate_probability(
+                    # オーバーフロー例外に対応したプログラミングをすること
+                    latest_theoretical_p, err = calculate_probability(
                             p=p,
                             H=p_time,
                             T=q_time)
 
-                    # 誤差
-                    latest_theoretical_p_error = abs(latest_theoretical_p - 0.5)
+                    # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+                    if err is not None:
+                        latest_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
+                    else:
+                        # 誤差
+                        latest_theoretical_p_error = abs(latest_theoretical_p - 0.5)
 
                     if latest_error < best_p_error:
                         best_p_error = latest_theoretical_p_error

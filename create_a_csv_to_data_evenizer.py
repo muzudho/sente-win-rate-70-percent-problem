@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, ABS_OUT_OF_ERROR, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, OUT_OF_P, ABS_OUT_OF_ERROR, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
 from library.views import print_even_series_rule
 
@@ -148,7 +148,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-    for         p,       failure_rate,       turn_system,       trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
+    for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
         zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
@@ -270,11 +270,18 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                         # 理論値の場合
                         elif generation_algorythm == THEORETICAL:
-                            latest_p = calculate_probability(
+
+                            # オーバーフロー例外に対応したプログラミングをすること
+                            latest_p, err = calculate_probability(
                                     p=p,
                                     H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                                     T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
-                            latest_p_error = latest_p - 0.5
+                            
+                            # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+                            if err is not None:
+                                latest_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
+                            else:
+                                latest_p_error = latest_p - 0.5
 
 
                         else:
@@ -298,7 +305,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[{datetime.datetime.now()}][p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％  turn_system={Converter.turn_system_to_code(turn_system)}] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％  turn_system={turn_system_str}] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #

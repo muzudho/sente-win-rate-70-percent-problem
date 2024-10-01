@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, Converter, round_letro, calculate_probability, Candidate
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, round_letro, Candidate
 from library.file_paths import get_selection_series_rule_csv_file_path
 from library.database import get_df_even, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
 

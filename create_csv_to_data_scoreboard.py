@@ -1,9 +1,8 @@
 #
 # 分析
-# python analysis_series.py
+# python create_csv_to_data_scoreboard.py
 #
-#   ［先後固定制］
-#   表が出る確率（p）が偏ったコインを、指定回数投げる
+#   １シリーズのコインの出目について、全パターン網羅した表を作成します
 #
 
 import traceback
