@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import get_score_board_log_file_path, get_score_board_csv_file_path
-from library.views import stringify_series_log, stringify_csv_of_score_board
+from library.views import stringify_series_log, stringify_csv_of_score_board_header, stringify_csv_of_score_board_body
 
 
 def analysis_series(spec, series_rule, trial_results_for_one_series, title):
@@ -32,7 +32,7 @@ def analysis_series(spec, series_rule, trial_results_for_one_series, title):
             series_rule=series_rule,
             list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
     
-    csv = stringify_csv_of_score_board(scoreboard=score_board)
+    csv = stringify_csv_of_score_board_body(scoreboard=score_board)
 
     print(csv) # 表示
 
@@ -115,25 +115,6 @@ Example: 6
         specified_span = int(input(prompt))
 
 
-        # CSVファイル出力（上書き）
-        #
-        #   ファイルをクリアーしたいだけ
-        #
-        csv_file_path = get_score_board_csv_file_path(
-                p=specified_p,
-                failure_rate=specified_failure_rate,
-                turn_system=turn_system,
-                h_step=specified_h_step,
-                t_step=specified_t_step,
-                span=specified_span)
-        print(f"write csv to `{csv_file_path}` file ...")
-        with open(csv_file_path, 'w', encoding='utf8') as f:
-            f.write(f"""\
-スコアボード
-
-""")
-
-
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
         specified_trials_series = 1
 
@@ -151,6 +132,26 @@ Example: 6
                 h_step=specified_h_step,
                 t_step=specified_t_step,
                 span=specified_span)
+
+
+        # CSVファイル出力（上書き）
+        #
+        #   ファイルをクリアーしたいだけ
+        #
+        csv_file_path = get_score_board_csv_file_path(
+                p=specified_p,
+                failure_rate=specified_failure_rate,
+                turn_system=turn_system,
+                h_step=specified_h_step,
+                t_step=specified_t_step,
+                span=specified_span)
+        print(f"write csv to `{csv_file_path}` file ...")
+        with open(csv_file_path, 'w', encoding='utf8') as f:
+            f.write(f"""\
+スコアボード
+
+{stringify_csv_of_score_board_header(spec=spec, series_rule=specified_series_rule)}
+""")
 
 
         list_of_trial_results_for_one_series = []

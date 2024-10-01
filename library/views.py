@@ -498,14 +498,13 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 """
 
 
-def stringify_csv_of_score_board(scoreboard):
-    """スコアボードCSV作成"""
-
-    span = scoreboard._series_rule.step_table.span
-    h_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    t_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
-    shortest_coins = scoreboard._series_rule.shortest_coins
-    upper_limit_coins = scoreboard._series_rule.upper_limit_coins
+def stringify_csv_of_score_board_header(spec, series_rule):
+    """スコアボードCSVヘッダー作成"""
+    span = series_rule.step_table.span
+    h_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    t_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    shortest_coins = series_rule.shortest_coins
+    upper_limit_coins = series_rule.upper_limit_coins
 
     if h_step < 1:
         raise ValueError(f"正の整数でなければいけません {h_step=}")
@@ -514,9 +513,9 @@ def stringify_csv_of_score_board(scoreboard):
         raise ValueError(f"正の整数でなければいけません {t_step=}")
 
 
-    str_p = f"{scoreboard._spec.p * 100:7.4f}"
-    str_failure_rate = f"      {scoreboard._spec.failure_rate * 100:7.4f}"
-    str_turn_system = f"{Converter.turn_system_to_code(scoreboard._spec.turn_system):>12}"
+    str_p = f"{spec.p * 100:7.4f}"
+    str_failure_rate = f"      {spec.failure_rate * 100:7.4f}"
+    str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system):>12}"
 
     str_h_step = f"{h_step:>6}"
     str_t_step = f"{t_step:>7}"
@@ -524,7 +523,8 @@ def stringify_csv_of_score_board(scoreboard):
     str_shortest_coins = f"{shortest_coins:>15}"
     str_upper_limit_coins = f"{upper_limit_coins:>18}"
 
-    csv = f"""\
+    # CSV
+    return f"""\
 Specification
       p, failure_rate, turn_system  
 {str_p},{str_failure_rate},{str_turn_system}
@@ -533,11 +533,15 @@ Series Rule
 h_step, t_step, span, shortest_coins, upper_limit_coins
 {str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
 
-Source Data
-{scoreboard._list_of_face_of_coin=}
-
-Score Board
 """
+
+
+def stringify_csv_of_score_board_body(scoreboard):
+    """スコアボードCSVボディー作成"""
+
+    span = scoreboard._series_rule.step_table.span
+    h_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    t_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     a_point = span
     b_point = span
@@ -590,23 +594,45 @@ Score Board
         list_of_a_points.append(f"{round[3]:>3}")
         list_of_b_points.append(f"{round[4]:>3}")
 
-    csv += f"""\
-{','.join(list_of_round_number)}
-{','.join(list_of_head_player)}
-{','.join(list_of_face_of_coin_str)}
-{','.join(list_of_a_points)}
-{','.join(list_of_b_points)}
 
-"""
+    last_a_point = int(list_of_a_points[-1])
+    last_b_point = int(list_of_b_points[-1])
 
-    if list_of_a_points[-1] < list_of_b_points[-1]:
-        csv += "Ａさんの勝ち"
+    if span <= last_a_point and span <= last_b_point:
+        raise ValueError(f"両者が満点はおかしい {list_of_a_points=}  {span=}")
+    
+    elif span <= last_a_point:
+        game_result = "満点で,Ａさんの勝ち"
 
-    elif list_of_b_points[-1] < list_of_a_points[-1]:
-        csv += "Ｂさんの勝ち"
+    elif span <= last_b_point:
+        game_result = "満点で,Ｂさんの勝ち"
+
+    elif last_a_point < last_b_point:
+        game_result = "勝ち点差で,Ａさんの勝ち"
+
+    elif last_b_point < last_a_point:
+        game_result = "勝ち点差で,Ｂさんの勝ち"
     
     else:
-        csv += "勝者なし"
+        game_result = "勝者なし"
+    
+
+    # `[1, 2]` のようなデータを `1 2` に変換
+    source_data = f"{scoreboard._list_of_face_of_coin}"[1:-1].replace(',', ' ')
 
 
-    return csv
+    return f"""\
+Score Board
+-----------
+
+    ,Source Data,{source_data}
+
+    ,{','.join(list_of_round_number)}
+    ,{','.join(list_of_head_player)}
+    ,{','.join(list_of_face_of_coin_str)}
+    ,{','.join(list_of_a_points)}
+    ,{','.join(list_of_b_points)}
+
+    ,{game_result}
+
+"""

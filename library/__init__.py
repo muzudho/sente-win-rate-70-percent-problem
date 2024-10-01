@@ -640,13 +640,6 @@ self.stringify_dump:
 {old_pts_list=}
 """)
 
-            # # スコアボード表示
-            # score_board = ScoreBoard(
-            #         spec=self._spec,
-            #         series_rule=self._series_rule,
-            #         list_of_face_of_coin=list_of_face_of_coin)
-            # print(score_board.stringify_csv_of_score_board())
-
             raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい  {self._pts_list[ALICE]=}  {self._pts_list[BOB]=}")
 
 
@@ -1707,12 +1700,6 @@ self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
 {self._list_of_face_of_coin=}
 """)
-
-            # score_board = ScoreBoard(
-            #         spec=self._spec,
-            #         series_rule=self._series_rule,
-            #         list_of_face_of_coin=self._list_of_face_of_coin)
-            # print(score_board.stringify_csv_of_score_board())
 
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
 
