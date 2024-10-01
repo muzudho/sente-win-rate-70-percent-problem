@@ -632,7 +632,7 @@ class PointCalculation():
         successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._spec.turn_system)
 
         # ［勝ち点］
-        step = self._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=successful_face_of_coin)
+        step = self._series_rule.step_table.get_step_by(face_of_coin=successful_face_of_coin)
 
 
         # FIXME 検算用
@@ -1051,7 +1051,7 @@ class SeriesRule():
         """［１勝の点数テーブル］"""
 
         
-        def __init__(self, h_step, t_step, h_step_when_failed, t_step_when_failed, span):
+        def __init__(self, h_step, t_step, span):
             """初期化
             
             Parameters
@@ -1060,10 +1060,6 @@ class SeriesRule():
                 ［表番で勝ったときの勝ち点］
             t_step : int
                 ［裏番で勝ったときの勝ち点］
-            h_step_when_failed : float
-                ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            t_step_when_failed : float
-                ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
             span : int
                 ［目標の点数］
             """
@@ -1074,11 +1070,7 @@ class SeriesRule():
                     # 1: ［表番で勝ったときの勝ち点］
                     h_step,
                     # 2: ［裏番で勝ったときの勝ち点］
-                    t_step,
-                    # 3: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                    h_step_when_failed,
-                    # 4: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-                    t_step_when_failed]
+                    t_step]
 
             self._span = span
 
@@ -1089,42 +1081,24 @@ class SeriesRule():
             return self._span
 
 
-        def get_step_by(self, challenged, face_of_coin):
-            """［１勝の点数］を取得します
+        def get_step_by(self, face_of_coin):
+            """［表番または裏番で勝ったときの勝ち点］を取得します
             
             Parameters
             ----------
-            challenged : int
-                ［成功か失敗］
             face_of_coin : int
                 ［コインの表か裏かそれ以外］
             """
 
-            if challenged == SUCCESSFUL:
-                # ［コインの表が出たときの勝ち点］
-                if face_of_coin == HEAD:
-                    return self._step_list[1]
+            # ［コインの表が出たときの勝ち点］
+            if face_of_coin == HEAD:
+                return self._step_list[1]
 
-                # ［コインの裏が出たときの勝ち点］
-                if face_of_coin == TAIL:
-                    return self._step_list[2]
+            # ［コインの裏が出たときの勝ち点］
+            if face_of_coin == TAIL:
+                return self._step_list[2]
 
-                raise ValueError(f"{face_of_coin=}")
-
-
-            if challenged == FAILED:
-                # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                if face_of_coin == HEAD:
-                    return self._step_list[3]
-                
-                # ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-                if face_of_coin == TAIL:
-                    return self._step_list[4]
-                
-                raise ValueError(f"{face_of_coin=}")
-
-
-            raise ValueError(f"{challenged=}")
+            raise ValueError(f"{face_of_coin=}")
 
 
         def get_time_by(self, challenged, face_of_coin):
@@ -1145,7 +1119,7 @@ class SeriesRule():
                     #
                     #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
                     #
-                    return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)))
+                    return round_letro(math.ceil(self._span / self.get_step_by(face_of_coin=HEAD)))
 
                 elif face_of_coin == TAIL:
                     """［裏勝ちだけでの対局数］
@@ -1161,7 +1135,7 @@ class SeriesRule():
                     #
                     #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
                     #
-                    return round_letro(math.ceil(self._span / self.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)))
+                    return round_letro(math.ceil(self._span / self.get_step_by(face_of_coin=TAIL)))
 
                 else:
                     raise ValueError(f"{face_of_coin=}")
@@ -1241,18 +1215,9 @@ class SeriesRule():
             raise ValueError(f"［コインの裏が出たときの勝ち点］{t_step=} が、［目標の点数］{span} を上回るのはおかしいです")
 
 
-        h_step_when_failed = 0
-
-        t_step_when_failed = 0
-
-        # if t_step_when_failed < h_step_when_failed:
-        #     raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{h_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {t_step_when_failed} を上回るのはおかしいです")
-
         step_table = SeriesRule.StepTable(
                 h_step=h_step,
                 t_step=t_step,
-                h_step_when_failed=h_step_when_failed,
-                t_step_when_failed=t_step_when_failed,
                 span=span)
 
 
@@ -1347,7 +1312,7 @@ step_table:
     @property
     def is_enabled(self):
         """このシリーズ・ルールは有効な値かどうか？"""
-        return self._step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD) != IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO
+        return self._step_table.get_step_by(face_of_coin=HEAD) != IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO
 
 
     @property
@@ -2238,8 +2203,8 @@ class ScoreBoard():
 
         # TODO ビューと被ってるコードを整理したい
         span = series_rule.step_table.span
-        h_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-        t_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+        h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
+        t_step = series_rule.step_table.get_step_by(face_of_coin=TAIL)
 
         a_point = span
         b_point = span

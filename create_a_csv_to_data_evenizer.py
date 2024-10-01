@@ -64,12 +64,12 @@ def update_dataframe(df, spec, best_p, best_p_error, best_series_rule_if_it_exis
     df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
 
     # ［表番で勝ったときの勝ち点］列を更新
-    df.loc[df['p']==spec.p, ['best_h_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    df.loc[df['p']==spec.p, ['latest_h_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==spec.p, ['best_h_step']] = best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD)
+    df.loc[df['p']==spec.p, ['latest_h_step']] = latest_series_rule.step_table.get_step_by(face_of_coin=HEAD)
 
     # ［裏番で勝ったときの勝ち点］列を更新
-    df.loc[df['p']==spec.p, ['best_t_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
-    df.loc[df['p']==spec.p, ['latest_t_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==spec.p, ['best_t_step']] = best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL)
+    df.loc[df['p']==spec.p, ['latest_t_step']] = latest_series_rule.step_table.get_step_by(face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
     df.loc[df['p']==spec.p, ['best_span']] = best_series_rule_if_it_exists.step_table.span
@@ -299,8 +299,8 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
                                     trials_series=specified_trials_series,
-                                    h_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
-                                    t_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+                                    h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
+                                    t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
                                     span=best_series_rule_if_it_exists.step_table.span,
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］

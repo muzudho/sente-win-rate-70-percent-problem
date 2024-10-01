@@ -41,8 +41,8 @@ def analysis_series(spec, series_rule, trial_results_for_one_series, title):
             p=spec.p,
             failure_rate=spec.failure_rate,
             turn_system=turn_system,
-            h_step=series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-            t_step=series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD),
+            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
             span=series_rule.step_table.span)
     print(f"write csv to `{csv_file_path}` file ...")
     with open(csv_file_path, 'a', encoding='utf8') as f:

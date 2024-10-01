@@ -160,8 +160,8 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     seg_3a = series_rule.shortest_coins
     seg_3b = series_rule.upper_limit_coins
 
-    seg_4a = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-    seg_4b = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+    seg_4a = series_rule.step_table.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+    seg_4b = series_rule.step_table.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
     # ［目標の点数］
     seg_4c = series_rule.step_table.span
@@ -195,8 +195,8 @@ def print_even_series_rule(p, best_p, best_p_error, series_rule):
         seg_3a = series_rule.shortest_coins
         seg_3b = series_rule.upper_limit_coins
 
-        seg_4a = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-        seg_4b = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+        seg_4a = series_rule.step_table.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+        seg_4b = series_rule.step_table.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
         # ［目標の点数］
         seg_4c = series_rule.step_table.span
@@ -218,8 +218,8 @@ def print_even_series_rule(p, best_p, best_p_error, series_rule):
         seg_3a = series_rule.shortest_coins
         seg_3b = series_rule.upper_limit_coins
 
-        seg_4a = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-        seg_4b = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+        seg_4a = series_rule.step_table.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+        seg_4b = series_rule.step_table.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
         # ［目標の点数］
         seg_4c = series_rule.step_table.span
@@ -249,8 +249,8 @@ def stringify_series_log(
         タイトル
     """
 
-    h_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-    t_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+    h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+    t_step = series_rule.step_table.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
     span = series_rule.step_table.span
     b_rest = span
     w_rest = span
@@ -318,8 +318,8 @@ def stringify_series_log(
 
     # 勝ち点構成
     # ---------
-    pt1 = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
-    pt2 = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
+    pt1 = series_rule.step_table.get_step_by(face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
+    pt2 = series_rule.step_table.get_step_by(face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
     pt3 = series_rule.step_table.span      # ［目標の点数］
 
 
@@ -379,11 +379,9 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 
     # ［以下、［かくきんシステム］が算出したシリーズ・ルール］
     # ---------------------------------------------------
-    b_pt1 = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
-    b_pt2 = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
+    b_pt1 = series_rule.step_table.get_step_by(face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
+    b_pt2 = series_rule.step_table.get_step_by(face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
     b_pt3 = series_rule.step_table.span                                                     # ［目標の点数］
-    b_pt4 = series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=HEAD)        # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-    b_pt5 = series_rule.step_table.get_step_by(challenged=FAILED, face_of_coin=TAIL)        # ［コインの表も裏も出なかったときの、表番の方の勝ち点］
     b_tm10 = series_rule.shortest_coins                                            # ［最短対局数］
     b_tm11 = series_rule.upper_limit_coins                                             # ［上限対局数］
 
@@ -460,8 +458,8 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
               | 以下、［かくきんシステム］が算出したシリーズ・ルール                                                                          |
               |                                                                        勝ち点          決着時        引分け時 | 対局数        |
-              |                                                                            表          {b_pt1:4.0f}点      {b_pt4:8.4f}点 |{b_tm10:>4} ～{b_tm11:>4} 局 |
-              |                                                                            裏          {b_pt2:4.0f}点      {b_pt5:8.4f}点 |               |
+              |                                                                            表          {b_pt1:4.0f}点      --点 |{b_tm10:>4} ～{b_tm11:>4} 局 |
+              |                                                                            裏          {b_pt2:4.0f}点      --点 |               |
               |                                                                          目標          {b_pt3:4.0f}点                 |               |
               +---------------+---------------+---------------+---------------+---------------+---------------+---------------+---------------+
               | 以下、［かくきんシステム］を使って試行                                                                                        |
@@ -501,8 +499,8 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 def stringify_csv_of_score_board_header(spec, series_rule):
     """スコアボードCSVヘッダー作成"""
     span = series_rule.step_table.span
-    h_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    t_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
+    t_step = series_rule.step_table.get_step_by(face_of_coin=TAIL)
     shortest_coins = series_rule.shortest_coins
     upper_limit_coins = series_rule.upper_limit_coins
 
@@ -541,8 +539,8 @@ def stringify_csv_of_score_board_body(scoreboard):
 
     # TODO モデルと被っている処理を整理したい
     span = scoreboard._series_rule.step_table.span
-    h_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    t_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    h_step = scoreboard._series_rule.step_table.get_step_by(face_of_coin=HEAD)
+    t_step = scoreboard._series_rule.step_table.get_step_by(face_of_coin=TAIL)
 
     a_point = span
     b_point = span

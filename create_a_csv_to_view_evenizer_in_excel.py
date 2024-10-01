@@ -69,8 +69,8 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
     str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system)}"      # ［手番の決め方］
 
     # ［大会のルール設定］
-    str_head_step = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
-    str_tail_step = f"{series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
+    str_head_step = f"{series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
+    str_tail_step = f"{series_rule.step_table.get_step_by(face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
     str_span = f"{series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
     str_shortest_coins = f"{series_rule.shortest_coins}"                        # ［最短対局数］
     str_upper_limit_coins = f"{series_rule.upper_limit_coins}"                  # ［上限対局数］
