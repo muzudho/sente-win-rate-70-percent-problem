@@ -429,21 +429,22 @@ class SequenceOfFaceOfCoin():
         depth = series_rule.upper_limit_coins
 
         # １シーズン分のコイントスの全ての結果
-        stats = []
+        all_patterns = []
 
         position = []
 
 
-        def search(depth, stats, position, can_failure):
+        def search(depth, all_patterns, position, can_failure):
 
             # 表勝ちを追加
             position.append(HEAD)
 
-            # スタッツに、ポジションのコピーを追加
-            stats.append(list(position))
-
             if 0 < depth:
-                search(depth - 1, stats, position, can_failure=can_failure)
+                search(depth - 1, all_patterns, position, can_failure=can_failure)
+            
+            # 葉なら、ポジションのコピーを追加
+            else:
+                all_patterns.append(list(position))
 
             # 末尾の要素を削除
             position.pop()
@@ -452,11 +453,11 @@ class SequenceOfFaceOfCoin():
             # 裏勝ちを追加
             position.append(TAIL)
 
-            # スタッツに、ポジションのコピーを追加
-            stats.append(list(position))
-
             if 0 < depth:
-                search(depth - 1, stats, position, can_failure=can_failure)
+                search(depth - 1, all_patterns, position, can_failure=can_failure)
+            # 葉なら、ポジションのコピーを追加
+            else:
+                all_patterns.append(list(position))
 
             # 末尾の要素を削除
             position.pop()
@@ -466,20 +467,20 @@ class SequenceOfFaceOfCoin():
                 # 引分けを追加
                 position.append(EMPTY)
 
-                # スタッツに、ポジションのコピーを追加
-                stats.append(list(position))
-
                 if 0 < depth:
-                    search(depth - 1, stats, position, can_failure=can_failure)
+                    search(depth - 1, all_patterns, position, can_failure=can_failure)
+                # 葉なら、ポジションのコピーを追加
+                else:
+                    all_patterns.append(list(position))
 
                 # 末尾の要素を削除
                 position.pop()
 
 
 
-        search(depth - 1, stats, position, can_failure=can_failure)
+        search(depth - 1, all_patterns, position, can_failure=can_failure)
 
-        return stats
+        return all_patterns
 
 
     @staticmethod
