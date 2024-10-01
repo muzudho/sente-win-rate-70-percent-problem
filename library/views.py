@@ -591,6 +591,7 @@ def stringify_csv_of_score_board_body(scoreboard):
 
     # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
     str_ptn = str(scoreboard.pattern_no)
+    str_pattern_p = str(scoreboard.pattern_p)
     str_first_of_round_number = scoreboard.list_of_round_number_str[0]
     str_first_of_head_player = scoreboard.list_of_head_player_str[0]
     str_first_of_face_of_coin = scoreboard.list_of_face_of_coin_str[0]
@@ -615,6 +616,7 @@ def stringify_csv_of_score_board_body(scoreboard):
     return f"""\
 {str_ptn},スコアボード
 {str_ptn},-----------
+{str_ptn},,確率,{str_pattern_p}
 
 {str_ptn},,{str_first_of_round_number},{str_second_of_round_number},{str_tail_of_round_number}
 {str_ptn},,{str_first_of_head_player},{str_second_of_head_player},{str_tail_of_head_player}
@@ -625,4 +627,19 @@ def stringify_csv_of_score_board_body(scoreboard):
 {str_ptn},,内容,{game_result_reason}
 {str_ptn},,判定,{game_result}
 
+"""
+
+
+def stringify_csv_of_score_board_footer(sum_pattern_p):
+    """スコアボードCSVフッター作成"""
+
+
+    str_sum_pattern_p = str(sum_pattern_p)
+
+
+    return f"""\
+
+,フッター
+,--------
+,,確率合計,{str_sum_pattern_p}
 """

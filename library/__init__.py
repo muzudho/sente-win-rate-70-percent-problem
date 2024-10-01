@@ -2178,7 +2178,7 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, pattern_no, spec, series_rule, list_of_face_of_coin, game_results,
+    def __init__(self, pattern_no, pattern_p, spec, series_rule, list_of_face_of_coin, game_results,
             list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_points_str, list_of_b_points_str):
         """初期化
 
@@ -2186,6 +2186,8 @@ class ScoreBoard():
         ----------
         pattern_no : int
             パターン通し番号
+        pattern_p : int
+            このパターンが選ばれる確率
         spec : Specification
             ［仕様］
         series_rule : SeriesRule
@@ -2207,6 +2209,7 @@ class ScoreBoard():
         """
 
         self._pattern_no = pattern_no
+        self._pattern_p = pattern_p
         self._spec = spec
         self._series_rule = series_rule
         self._list_of_face_of_coin = list_of_face_of_coin
@@ -2220,6 +2223,28 @@ class ScoreBoard():
 
     @staticmethod
     def make_score_board(pattern_no, spec, series_rule, list_of_face_of_coin):
+
+        # ［表が出る確率］は分かっているので、［出目］のリストが出る確率を算出する
+        # TODO 引分けも含めた確率で考慮する必要がある
+        p_rate = (1 - spec.failure_rate) * spec.p
+        q_rate = (1 - spec.failure_rate) * (1 - spec.p)
+        f_rate = spec.failure_rate
+        sum_rate = p_rate + q_rate + f_rate
+        # NOTE 誤差が出てしまうので、ぴったり 1 にはならない。有効桁数を決めておく
+        if not (0.9999999999 <= sum_rate and sum_rate <= 1.00000000001):
+            raise ValueError(f"誤差はあれども合計は1になるはずです {sum_rate=}({p_rate=}  {q_rate=}  {f_rate=})")
+
+        pattern_p = 1
+        for face_of_coin in list_of_face_of_coin:
+            if face_of_coin == HEAD:
+                pattern_p *= p_rate
+            elif face_of_coin == TAIL:
+                pattern_p *= q_rate
+            elif face_of_coin == EMPTY:
+                pattern_p *= f_rate
+            else:
+                raise ValueError(f"{face_of_coin}")
+
 
         span = series_rule.step_table.span
         h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
@@ -2309,6 +2334,7 @@ class ScoreBoard():
 
         return ScoreBoard(
                 pattern_no=pattern_no,
+                pattern_p=pattern_p,
                 spec=spec,
                 series_rule=series_rule,
                 list_of_face_of_coin=list_of_face_of_coin,
@@ -2324,6 +2350,12 @@ class ScoreBoard():
     def pattern_no(self):
         """［パターン通し番号］"""
         return self._pattern_no
+
+
+    @property
+    def pattern_p(self):
+        """［このパターンが選ばれる確率］"""
+        return self._pattern_p
 
 
     @property

@@ -13,10 +13,10 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import get_score_board_log_file_path, get_score_board_csv_file_path
-from library.views import stringify_series_log, stringify_csv_of_score_board_header, stringify_csv_of_score_board_body
+from library.views import stringify_series_log, stringify_csv_of_score_board_header, stringify_csv_of_score_board_body, stringify_csv_of_score_board_footer
 
 
-def analysis_series(pattern_no, spec, series_rule, trial_results_for_one_series, title):
+def analysis_series(score_board):
     """［シリーズ］１つ分を分析します
     
     Parameters
@@ -28,25 +28,18 @@ def analysis_series(pattern_no, spec, series_rule, trial_results_for_one_series,
     series_rule : SeriesRule
         ［シリーズ・ルール］
     """
-
-    score_board = ScoreBoard.make_score_board(
-            pattern_no=pattern_no,
-            spec=spec,
-            series_rule=series_rule,
-            list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
-    
     csv = stringify_csv_of_score_board_body(scoreboard=score_board)
 
     print(csv) # 表示
 
     # CSVファイル出力
     csv_file_path = get_score_board_csv_file_path(
-            p=spec.p,
-            failure_rate=spec.failure_rate,
+            p=score_board.spec.p,
+            failure_rate=score_board.spec.failure_rate,
             turn_system=turn_system,
-            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD),
-            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-            span=series_rule.step_table.span)
+            h_step=score_board.series_rule.step_table.get_step_by(face_of_coin=HEAD),
+            t_step=score_board.series_rule.step_table.get_step_by(face_of_coin=TAIL),
+            span=score_board.series_rule.step_table.span)
     print(f"write csv to `{csv_file_path}` file ...")
     with open(csv_file_path, 'a', encoding='utf8') as f:
         f.write(f"{csv}\n")
@@ -222,13 +215,34 @@ Span? """
             list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
 
+        sum_pattern_p = 0
+
+
         for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
-            analysis_series(
+
+            score_board = ScoreBoard.make_score_board(
                     pattern_no=pattern_no,
                     spec=spec,
                     series_rule=specified_series_rule,
-                    trial_results_for_one_series=trial_results_for_one_series,
-                    title='（先後固定制）    むずでょセレクション')
+                    list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
+
+            analysis_series(
+                    score_board=score_board)
+            
+            sum_pattern_p += score_board.pattern_p
+
+
+        # CSVファイル出力（追記）
+        csv_file_path = get_score_board_csv_file_path(
+                p=specified_p,
+                failure_rate=specified_failure_rate,
+                turn_system=turn_system,
+                h_step=specified_h_step,
+                t_step=specified_t_step,
+                span=specified_span)
+        print(f"write csv to `{csv_file_path}` file ...")
+        with open(csv_file_path, 'a', encoding='utf8') as f:
+            f.write(stringify_csv_of_score_board_footer(sum_pattern_p=sum_pattern_p))
 
 
     except Exception as err:
