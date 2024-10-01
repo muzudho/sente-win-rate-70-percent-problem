@@ -443,7 +443,7 @@ class SequenceOfFaceOfCoin():
             stats.append(list(position))
 
             if 0 < depth:
-                search(depth - 1, stats, position, can_failure=False)
+                search(depth - 1, stats, position, can_failure=can_failure)
 
             # 末尾の要素を削除
             position.pop()
@@ -456,7 +456,7 @@ class SequenceOfFaceOfCoin():
             stats.append(list(position))
 
             if 0 < depth:
-                search(depth - 1, stats, position, can_failure=False)
+                search(depth - 1, stats, position, can_failure=can_failure)
 
             # 末尾の要素を削除
             position.pop()
@@ -470,14 +470,14 @@ class SequenceOfFaceOfCoin():
                 stats.append(list(position))
 
                 if 0 < depth:
-                    search(depth - 1, stats, position, can_failure=False)
+                    search(depth - 1, stats, position, can_failure=can_failure)
 
                 # 末尾の要素を削除
                 position.pop()
 
 
 
-        search(depth, stats, position, can_failure=False)
+        search(depth - 1, stats, position, can_failure=can_failure)
 
         return stats
 
@@ -862,6 +862,12 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
         # 予め作った１シリーズ分の対局結果を読んでいく
         for face_of_coin in list_of_face_of_coin:
+
+            # ［上限対局数］に達していたら、コイン投げを終了します
+            if series_rule.upper_limit_coins <= time_th:
+                break
+
+
             time_th += 1
 
             # 引き分けを１局と数えるケース
@@ -913,7 +919,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
                         text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った3  {gameover_reason=}"
                         print(f"""{text}
 {list_of_face_of_coin=}
-{shortest_coins=}
+{series_rule.shortest_coins=}
 """)
                         raise ValueError(text)
 
@@ -2179,7 +2185,7 @@ class ScoreBoard():
 
 
     def __init__(self, pattern_no, pattern_p, spec, series_rule, list_of_face_of_coin, game_results,
-            list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_points_str, list_of_b_points_str):
+            list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_count_down_points_str, list_of_b_count_down_points_str):
         """初期化
 
         Parameters
@@ -2202,9 +2208,9 @@ class ScoreBoard():
             スコアボードの表番の行
         list_of_face_of_coin_str : list
             スコアボードの出目の行
-        list_of_a_points_str : list
+        list_of_a_count_down_points_str : list
             スコアボードのＡさんの行
-        list_of_b_points_str : list
+        list_of_b_count_down_points_str : list
             スコアボードのＢさんの行
         """
 
@@ -2217,8 +2223,8 @@ class ScoreBoard():
         self._list_of_round_number_str = list_of_round_number_str
         self._list_of_head_player_str = list_of_head_player_str
         self._list_of_face_of_coin_str = list_of_face_of_coin_str
-        self._list_of_a_points_str = list_of_a_points_str
-        self._list_of_b_points_str = list_of_b_points_str
+        self._list_of_a_count_down_points_str = list_of_a_count_down_points_str
+        self._list_of_b_count_down_points_str = list_of_b_count_down_points_str
 
 
     @staticmethod
@@ -2292,39 +2298,39 @@ class ScoreBoard():
         list_of_round_number_str = ['']
         list_of_head_player_str = ['表番']
         list_of_face_of_coin_str = ['出目']
-        list_of_a_points_str = ['Ａさん']
-        list_of_b_points_str = ['Ｂさん']
+        list_of_a_count_down_points_str = ['Ａさん']
+        list_of_b_count_down_points_str = ['Ｂさん']
 
 
         for round in round_list:
             list_of_round_number_str.append(round[0])
             list_of_head_player_str.append(round[1])
             list_of_face_of_coin_str.append(round[2])
-            list_of_a_points_str.append(round[3])
-            list_of_b_points_str.append(round[4])
+            list_of_a_count_down_points_str.append(round[3])
+            list_of_b_count_down_points_str.append(round[4])
 
 
-        last_a_point = int(list_of_a_points_str[-1])
-        last_b_point = int(list_of_b_points_str[-1])
+        last_a_count_down_point = int(list_of_a_count_down_points_str[-1])
+        last_b_count_down_point = int(list_of_b_count_down_points_str[-1])
 
         # 対局不成立
-        if span <= last_a_point and span <= last_b_point:
-            raise ValueError(f"両者が満点はおかしい {list_of_a_points=}  {span=}")
+        if last_a_count_down_point <= 0 and last_b_count_down_point <= 0:
+            raise ValueError(f"両者が満点はおかしい {list_of_round_number_str=}  {list_of_head_player_str=}  {list_of_face_of_coin_str=}  {list_of_a_count_down_points_str=}  {list_of_b_count_down_points_str=}  {span=}")
         
         # 満点で,Ａさんの勝ち
-        elif span <= last_a_point:
+        elif span <= last_a_count_down_point:
             game_results = ALICE_FULLY_WON
 
         # 満点で,Ｂさんの勝ち
-        elif span <= last_b_point:
+        elif span <= last_b_count_down_point:
             game_results = BOB_FULLY_WON
 
         # 勝ち点差で,Ａさんの勝ち
-        elif last_a_point < last_b_point:
+        elif last_a_count_down_point < last_b_count_down_point:
             game_results = ALICE_POINTS_WON
 
         # 勝ち点差で,Ｂさんの勝ち
-        elif last_b_point < last_a_point:
+        elif last_b_count_down_point < last_a_count_down_point:
             game_results = BOB_POINTS_WON
         
         # 勝者なし
@@ -2342,8 +2348,8 @@ class ScoreBoard():
                 list_of_round_number_str=list_of_round_number_str,
                 list_of_head_player_str=list_of_head_player_str,
                 list_of_face_of_coin_str=list_of_face_of_coin_str,
-                list_of_a_points_str=list_of_a_points_str,
-                list_of_b_points_str=list_of_b_points_str)
+                list_of_a_count_down_points_str=list_of_a_count_down_points_str,
+                list_of_b_count_down_points_str=list_of_b_count_down_points_str)
 
 
     @property
@@ -2395,15 +2401,15 @@ class ScoreBoard():
 
 
     @property
-    def list_of_a_points_str(self):
+    def list_of_a_count_down_points_str(self):
         """スコアボードのＡさんの行"""
-        return self._list_of_a_points_str
+        return self._list_of_a_count_down_points_str
 
 
     @property
-    def list_of_b_points_str(self):
+    def list_of_b_count_down_points_str(self):
         """スコアボードのＢさんの行"""
-        return self._list_of_b_points_str
+        return self._list_of_b_count_down_points_str
 
 
     @property

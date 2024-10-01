@@ -595,21 +595,21 @@ def stringify_csv_of_score_board_body(scoreboard):
     str_first_of_round_number = scoreboard.list_of_round_number_str[0]
     str_first_of_head_player = scoreboard.list_of_head_player_str[0]
     str_first_of_face_of_coin = scoreboard.list_of_face_of_coin_str[0]
-    str_first_of_a_points = scoreboard.list_of_a_points_str[0]
-    str_first_of_b_points = scoreboard.list_of_b_points_str[0]
+    str_first_of_a_points = scoreboard.list_of_a_count_down_points_str[0]
+    str_first_of_b_points = scoreboard.list_of_b_count_down_points_str[0]
 
     str_second_of_round_number = scoreboard.list_of_round_number_str[1]
     str_second_of_head_player = scoreboard.list_of_head_player_str[1]
     str_second_of_face_of_coin = scoreboard.list_of_face_of_coin_str[1]
-    str_second_of_a_points = scoreboard.list_of_a_points_str[1]
-    str_second_of_b_points = scoreboard.list_of_b_points_str[1]
+    str_second_of_a_points = scoreboard.list_of_a_count_down_points_str[1]
+    str_second_of_b_points = scoreboard.list_of_b_count_down_points_str[1]
 
     # ２つ目以降の要素は必ずあるだろう、という前提
     str_tail_of_round_number = ','.join([str(element) for element in scoreboard.list_of_round_number_str[2:]])
     str_tail_of_head_player = ','.join([str(element) for element in scoreboard.list_of_head_player_str[2:]])
     str_tail_of_face_of_coin = ','.join([str(element) for element in scoreboard.list_of_face_of_coin_str[2:]])
-    str_tail_of_a_points = ','.join([str(element) for element in scoreboard.list_of_a_points_str[2:]])
-    str_tail_of_b_points = ','.join([str(element) for element in scoreboard.list_of_b_points_str[2:]])
+    str_tail_of_a_points = ','.join([str(element) for element in scoreboard.list_of_a_count_down_points_str[2:]])
+    str_tail_of_b_points = ','.join([str(element) for element in scoreboard.list_of_b_count_down_points_str[2:]])
 
 
     #,元データ,{source_data}

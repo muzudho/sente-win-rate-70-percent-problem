@@ -150,9 +150,9 @@ Span? """
 
         list_of_trial_results_for_one_series = []
 
-        # FIXME 動作テスト
+        # ［出目シーケンス］の全パターンを網羅します
         list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
-                can_failure=False,
+                can_failure=0 < specified_failure_rate,
                 series_rule=specified_series_rule)
         
 
