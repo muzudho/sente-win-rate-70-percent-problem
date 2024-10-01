@@ -1,7 +1,7 @@
 import datetime
 import re
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, Converter, SeriesRule, Candidate
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, IN_GAME, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Converter, SeriesRule, Candidate
 
 
 def stringify_report_selection_series_rule(p, latest_theoretical_p, specified_series_rule, presentable, candidates, turn_system):
@@ -351,8 +351,8 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
     S = large_series_trial_summary  # Summary
 
     
-    no_won_series_rate_ab = S.trial_no_won_series_rate()       # 試行した結果、［勝敗付かず］で終わったシリーズの割合
-    succ_series_rate_ab = 1 - no_won_series_rate_ab                                 # 試行した結果、［勝敗が付いた］シリーズの割合
+    no_win_match_series_rate_ab = S.trial_no_win_match_series_rate()    # 試行した結果、［勝敗付かず］で終わったシリーズの割合
+    succ_series_rate_ab = 1 - no_win_match_series_rate_ab               # 試行した結果、［勝敗が付いた］シリーズの割合
 
 
     # ヘッダー
@@ -539,6 +539,7 @@ h_step, t_step, span, shortest_coins, upper_limit_coins
 def stringify_csv_of_score_board_body(scoreboard):
     """スコアボードCSVボディー作成"""
 
+    # TODO モデルと被っている処理を整理したい
     span = scoreboard._series_rule.step_table.span
     h_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
     t_step = scoreboard._series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
@@ -595,26 +596,26 @@ def stringify_csv_of_score_board_body(scoreboard):
         list_of_b_points.append(f"{round[4]:>3}")
 
 
-    last_a_point = int(list_of_a_points[-1])
-    last_b_point = int(list_of_b_points[-1])
-
-    if span <= last_a_point and span <= last_b_point:
-        raise ValueError(f"両者が満点はおかしい {list_of_a_points=}  {span=}")
+    if scoreboard.game_results == IN_GAME:
+        raise ValueError(f"対局中なのはおかしい")
     
-    elif span <= last_a_point:
+    elif scoreboard.game_results == ALICE_FULLY_WON:
         game_result = "満点で,Ａさんの勝ち"
 
-    elif span <= last_b_point:
+    elif scoreboard.game_results == BOB_FULLY_WON:
         game_result = "満点で,Ｂさんの勝ち"
 
-    elif last_a_point < last_b_point:
+    elif scoreboard.game_results == ALICE_POINTS_WON:
         game_result = "勝ち点差で,Ａさんの勝ち"
 
-    elif last_b_point < last_a_point:
+    elif scoreboard.game_results == BOB_POINTS_WON:
         game_result = "勝ち点差で,Ｂさんの勝ち"
     
-    else:
+    elif scoreboard.game_results == NO_WIN_MATCH:
         game_result = "勝者なし"
+
+    else:
+        raise ValueError(f"{scoreboard.game_results=}")
     
 
     # `[1, 2]` のようなデータを `1 2` に変換

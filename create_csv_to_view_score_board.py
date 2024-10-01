@@ -27,7 +27,7 @@ def analysis_series(spec, series_rule, trial_results_for_one_series, title):
         ［シリーズ・ルール］
     """
 
-    score_board = ScoreBoard(
+    score_board = ScoreBoard.make_score_board(
             spec=spec,
             series_rule=series_rule,
             list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)

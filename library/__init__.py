@@ -81,6 +81,17 @@ BRUTE_FORCE = 1
 THEORETICAL = 2
 
 
+# Geme results
+# ------------
+IN_GAME = 0             # ゲーム中
+ALICE_FULLY_WON = 1     # Ａさんの満点勝ち
+BOB_FULLY_WON = 2       # Ｂさんの満点勝ち
+ALICE_POINTS_WON = 3    # Ａさんの勝ち点差勝ち
+BOB_POINTS_WON = 4      # Ｂさんの勝ち点差勝ち
+NO_WIN_MATCH = 5        # 勝者無し。１局としては成立
+#UNSUCCESSFUL_GAME = 6   # 不成立試合。プログラミングのエラーなどが発生して結果付かず
+
+
 # h_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
 IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
 
@@ -1718,7 +1729,7 @@ self._point_calculation.stringify_dump:
         return self.point_calculation.is_fully_won(winner) or self.is_pts_won(winner=winner)
 
 
-    def is_no_won(self):
+    def is_no_win_match(self):
         """TODO 勝者なし。どちらも勝者でないとき"""
         return not self.is_won(ALICE) and not self.is_won(BOB)
 
@@ -1741,7 +1752,7 @@ self._point_calculation.stringify_dump:
 {succ_indent}{self.is_pts_won(winner=BOB)=}
 {succ_indent}{self.is_won(winner=ALICE)=}
 {succ_indent}{self.is_won(winner=BOB)=}
-{succ_indent}{self.is_no_won()}
+{succ_indent}{self.is_no_win_match()}
 """
     
 
@@ -1991,7 +2002,7 @@ class LargeSeriesTrialSummary():
 
 
     @property
-    def number_of_no_won_series(self):
+    def number_of_no_win_match_series(self):
         """［勝敗付かず］で終わったシリーズ数"""
 
         # ［Ａさんが勝った回数］と［Ｂさんが勝った回数］を数えるメソッドの働きの確認をしている
@@ -2037,9 +2048,9 @@ class LargeSeriesTrialSummary():
         return self.won_rate(success_rate=success_rate, winner=winner) - 0.5
 
 
-    def trial_no_won_series_rate(self):
+    def trial_no_win_match_series_rate(self):
         """試行した結果、［勝敗付かず］で終わったシリーズの割合"""
-        return self.number_of_no_won_series / self.total
+        return self.number_of_no_win_match_series / self.total
 
 
     def wins(self, challenged, winner):
@@ -2053,7 +2064,7 @@ class LargeSeriesTrialSummary():
         if self._no_wins is None:
             self._no_wins = 0
             for s in self._list_of_trial_results_for_one_series:
-                if s.is_no_won():
+                if s.is_no_win_match():
                     self._no_wins += 1
 
         return self._no_wins
@@ -2202,7 +2213,7 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, spec, series_rule, list_of_face_of_coin):
+    def __init__(self, spec, series_rule, list_of_face_of_coin, game_results):
         """初期化
 
         Parameters
@@ -2213,10 +2224,110 @@ class ScoreBoard():
             ［シリーズ・ルール］
         list_of_face_of_coin : list
             コイントスした結果のリスト。引き分け含む
+        game_results : int
+            対局結果
         """
         self._spec = spec
         self._series_rule = series_rule
         self._list_of_face_of_coin = list_of_face_of_coin
+        self._game_results = game_results
+
+
+    @staticmethod
+    def make_score_board(spec, series_rule, list_of_face_of_coin):
+
+        # TODO ビューと被ってるコードを整理したい
+        span = series_rule.step_table.span
+        h_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+        t_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+
+        a_point = span
+        b_point = span
+
+        round_list = []
+        round_list.append(['S', '', '  ', a_point, b_point])
+
+        for round_th, face_of_coin in enumerate(list_of_face_of_coin, 1):
+            last_round = round_list[-1]
+
+            if last_round[1] in ['', 'B']:
+                head_player = 'A'
+            else:
+                head_player = 'B'
+
+            face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
+
+            if face_of_coin == HEAD:
+                if head_player == 'A':
+                    a_point -= h_step
+                else:
+                    b_point -= h_step
+
+            elif face_of_coin == TAIL:
+                if head_player == 'A':
+                    b_point -= t_step
+                else:
+                    a_point -= t_step
+
+            elif face_of_coin == EMPTY:
+                pass
+
+            else:
+                raise ValueError(f"{face_of_coin=}")
+            
+
+            round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
+
+
+        list_of_round_number = ['      ']        # ラウンド番号
+        list_of_head_player = ['表番  ']
+        list_of_face_of_coin_str = ['出目  ']
+        list_of_a_points = ['Ａさん']
+        list_of_b_points = ['Ｂさん']
+
+
+        for round in round_list:
+            list_of_round_number.append(f"{round[0]:>3}")
+            list_of_head_player.append(f"{round[1]:>3}")
+            list_of_face_of_coin_str.append(f" {round[2]}")
+            list_of_a_points.append(f"{round[3]:>3}")
+            list_of_b_points.append(f"{round[4]:>3}")
+
+
+        last_a_point = int(list_of_a_points[-1])
+        last_b_point = int(list_of_b_points[-1])
+
+        # 対局不成立
+        if span <= last_a_point and span <= last_b_point:
+            raise ValueError(f"両者が満点はおかしい {list_of_a_points=}  {span=}")
+        
+        # 満点で,Ａさんの勝ち
+        elif span <= last_a_point:
+            game_results = ALICE_FULLY_WON
+
+        # 満点で,Ｂさんの勝ち
+        elif span <= last_b_point:
+            game_results = BOB_FULLY_WON
+
+        # 勝ち点差で,Ａさんの勝ち
+        elif last_a_point < last_b_point:
+            game_results = ALICE_POINTS_WON
+
+        # 勝ち点差で,Ｂさんの勝ち
+        elif last_b_point < last_a_point:
+            game_results = BOB_POINTS_WON
+        
+        # 勝者なし
+        else:
+            game_results = NO_WIN_MATCH
+
+
+
+        return ScoreBoard(
+                spec=spec,
+                series_rule=series_rule,
+                list_of_face_of_coin=list_of_face_of_coin,
+                game_results=game_results)
 
 
     @property
@@ -2235,6 +2346,12 @@ class ScoreBoard():
     def list_of_face_of_coin(self):
         """コイントスした結果のリスト。引き分け含む"""
         return self._list_of_face_of_coin
+    
+
+    @property
+    def game_results(self):
+        """対局結果"""
+        return self._game_results
 
 
     def stringify_dump(self, indent):
