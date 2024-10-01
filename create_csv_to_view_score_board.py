@@ -16,11 +16,13 @@ from library.file_paths import get_score_board_log_file_path, get_score_board_cs
 from library.views import stringify_series_log, stringify_csv_of_score_board_header, stringify_csv_of_score_board_body
 
 
-def analysis_series(spec, series_rule, trial_results_for_one_series, title):
+def analysis_series(pattern_no, spec, series_rule, trial_results_for_one_series, title):
     """［シリーズ］１つ分を分析します
     
     Parameters
     ----------
+    pattern_no : int
+        ［パターン通し番号］
     spec : Specification
         ［仕様］
     series_rule : SeriesRule
@@ -28,6 +30,7 @@ def analysis_series(spec, series_rule, trial_results_for_one_series, title):
     """
 
     score_board = ScoreBoard.make_score_board(
+            pattern_no=pattern_no,
             spec=spec,
             series_rule=series_rule,
             list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
@@ -219,8 +222,9 @@ Span? """
             list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
 
-        for trial_results_for_one_series in list_of_trial_results_for_one_series:
+        for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
             analysis_series(
+                    pattern_no=pattern_no,
                     spec=spec,
                     series_rule=specified_series_rule,
                     trial_results_for_one_series=trial_results_for_one_series,

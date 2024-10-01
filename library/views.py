@@ -523,7 +523,7 @@ def stringify_csv_of_score_board_header(spec, series_rule):
 
 
     # ヘッダー行作成
-    header_row = ['Category', 'Name', 'Value']
+    header_row = ['Pattern', 'Category', 'Name', 'Value']
 
     for round in range(1,100):
         header_row.append(f"R{round}")
@@ -535,22 +535,22 @@ def stringify_csv_of_score_board_header(spec, series_rule):
     return f"""\
 {str_header_row}
 
-ヘッダー
---------
+,,ヘッダー
+,,--------
 
-,前提条件
-,--------
-,p,{str_p}
-,failure_rate,{str_failure_rate}
-,turn_system,{str_turn_system}
+,,前提条件
+,,--------
+,,p,{str_p}
+,,failure_rate,{str_failure_rate}
+,,turn_system,{str_turn_system}
 
-,大会で設定するルール
-,-------------------
-,h_step,{str_h_step}
-,t_step,{str_t_step}
-,span,{str_span}
-,shortest_coins,{str_shortest_coins}
-,upper_limit_coins,{str_upper_limit_coins}
+,,大会で設定するルール
+,,-------------------
+,,h_step,{str_h_step}
+,,t_step,{str_t_step}
+,,span,{str_span}
+,,shortest_coins,{str_shortest_coins}
+,,upper_limit_coins,{str_upper_limit_coins}
 
 
 """
@@ -590,6 +590,7 @@ def stringify_csv_of_score_board_body(scoreboard):
     #source_data = f"{scoreboard._list_of_face_of_coin}"[1:-1].replace(',', ' ')
 
     # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
+    str_ptn = str(scoreboard.pattern_no)
     str_first_of_round_number = scoreboard.list_of_round_number_str[0]
     str_first_of_head_player = scoreboard.list_of_head_player_str[0]
     str_first_of_face_of_coin = scoreboard.list_of_face_of_coin_str[0]
@@ -612,16 +613,16 @@ def stringify_csv_of_score_board_body(scoreboard):
 
     #,元データ,{source_data}
     return f"""\
-スコアボード
------------
+{str_ptn},スコアボード
+{str_ptn},-----------
 
-,{str_first_of_round_number},{str_second_of_round_number},{str_tail_of_round_number}
-,{str_first_of_head_player},{str_second_of_head_player},{str_tail_of_head_player}
-,{str_first_of_face_of_coin},{str_second_of_face_of_coin},{str_tail_of_face_of_coin}
-,{str_first_of_a_points},{str_second_of_a_points},{str_tail_of_a_points}
-,{str_first_of_b_points},{str_second_of_b_points},{str_tail_of_b_points}
+{str_ptn},,{str_first_of_round_number},{str_second_of_round_number},{str_tail_of_round_number}
+{str_ptn},,{str_first_of_head_player},{str_second_of_head_player},{str_tail_of_head_player}
+{str_ptn},,{str_first_of_face_of_coin},{str_second_of_face_of_coin},{str_tail_of_face_of_coin}
+{str_ptn},,{str_first_of_a_points},{str_second_of_a_points},{str_tail_of_a_points}
+{str_ptn},,{str_first_of_b_points},{str_second_of_b_points},{str_tail_of_b_points}
 
-,{game_result_reason}
-,{game_result}
+{str_ptn},,内容,{game_result_reason}
+{str_ptn},,判定,{game_result}
 
 """

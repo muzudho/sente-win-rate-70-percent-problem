@@ -2178,12 +2178,14 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, spec, series_rule, list_of_face_of_coin, game_results,
+    def __init__(self, pattern_no, spec, series_rule, list_of_face_of_coin, game_results,
             list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_points_str, list_of_b_points_str):
         """初期化
 
         Parameters
         ----------
+        pattern_no : int
+            パターン通し番号
         spec : Specification
             ［仕様］
         series_rule : SeriesRule
@@ -2204,6 +2206,7 @@ class ScoreBoard():
             スコアボードのＢさんの行
         """
 
+        self._pattern_no = pattern_no
         self._spec = spec
         self._series_rule = series_rule
         self._list_of_face_of_coin = list_of_face_of_coin
@@ -2216,7 +2219,7 @@ class ScoreBoard():
 
 
     @staticmethod
-    def make_score_board(spec, series_rule, list_of_face_of_coin):
+    def make_score_board(pattern_no, spec, series_rule, list_of_face_of_coin):
 
         span = series_rule.step_table.span
         h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
@@ -2305,6 +2308,7 @@ class ScoreBoard():
 
 
         return ScoreBoard(
+                pattern_no=pattern_no,
                 spec=spec,
                 series_rule=series_rule,
                 list_of_face_of_coin=list_of_face_of_coin,
@@ -2314,6 +2318,12 @@ class ScoreBoard():
                 list_of_face_of_coin_str=list_of_face_of_coin_str,
                 list_of_a_points_str=list_of_a_points_str,
                 list_of_b_points_str=list_of_b_points_str)
+
+
+    @property
+    def pattern_no(self):
+        """［パターン通し番号］"""
+        return self._pattern_no
 
 
     @property
