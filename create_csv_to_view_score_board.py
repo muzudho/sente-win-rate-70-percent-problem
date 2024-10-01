@@ -16,52 +16,7 @@ from library.file_paths import get_score_board_log_file_path, get_score_board_cs
 from library.views import stringify_series_log, stringify_csv_of_score_board_header, stringify_csv_of_score_board_body, stringify_csv_of_score_board_footer
 
 
-def analysis_series(score_board):
-    """［シリーズ］１つ分を分析します
-    
-    Parameters
-    ----------
-    pattern_no : int
-        ［パターン通し番号］
-    spec : Specification
-        ［仕様］
-    series_rule : SeriesRule
-        ［シリーズ・ルール］
-    """
-    csv = stringify_csv_of_score_board_body(scoreboard=score_board)
-
-    print(csv) # 表示
-
-    # CSVファイル出力
-    csv_file_path = get_score_board_csv_file_path(
-            p=score_board.spec.p,
-            failure_rate=score_board.spec.failure_rate,
-            turn_system=score_board.spec.turn_system,
-            h_step=score_board.series_rule.step_table.get_step_by(face_of_coin=HEAD),
-            t_step=score_board.series_rule.step_table.get_step_by(face_of_coin=TAIL),
-            span=score_board.series_rule.step_table.span)
-    print(f"write csv to `{csv_file_path}` file ...")
-    with open(csv_file_path, 'a', encoding='utf8') as f:
-        f.write(f"{csv}\n")
-
-
-def automatic(series_rule):
-
-    # CSVファイル出力（上書き）
-    #
-    #   ファイルをクリアーしたいだけ
-    #
-    csv_file_path = get_score_board_csv_file_path(
-            p=series_rule.spec.p,
-            failure_rate=series_rule.spec.failure_rate,
-            turn_system=series_rule.spec.turn_system,
-            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD),
-            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-            span=series_rule.step_table.span)
-    print(f"write csv to `{csv_file_path}` file ...")
-    with open(csv_file_path, 'w', encoding='utf8') as f:
-        f.write(stringify_csv_of_score_board_header(spec=series_rule.spec, series_rule=series_rule))
-
+def automatic(series_rule, on_score_board_created):
 
     list_of_trial_results_for_one_series = []
 
@@ -143,9 +98,10 @@ def automatic(series_rule):
                 series_rule=series_rule,
                 list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
 
-        analysis_series(
-                score_board=score_board)
-        
+
+        on_score_board_created(score_board=score_board)
+
+
         all_patterns_p += score_board.pattern_p
 
         # 満点で,Ａさんの勝ち
@@ -255,7 +211,43 @@ Span? """
                 span=specified_span)
 
 
-        a_win_rate, b_win_rate, no_win_rate, all_patterns_p = automatic(series_rule=specified_series_rule)
+        # CSVファイル出力（上書き）
+        #
+        #   ファイルをクリアーしたいだけ
+        #
+        csv_file_path = get_score_board_csv_file_path(
+                p=specified_series_rule.spec.p,
+                failure_rate=specified_series_rule.spec.failure_rate,
+                turn_system=specified_series_rule.spec.turn_system,
+                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                span=specified_series_rule.step_table.span)
+        print(f"write csv to `{csv_file_path}` file ...")
+        with open(csv_file_path, 'w', encoding='utf8') as f:
+            f.write(stringify_csv_of_score_board_header(spec=specified_series_rule.spec, series_rule=specified_series_rule))
+
+
+        def on_score_board_created(score_board):
+            csv = stringify_csv_of_score_board_body(score_board=score_board)
+
+            print(csv) # 表示
+
+            # CSVファイル出力
+            csv_file_path = get_score_board_csv_file_path(
+                    p=score_board.spec.p,
+                    failure_rate=score_board.spec.failure_rate,
+                    turn_system=score_board.spec.turn_system,
+                    h_step=score_board.series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                    t_step=score_board.series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                    span=score_board.series_rule.step_table.span)
+            print(f"write csv to `{csv_file_path}` file ...")
+            with open(csv_file_path, 'a', encoding='utf8') as f:
+                f.write(f"{csv}\n")
+
+
+        a_win_rate, b_win_rate, no_win_rate, all_patterns_p = automatic(
+                series_rule=specified_series_rule,
+                on_score_board_created=on_score_board_created)
 
 
         # CSVファイル出力（追記）
