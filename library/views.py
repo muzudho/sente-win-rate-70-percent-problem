@@ -496,7 +496,7 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 """
 
 
-def stringify_csv_of_score_board_header(spec, series_rule):
+def stringify_csv_of_score_board_view_header(spec, series_rule):
     """スコアボードCSVヘッダー作成"""
     span = series_rule.step_table.span
     h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
@@ -556,7 +556,7 @@ def stringify_csv_of_score_board_header(spec, series_rule):
 """
 
 
-def stringify_csv_of_score_board_body(score_board):
+def stringify_csv_of_score_board_view_body(score_board):
     """スコアボードCSVボディー作成"""
 
     if score_board.game_results == IN_GAME:
@@ -630,7 +630,7 @@ def stringify_csv_of_score_board_body(score_board):
 """
 
 
-def stringify_csv_of_score_board_footer(a_win_rate, b_win_rate, no_win_rate, all_patterns_p):
+def stringify_csv_of_score_board_view_footer(a_win_rate, b_win_rate, no_win_rate, all_patterns_p):
     """スコアボードCSVフッター作成"""
 
     return f"""\

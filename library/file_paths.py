@@ -134,16 +134,29 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
 
 
 ##################
-# Score board
+# Score board data
 ##################
 
-def get_score_board_log_file_path(turn_system):
+def get_score_board_data_log_file_path(turn_system):
     subname = make_file_subname(turn_system=turn_system)
-    return f'output/score_board{subname}.log'
+    return f'logs/score_board_data{subname}.log'
 
-def get_score_board_csv_file_path(p, failure_rate, turn_system, h_step, t_step, span):
+def get_score_board_data_csv_file_path(p, failure_rate, turn_system, h_step, t_step, span):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system, h_step=h_step, t_step=t_step, span=span)
-    return f'output/score_board{subname}.csv'
+    return f'output/score_board_data{subname}.csv'
+
+
+##################
+# Score board view
+##################
+
+def get_score_board_view_log_file_path(turn_system):
+    subname = make_file_subname(turn_system=turn_system)
+    return f'logs/score_board_view{subname}.log'
+
+def get_score_board_view_csv_file_path(p, failure_rate, turn_system, h_step, t_step, span):
+    subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system, h_step=h_step, t_step=t_step, span=span)
+    return f'output/score_board_view{subname}.csv'
 
 
 ##########################

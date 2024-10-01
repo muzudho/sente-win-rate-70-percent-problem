@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
-from library.file_paths import get_score_board_view_log_file_path, get_score_board_view_csv_file_path
+from library.file_paths import get_score_board_data_log_file_path, get_score_board_data_csv_file_path
 from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer
 from library.score_board import search_all_score_boards
 
@@ -120,21 +120,7 @@ Span? """
 
 
         def on_score_board_created(score_board):
-            csv = stringify_csv_of_score_board_view_body(score_board=score_board)
-
-            print(csv) # 表示
-
-            # CSVファイル出力
-            csv_file_path = get_score_board_view_csv_file_path(
-                    p=score_board.spec.p,
-                    failure_rate=score_board.spec.failure_rate,
-                    turn_system=score_board.spec.turn_system,
-                    h_step=score_board.series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                    t_step=score_board.series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                    span=score_board.series_rule.step_table.span)
-            print(f"write csv to `{csv_file_path}` file ...")
-            with open(csv_file_path, 'a', encoding='utf8') as f:
-                f.write(f"{csv}\n")
+            pass
 
 
         a_win_rate, b_win_rate, no_win_rate, all_patterns_p = search_all_score_boards(
@@ -143,7 +129,7 @@ Span? """
 
 
         # CSVファイル出力（追記）
-        csv_file_path = get_score_board_view_csv_file_path(
+        csv_file_path = get_score_board_data_csv_file_path(
                 p=specified_series_rule.spec.p,
                 failure_rate=specified_series_rule.spec.failure_rate,
                 turn_system=specified_series_rule.spec.turn_system,
