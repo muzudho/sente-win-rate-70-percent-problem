@@ -60,22 +60,23 @@ if __name__ == '__main__':
     try:
         # ［将棋の先手勝率］
         prompt = f"""\
-What is the probability of flipping a coin and getting heads?
+
 Example: 70% is 0.7
-? """
+What is the probability of flipping a coin and getting heads? """
         specified_p = float(input(prompt))
 
 
         # ［将棋の引分け率］
         prompt = f"""\
-What is the failure rate?
+
 Example: 10% is 0.1
-? """
+What is the failure rate? """
         specified_failure_rate = float(input(prompt))
 
 
         # ［先後の決め方］
         prompt = f"""\
+
 (1) Frozen turn
 (2) Alternating turn
 Which one(1-2)? """
@@ -93,25 +94,25 @@ Which one(1-2)? """
 
         # ［先手で勝ったときの勝ち点］
         prompt = f"""\
-h_step?
+
 Example: 2
-? """
+h_step? """
         specified_h_step = int(input(prompt))
 
 
         # ［後手で勝ったときの勝ち点］
         prompt = f"""\
-t_step?
+
 Example: 3
-? """
+t_step? """
         specified_t_step = int(input(prompt))
 
 
         # ［目標の点数］
         prompt = f"""\
-Span?
+
 Example: 6
-? """
+Span? """
         specified_span = int(input(prompt))
 
 

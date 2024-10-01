@@ -537,63 +537,6 @@ h_step, t_step, span, shortest_coins, upper_limit_coins
 def stringify_csv_of_score_board_body(scoreboard):
     """スコアボードCSVボディー作成"""
 
-    # TODO モデルと被っている処理を整理したい
-    span = scoreboard._series_rule.step_table.span
-    h_step = scoreboard._series_rule.step_table.get_step_by(face_of_coin=HEAD)
-    t_step = scoreboard._series_rule.step_table.get_step_by(face_of_coin=TAIL)
-
-    a_point = span
-    b_point = span
-
-    round_list = []
-    round_list.append(['S', '', '  ', a_point, b_point])
-
-    for round_th, face_of_coin in enumerate(scoreboard._list_of_face_of_coin, 1):
-        last_round = round_list[-1]
-
-        if last_round[1] in ['', 'B']:
-            head_player = 'A'
-        else:
-            head_player = 'B'
-
-        face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
-
-        if face_of_coin == HEAD:
-            if head_player == 'A':
-                a_point -= h_step
-            else:
-                b_point -= h_step
-
-        elif face_of_coin == TAIL:
-            if head_player == 'A':
-                b_point -= t_step
-            else:
-                a_point -= t_step
-
-        elif face_of_coin == EMPTY:
-            pass
-
-        else:
-            raise ValueError(f"{face_of_coin=}")
-        
-
-        round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
-
-
-    list_of_round_number = ['      ']        # ラウンド番号
-    list_of_head_player = ['表番  ']
-    list_of_face_of_coin_str = ['出目  ']
-    list_of_a_points = ['Ａさん']
-    list_of_b_points = ['Ｂさん']
-
-    for round in round_list:
-        list_of_round_number.append(f"{round[0]:>3}")
-        list_of_head_player.append(f"{round[1]:>3}")
-        list_of_face_of_coin_str.append(f" {round[2]}")
-        list_of_a_points.append(f"{round[3]:>3}")
-        list_of_b_points.append(f"{round[4]:>3}")
-
-
     if scoreboard.game_results == IN_GAME:
         raise ValueError(f"対局中なのはおかしい")
     
@@ -626,11 +569,11 @@ Score Board
 
     ,Source Data,{source_data}
 
-    ,{','.join(list_of_round_number)}
-    ,{','.join(list_of_head_player)}
-    ,{','.join(list_of_face_of_coin_str)}
-    ,{','.join(list_of_a_points)}
-    ,{','.join(list_of_b_points)}
+    ,{','.join(scoreboard.list_of_round_number_str)}
+    ,{','.join(scoreboard.list_of_head_player_str)}
+    ,{','.join(scoreboard.list_of_face_of_coin_str)}
+    ,{','.join(scoreboard.list_of_a_points_str)}
+    ,{','.join(scoreboard.list_of_b_points_str)}
 
     ,{game_result}
 

@@ -2178,7 +2178,8 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, spec, series_rule, list_of_face_of_coin, game_results):
+    def __init__(self, spec, series_rule, list_of_face_of_coin, game_results,
+            list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_points_str, list_of_b_points_str):
         """初期化
 
         Parameters
@@ -2191,11 +2192,27 @@ class ScoreBoard():
             コイントスした結果のリスト。引き分け含む
         game_results : int
             対局結果
+        list_of_round_number_str : list
+            スコアボードのラウンド番号の行
+        list_of_head_player_str : list
+            スコアボードの表番の行
+        list_of_face_of_coin_str : list
+            スコアボードの出目の行
+        list_of_a_points_str : list
+            スコアボードのＡさんの行
+        list_of_b_points_str : list
+            スコアボードのＢさんの行
         """
+
         self._spec = spec
         self._series_rule = series_rule
         self._list_of_face_of_coin = list_of_face_of_coin
         self._game_results = game_results
+        self._list_of_round_number_str = list_of_round_number_str
+        self._list_of_head_player_str = list_of_head_player_str
+        self._list_of_face_of_coin_str = list_of_face_of_coin_str
+        self._list_of_a_points_str = list_of_a_points_str
+        self._list_of_b_points_str = list_of_b_points_str
 
 
     @staticmethod
@@ -2244,23 +2261,24 @@ class ScoreBoard():
             round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
 
 
-        list_of_round_number = ['      ']        # ラウンド番号
-        list_of_head_player = ['表番  ']
+        # TODO スペースでの幅調整は止めたい
+        list_of_round_number_str = ['      ']
+        list_of_head_player_str = ['表番  ']
         list_of_face_of_coin_str = ['出目  ']
-        list_of_a_points = ['Ａさん']
-        list_of_b_points = ['Ｂさん']
+        list_of_a_points_str = ['Ａさん']
+        list_of_b_points_str = ['Ｂさん']
 
 
         for round in round_list:
-            list_of_round_number.append(f"{round[0]:>3}")
-            list_of_head_player.append(f"{round[1]:>3}")
+            list_of_round_number_str.append(f"{round[0]:>3}")
+            list_of_head_player_str.append(f"{round[1]:>3}")
             list_of_face_of_coin_str.append(f" {round[2]}")
-            list_of_a_points.append(f"{round[3]:>3}")
-            list_of_b_points.append(f"{round[4]:>3}")
+            list_of_a_points_str.append(f"{round[3]:>3}")
+            list_of_b_points_str.append(f"{round[4]:>3}")
 
 
-        last_a_point = int(list_of_a_points[-1])
-        last_b_point = int(list_of_b_points[-1])
+        last_a_point = int(list_of_a_points_str[-1])
+        last_b_point = int(list_of_b_points_str[-1])
 
         # 対局不成立
         if span <= last_a_point and span <= last_b_point:
@@ -2287,12 +2305,16 @@ class ScoreBoard():
             game_results = NO_WIN_MATCH
 
 
-
         return ScoreBoard(
                 spec=spec,
                 series_rule=series_rule,
                 list_of_face_of_coin=list_of_face_of_coin,
-                game_results=game_results)
+                game_results=game_results,
+                list_of_round_number_str=list_of_round_number_str,
+                list_of_head_player_str=list_of_head_player_str,
+                list_of_face_of_coin_str=list_of_face_of_coin_str,
+                list_of_a_points_str=list_of_a_points_str,
+                list_of_b_points_str=list_of_b_points_str)
 
 
     @property
@@ -2311,7 +2333,37 @@ class ScoreBoard():
     def list_of_face_of_coin(self):
         """コイントスした結果のリスト。引き分け含む"""
         return self._list_of_face_of_coin
-    
+
+
+    @property
+    def list_of_round_number_str(self):
+        """スコアボードのラウンド番号の行"""
+        return self._list_of_round_number_str
+
+
+    @property
+    def list_of_head_player_str(self):
+        """スコアボードの表番の行"""
+        return self._list_of_head_player_str
+
+
+    @property
+    def list_of_face_of_coin_str(self):
+        """スコアボードの出目の行"""
+        return self._list_of_face_of_coin_str
+
+
+    @property
+    def list_of_a_points_str(self):
+        """スコアボードのＡさんの行"""
+        return self._list_of_a_points_str
+
+
+    @property
+    def list_of_b_points_str(self):
+        """スコアボードのＢさんの行"""
+        return self._list_of_b_points_str
+
 
     @property
     def game_results(self):
