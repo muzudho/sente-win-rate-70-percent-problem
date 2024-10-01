@@ -215,7 +215,7 @@ Span? """
             list_of_trial_results_for_one_series.append(trial_results_for_one_series)
 
 
-        sum_pattern_p = 0
+        all_patterns_p = 0
 
 
         for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
@@ -229,7 +229,7 @@ Span? """
             analysis_series(
                     score_board=score_board)
             
-            sum_pattern_p += score_board.pattern_p
+            all_patterns_p += score_board.pattern_p
 
 
         # CSVファイル出力（追記）
@@ -242,7 +242,7 @@ Span? """
                 span=specified_span)
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
-            f.write(stringify_csv_of_score_board_footer(sum_pattern_p=sum_pattern_p))
+            f.write(stringify_csv_of_score_board_footer(all_patterns_p=all_patterns_p))
 
 
     except Exception as err:

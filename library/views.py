@@ -630,16 +630,16 @@ def stringify_csv_of_score_board_body(scoreboard):
 """
 
 
-def stringify_csv_of_score_board_footer(sum_pattern_p):
+def stringify_csv_of_score_board_footer(all_patterns_p):
     """スコアボードCSVフッター作成"""
 
 
-    str_sum_pattern_p = str(sum_pattern_p)
+    str_all_patterns_p = str(all_patterns_p)
 
 
     return f"""\
 
 ,フッター
 ,--------
-,,確率合計,{str_sum_pattern_p}
+,,確率合計,{str_all_patterns_p}
 """

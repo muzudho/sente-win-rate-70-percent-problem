@@ -2076,22 +2076,21 @@ class ScoreBoard():
 
         # ［表が出る確率］は分かっているので、［出目］のリストが出る確率を算出する
         # TODO 引分けも含めた確率で考慮する必要がある
-        p_rate = (1 - spec.failure_rate) * spec.p
-        q_rate = (1 - spec.failure_rate) * (1 - spec.p)
-        f_rate = spec.failure_rate
-        sum_rate = p_rate + q_rate + f_rate
+        p_with_draw = (1 - spec.failure_rate) * spec.p
+        q_with_draw = (1 - spec.failure_rate) * (1 - spec.p)
+        sum_rate = p_with_draw + q_with_draw + spec.failure_rate
         # NOTE 誤差が出てしまうので、ぴったり 1 にはならない。有効桁数を決めておく
         if not (0.9999999999 <= sum_rate and sum_rate <= 1.00000000001):
-            raise ValueError(f"誤差はあれども合計は1になるはずです {sum_rate=}({p_rate=}  {q_rate=}  {f_rate=})")
+            raise ValueError(f"誤差はあれども合計は1になるはずです {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
 
         pattern_p = 1
         for face_of_coin in list_of_face_of_coin:
             if face_of_coin == HEAD:
-                pattern_p *= p_rate
+                pattern_p *= p_with_draw
             elif face_of_coin == TAIL:
-                pattern_p *= q_rate
+                pattern_p *= q_with_draw
             elif face_of_coin == EMPTY:
-                pattern_p *= f_rate
+                pattern_p *= spec.failure_rate
             else:
                 raise ValueError(f"{face_of_coin}")
 
