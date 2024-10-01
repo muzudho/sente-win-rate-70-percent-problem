@@ -521,20 +521,36 @@ def stringify_csv_of_score_board_header(spec, series_rule):
     str_shortest_coins = str(shortest_coins)
     str_upper_limit_coins = str(upper_limit_coins)
 
+
+    # ヘッダー行作成
+    header_row = ['Category', 'Name', 'Value']
+
+    for round in range(1,100):
+        header_row.append(f"R{round}")
+
+    str_header_row = ','.join(header_row)
+
+
     # CSV
     return f"""\
+{str_header_row}
+
 ヘッダー
 --------
 
 ,前提条件
 ,--------
-,p,failure_rate,turn_system  
-,{str_p},{str_failure_rate},{str_turn_system}
+,p,{str_p}
+,failure_rate,{str_failure_rate}
+,turn_system,{str_turn_system}
 
 ,大会で設定するルール
 ,-------------------
-,h_step,t_step,span,shortest_coins,upper_limit_coins
-,{str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
+,h_step,{str_h_step}
+,t_step,{str_t_step}
+,span,{str_span}
+,shortest_coins,{str_shortest_coins}
+,upper_limit_coins,{str_upper_limit_coins}
 
 
 """
@@ -547,18 +563,23 @@ def stringify_csv_of_score_board_body(scoreboard):
         raise ValueError(f"対局中なのはおかしい")
     
     elif scoreboard.game_results == ALICE_FULLY_WON:
-        game_result = "満点で,Ａさんの勝ち"
+        game_result_reason = "満点で"
+        game_result = "Ａさんの勝ち"
 
     elif scoreboard.game_results == BOB_FULLY_WON:
-        game_result = "満点で,Ｂさんの勝ち"
+        game_result_reason = "満点で"
+        game_result = "Ｂさんの勝ち"
 
     elif scoreboard.game_results == ALICE_POINTS_WON:
-        game_result = "勝ち点差で,Ａさんの勝ち"
+        game_result_reason = "勝ち点差で"
+        game_result = "Ａさんの勝ち"
 
     elif scoreboard.game_results == BOB_POINTS_WON:
-        game_result = "勝ち点差で,Ｂさんの勝ち"
+        game_result_reason = "勝ち点差で"
+        game_result = "Ｂさんの勝ち"
     
     elif scoreboard.game_results == NO_WIN_MATCH:
+        game_result_reason = ""
         game_result = "勝者なし"
 
     else:
@@ -566,35 +587,41 @@ def stringify_csv_of_score_board_body(scoreboard):
     
 
     # `[1, 2]` のようなデータを `1 2` に変換
-    source_data = f"{scoreboard._list_of_face_of_coin}"[1:-1].replace(',', ' ')
+    #source_data = f"{scoreboard._list_of_face_of_coin}"[1:-1].replace(',', ' ')
 
     # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
-    str_head_of_round_number = scoreboard.list_of_round_number_str[0]
-    str_head_of_head_player = scoreboard.list_of_head_player_str[0]
-    str_head_of_face_of_coin = scoreboard.list_of_face_of_coin_str[0]
-    str_head_of_a_points = scoreboard.list_of_a_points_str[0]
-    str_head_of_b_points = scoreboard.list_of_b_points_str[0]
+    str_first_of_round_number = scoreboard.list_of_round_number_str[0]
+    str_first_of_head_player = scoreboard.list_of_head_player_str[0]
+    str_first_of_face_of_coin = scoreboard.list_of_face_of_coin_str[0]
+    str_first_of_a_points = scoreboard.list_of_a_points_str[0]
+    str_first_of_b_points = scoreboard.list_of_b_points_str[0]
+
+    str_second_of_round_number = scoreboard.list_of_round_number_str[1]
+    str_second_of_head_player = scoreboard.list_of_head_player_str[1]
+    str_second_of_face_of_coin = scoreboard.list_of_face_of_coin_str[1]
+    str_second_of_a_points = scoreboard.list_of_a_points_str[1]
+    str_second_of_b_points = scoreboard.list_of_b_points_str[1]
 
     # ２つ目以降の要素は必ずあるだろう、という前提
-    str_tail_of_round_number = ','.join([str(element) for element in scoreboard.list_of_round_number_str[1:]])
-    str_tail_of_head_player = ','.join([str(element) for element in scoreboard.list_of_head_player_str[1:]])
-    str_tail_of_face_of_coin = ','.join([str(element) for element in scoreboard.list_of_face_of_coin_str[1:]])
-    str_tail_of_a_points = ','.join([str(element) for element in scoreboard.list_of_a_points_str[1:]])
-    str_tail_of_b_points = ','.join([str(element) for element in scoreboard.list_of_b_points_str[1:]])
+    str_tail_of_round_number = ','.join([str(element) for element in scoreboard.list_of_round_number_str[2:]])
+    str_tail_of_head_player = ','.join([str(element) for element in scoreboard.list_of_head_player_str[2:]])
+    str_tail_of_face_of_coin = ','.join([str(element) for element in scoreboard.list_of_face_of_coin_str[2:]])
+    str_tail_of_a_points = ','.join([str(element) for element in scoreboard.list_of_a_points_str[2:]])
+    str_tail_of_b_points = ','.join([str(element) for element in scoreboard.list_of_b_points_str[2:]])
 
 
+    #,元データ,{source_data}
     return f"""\
 スコアボード
 -----------
 
-,元データ,{source_data}
+,{str_first_of_round_number},{str_second_of_round_number},{str_tail_of_round_number}
+,{str_first_of_head_player},{str_second_of_head_player},{str_tail_of_head_player}
+,{str_first_of_face_of_coin},{str_second_of_face_of_coin},{str_tail_of_face_of_coin}
+,{str_first_of_a_points},{str_second_of_a_points},{str_tail_of_a_points}
+,{str_first_of_b_points},{str_second_of_b_points},{str_tail_of_b_points}
 
-,{str_head_of_round_number},{str_tail_of_round_number}
-,{str_head_of_head_player},{str_tail_of_head_player}
-,{str_head_of_face_of_coin},{str_tail_of_face_of_coin}
-,{str_head_of_a_points},{str_tail_of_a_points}
-,{str_head_of_b_points},{str_tail_of_b_points}
-
+,{game_result_reason}
 ,{game_result}
 
 """
