@@ -2218,7 +2218,6 @@ class ScoreBoard():
     @staticmethod
     def make_score_board(spec, series_rule, list_of_face_of_coin):
 
-        # TODO ビューと被ってるコードを整理したい
         span = series_rule.step_table.span
         h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
         t_step = series_rule.step_table.get_step_by(face_of_coin=TAIL)
@@ -2227,7 +2226,7 @@ class ScoreBoard():
         b_point = span
 
         round_list = []
-        round_list.append(['S', '', '  ', a_point, b_point])
+        round_list.append(['S', '', '', a_point, b_point])
 
         for round_th, face_of_coin in enumerate(list_of_face_of_coin, 1):
             last_round = round_list[-1]
@@ -2261,20 +2260,20 @@ class ScoreBoard():
             round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
 
 
-        # TODO スペースでの幅調整は止めたい
-        list_of_round_number_str = ['      ']
-        list_of_head_player_str = ['表番  ']
-        list_of_face_of_coin_str = ['出目  ']
+        # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
+        list_of_round_number_str = ['']
+        list_of_head_player_str = ['表番']
+        list_of_face_of_coin_str = ['出目']
         list_of_a_points_str = ['Ａさん']
         list_of_b_points_str = ['Ｂさん']
 
 
         for round in round_list:
-            list_of_round_number_str.append(f"{round[0]:>3}")
-            list_of_head_player_str.append(f"{round[1]:>3}")
-            list_of_face_of_coin_str.append(f" {round[2]}")
-            list_of_a_points_str.append(f"{round[3]:>3}")
-            list_of_b_points_str.append(f"{round[4]:>3}")
+            list_of_round_number_str.append(round[0])
+            list_of_head_player_str.append(round[1])
+            list_of_face_of_coin_str.append(round[2])
+            list_of_a_points_str.append(round[3])
+            list_of_b_points_str.append(round[4])
 
 
         last_a_point = int(list_of_a_points_str[-1])

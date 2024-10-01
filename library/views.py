@@ -511,30 +511,30 @@ def stringify_csv_of_score_board_header(spec, series_rule):
         raise ValueError(f"正の整数でなければいけません {t_step=}")
 
 
-    str_p = f"{spec.p * 100:7.4f}"
-    str_failure_rate = f"      {spec.failure_rate * 100:7.4f}"
-    str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system):>12}"
-
-    str_h_step = f"{h_step:>6}"
-    str_t_step = f"{t_step:>7}"
-    str_span = f"{span:>5}"
-    str_shortest_coins = f"{shortest_coins:>15}"
-    str_upper_limit_coins = f"{upper_limit_coins:>18}"
+    # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
+    str_p = str(spec.p * 100)
+    str_failure_rate = str(spec.failure_rate * 100)
+    str_turn_system = str(Converter.turn_system_to_code(spec.turn_system))
+    str_h_step = str(h_step)
+    str_t_step = str(t_step)
+    str_span = str(span)
+    str_shortest_coins = str(shortest_coins)
+    str_upper_limit_coins = str(upper_limit_coins)
 
     # CSV
     return f"""\
 ヘッダー
 --------
 
-    ,前提条件
-    ,--------
-    ,      p, failure_rate, turn_system  
-    ,{str_p},{str_failure_rate},{str_turn_system}
+,前提条件
+,--------
+,p,failure_rate,turn_system  
+,{str_p},{str_failure_rate},{str_turn_system}
 
-    ,大会で設定するルール
-    ,-------------------
-    ,h_step, t_step, span, shortest_coins, upper_limit_coins
-    ,{str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
+,大会で設定するルール
+,-------------------
+,h_step,t_step,span,shortest_coins,upper_limit_coins
+,{str_h_step},{str_t_step},{str_span},{str_shortest_coins},{str_upper_limit_coins}
 
 
 """
@@ -568,19 +568,33 @@ def stringify_csv_of_score_board_body(scoreboard):
     # `[1, 2]` のようなデータを `1 2` に変換
     source_data = f"{scoreboard._list_of_face_of_coin}"[1:-1].replace(',', ' ')
 
+    # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
+    str_head_of_round_number = scoreboard.list_of_round_number_str[0]
+    str_head_of_head_player = scoreboard.list_of_head_player_str[0]
+    str_head_of_face_of_coin = scoreboard.list_of_face_of_coin_str[0]
+    str_head_of_a_points = scoreboard.list_of_a_points_str[0]
+    str_head_of_b_points = scoreboard.list_of_b_points_str[0]
+
+    # ２つ目以降の要素は必ずあるだろう、という前提
+    str_tail_of_round_number = ','.join([str(element) for element in scoreboard.list_of_round_number_str[1:]])
+    str_tail_of_head_player = ','.join([str(element) for element in scoreboard.list_of_head_player_str[1:]])
+    str_tail_of_face_of_coin = ','.join([str(element) for element in scoreboard.list_of_face_of_coin_str[1:]])
+    str_tail_of_a_points = ','.join([str(element) for element in scoreboard.list_of_a_points_str[1:]])
+    str_tail_of_b_points = ','.join([str(element) for element in scoreboard.list_of_b_points_str[1:]])
+
 
     return f"""\
 スコアボード
 -----------
 
-    ,元データ,{source_data}
+,元データ,{source_data}
 
-    ,{','.join(scoreboard.list_of_round_number_str)}
-    ,{','.join(scoreboard.list_of_head_player_str)}
-    ,{','.join(scoreboard.list_of_face_of_coin_str)}
-    ,{','.join(scoreboard.list_of_a_points_str)}
-    ,{','.join(scoreboard.list_of_b_points_str)}
+,{str_head_of_round_number},{str_tail_of_round_number}
+,{str_head_of_head_player},{str_tail_of_head_player}
+,{str_head_of_face_of_coin},{str_tail_of_face_of_coin}
+,{str_head_of_a_points},{str_tail_of_a_points}
+,{str_head_of_b_points},{str_tail_of_b_points}
 
-    ,{game_result}
+,{game_result}
 
 """
