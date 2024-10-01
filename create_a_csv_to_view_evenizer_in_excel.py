@@ -99,15 +99,15 @@ def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_
     return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_trials_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
 
 
-def show_series_rule(spec, specified_trials_series, p_step, q_step, span, presentable, comment):
+def show_series_rule(spec, specified_trials_series, h_step, t_step, span, presentable, comment):
     """［シリーズ・ルール］を表示します"""
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
             trials_series=specified_trials_series,
-            p_step=p_step,
-            q_step=q_step,
+            h_step=h_step,
+            t_step=t_step,
             span=span)
 
 
@@ -197,8 +197,8 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
 
         df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
-        for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-            zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+        for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
+            zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
 
             # 対象外のものはスキップ　［将棋の引分け率］
             if specified_failure_rate != failure_rate:
@@ -208,7 +208,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
             if specified_trials_series != trials_series:
                 continue
 
-            if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+            if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
                 print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
                 continue
 
@@ -219,13 +219,13 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
                     trials_series=trials_series,
                     best_p=best_p,
                     best_p_error=best_p_error,
-                    best_p_step=best_p_step,
-                    best_q_step=best_q_step,
+                    best_h_step=best_h_step,
+                    best_t_step=best_t_step,
                     best_span=best_span,
                     latest_p=latest_p,
                     latest_p_error=latest_p_error,
-                    latest_p_step=latest_p_step,
-                    latest_q_step=latest_q_step,
+                    latest_h_step=latest_h_step,
+                    latest_t_step=latest_t_step,
                     latest_span=latest_span,
                     candidates=candidates)
 
@@ -238,8 +238,8 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
             show_series_rule(
                     spec=spec,
                     specified_trials_series=specified_trials_series,
-                    p_step=even_table.best_p_step,
-                    q_step=even_table.best_q_step,
+                    h_step=even_table.best_h_step,
+                    t_step=even_table.best_t_step,
                     span=even_table.best_span,
                     presentable='',
                     comment='')
@@ -250,8 +250,8 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
 
         df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
-        for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
-            zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
+        for             p,           failure_rate,           h_step,           t_step,           span,           presentable,           comment,           candidates in\
+            zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['h_step'], df_ssr['t_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:
@@ -262,16 +262,16 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
             # if specified_trials_series != trials_series:
             #     continue
 
-            if p_step < 1:
-                print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
+            if h_step < 1:
+                print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {h_step=}")
                 continue
 
 
             ssr_table = SelectionSeriesRuleTable(
                     p=p,
                     failure_rate=failure_rate,
-                    p_step=p_step,
-                    q_step=q_step,
+                    h_step=h_step,
+                    t_step=t_step,
                     span=span,
                     presentable=presentable,
                     comment=comment,
@@ -286,8 +286,8 @@ def automatic(specified_failure_rate, specified_turn_system, specified_data_sour
             show_series_rule(
                     spec=spec,
                     specified_trials_series=specified_trials_series,
-                    p_step=ssr_table.p_step,
-                    q_step=ssr_table.q_step,
+                    h_step=ssr_table.h_step,
+                    t_step=ssr_table.t_step,
                     span=ssr_table.span,
                     presentable=ssr_table.presentable,
                     comment=ssr_table.comment)

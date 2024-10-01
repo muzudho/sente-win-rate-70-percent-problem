@@ -1,1 +1,1 @@
-p,failure_rate,turn_system,trials_series,best_p,best_p_error,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_p_step,latest_q_step,latest_span,candidates
+p,failure_rate,turn_system,trials_series,best_p,best_p_error,best_h_step,best_t_step,best_span,latest_p,latest_p_error,latest_h_step,latest_t_step,latest_span,candidates

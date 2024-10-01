@@ -32,7 +32,7 @@ def stringify_report_selection_series_rule(p, latest_theoretical_p, specified_se
         for candidate_element in candidate_list:
             candidate_obj = Candidate.parse_candidate(candidate_element)
             if candidate_obj.p_error is not None:
-                if candidate_obj.p_step == specified_series_rule.p_step and candidate_obj.q_step == specified_series_rule.q_step and candidate_obj.span == specified_series_rule.step_table.span:
+                if candidate_obj.h_step == specified_series_rule.h_step and candidate_obj.t_step == specified_series_rule.t_step and candidate_obj.span == specified_series_rule.step_table.span:
 
                     # ［調整後の表が出る確率（％）］
                     seg_2 = candidate_obj.p_error * 100 + 50
@@ -41,10 +41,10 @@ def stringify_report_selection_series_rule(p, latest_theoretical_p, specified_se
                     seg_3 = candidate_obj.p_error * 100
 
                     # ［表勝ち１つの点数］
-                    seg_4 = candidate_obj.p_step
+                    seg_4 = candidate_obj.h_step
 
                     # ［裏勝ち１つの点数］
-                    seg_5 = candidate_obj.q_step
+                    seg_5 = candidate_obj.t_step
 
                     # ［目標の点数］
                     seg_6 = candidate_obj.span
@@ -83,10 +83,10 @@ def stringify_report_selection_series_rule(p, latest_theoretical_p, specified_se
         seg_3 = (latest_theoretical_p - 0.5) * 100
 
         # ［表勝ち１つの点数］
-        seg_4 = specified_series_rule.p_step
+        seg_4 = specified_series_rule.h_step
 
         # ［裏勝ち１つの点数］
-        seg_5 = specified_series_rule.q_step
+        seg_5 = specified_series_rule.t_step
 
         # ［目標の点数］
         seg_6 = specified_series_rule.step_table.span
@@ -249,8 +249,8 @@ def stringify_series_log(
         タイトル
     """
 
-    p_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-    q_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+    h_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
+    t_step = series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
     span = series_rule.step_table.span
     b_rest = span
     w_rest = span
@@ -262,12 +262,12 @@ def stringify_series_log(
         # 表石        
         if winner_color == HEAD:
             line_1_list.append('   x')
-            b_rest -= p_step
+            b_rest -= h_step
         
         # 裏石
         elif winner_color == TAIL:
             line_1_list.append('   o')
-            w_rest -= q_step
+            w_rest -= t_step
         
         # 勝者なし
         else:

@@ -85,12 +85,16 @@ def make_file_subname(failure_rate=None, turn_system=None, generation_algorythm=
 
 
 ##################
-# Analysis series
+# Score board
 ##################
 
-def get_analysis_series_log_file_path(turn_system):
+def get_score_board_log_file_path(turn_system):
     subname = make_file_subname(turn_system=turn_system)
-    return f'output/analysis_series{subname}.log'
+    return f'output/score_board{subname}.log'
+
+def get_score_board_csv_file_path(turn_system):
+    subname = make_file_subname(turn_system=turn_system)
+    return f'output/score_board{subname}.csv'
 
 
 ##########################

@@ -13,15 +13,15 @@ from library.database import get_df_selection_series_rule, get_df_even
 from library.views import stringify_simulation_log
 
 
-def simulate_series_rule(spec, trials_series, p_step, q_step, span, presentable, comment):
+def simulate_series_rule(spec, trials_series, h_step, t_step, span, presentable, comment):
     """［シリーズ・ルール］をシミュレーションします"""
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
             trials_series=trials_series,
-            p_step=p_step,
-            q_step=q_step,
+            h_step=h_step,
+            t_step=t_step,
             span=span)
 
 
@@ -184,20 +184,20 @@ Which data source should I use?
 
             df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_p_step,          best_q_step,          best_span,          latest_p,          latest_p_error,          latest_p_step,          latest_q_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_p_step'], df_ev['best_q_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_p_step'], df_ev['latest_q_step'], df_ev['latest_span'], df_ev['candidates']):
+            for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
+                zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
                     continue
 
-                if best_p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+                if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
                     print(f"[P={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
                     continue
 
                 # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-                p_step = round_letro(best_p_step)
-                q_step = round_letro(best_q_step)
+                h_step = round_letro(best_h_step)
+                t_step = round_letro(best_t_step)
                 span = round_letro(best_span)
 
                 # 仕様
@@ -209,8 +209,8 @@ Which data source should I use?
                 simulate_series_rule(
                         spec=spec,
                         trials_series=specified_trials_series,
-                        p_step=p_step,
-                        q_step=q_step,
+                        h_step=h_step,
+                        t_step=t_step,
                         span=span,
                         presentable='',
                         comment='')
@@ -221,20 +221,20 @@ Which data source should I use?
 
             df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
-            for             p,           failure_rate,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
-                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
+            for             p,           failure_rate,           h_step,           t_step,           span,           presentable,           comment,           candidates in\
+                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['h_step'], df_ssr['t_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
 
                 # 対象外のものはスキップ
                 if specified_failure_rate != failure_rate:
                     continue
 
                 # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-                p_step = round_letro(p_step)
-                q_step = round_letro(q_step)
+                h_step = round_letro(h_step)
+                t_step = round_letro(t_step)
                 span = round_letro(span)
 
-                if p_step < 1:
-                    print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {p_step=}")
+                if h_step < 1:
+                    print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {h_step=}")
                     continue
 
                 # 仕様
@@ -246,8 +246,8 @@ Which data source should I use?
                 simulate_series_rule(
                         spec=spec,
                         trials_series=specified_trials_series,
-                        p_step=p_step,
-                        q_step=q_step,
+                        h_step=h_step,
+                        t_step=t_step,
                         span=span,
                         presentable=presentable,
                         comment=comment)

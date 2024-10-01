@@ -1,4 +1,4 @@
-p,failure_rate,turn_system,trials_series,best_p,best_p_error,best_p_step,best_q_step,best_span,latest_p,latest_p_error,latest_p_step,latest_q_step,latest_span,candidates
+p,failure_rate,turn_system,trials_series,best_p,best_p_error,best_h_step,best_t_step,best_span,latest_p,latest_p_error,latest_h_step,latest_t_step,latest_span,candidates
 0.5,0.0,alternating,2000,0.4995,-0.0005,1,1,5,0.4995,-0.0005,1,1,5,[0.025500 1表 1裏 1目 1～1局 2000試] [0.005500 1表 1裏 2目 2～3局 2000試] [-0.002000 2表 3裏 4目 2～3局 2000試] [-0.000500 1表 1裏 5目 5～9局 2000試]
 0.51,0.0,alternating,2000,0.5005,0.0004999999999999,3,3,6,0.5005,0.0004999999999999,3,3,6,[-0.016000 1表 1裏 1目 1～1局 2000試] [0.015500 1表 1裏 2目 2～3局 2000試] [0.004500 2表 2裏 2目 1～1局 2000試] [-0.001000 1表 1裏 4目 4～7局 2000試] [0.000500 3表 3裏 6目 2～3局 2000試]
 0.52,0.0,alternating,2000,0.5005,0.0004999999999999,4,4,5,0.5005,0.0004999999999999,4,4,5,[0.022000 1表 1裏 1目 1～1局 2000試] [0.009500 1表 1裏 2目 2～3局 2000試] [0.006500 1表 1裏 3目 3～5局 2000試] [0.005000 1表 1裏 4目 4～7局 2000試] [-0.001500 3表 3裏 5目 2～3局 2000試] [0.000500 4表 4裏 5目 2～3局 2000試]

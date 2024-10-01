@@ -21,14 +21,14 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class EvenTable():
 
 
-    def __init__(self, p, failure_rate, turn_system, trials_series, best_p, best_p_error, best_p_step, best_q_step, best_span, latest_p, latest_p_error, latest_p_step, latest_q_step, latest_span, candidates):
+    def __init__(self, p, failure_rate, turn_system, trials_series, best_p, best_p_error, best_h_step, best_t_step, best_span, latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span, candidates):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        best_p_step = round_letro(best_p_step)
-        best_q_step = round_letro(best_q_step)
+        best_h_step = round_letro(best_h_step)
+        best_t_step = round_letro(best_t_step)
         best_span = round_letro(best_span)
-        latest_p_step = round_letro(latest_p_step)
-        latest_q_step = round_letro(latest_q_step)
+        latest_h_step = round_letro(latest_h_step)
+        latest_t_step = round_letro(latest_t_step)
         latest_span = round_letro(latest_span)
 
         self._p=p
@@ -37,13 +37,13 @@ class EvenTable():
         self._trials_series=trials_series
         self._best_p=best_p
         self._best_p_error=best_p_error
-        self._best_p_step=best_p_step
-        self._best_q_step=best_q_step
+        self._best_h_step=best_h_step
+        self._best_t_step=best_t_step
         self._best_span=best_span
         self._latest_p=latest_p
         self._latest_p_error=latest_p_error
-        self._latest_p_step=latest_p_step
-        self._latest_q_step=latest_q_step
+        self._latest_h_step=latest_h_step
+        self._latest_t_step=latest_t_step
         self._latest_span=latest_span
         self._candidates=candidates
 
@@ -79,13 +79,13 @@ class EvenTable():
 
 
     @property
-    def best_p_step(self):
-        return self._best_p_step
+    def best_h_step(self):
+        return self._best_h_step
 
 
     @property
-    def best_q_step(self):
-        return self._best_q_step
+    def best_t_step(self):
+        return self._best_t_step
 
 
     @property
@@ -104,13 +104,13 @@ class EvenTable():
 
 
     @property
-    def latest_p_step(self):
-        return self._latest_p_step
+    def latest_h_step(self):
+        return self._latest_h_step
 
 
     @property
-    def latest_q_step(self):
-        return self._latest_q_step
+    def latest_t_step(self):
+        return self._latest_t_step
 
 
     @property
@@ -139,13 +139,13 @@ def append_default_record_to_df_even(df, spec, trials_series):
     df.loc[index, ['trials_series']] = trials_series
     df.loc[index, ['best_p']] = 0
     df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
-    df.loc[index, ['best_p_step']] = 0
-    df.loc[index, ['best_q_step']] = 1
+    df.loc[index, ['best_h_step']] = 0
+    df.loc[index, ['best_t_step']] = 1
     df.loc[index, ['best_span']] = 1
     df.loc[index, ['latest_p']] = 0
     df.loc[index, ['latest_p_error']] = ABS_OUT_OF_ERROR
-    df.loc[index, ['latest_p_step']] = 0
-    df.loc[index, ['latest_q_step']] = 1
+    df.loc[index, ['latest_h_step']] = 0
+    df.loc[index, ['latest_t_step']] = 1
     df.loc[index, ['latest_span']] = 1
     df.loc[index, ['candidates']] = ''
 
@@ -183,13 +183,13 @@ def get_df_even(failure_rate, turn_system, generation_algorythm, trials_series):
     df['trials_series'].fillna(0).astype('int64')
     df['best_p'].fillna(0.0).astype('float64')
     df['best_p_error'].fillna(0.0).astype('float64')
-    df['best_p_step'].fillna(0).astype('int64')
-    df['best_q_step'].fillna(0).astype('int64')
+    df['best_h_step'].fillna(0).astype('int64')
+    df['best_t_step'].fillna(0).astype('int64')
     df['best_span'].fillna(0).astype('int64')
     df['latest_p'].fillna(0.0).astype('float64')
     df['latest_p_error'].fillna(0.0).astype('float64')
-    df['latest_p_step'].fillna(0).astype('int64')
-    df['latest_q_step'].fillna(0).astype('int64')
+    df['latest_h_step'].fillna(0).astype('int64')
+    df['latest_t_step'].fillna(0).astype('int64')
     df['latest_span'].fillna(0).astype('int64')
     df['candidates'].fillna('').astype('object')    # string 型は無い？
 
@@ -206,7 +206,7 @@ def df_even_to_csv(df, failure_rate, turn_system, generation_algorythm, trials_s
     df.to_csv(
             csv_file_path,
             # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'turn_system', 'trials_series', 'best_p', 'best_p_error', 'best_p_step', 'best_q_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_p_step', 'latest_q_step', 'latest_span', 'candidates'],
+            columns=['p', 'failure_rate', 'turn_system', 'trials_series', 'best_p', 'best_p_error', 'best_h_step', 'best_t_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_h_step', 'latest_t_step', 'latest_span', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -227,17 +227,17 @@ def get_df_p():
 class SelectionSeriesRuleTable():
 
 
-    def __init__(self, p, failure_rate, p_step, q_step, span, presentable, comment, candidates):
+    def __init__(self, p, failure_rate, h_step, t_step, span, presentable, comment, candidates):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        p_step = round_letro(p_step)
-        q_step = round_letro(q_step)
+        h_step = round_letro(h_step)
+        t_step = round_letro(t_step)
         span = round_letro(span)
 
         self._p=p
         self._failure_rate=failure_rate
-        self._p_step=p_step
-        self._q_step=q_step
+        self._h_step=h_step
+        self._t_step=t_step
         self._span=span
         self._presentable=presentable
         self._comment=comment
@@ -255,13 +255,13 @@ class SelectionSeriesRuleTable():
 
 
     @property
-    def p_step(self):
-        return self._p_step
+    def h_step(self):
+        return self._h_step
 
 
     @property
-    def q_step(self):
-        return self._q_step
+    def t_step(self):
+        return self._t_step
 
 
     @property
@@ -292,8 +292,8 @@ def append_default_record_to_df_ssr(df, p, failure_rate):
     df.loc[index, ['p']] = p
     df.loc[index, ['failure_rate']] = failure_rate
     df.loc[index, ['trials_series']] = '0'
-    df.loc[index, ['p_step']] = '0'
-    df.loc[index, ['q_step']] = '1'
+    df.loc[index, ['h_step']] = '0'
+    df.loc[index, ['t_step']] = '1'
     df.loc[index, ['span']] = '1'
     df.loc[index, ['presentable']] = ''
     df.loc[index, ['comment']] = ''
@@ -312,8 +312,8 @@ def get_df_selection_series_rule(turn_system):
     df['p'].astype('float64')
     df['failure_rate'].astype('float64')
     df['trials_series'].fillna(0).astype('int64')
-    df['p_step'].fillna(0).astype('int64')
-    df['q_step'].fillna(1).astype('int64')
+    df['h_step'].fillna(0).astype('int64')
+    df['t_step'].fillna(1).astype('int64')
     df['span'].fillna(1).astype('int64')
     df['presentable'].astype('object')    # string 型は無い？
     df['comment'].astype('object')    # string 型は無い？
@@ -330,7 +330,7 @@ def df_ssr_to_csv(df, turn_system):
 
     df.to_csv(csv_flie_path,
             # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'trials_series', 'p_step', 'q_step', 'span', 'presentable', 'comment', 'candidates'],
+            columns=['p', 'failure_rate', 'trials_series', 'h_step', 't_step', 'span', 'presentable', 'comment', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 

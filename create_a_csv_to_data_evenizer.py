@@ -63,13 +63,13 @@ def update_dataframe(df, spec, best_p, best_p_error, best_series_rule_if_it_exis
     df.loc[df['p']==spec.p, ['best_p_error']] = best_p_error
     df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
 
-    # ［表勝ち１つの点数］列を更新
-    df.loc[df['p']==spec.p, ['best_p_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
-    df.loc[df['p']==spec.p, ['latest_p_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    # ［表番で勝ったときの勝ち点］列を更新
+    df.loc[df['p']==spec.p, ['best_h_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
+    df.loc[df['p']==spec.p, ['latest_h_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD)
 
-    # ［裏勝ち１つの点数］列を更新
-    df.loc[df['p']==spec.p, ['best_q_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
-    df.loc[df['p']==spec.p, ['latest_q_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    # ［裏番で勝ったときの勝ち点］列を更新
+    df.loc[df['p']==spec.p, ['best_t_step']] = best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
+    df.loc[df['p']==spec.p, ['latest_t_step']] = latest_series_rule.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL)
 
     # ［目標の点数］列を更新 
     df.loc[df['p']==spec.p, ['best_span']] = best_series_rule_if_it_exists.step_table.span
@@ -148,16 +148,16 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-    for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_p_step,       best_q_step,       best_span,       latest_p,       latest_p_error,       latest_p_step,       latest_q_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_p_step'], df['best_q_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_p_step'], df['latest_q_step'], df['latest_span'], df['candidates']):
+    for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
+        zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         trials_series = round_letro(trials_series)
-        best_p_step = round_letro(best_p_step)
-        best_q_step = round_letro(best_q_step)
+        best_h_step = round_letro(best_h_step)
+        best_t_step = round_letro(best_t_step)
         best_span = round_letro(best_span)
-        latest_p_step = round_letro(latest_p_step)
-        latest_q_step = round_letro(latest_q_step)
+        latest_h_step = round_letro(latest_h_step)
+        latest_t_step = round_letro(latest_t_step)
         latest_span = round_letro(latest_span)
 
 
@@ -185,8 +185,8 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
                 spec=spec,
                 trials_series=trials_series,
-                p_step=best_p_step,
-                q_step=best_q_step,
+                h_step=best_h_step,
+                t_step=best_t_step,
                 span=best_span)
 
         update_count = 0
@@ -209,22 +209,22 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
             is_automatic = True
 
             #
-            # ［目標の点数］、［裏勝ち１つの点数］、［表勝ち１つの点数］を１つずつ進めていく探索です。
+            # ［目標の点数］、［裏番で勝ったときの勝ち点］、［表番で勝ったときの勝ち点］を１つずつ進めていく探索です。
             #
-            # ［目標の点数］＞＝［裏勝ち１つの点数］＞＝［表勝ち１つの点数］という関係があります。
+            # ［目標の点数］＞＝［裏番で勝ったときの勝ち点］＞＝［表番で勝ったときの勝ち点］という関係があります。
             #
-            start_q_step = latest_q_step
-            start_p_step = latest_p_step + 1      # 終わっているところの次から始める      NOTE p_step の初期値は 0 であること
+            start_t_step = latest_t_step
+            start_h_step = latest_h_step + 1      # 終わっているところの次から始める      NOTE h_step の初期値は 0 であること
             for cur_span in range(latest_span, LIMIT_SPAN):
-                for cur_q_step in range(start_q_step, cur_span + 1):
-                    for cur_p_step in range(start_p_step, cur_q_step + 1):
+                for cur_t_step in range(start_t_step, cur_span + 1):
+                    for cur_h_step in range(start_h_step, cur_t_step + 1):
 
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
                                 trials_series=trials_series,
-                                p_step=cur_p_step,
-                                q_step=cur_q_step,
+                                h_step=cur_h_step,
+                                t_step=cur_t_step,
                                 span=cur_span)
 
 
@@ -299,8 +299,8 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
                                     trials_series=specified_trials_series,
-                                    p_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
-                                    q_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
+                                    h_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
+                                    t_step=best_series_rule_if_it_exists.step_table.get_step_by(challenged=SUCCESSFUL, face_of_coin=TAIL),
                                     span=best_series_rule_if_it_exists.step_table.span,
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
@@ -364,12 +364,12 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                                 # print('cutoff (procrastinate)', flush=True)
                                 break
 
-                    start_p_step = 1
+                    start_h_step = 1
 
                     if is_cutoff:
                         break
 
-                start_q_step = 1
+                start_t_step = 1
 
                 if is_cutoff:
                     break

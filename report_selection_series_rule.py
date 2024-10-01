@@ -29,16 +29,16 @@ def generate_report(specified_turn_system):
 
     df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
-    for             p,           trials_series,           p_step,           q_step,           span,           presentable,           comment,           candidates in\
-        zip(df_ssr['p'], df_ssr['trials_series'], df_ssr['p_step'], df_ssr['q_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
+    for             p,           trials_series,           h_step,           t_step,           span,           presentable,           comment,           candidates in\
+        zip(df_ssr['p'], df_ssr['trials_series'], df_ssr['h_step'], df_ssr['t_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
 
-        if p_step < 1:
-            p_step = 1
+        if h_step < 1:
+            h_step = 1
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         trials_series = round_letro(trials_series)
-        p_step = round_letro(p_step)
-        q_step = round_letro(q_step)
+        h_step = round_letro(h_step)
+        t_step = round_letro(t_step)
         span = round_letro(span)
 
         # 仕様
@@ -54,8 +54,8 @@ def generate_report(specified_turn_system):
             specified_series_rule = SeriesRule.make_series_rule_base(
                     spec=spec,
                     trials_series=trials_series,
-                    p_step=p_step,
-                    q_step=q_step,
+                    h_step=h_step,
+                    t_step=t_step,
                     span=span)
 
             # NOTE ［先後交代制］では、理論値の出し方が分からないので、理論値ではなく、実際値をコメントから拾って出力する
@@ -92,8 +92,8 @@ def generate_report(specified_turn_system):
             specified_series_rule = SeriesRule.make_series_rule_base(
                     spec=spec,
                     trials_series=trials_series,
-                    p_step=p_step,
-                    q_step=q_step,
+                    h_step=h_step,
+                    t_step=t_step,
                     span=span)
 
             # NOTE 実際値ではなく、理論値を出力する

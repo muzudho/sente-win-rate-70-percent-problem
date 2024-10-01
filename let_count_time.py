@@ -31,9 +31,9 @@ if __name__ == '__main__':
         # ［目標の点数］
         for span in range(1,101):
             # ［裏勝ち１つの点数］
-            for q_step in range(1, span):
+            for t_step in range(1, span):
                 # ［表勝ち１つの点数］
-                for p_step in range(1, q_step):
+                for h_step in range(1, t_step):
 
                     # 仕様
                     spec_ft = Specification(
@@ -44,8 +44,8 @@ if __name__ == '__main__':
                     series_rule_ft = SeriesRule.make_series_rule_base(
                             spec=spec_ft,
                             trials_series=specified_trials_series,
-                            p_step=p_step,
-                            q_step=q_step,
+                            h_step=h_step,
+                            t_step=t_step,
                             span=span)
 
                     # 仕様
@@ -57,8 +57,8 @@ if __name__ == '__main__':
                     series_rule_at = SeriesRule.make_series_rule_base(
                             spec=spec_at,
                             trials_series=specified_trials_series,
-                            p_step=p_step,
-                            q_step=q_step,
+                            h_step=h_step,
+                            t_step=t_step,
                             span=span)
 
                     # ［最短対局数］［上限対局数］
@@ -67,8 +67,8 @@ if __name__ == '__main__':
                     seg_3c = series_rule_at.shortest_coins
                     seg_3d = series_rule_at.upper_limit_coins
 
-                    seg_4a = p_step
-                    seg_4b = q_step
+                    seg_4a = h_step
+                    seg_4b = t_step
                     seg_4c = span
 
                     text = f"対局数 {seg_3a:>2}～{seg_3b:>2}（先後固定制）  {seg_3c:>2}～{seg_3d:>2}（先後交互制）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点（先後固定制）"

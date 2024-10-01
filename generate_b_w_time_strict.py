@@ -94,15 +94,15 @@ if __name__ == '__main__':
                                 spec=spec,
                                 trials_series=specified_trials_series,
                                 # FIXME タイムではなくステップが欲しい
-                                p_step=-1,
-                                q_step=-1,
+                                h_step=-1,
+                                t_step=-1,
                                 span=-1)
 
                         candidate_obj = Candidate(
                                 p_error=best_p_error,
                                 trials_series=specified_trials_series,
-                                p_step=latest_series_rule.p_step,
-                                q_step=latest_series_rule.q_step,
+                                h_step=latest_series_rule.h_step,
+                                t_step=latest_series_rule.t_step,
                                 span=latest_series_rule.span,
                                 shortest_coins=latest_series_rule.shortest_coins,
                                 upper_limit_coins=latest_series_rule.upper_limit_coins)

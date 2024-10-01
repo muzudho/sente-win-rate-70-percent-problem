@@ -81,7 +81,7 @@ BRUTE_FORCE = 1
 THEORETICAL = 2
 
 
-# p_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
+# h_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
 IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
 
 
@@ -1047,18 +1047,18 @@ class SeriesRule():
         """［１勝の点数テーブル］"""
 
         
-        def __init__(self, p_step, q_step, p_step_when_failed, q_step_when_failed, span):
+        def __init__(self, h_step, t_step, h_step_when_failed, t_step_when_failed, span):
             """初期化
             
             Parameters
             ----------
-            p_step : int
-                ［表が出て勝ったときの点数］
-            q_step : int
-                ［裏が出て勝ったときの点数］
-            p_step_when_failed : float
+            h_step : int
+                ［表番で勝ったときの勝ち点］
+            t_step : int
+                ［裏番で勝ったときの勝ち点］
+            h_step_when_failed : float
                 ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-            q_step_when_failed : float
+            t_step_when_failed : float
                 ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
             span : int
                 ［目標の点数］
@@ -1067,14 +1067,14 @@ class SeriesRule():
             self._step_list = [
                     # 0: ［未使用］
                     None,
-                    # 1: ［コインの表が出たときの勝ち点］
-                    p_step,
-                    # 2: ［コインの裏が出たときの勝ち点］
-                    q_step,
+                    # 1: ［表番で勝ったときの勝ち点］
+                    h_step,
+                    # 2: ［裏番で勝ったときの勝ち点］
+                    t_step,
                     # 3: ［コインの表も裏も出なかったときの、表番の方の勝ち点］
-                    p_step_when_failed,
+                    h_step_when_failed,
                     # 4: ［コインの表も裏も出なかったときの、裏番の方の勝ち点］
-                    q_step_when_failed]
+                    t_step_when_failed]
 
             self._span = span
 
@@ -1200,7 +1200,7 @@ class SeriesRule():
 
 
     @staticmethod
-    def make_series_rule_base(spec, trials_series, p_step, q_step, span):
+    def make_series_rule_base(spec, trials_series, h_step, t_step, span):
         """
         Parameters
         ----------
@@ -1211,49 +1211,49 @@ class SeriesRule():
         """
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
-        if not isinstance(p_step, int):
-            raise ValueError(f"int 型であることが必要 {type(p_step)=}  {p_step=}")
+        if not isinstance(h_step, int):
+            raise ValueError(f"int 型であることが必要 {type(h_step)=}  {h_step=}")
 
-        if not isinstance(q_step, int):
-            raise ValueError(f"int 型であることが必要 {type(q_step)=}  {q_step=}")
+        if not isinstance(t_step, int):
+            raise ValueError(f"int 型であることが必要 {type(t_step)=}  {t_step=}")
 
         if not isinstance(span, int):
             raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
 
-        # ベスト値が未設定の場合、 p_step は 0 が入っています
-        if p_step < IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-            raise ValueError(f"非負の整数であることが必要 {p_step=}")
+        # ベスト値が未設定の場合、 h_step は 0 が入っています
+        if h_step < IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+            raise ValueError(f"非負の整数であることが必要 {h_step=}")
 
-        if q_step < 1:
-            raise ValueError(f"正の整数であることが必要 {q_step=}")
+        if t_step < 1:
+            raise ValueError(f"正の整数であることが必要 {t_step=}")
 
         if span < 1:
             raise ValueError(f"正の整数であることが必要 {span=}")
 
-        if q_step < p_step:
-            raise ValueError(f"［コインの表が出たときの勝ち点］{p_step=} が、［コインの裏が出たときの勝ち点］ {q_step} を上回るのはおかしいです")
+        if t_step < h_step:
+            raise ValueError(f"［コインの表が出たときの勝ち点］{h_step=} が、［コインの裏が出たときの勝ち点］ {t_step} を上回るのはおかしいです")
 
-        if span < q_step:
-            raise ValueError(f"［コインの裏が出たときの勝ち点］{q_step=} が、［目標の点数］{span} を上回るのはおかしいです")
+        if span < t_step:
+            raise ValueError(f"［コインの裏が出たときの勝ち点］{t_step=} が、［目標の点数］{span} を上回るのはおかしいです")
 
 
-        p_step_when_failed = 0
+        h_step_when_failed = 0
 
-        q_step_when_failed = 0
+        t_step_when_failed = 0
 
-        # if q_step_when_failed < p_step_when_failed:
-        #     raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{p_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {q_step_when_failed} を上回るのはおかしいです")
+        # if t_step_when_failed < h_step_when_failed:
+        #     raise ValueError(f"［コインの表も裏も出なかったときの、表番の方の勝ち点］{h_step_when_failed=} が、［コインの表も裏も出なかったときの、裏番の方の勝ち点］ {t_step_when_failed} を上回るのはおかしいです")
 
         step_table = SeriesRule.StepTable(
-                p_step=p_step,
-                q_step=q_step,
-                p_step_when_failed=p_step_when_failed,
-                q_step_when_failed=q_step_when_failed,
+                h_step=h_step,
+                t_step=t_step,
+                h_step_when_failed=h_step_when_failed,
+                t_step_when_failed=t_step_when_failed,
                 span=span)
 
 
         # 0除算を避ける
-        if p_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+        if h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
             # ［最短対局数］
             shortest_coins = 0
 
@@ -1263,8 +1263,8 @@ class SeriesRule():
         else:
             # ［最短対局数］
             shortest_coins = SeriesRule.let_shortest_coins(
-                    p_step=p_step,
-                    q_step=q_step,
+                    h_step=h_step,
+                    t_step=t_step,
                     span=span,
                     turn_system=spec.turn_system)
 
@@ -1283,8 +1283,8 @@ class SeriesRule():
 spec:
 {spec.stringify_dump(succ_indent)}
 {text}
-{p_step=}
-{q_step=}
+{h_step=}
+{t_step=}
 {span=}
 step_table:
 {step_table.stringify_dump('   ')}
@@ -1317,26 +1317,26 @@ step_table:
         """
         # DO 通分したい。最小公倍数を求める
         lcm = math.lcm(p_time, q_time)
-        # ［表勝ち１つの点数］
+        # ［表番で勝ったときの勝ち点］
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        p_step = round_letro(lcm / p_time)
-        # ［裏勝ち１つの点数］
-        q_step = round_letro(lcm / q_time)
+        h_step = round_letro(lcm / p_time)
+        # ［裏番で勝ったときの勝ち点］
+        t_step = round_letro(lcm / q_time)
         # ［目標の点数］
-        span = round_letro(q_time * q_step)
+        span = round_letro(q_time * t_step)
 
         # データチェック
-        span_w = round_letro(p_time * p_step)
+        span_w = round_letro(p_time * h_step)
         if span != span_w:
             raise ValueError(f"{span=}  {span_w=}")
 
         return SeriesRule.make_series_rule_base(
                 spec=spec,
                 trials_series=trials_series,
-                p_step=p_step,
-                q_step=q_step,
+                h_step=h_step,
+                t_step=t_step,
                 span=span)
 
 
@@ -1376,7 +1376,7 @@ step_table:
 
 
     @staticmethod
-    def let_shortest_coins(p_step, q_step, span, turn_system):
+    def let_shortest_coins(h_step, t_step, span, turn_system):
         """［最短対局数］を算出"""
 
         if turn_system == FROZEN_TURN:
@@ -1391,7 +1391,7 @@ step_table:
             """
 
             # ［目標の点数］は最小公倍数なので割り切れる
-            return round_letro(span / q_step)
+            return round_letro(span / t_step)
 
         if turn_system == ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］
@@ -1436,9 +1436,9 @@ step_table:
 
             remainder = span
 
-            successful_step = p_step + q_step
+            successful_step = h_step + t_step
 
-            if p_step + q_step <= remainder:
+            if h_step + t_step <= remainder:
                 # NOTE なるべく割り算で小数点以下の数がでないように、割り切れる数にしてから割るようにし、整数だけを使って計算する
                 new_remainder = span % successful_step
                 # 余りから端数を引いて割り切れるようにしてから割る。先手と後手のペアだから、回数は２倍
@@ -1454,20 +1454,20 @@ step_table:
             #
             if 0 < remainder:
                 time += 1
-                remainder -= q_step
+                remainder -= t_step
 
                 # まだ端数があれば［表勝ち１つの点数］を引く（１回分を加算）
                 if 0 < remainder:
                     time += 1
-                    remainder -= p_step
+                    remainder -= h_step
 
                     # remainder は負数になっているはず（割り切れないはず）
                     if 0 <= remainder:
-                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {span=}  {p_step=}  {q_step=}")
+                        raise ValueError(f"ここで余りが負数になっていないのはおかしい {remainder=}  {span=}  {h_step=}  {t_step=}")
                 
                 # remainder は零か負数になっているはず
                 elif 0 < remainder:
-                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {span=}  {p_step=}  {q_step=}")
+                    raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {span=}  {h_step=}  {t_step=}")
 
             return time
 
@@ -2076,16 +2076,16 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, trials_series, p_step, q_step, span, shortest_coins, upper_limit_coins):
+    def __init__(self, p_error, trials_series, h_step, t_step, span, shortest_coins, upper_limit_coins):
 
         if not isinstance(trials_series, int):
             raise ValueError(f"［試行シリーズ数］は int 型である必要があります {trials_series=}")
 
-        if not isinstance(p_step, int):
-            raise ValueError(f"［表番の勝ち１つ分の点数］は int 型である必要があります {p_step=}")
+        if not isinstance(h_step, int):
+            raise ValueError(f"［表番で勝ったときの勝ち点］は int 型である必要があります {h_step=}")
 
-        if not isinstance(q_step, int):
-            raise ValueError(f"［裏番の勝ち１つ分の点数］は int 型である必要があります {q_step=}")
+        if not isinstance(t_step, int):
+            raise ValueError(f"［裏番で勝ったときの勝ち点］は int 型である必要があります {t_step=}")
 
         if not isinstance(span, int):
             raise ValueError(f"［目標の点数］は int 型である必要があります {span=}")
@@ -2098,8 +2098,8 @@ class Candidate():
 
         self._p_error = p_error
         self._trials_series = trials_series
-        self._p_step = p_step
-        self._q_step = q_step
+        self._h_step = h_step
+        self._t_step = t_step
         self._span = span
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
@@ -2116,13 +2116,13 @@ class Candidate():
 
 
     @property
-    def p_step(self):
-        return self._p_step
+    def h_step(self):
+        return self._h_step
 
 
     @property
-    def q_step(self):
-        return self._q_step
+    def t_step(self):
+        return self._t_step
 
 
     @property
@@ -2142,7 +2142,7 @@ class Candidate():
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._p_step}表 {self._q_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._trials_series}試]'
+        return f'[{self._p_error:.6f} {self._h_step}表 {self._t_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._trials_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -2158,8 +2158,8 @@ class Candidate():
             return Candidate(
                     p_error=float(result.group(1)),
                     trials_series=float(result.group(7)),
-                    p_step=int(result.group(2)),
-                    q_step=int(result.group(3)),
+                    h_step=int(result.group(2)),
+                    t_step=int(result.group(3)),
                     span=int(result.group(4)),
                     shortest_coins=int(result.group(5)),
                     upper_limit_coins=int(result.group(6)))
@@ -2179,7 +2179,7 @@ class ScoreBoard():
         70.0000  10.0000       frozen
 
         Series Rule
-        p_step  q_step  span
+        h_step  t_step  span
         2       3       6
 
         Score Sheet
@@ -2200,7 +2200,7 @@ class ScoreBoard():
         70.0000  10.0000       alternating
 
         Series Rule
-        p_step  q_step  span
+        h_step  t_step  span
         2       3       6
 
         Score Sheet
