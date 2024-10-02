@@ -67,8 +67,9 @@ def automatic(turn_system, failure_rate, p):
     for span in range(1, 100):
 
         # ［後手で勝ったときの勝ち点］
-        over_t_step = min(span + 1, 11)     # FIXME 時間がかかりすぎるので上限を作っておく
-        for t_step in range(1, over_t_step):
+        # over_t_step = min(span + 1, 11)     # FIXME 時間がかかりすぎるので上限を作っておく
+        # for t_step in range(1, over_t_step):
+        for t_step in range(1, span + 1):
 
             # ［先手で勝ったときの勝ち点］
             for h_step in range(1, t_step + 1):
@@ -107,8 +108,8 @@ def automatic(turn_system, failure_rate, p):
                 if key.any():
 
                     # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
-                    if df['a_win_rate'] == df['b_win_rate']:
-                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even!")
+                    if df.loc[key, ['a_win_rate']].iat[0, 0] == df.loc[key, ['b_win_rate']].iat[0, 0]:
+                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}")
 
                         # CSVファイルへ書き出し
                         df_score_board_data_to_csv(df, spec)
@@ -140,7 +141,7 @@ def automatic(turn_system, failure_rate, p):
 
                 # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
                 if a_win_rate == b_win_rate:
-                    print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even!")
+                    print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}")
                     # CSVファイルへ書き出し
                     df_score_board_data_to_csv(df, spec)
                     return
