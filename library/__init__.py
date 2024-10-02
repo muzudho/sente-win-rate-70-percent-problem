@@ -2158,14 +2158,14 @@ class ScoreBoard():
 
         # 対局不成立
         if last_a_count_down_point <= 0 and last_b_count_down_point <= 0:
-            raise ValueError(f"両者が満点はおかしい {list_of_round_number_str=}  {list_of_head_player_str=}  {list_of_face_of_coin_str=}  {list_of_a_count_down_points_str=}  {list_of_b_count_down_points_str=}  {span=}")
+            raise ValueError(f"両者が満点はおかしい {list_of_round_number_str=}  {list_of_head_player_str=}  {list_of_face_of_coin_str=}  {list_of_a_count_down_points_str=}  {list_of_b_count_down_points_str=}  {span=}  {t_step=}  {h_step}")
         
         # 満点で,Ａさんの勝ち
-        elif span <= last_a_count_down_point:
+        elif last_a_count_down_point <= 0:
             game_results = ALICE_FULLY_WON
 
         # 満点で,Ｂさんの勝ち
-        elif span <= last_b_count_down_point:
+        elif last_b_count_down_point <= 0:
             game_results = BOB_FULLY_WON
 
         # 勝ち点差で,Ａさんの勝ち
