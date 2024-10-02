@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
+from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_simulation_large_series_log_file_path
 from library.database import get_df_selection_series_rule, EvenTable
 from library.views import stringify_simulation_log
@@ -30,58 +30,11 @@ def simulate_series_rule(spec, trials_series, h_step, t_step, span, presentable,
         return
 
 
-    list_of_trial_results_for_one_series = []
-
-    for round in range(0, trials_series):
-
-        # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-        list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
-                spec=spec,
-                upper_limit_coins=series_rule.upper_limit_coins)
-
-        # FIXME 検証
-        if len(list_of_face_of_coin) < series_rule.shortest_coins:
-            text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
-            print(f"""{text}
-{list_of_face_of_coin=}
-{series_rule.upper_limit_coins=}
-""")
-            raise ValueError(text)
-
-
-        # ［シリーズ］１つ分の試行結果を返す
-        trial_results_for_one_series = judge_series(
-                spec=spec,
-                series_rule=series_rule,
-                list_of_face_of_coin=list_of_face_of_coin)
-        #print(f"{trial_results_for_one_series.stringify_dump()}")
-
-        
-        if trial_results_for_one_series.number_of_coins < series_rule.shortest_coins:
-            text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.shortest_coins} を下回った"
-            print(f"""{text}
-{list_of_face_of_coin=}
-{series_rule.upper_limit_coins=}
-{trial_results_for_one_series.stringify_dump('   ')}
-""")
-            raise ValueError(text)
-
-        if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
-            text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.upper_limit_coins} を上回った"
-            print(f"""{text}
-{list_of_face_of_coin=}
-{series_rule.shortest_coins=}
-{trial_results_for_one_series.stringify_dump('   ')}
-""")
-            raise ValueError(text)
-
-
-        list_of_trial_results_for_one_series.append(trial_results_for_one_series)
-
-
-    # ［大量のシリーズを試行した結果］
-    large_series_trial_summary = LargeSeriesTrialSummary(
-            list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
+    # シミュレーションします
+    large_series_trial_summary = simulate_series(
+            spec=spec,
+            series_rule=series_rule,
+            specified_trials_series=trials_series)
 
 
     text = stringify_simulation_log(

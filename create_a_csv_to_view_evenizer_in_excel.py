@@ -10,54 +10,10 @@
 import traceback
 import datetime
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_even_view_csv_file_path
 from library.database import EvenTable, EvenRecord
 from library.views import KakukinViewerInExcel
-
-
-def simulate_series(spec, series_rule, specified_trials_series):
-    """シリーズをシミュレーションします
-    
-    Returns
-    -------
-    large_series_trial_summary : LargeSeriesTrialSummary
-        シミュレーション結果
-    """
-    list_of_trial_results_for_one_series = []
-
-    # シミュレーション
-    for round in range(0, specified_trials_series):
-
-        # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-        list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
-                spec=spec,
-                upper_limit_coins=series_rule.upper_limit_coins)
-
-        # FIXME 検証
-        if len(list_of_face_of_coin) < series_rule.shortest_coins:
-            text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
-            print(f"""{text}
-{list_of_face_of_coin=}
-{series_rule.upper_limit_coins=}
-""")
-            raise ValueError(text)
-
-
-        # ［シリーズ］１つ分の試行結果を返す
-        trial_results_for_one_series = judge_series(
-                spec=spec,
-                series_rule=series_rule,
-                list_of_face_of_coin=list_of_face_of_coin)
-
-        list_of_trial_results_for_one_series.append(trial_results_for_one_series)
-
-
-    # ［大量のシリーズを試行した結果］
-    large_series_trial_summary = LargeSeriesTrialSummary(
-            list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
-
-    return large_series_trial_summary
 
 
 def automatic(specified_failure_rate, specified_turn_system, specified_trials_series):
