@@ -2106,12 +2106,24 @@ class ScoreBoard():
         round_list.append(['S', '', '', a_point, b_point])
 
         for round_th, face_of_coin in enumerate(list_of_face_of_coin, 1):
+            # 最後のラウンドについて
             last_round = round_list[-1]
 
-            if last_round[1] in ['', 'B']:
+            # 表番がどちらか？
+            #
+            # ［先後固定制］では表番はずっとＡさん
+            if spec.turn_system == FROZEN_TURN:
                 head_player = 'A'
+
+            # ［先後交互制］では、表番は１局ごとに入れ替えます
+            elif spec.turn_system == ALTERNATING_TURN:
+                if last_round[1] in ['', 'B']:
+                    head_player = 'A'
+                else:
+                    head_player = 'B'
+            
             else:
-                head_player = 'B'
+                raise ValueError(f"{spec.turn_system=}")
 
             face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
 

@@ -68,7 +68,7 @@ ValueError: 両者が満点はおかしい list_of_round_number_str=['', 'S', 1,
 
 # 2024-10-02 14:47 両者が満点バグ
 
-* [ ] ［先後固定制］なのに、表番が入れ替わってる
+* [x] ［先後固定制］なのに、表番が入れ替わってる ----> 修正
 
 ```
 [unexpected error] err=ValueError("両者が満点はおかしい list_of_round_number_str=[
