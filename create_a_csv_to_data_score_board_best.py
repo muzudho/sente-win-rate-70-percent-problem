@@ -11,7 +11,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, Converter, Specification, ThreeRates
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
 from library.file_paths import get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 from library.database import ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 
@@ -45,7 +45,7 @@ def automatic(spec):
     best_csv_file_path = get_score_board_data_best_csv_file_path()
 
 
-    best_record = ScoreBoardDataBestRecord.create_none_record()
+    best_record = ScoreBoardDataBestTable.create_none_record()
 
     # a_win_rate と EVEN の誤差
     best_win_rate_error = ABS_OUT_OF_ERROR
@@ -62,7 +62,7 @@ def automatic(spec):
         if key_b.any():
             best_record = ScoreBoardDataBestTable.get_record_by_key(df=df_b, key=key_b)
 
-            best_win_rate_error = best_record.a_win_rate - EVEN
+            best_win_rate_error = best_record.three_rates.a_win_rate - EVEN
 
 
     # ファイルが存在しなかったなら、空データフレーム作成
@@ -77,7 +77,7 @@ def automatic(spec):
 
         if abs(error) < abs(best_win_rate_error):
             is_update = True
-        elif error == best_win_rate_error and (best_record.no_win_match_rate is None or no_win_match_rate < best_record.no_win_match_rate):
+        elif error == best_win_rate_error and (best_record.three_rates.no_win_match_rate is None or no_win_match_rate < best_record.three_rates.no_win_match_rate):
             is_update = True
         else:
             is_update = False
