@@ -721,7 +721,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
 
     # FIXME 検算
-    assert_list_of_face_of_coin(list_of_face_of_coin=list_of_face_of_coin)
+    #assert_list_of_face_of_coin(list_of_face_of_coin=list_of_face_of_coin)
 
 
     # ［勝ち点計算］

@@ -7,12 +7,17 @@
 
 import traceback
 import os
+import time
 import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
 from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
+
+
+# CSV保存間隔（秒）
+INTERVAL_SECONDS_FOR_SAVE_CSV = 60
 
 
 def automatic(turn_system, failure_rate, p):
@@ -49,6 +54,11 @@ def automatic(turn_system, failure_rate, p):
         pass
 
 
+    # CSV保存用タイマー
+    start_time_for_save = time.time()
+    number_of_dirty = 0
+    number_of_skip = 0
+
     turn_system_str = Converter.turn_system_to_code(spec.turn_system)
 
 
@@ -56,10 +66,31 @@ def automatic(turn_system, failure_rate, p):
     for span in range(1, 100):
 
         # ［後手で勝ったときの勝ち点］
-        for t_step in range(1, span + 1):
+        over_t_step = min(span + 1, 11)     # FIXME 時間がかかりすぎるので上限を作っておく
+        for t_step in range(1, over_t_step):
 
             # ［先手で勝ったときの勝ち点］
             for h_step in range(1, t_step + 1):
+
+                # 指定間隔（秒）で保存
+                end_time_for_save = time.time()
+                if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
+                    start_time_for_save = end_time_for_save
+                    print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] skip={number_of_skip}")
+                    number_of_skip = 0
+
+                    # 変更があれば保存
+                    if 0 < number_of_dirty:
+                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] dirty={number_of_dirty} write file to `{csv_file_path}` ...")
+                        number_of_dirty = 0
+
+                        # スパン１つごとに、
+                        # CSVファイルへ書き出し
+                        df.to_csv(csv_file_path,
+                                # ［計算過程］列は長くなるので末尾に置きたい
+                                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+                                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
 
                 # FIXME 便宜的に［試行シリーズ数］は 1 固定
                 trials_series = 1
@@ -77,6 +108,7 @@ def automatic(turn_system, failure_rate, p):
 
                 # データが既存ならスキップ
                 if key.any():
+                    number_of_skip += 1
                     continue
 
                 # 確率を求める
@@ -97,14 +129,7 @@ def automatic(turn_system, failure_rate, p):
                 df.loc[index, ['b_win_rate']] = b_win_rate
                 df.loc[index, ['no_win_match_rate']] = no_win_match_rate
 
-        # TODO 時間で間隔指定して保存したい
-        # スパン１つごとに、
-        # CSVファイルへ書き出し
-        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] write file to `{csv_file_path}` ...")
-        df.to_csv(csv_file_path,
-                # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
-                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+                number_of_dirty += 1
 
 
 ########################################
@@ -120,7 +145,7 @@ if __name__ == '__main__':
         for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
             # ［将棋の引分け率］
-            for failure_rate_percent in range(0, 100):
+            for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
                 failure_rate = failure_rate_percent / 100
 
                 # ［将棋の先手勝率］

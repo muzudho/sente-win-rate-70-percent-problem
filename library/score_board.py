@@ -22,14 +22,9 @@ def search_all_score_boards(series_rule, on_score_board_created):
     distinct_set = set()
 
 
+    # list_of_all_pattern_face_of_coin は、上限対局数の長さ
     for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
         #print(f"動作テスト {list_of_face_of_coin=}")
-
-        #
-        # 到達できない棋譜は除去しておきたい
-        #
-
-        #old_number_of_coins = len(list_of_face_of_coin)
 
         # 最短対局数を下回る対局シートはスキップします
         if len(list_of_face_of_coin) < series_rule.shortest_coins:
