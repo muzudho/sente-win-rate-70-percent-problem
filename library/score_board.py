@@ -4,9 +4,9 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard, ThreeRates
 from library.file_paths import get_score_board_view_csv_file_path
-from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer
+from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body
 
 
 def search_all_score_boards(series_rule, on_score_board_created):
@@ -76,8 +76,8 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
 
     all_patterns_p = 0
-    a_win_rate = 0
-    b_win_rate = 0
+    a_win_rate_with_draw = 0
+    b_win_rate_with_draw = 0
     no_win_match_rate = 0
 
 
@@ -98,12 +98,12 @@ def search_all_score_boards(series_rule, on_score_board_created):
         # 満点で,Ａさんの勝ち
         # 勝ち点差で,Ａさんの勝ち
         if score_board.game_results == ALICE_FULLY_WON or score_board.game_results == ALICE_POINTS_WON:
-            a_win_rate += score_board.pattern_p
+            a_win_rate_with_draw += score_board.pattern_p
 
         # 満点で,Ｂさんの勝ち
         # 勝ち点差で,Ｂさんの勝ち
         elif score_board.game_results == BOB_FULLY_WON or score_board.game_results == BOB_POINTS_WON:
-            b_win_rate += score_board.pattern_p
+            b_win_rate_with_draw += score_board.pattern_p
         
         # 勝者なし
         elif score_board.game_results == NO_WIN_MATCH:
@@ -113,4 +113,8 @@ def search_all_score_boards(series_rule, on_score_board_created):
             raise ValueError(f"{score_board.game_results=}")
 
     
-    return a_win_rate, b_win_rate, no_win_match_rate, all_patterns_p
+    three_rates = ThreeRates.create_three_rates(
+            a_win_rate=(1 - no_win_match_rate) * a_win_rate_with_draw,
+            b_win_rate=(1 - no_win_match_rate) * b_win_rate_with_draw,
+            no_win_match_rate=no_win_match_rate)
+    return three_rates, all_patterns_p

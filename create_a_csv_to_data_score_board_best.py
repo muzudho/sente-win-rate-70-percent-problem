@@ -11,7 +11,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, Converter, Specification, ThreeRates
 from library.file_paths import get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 from library.database import ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 
@@ -45,21 +45,10 @@ def automatic(spec):
     best_csv_file_path = get_score_board_data_best_csv_file_path()
 
 
-    best_record = ScoreBoardDataBestRecord(
-            turn_system_str=None,
-            failure_rate=None,
-            p=None,
-            span=None,
-            t_step=None,
-            h_step=None,
-            shortest_coins=None,
-            upper_limit_coins=None,
-            a_win_rate=None,
-            b_win_rate=None,
-            no_win_match_rate=100.1)
+    best_record = ScoreBoardDataBestRecord.create_none_record()
 
-    # a_win_rate と b_win_rate の誤差
-    best_win_rate_error = 100.1
+    # a_win_rate と EVEN の誤差
+    best_win_rate_error = ABS_OUT_OF_ERROR
 
 
     # ファイルが存在したなら、読込
@@ -73,7 +62,7 @@ def automatic(spec):
         if key_b.any():
             best_record = ScoreBoardDataBestTable.get_record_by_key(df=df_b, key=key_b)
 
-            best_win_rate_error = best_record.b_win_rate - best_record.a_win_rate
+            best_win_rate_error = best_record.a_win_rate - EVEN
 
 
     # ファイルが存在しなかったなら、空データフレーム作成
@@ -81,14 +70,14 @@ def automatic(spec):
         df_b = ScoreBoardDataBestTable.new_data_frame()
 
 
-    for           turn_system_str,       failure_rate,         p,         span,         t_step,         h_step,         shortest_coins,         upper_limit_coins,         a_win_rate,         b_win_rate,         no_win_match_rate in\
-        zip(df_d['turn_system']  , df_d['failure_rate'], df_d['p'], df_d['span'], df_d['t_step'], df_d['h_step'], df_d['shortest_coins'], df_d['upper_limit_coins'], df_d['a_win_rate'], df_d['b_win_rate'], df_d['no_win_match_rate']):
+    for           turn_system_str,       failure_rate,         p,         span,         t_step,         h_step,         shortest_coins,         upper_limit_coins,         a_win_rate,         no_win_match_rate in\
+        zip(df_d['turn_system']  , df_d['failure_rate'], df_d['p'], df_d['span'], df_d['t_step'], df_d['h_step'], df_d['shortest_coins'], df_d['upper_limit_coins'], df_d['a_win_rate'], df_d['no_win_match_rate']):
 
-        error = b_win_rate - a_win_rate
+        error = a_win_rate - EVEN
 
         if abs(error) < abs(best_win_rate_error):
             is_update = True
-        elif error == best_win_rate_error and no_win_match_rate < best_record.no_win_match_rate:
+        elif error == best_win_rate_error and (best_record.no_win_match_rate is None or no_win_match_rate < best_record.no_win_match_rate):
             is_update = True
         else:
             is_update = False
@@ -105,9 +94,9 @@ def automatic(spec):
                     h_step=h_step,
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
-                    a_win_rate=a_win_rate,
-                    b_win_rate=b_win_rate,
-                    no_win_match_rate=no_win_match_rate)
+                    three_rates=ThreeRates(
+                            a_win_rate=a_win_rate,
+                            no_win_match_rate=no_win_match_rate))
 
 
     if best_record.turn_system_str is not None:

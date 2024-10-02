@@ -104,6 +104,23 @@ OUT_OF_P = 1.01
 ABS_OUT_OF_ERROR = 0.51
 
 
+# 五分五分
+EVEN = 0.5
+
+
+# ほぼ 1
+#
+#   これは、［ほぼ］ではなく 1 なのに、２進数が割り切れない都合で 0.9999999999999984 になってしまうケースを 1 と判定したいときがある
+#
+def is_almost_one(rate):
+    return 0.9999999999 <= rate and rate <= 1.00000000001
+
+
+# ほぼ五分五分
+def is_almost_even(rate):
+    return 0.4999999999 <= rate and rate <= 0.50000000001
+
+
 class Converter():
     """変換する機能まとめ"""
 
@@ -2080,7 +2097,7 @@ class ScoreBoard():
         q_with_draw = (1 - spec.failure_rate) * (1 - spec.p)
         sum_rate = p_with_draw + q_with_draw + spec.failure_rate
         # NOTE 誤差が出てしまうので、ぴったり 1 にはならない。有効桁数を決めておく
-        if not (0.9999999999 <= sum_rate and sum_rate <= 1.00000000001):
+        if not is_almost_one(sum_rate):
             raise ValueError(f"誤差はあれども合計は1になるはずです {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
 
         pattern_p = 1
@@ -2284,3 +2301,56 @@ class ScoreBoard():
 {succ_indent}{self._upper_limit_coins=}
 {succ_indent}{self._list_of_face_of_coin=}
 """
+
+
+class ThreeRates():
+
+
+    def __init__(self, a_win_rate, no_win_match_rate):
+        """初期化
+
+        ［Ａさんが勝つ確率］と［Ｂさんが勝つ確率］を足すと１００％になる。
+
+        ［勝ち負けが付かない確率］は、［Ａさんが勝つ確率］、［Ｂさんが勝つ確率］とは関係なく、０～１００％で示される。
+
+        Parameters
+        ----------
+        a_win_rate : float
+            Ａさんが勝つ確率
+        no_win_match_rate : float
+            勝ち負けが付かない確率
+        """
+        self._a_win_rate = a_win_rate
+        self._no_win_match_rate = no_win_match_rate
+
+
+    @staticmethod
+    def create_three_rates(a_win_rate, b_win_rate, no_win_match_rate):
+
+        ab_win_rate = a_win_rate + b_win_rate
+        if not is_almost_one(ab_win_rate):
+            raise ValueError(f"［Ａさんの勝率］と［Ｂさんの勝率］を足したら１００％になる必要があります。 {ab_win_rate=}  {a_win_rate=}  {b_win_rate=}")
+
+        return ThreeRates(
+                a_win_rate=a_win_rate,
+                no_win_match_rate=no_win_match_rate)
+
+
+    @property
+    def a_win_rate(self):
+        return self._a_win_rate
+
+
+    @property
+    def b_win_rate(self):
+        return 1 - self._a_win_rate
+    
+
+    @property
+    def no_win_match_rate(self):
+        return self._no_win_match_rate
+
+
+    @property
+    def is_even(self):
+        return self._a_win_rate == EVEN

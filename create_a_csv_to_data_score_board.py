@@ -11,7 +11,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule, is_almost_even
 from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
 from library.database import ScoreBoardDataTable
@@ -109,7 +109,7 @@ def automatic(turn_system, failure_rate, p):
                 if key.any():
 
                     # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
-                    if df.loc[key, ['a_win_rate']].iat[0, 0] == df.loc[key, ['b_win_rate']].iat[0, 0]:
+                    if is_almost_even(df.loc[key, ['a_win_rate']].iat[0, 0]):
                         print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
 
                         # CSVファイルへ書き出し
@@ -121,7 +121,7 @@ def automatic(turn_system, failure_rate, p):
                     continue
 
                 # 確率を求める
-                a_win_rate, b_win_rate, no_win_match_rate, all_patterns_p = search_all_score_boards(
+                three_rates, all_patterns_p = search_all_score_boards(
                         series_rule=specified_series_rule,
                         on_score_board_created=on_score_board_created)
 
@@ -137,14 +137,12 @@ def automatic(turn_system, failure_rate, p):
                         h_step=h_step,
                         shortest_coins=specified_series_rule.shortest_coins,
                         upper_limit_coins=specified_series_rule.upper_limit_coins,
-                        a_win_rate=a_win_rate,
-                        b_win_rate=b_win_rate,
-                        no_win_match_rate=no_win_match_rate)
+                        three_rates=three_rates)
 
                 number_of_dirty += 1
 
                 # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
-                if a_win_rate == b_win_rate:
+                if three_rates.is_even:
                     print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
                     # CSVファイルへ書き出し
                     ScoreBoardDataTable.to_csv(df, spec)

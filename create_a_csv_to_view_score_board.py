@@ -137,7 +137,7 @@ How many goal win points? """
                 f.write(f"{csv}\n")
 
 
-        a_win_rate, b_win_rate, no_win_match_rate, all_patterns_p = search_all_score_boards(
+        three_rates, all_patterns_p = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=on_score_board_created)
 
@@ -153,9 +153,7 @@ How many goal win points? """
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(stringify_csv_of_score_board_view_footer(
-                    a_win_rate=a_win_rate,
-                    b_win_rate=b_win_rate,
-                    no_win_match_rate=no_win_match_rate,
+                    three_rates=three_rates,
                     all_patterns_p=all_patterns_p))
 
 

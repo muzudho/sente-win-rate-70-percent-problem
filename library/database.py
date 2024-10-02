@@ -5,7 +5,7 @@ import os
 import datetime
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, round_letro, Converter, ThreeRates
 from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 
 
@@ -360,12 +360,11 @@ class ScoreBoardDataTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'a_win_rate': [],
-                'b_win_rate': [],
                 'no_win_match_rate': []})
 
 
     @staticmethod
-    def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, a_win_rate, b_win_rate, no_win_match_rate):
+    def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
         index = len(df.index)
         df.loc[index, ['turn_system']] = turn_system_str
         df.loc[index, ['failure_rate']] = failure_rate
@@ -375,9 +374,8 @@ class ScoreBoardDataTable():
         df.loc[index, ['h_step']] = h_step
         df.loc[index, ['shortest_coins']] = shortest_coins
         df.loc[index, ['upper_limit_coins']] = upper_limit_coins                
-        df.loc[index, ['a_win_rate']] = a_win_rate
-        df.loc[index, ['b_win_rate']] = b_win_rate
-        df.loc[index, ['no_win_match_rate']] = no_win_match_rate
+        df.loc[index, ['a_win_rate']] = three_rates.a_win_rate
+        df.loc[index, ['no_win_match_rate']] = three_rates.no_win_match_rate
 
 
     @staticmethod
@@ -391,7 +389,7 @@ class ScoreBoardDataTable():
                 turn_system=spec.turn_system)
 
         df.to_csv(csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -399,7 +397,7 @@ class ScoreBoardDataBestRecord():
     """スコアボード・データ・ベスト・レコード"""
 
 
-    def __init__(self, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, a_win_rate, b_win_rate, no_win_match_rate):
+    def __init__(self, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
         self._turn_system_str = turn_system_str
         self._failure_rate = failure_rate
         self._p = p
@@ -408,9 +406,7 @@ class ScoreBoardDataBestRecord():
         self._h_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
-        self._a_win_rate = a_win_rate
-        self._b_win_rate = b_win_rate
-        self._no_win_match_rate = no_win_match_rate
+        self._three_rates = three_rates
 
 
     @property
@@ -454,18 +450,8 @@ class ScoreBoardDataBestRecord():
 
 
     @property
-    def a_win_rate(self):
-        return self._a_win_rate
-
-
-    @property
-    def b_win_rate(self):
-        return self._b_win_rate
-
-
-    @property
-    def no_win_match_rate(self):
-        return self._no_win_match_rate
+    def three_rates(self):
+        return self._three_rates
 
 
 class ScoreBoardDataBestTable():
@@ -484,7 +470,6 @@ class ScoreBoardDataBestTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'a_win_rate': [],
-                'b_win_rate': [],
                 'no_win_match_rate': []})
 
 
@@ -499,9 +484,7 @@ class ScoreBoardDataBestTable():
                 h_step=None,
                 shortest_coins=None,
                 upper_limit_coins=None,
-                a_win_rate=None,
-                b_win_rate=None,
-                no_win_match_rate=None)
+                three_rates=None)
 
 
     @staticmethod
@@ -515,9 +498,8 @@ class ScoreBoardDataBestTable():
         df.loc[index, ['h_step']] = record.h_step
         df.loc[index, ['shortest_coins']] = record.shortest_coins
         df.loc[index, ['upper_limit_coins']] = record.upper_limit_coins
-        df.loc[index, ['a_win_rate']] = record.a_win_rate
-        df.loc[index, ['b_win_rate']] = record.b_win_rate
-        df.loc[index, ['no_win_match_rate']] = record.no_win_match_rate
+        df.loc[index, ['a_win_rate']] = record.three_rates.a_win_rate
+        df.loc[index, ['no_win_match_rate']] = record.three_rates.no_win_match_rate
 
 
     @staticmethod
@@ -536,9 +518,9 @@ class ScoreBoardDataBestTable():
                 h_step=df.loc[key, ['h_step']].iat[0,0],
                 shortest_coins=df.loc[key, ['shortest_coins']].iat[0,0],
                 upper_limit_coins=df.loc[key, ['upper_limit_coins']].iat[0,0],
-                a_win_rate=df.loc[key, ['a_win_rate']].iat[0,0],
-                b_win_rate=df.loc[key, ['b_win_rate']].iat[0,0],
-                no_win_match_rate=df.loc[key, ['no_win_match_rate']].iat[0,0])
+                three_rates=ThreeRates(
+                        a_win_rate=df.loc[key, ['a_win_rate']].iat[0,0],
+                        no_win_match_rate=df.loc[key, ['no_win_match_rate']].iat[0,0]))
 
 
     @staticmethod
@@ -553,7 +535,7 @@ class ScoreBoardDataBestTable():
         csv_file_path = get_score_board_data_best_csv_file_path()
 
         df.to_csv(csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
