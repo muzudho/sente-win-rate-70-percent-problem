@@ -12,106 +12,21 @@ import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_even_view_csv_file_path
-from library.database import get_df_even, EvenTable
+from library.database import get_df_even, EvenRecord
+from library.views import KakukinViewerInExcel
 
 
-def stringify_header():
-    """\
-    データの構造
-    +------------------------------------------------+---------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-    | Specification                                  | Series rule                                                               | Large Series Trial Summary                                                                                                                                                                                                                              |
-    | 前提条件                                        | 大会のルール設定                                                           | シミュレーション結果                                                                                                                                                                                                                                      |
-    +---------------+------------------+-------------+-------------+-------------+-----------+---------------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-    | p             | failure_rate     | turn_system | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | trials_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                            |
-    | 将棋の先手勝率 | 将棋の引分け率    | 先後の決め方 | 先手で勝った  | 後手で勝った | シリーズ  | 最短対局数     | 上限対局数         | 試行シリーズ総数  シリーズ最短対局数      シリーズ最長対局数                                                                                                                                                                                                 |
-    | ％            | ％               |             | ときの勝ち点  | ときの勝ち点 | 勝利条件  |               |                   |                                                                                            ______________________________________________________________________________________________________________________________________________________________|
-    |               |                  |             |              |             |          |               |                   |                                                                                           | succucessful_series                                                   | failed_series                                                                       |
-    |               |                  |             |              |             |          |               |                   |                                                                                           | 引分けが起こらなかったシリーズ数                                         | 引分けが含まれたシリーズ数                                                            |
-    |               |                  |             |              |             |          |               |                   |                                                                総数                       |                                                                       |                                                                                      |
-    |               |                  |             |              |             |          |               |                   |                                                                ___________________________|                                                                       |                                                                        _____________|
-    |               |                  |             |              |             |          |               |                   |                                                               | wins_a      | wins_b      |                                                                       |                                                                        | no_wins_ab |
-    |               |                  |             |              |             |          |               |                   |                                                               | Ａさんの勝ち | Ｂさんの勝ち |             勝利条件達成                   点数差による判定勝ち          |             勝利条件達成                   点数差による判定勝ち           | 勝敗付かず  |
-    |               |                  |             |              |             |          |               |                   |                                                               | シリーズ数   | シリーズ数   |            ___________________________________________________________|           _____________________________________________________________| シリーズ数  |
-    |               |                  |             |              |             |          |               |                   |                                                               |             |             |           | s_ful_wins_a | s_ful_wins_b | s_pts_wins_a | s_pts_wins_b |           | f_ful_wins_a  | f_ful_wins_b | f_pts_wins_a | f_pts_wins_b |            |
-    |               |                  |             |              |             |          |               |                   |                                                               |             |             |           | Ａさんの勝ち  | Ｂさんの勝ち  | Ａさんの勝ち  | Ｂさんの勝ち  |            | Ａさんの勝ち  | Ｂさんの勝ち  | Ａさんの勝ち  | Ｂさんの勝ち  |             |
-    |               |                  |             |              |             |          |               |                   |                                                               |             |             |           | シリーズ数    | シリーズ数    | シリーズ数    | シリーズ数    |           | シリーズ数    | シリーズ数    | シリーズ数    | シリーズ数    |             |
-    |               |                  |             |              |             |          |               |                   |                                                               |             |             |           |              |              |              |              |            |              |              |              |              |             |
-    +---------------+------------------+-------------+--------------+-------------+----------+---------------+-------------------+---------------------------------------------------------------+-------------+-------------+-----------+--------------+--------------+--------------+--------------+------------+--------------+--------------+--------------+--------------+-------------+
+def simulate_series(spec, series_rule, specified_trials_series):
+    """シリーズをシミュレーションします
+    
+    Returns
+    -------
+    large_series_trial_summary : LargeSeriesTrialSummary
+        シミュレーション結果
     """
-
-    # CSV
-    return f"p,failure_rate,turn_system,head_step,tail_step,span,shortest_coins,upper_limit_coins,trials_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
-
-
-def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_trial_summary):
-    """データ部を文字列化
-
-    Parameters
-    ----------
-    spec : Specification
-        ［仕様］
-    """
-
-    # 変数名を縮める（Summary）
-    S = large_series_trial_summary
-
-
-    s_wins_a = S.wins(challenged=SUCCESSFUL, winner=ALICE)
-    f_wins_a = S.wins(challenged=FAILED, winner=ALICE)
-    s_wins_b = S.wins(challenged=SUCCESSFUL, winner=BOB)
-    f_wins_b = S.wins(challenged=FAILED, winner=BOB)
-
-
-    # ［前提条件］
-    str_p = f"{spec.p*100:.4f}"                                                 # ［将棋の先手勝率］ p （Probability）
-    str_failure_rate = f"{spec.failure_rate*100:.4f}"                           # ［将棋の引分け率］
-    str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system)}"      # ［手番の決め方］
-
-    # ［大会のルール設定］
-    str_head_step = f"{series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
-    str_tail_step = f"{series_rule.step_table.get_step_by(face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
-    str_span = f"{series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
-    str_shortest_coins = f"{series_rule.shortest_coins}"                        # ［最短対局数］
-    str_upper_limit_coins = f"{series_rule.upper_limit_coins}"                  # ［上限対局数］
-                                                                                # NOTE ルール設定を求めたときの試行回数も記録しようかと思ったが、作り方についてそんなに信用できる記録でもないので止めた
-
-    # ［シミュレーション結果］
-    str_trials_series = f"{S.total}"                                             # ［試行シリーズ総数］
-    str_series_shortest_coins = f"{S.series_shortest_coins}"                    # ［シリーズ最短局数］
-    str_series_longest_coins = f"{S.series_longest_coins}"                      # ［シリーズ最長局数］
-    str_wins_a = f"{s_wins_a + f_wins_a}"                                       # ［Ａさんの勝ちシリーズ数］
-    str_wins_b = f"{s_wins_b + f_wins_b}"                                       # ［Ｂさんの勝ちシリーズ数］
-    str_succucessful_series = f"{S.successful_series}"                          # ［引分けが起こらなかったシリーズ数］
-    str_s_ful_wins_a = f"{S.ful_wins(challenged=SUCCESSFUL, winner=ALICE)}"     # ［引分けが起こらなかったシリーズ＞勝利条件達成＞Ａさんの勝ち］
-    str_s_ful_wins_b = f"{S.ful_wins(challenged=SUCCESSFUL, winner=BOB)}"       # ［引分けが起こらなかったシリーズ＞勝利条件達成＞Ｂさんの勝ち］
-    str_s_pts_wins_a = f"{S.pts_wins(challenged=SUCCESSFUL, winner=ALICE)}"     # ［引分けが起こらなかったシリーズ＞点数差による判定勝ち＞Ａさんの勝ち］
-    str_s_pts_wins_b = f"{S.pts_wins(challenged=SUCCESSFUL, winner=BOB)}"       # ［引分けが起こらなかったシリーズ＞点数差による判定勝ち＞Ｂさんの勝ち］
-    str_failed_series = f"{S.failed_series}"                                    # ［引分けが含まれたシリーズ数］
-    str_f_ful_wins_a = f"{S.ful_wins(challenged=FAILED, winner=ALICE)}"         # ［引分けが含まれたシリーズ＞勝利条件達成＞Ａさんの勝ち］
-    str_f_ful_wins_b = f"{S.ful_wins(challenged=FAILED, winner=BOB)}"           # ［引分けが含まれたシリーズ＞勝利条件達成＞Ｂさんの勝ち］
-    str_f_pts_wins_a = f"{S.pts_wins(challenged=FAILED, winner=ALICE)}"         # ［引分けが含まれたシリーズ＞点数差による判定勝ち＞Ａさんの勝ち］
-    str_f_pts_wins_b = f"{S.pts_wins(challenged=FAILED, winner=BOB)}"           # ［引分けが含まれたシリーズ＞点数差による判定勝ち＞Ｂさんの勝ち］
-    str_no_wins_ab = f"{S.no_wins}"                                             # ［勝敗付かずシリーズ数］
-
-
-    # CSV
-    return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_trials_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
-
-
-def show_series_rule(spec, specified_trials_series, h_step, t_step, span, presentable, comment):
-    """［シリーズ・ルール］を表示します"""
-
-    # ［シリーズ・ルール］。任意に指定します
-    series_rule = SeriesRule.make_series_rule_base(
-            spec=spec,
-            trials_series=specified_trials_series,
-            h_step=h_step,
-            t_step=t_step,
-            span=span)
-
-
     list_of_trial_results_for_one_series = []
 
+    # シミュレーション
     for round in range(0, specified_trials_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
@@ -142,26 +57,11 @@ def show_series_rule(spec, specified_trials_series, h_step, t_step, span, presen
     large_series_trial_summary = LargeSeriesTrialSummary(
             list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
-
-    csv = stringify_csv_of_body(
-            spec=spec,
-            series_rule=series_rule,
-            presentable=presentable,
-            comment=comment,
-            large_series_trial_summary=large_series_trial_summary)
-
-
-    print(csv) # 表示
-
-    # ログ出力
-    csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
-    print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
-    with open(csv_file_path, 'a', encoding='utf8') as f:
-        f.write(f"{csv}\n")    # ファイルへ出力
+    return large_series_trial_summary
 
 
 def automatic(specified_failure_rate, specified_turn_system, specified_trials_series):
-    header_csv = stringify_header()
+    header_csv = KakukinViewerInExcel.stringify_header()
 
     print(header_csv) # 表示
 
@@ -204,10 +104,12 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
             continue
 
         if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-            print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
+            print(f"[{p=} {failure_rate=}] ベスト値が設定されていません。スキップします")
             continue
 
-        even_table = EvenTable(
+
+        # レコード作成
+        even_record = EvenRecord(
                 p=p,
                 failure_rate=failure_rate,
                 turn_system=turn_system,
@@ -224,20 +126,47 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
                 latest_span=latest_span,
                 candidates=candidates)
 
+
         # 仕様
         spec = Specification(
                 p=p,
                 failure_rate=failure_rate,
                 turn_system=specified_turn_system)
 
-        show_series_rule(
+
+        # ［シリーズ・ルール］
+        series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                specified_trials_series=specified_trials_series,
-                h_step=even_table.best_h_step,
-                t_step=even_table.best_t_step,
-                span=even_table.best_span,
+                trials_series=specified_trials_series,
+                h_step=even_record.best_h_step,
+                t_step=even_record.best_t_step,
+                span=even_record.best_span)
+
+
+        # シミュレーションします
+        large_series_trial_summary = simulate_series(
+                spec=spec,
+                series_rule=series_rule,
+                specified_trials_series=specified_trials_series)
+
+
+        # CSV作成
+        csv = KakukinViewerInExcel.stringify_csv_of_body(
+                spec=spec,
+                series_rule=series_rule,
                 presentable='',
-                comment='')
+                comment='',
+                large_series_trial_summary=large_series_trial_summary)
+
+        print(csv) # 表示
+
+        # ログ出力
+        csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
+        print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
+        with open(csv_file_path, 'a', encoding='utf8') as f:
+            f.write(f"{csv}\n")    # ファイルへ出力
+
+
 
 
 ########################################

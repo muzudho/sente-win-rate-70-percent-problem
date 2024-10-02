@@ -9,7 +9,7 @@ import traceback
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import get_df_selection_series_rule, get_df_even, EvenTable, SelectionSeriesRuleTable
+from library.database import get_df_selection_series_rule, get_df_even, EvenRecord, SelectionSeriesRuleTable
 
 
 def stringify_header(turn_system):
@@ -172,10 +172,10 @@ Which one(1-2)? """
                 continue
 
             if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-                print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
+                print(f"[p={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
                 continue
 
-            even_table = EvenTable(
+            even_record = EvenRecord(
                     p=p,
                     failure_rate=failure_rate,
                     trials_series=trials_series,
@@ -200,9 +200,9 @@ Which one(1-2)? """
             show_series_rule(
                     spec=spec,
                     trials_series=trials_series,
-                    h_step=even_table.best_h_step,
-                    t_step=even_table.best_t_step,
-                    span=even_table.best_span,
+                    h_step=even_record.best_h_step,
+                    t_step=even_record.best_t_step,
+                    span=even_record.best_span,
                     presentable='',
                     comment='')
 
