@@ -66,22 +66,21 @@ def automatic(spec):
         df_b = pd.read_csv(best_csv_file_path, encoding="utf8")
 
         # （書き込むファイルの）該当レコードのキー
-        key_best = (df_b['turn_system']==turn_system_str) & (df_b['failure_rate']==spec.failure_rate) & (df_b['p']==spec.p)
+        key_b = (df_b['turn_system']==turn_system_str) & (df_b['failure_rate']==spec.failure_rate) & (df_b['p']==spec.p)
 
         # データが既存なら、取得
-        if key_best.any():
-            best_turn_system_str = df_b['turn_system'].iat[0,0]
-            best_failure_rate = df_b['failure_rate'].iat[0,0]
-            best_p = df_b['p'].iat[0,0]
-            best_span = df_b['span'].iat[0,0]
-            best_t_step = df_b['t_step'].iat[0,0]
-            best_h_step = df_b['h_step'].iat[0,0]
-            best_a_win_rate = df_b['a_win_rate'].iat[0,0]
-            best_b_win_rate = df_b['b_win_rate'].iat[0,0]
-            best_no_win_match_rate = df_b['no_win_match_rate'].iat[0,0]
+        if key_b.any():
+            best_turn_system_str = df_b.loc[key_b, ['turn_system']].iat[0,0]
+            best_failure_rate = df_b.loc[key_b, ['failure_rate']].iat[0,0]
+            best_p = df_b.loc[key_b, ['p']].iat[0,0]
+            best_span = df_b.loc[key_b, ['span']].iat[0,0]
+            best_t_step = df_b.loc[key_b, ['t_step']].iat[0,0]
+            best_h_step = df_b.loc[key_b, ['h_step']].iat[0,0]
+            best_a_win_rate = df_b.loc[key_b, ['a_win_rate']].iat[0,0]
+            best_b_win_rate = df_b.loc[key_b, ['b_win_rate']].iat[0,0]
+            best_no_win_match_rate = df_b.loc[key_b, ['no_win_match_rate']].iat[0,0]
 
             best_win_rate_error = best_b_win_rate - best_a_win_rate
-            best_no_win_match_rate = no_win_match_rate
 
 
     # ファイルが存在しなかったなら、空データフレーム作成
@@ -139,7 +138,7 @@ def automatic(spec):
         df_b.loc[index, ['b_win_rate']] = best_b_win_rate
         df_b.loc[index, ['no_win_match_rate']] = best_no_win_match_rate
 
-        print(f"[{datetime.datetime.now()}] write a csv to `{best_csv_file_path}` file ...")
+        print(f"[{datetime.datetime.now()}][turn_system={best_turn_system_str}  failure_rate={best_failure_rate}  p={best_p}] write a csv to `{best_csv_file_path}` file ...")
         df_b.to_csv(best_csv_file_path,
                 columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた

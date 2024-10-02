@@ -177,16 +177,16 @@ if __name__ == '__main__':
             # リセット
             number_of_not_terminated = 0
 
-            # ［先後の決め方］
-            for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
+            # ［将棋の引分け率］
+            for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
+                failure_rate = failure_rate_percent / 100
 
-                # ［将棋の引分け率］
-                for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
-                    failure_rate = failure_rate_percent / 100
+                # ［将棋の先手勝率］
+                for p_percent in range(50, 96):
+                    p = p_percent / 100
 
-                    # ［将棋の先手勝率］
-                    for p_percent in range(50, 96):
-                        p = p_percent / 100
+                    # ［先後の決め方］
+                    for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
                         is_terminated = automatic(turn_system=turn_system, failure_rate=failure_rate, p=p)
                         if not is_terminated:

@@ -152,7 +152,8 @@ def get_score_board_data_csv_file_path(p, failure_rate, turn_system):
 #######################
 
 def get_score_board_data_best_csv_file_path():
-    return f'output/score_board_data_best.csv'
+    # データ・フォルダーの方に置く
+    return f'data/score_board_data_best.csv'
 
 
 ##################
