@@ -143,7 +143,8 @@ def get_score_board_data_log_file_path(p, failure_rate, turn_system):
 
 def get_score_board_data_csv_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    return f'output/score_board_data{subname}.csv'
+    # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
+    return f'logs/score_board_data{subname}.csv'
 
 
 ##################
