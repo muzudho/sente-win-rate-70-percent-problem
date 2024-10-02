@@ -541,6 +541,38 @@ class ScoreBoardDataBestTable():
 
 
     @staticmethod
+    def get_df():
+        """
+        """
+
+        csv_file_path = get_score_board_data_best_csv_file_path()
+
+        # ファイルが存在しなかった場合
+        if not os.path.isfile(csv_file_path):
+            # 同じ処理
+            csv_file_path = get_score_board_data_best_csv_file_path()
+
+
+        df = pd.read_csv(csv_file_path, encoding="utf8")
+
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['turn_system'].fillna(0).astype('object')    # string 型は無い？
+        df['failure_rate'].astype('float64')
+        df['p'].fillna(0.0).astype('float64')
+        df['span'].fillna(0).astype('int64')
+        df['t_step'].fillna(0).astype('int64')
+        df['h_step'].fillna(0).astype('int64')
+        df['shortest_coins'].fillna(0).astype('int64')
+        df['upper_limit_coins'].fillna(0).astype('int64')
+        df['a_win_rate'].fillna(0.0).astype('float64')
+        df['no_win_match_rate'].fillna(0.0).astype('float64')
+
+        return df
+
+
+    @staticmethod
     def get_record_by_key(df, key):
         """
         Returns
@@ -577,3 +609,38 @@ class ScoreBoardDataBestTable():
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
+
+
+    @staticmethod
+    def for_each(df, on_each):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            even の表
+        """
+        for         turn_system,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       a_win_rate,       no_win_match_rate in\
+            zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['a_win_rate'], df['no_win_match_rate']):
+
+            # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+            span = round_letro(span)
+            t_step = round_letro(t_step)
+            h_step = round_letro(h_step)
+            shortest_coins = round_letro(shortest_coins)
+            upper_limit_coins = round_letro(upper_limit_coins)
+
+            # レコード作成
+            even_record = ScoreBoardDataBestRecord(
+                    turn_system_str=turn_system,
+                    failure_rate=failure_rate,
+                    p=p,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    three_rates=ThreeRates(
+                            a_win_rate=a_win_rate,
+                            no_win_match_rate=no_win_match_rate))
+
+            on_each(even_record)
