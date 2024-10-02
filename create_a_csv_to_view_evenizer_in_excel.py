@@ -12,7 +12,7 @@ import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_even_view_csv_file_path
-from library.database import get_df_even, EvenRecord
+from library.database import EvenTable, EvenRecord
 from library.views import KakukinViewerInExcel
 
 
@@ -90,47 +90,28 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         raise ValueError(f"{generation_algorythm=}")
 
 
-    df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    df_ev = EvenTable.get_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
-    for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-        zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
+
+    def on_each(even_record):
 
         # 対象外のものはスキップ　［将棋の引分け率］
-        if specified_failure_rate != failure_rate:
-            continue
+        if specified_failure_rate != even_record.failure_rate:
+            return
 
         # 対象外のものはスキップ　［試行シリーズ数］
-        if specified_trials_series != trials_series:
-            continue
+        if specified_trials_series != even_record.trials_series:
+            return
 
-        if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-            print(f"[{p=} {failure_rate=}] ベスト値が設定されていません。スキップします")
-            continue
-
-
-        # レコード作成
-        even_record = EvenRecord(
-                p=p,
-                failure_rate=failure_rate,
-                turn_system=turn_system,
-                trials_series=trials_series,
-                best_p=best_p,
-                best_p_error=best_p_error,
-                best_h_step=best_h_step,
-                best_t_step=best_t_step,
-                best_span=best_span,
-                latest_p=latest_p,
-                latest_p_error=latest_p_error,
-                latest_h_step=latest_h_step,
-                latest_t_step=latest_t_step,
-                latest_span=latest_span,
-                candidates=candidates)
+        if even_record.best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+            print(f"[p={even_record.p}  failure_rate={even_record.failure_rate}] ベスト値が設定されていません。スキップします")
+            return
 
 
         # 仕様
         spec = Specification(
-                p=p,
-                failure_rate=failure_rate,
+                p=even_record.p,
+                failure_rate=even_record.failure_rate,
                 turn_system=specified_turn_system)
 
 
@@ -167,6 +148,8 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
             f.write(f"{csv}\n")    # ファイルへ出力
 
 
+    EvenTable.for_each(df=df_ev, on_each=on_each)
+
 
 
 ########################################
@@ -179,14 +162,15 @@ if __name__ == '__main__':
     try:
         # ［将棋の先手勝率］を尋ねます
         prompt = f"""\
-What is the failure rate?
+
 Example: 10% is 0.1
-? """
+What is the failure rate? """
         specified_failure_rate = float(input(prompt))
 
 
         # ［先後の決め方］を尋ねます
         prompt = f"""\
+
 (1) Frozen turn
 (2) Alternating turn
 Which one(1-2)? """
@@ -204,7 +188,6 @@ Which one(1-2)? """
 
         # ［試行シリーズ数］を尋ねる
         prompt = f"""\
-How many times do you want to try the series?
 
 (0) Try       2 series
 (1) Try      20 series
@@ -215,7 +198,7 @@ How many times do you want to try the series?
 (6) Try 2000000 series
 
 Example: 3
-(0-6)? """
+How many times do you want to try the series(0-6)? """
         precision = int(input(prompt))
         specified_trials_series = Converter.precision_to_trials_series(precision)
 

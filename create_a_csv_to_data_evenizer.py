@@ -15,7 +15,7 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, OUT_OF_P, ABS_OUT_OF_ERROR, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
-from library.database import append_default_record_to_df_even, get_df_even, get_df_p, df_even_to_csv
+from library.database import EvenTable, get_df_p
 from library.views import print_even_series_rule
 
 
@@ -98,7 +98,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
                     failure_rate=specified_failure_rate,
                     turn_system=turn_system)
             
-            append_default_record_to_df_even(
+            EvenTable.append_default_record(
                     df=df,
                     spec=spec,
                     trials_series=specified_trials_series)
@@ -106,7 +106,7 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
 
     if is_append_new_record:
         # CSV保存
-        df_even_to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+        EvenTable.to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
 def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_lower_limit_of_error, generation_algorythm, passage_upper_limit):
@@ -336,7 +336,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -403,7 +403,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                df_even_to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
     return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
@@ -413,7 +413,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
     global start_time_for_save, is_dirty_csv
 
-    df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    df_ev = EvenTable.get_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
     #print(df_ev)
 
 
@@ -523,7 +523,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
         # 最後に CSV保存
         print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-        df_even_to_csv(df=df_ev, failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+        EvenTable.to_csv(df=df_ev, failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
 ########################################

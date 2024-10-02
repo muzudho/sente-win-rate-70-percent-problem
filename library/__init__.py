@@ -152,14 +152,30 @@ class Converter():
         return clazz._turn_system_to_readable[turn_system]
 
 
-    _turn_system_to_code = {
-        FROZEN_TURN : 'frozen',
-        ALTERNATING_TURN : 'alternating',
-    }
+    _turn_system_to_code = None
 
     @classmethod
     def turn_system_to_code(clazz, turn_system):
+        if clazz._turn_system_to_code is None:
+            clazz._turn_system_to_code = {
+                FROZEN_TURN : 'frozen',
+                ALTERNATING_TURN : 'alternating',
+            }
+
         return clazz._turn_system_to_code[turn_system]
+
+
+    _code_to_turn_system = None
+
+    @classmethod
+    def code_to_turn_system(clazz, code):
+        if clazz._code_to_turn_system is None:
+            clazz._code_to_turn_system = {
+                'frozen' : FROZEN_TURN,
+                'alternating' : ALTERNATING_TURN,
+            }
+
+        return clazz._code_to_turn_system[code]
 
 
     # 反対

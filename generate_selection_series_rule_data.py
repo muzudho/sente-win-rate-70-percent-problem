@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, round_letro, Candidate
 from library.file_paths import get_selection_series_rule_csv_file_path
-from library.database import get_df_even, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
+from library.database import EvenTable, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -46,7 +46,7 @@ def ready_records(df, specified_failure_rate, specified_turn_system):
 
 def generate_data(specified_failure_rate, specified_turn_system, generation_algorythm):
 
-    df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+    df_ev = EvenTable.get_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
     df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
     # まず、行の存在チェック。無ければ追加
