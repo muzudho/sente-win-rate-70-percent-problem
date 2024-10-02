@@ -5,7 +5,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
-from library.file_paths import get_score_board_view_log_file_path, get_score_board_view_csv_file_path
+from library.file_paths import get_score_board_view_csv_file_path
 from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer
 
 
@@ -69,7 +69,7 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
         # 既に処理済みのものはスキップ
         if id in distinct_set:
-            print(f"スキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
+            #print(f"スキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
             continue
 
         distinct_set.add(id)
@@ -80,7 +80,7 @@ def search_all_score_boards(series_rule, on_score_board_created):
     all_patterns_p = 0
     a_win_rate = 0
     b_win_rate = 0
-    no_win_rate = 0
+    no_win_match_rate = 0
 
 
     for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
@@ -109,10 +109,10 @@ def search_all_score_boards(series_rule, on_score_board_created):
         
         # 勝者なし
         elif score_board.game_results == NO_WIN_MATCH:
-            no_win_rate += score_board.pattern_p
+            no_win_match_rate += score_board.pattern_p
         
         else:
             raise ValueError(f"{score_board.game_results=}")
 
     
-    return a_win_rate, b_win_rate, no_win_rate, all_patterns_p
+    return a_win_rate, b_win_rate, no_win_match_rate, all_patterns_p

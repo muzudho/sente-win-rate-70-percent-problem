@@ -6,15 +6,105 @@
 #
 
 import traceback
-import random
-import math
-
+import os
+import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
-from library.file_paths import get_score_board_data_log_file_path, get_score_board_data_csv_file_path
-from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
+from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
+
+
+def automatic(turn_system, failure_rate, p):
+    # 仕様
+    spec = Specification(
+            p=p,
+            failure_rate=failure_rate,
+            turn_system=turn_system)
+
+    # CSVファイルパス
+    csv_file_path = get_score_board_data_csv_file_path(
+            p=spec.p,
+            failure_rate=spec.failure_rate,
+            turn_system=spec.turn_system)
+
+    # ファイルが存在したなら、読込
+    if os.path.isfile(csv_file_path):
+        df = pd.read_csv(csv_file_path, encoding="utf8")
+
+    # ファイルが存在しなかったなら、空データフレーム作成
+    else:
+        df = pd.DataFrame.from_dict({
+                'turn_system': [],
+                'failure_rate': [],
+                'p': [],
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'a_win_rate': [],
+                'b_win_rate': [],
+                'no_win_match_rate': []})
+
+    def on_score_board_created(score_board):
+        pass
+
+
+    turn_system_str = Converter.turn_system_to_code(spec.turn_system)
+
+
+    # ［目標の点数］
+    for span in range(1, 100):
+
+        # ［後手で勝ったときの勝ち点］
+        for t_step in range(1, span + 1):
+
+            # ［先手で勝ったときの勝ち点］
+            for h_step in range(1, t_step + 1):
+
+                # FIXME 便宜的に［試行シリーズ数］は 1 固定
+                trials_series = 1
+
+                # ［シリーズ・ルール］
+                specified_series_rule = SeriesRule.make_series_rule_base(
+                        spec=spec,
+                        trials_series=trials_series,
+                        h_step=h_step,
+                        t_step=t_step,
+                        span=span)
+
+                # 該当レコードのキー
+                key = (df['turn_system']==turn_system_str) & (df['failure_rate']==spec.failure_rate) & (df['p']==spec.p) & (df['span']==specified_series_rule.step_table.span) & (df['t_step']==specified_series_rule.step_table.get_step_by(face_of_coin=TAIL)) & (df['h_step']==specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+
+                # データが既存ならスキップ
+                if key.any():
+                    continue
+
+                # 確率を求める
+                a_win_rate, b_win_rate, no_win_match_rate, all_patterns_p = search_all_score_boards(
+                        series_rule=specified_series_rule,
+                        on_score_board_created=on_score_board_created)
+
+                # データフレーム更新
+                # 新規レコード追加
+                index = len(df.index)
+                df.loc[index, ['turn_system']] = turn_system_str
+                df.loc[index, ['failure_rate']] = failure_rate
+                df.loc[index, ['p']] = p
+                df.loc[index, ['span']] = span
+                df.loc[index, ['t_step']] = t_step
+                df.loc[index, ['h_step']] = h_step
+                df.loc[index, ['a_win_rate']] = a_win_rate
+                df.loc[index, ['b_win_rate']] = b_win_rate
+                df.loc[index, ['no_win_match_rate']] = no_win_match_rate
+
+        # TODO 時間で間隔指定して保存したい
+        # スパン１つごとに、
+        # CSVファイルへ書き出し
+        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] write file to `{csv_file_path}` ...")
+        df.to_csv(csv_file_path,
+                # ［計算過程］列は長くなるので末尾に置きたい
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 ########################################
@@ -26,123 +116,18 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［将棋の先手勝率］
-        prompt = f"""\
-
-Example: 70% is 0.7
-What is the probability of flipping a coin and getting heads? """
-        specified_p = float(input(prompt))
-
-
-        # ［将棋の引分け率］
-        prompt = f"""\
-
-Example: 10% is 0.1
-What is the failure rate? """
-        specified_failure_rate = float(input(prompt))
-
-
         # ［先後の決め方］
-        prompt = f"""\
+        for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
-(1) Frozen turn
-(2) Alternating turn
-Example: Alternating turn is 2
-Which one(1-2)? """
-        choice = input(prompt)
+            # ［将棋の引分け率］
+            for failure_rate_percent in range(0, 100):
+                failure_rate = failure_rate_percent / 100
 
-        if choice == '1':
-            specified_turn_system = FROZEN_TURN
+                # ［将棋の先手勝率］
+                for p_percent in range(50, 96):
+                    p = p_percent / 100
 
-        elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
-
-        else:
-            raise ValueError(f"{choice=}")
-
-
-        # ［先手で勝ったときの勝ち点］
-        prompt = f"""\
-
-Example: 2
-h_step? """
-        specified_h_step = int(input(prompt))
-
-
-        # ［後手で勝ったときの勝ち点］
-        prompt = f"""\
-
-Example: 3
-t_step? """
-        specified_t_step = int(input(prompt))
-
-
-        # ［目標の点数］
-        prompt = f"""\
-
-Example: 6
-Span? """
-        specified_span = int(input(prompt))
-
-
-        # 仕様
-        spec = Specification(
-                p=specified_p,
-                failure_rate=specified_failure_rate,
-                turn_system=specified_turn_system)
-
-        # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        specified_trials_series = 1
-
-        # ［シリーズ・ルール］。任意に指定します
-        specified_series_rule = SeriesRule.make_series_rule_base(
-                spec=spec,
-                trials_series=specified_trials_series,      # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
-                h_step=specified_h_step,
-                t_step=specified_t_step,
-                span=specified_span)
-
-
-        # CSVファイル出力（上書き）
-        #
-        #   ファイルをクリアーしたいだけ
-        #
-        csv_file_path = get_score_board_view_csv_file_path(
-                p=specified_series_rule.spec.p,
-                failure_rate=specified_series_rule.spec.failure_rate,
-                turn_system=specified_series_rule.spec.turn_system,
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                span=specified_series_rule.step_table.span)
-        print(f"write csv to `{csv_file_path}` file ...")
-        with open(csv_file_path, 'w', encoding='utf8') as f:
-            f.write(stringify_csv_of_score_board_view_header(spec=specified_series_rule.spec, series_rule=specified_series_rule))
-
-
-        def on_score_board_created(score_board):
-            pass
-
-
-        a_win_rate, b_win_rate, no_win_rate, all_patterns_p = search_all_score_boards(
-                series_rule=specified_series_rule,
-                on_score_board_created=on_score_board_created)
-
-
-        # CSVファイル出力（追記）
-        csv_file_path = get_score_board_data_csv_file_path(
-                p=specified_series_rule.spec.p,
-                failure_rate=specified_series_rule.spec.failure_rate,
-                turn_system=specified_series_rule.spec.turn_system,
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                span=specified_series_rule.step_table.span)
-        print(f"write csv to `{csv_file_path}` file ...")
-        with open(csv_file_path, 'a', encoding='utf8') as f:
-            f.write(stringify_csv_of_score_board_view_footer(
-                    a_win_rate=a_win_rate,
-                    b_win_rate=b_win_rate,
-                    no_win_rate=no_win_rate,
-                    all_patterns_p=all_patterns_p))
+                    automatic(turn_system=turn_system, failure_rate=failure_rate, p=p)
 
 
     except Exception as err:

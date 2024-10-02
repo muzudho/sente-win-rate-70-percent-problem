@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
-from library.file_paths import get_score_board_view_log_file_path, get_score_board_view_csv_file_path
+from library.file_paths import get_score_board_view_csv_file_path
 from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer
 from library.score_board import search_all_score_boards
 
@@ -137,7 +137,7 @@ Span? """
                 f.write(f"{csv}\n")
 
 
-        a_win_rate, b_win_rate, no_win_rate, all_patterns_p = search_all_score_boards(
+        a_win_rate, b_win_rate, no_win_match_rate, all_patterns_p = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=on_score_board_created)
 
@@ -155,7 +155,7 @@ Span? """
             f.write(stringify_csv_of_score_board_view_footer(
                     a_win_rate=a_win_rate,
                     b_win_rate=b_win_rate,
-                    no_win_rate=no_win_rate,
+                    no_win_match_rate=no_win_match_rate,
                     all_patterns_p=all_patterns_p))
 
 

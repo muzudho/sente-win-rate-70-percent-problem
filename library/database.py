@@ -324,11 +324,11 @@ def get_df_selection_series_rule(turn_system):
 
 def df_ssr_to_csv(df, turn_system):
 
-    csv_flie_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
+    csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
 
     print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
-    df.to_csv(csv_flie_path,
+    df.to_csv(csv_file_path,
             # ［計算過程］列は長くなるので末尾に置きたい
             columns=['p', 'failure_rate', 'trials_series', 'h_step', 't_step', 'span', 'presentable', 'comment', 'candidates'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
