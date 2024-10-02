@@ -52,6 +52,8 @@ def automatic(spec):
             span=None,
             t_step=None,
             h_step=None,
+            shortest_coins=None,
+            upper_limit_coins=None,
             a_win_rate=None,
             b_win_rate=None,
             no_win_match_rate=100.1)
@@ -79,8 +81,8 @@ def automatic(spec):
         df_b = ScoreBoardDataBestTable.new_data_frame()
 
 
-    for           turn_system_str,       failure_rate,         p,         span,         t_step,         h_step,         a_win_rate,         b_win_rate,         no_win_match_rate in\
-        zip(df_d['turn_system']  , df_d['failure_rate'], df_d['p'], df_d['span'], df_d['t_step'], df_d['h_step'], df_d['a_win_rate'], df_d['b_win_rate'], df_d['no_win_match_rate']):
+    for           turn_system_str,       failure_rate,         p,         span,         t_step,         h_step,         shortest_coins,         upper_limit_coins,         a_win_rate,         b_win_rate,         no_win_match_rate in\
+        zip(df_d['turn_system']  , df_d['failure_rate'], df_d['p'], df_d['span'], df_d['t_step'], df_d['h_step'], df_d['shortest_coins'], df_d['upper_limit_coins'], df_d['a_win_rate'], df_d['b_win_rate'], df_d['no_win_match_rate']):
 
         error = b_win_rate - a_win_rate
 
@@ -101,6 +103,8 @@ def automatic(spec):
                     span=span,
                     t_step=t_step,
                     h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
                     a_win_rate=a_win_rate,
                     b_win_rate=b_win_rate,
                     no_win_match_rate=no_win_match_rate)

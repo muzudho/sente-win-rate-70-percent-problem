@@ -1,6 +1,6 @@
 #
 # 分析
-# python create_a_csv_to_view_score_board.py
+# python create_a_csv_to_data_score_board.py
 #
 #   １シリーズのコインの出目について、全パターン網羅した表を作成します
 #
