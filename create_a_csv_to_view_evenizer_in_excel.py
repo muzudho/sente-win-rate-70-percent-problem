@@ -1,4 +1,7 @@
 #
+# NOTE こちらは古い方
+#
+#
 # 表示
 # python create_a_csv_to_view_evenizer_in_excel.py
 #

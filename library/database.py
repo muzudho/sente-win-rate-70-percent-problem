@@ -418,7 +418,13 @@ class ScoreBoardDataTable():
 
     @staticmethod
     def to_csv(df, spec):
-        """ファイル書き出し"""
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
 
         # CSVファイルパス
         csv_file_path = get_score_board_data_csv_file_path(
@@ -429,6 +435,8 @@ class ScoreBoardDataTable():
         df.to_csv(csv_file_path,
                 columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+        return csv_file_path
 
 
 class ScoreBoardDataBestRecord():
