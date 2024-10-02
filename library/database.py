@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro
-from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path
+from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path, get_score_board_data_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'
@@ -342,3 +342,20 @@ def get_df_let_calculate_probability():
     df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8")
 
     return df
+
+
+##################
+# Score board data
+##################
+
+def df_score_board_data_to_csv(df, spec):
+    # CSVファイルパス
+    csv_file_path = get_score_board_data_csv_file_path(
+            p=spec.p,
+            failure_rate=spec.failure_rate,
+            turn_system=spec.turn_system)
+
+    df.to_csv(csv_file_path,
+            # ［計算過程］列は長くなるので末尾に置きたい
+            columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた

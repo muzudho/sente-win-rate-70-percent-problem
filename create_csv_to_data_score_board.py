@@ -14,6 +14,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
 from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
+from library.database import df_score_board_data_to_csv
 
 
 # CSV保存間隔（秒）
@@ -84,12 +85,8 @@ def automatic(turn_system, failure_rate, p):
                         print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] dirty={number_of_dirty} write file to `{csv_file_path}` ...")
                         number_of_dirty = 0
 
-                        # スパン１つごとに、
                         # CSVファイルへ書き出し
-                        df.to_csv(csv_file_path,
-                                # ［計算過程］列は長くなるので末尾に置きたい
-                                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
-                                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+                        df_score_board_data_to_csv(df, spec)
 
 
                 # FIXME 便宜的に［試行シリーズ数］は 1 固定
@@ -106,8 +103,18 @@ def automatic(turn_system, failure_rate, p):
                 # 該当レコードのキー
                 key = (df['turn_system']==turn_system_str) & (df['failure_rate']==spec.failure_rate) & (df['p']==spec.p) & (df['span']==specified_series_rule.step_table.span) & (df['t_step']==specified_series_rule.step_table.get_step_by(face_of_coin=TAIL)) & (df['h_step']==specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
 
-                # データが既存ならスキップ
+                # データが既存なら
                 if key.any():
+
+                    # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
+                    if df['a_win_rate'] == df['b_win_rate']:
+                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even!")
+
+                        # CSVファイルへ書き出し
+                        df_score_board_data_to_csv(df, spec)
+                        return
+
+                    # スキップ
                     number_of_skip += 1
                     continue
 
@@ -130,6 +137,13 @@ def automatic(turn_system, failure_rate, p):
                 df.loc[index, ['no_win_match_rate']] = no_win_match_rate
 
                 number_of_dirty += 1
+
+                # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
+                if a_win_rate == b_win_rate:
+                    print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even!")
+                    # CSVファイルへ書き出し
+                    df_score_board_data_to_csv(df, spec)
+                    return
 
 
 ########################################
