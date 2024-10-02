@@ -17,11 +17,18 @@ from library.score_board import search_all_score_boards
 from library.database import df_score_board_data_to_csv
 
 
-# CSV保存間隔（秒）
-INTERVAL_SECONDS_FOR_SAVE_CSV = 60
+# CSV保存間隔（秒）、またはタイムシェアリング間隔
+INTERVAL_SECONDS_FOR_SAVE_CSV = 2
 
 
 def automatic(turn_system, failure_rate, p):
+    """
+    Returns
+    -------
+    is_terminated : bool
+        計算停止
+    """
+
     # 仕様
     spec = Specification(
             p=p,
@@ -89,6 +96,9 @@ def automatic(turn_system, failure_rate, p):
                         # CSVファイルへ書き出し
                         df_score_board_data_to_csv(df, spec)
 
+                    # 計算未停止だが、譲る（タイムシェアリング）
+                    return False
+
 
                 # FIXME 便宜的に［試行シリーズ数］は 1 固定
                 trials_series = 1
@@ -113,7 +123,7 @@ def automatic(turn_system, failure_rate, p):
 
                         # CSVファイルへ書き出し
                         df_score_board_data_to_csv(df, spec)
-                        return
+                        return True
 
                     # スキップ
                     number_of_skip += 1
@@ -144,7 +154,11 @@ def automatic(turn_system, failure_rate, p):
                     print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}")
                     # CSVファイルへ書き出し
                     df_score_board_data_to_csv(df, spec)
-                    return
+                    return True
+
+
+    # 探索範囲内に見つからなかったが、計算停止扱いとする
+    return True
 
 
 ########################################
@@ -156,18 +170,27 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［先後の決め方］
-        for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
+        # 計算停止していない数（ループに入るために最初の１回はダミー値）
+        number_of_not_terminated = 1
 
-            # ［将棋の引分け率］
-            for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
-                failure_rate = failure_rate_percent / 100
+        while number_of_not_terminated != 0:
+            # リセット
+            number_of_not_terminated = 0
 
-                # ［将棋の先手勝率］
-                for p_percent in range(50, 96):
-                    p = p_percent / 100
+            # ［先後の決め方］
+            for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
-                    automatic(turn_system=turn_system, failure_rate=failure_rate, p=p)
+                # ［将棋の引分け率］
+                for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
+                    failure_rate = failure_rate_percent / 100
+
+                    # ［将棋の先手勝率］
+                    for p_percent in range(50, 96):
+                        p = p_percent / 100
+
+                        is_terminated = automatic(turn_system=turn_system, failure_rate=failure_rate, p=p)
+                        if not is_terminated:
+                            number_of_not_terminated += 1
 
 
     except Exception as err:
