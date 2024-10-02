@@ -32,6 +32,9 @@ def search_all_score_boards(series_rule, on_score_board_created):
             continue
 
         # ［シリーズ］１つ分の試行結果を返す
+        #
+        #   FIXME 決着したあとにまだリストの要素が続いていてはいけません
+        #
         trial_results_for_one_series = judge_series(
                 spec=series_rule.spec,
                 series_rule=series_rule,

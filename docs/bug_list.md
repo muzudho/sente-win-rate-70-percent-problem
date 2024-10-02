@@ -64,3 +64,26 @@ Traceback (most recent call last):
     raise ValueError(f"両者が満点はおかしい {list_of_round_number_str=}  {list_of_head_player_str=}  {list_of_face_of_coin_str=}  {list_of_a_count_down_points_str=}  {list_of_b_count_down_points_str=}  {span=}")
 ValueError: 両者が満点はおかしい list_of_round_number_str=['', 'S', 1, 2, 3, 4]  list_of_head_player_str=['表番', '', 'A', 'B', 'A', 'B']  list_of_face_of_coin_str=['出目', '', '表', '表', '裏', '裏']  list_of_a_count_down_points_str=['Ａさん', 3, 2, 2, 2, 0]  list_of_b_count_down_points_str=['Ｂさん', 3, 3, 2, 0, 0]  span=3
 ```
+
+
+# 2024-10-02 14:47 両者が満点バグ
+
+* [ ] ［先後固定制］なのに、表番が入れ替わってる
+
+```
+[unexpected error] err=ValueError("両者が満点はおかしい list_of_round_number_str=[
+  
+           ,   S,    1,   2,   3,   4   list_of_head_player_str=[
+    表番   ,    ,    A,   B,   A,   B   list_of_face_of_coin_str=[
+    出目   ,    ,   表,  表,   裏,  裏   list_of_a_count_down_points_str=[
+    Ａさん ,   3,    2,   2,   2,   0   list_of_b_count_down_points_str=[
+    Ｂさん ,   3,    3,   2,   0,   0 
+    
+    spec.p=0.51
+    spec.failure_rate=0.05
+    spec.turn_system=frozen
+    span=3
+    t_step=2
+    h_step=1
+Traceback (most recent call last):
+```

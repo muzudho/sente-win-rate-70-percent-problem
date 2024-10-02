@@ -65,7 +65,7 @@ Which one(1-2)? """
         prompt = f"""\
 
 Example: 2
-h_step? """
+How many win points of head of coin? """
         specified_h_step = int(input(prompt))
 
 
@@ -73,7 +73,7 @@ h_step? """
         prompt = f"""\
 
 Example: 3
-t_step? """
+How many win points of tail of coin? """
         specified_t_step = int(input(prompt))
 
 
@@ -81,7 +81,7 @@ t_step? """
         prompt = f"""\
 
 Example: 6
-Span? """
+How many goal win points? """
         specified_span = int(input(prompt))
 
 
