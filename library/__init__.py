@@ -2329,7 +2329,7 @@ class ThreeRates():
 
         ab_win_rate = a_win_rate + b_win_rate
         if not is_almost_one(ab_win_rate):
-            raise ValueError(f"［Ａさんの勝率］と［Ｂさんの勝率］を足したら１００％になる必要があります。 {ab_win_rate=}  {a_win_rate=}  {b_win_rate=}")
+            raise ValueError(f"［Ａさんの勝率］と［Ｂさんの勝率］を足したら１００％になる必要があります。 {ab_win_rate=}  {a_win_rate=}  {b_win_rate=}  {no_win_match_rate=}")
 
         return ThreeRates(
                 a_win_rate=a_win_rate,

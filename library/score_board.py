@@ -113,8 +113,14 @@ def search_all_score_boards(series_rule, on_score_board_created):
             raise ValueError(f"{score_board.game_results=}")
 
     
+    # ＡさんとＢさんの勝率は、足しても１００％にならない。勝者なしの勝率を取り除いた分だから。
+    # 足して１００％になるように、引き延ばす必要がある
+    win_match_rate = 1 - no_win_match_rate
+    # 以下の数を［Ａさんの勝率］、［Ｂさんの勝率］に掛けると、１００％に引き延ばされる
+    zoom = 1 / win_match_rate
+
     three_rates = ThreeRates.create_three_rates(
-            a_win_rate=(1 - no_win_match_rate) * a_win_rate_with_draw,
-            b_win_rate=(1 - no_win_match_rate) * b_win_rate_with_draw,
+            a_win_rate=zoom * a_win_rate_with_draw,
+            b_win_rate=zoom * b_win_rate_with_draw,
             no_win_match_rate=no_win_match_rate)
     return three_rates, all_patterns_p
