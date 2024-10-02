@@ -117,6 +117,15 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        # ［将棋の引分け率］を尋ねる
+        prompt = f"""\
+What is the failure rate?
+Example: 10% is 0.1
+? """
+        specified_failure_rate = float(input(prompt))
+
+
+        # ［先後の決め方］を尋ねる
         prompt = f"""\
 (1) Frozen turn
 (2) Alternating turn
@@ -133,21 +142,6 @@ Which one(1-2)? """
             raise ValueError(f"{choice=}")
 
 
-        prompt = f"""\
-What is the failure rate?
-Example: 10% is 0.1
-? """
-        specified_failure_rate = float(input(prompt))
-
-
-        prompt = f"""\
-(1) even series rule
-(2) selection series rule
-Which data source should I use?
-> """
-        data_source = int(input(prompt))
-
-
         text = stringify_header(specified_turn_system)
 
         print(text) # 表示
@@ -160,104 +154,57 @@ Which data source should I use?
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        # TODO
-        if data_source == 1:
-            title='イーブン［シリーズ・ルール］'
+        generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        if generation_algorythm == BRUTE_FORCE:
+            print("力任せ探索で行われたデータです")
+        elif generation_algorythm == THEORETICAL:
+            print("理論値で求められたデータです")
+        else:
+            raise ValueError(f"{generation_algorythm=}")
 
-            generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
-            if generation_algorythm == BRUTE_FORCE:
-                print("力任せ探索で行われたデータです")
-            elif generation_algorythm == THEORETICAL:
-                print("理論値で求められたデータです")
-            else:
-                raise ValueError(f"{generation_algorythm=}")
+        df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
 
-            df_ev = get_df_even(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+        for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
+            zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
 
-            for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-                zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
+            # 対象外のものはスキップ
+            if specified_failure_rate != failure_rate:
+                continue
 
-                # 対象外のものはスキップ
-                if specified_failure_rate != failure_rate:
-                    continue
+            if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+                print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
+                continue
 
-                if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-                    print(f"[P={even_table.p} failure_rate={even_table.failure_rate}] ベスト値が設定されていません。スキップします")
-                    continue
+            even_table = EvenTable(
+                    p=p,
+                    failure_rate=failure_rate,
+                    trials_series=trials_series,
+                    best_p=best_p,
+                    best_p_error=best_p_error,
+                    best_h_step=best_h_step,
+                    best_t_step=best_t_step,
+                    best_span=best_span,
+                    latest_p=latest_p,
+                    latest_p_error=latest_p_error,
+                    latest_h_step=latest_h_step,
+                    latest_t_step=latest_t_step,
+                    latest_span=latest_span,
+                    candidates=candidates)
 
-                even_table = EvenTable(
-                        p=p,
-                        failure_rate=failure_rate,
-                        trials_series=trials_series,
-                        best_p=best_p,
-                        best_p_error=best_p_error,
-                        best_h_step=best_h_step,
-                        best_t_step=best_t_step,
-                        best_span=best_span,
-                        latest_p=latest_p,
-                        latest_p_error=latest_p_error,
-                        latest_h_step=latest_h_step,
-                        latest_t_step=latest_t_step,
-                        latest_span=latest_span,
-                        candidates=candidates)
+            # 仕様
+            spec = Specification(
+                    p=p,
+                    failure_rate=failure_rate,
+                    turn_system=specified_turn_system)
 
-                # 仕様
-                spec = Specification(
-                        p=p,
-                        failure_rate=failure_rate,
-                        turn_system=specified_turn_system)
-
-                show_series_rule(
-                        spec=spec,
-                        trials_series=trials_series,
-                        h_step=even_table.best_h_step,
-                        t_step=even_table.best_t_step,
-                        span=even_table.best_span,
-                        presentable='',
-                        comment='')
-
-
-        elif data_source == 2:
-            title='セレクション［シリーズ・ルール］'
-
-            df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
-
-            for             p,           failure_rate,           h_step,           t_step,           span,           presentable,           comment,           candidates in\
-                zip(df_ssr['p'], df_ssr['failure_rate'], df_ssr['h_step'], df_ssr['t_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):
-
-                # 対象外のものはスキップ
-                if specified_failure_rate != failure_rate:
-                    continue
-
-                if h_step < 1:
-                    print(f"データベースの値がおかしいのでスキップ  {p=}  {failure_rate=}  {h_step=}")
-                    continue
-
-
-                ssr_table = SelectionSeriesRuleTable(
-                        p=p,
-                        failure_rate=failure_rate,
-                        h_step=h_step,
-                        t_step=t_step,
-                        span=span,
-                        presentable=presentable,
-                        comment=comment,
-                        candidates=candidates)
-
-                # 仕様
-                spec = Specification(
-                        p=ssr_table.p,
-                        failure_rate=ssr_table.failure_rate,
-                        turn_system=specified_turn_system)
-
-                show_series_rule(
-                        spec=spec,
-                        trials_series=-1,   # FIXME 記録がない
-                        h_step=ssr_table.h_step,
-                        t_step=ssr_table.t_step,
-                        span=ssr_table.span,
-                        presentable=ssr_table.presentable,
-                        comment=ssr_table.comment)
+            show_series_rule(
+                    spec=spec,
+                    trials_series=trials_series,
+                    h_step=even_table.best_h_step,
+                    t_step=even_table.best_t_step,
+                    span=even_table.best_span,
+                    presentable='',
+                    comment='')
 
 
     except Exception as err:

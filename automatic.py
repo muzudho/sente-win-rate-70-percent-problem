@@ -54,7 +54,6 @@ if __name__ == '__main__':
                 automatic_for_view(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
-                        specified_data_source=1,
                         specified_trials_series=specified_trials_series)
 
 
