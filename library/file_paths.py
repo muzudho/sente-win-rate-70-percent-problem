@@ -147,6 +147,14 @@ def get_score_board_data_csv_file_path(p, failure_rate, turn_system):
     return f'logs/score_board_data{subname}.csv'
 
 
+#######################
+# Score board data best
+#######################
+
+def get_score_board_data_best_csv_file_path():
+    return f'output/score_board_data_best.csv'
+
+
 ##################
 # Score board view
 ##################

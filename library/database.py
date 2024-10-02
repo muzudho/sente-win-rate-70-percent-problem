@@ -356,6 +356,5 @@ def df_score_board_data_to_csv(df, spec):
             turn_system=spec.turn_system)
 
     df.to_csv(csv_file_path,
-            # ［計算過程］列は長くなるので末尾に置きたい
             columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
             index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
