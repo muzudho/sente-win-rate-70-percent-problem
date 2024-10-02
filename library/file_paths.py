@@ -53,7 +53,7 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
         pass
 
     else:
-        subname.append(f'p{p*100}')
+        subname.append(f'p{p*100:.1f}')
 
 
     if generation_algorythm is None:
@@ -65,7 +65,7 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
         pass
 
     else:
-        subname.append(f'f{failure_rate*100}')
+        subname.append(f'f{failure_rate*100:.1f}')
 
 
     if generation_algorythm is None:
