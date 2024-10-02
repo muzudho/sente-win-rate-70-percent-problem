@@ -14,7 +14,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
 from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
-from library.database import df_score_board_data_to_csv
+from library.database import ScoreBoardDataTable
 
 
 # CSV保存間隔（秒）、またはタイムシェアリング間隔
@@ -47,16 +47,7 @@ def automatic(turn_system, failure_rate, p):
 
     # ファイルが存在しなかったなら、空データフレーム作成
     else:
-        df = pd.DataFrame.from_dict({
-                'turn_system': [],
-                'failure_rate': [],
-                'p': [],
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'a_win_rate': [],
-                'b_win_rate': [],
-                'no_win_match_rate': []})
+        df = ScoreBoardDataTable.new_data_frame()
 
     def on_score_board_created(score_board):
         pass
@@ -94,7 +85,7 @@ def automatic(turn_system, failure_rate, p):
                         number_of_dirty = 0
 
                         # CSVファイルへ書き出し
-                        df_score_board_data_to_csv(df, spec)
+                        ScoreBoardDataTable.to_csv(df, spec)
 
                     # 計算未停止だが、譲る（タイムシェアリング）
                     return False
@@ -119,10 +110,10 @@ def automatic(turn_system, failure_rate, p):
 
                     # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
                     if df.loc[key, ['a_win_rate']].iat[0, 0] == df.loc[key, ['b_win_rate']].iat[0, 0]:
-                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}")
+                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
 
                         # CSVファイルへ書き出し
-                        df_score_board_data_to_csv(df, spec)
+                        ScoreBoardDataTable.to_csv(df, spec)
                         return True
 
                     # スキップ
@@ -136,24 +127,27 @@ def automatic(turn_system, failure_rate, p):
 
                 # データフレーム更新
                 # 新規レコード追加
-                index = len(df.index)
-                df.loc[index, ['turn_system']] = turn_system_str
-                df.loc[index, ['failure_rate']] = failure_rate
-                df.loc[index, ['p']] = p
-                df.loc[index, ['span']] = span
-                df.loc[index, ['t_step']] = t_step
-                df.loc[index, ['h_step']] = h_step
-                df.loc[index, ['a_win_rate']] = a_win_rate
-                df.loc[index, ['b_win_rate']] = b_win_rate
-                df.loc[index, ['no_win_match_rate']] = no_win_match_rate
+                ScoreBoardDataTable.append_new_record(
+                        df=df,
+                        turn_system_str=turn_system_str,
+                        failure_rate=failure_rate,
+                        p=p,
+                        span=span,
+                        t_step=t_step,
+                        h_step=h_step,
+                        shortest_coins=specified_series_rule.shortest_coins,
+                        upper_limit_coins=specified_series_rule.upper_limit_coins,
+                        a_win_rate=a_win_rate,
+                        b_win_rate=b_win_rate,
+                        no_win_match_rate=no_win_match_rate)
 
                 number_of_dirty += 1
 
                 # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
                 if a_win_rate == b_win_rate:
-                    print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}")
+                    print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
                     # CSVファイルへ書き出し
-                    df_score_board_data_to_csv(df, spec)
+                    ScoreBoardDataTable.to_csv(df, spec)
                     return True
 
 

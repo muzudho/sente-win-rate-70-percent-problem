@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro
-from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path, get_score_board_data_csv_file_path
+from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 
 
 CSV_FILE_PATH_P = './data/p.csv'
@@ -344,17 +344,196 @@ def get_df_let_calculate_probability():
     return df
 
 
-##################
-# Score board data
-##################
+class ScoreBoardDataTable():
+    """スコアボード・データ"""
 
-def df_score_board_data_to_csv(df, spec):
-    # CSVファイルパス
-    csv_file_path = get_score_board_data_csv_file_path(
-            p=spec.p,
-            failure_rate=spec.failure_rate,
-            turn_system=spec.turn_system)
 
-    df.to_csv(csv_file_path,
-            columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
-            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+    @staticmethod
+    def new_data_frame():
+        return pd.DataFrame.from_dict({
+                'turn_system': [],
+                'failure_rate': [],
+                'p': [],
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'shortest_coins': [],
+                'upper_limit_coins': [],
+                'a_win_rate': [],
+                'b_win_rate': [],
+                'no_win_match_rate': []})
+
+
+    @staticmethod
+    def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, a_win_rate, b_win_rate, no_win_match_rate):
+        index = len(df.index)
+        df.loc[index, ['turn_system']] = turn_system_str
+        df.loc[index, ['failure_rate']] = failure_rate
+        df.loc[index, ['p']] = p
+        df.loc[index, ['span']] = span
+        df.loc[index, ['t_step']] = t_step
+        df.loc[index, ['h_step']] = h_step
+        df.loc[index, ['shortest_coins']] = specified_series_rule.shortest_coins
+        df.loc[index, ['upper_limit_coins']] = specified_series_rule.upper_limit_coins                
+        df.loc[index, ['a_win_rate']] = a_win_rate
+        df.loc[index, ['b_win_rate']] = b_win_rate
+        df.loc[index, ['no_win_match_rate']] = no_win_match_rate
+
+
+    @staticmethod
+    def to_csv(df, spec):
+        """ファイル書き出し"""
+
+        # CSVファイルパス
+        csv_file_path = get_score_board_data_csv_file_path(
+                p=spec.p,
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system)
+
+        df.to_csv(csv_file_path,
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+
+class ScoreBoardDataBestRecord():
+    """スコアボード・データ・ベスト・レコード"""
+
+
+    def __init__(self, turn_system_str, failure_rate, p, span, t_step, h_step, a_win_rate, b_win_rate, no_win_match_rate):
+        self._turn_system_str = turn_system_str
+        self._failure_rate = failure_rate
+        self._p = p
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._a_win_rate = a_win_rate
+        self._b_win_rate = b_win_rate
+        self._no_win_match_rate = no_win_match_rate
+
+
+    @property
+    def turn_system_str(self):
+        return self._turn_system_str
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def a_win_rate(self):
+        return self._a_win_rate
+
+
+    @property
+    def b_win_rate(self):
+        return self._b_win_rate
+
+
+    @property
+    def no_win_match_rate(self):
+        return self._no_win_match_rate
+
+
+class ScoreBoardDataBestTable():
+    """スコアボード・データ・ベスト"""
+
+
+    @staticmethod
+    def new_data_frame():
+        return pd.DataFrame.from_dict({
+                'turn_system': [],
+                'failure_rate': [],
+                'p': [],
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'a_win_rate': [],
+                'b_win_rate': [],
+                'no_win_match_rate': []})
+
+
+    @staticmethod
+    def create_none_record():
+        return ScoreBoardDataBestRecord(
+                turn_system_str=None,
+                failure_rate=None,
+                p=None,
+                span=None,
+                t_step=None,
+                h_step=None,
+                a_win_rate=None,
+                b_win_rate=None,
+                no_win_match_rate=None)
+
+
+    @staticmethod
+    def append_record(df, record):
+        index = len(df.index)
+        df.loc[index, ['turn_system']] = record.turn_system_str
+        df.loc[index, ['failure_rate']] = record.failure_rate
+        df.loc[index, ['p']] = record.p
+        df.loc[index, ['span']] = record.span
+        df.loc[index, ['t_step']] = record.t_step
+        df.loc[index, ['h_step']] = record.h_step
+        df.loc[index, ['a_win_rate']] = record.a_win_rate
+        df.loc[index, ['b_win_rate']] = record.b_win_rate
+        df.loc[index, ['no_win_match_rate']] = record.no_win_match_rate
+
+
+    @staticmethod
+    def get_record_by_key(df, key):
+        """
+        Returns
+        -------
+
+        """
+        return ScoreBoardDataBestRecord(
+                turn_system_str=df.loc[key, ['turn_system']].iat[0,0],
+                failure_rate=df.loc[key, ['failure_rate']].iat[0,0],
+                p=df.loc[key, ['p']].iat[0,0],
+                span=df.loc[key, ['span']].iat[0,0],
+                t_step=df.loc[key, ['t_step']].iat[0,0],
+                h_step=df.loc[key, ['h_step']].iat[0,0],
+                a_win_rate=df.loc[key, ['a_win_rate']].iat[0,0],
+                b_win_rate=df.loc[key, ['b_win_rate']].iat[0,0],
+                no_win_match_rate=df.loc[key, ['no_win_match_rate']].iat[0,0])
+
+
+    @staticmethod
+    def to_csv(df):
+        """
+        Returns
+        -------
+        csv_file_path : str
+            書き込んだファイルへのパス
+        """
+        # CSVファイルパス（書き込むファイル）
+        csv_file_path = get_score_board_data_best_csv_file_path()
+
+        df.to_csv(csv_file_path,
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+        return csv_file_path

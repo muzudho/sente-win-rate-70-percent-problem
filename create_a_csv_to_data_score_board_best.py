@@ -11,10 +11,9 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
-from library.score_board import search_all_score_boards
-from library.database import df_score_board_data_to_csv
+from library.database import ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 
 
 def automatic(spec):
@@ -46,19 +45,19 @@ def automatic(spec):
     best_csv_file_path = get_score_board_data_best_csv_file_path()
 
 
-    best_turn_system_str = None
-    best_failure_rate = None
-    best_p = None
-    best_span = None
-    best_t_step = None
-    best_h_step = None
-    best_a_win_rate = None
-    best_b_win_rate = None
-    best_no_win_match_rate = None
+    best_record = ScoreBoardDataBestRecord(
+            turn_system_str=None,
+            failure_rate=None,
+            p=None,
+            span=None,
+            t_step=None,
+            h_step=None,
+            a_win_rate=None,
+            b_win_rate=None,
+            no_win_match_rate=100.1)
 
     # a_win_rate と b_win_rate の誤差
     best_win_rate_error = 100.1
-    best_no_win_match_rate = 100.1
 
 
     # ファイルが存在したなら、読込
@@ -70,31 +69,14 @@ def automatic(spec):
 
         # データが既存なら、取得
         if key_b.any():
-            best_turn_system_str = df_b.loc[key_b, ['turn_system']].iat[0,0]
-            best_failure_rate = df_b.loc[key_b, ['failure_rate']].iat[0,0]
-            best_p = df_b.loc[key_b, ['p']].iat[0,0]
-            best_span = df_b.loc[key_b, ['span']].iat[0,0]
-            best_t_step = df_b.loc[key_b, ['t_step']].iat[0,0]
-            best_h_step = df_b.loc[key_b, ['h_step']].iat[0,0]
-            best_a_win_rate = df_b.loc[key_b, ['a_win_rate']].iat[0,0]
-            best_b_win_rate = df_b.loc[key_b, ['b_win_rate']].iat[0,0]
-            best_no_win_match_rate = df_b.loc[key_b, ['no_win_match_rate']].iat[0,0]
+            best_record = ScoreBoardDataBestTable.get_record_by_key(df=df_b, key=key_b)
 
-            best_win_rate_error = best_b_win_rate - best_a_win_rate
+            best_win_rate_error = best_record.b_win_rate - best_record.a_win_rate
 
 
     # ファイルが存在しなかったなら、空データフレーム作成
     else:
-        df_b = pd.DataFrame.from_dict({
-                'turn_system': [],
-                'failure_rate': [],
-                'p': [],
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'a_win_rate': [],
-                'b_win_rate': [],
-                'no_win_match_rate': []})
+        df_b = ScoreBoardDataBestTable.new_data_frame()
 
 
     for           turn_system_str,       failure_rate,         p,         span,         t_step,         h_step,         a_win_rate,         b_win_rate,         no_win_match_rate in\
@@ -104,7 +86,7 @@ def automatic(spec):
 
         if abs(error) < abs(best_win_rate_error):
             is_update = True
-        elif error == best_win_rate_error and no_win_match_rate < best_no_win_match_rate:
+        elif error == best_win_rate_error and no_win_match_rate < best_record.no_win_match_rate:
             is_update = True
         else:
             is_update = False
@@ -112,36 +94,25 @@ def automatic(spec):
 
         if is_update:
             best_win_rate_error = error
-            best_no_win_match_rate = no_win_match_rate
+            best_record = ScoreBoardDataBestRecord(
+                    turn_system_str=turn_system_str,
+                    failure_rate=failure_rate,
+                    p=p,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    a_win_rate=a_win_rate,
+                    b_win_rate=b_win_rate,
+                    no_win_match_rate=no_win_match_rate)
 
-            best_turn_system_str = turn_system_str
-            best_failure_rate = failure_rate
-            best_p = p
-            best_span = span
-            best_t_step = t_step
-            best_h_step = h_step
-            best_a_win_rate = a_win_rate
-            best_b_win_rate = b_win_rate
 
-
-    if best_turn_system_str is not None:
+    if best_record.turn_system_str is not None:
         # データフレーム更新
         # 新規レコード追加
-        index = len(df_b.index)
-        df_b.loc[index, ['turn_system']] = best_turn_system_str
-        df_b.loc[index, ['failure_rate']] = best_failure_rate
-        df_b.loc[index, ['p']] = best_p
-        df_b.loc[index, ['span']] = best_span
-        df_b.loc[index, ['t_step']] = best_t_step
-        df_b.loc[index, ['h_step']] = best_h_step
-        df_b.loc[index, ['a_win_rate']] = best_a_win_rate
-        df_b.loc[index, ['b_win_rate']] = best_b_win_rate
-        df_b.loc[index, ['no_win_match_rate']] = best_no_win_match_rate
+        ScoreBoardDataBestTable.append_record(df=df_b, record=best_record)
 
-        print(f"[{datetime.datetime.now()}][turn_system={best_turn_system_str}  failure_rate={best_failure_rate}  p={best_p}] write a csv to `{best_csv_file_path}` file ...")
-        df_b.to_csv(best_csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_win_rate', 'b_win_rate', 'no_win_match_rate'],
-                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+        csv_file_path_to_wrote = ScoreBoardDataBestTable.to_csv(df=df_b)
+        print(f"[{datetime.datetime.now()}][turn_system={best_record.turn_system_str}  failure_rate={best_record.failure_rate}  p={best_record.p}] write a csv to `{csv_file_path_to_wrote}` file ...")
 
 
 ########################################

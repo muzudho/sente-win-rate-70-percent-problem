@@ -4,6 +4,9 @@
 # class のコーディングの手間を省くためのものです。
 # テンプレートにCSVを流し込みます。
 #
+# data/class_properties.csv ファイルにプロパティー名を羅列してください。先頭行は `property_name` という列名であることに注意してください
+#
+#
 import traceback
 import pandas as pd
 
