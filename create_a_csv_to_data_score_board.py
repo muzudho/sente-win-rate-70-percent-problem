@@ -143,13 +143,40 @@ def automatic(turn_system, failure_rate, p):
             failure_rate=spec.failure_rate,
             turn_system=spec.turn_system)
 
+
     # ファイルが存在したなら、読込
     if os.path.isfile(csv_file_path):
         df = pd.read_csv(csv_file_path, encoding="utf8")
 
+
+        # ループカウンター
+        if len(df) < 1:
+            span = 1        # ［目標の点数］
+            t_step = 1      # ［後手で勝ったときの勝ち点］
+            h_step = 1      # ［先手で勝ったときの勝ち点］
+        else:
+            # 途中まで処理が終わってるんだったら、途中から再開したいが。ループの途中から始められるか？
+
+            # TODO 最後に処理された span は？
+            span = int(df['span'].max())
+
+            # TODO 最後に処理された span のうち、最後に処理された t_step は？
+            t_step = int(df.loc[df['span']==span, 't_step'].max())
+
+            # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
+            h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
+
+            turn_system_str = Converter.turn_system_to_code(spec.turn_system)
+            print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] restart {span=}  {t_step=}  {h_step=}")
+
     # ファイルが存在しなかったなら、空データフレーム作成
     else:
         df = ScoreBoardDataTable.new_data_frame()
+
+        # ループカウンター
+        span = 1        # ［目標の点数］
+        t_step = 1      # ［後手で勝ったときの勝ち点］
+        h_step = 1      # ［先手で勝ったときの勝ち点］
 
 
     # CSV保存用タイマー
@@ -158,11 +185,7 @@ def automatic(turn_system, failure_rate, p):
     number_of_dirty = 0
     number_of_skip = 0
 
-    # TODO 途中まで処理が終わってるんだったら、途中から再開したいが。ループの途中から始められるか？
-    # ループカウンター
-    span = 1        # ［目標の点数］
-    t_step = 1      # ［後手で勝ったときの勝ち点］
-    h_step = 1      # ［先手で勝ったときの勝ち点］
+
     while span < 100:
 
         calculation_status = automatic_in_loop(
