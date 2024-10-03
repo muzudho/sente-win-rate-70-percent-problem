@@ -4,7 +4,7 @@ import math
 
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard, ThreeRates
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, AllPatternsFaceOfCoin, ScoreBoard, ThreeRates
 from library.file_paths import get_score_board_view_csv_file_path
 from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body
 
@@ -14,9 +14,9 @@ def search_all_score_boards(series_rule, on_score_board_created):
     list_of_trial_results_for_one_series = []
 
     # ［出目シーケンス］の全パターンを網羅します
-    list_of_all_pattern_face_of_coin = SequenceOfFaceOfCoin.make_list_of_all_pattern_face_of_coin(
+    list_of_all_pattern_face_of_coin = AllPatternsFaceOfCoin(
             can_failure=0 < series_rule.spec.failure_rate,
-            series_rule=series_rule)
+            series_rule=series_rule).make_list_of_all_pattern_face_of_coin()
     
 
     distinct_set = set()
@@ -102,6 +102,9 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
         # 満点で,Ｂさんの勝ち
         # 勝ち点差で,Ｂさんの勝ち
+        #
+        #   NOTE ［Ａさんの勝ち］が分かれば［Ｂさんの勝ち］は調べなくていいが、一応、検算のために取っておく
+        #
         elif score_board.game_results == BOB_FULLY_WON or score_board.game_results == BOB_POINTS_WON:
             b_win_rate_with_draw += score_board.pattern_p
         

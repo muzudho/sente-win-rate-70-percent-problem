@@ -117,15 +117,15 @@ EVEN = 0.5
 
 # ほぼ 1
 #
-#   これは、［ほぼ］ではなく 1 なのに、２進数が割り切れない都合で 0.9999999999999984 になってしまうケースを 1 と判定したいときがある
+#   これは、［ほぼ］ではなく 1 なのに、２進数が割り切れない都合で 0.9999999999999984 や 1.0000000000123324 になってしまうケースを 1 と判定したいときがある
 #
 def is_almost_one(rate):
-    return 0.9999999999 <= rate and rate <= 1.00000000001
+    return 0.9999999999 <= rate and rate <= 1.0000000001
 
 
 # ほぼ五分五分
 def is_almost_even(rate):
-    return 0.4999999999 <= rate and rate <= 0.50000000001
+    return 0.4999999999 <= rate and rate <= 0.5000000001
 
 
 class Converter():
@@ -442,88 +442,6 @@ class SequenceOfFaceOfCoin():
 
 
     @staticmethod
-    def make_list_of_all_pattern_face_of_coin(can_failure, series_rule):
-        """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印の組み合わせが全て入っているリストを作成します
-
-        TODO ［先後固定制］での１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
-        
-        １タイムは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
-
-        Returns
-        -------
-        series_rule : SeriesRule
-            ［シリーズ・ルール］
-        power_set_list : list
-            勝った方の色（引き分け含む）のリストが全パターン入っているリスト
-        """
-
-        # 要素数
-        if can_failure:
-            # 表勝ち、裏勝ち、勝者なしの３要素
-            elements = [HEAD, TAIL, EMPTY]
-        else:
-            # 表勝ち、裏勝ちけの２要素
-            elements = [HEAD, TAIL]
-
-        # 桁数
-        depth = series_rule.upper_limit_coins
-
-        # １シーズン分のコイントスの全ての結果
-        all_patterns = []
-
-        position = []
-
-
-        def search(depth, all_patterns, position, can_failure):
-
-            # 表勝ちを追加
-            position.append(HEAD)
-
-            if 0 < depth:
-                search(depth - 1, all_patterns, position, can_failure=can_failure)
-            
-            # 葉なら、ポジションのコピーを追加
-            else:
-                all_patterns.append(list(position))
-
-            # 末尾の要素を削除
-            position.pop()
-
-
-            # 裏勝ちを追加
-            position.append(TAIL)
-
-            if 0 < depth:
-                search(depth - 1, all_patterns, position, can_failure=can_failure)
-            # 葉なら、ポジションのコピーを追加
-            else:
-                all_patterns.append(list(position))
-
-            # 末尾の要素を削除
-            position.pop()
-
-
-            if can_failure:
-                # 引分けを追加
-                position.append(EMPTY)
-
-                if 0 < depth:
-                    search(depth - 1, all_patterns, position, can_failure=can_failure)
-                # 葉なら、ポジションのコピーを追加
-                else:
-                    all_patterns.append(list(position))
-
-                # 末尾の要素を削除
-                position.pop()
-
-
-
-        search(depth - 1, all_patterns, position, can_failure=can_failure)
-
-        return all_patterns
-
-
-    @staticmethod
     def make_sequence_of_playout(spec, upper_limit_coins):
         """［コイントスの結果］を並べたものを作成します
 
@@ -555,6 +473,103 @@ class SequenceOfFaceOfCoin():
         """コイントスの結果のリストの長さを切ります。
         対局は必ずしも［上限対局数］になるわけではありません"""
         return list_of_face_of_coin[0:number_of_coins]
+
+
+
+
+class AllPatternsFaceOfCoin():
+    """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印の組み合わせが全て入っているリスト"""
+
+
+    def __init__(self, can_failure, series_rule):
+        """初期化
+
+        Parameters
+        ----------
+        can_failure : bool
+            ［表も裏も出なかった事象］の有無
+        series_rule : SeriesRule
+            ［シリーズ・ルール］
+        """
+        self._can_failure = can_failure
+        self._series_rule = series_rule
+        self._all_patterns = None
+        self._position = None
+
+
+    def __search(self, depth):
+
+        # 表勝ちを追加
+        self._position.append(HEAD)
+
+        if 0 < depth:
+            self.__search(depth - 1)
+        
+        # 葉なら、ポジションのコピーを追加
+        else:
+            self._all_patterns.append(list(self._position))
+
+        # 末尾の要素を削除
+        self._position.pop()
+
+
+        # 裏勝ちを追加
+        self._position.append(TAIL)
+
+        if 0 < depth:
+            self.__search(depth - 1)
+        # 葉なら、ポジションのコピーを追加
+        else:
+            self._all_patterns.append(list(self._position))
+
+        # 末尾の要素を削除
+        self._position.pop()
+
+
+        if self._can_failure:
+            # 引分けを追加
+            self._position.append(EMPTY)
+
+            if 0 < depth:
+                self.__search(depth - 1)
+            # 葉なら、ポジションのコピーを追加
+            else:
+                self._all_patterns.append(list(self._position))
+
+            # 末尾の要素を削除
+            self._position.pop()
+
+
+    def make_list_of_all_pattern_face_of_coin(self):
+        """１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
+        
+        １コインは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
+
+        Returns
+        -------
+        all_patterns : list
+            勝った方の色（引き分け含む）のリストが全パターン入っているリスト
+        """
+
+        # 要素数
+        if self._can_failure:
+            # 表勝ち、裏勝ち、勝者なしの３要素
+            elements = [HEAD, TAIL, EMPTY]
+        else:
+            # 表勝ち、裏勝ちけの２要素
+            elements = [HEAD, TAIL]
+
+        # 桁数
+        depth = self._series_rule.upper_limit_coins
+
+        # １シーズン分のコイントスの全ての結果
+        self._all_patterns = []
+
+        self._position = []
+
+        self.__search(depth - 1)
+
+        return self._all_patterns
 
 
 class PointCalculation():
