@@ -496,6 +496,94 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 """
 
 
+#############
+# Score board
+#############
+
+class ScoreBoardViewData():
+    """スコアボード・ビューデータ"""
+
+
+    def __init__(self, list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_count_down_points_str, list_of_b_count_down_points_str):
+        """初期化
+
+        Parameters
+        ----------
+        list_of_round_number_str : list
+            スコアボードのラウンド番号の行
+        list_of_head_player_str : list
+            スコアボードの表番の行
+        list_of_face_of_coin_str : list
+            スコアボードの出目の行
+        list_of_a_count_down_points_str : list
+            スコアボードのＡさんの行
+        list_of_b_count_down_points_str : list
+            スコアボードのＢさんの行
+        """
+        self._list_of_round_number_str = list_of_round_number_str
+        self._list_of_head_player_str = list_of_head_player_str
+        self._list_of_face_of_coin_str = list_of_face_of_coin_str
+        self._list_of_a_count_down_points_str = list_of_a_count_down_points_str
+        self._list_of_b_count_down_points_str = list_of_b_count_down_points_str
+
+
+    @staticmethod
+    def from_data(score_board_data):
+
+        # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
+        list_of_round_number_str = ['']
+        list_of_head_player_str = ['表番']
+        list_of_face_of_coin_str = ['出目']
+        list_of_a_count_down_points_str = ['Ａさん']
+        list_of_b_count_down_points_str = ['Ｂさん']
+
+
+        for round in score_board_data.round_list:
+            list_of_round_number_str.append(round[0])
+            list_of_head_player_str.append(round[1])
+            list_of_face_of_coin_str.append(round[2])
+            list_of_a_count_down_points_str.append(round[3])
+            list_of_b_count_down_points_str.append(round[4])
+
+
+        return ScoreBoardViewData(
+                list_of_round_number_str=list_of_round_number_str,
+                list_of_head_player_str=list_of_head_player_str,
+                list_of_face_of_coin_str=list_of_face_of_coin_str,
+                list_of_a_count_down_points_str=list_of_a_count_down_points_str,
+                list_of_b_count_down_points_str=list_of_b_count_down_points_str)
+
+
+    @property
+    def list_of_round_number_str(self):
+        """スコアボードのラウンド番号の行"""
+        return self._list_of_round_number_str
+
+
+    @property
+    def list_of_head_player_str(self):
+        """スコアボードの表番の行"""
+        return self._list_of_head_player_str
+
+
+    @property
+    def list_of_face_of_coin_str(self):
+        """スコアボードの出目の行"""
+        return self._list_of_face_of_coin_str
+
+
+    @property
+    def list_of_a_count_down_points_str(self):
+        """スコアボードのＡさんの行"""
+        return self._list_of_a_count_down_points_str
+
+
+    @property
+    def list_of_b_count_down_points_str(self):
+        """スコアボードのＢさんの行"""
+        return self._list_of_b_count_down_points_str
+
+
 def stringify_csv_of_score_board_view_header(spec, series_rule):
     """スコアボードCSVヘッダー作成"""
     span = series_rule.step_table.span
@@ -592,24 +680,28 @@ def stringify_csv_of_score_board_view_body(score_board):
     # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
     str_ptn = str(score_board.pattern_no)
     str_pattern_p = str(score_board.pattern_p)
-    str_first_of_round_number = score_board.list_of_round_number_str[0]
-    str_first_of_head_player = score_board.list_of_head_player_str[0]
-    str_first_of_face_of_coin = score_board.list_of_face_of_coin_str[0]
-    str_first_of_a_points = score_board.list_of_a_count_down_points_str[0]
-    str_first_of_b_points = score_board.list_of_b_count_down_points_str[0]
 
-    str_second_of_round_number = score_board.list_of_round_number_str[1]
-    str_second_of_head_player = score_board.list_of_head_player_str[1]
-    str_second_of_face_of_coin = score_board.list_of_face_of_coin_str[1]
-    str_second_of_a_points = score_board.list_of_a_count_down_points_str[1]
-    str_second_of_b_points = score_board.list_of_b_count_down_points_str[1]
+
+    score_board_view_data = ScoreBoardViewData.from_data(score_board)
+
+    str_first_of_round_number = score_board_view_data.list_of_round_number_str[0]
+    str_first_of_head_player = score_board_view_data.list_of_head_player_str[0]
+    str_first_of_face_of_coin = score_board_view_data.list_of_face_of_coin_str[0]
+    str_first_of_a_points = score_board_view_data.list_of_a_count_down_points_str[0]
+    str_first_of_b_points = score_board_view_data.list_of_b_count_down_points_str[0]
+
+    str_second_of_round_number = score_board_view_data.list_of_round_number_str[1]
+    str_second_of_head_player = score_board_view_data.list_of_head_player_str[1]
+    str_second_of_face_of_coin = score_board_view_data.list_of_face_of_coin_str[1]
+    str_second_of_a_points = score_board_view_data.list_of_a_count_down_points_str[1]
+    str_second_of_b_points = score_board_view_data.list_of_b_count_down_points_str[1]
 
     # ２つ目以降の要素は必ずあるだろう、という前提
-    str_tail_of_round_number = ','.join([str(element) for element in score_board.list_of_round_number_str[2:]])
-    str_tail_of_head_player = ','.join([str(element) for element in score_board.list_of_head_player_str[2:]])
-    str_tail_of_face_of_coin = ','.join([str(element) for element in score_board.list_of_face_of_coin_str[2:]])
-    str_tail_of_a_points = ','.join([str(element) for element in score_board.list_of_a_count_down_points_str[2:]])
-    str_tail_of_b_points = ','.join([str(element) for element in score_board.list_of_b_count_down_points_str[2:]])
+    str_tail_of_round_number = ','.join([str(element) for element in score_board_view_data.list_of_round_number_str[2:]])
+    str_tail_of_head_player = ','.join([str(element) for element in score_board_view_data.list_of_head_player_str[2:]])
+    str_tail_of_face_of_coin = ','.join([str(element) for element in score_board_view_data.list_of_face_of_coin_str[2:]])
+    str_tail_of_a_points = ','.join([str(element) for element in score_board_view_data.list_of_a_count_down_points_str[2:]])
+    str_tail_of_b_points = ','.join([str(element) for element in score_board_view_data.list_of_b_count_down_points_str[2:]])
 
 
     #,元データ,{source_data}

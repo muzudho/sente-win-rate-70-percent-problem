@@ -2068,8 +2068,7 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, pattern_no, pattern_p, spec, series_rule, list_of_face_of_coin, game_results,
-            list_of_round_number_str, list_of_head_player_str, list_of_face_of_coin_str, list_of_a_count_down_points_str, list_of_b_count_down_points_str):
+    def __init__(self, pattern_no, pattern_p, spec, series_rule, list_of_face_of_coin, game_results, round_list):
         """初期化
 
         Parameters
@@ -2086,16 +2085,8 @@ class ScoreBoard():
             コイントスした結果のリスト。引き分け含む
         game_results : int
             対局結果
-        list_of_round_number_str : list
-            スコアボードのラウンド番号の行
-        list_of_head_player_str : list
-            スコアボードの表番の行
-        list_of_face_of_coin_str : list
-            スコアボードの出目の行
-        list_of_a_count_down_points_str : list
-            スコアボードのＡさんの行
-        list_of_b_count_down_points_str : list
-            スコアボードのＢさんの行
+        round_list : list
+            対局過程
         """
 
         self._pattern_no = pattern_no
@@ -2104,11 +2095,7 @@ class ScoreBoard():
         self._series_rule = series_rule
         self._list_of_face_of_coin = list_of_face_of_coin
         self._game_results = game_results
-        self._list_of_round_number_str = list_of_round_number_str
-        self._list_of_head_player_str = list_of_head_player_str
-        self._list_of_face_of_coin_str = list_of_face_of_coin_str
-        self._list_of_a_count_down_points_str = list_of_a_count_down_points_str
-        self._list_of_b_count_down_points_str = list_of_b_count_down_points_str
+        self._round_list = round_list
 
 
     @staticmethod
@@ -2192,28 +2179,13 @@ class ScoreBoard():
             round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
 
 
-        # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
-        list_of_round_number_str = ['']
-        list_of_head_player_str = ['表番']
-        list_of_face_of_coin_str = ['出目']
-        list_of_a_count_down_points_str = ['Ａさん']
-        list_of_b_count_down_points_str = ['Ｂさん']
-
-
-        for round in round_list:
-            list_of_round_number_str.append(round[0])
-            list_of_head_player_str.append(round[1])
-            list_of_face_of_coin_str.append(round[2])
-            list_of_a_count_down_points_str.append(round[3])
-            list_of_b_count_down_points_str.append(round[4])
-
-
-        last_a_count_down_point = int(list_of_a_count_down_points_str[-1])
-        last_b_count_down_point = int(list_of_b_count_down_points_str[-1])
+        last_round = round_list[-1]
+        last_a_count_down_point = int(last_round[3])
+        last_b_count_down_point = int(last_round[4])
 
         # 対局不成立
         if last_a_count_down_point <= 0 and last_b_count_down_point <= 0:
-            raise ValueError(f"両者が満点はおかしい {list_of_round_number_str=}  {list_of_head_player_str=}  {list_of_face_of_coin_str=}  {list_of_a_count_down_points_str=}  {list_of_b_count_down_points_str=}  {spec.p=}  {spec.failure_rate=}  turn_system={Converter.turn_system_to_code(spec.turn_system)}  {span=}  {t_step=}  {h_step=}")
+            raise ValueError(f"両者が満点はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system={Converter.turn_system_to_code(spec.turn_system)}  {span=}  {t_step=}  {h_step=}")
         
         # 満点で,Ａさんの勝ち
         elif last_a_count_down_point <= 0:
@@ -2243,11 +2215,7 @@ class ScoreBoard():
                 series_rule=series_rule,
                 list_of_face_of_coin=list_of_face_of_coin,
                 game_results=game_results,
-                list_of_round_number_str=list_of_round_number_str,
-                list_of_head_player_str=list_of_head_player_str,
-                list_of_face_of_coin_str=list_of_face_of_coin_str,
-                list_of_a_count_down_points_str=list_of_a_count_down_points_str,
-                list_of_b_count_down_points_str=list_of_b_count_down_points_str)
+                round_list=round_list)
 
 
     @property
@@ -2281,39 +2249,15 @@ class ScoreBoard():
 
 
     @property
-    def list_of_round_number_str(self):
-        """スコアボードのラウンド番号の行"""
-        return self._list_of_round_number_str
-
-
-    @property
-    def list_of_head_player_str(self):
-        """スコアボードの表番の行"""
-        return self._list_of_head_player_str
-
-
-    @property
-    def list_of_face_of_coin_str(self):
-        """スコアボードの出目の行"""
-        return self._list_of_face_of_coin_str
-
-
-    @property
-    def list_of_a_count_down_points_str(self):
-        """スコアボードのＡさんの行"""
-        return self._list_of_a_count_down_points_str
-
-
-    @property
-    def list_of_b_count_down_points_str(self):
-        """スコアボードのＢさんの行"""
-        return self._list_of_b_count_down_points_str
-
-
-    @property
     def game_results(self):
         """対局結果"""
         return self._game_results
+
+
+    @property
+    def round_list(self):
+        """対局過程"""
+        return self._round_list
 
 
     def stringify_dump(self, indent):
