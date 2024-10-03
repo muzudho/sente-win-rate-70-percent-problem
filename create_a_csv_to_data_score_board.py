@@ -44,7 +44,7 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
     end_time_for_save = time.time()
     if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
         start_time_for_save = end_time_for_save
-        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] skip={number_of_skip}")
+        print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] skip={number_of_skip}")
         number_of_skip = 0
 
         # 変更があれば保存
@@ -52,7 +52,7 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
             # CSVファイルへ書き出し
             csv_file_path_to_wrote = ScoreBoardDataTable.to_csv(df, spec)
             number_of_dirty = 0
-            print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] dirty={number_of_dirty} write file to `{csv_file_path_to_wrote}` ...")
+            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] dirty={number_of_dirty} write file to `{csv_file_path_to_wrote}` ...")
 
         # 計算未停止だが、譲る（タイムシェアリング）
         return YIELD
@@ -77,7 +77,7 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
 
         # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
         if is_almost_even(df.loc[key, ['a_win_rate']].iat[0, 0]):
-            print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
+            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] even!   {span=:2}  {t_step=:2}  {h_step=:2}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
 
             # CSVファイルへ書き出し
             ScoreBoardDataTable.to_csv(df, spec)
@@ -114,7 +114,7 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
 
     # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
     if three_rates.is_even:
-        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] even! {span=}  {t_step=}  {h_step=}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
+        print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] even!   {span=:2}  {t_step=:2}  {h_step=:2}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
         # CSVファイルへ書き出し
         ScoreBoardDataTable.to_csv(df, spec)
         return TERMINATED
@@ -183,7 +183,7 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
             h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
 
             turn_system_str = Converter.turn_system_to_code(spec.turn_system)
-            print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] restart {span=}  {t_step=}  {h_step=}")
+            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] restart {span=:2}  {t_step=:2}  {h_step=:2}")
 
 
     # CSV保存用タイマー
@@ -263,8 +263,8 @@ if __name__ == '__main__':
                         if calculation_status != TERMINATED:
                             number_of_not_terminated += 1
 
-                    # ［護送船団方式］で、一番遅いところに合わせる
-                    upper_limit_span = trial_min_span
+                    # ［護送船団方式］で、一番遅いところが１つ進むように合わせる
+                    upper_limit_span = trial_min_span + 1
 
 
     except Exception as err:
