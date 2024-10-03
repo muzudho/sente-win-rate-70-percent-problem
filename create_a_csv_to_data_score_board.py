@@ -31,12 +31,14 @@ INTERVAL_SECONDS_FOR_SAVE_CSV = 3   # 2
 
 
 
-def automatic_in_loop(df, spec, span, t_step, h_step):
+def automatic_in_loop(df, spec, span, t_step, h_step, depth):
     """
     Returns
     -------
     calculation_status : int
         計算状況
+    depth : int
+        探索の深さ
     """
 
     # CSV保存用タイマー
@@ -63,6 +65,12 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
             h_step=h_step,
             t_step=t_step,
             span=span)
+
+
+    if depth < specified_series_rule.upper_limit_coins:
+        # 計算未停止だが、譲る（タイムシェアリング）
+        return YIELD
+
 
     # 該当レコードのキー
     key = (df['turn_system']==turn_system_str) & (df['failure_rate']==spec.failure_rate) & (df['p']==spec.p) & (df['span']==specified_series_rule.step_table.span) & (df['t_step']==specified_series_rule.step_table.get_step_by(face_of_coin=TAIL)) & (df['h_step']==specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
@@ -114,12 +122,12 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
     return CONTINUE
 
 
-def automatic(spec, upper_limit_span):
+def automatic(spec, depth):
     """
     Parameters
     ----------
-    upper_limit_span : int
-        span の上限
+    depth : int
+        探索の深さ
 
     Returns
     -------
@@ -146,7 +154,7 @@ def automatic(spec, upper_limit_span):
         t_step = 1      # ［後手で勝ったときの勝ち点］
         h_step = 1      # ［先手で勝ったときの勝ち点］
 
-        print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={spec.p:.2f}  turn_system={turn_system_str:11}] new file  {upper_limit_span=}")
+        print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={spec.p:.2f}  turn_system={turn_system_str:11}] new file  {depth=}")
 
         # １件も処理してないが、ファイルを保存したいのでフラグを立てる
         number_of_dirty += 1
@@ -171,21 +179,18 @@ def automatic(spec, upper_limit_span):
             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
             h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
 
-            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] restart {span=:2}  {t_step=:2}  {h_step=:2}  {upper_limit_span=}")
+            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] restart {span=:2}  {t_step=:2}  {h_step=:2}  {depth=}")
 
 
-    # CSV保存用タイマー
-    start_time_for_save = time.time()
-
-
-    while span < upper_limit_span + 1:
+    while span < OUT_OF_UPPER_SPAN + 1:
 
         calculation_status = automatic_in_loop(
                 df=df,
                 spec=spec,
                 span=span,
                 t_step=t_step,
-                h_step=h_step)
+                h_step=h_step,
+                depth=depth)
 
         if calculation_status in [TERMINATED, YIELD]:
             return df, calculation_status, span
@@ -213,9 +218,8 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # span が 9 を超えてくると、ツリー構造の深さが伸びるわけだから、処理時間が指数関数的に増えてくるので、反復深化探索を使いたい
-        upper_limit_span = 1
-        trial_min_span = OUT_OF_UPPER_SPAN
+        # upper_limit_coins がツリー構造の深さに関わってくるので、これを反復深化探索にしたい
+        depth = 0
 
         # 計算停止していない数（ループに入るために最初の１回はダミー値）
         # 時間を譲ったか、計算続行中の数
@@ -223,7 +227,8 @@ if __name__ == '__main__':
 
         while number_of_not_terminated != 0:
 
-            print("search ...")
+            depth += 1
+            print(f"search {depth=} ...")
 
             # リセット
             number_of_not_terminated = 0
@@ -243,6 +248,8 @@ if __name__ == '__main__':
                         number_of_dirty = 0
                         number_of_skip = 0
 
+                        # CSV保存用タイマー
+                        start_time_for_save = time.time()
 
 
                         # 仕様
@@ -253,7 +260,7 @@ if __name__ == '__main__':
 
                         df, calculation_status, span = automatic(
                                 spec=spec,
-                                upper_limit_span=upper_limit_span)
+                                depth=depth)
 
 
                         # 変更があれば保存
@@ -264,20 +271,9 @@ if __name__ == '__main__':
                             turn_system_str = Converter.turn_system_to_code(spec.turn_system)
                             print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}]  dirty={number_of_dirty}  skip={number_of_skip}  {calculation_status=}  write file to `{csv_file_path_to_wrote}` ...")
 
-                            # number_of_dirty = 0
-                            # number_of_skip = 0
-
-
-                        if span < trial_min_span:
-                            trial_min_span = span
 
                         if calculation_status != TERMINATED:
                             number_of_not_terminated += 1
-
-
-            # ［護送船団方式］で、一番遅いところが１つ進むように合わせる
-            if upper_limit_span < trial_min_span + 2:   # +1 だと増えなかった
-                upper_limit_span = trial_min_span + 2
 
 
     except Exception as err:
