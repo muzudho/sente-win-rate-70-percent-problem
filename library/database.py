@@ -6,10 +6,9 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, round_letro, Converter, ThreeRates
-from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
+from library.file_paths import get_even_data_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 
 
-CSV_FILE_PATH_MRP = './data/report_selection_series_rule.csv'
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
@@ -307,127 +306,6 @@ class EvenTable():
                     candidates=candidates)
 
             on_each(even_record)
-
-
-class SelectionSeriesRuleRecord():
-
-
-    def __init__(self, p, failure_rate, h_step, t_step, span, presentable, comment, candidates):
-
-        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        h_step = round_letro(h_step)
-        t_step = round_letro(t_step)
-        span = round_letro(span)
-
-        self._p=p
-        self._failure_rate=failure_rate
-        self._h_step=h_step
-        self._t_step=t_step
-        self._span=span
-        self._presentable=presentable
-        self._comment=comment
-        self._candidates=candidates
-
-
-    @property
-    def p(self):
-        return self._p
-
-
-    @property
-    def failure_rate(self):
-        return self._failure_rate
-
-
-    @property
-    def h_step(self):
-        return self._h_step
-
-
-    @property
-    def t_step(self):
-        return self._t_step
-
-
-    @property
-    def span(self):
-        return self._span
-
-
-    @property
-    def presentable(self):
-        return self._presentable
-
-
-    @property
-    def comment(self):
-        return self._comment
-
-
-    @property
-    def candidates(self):
-        return self._candidates
-
-
-class SelectionSeriesRuleTable():
-
-
-    @staticmethod
-    def set_type(df):
-        df['p'].astype('float64')
-        df['failure_rate'].astype('float64')
-        df['trials_series'].fillna(0).astype('int64')
-        df['h_step'].fillna(0).astype('int64')
-        df['t_step'].fillna(1).astype('int64')
-        df['span'].fillna(1).astype('int64')
-        df['presentable'].astype('object')    # string 型は無い？
-        df['comment'].astype('object')    # string 型は無い？
-        df['candidates'].astype('object')    # string 型は無い？
-
-
-    @staticmethod
-    def append_default_record(df, p, failure_rate):
-        index = len(df.index)
-
-        # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
-        # NOTE pandas の DataFrame に int 型の数値を入れると、小数点を付けて保存されてしまうため、 int 型の数は文字列として入れる。（ただし、取り出すときは float 型になる）
-        df.loc[index, ['p']] = p
-        df.loc[index, ['failure_rate']] = failure_rate
-        df.loc[index, ['trials_series']] = '0'
-        df.loc[index, ['h_step']] = '0'
-        df.loc[index, ['t_step']] = '1'
-        df.loc[index, ['span']] = '1'
-        df.loc[index, ['presentable']] = ''
-        df.loc[index, ['comment']] = ''
-        df.loc[index, ['candidates']] = ''
-
-
-    @staticmethod
-    def read_df(turn_system):
-        csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
-
-        # ファイルが存在しなかった場合
-        if not os.path.isfile(csv_file_path):
-            csv_file_path = get_selection_series_rule_csv_file_path(turn_system=None)
-
-        df = pd.read_csv(csv_file_path, encoding="utf8")
-
-        SelectionSeriesRuleTable.set_type(df)
-
-        return df
-
-
-    @staticmethod
-    def to_csv(df, turn_system):
-
-        csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
-
-        print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
-
-        df.to_csv(csv_file_path,
-                # ［計算過程］列は長くなるので末尾に置きたい
-                columns=['p', 'failure_rate', 'trials_series', 'h_step', 't_step', 'span', 'presentable', 'comment', 'candidates'],
-                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
 class CalculateProbabilityTable():

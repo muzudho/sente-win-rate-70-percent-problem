@@ -227,13 +227,3 @@ def get_even_data_csv_file_path(failure_rate=None, turn_system=None, generation_
 
     # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
     return f'./data/even{subname}.csv'
-
-
-############################
-# Muzudho recommends points
-############################
-
-def get_selection_series_rule_csv_file_path(turn_system):
-    """勝ち点ルールのむずでょセレクション"""
-    subname = make_file_subname(turn_system=turn_system)
-    return f'./data/selection_series_rule{subname}.csv'
