@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import get_df_selection_series_rule, EvenTable
+from library.database import EvenTable
 from library.views import stringify_simulation_log
 
 

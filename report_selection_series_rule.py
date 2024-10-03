@@ -12,7 +12,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, SUCCESSFUL, FROZEN_TURN, ALTERNATING_TURN, round_letro, calculate_probability, SeriesRule, Specification
-from library.database import get_df_selection_series_rule, get_df_selection_series_rule
+from library.database import SelectionSeriesRuleTable
 from library.views import stringify_report_selection_series_rule
 
 
@@ -27,7 +27,7 @@ LIMIT_ERROR = 0.03
 
 def generate_report(specified_turn_system):
 
-    df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
+    df_ssr = SelectionSeriesRuleTable.read_df(turn_system=specified_turn_system)
 
     for             p,           trials_series,           h_step,           t_step,           span,           presentable,           comment,           candidates in\
         zip(df_ssr['p'], df_ssr['trials_series'], df_ssr['h_step'], df_ssr['t_step'], df_ssr['span'], df_ssr['presentable'], df_ssr['comment'], df_ssr['candidates']):

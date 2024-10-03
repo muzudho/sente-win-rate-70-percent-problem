@@ -11,9 +11,9 @@ import random
 import math
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, Converter, round_letro, Candidate
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, Candidate
 from library.file_paths import get_selection_series_rule_csv_file_path
-from library.database import EvenTable, get_df_selection_series_rule, df_ssr_to_csv, get_df_p, append_default_record_to_df_ssr
+from library.database import EvenTable, SelectionSeriesRuleTable, SelectionSeriesRuleTable
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -27,13 +27,13 @@ def ready_records(df, specified_failure_rate, specified_turn_system):
     """MRPテーブルについて、まず、行の存在チェック。無ければ追加"""
     is_append_new_record = False
 
-    df_p = get_df_p()
-
     # ［コインを投げて表が出る確率］
-    for p in df_p['p']:
+    for p_parcent in range(EVEN * 100, UPPER_LIMIT_OF_P * 100):
+        p = p_parcent / 100
+
         # 存在しなければデフォルトのレコード追加
         if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate)).any():
-            append_default_record_to_df_ssr(
+            SelectionSeriesRuleTable.append_default_record(
                     df=df,
                     p=p,
                     failure_rate=specified_failure_rate)
@@ -41,13 +41,13 @@ def ready_records(df, specified_failure_rate, specified_turn_system):
 
     if is_append_new_record:
         # CSV保存
-        df_ssr_to_csv(df=df, turn_system=specified_turn_system)
+        SelectionSeriesRuleTable.to_csv(df=df, turn_system=specified_turn_system)
 
 
 def generate_data(specified_failure_rate, specified_turn_system, generation_algorythm):
 
     df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
-    df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
+    df_ssr = SelectionSeriesRuleTable.read_df(turn_system=specified_turn_system)
 
     # まず、行の存在チェック。無ければ追加
     ready_records(df=df_ssr, specified_failure_rate=specified_failure_rate, specified_turn_system=specified_turn_system)
@@ -102,7 +102,7 @@ def generate_data(specified_failure_rate, specified_turn_system, generation_algo
 
 
         # CSV保存
-        df_ssr_to_csv(df=df_ssr, turn_system=specified_turn_system)
+        SelectionSeriesRuleTable.to_csv(df=df_ssr, turn_system=specified_turn_system)
 
 
 ########################################

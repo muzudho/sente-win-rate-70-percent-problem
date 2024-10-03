@@ -9,7 +9,7 @@ import traceback
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import get_df_selection_series_rule, EvenTable, EvenRecord, SelectionSeriesRuleTable
+from library.database import EvenTable, EvenRecord, SelectionSeriesRuleRecord
 
 
 def stringify_header(turn_system):

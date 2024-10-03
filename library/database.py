@@ -9,7 +9,6 @@ from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, round_letro
 from library.file_paths import get_even_data_csv_file_path, get_selection_series_rule_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 
 
-CSV_FILE_PATH_P = './data/p.csv'
 CSV_FILE_PATH_MRP = './data/report_selection_series_rule.csv'
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
@@ -127,6 +126,28 @@ class EvenTable():
 
 
     @staticmethod
+    def set_type(df):
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['p'].astype('float64')
+        df['failure_rate'].astype('float64')
+        df['turn_system'].astype('object')    # string 型は無い？
+        df['trials_series'].fillna(0).astype('int64')
+        df['best_p'].fillna(0.0).astype('float64')
+        df['best_p_error'].fillna(0.0).astype('float64')
+        df['best_h_step'].fillna(0).astype('int64')
+        df['best_t_step'].fillna(0).astype('int64')
+        df['best_span'].fillna(0).astype('int64')
+        df['latest_p'].fillna(0.0).astype('float64')
+        df['latest_p_error'].fillna(0.0).astype('float64')
+        df['latest_h_step'].fillna(0).astype('int64')
+        df['latest_t_step'].fillna(0).astype('int64')
+        df['latest_span'].fillna(0).astype('int64')
+        df['candidates'].fillna('').astype('object')    # string 型は無い？
+
+
+    @staticmethod
     def append_default_record(df, spec, trials_series):
         """
         Parameters
@@ -179,24 +200,7 @@ class EvenTable():
 
         df = pd.read_csv(csv_file_path, encoding="utf8")
 
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['p'].astype('float64')
-        df['failure_rate'].astype('float64')
-        df['turn_system'].astype('object')    # string 型は無い？
-        df['trials_series'].fillna(0).astype('int64')
-        df['best_p'].fillna(0.0).astype('float64')
-        df['best_p_error'].fillna(0.0).astype('float64')
-        df['best_h_step'].fillna(0).astype('int64')
-        df['best_t_step'].fillna(0).astype('int64')
-        df['best_span'].fillna(0).astype('int64')
-        df['latest_p'].fillna(0.0).astype('float64')
-        df['latest_p_error'].fillna(0.0).astype('float64')
-        df['latest_h_step'].fillna(0).astype('int64')
-        df['latest_t_step'].fillna(0).astype('int64')
-        df['latest_span'].fillna(0).astype('int64')
-        df['candidates'].fillna('').astype('object')    # string 型は無い？
+        EvenTable.set_type(df)
 
         return df
 
@@ -248,21 +252,7 @@ class EvenTable():
             on_each(even_record)
 
 
-##########
-# P table
-##########
-
-def get_df_p():
-    df = pd.read_csv(CSV_FILE_PATH_P, encoding="utf8")
-
-    return df
-
-
-###################################
-# Selection series rule table
-###################################
-
-class SelectionSeriesRuleTable():
+class SelectionSeriesRuleRecord():
 
 
     def __init__(self, p, failure_rate, h_step, t_step, span, presentable, comment, candidates):
@@ -322,64 +312,75 @@ class SelectionSeriesRuleTable():
         return self._candidates
 
 
-def append_default_record_to_df_ssr(df, p, failure_rate):
-    index = len(df.index)
-
-    # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
-    # NOTE pandas の DataFrame に int 型の数値を入れると、小数点を付けて保存されてしまうため、 int 型の数は文字列として入れる。（ただし、取り出すときは float 型になる）
-    df.loc[index, ['p']] = p
-    df.loc[index, ['failure_rate']] = failure_rate
-    df.loc[index, ['trials_series']] = '0'
-    df.loc[index, ['h_step']] = '0'
-    df.loc[index, ['t_step']] = '1'
-    df.loc[index, ['span']] = '1'
-    df.loc[index, ['presentable']] = ''
-    df.loc[index, ['comment']] = ''
-    df.loc[index, ['candidates']] = ''
+class SelectionSeriesRuleTable():
 
 
-def get_df_selection_series_rule(turn_system):
-    csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
-
-    # ファイルが存在しなかった場合
-    if not os.path.isfile(csv_file_path):
-        csv_file_path = get_selection_series_rule_csv_file_path(turn_system=None)
-
-    df = pd.read_csv(csv_file_path, encoding="utf8")
-
-    df['p'].astype('float64')
-    df['failure_rate'].astype('float64')
-    df['trials_series'].fillna(0).astype('int64')
-    df['h_step'].fillna(0).astype('int64')
-    df['t_step'].fillna(1).astype('int64')
-    df['span'].fillna(1).astype('int64')
-    df['presentable'].astype('object')    # string 型は無い？
-    df['comment'].astype('object')    # string 型は無い？
-    df['candidates'].astype('object')    # string 型は無い？
-
-    return df
+    @staticmethod
+    def set_type(df):
+        df['p'].astype('float64')
+        df['failure_rate'].astype('float64')
+        df['trials_series'].fillna(0).astype('int64')
+        df['h_step'].fillna(0).astype('int64')
+        df['t_step'].fillna(1).astype('int64')
+        df['span'].fillna(1).astype('int64')
+        df['presentable'].astype('object')    # string 型は無い？
+        df['comment'].astype('object')    # string 型は無い？
+        df['candidates'].astype('object')    # string 型は無い？
 
 
-def df_ssr_to_csv(df, turn_system):
+    @staticmethod
+    def append_default_record(df, p, failure_rate):
+        index = len(df.index)
 
-    csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
+        # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
+        # NOTE pandas の DataFrame に int 型の数値を入れると、小数点を付けて保存されてしまうため、 int 型の数は文字列として入れる。（ただし、取り出すときは float 型になる）
+        df.loc[index, ['p']] = p
+        df.loc[index, ['failure_rate']] = failure_rate
+        df.loc[index, ['trials_series']] = '0'
+        df.loc[index, ['h_step']] = '0'
+        df.loc[index, ['t_step']] = '1'
+        df.loc[index, ['span']] = '1'
+        df.loc[index, ['presentable']] = ''
+        df.loc[index, ['comment']] = ''
+        df.loc[index, ['candidates']] = ''
 
-    print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
-    df.to_csv(csv_file_path,
-            # ［計算過程］列は長くなるので末尾に置きたい
-            columns=['p', 'failure_rate', 'trials_series', 'h_step', 't_step', 'span', 'presentable', 'comment', 'candidates'],
-            index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+    @staticmethod
+    def read_df(turn_system):
+        csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
+
+        # ファイルが存在しなかった場合
+        if not os.path.isfile(csv_file_path):
+            csv_file_path = get_selection_series_rule_csv_file_path(turn_system=None)
+
+        df = pd.read_csv(csv_file_path, encoding="utf8")
+
+        SelectionSeriesRuleTable.set_type(df)
+
+        return df
 
 
-########################
-# Calculate probability
-########################
+    @staticmethod
+    def to_csv(df, turn_system):
 
-def get_df_let_calculate_probability():
-    df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8")
+        csv_file_path = get_selection_series_rule_csv_file_path(turn_system=turn_system)
 
-    return df
+        print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
+
+        df.to_csv(csv_file_path,
+                # ［計算過程］列は長くなるので末尾に置きたい
+                columns=['p', 'failure_rate', 'trials_series', 'h_step', 't_step', 'span', 'presentable', 'comment', 'candidates'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+
+class CalculateProbabilityTable():
+
+
+    @staticmethod
+    def get_df_let_calculate_probability():
+        df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8")
+
+        return df
 
 
 class ScoreBoardDataTable():
@@ -564,8 +565,25 @@ class ScoreBoardDataBestTable():
 
 
     @staticmethod
+    def set_type(df):
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['turn_system'].astype('object')    # string 型は無い？
+        df['failure_rate'].astype('float64')
+        df['p'].fillna(0.0).astype('float64')
+        df['span'].fillna(0).astype('int64')
+        df['t_step'].fillna(0).astype('int64')
+        df['h_step'].fillna(0).astype('int64')
+        df['shortest_coins'].fillna(0).astype('int64')
+        df['upper_limit_coins'].fillna(0).astype('int64')
+        df['a_win_rate'].fillna(0.0).astype('float64')
+        df['no_win_match_rate'].fillna(0.0).astype('float64')
+
+
+    @staticmethod
     def new_data_frame():
-        return pd.DataFrame.from_dict({
+        df = pd.DataFrame.from_dict({
                 'turn_system': [],
                 'failure_rate': [],
                 'p': [],
@@ -576,6 +594,10 @@ class ScoreBoardDataBestTable():
                 'upper_limit_coins': [],
                 'a_win_rate': [],
                 'no_win_match_rate': []})
+
+        ScoreBoardDataBestTable.set_type(df)
+
+        return df
 
 
     @staticmethod
@@ -622,19 +644,7 @@ class ScoreBoardDataBestTable():
 
         df = pd.read_csv(csv_file_path, encoding="utf8")
 
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['turn_system'].astype('object')    # string 型は無い？
-        df['failure_rate'].astype('float64')
-        df['p'].fillna(0.0).astype('float64')
-        df['span'].fillna(0).astype('int64')
-        df['t_step'].fillna(0).astype('int64')
-        df['h_step'].fillna(0).astype('int64')
-        df['shortest_coins'].fillna(0).astype('int64')
-        df['upper_limit_coins'].fillna(0).astype('int64')
-        df['a_win_rate'].fillna(0.0).astype('float64')
-        df['no_win_match_rate'].fillna(0.0).astype('float64')
+        ScoreBoardDataBestTable.set_type(df)
 
         return df
 
@@ -686,7 +696,7 @@ class ScoreBoardDataBestTable():
         df : DataFrame
             even の表
         """
-        for         turn_system,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       a_win_rate,       no_win_match_rate in\
+        for         turn_system_str,   failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       a_win_rate,       no_win_match_rate in\
             zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['a_win_rate'], df['no_win_match_rate']):
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
@@ -698,7 +708,7 @@ class ScoreBoardDataBestTable():
 
             # レコード作成
             even_record = ScoreBoardDataBestRecord(
-                    turn_system_str=turn_system,
+                    turn_system_str=turn_system_str,
                     failure_rate=failure_rate,
                     p=p,
                     span=span,

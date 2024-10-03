@@ -15,7 +15,7 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, OUT_OF_P, ABS_OUT_OF_ERROR, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
-from library.database import EvenTable, get_df_p
+from library.database import EvenTable
 from library.views import print_even_series_rule
 
 
@@ -85,10 +85,10 @@ def ready_records(df, specified_failure_rate, turn_system, generation_algorythm,
     """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
     is_append_new_record = False
 
-    df_p = get_df_p()
-
     # ［コインを投げて表が出る確率］
-    for p in df_p['p']:
+    for p_parcent in range(EVEN * 100, UPPER_LIMIT_OF_P * 100):
+        p = p_parcent / 100
+        
         # 存在しなければデフォルトのレコード追加
         if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate) & (df['trials_series'] == specified_trials_series)).any():
 

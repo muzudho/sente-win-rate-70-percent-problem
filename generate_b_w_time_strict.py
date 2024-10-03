@@ -14,7 +14,6 @@ import math
 import pandas as pd
 
 from library import calculate_probability, SeriesRule, FROZEN_TURN, OUT_OF_P, ABS_OUT_OF_ERROR
-from library.database import get_df_p
 from library.views import stringify_p_q_time_strict
 
 
@@ -38,10 +37,9 @@ if __name__ == '__main__':
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
         specified_trials_series = 1
 
-        df = get_df_p()
-
         # ［コインを投げて表が出る確率］
-        for p in df['p']:
+        for p_parcent in range(EVEN * 100, UPPER_LIMIT_OF_P * 100):
+            p = p_parcent / 100
 
             # ベストな調整後の先手勝率と、その誤差
             best_p = None
