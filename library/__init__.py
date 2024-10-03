@@ -2550,7 +2550,7 @@ class ThreeRates():
 
     @property
     def is_even(self):
-        return self._a_win_rate == EVEN
+        return is_almost_even(self._a_win_rate)
 
 
 def simulate_series(spec, series_rule, specified_trials_series):
