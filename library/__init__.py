@@ -111,6 +111,10 @@ OUT_OF_P = 1.01
 ABS_OUT_OF_ERROR = 0.51
 
 
+# span が 255 より上回ることはないだろう。計算の処理時間が甚大になるだろうから
+OUT_OF_UPPER_SPAN = 255
+
+
 # 五分五分
 EVEN = 0.5
 

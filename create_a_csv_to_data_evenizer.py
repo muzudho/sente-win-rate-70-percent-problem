@@ -413,7 +413,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
     global start_time_for_save, is_dirty_csv
 
-    df_ev = EvenTable.get_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
     #print(df_ev)
 
 

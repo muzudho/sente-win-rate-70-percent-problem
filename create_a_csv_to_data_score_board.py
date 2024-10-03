@@ -11,7 +11,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, Converter, Specification, SeriesRule, is_almost_even
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_UPPER_SPAN, Converter, Specification, SeriesRule, is_almost_even
 from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
 from library.database import ScoreBoardDataTable
@@ -123,12 +123,19 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
     return CONTINUE
 
 
-def automatic(turn_system, failure_rate, p):
+def automatic(turn_system, failure_rate, p, upper_limit_span):
     """
+    Parameters
+    ----------
+    upper_limit_span : int
+        span の上限
+
     Returns
     -------
     calculation_status : int
         計算状況
+    span : int
+        計算終了時の span
     """
 
     # 仕様
@@ -144,16 +151,25 @@ def automatic(turn_system, failure_rate, p):
             turn_system=spec.turn_system)
 
 
-    # ファイルが存在したなら、読込
-    if os.path.isfile(csv_file_path):
-        df = pd.read_csv(csv_file_path, encoding="utf8")
+    df, is_new = ScoreBoardDataTable.read_df(spec=spec)
 
 
+    # ファイルが存在せず、空データフレームが新規作成されたら
+    if is_new:
+
+        # ループカウンター
+        span = 1        # ［目標の点数］
+        t_step = 1      # ［後手で勝ったときの勝ち点］
+        h_step = 1      # ［先手で勝ったときの勝ち点］
+
+    # ファイルが存在して、読み込まれたなら
+    else:
         # ループカウンター
         if len(df) < 1:
             span = 1        # ［目標の点数］
             t_step = 1      # ［後手で勝ったときの勝ち点］
             h_step = 1      # ［先手で勝ったときの勝ち点］
+
         else:
             # 途中まで処理が終わってるんだったら、途中から再開したいが。ループの途中から始められるか？
 
@@ -169,15 +185,6 @@ def automatic(turn_system, failure_rate, p):
             turn_system_str = Converter.turn_system_to_code(spec.turn_system)
             print(f"[{datetime.datetime.now()}][turn_system={turn_system_str}  failure_rate={spec.failure_rate}  p={p}] restart {span=}  {t_step=}  {h_step=}")
 
-    # ファイルが存在しなかったなら、空データフレーム作成
-    else:
-        df = ScoreBoardDataTable.new_data_frame()
-
-        # ループカウンター
-        span = 1        # ［目標の点数］
-        t_step = 1      # ［後手で勝ったときの勝ち点］
-        h_step = 1      # ［先手で勝ったときの勝ち点］
-
 
     # CSV保存用タイマー
     global start_time_for_save, number_of_dirty, number_of_skip
@@ -186,7 +193,7 @@ def automatic(turn_system, failure_rate, p):
     number_of_skip = 0
 
 
-    while span < 100:
+    while span < upper_limit_span + 1:
 
         calculation_status = automatic_in_loop(
                 df=df,
@@ -196,7 +203,7 @@ def automatic(turn_system, failure_rate, p):
                 h_step=h_step)
 
         if calculation_status in [TERMINATED, YIELD]:
-            return calculation_status
+            return calculation_status, span
 
         # カウントアップ
         h_step += 1
@@ -209,7 +216,7 @@ def automatic(turn_system, failure_rate, p):
 
 
     # 探索範囲内に見つからなかったが、計算停止扱いとする
-    return TERMINATED
+    return TERMINATED, span
 
 
 ########################################
@@ -229,6 +236,10 @@ if __name__ == '__main__':
             # リセット
             number_of_not_terminated = 0
 
+            # span が 9 を超えてくると、ツリー構造の深さが伸びるわけだから、処理時間が指数関数的に増えてくるので、反復深化探索を使いたい
+            upper_limit_span = 1
+            trial_min_span = OUT_OF_UPPER_SPAN
+
             # ［将棋の引分け率］
             for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
                 failure_rate = failure_rate_percent / 100
@@ -240,9 +251,20 @@ if __name__ == '__main__':
                     # ［先後の決め方］
                     for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
-                        calculation_status = automatic(turn_system=turn_system, failure_rate=failure_rate, p=p)
+                        calculation_status, span = automatic(
+                                turn_system=turn_system,
+                                failure_rate=failure_rate,
+                                p=p,
+                                upper_limit_span=upper_limit_span)
+                        
+                        if span < trial_min_span:
+                            trial_min_span = span
+
                         if calculation_status != TERMINATED:
                             number_of_not_terminated += 1
+
+                    # ［護送船団方式］で、一番遅いところに合わせる
+                    upper_limit_span = trial_min_span
 
 
     except Exception as err:

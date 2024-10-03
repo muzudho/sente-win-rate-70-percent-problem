@@ -49,7 +49,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         raise ValueError(f"{generation_algorythm=}")
 
 
-    df_ev = EvenTable.get_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
 
 
     def on_each(even_record):

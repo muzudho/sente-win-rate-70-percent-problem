@@ -46,7 +46,7 @@ def ready_records(df, specified_failure_rate, specified_turn_system):
 
 def generate_data(specified_failure_rate, specified_turn_system, generation_algorythm):
 
-    df_ev = EvenTable.get_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
+    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm)
     df_ssr = get_df_selection_series_rule(turn_system=specified_turn_system)
 
     # まず、行の存在チェック。無ければ追加

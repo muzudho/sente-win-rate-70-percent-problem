@@ -47,7 +47,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
 
 
     # ベスト・テーブルを読込
-    df_b = ScoreBoardDataBestTable.get_df()
+    df_b = ScoreBoardDataBestTable.read_df()
 
 
     def on_each(best_record):

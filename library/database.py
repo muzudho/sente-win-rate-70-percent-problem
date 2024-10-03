@@ -155,7 +155,7 @@ class EvenTable():
 
 
     @staticmethod
-    def get_df(failure_rate, turn_system, generation_algorythm, trials_series):
+    def read_df(failure_rate, turn_system, generation_algorythm, trials_series):
         """
 
         Parameters
@@ -184,7 +184,7 @@ class EvenTable():
         #
         df['p'].astype('float64')
         df['failure_rate'].astype('float64')
-        df['turn_system'].fillna(0).astype('object')    # string 型は無い？
+        df['turn_system'].astype('object')    # string 型は無い？
         df['trials_series'].fillna(0).astype('int64')
         df['best_p'].fillna(0.0).astype('float64')
         df['best_p_error'].fillna(0.0).astype('float64')
@@ -387,8 +387,25 @@ class ScoreBoardDataTable():
 
 
     @staticmethod
+    def set_type(df):
+        #
+        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+        #
+        df['turn_system'].astype('object')    # string 型は無い？
+        df['failure_rate'].astype('float64')
+        df['p'].astype('float64')
+        df['span'].fillna(0).astype('int64')
+        df['t_step'].fillna(0).astype('int64')
+        df['h_step'].fillna(0).astype('int64')
+        df['shortest_coins'].fillna(0).astype('int64')
+        df['upper_limit_coins'].fillna(0).astype('int64')
+        df['a_win_rate'].fillna(0.0).astype('float64')
+        df['no_win_match_rate'].fillna(0.0).astype('float64')
+
+
+    @staticmethod
     def new_data_frame():
-        return pd.DataFrame.from_dict({
+        df = pd.DataFrame.from_dict({
                 'turn_system': [],
                 'failure_rate': [],
                 'p': [],
@@ -399,6 +416,48 @@ class ScoreBoardDataTable():
                 'upper_limit_coins': [],
                 'a_win_rate': [],
                 'no_win_match_rate': []})
+
+        ScoreBoardDataTable.set_type(df)
+
+        return df
+
+
+    @staticmethod
+    def read_df(spec):
+        """
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        
+        Returns
+        -------
+        df : DataFrame
+            データフレーム
+        is_new : bool
+            新規作成されたか？
+        """
+
+        # CSVファイルパス
+        csv_file_path = get_score_board_data_csv_file_path(
+                p=spec.p,
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system)
+
+
+        # ファイルが存在しなかった場合
+        is_new = not os.path.isfile(csv_file_path)
+        if is_new:
+            df = ScoreBoardDataTable.new_data_frame()
+
+        else:
+            df = pd.read_csv(csv_file_path, encoding="utf8")
+
+
+        ScoreBoardDataTable.set_type(df)
+
+        return df, is_new
 
 
     @staticmethod
@@ -549,7 +608,7 @@ class ScoreBoardDataBestTable():
 
 
     @staticmethod
-    def get_df():
+    def read_df():
         """
         """
 
@@ -566,7 +625,7 @@ class ScoreBoardDataBestTable():
         #
         # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
         #
-        df['turn_system'].fillna(0).astype('object')    # string 型は無い？
+        df['turn_system'].astype('object')    # string 型は無い？
         df['failure_rate'].astype('float64')
         df['p'].fillna(0.0).astype('float64')
         df['span'].fillna(0).astype('int64')
