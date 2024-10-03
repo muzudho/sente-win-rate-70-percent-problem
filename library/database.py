@@ -176,6 +176,54 @@ class EvenTable():
 
 
     @staticmethod
+    def update_record(df, specified_p, trials_series,
+            best_p, best_p_error, best_h_step, best_t_step, best_span,
+            latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span,
+            candidates):
+        """レコード更新
+        
+        Parameters
+        ----------
+        trials_series : int
+            ［試行シリーズ数］
+        best_p : float
+            ［調整後の表が出る確率］列を更新
+        best_p_error : float
+            ［調整後の表が出る確率の５割との誤差］
+        best_h_step : int
+            ［表番で勝ったときの勝ち点］列を更新
+        best_t_step : int
+            ［裏番で勝ったときの勝ち点］列を更新
+        best_span : int
+            ［目標の点数］列を更新 
+        latest_p : float
+            ［調整後の表が出る確率］列を更新
+        latest_p_error : float
+            ［調整後の表が出る確率の５割との誤差］
+        latest_h_step : int
+            ［表番で勝ったときの勝ち点］列を更新
+        latest_t_step : int
+            ［裏番で勝ったときの勝ち点］列を更新
+        latest_span : int
+            ［目標の点数］列を更新 
+        candidates : str
+            ［シリーズ・ルール候補］
+        """
+        df.loc[df['p']==specified_p, ['trials_series']] = trials_series
+        df.loc[df['p']==specified_p, ['best_p']] = best_p
+        df.loc[df['p']==specified_p, ['best_p_error']] = best_p_error
+        df.loc[df['p']==specified_p, ['best_h_step']] = best_h_step
+        df.loc[df['p']==specified_p, ['best_t_step']] = best_t_step
+        df.loc[df['p']==specified_p, ['best_span']] = best_span
+        df.loc[df['p']==specified_p, ['latest_p']] = latest_p
+        df.loc[df['p']==specified_p, ['latest_p_error']] = latest_p_error
+        df.loc[df['p']==specified_p, ['latest_h_step']] = latest_h_step
+        df.loc[df['p']==specified_p, ['latest_t_step']] = latest_t_step
+        df.loc[df['p']==specified_p, ['latest_span']] = latest_span
+        df.loc[df['p']==specified_p, ['candidates']] = candidates
+
+
+    @staticmethod
     def read_df(failure_rate, turn_system, generation_algorythm, trials_series):
         """
 
@@ -228,14 +276,23 @@ class EvenTable():
         df : DataFrame
             even の表
         """
-        for         p,       failure_rate,       turn_system,       trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
+        for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
             zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
+
+            # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+            trials_series = round_letro(trials_series)
+            best_h_step = round_letro(best_h_step)
+            best_t_step = round_letro(best_t_step)
+            best_span = round_letro(best_span)
+            latest_h_step = round_letro(latest_h_step)
+            latest_t_step = round_letro(latest_t_step)
+            latest_span = round_letro(latest_span)
 
             # レコード作成
             even_record = EvenRecord(
                     p=p,
                     failure_rate=failure_rate,
-                    turn_system_str=turn_system,
+                    turn_system_str=turn_system_str,
                     trials_series=trials_series,
                     best_p=best_p,
                     best_p_error=best_p_error,
@@ -424,13 +481,15 @@ class ScoreBoardDataTable():
 
 
     @staticmethod
-    def read_df(spec):
-        """
+    def read_df(spec, new_if_it_no_exists=False):
+        """ファイル読込
 
         Parameters
         ----------
         spec : Specification
             ［仕様］
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
         
         Returns
         -------
@@ -450,7 +509,10 @@ class ScoreBoardDataTable():
         # ファイルが存在しなかった場合
         is_new = not os.path.isfile(csv_file_path)
         if is_new:
-            df = ScoreBoardDataTable.new_data_frame()
+            if new_if_it_no_exists:
+                df = ScoreBoardDataTable.new_data_frame()
+            else:
+                df = None
 
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8")
@@ -630,23 +692,39 @@ class ScoreBoardDataBestTable():
 
 
     @staticmethod
-    def read_df():
-        """
+    def read_df(new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+
+        Returns
+        -------
+        df : DataFrame
+            データフレーム
+        is_new : bool
+            新規作成されたか？
         """
 
         csv_file_path = get_score_board_data_best_csv_file_path()
 
         # ファイルが存在しなかった場合
-        if not os.path.isfile(csv_file_path):
-            # 同じ処理
-            csv_file_path = get_score_board_data_best_csv_file_path()
+        is_new = not os.path.isfile(csv_file_path)
+        if is_new:
+            if new_if_it_no_exists:
+                df = ScoreBoardDataBestTable.new_data_frame()
+            else:
+                df = None
 
+        else:
+            df = pd.read_csv(csv_file_path, encoding="utf8")
 
-        df = pd.read_csv(csv_file_path, encoding="utf8")
 
         ScoreBoardDataBestTable.set_type(df)
 
-        return df
+        return df, is_new
 
 
     @staticmethod

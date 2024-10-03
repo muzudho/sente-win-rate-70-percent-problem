@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
 from library.file_paths import get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
-from library.database import ScoreBoardDataBestRecord, ScoreBoardDataBestTable
+from library.database import ScoreBoardDataTable, ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 
 
 def automatic(spec):
@@ -26,19 +26,11 @@ def automatic(spec):
 
     turn_system_str = Converter.turn_system_to_code(spec.turn_system)
 
-
-    # CSVファイルパス（読み込むファイル）
-    data_csv_file_path = get_score_board_data_csv_file_path(
-            p=spec.p,
-            failure_rate=spec.failure_rate,
-            turn_system=spec.turn_system)
+    df_d, is_new = ScoreBoardDataTable.read_df(spec=spec, new_if_it_no_exists=False)
 
     # 読み込むファイルが存在しなければ無視
-    if not os.path.isfile(data_csv_file_path):
+    if is_new:
         return True
-
-    # ファイルが存在したなら、読込
-    df_d = pd.read_csv(data_csv_file_path, encoding="utf8")
 
 
     # CSVファイルパス（書き込むファイル）

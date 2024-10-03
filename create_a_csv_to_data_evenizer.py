@@ -49,34 +49,21 @@ def update_dataframe(df, spec, best_p, best_p_error, best_series_rule_if_it_exis
     #         best_p_error=best_p_error,
     #         series_rule=best_series_rule_if_it_exists)
 
-    # ［試行シリーズ数］列を更新
-    #
-    #   NOTE best と latest のどちらにも同じ値が入っているはずです
-    #
-    df.loc[df['p']==spec.p, ['trials_series']] = latest_series_rule.trials_series
-
-    # ［調整後の表が出る確率］列を更新
-    df.loc[df['p']==spec.p, ['best_p']] = best_p
-    df.loc[df['p']==spec.p, ['latest_p']] = latest_p
-
-    # ［調整後の表が出る確率の５割との誤差］列を更新
-    df.loc[df['p']==spec.p, ['best_p_error']] = best_p_error
-    df.loc[df['p']==spec.p, ['latest_p_error']] = latest_p_error
-
-    # ［表番で勝ったときの勝ち点］列を更新
-    df.loc[df['p']==spec.p, ['best_h_step']] = best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD)
-    df.loc[df['p']==spec.p, ['latest_h_step']] = latest_series_rule.step_table.get_step_by(face_of_coin=HEAD)
-
-    # ［裏番で勝ったときの勝ち点］列を更新
-    df.loc[df['p']==spec.p, ['best_t_step']] = best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL)
-    df.loc[df['p']==spec.p, ['latest_t_step']] = latest_series_rule.step_table.get_step_by(face_of_coin=TAIL)
-
-    # ［目標の点数］列を更新 
-    df.loc[df['p']==spec.p, ['best_span']] = best_series_rule_if_it_exists.step_table.span
-    df.loc[df['p']==spec.p, ['latest_span']] = latest_series_rule.step_table.span
-
-    # ［シリーズ・ルール候補］列を更新
-    df.loc[df['p']==spec.p, ['candidates']] = candidates
+    EvenTable.update_record(
+            df=df,
+            specified_p = spec.p,
+            trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
+            best_p=best_p,
+            best_p_error=best_p_error,
+            best_h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),
+            best_t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
+            best_span=best_series_rule_if_it_exists.step_table.span,
+            latest_p=latest_p,
+            latest_p_error=latest_p_error,
+            latest_h_step=latest_series_rule.step_table.get_step_by(face_of_coin=HEAD),
+            latest_t_step=latest_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+            latest_span=latest_series_rule.step_table.span,
+            candidates=candidates)
 
     is_dirty_csv = True
 
@@ -148,27 +135,28 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
     number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-    for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
-        zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
-
-        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        trials_series = round_letro(trials_series)
-        best_h_step = round_letro(best_h_step)
-        best_t_step = round_letro(best_t_step)
-        best_span = round_letro(best_span)
-        latest_h_step = round_letro(latest_h_step)
-        latest_t_step = round_letro(latest_t_step)
-        latest_span = round_letro(latest_span)
-
+    def on_each(record):
 
         # FIXME 自明のチェック。１つのファイルには、同じ［将棋の引分け率］のデータしかない
-        if specified_failure_rate != failure_rate:
-            raise ValueError(f"{specified_failure_rate=} != {failure_rate=}")
+        if specified_failure_rate != record.failure_rate:
+            raise ValueError(f"{specified_failure_rate=} != {record.failure_rate=}")
 
 
-        # FIXME 自明のチェック。 specified_trials_series と trials_series は必ず一致する
-        if specified_trials_series != trials_series:
-            raise ValueError(f"{specified_trials_series=} != {trials_series=}")
+        if specified_turn_system != Converter.code_to_turn_system(record.turn_system_str):
+            raise ValueError(f"{Converter.turn_system_to_code(specified_turn_system)=} != {record.turn_system_str=}")
+
+
+        # FIXME 自明のチェック。 specified_trials_series と record.trials_series は必ず一致する
+        if specified_trials_series != record.trials_series:
+            raise ValueError(f"{specified_trials_series=} != {record.trials_series=}")
+
+
+        # どんどん更新されていく
+        best_p = record.best_p
+        best_p_error = record.best_p_error
+        latest_p = record.latest_p
+        latest_p_error = record.latest_p_error
+        candidates = record.candidates
 
 
         # ここから先、処理対象行
@@ -177,17 +165,17 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
         # 仕様
         spec = Specification(
-                p=p,
-                failure_rate=specified_failure_rate,
+                p=record.p,
+                failure_rate=record.failure_rate,
                 turn_system=specified_turn_system)
 
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trials_series=trials_series,
-                h_step=best_h_step,
-                t_step=best_t_step,
-                span=best_span)
+                trials_series=record.trials_series,
+                h_step=record.best_h_step,
+                t_step=record.best_t_step,
+                span=record.best_span)
 
         update_count = 0
         passage_count = 0
@@ -205,7 +193,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
         # アルゴリズムで求めるケース
         else:
-            #print(f"[p={p}]", end='', flush=True)
+            #print(f"[p={spec.p}]", end='', flush=True)
             is_automatic = True
 
             #
@@ -213,16 +201,16 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
             #
             # ［目標の点数］＞＝［裏番で勝ったときの勝ち点］＞＝［表番で勝ったときの勝ち点］という関係があります。
             #
-            start_t_step = latest_t_step
-            start_h_step = latest_h_step + 1      # 終わっているところの次から始める      NOTE h_step の初期値は 0 であること
-            for cur_span in range(latest_span, LIMIT_SPAN):
+            start_t_step = record.latest_t_step
+            start_h_step = record.latest_h_step + 1      # 終わっているところの次から始める      NOTE h_step の初期値は 0 であること
+            for cur_span in range(record.latest_span, LIMIT_SPAN):
                 for cur_t_step in range(start_t_step, cur_span + 1):
                     for cur_h_step in range(start_h_step, cur_t_step + 1):
 
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                trials_series=trials_series,
+                                trials_series=record.trials_series,
                                 h_step=cur_h_step,
                                 t_step=cur_t_step,
                                 span=cur_span)
@@ -273,7 +261,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                             # オーバーフロー例外に対応したプログラミングをすること
                             latest_p, err = calculate_probability(
-                                    p=p,
+                                    p=spec.p,
                                     H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
                                     T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
                             
@@ -298,14 +286,14 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
-                                    trials_series=specified_trials_series,
+                                    trials_series=record.trials_series,
                                     h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
                                     span=best_series_rule_if_it_exists.step_table.span,
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[{datetime.datetime.now()}][p={p*100:3.0f}％  failure_rate={specified_failure_rate*100:3.0f}％  turn_system={turn_system_str}] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][p={spec.p * 100:3.0f}％  failure_rate={spec.failure_rate * 100:3.0f}％  turn_system={record.turn_system_str}] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
@@ -336,7 +324,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=record.trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -403,8 +391,10 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=record.trials_series)
 
+
+    EvenTable.for_each(df=df, on_each=on_each)
 
     return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
 
@@ -413,7 +403,7 @@ def automatic(specified_failure_rate, specified_turn_system, generation_algoryth
 
     global start_time_for_save, is_dirty_csv
 
-    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=record.trials_series)
     #print(df_ev)
 
 

@@ -151,7 +151,7 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
             turn_system=spec.turn_system)
 
 
-    df, is_new = ScoreBoardDataTable.read_df(spec=spec)
+    df, is_new = ScoreBoardDataTable.read_df(spec=spec, new_if_it_no_exists=True)
 
 
     # ファイルが存在せず、空データフレームが新規作成されたら

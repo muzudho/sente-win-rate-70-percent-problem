@@ -1,4 +1,7 @@
 #
+# TODO 廃止方針
+#
+#
 # 生成
 # python generate_selection_series_rule_data.py
 #
@@ -13,7 +16,7 @@ import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, Candidate
 from library.file_paths import get_selection_series_rule_csv_file_path
-from library.database import EvenTable, SelectionSeriesRuleTable, SelectionSeriesRuleTable
+from library.database import EvenTable, SelectionSeriesRuleTable
 
 
 # とりあえず、ログファイルとして出力する。あとで手動で拡張子を .txt に変えるなどしてください
@@ -53,17 +56,13 @@ def generate_data(specified_failure_rate, specified_turn_system, generation_algo
     ready_records(df=df_ssr, specified_failure_rate=specified_failure_rate, specified_turn_system=specified_turn_system)
 
 
-    for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-        zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
+    def on_each(recrd):
+        # best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
+        # df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
 
-        # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-        best_h_step = round_letro(best_h_step)
-        best_t_step = round_letro(best_t_step)
-        best_span = round_letro(best_span)
-        latest_h_step = round_letro(latest_h_step)
-        latest_t_step = round_letro(latest_t_step)
-        latest_span = round_letro(latest_span)
-
+        # スキップ
+        if Converter.turn_system_to_code(specified_turn_system) != recrd.turn_system_str:
+            continue
 
         # ［計算過程］一覧
         #
@@ -98,11 +97,14 @@ def generate_data(specified_failure_rate, specified_turn_system, generation_algo
 
 
         # ［計算過程］列を更新
-        df_ssr.loc[df_ssr['p']==p, ['candidates']] = ' '.join(comment_element_list)
+        df_ssr.loc[df_ssr['p']==recrd.p, ['candidates']] = ' '.join(comment_element_list)
 
 
         # CSV保存
         SelectionSeriesRuleTable.to_csv(df=df_ssr, turn_system=specified_turn_system)
+
+
+    EvenTable.for_each(df=df_ev, on_each=on_each)
 
 
 ########################################

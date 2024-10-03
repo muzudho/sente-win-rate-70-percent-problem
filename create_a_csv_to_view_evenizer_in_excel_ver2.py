@@ -47,7 +47,11 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
 
 
     # ベスト・テーブルを読込
-    df_b = ScoreBoardDataBestTable.read_df()
+    df_b, is_new = ScoreBoardDataBestTable.read_df(new_if_it_no_exists=False)
+
+    # ファイルが存在しなければスキップ
+    if is_new==True:
+        return
 
 
     def on_each(best_record):
