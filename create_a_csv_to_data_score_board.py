@@ -11,7 +11,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_UPPER_SPAN, Converter, Specification, SeriesRule, is_almost_even
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, SeriesRule, is_almost_even
 from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
 from library.database import ScoreBoardDataTable
@@ -22,8 +22,12 @@ start_time_for_save = None
 number_of_dirty = 0         # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
 number_of_skip = 0          # 既存データをスキップした数
 
+# FIXME この数も、オーバーヘッドが減るように自動調整したい。
+#
+#   NOTE failure_rate が増えて upper_limit_coins が増えれば、かかる時間も増えていくし。 failure_rate は 70% までにするか？
+#
 # CSV保存間隔（秒）、またはタイムシェアリング間隔
-INTERVAL_SECONDS_FOR_SAVE_CSV = 2
+INTERVAL_SECONDS_FOR_SAVE_CSV = 3   # 2
 
 
 
@@ -66,7 +70,7 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
     # データが既存なら
     if key.any():
 
-        # イーブンが見つかっているなら、ファイルへ保存して探索打ち切り
+        # イーブンが見つかっているなら、探索打ち切り
         if is_almost_even(df.loc[key, ['a_win_rate']].iat[0, 0]):
             print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] even!   {span=:2}  {t_step=:2}  {h_step=:2}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
             return TERMINATED
@@ -167,7 +171,7 @@ def automatic(spec, upper_limit_span):
             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
             h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
 
-            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] restart {span=:2}  {t_step=:2}  {h_step=:2}")
+            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] restart {span=:2}  {t_step=:2}  {h_step=:2}  {upper_limit_span=}")
 
 
     # CSV保存用タイマー
@@ -196,8 +200,8 @@ def automatic(spec, upper_limit_span):
                 span += 1
 
 
-    # 探索範囲内に見つからなかったが、計算停止扱いとする
-    return df, TERMINATED, span
+    # 探索範囲内に見つからなかった。計算途中
+    return df, CONTINUE, span
 
 
 ########################################
@@ -209,6 +213,10 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        # span が 9 を超えてくると、ツリー構造の深さが伸びるわけだから、処理時間が指数関数的に増えてくるので、反復深化探索を使いたい
+        upper_limit_span = 1
+        trial_min_span = OUT_OF_UPPER_SPAN
+
         # 計算停止していない数（ループに入るために最初の１回はダミー値）
         # 時間を譲ったか、計算続行中の数
         number_of_not_terminated = 1
@@ -220,12 +228,8 @@ if __name__ == '__main__':
             # リセット
             number_of_not_terminated = 0
 
-            # span が 9 を超えてくると、ツリー構造の深さが伸びるわけだから、処理時間が指数関数的に増えてくるので、反復深化探索を使いたい
-            upper_limit_span = 1
-            trial_min_span = OUT_OF_UPPER_SPAN
-
             # ［将棋の引分け率］
-            for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
+            for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
                 failure_rate = failure_rate_percent / 100
 
                 # ［将棋の先手勝率］
@@ -260,8 +264,8 @@ if __name__ == '__main__':
                             turn_system_str = Converter.turn_system_to_code(spec.turn_system)
                             print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}]  dirty={number_of_dirty}  skip={number_of_skip}  {calculation_status=}  write file to `{csv_file_path_to_wrote}` ...")
 
-                            number_of_dirty = 0
-                            number_of_skip = 0
+                            # number_of_dirty = 0
+                            # number_of_skip = 0
 
 
                         if span < trial_min_span:
@@ -270,8 +274,10 @@ if __name__ == '__main__':
                         if calculation_status != TERMINATED:
                             number_of_not_terminated += 1
 
-                    # ［護送船団方式］で、一番遅いところが１つ進むように合わせる
-                    upper_limit_span = trial_min_span + 1
+
+            # ［護送船団方式］で、一番遅いところが１つ進むように合わせる
+            if upper_limit_span < trial_min_span + 2:   # +1 だと増えなかった
+                upper_limit_span = trial_min_span + 2
 
 
     except Exception as err:
