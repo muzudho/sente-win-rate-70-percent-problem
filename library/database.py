@@ -159,7 +159,7 @@ class EvenTable():
         # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
         df.loc[index, ['p']] = spec.p
         df.loc[index, ['failure_rate']] = spec.failure_rate
-        df.loc[index, ['turn_system']] = Converter.turn_system_to_code(spec.turn_system)
+        df.loc[ index, ['turn_system']] = Converter.turn_system_to_code(spec.turn_system)
         df.loc[index, ['trials_series']] = trials_series
         df.loc[index, ['best_p']] = 0
         df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
@@ -404,7 +404,7 @@ class ScoreBoardDataTable():
     @staticmethod
     def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
         index = len(df.index)
-        df.loc[index, ['turn_system']] = turn_system_str
+        df.loc[index, [ 'turn_system']] = turn_system_str
         df.loc[index, ['failure_rate']] = failure_rate
         df.loc[index, ['p']] = p
         df.loc[index, ['span']] = span
@@ -557,7 +557,7 @@ class ScoreBoardDataBestTable():
     @staticmethod
     def append_record(df, record):
         index = len(df.index)
-        df.loc[index, ['turn_system']] = record.turn_system_str
+        df.loc[index, ['turn_system'] ] = record.turn_system_str
         df.loc[index, ['failure_rate']] = record.failure_rate
         df.loc[index, ['p']] = record.p
         df.loc[index, ['span']] = record.span

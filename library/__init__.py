@@ -483,6 +483,223 @@ class SequenceOfFaceOfCoin():
         return list_of_face_of_coin[0:number_of_coins]
 
 
+class TreeNodeOfFaceOfCoin():
+    """コインの出目のツリー構造のノード"""
+
+
+    def __init__(self, face_of_coin, parent_node):
+        """初期化
+        
+        Parameters
+        ----------
+        face_of_coin : int
+            ルート・ノードならナン
+        parent_node : TreeNodeOfFaceOfCoin
+            親ノード。無ければナン
+        """
+        self._face_of_coin = face_of_coin
+        self._parent_node = parent_node
+
+        self._child_head = None
+        self._child_tail = None
+        self._child_failure = None
+
+
+    @property
+    def face_of_coin(self):
+        return self._face_of_coin
+
+
+    @property
+    def parent_node(self):
+        return self._parent_node
+
+
+    @property
+    def child_head(self):
+        return self._child_head
+
+
+    @property
+    def child_tail(self):
+        return self._child_tail
+
+
+    @property
+    def child_failure(self):
+        return self._child_failure
+
+
+    @property
+    def is_leaf_node(self):
+        return self._child_head is None and self._child_tail is None and self._child_failure is None
+
+
+    def new_child_head(self, parent_node):
+        if self._child_head is not None:
+            raise ValueError("child_head を増やすには、 child_head が None である必要があります")
+
+        self._child_head = TreeNodeOfFaceOfCoin(face_of_coin=HEAD, parent_node=parent_node)
+        return self._child_head
+
+
+    def new_child_tail(self, parent_node):
+        if self._child_tail is not None:
+            raise ValueError("child_tail を増やすには、 child_tail が None である必要があります")
+
+        self._child_tail = TreeNodeOfFaceOfCoin(face_of_coin=TAIL, parent_node=parent_node)
+        return self._child_tail
+
+
+    def new_child_failure(self, parent_node):
+        if self._child_failure is not None:
+            raise ValueError("child_failure を増やすには、 child_failure が None である必要があります")
+
+        self._child_failure = TreeNodeOfFaceOfCoin(face_of_coin=EMPTY, parent_node=parent_node)
+        return self._child_failure
+
+
+    # def delete_child_head(self):
+    #     if self._child_head is None:
+    #         raise ValueError("child_head がなければ、 child_head を削除できません")
+    #     self._child_head = None
+
+
+    # def delete_child_tail(self):
+    #     if self._child_tail is None:
+    #         raise ValueError("child_tail がなければ、 child_tail を削除できません")
+    #     self._child_tail = None
+
+
+    # def delete_child_failure(self):
+    #     if self._child_failure is None:
+    #         raise ValueError("child_failure がなければ、 child_failure を削除できません")
+    #     self._child_failure = None
+
+
+    def create_path_of_face_of_coin(self):
+
+        if self.face_of_coin is None:
+            raise ValueError("ルートノードが create_path_of_face_of_coin メソッドを呼び出さないでください")
+
+        path_of_face_of_coin = []
+
+        cur_node = self
+
+        while cur_node is not None:
+            # ルート・ノードはナンが入ってる
+            if cur_node.face_of_coin is None:
+                #print("ルート・ノードはナンが入ってる")
+                break
+
+            #print(f"{cur_node.face_of_coin=}")
+            path_of_face_of_coin.append(cur_node.face_of_coin)
+
+            cur_node = cur_node.parent_node
+
+        path_of_face_of_coin.reverse()
+
+        if len(path_of_face_of_coin) < 1:
+            raise ValueError(f"要素を持たない経路があるのはおかしい {len(path_of_face_of_coin)=}")
+
+        return path_of_face_of_coin
+
+
+class TreeOfFaceOfCoin():
+    """コインの出目のツリー構造"""
+
+
+    def __init__(self):
+        self._root_node = TreeNodeOfFaceOfCoin(face_of_coin=None, parent_node=None)
+        self._current_node = self._root_node
+
+
+    def go_to_new_child_head(self):
+        child_head = self._current_node.new_child_head(parent_node=self._current_node)
+        self._current_node = child_head
+
+
+    def go_to_new_child_tail(self):
+        child_tail = self._current_node.new_child_tail(parent_node=self._current_node)
+        self._current_node = child_tail
+
+
+    def go_to_new_child_failure(self):
+        child_failure = self._current_node.new_child_failure(parent_node=self._current_node)
+        self._current_node = child_failure
+
+
+    def back_to_parent_node(self):
+        parent_node = self._current_node.parent_node
+
+        if parent_node is None:
+            raise ValueError("親要素がないので、親には戻れません")
+
+        # if self._current_node.face_of_coin == HEAD:
+        #     parent_node.delete_child_head()
+
+        # elif self._current_node.face_of_coin == TAIL:
+        #     parent_node.delete_child_tail()
+
+        # elif self._current_node.face_of_coin == EMPTY:
+        #     parent_node.delete_child_failure()
+        
+        # else:
+        #     raise ValueError(f"{self._current_node.face_of_coin=}")
+
+        self._current_node = parent_node
+
+
+    def search_for_each_node(self, cur_node, on_each_leaf_node):
+        if cur_node.is_leaf_node:
+            on_each_leaf_node(cur_node)
+            return
+
+        child_count = 0
+
+        if cur_node.child_head is not None:
+            self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node)
+            child_count += 1
+
+        if cur_node.child_tail is not None:
+            self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node)
+            child_count += 1
+
+        if cur_node.child_failure is not None:
+            self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node)
+            child_count += 1
+
+        if child_count < 0:
+            raise ValueError(f"葉ノードでないのなら、子は必ずあるはずです {child_count=}")
+
+
+    def for_each_node(self, on_each_leaf_node):
+        self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node)
+
+
+    def create_list_of_path_of_face_of_coin(self):
+        list_of_path = []
+
+        def on_each_leaf_node(leaf_node):
+
+            # ルートノードは、スコアボードに含まないのでスキップします
+            if leaf_node.face_of_coin is None:
+                #print("ルートノードは、スコアボードに含まないのでスキップします")
+                return
+
+            path_of_face_of_coin = leaf_node.create_path_of_face_of_coin()
+
+            if len(path_of_face_of_coin) < 1:
+                raise ValueError(f"長さが０の経路があるのはおかしい {len(path_of_face_of_coin)=}")
+
+            list_of_path.append(path_of_face_of_coin)
+
+        self.for_each_node(on_each_leaf_node=on_each_leaf_node)
+
+        if len(list_of_path) < 1:
+            raise ValueError(f"経路の長さが０コインなのはおかしい {len(list_of_path)=}")
+
+        return list_of_path
 
 
 class AllPatternsFaceOfCoin():
@@ -501,54 +718,40 @@ class AllPatternsFaceOfCoin():
         """
         self._can_failure = can_failure
         self._series_rule = series_rule
-        self._all_patterns = None
-        self._position = None
+        self._tree_of_face_of_coin = None
 
 
     def __search(self, depth):
 
+        if depth < 1:
+            return
+
         # 表勝ちを追加
-        self._position.append(HEAD)
+        self._tree_of_face_of_coin.go_to_new_child_head()            
+        self.__search(depth - 1)
 
-        if 0 < depth:
-            self.__search(depth - 1)
-        
-        # 葉なら、ポジションのコピーを追加
-        else:
-            self._all_patterns.append(list(self._position))
-
-        # 末尾の要素を削除
-        self._position.pop()
+        # 親へ戻る
+        self._tree_of_face_of_coin.back_to_parent_node()
 
 
         # 裏勝ちを追加
-        self._position.append(TAIL)
+        self._tree_of_face_of_coin.go_to_new_child_tail()
+        self.__search(depth - 1)
 
-        if 0 < depth:
-            self.__search(depth - 1)
-        # 葉なら、ポジションのコピーを追加
-        else:
-            self._all_patterns.append(list(self._position))
-
-        # 末尾の要素を削除
-        self._position.pop()
+        # 親へ戻る
+        self._tree_of_face_of_coin.back_to_parent_node()
 
 
         if self._can_failure:
             # 引分けを追加
-            self._position.append(EMPTY)
+            self._tree_of_face_of_coin.go_to_new_child_failure()
+            self.__search(depth - 1)
 
-            if 0 < depth:
-                self.__search(depth - 1)
-            # 葉なら、ポジションのコピーを追加
-            else:
-                self._all_patterns.append(list(self._position))
-
-            # 末尾の要素を削除
-            self._position.pop()
+            # 親へ戻る
+            self._tree_of_face_of_coin.back_to_parent_node()
 
 
-    def make_list_of_all_pattern_face_of_coin(self):
+    def make_tree_of_all_pattern_face_of_coin(self):
         """１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
         
         １コインは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
@@ -570,14 +773,12 @@ class AllPatternsFaceOfCoin():
         # 桁数
         depth = self._series_rule.upper_limit_coins
 
-        # １シーズン分のコイントスの全ての結果
-        self._all_patterns = []
+        # FIXME リスト状だと MemoryError になるので、木構造にしたい
+        self._tree_of_face_of_coin = TreeOfFaceOfCoin()
 
-        self._position = []
+        self.__search(depth)
 
-        self.__search(depth - 1)
-
-        return self._all_patterns
+        return self._tree_of_face_of_coin
 
 
 class PointCalculation():
@@ -2111,6 +2312,9 @@ class ScoreBoard():
         round_list : list
             対局過程
         """
+
+        if pattern_p <= 0:
+            raise ValueError(f"選ばれる確率のない経路があるのはおかしい。 {pattern_p=}")
 
         self._pattern_no = pattern_no
         self._pattern_p = pattern_p

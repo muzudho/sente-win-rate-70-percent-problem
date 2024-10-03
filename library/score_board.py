@@ -14,21 +14,29 @@ def search_all_score_boards(series_rule, on_score_board_created):
     list_of_trial_results_for_one_series = []
 
     # ［出目シーケンス］の全パターンを網羅します
-    list_of_all_pattern_face_of_coin = AllPatternsFaceOfCoin(
+    tree_of_all_pattern_face_of_coin = AllPatternsFaceOfCoin(
             can_failure=0 < series_rule.spec.failure_rate,
-            series_rule=series_rule).make_list_of_all_pattern_face_of_coin()
+            series_rule=series_rule).make_tree_of_all_pattern_face_of_coin()
     
 
     distinct_set = set()
 
 
-    # list_of_all_pattern_face_of_coin は、上限対局数の長さ
-    for list_of_face_of_coin in list_of_all_pattern_face_of_coin:
-        #print(f"動作テスト {list_of_face_of_coin=}")
+    # tree_of_all_pattern_face_of_coin は、上限対局数の長さ
+    list_of_path_of_face_of_coin = tree_of_all_pattern_face_of_coin.create_list_of_path_of_face_of_coin()
+    if len(list_of_path_of_face_of_coin) < 1:
+        raise ValueError(f"経路が０本なのはおかしい {len(list_of_path_of_face_of_coin)=}")
+
+
+    for path_of_face_of_coin in list_of_path_of_face_of_coin:
+        #print(f"動作テスト {path_of_face_of_coin=}")
+
+        if len(path_of_face_of_coin) < 1:
+            raise ValueError(f"要素を持たない経路があるのはおかしい {len(path_of_face_of_coin)=}")
 
         # 最短対局数を下回る対局シートはスキップします
-        if len(list_of_face_of_coin) < series_rule.shortest_coins:
-            #print(f"{series_rule.spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
+        if len(path_of_face_of_coin) < series_rule.shortest_coins:
+            #print(f"{series_rule.spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
             continue
 
         # ［シリーズ］１つ分の試行結果を返す
@@ -38,14 +46,14 @@ def search_all_score_boards(series_rule, on_score_board_created):
         trial_results_for_one_series = judge_series(
                 spec=series_rule.spec,
                 series_rule=series_rule,
-                list_of_face_of_coin=list_of_face_of_coin)
+                list_of_face_of_coin=path_of_face_of_coin)
 
 
         # FIXME 検証
         if trial_results_for_one_series.number_of_coins < series_rule.shortest_coins:
             text = f"{series_rule.spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.shortest_coins} を下回った"
             print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.upper_limit_coins=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
@@ -55,7 +63,7 @@ def search_all_score_boards(series_rule, on_score_board_created):
         if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
             text = f"{series_rule.spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.upper_limit_coins} を上回った"
             print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.shortest_coins=}
 {trial_results_for_one_series.stringify_dump('   ')}
 """)
@@ -67,12 +75,16 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
         # 既に処理済みのものはスキップ
         if id in distinct_set:
-            #print(f"スキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
+            #print(f"既に処理済みのものはスキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
             continue
 
         distinct_set.add(id)
 
         list_of_trial_results_for_one_series.append(trial_results_for_one_series)
+
+
+    if len(list_of_trial_results_for_one_series) < 1:
+        raise ValueError(f"経路が０本なのはおかしい {len(list_of_trial_results_for_one_series)=}")
 
 
     all_patterns_p = 0
@@ -120,10 +132,16 @@ def search_all_score_boards(series_rule, on_score_board_created):
     # 足して１００％になるように、引き延ばす必要がある
     win_match_rate = 1 - no_win_match_rate
     # 以下の数を［Ａさんの勝率］、［Ｂさんの勝率］に掛けると、１００％に引き延ばされる
+    # FIXME 0除算にならないように注意
     zoom = 1 / win_match_rate
 
+    a_win_rate = zoom * a_win_rate_with_draw
+    b_win_rate = zoom * b_win_rate_with_draw
+    if a_win_rate == 0 or b_win_rate == 0:
+        raise ValueError(f"勝率が両者０％なのはおかしい {all_patterns_p=}  {a_win_rate_with_draw=}  {b_win_rate_with_draw=}  {no_win_match_rate=}  {zoom=}")
+
     three_rates = ThreeRates.create_three_rates(
-            a_win_rate=zoom * a_win_rate_with_draw,
-            b_win_rate=zoom * b_win_rate_with_draw,
+            a_win_rate=a_win_rate,
+            b_win_rate=b_win_rate,
             no_win_match_rate=no_win_match_rate)
     return three_rates, all_patterns_p

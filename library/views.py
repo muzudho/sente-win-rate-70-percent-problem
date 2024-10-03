@@ -622,6 +622,7 @@ def stringify_csv_of_score_board_view_footer(three_rates, all_patterns_p):
 ,フッター
 ,--------
 ,,Ａさんの勝率,{three_rates.a_win_rate}
+,,Ｂさんの勝率,{three_rates.b_win_rate}
 ,,勝ち負けが付かない確率,{three_rates.no_win_match_rate}
 ,,確率合計,{all_patterns_p}
 """
