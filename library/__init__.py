@@ -461,7 +461,7 @@ class SequenceOfFaceOfCoin():
             ［上限対局数］
         """
 
-        list_of_face_of_coin = []
+        path_of_face_of_coin = []
 
         # ［上限対局数］までやる
         for time_th in range(1, upper_limit_coins + 1):
@@ -470,17 +470,17 @@ class SequenceOfFaceOfCoin():
                     p=spec.p,
                     failure_rate=spec.failure_rate)
 
-            list_of_face_of_coin.append(face_of_coin)
+            path_of_face_of_coin.append(face_of_coin)
 
 
-        return list_of_face_of_coin
+        return path_of_face_of_coin
 
 
     @staticmethod
-    def cut_down(list_of_face_of_coin, number_of_coins):
+    def cut_down(path_of_face_of_coin, number_of_coins):
         """コイントスの結果のリストの長さを切ります。
         対局は必ずしも［上限対局数］になるわけではありません"""
-        return list_of_face_of_coin[0:number_of_coins]
+        return path_of_face_of_coin[0:number_of_coins]
 
 
 class TreeNodeOfFaceOfCoin():
@@ -883,14 +883,14 @@ class PointCalculation():
         return None
 
 
-    def append_point_when_won(self, successful_face_of_coin, time_th, list_of_face_of_coin):
+    def append_point_when_won(self, successful_face_of_coin, time_th, path_of_face_of_coin):
         """加点
 
         Parameters
         ----------
         successful_face_of_coin : int
             ［コインの表か裏］
-        list_of_face_of_coin : list
+        path_of_face_of_coin : list
             ［検証用］
         """
 
@@ -944,14 +944,14 @@ self.stringify_dump:
 """
 
 
-def assert_list_of_face_of_coin(list_of_face_of_coin):
+def assert_path_of_face_of_coin(path_of_face_of_coin):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］のいずれかしか含んでいないはずです"""
-    for mark in list_of_face_of_coin:
+    for mark in path_of_face_of_coin:
         if mark not in [HEAD, TAIL, EMPTY]:
             raise ValueError(f"予期しない値がリストに入っています  {mark=}")
 
 
-def judge_series(spec, series_rule, list_of_face_of_coin):
+def judge_series(spec, series_rule, path_of_face_of_coin):
     """［コインの表］、［コインの裏］、［コインの表と裏のどちらでもない］の３つの内のいずれかを印をつけ、
     その印が並んだものを、１シリーズ分の疑似対局結果として読み取ります
 
@@ -961,31 +961,31 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
         仕様
     series_rule : int
         ［シリーズ・ルール］
-    list_of_face_of_coin : list
+    path_of_face_of_coin : list
         コイントスした結果のリスト。引き分け含む
     """
 
     # FIXME 検証
-    if len(list_of_face_of_coin) < series_rule.shortest_coins:
-        text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+    if len(path_of_face_of_coin) < series_rule.shortest_coins:
+        text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.upper_limit_coins=}
 """)
         raise ValueError(text)
 
     # FIXME 検証
-    if series_rule.upper_limit_coins < len(list_of_face_of_coin):
-        text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、上限対局数の理論値 {series_rule.upper_limit_coins} を上回っています。このような対局シートを指定してはいけません"
+    if series_rule.upper_limit_coins < len(path_of_face_of_coin):
+        text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、上限対局数の理論値 {series_rule.upper_limit_coins} を上回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.shortest_coins=}
 """)
         raise ValueError(text)
 
 
     # FIXME 検算
-    #assert_list_of_face_of_coin(list_of_face_of_coin=list_of_face_of_coin)
+    #assert_path_of_face_of_coin(path_of_face_of_coin=path_of_face_of_coin)
 
 
     # ［勝ち点計算］
@@ -1002,7 +1002,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
     # ［勝ち点差判定］や［タイブレーク］など、決着が付かなかったときの処理は含みません
     # もし、引き分けがあれば、［引き分けを１局として数えるケース］です。
     # 予め作った１シリーズ分の対局結果を読んでいく
-    for face_of_coin in list_of_face_of_coin:
+    for face_of_coin in path_of_face_of_coin:
 
         # ［上限対局数］に達していたら、コイン投げを終了します
         if series_rule.upper_limit_coins <= time_th:
@@ -1029,7 +1029,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             point_calculation.append_point_when_won(
                     successful_face_of_coin=face_of_coin,
                     time_th=time_th,
-                    list_of_face_of_coin=list_of_face_of_coin[0:time_th])
+                    path_of_face_of_coin=path_of_face_of_coin[0:time_th])
 
             # 終局
             gameover_reason = point_calculation.get_gameover_reason()
@@ -1037,20 +1037,20 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
                 # コイントスの結果のリストの長さを切ります。
                 # 対局は必ずしも［上限対局数］になるわけではありません
-                list_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(list_of_face_of_coin, time_th)
+                path_of_face_of_coin = SequenceOfFaceOfCoin.cut_down(path_of_face_of_coin, time_th)
 
                 break
 
 
     # FIXME 検証
-    if len(list_of_face_of_coin) != time_th:
-        raise ValueError(f"テープの長さがおかしい2 {len(list_of_face_of_coin)=}  {time_th=}  {point_calculation.get_gameover_reason()=}")
+    if len(path_of_face_of_coin) != time_th:
+        raise ValueError(f"テープの長さがおかしい2 {len(path_of_face_of_coin)=}  {time_th=}  {point_calculation.get_gameover_reason()=}")
 
     # FIXME 検証
     if time_th < series_rule.shortest_coins:
         text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った2  {point_calculation.get_gameover_reason()=}"
         print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.upper_limit_coins=}
 """)
         raise ValueError(text)
@@ -1059,7 +1059,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
     if series_rule.upper_limit_coins < time_th:
         text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った2  {point_calculation.get_gameover_reason()=}"
         print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.shortest_coins=}
 """)
         raise ValueError(text)
@@ -1067,11 +1067,11 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
 
     # FIXME カットダウン後のテープと、引き分けの数を確認
     failed_coins_2 = 0
-    for face_of_coin_2 in list_of_face_of_coin:
+    for face_of_coin_2 in path_of_face_of_coin:
         if face_of_coin_2 == EMPTY:
             failed_coins_2 += 1
     if failed_coins != failed_coins_2:
-        raise ValueError(f"検算で、引き分けの数が一致しません {failed_coins=}  {failed_coins_2=}  {list_of_face_of_coin=}  {point_calculation.get_gameover_reason()=}")
+        raise ValueError(f"検算で、引き分けの数が一致しません {failed_coins=}  {failed_coins_2=}  {path_of_face_of_coin=}  {point_calculation.get_gameover_reason()=}")
 
 
     return TrialResultsForOneSeries(
@@ -1079,7 +1079,7 @@ def judge_series(spec, series_rule, list_of_face_of_coin):
             series_rule=series_rule,
             failed_coins=failed_coins,
             point_calculation=point_calculation,
-            list_of_face_of_coin=list_of_face_of_coin)
+            path_of_face_of_coin=path_of_face_of_coin)
 
 
 def calculate_probability(p, H, T):
@@ -1710,7 +1710,7 @@ class TrialResultsForOneSeries():
     """［シリーズ］１つ分の試行結果"""
 
 
-    def __init__(self, spec, series_rule, failed_coins, point_calculation, list_of_face_of_coin):
+    def __init__(self, spec, series_rule, failed_coins, point_calculation, path_of_face_of_coin):
         """初期化
     
         Parameters
@@ -1723,7 +1723,7 @@ class TrialResultsForOneSeries():
             ［表も裏も出なかった対局数］
         point_calculation : PointCalculation
             ［勝ち点計算］
-        list_of_face_of_coin : list
+        path_of_face_of_coin : list
 
         """
 
@@ -1732,7 +1732,7 @@ class TrialResultsForOneSeries():
         self._failed_coins = failed_coins
         self._series_rule = series_rule
         self._point_calculation = point_calculation
-        self._list_of_face_of_coin = list_of_face_of_coin
+        self._path_of_face_of_coin = path_of_face_of_coin
 
 
     # 共通
@@ -1752,7 +1752,7 @@ class TrialResultsForOneSeries():
     @property
     def number_of_coins(self):
         """行われた対局数"""
-        return len(self._list_of_face_of_coin)
+        return len(self._path_of_face_of_coin)
 
 
     @property
@@ -1762,9 +1762,9 @@ class TrialResultsForOneSeries():
 
 
     @property
-    def list_of_face_of_coin(self):
+    def path_of_face_of_coin(self):
         """"""
-        return self._list_of_face_of_coin
+        return self._path_of_face_of_coin
 
 
     def is_pts_won(self, winner):
@@ -1788,7 +1788,7 @@ TrialResultsForOneSeries
 ------------------------
 self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
-{self._list_of_face_of_coin=}
+{self._path_of_face_of_coin=}
 """)
 
             raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
@@ -1800,7 +1800,7 @@ TrialResultsForOneSeries
 ------------------------
 self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
-{self._list_of_face_of_coin=}
+{self._path_of_face_of_coin=}
 """)
             raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_pts_won(winner=winner)=}  {self.is_pts_won(winner=loser)=}  {self._series_rule.step_table.span=}")
 
@@ -1826,7 +1826,7 @@ self._point_calculation.stringify_dump:
 {self._series_rule.stringify_dump(succ_indent)=}
 {succ_indent}self._point_calculation:
 {self._point_calculation.stringify_dump(succ_indent)}
-{succ_indent}{self._list_of_face_of_coin=}
+{succ_indent}{self._path_of_face_of_coin=}
 {succ_indent}{self.is_pts_won(winner=ALICE)=}
 {succ_indent}{self.is_pts_won(winner=BOB)=}
 {succ_indent}{self.is_won(winner=ALICE)=}
@@ -2292,7 +2292,7 @@ class ScoreBoard():
     """
 
 
-    def __init__(self, pattern_no, pattern_p, spec, series_rule, list_of_face_of_coin, game_results, round_list):
+    def __init__(self, pattern_no, pattern_p, spec, series_rule, path_of_face_of_coin, game_results, round_list):
         """初期化
 
         Parameters
@@ -2305,7 +2305,7 @@ class ScoreBoard():
             ［仕様］
         series_rule : SeriesRule
             ［シリーズ・ルール］
-        list_of_face_of_coin : list
+        path_of_face_of_coin : list
             コイントスした結果のリスト。引き分け含む
         game_results : int
             対局結果
@@ -2320,13 +2320,13 @@ class ScoreBoard():
         self._pattern_p = pattern_p
         self._spec = spec
         self._series_rule = series_rule
-        self._list_of_face_of_coin = list_of_face_of_coin
+        self._path_of_face_of_coin = path_of_face_of_coin
         self._game_results = game_results
         self._round_list = round_list
 
 
     @staticmethod
-    def make_score_board(pattern_no, spec, series_rule, list_of_face_of_coin):
+    def make_score_board(pattern_no, spec, series_rule, path_of_face_of_coin):
 
         # 入力値チェック
         # いったん、［表が出る確率］、［裏が出る確率］、［表も裏も出なかった確率］を足して１００％になるような数にします
@@ -2341,7 +2341,7 @@ class ScoreBoard():
             raise ValueError(f"［ほぼ］ではなく［ピッタリ］合計は1になるはずですが、コンピューターの都合でピッタリ 1 になりません。それにしても大きく外れています {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
 
         pattern_p = 1
-        for face_of_coin in list_of_face_of_coin:
+        for face_of_coin in path_of_face_of_coin:
             if face_of_coin == HEAD:
                 pattern_p *= p_with_draw
             elif face_of_coin == TAIL:
@@ -2362,7 +2362,7 @@ class ScoreBoard():
         round_list = []
         round_list.append(['S', '', '', a_point, b_point])
 
-        for round_th, face_of_coin in enumerate(list_of_face_of_coin, 1):
+        for round_th, face_of_coin in enumerate(path_of_face_of_coin, 1):
             # 最後のラウンドについて
             last_round = round_list[-1]
 
@@ -2440,7 +2440,7 @@ class ScoreBoard():
                 pattern_p=pattern_p,
                 spec=spec,
                 series_rule=series_rule,
-                list_of_face_of_coin=list_of_face_of_coin,
+                path_of_face_of_coin=path_of_face_of_coin,
                 game_results=game_results,
                 round_list=round_list)
 
@@ -2470,9 +2470,9 @@ class ScoreBoard():
 
 
     @property
-    def list_of_face_of_coin(self):
+    def path_of_face_of_coin(self):
         """コイントスした結果のリスト。引き分け含む"""
-        return self._list_of_face_of_coin
+        return self._path_of_face_of_coin
 
 
     @property
@@ -2496,7 +2496,7 @@ class ScoreBoard():
 {succ_indent}self._spec:
 {self._spec.stringify_dump(succ_indent)}
 {succ_indent}{self._upper_limit_coins=}
-{succ_indent}{self._list_of_face_of_coin=}
+{succ_indent}{self._path_of_face_of_coin=}
 """
 
 
@@ -2567,15 +2567,15 @@ def simulate_series(spec, series_rule, specified_trials_series):
     for round in range(0, specified_trials_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-        list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
+        path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                 spec=spec,
                 upper_limit_coins=series_rule.upper_limit_coins)
 
         # FIXME 検証
-        if len(list_of_face_of_coin) < series_rule.shortest_coins:
-            text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+        if len(path_of_face_of_coin) < series_rule.shortest_coins:
+            text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
             print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.upper_limit_coins=}
 """)
             raise ValueError(text)
@@ -2585,14 +2585,14 @@ def simulate_series(spec, series_rule, specified_trials_series):
         trial_results_for_one_series = judge_series(
                 spec=spec,
                 series_rule=series_rule,
-                list_of_face_of_coin=list_of_face_of_coin)
+                path_of_face_of_coin=path_of_face_of_coin)
         #print(f"{trial_results_for_one_series.stringify_dump()}")
 
         
 #         if trial_results_for_one_series.number_of_coins < series_rule.shortest_coins:
 #             text = f"{spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.shortest_coins} を下回った"
 #             print(f"""{text}
-# {list_of_face_of_coin=}
+# {path_of_face_of_coin=}
 # {series_rule.upper_limit_coins=}
 # {trial_results_for_one_series.stringify_dump('   ')}
 # """)
@@ -2601,7 +2601,7 @@ def simulate_series(spec, series_rule, specified_trials_series):
 #         if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
 #             text = f"{spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.upper_limit_coins} を上回った"
 #             print(f"""{text}
-# {list_of_face_of_coin=}
+# {path_of_face_of_coin=}
 # {series_rule.shortest_coins=}
 # {trial_results_for_one_series.stringify_dump('   ')}
 # """)

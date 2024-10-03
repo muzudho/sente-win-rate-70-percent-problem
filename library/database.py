@@ -124,26 +124,44 @@ class EvenRecord():
 class EvenTable():
 
 
-    @staticmethod
-    def set_type(df):
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['p'].astype('float64')
-        df['failure_rate'].astype('float64')
-        df['turn_system'].astype('object')    # string 型は無い？
-        df['trials_series'].fillna(0).astype('int64')
-        df['best_p'].fillna(0.0).astype('float64')
-        df['best_p_error'].fillna(0.0).astype('float64')
-        df['best_h_step'].fillna(0).astype('int64')
-        df['best_t_step'].fillna(0).astype('int64')
-        df['best_span'].fillna(0).astype('int64')
-        df['latest_p'].fillna(0.0).astype('float64')
-        df['latest_p_error'].fillna(0.0).astype('float64')
-        df['latest_h_step'].fillna(0).astype('int64')
-        df['latest_t_step'].fillna(0).astype('int64')
-        df['latest_span'].fillna(0).astype('int64')
-        df['candidates'].fillna('').astype('object')    # string 型は無い？
+    _dtype = {
+        'p':'float64',
+        'failure_rate':'float64',
+        'turn_system':'object',     # string 型は無いから object
+        'trials_series':'int64',
+        'best_p':'float64',
+        'best_p_error':'float64',
+        'best_h_step':'int64',
+        'best_t_step':'int64',
+        'best_span':'int64',
+        'latest_p':'float64',
+        'latest_p_error':'float64',
+        'latest_h_step':'int64',
+        'latest_t_step':'int64',
+        'latest_span':'int64',
+        'candidates':'object'}
+
+
+    # @staticmethod
+    # def set_type(df):
+    #     #
+    #     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+    #     #
+    #     df['p'].astype('float64')
+    #     df['failure_rate'].astype('float64')
+    #     df['turn_system'].astype('object')    # string 型は無い？
+    #     df['trials_series'].fillna(0).astype('int64')
+    #     df['best_p'].fillna(0.0).astype('float64')
+    #     df['best_p_error'].fillna(0.0).astype('float64')
+    #     df['best_h_step'].fillna(0).astype('int64')
+    #     df['best_t_step'].fillna(0).astype('int64')
+    #     df['best_span'].fillna(0).astype('int64')
+    #     df['latest_p'].fillna(0.0).astype('float64')
+    #     df['latest_p_error'].fillna(0.0).astype('float64')
+    #     df['latest_h_step'].fillna(0).astype('int64')
+    #     df['latest_t_step'].fillna(0).astype('int64')
+    #     df['latest_span'].fillna(0).astype('int64')
+    #     df['candidates'].fillna('').astype('object')    # string 型は無い？
 
 
     @staticmethod
@@ -222,8 +240,8 @@ class EvenTable():
         df.loc[df['p']==specified_p, ['candidates']] = candidates
 
 
-    @staticmethod
-    def read_df(failure_rate, turn_system, generation_algorythm, trials_series):
+    @classmethod
+    def read_df(clazz, failure_rate, turn_system, generation_algorythm, trials_series):
         """
 
         Parameters
@@ -245,9 +263,8 @@ class EvenTable():
             csv_file_path = get_even_data_csv_file_path()
 
 
-        df = pd.read_csv(csv_file_path, encoding="utf8")
-
-        EvenTable.set_type(df)
+        df = pd.read_csv(csv_file_path, encoding="utf8",
+                dtype=clazz._dtype)     # string 型は無い？
 
         return df
 
@@ -313,7 +330,15 @@ class CalculateProbabilityTable():
 
     @staticmethod
     def get_df_let_calculate_probability():
-        df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8")
+        df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
+                dtype={
+                    'p':'float64',
+                    'p_time':'int64',
+                    'q_time':'int64',
+                    'best_p':'float64',
+                    'best_p_error':'float64',
+                    'comment':'object'
+                })
 
         return df
 
@@ -322,25 +347,38 @@ class ScoreBoardDataTable():
     """スコアボード・データ"""
 
 
-    @staticmethod
-    def set_type(df):
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['turn_system'].astype('object')    # string 型は無い？
-        df['failure_rate'].astype('float64')
-        df['p'].astype('float64')
-        df['span'].fillna(0).astype('int64')
-        df['t_step'].fillna(0).astype('int64')
-        df['h_step'].fillna(0).astype('int64')
-        df['shortest_coins'].fillna(0).astype('int64')
-        df['upper_limit_coins'].fillna(0).astype('int64')
-        df['a_win_rate'].fillna(0.0).astype('float64')
-        df['no_win_match_rate'].fillna(0.0).astype('float64')
+    _dtype = {
+        'turn_system':'object',     # string 型は無い？
+        'failure_rate':'float64',
+        'p':'float64',
+        'span':'int64',
+        't_step':'int64',
+        'h_step':'int64',
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'a_win_rate':'float64',
+        'no_win_match_rate':'float64'}
 
 
-    @staticmethod
-    def new_data_frame():
+    # @staticmethod
+    # def set_type(df):
+    #     #
+    #     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+    #     #
+    #     df['turn_system'].astype('object')    # string 型は無い？
+    #     df['failure_rate'].astype('float64')
+    #     df['p'].astype('float64')
+    #     df['span'].fillna(0).astype('int64')
+    #     df['t_step'].fillna(0).astype('int64')
+    #     df['h_step'].fillna(0).astype('int64')
+    #     df['shortest_coins'].fillna(0).astype('int64')
+    #     df['upper_limit_coins'].fillna(0).astype('int64')
+    #     df['a_win_rate'].fillna(0.0).astype('float64')
+    #     df['no_win_match_rate'].fillna(0.0).astype('float64')
+
+
+    @classmethod
+    def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
                 'turn_system': [],
                 'failure_rate': [],
@@ -351,15 +389,13 @@ class ScoreBoardDataTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'a_win_rate': [],
-                'no_win_match_rate': []})
-
-        ScoreBoardDataTable.set_type(df)
+                'no_win_match_rate': []}).astype(clazz._dtype)
 
         return df
 
 
-    @staticmethod
-    def read_df(spec, new_if_it_no_exists=False):
+    @classmethod
+    def read_df(clazz, spec, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -393,10 +429,9 @@ class ScoreBoardDataTable():
                 df = None
 
         else:
-            df = pd.read_csv(csv_file_path, encoding="utf8")
+            df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
 
-
-        ScoreBoardDataTable.set_type(df)
 
         return df, is_new
 
@@ -404,7 +439,10 @@ class ScoreBoardDataTable():
     @staticmethod
     def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
         index = len(df.index)
-        df.loc[index, [ 'turn_system']] = turn_system_str
+
+
+        df.loc[index, [ 'turn_system']] = turn_system_str   # FIXME ここで型エラー？
+
         df.loc[index, ['failure_rate']] = failure_rate
         df.loc[index, ['p']] = p
         df.loc[index, ['span']] = span
@@ -504,25 +542,38 @@ class ScoreBoardDataBestTable():
     """スコアボード・データ・ベスト"""
 
 
-    @staticmethod
-    def set_type(df):
-        #
-        # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-        #
-        df['turn_system'].astype('object')    # string 型は無い？
-        df['failure_rate'].astype('float64')
-        df['p'].fillna(0.0).astype('float64')
-        df['span'].fillna(0).astype('int64')
-        df['t_step'].fillna(0).astype('int64')
-        df['h_step'].fillna(0).astype('int64')
-        df['shortest_coins'].fillna(0).astype('int64')
-        df['upper_limit_coins'].fillna(0).astype('int64')
-        df['a_win_rate'].fillna(0.0).astype('float64')
-        df['no_win_match_rate'].fillna(0.0).astype('float64')
+    _dtype = {
+        'turn_system':'object',     # string 型は無い？
+        'failure_rate':'float64',
+        'p':'float64',
+        'span':'int64',
+        't_step':'int64',
+        'h_step':'int64',
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'a_win_rate':'float64',
+        'no_win_match_rate':'float64'}
 
 
-    @staticmethod
-    def new_data_frame():
+    # @staticmethod
+    # def set_type(df):
+    #     #
+    #     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
+    #     #
+    #     df['turn_system'].astype('object')    # string 型は無い？
+    #     df['failure_rate'].astype('float64')
+    #     df['p'].fillna(0.0).astype('float64')
+    #     df['span'].fillna(0).astype('int64')
+    #     df['t_step'].fillna(0).astype('int64')
+    #     df['h_step'].fillna(0).astype('int64')
+    #     df['shortest_coins'].fillna(0).astype('int64')
+    #     df['upper_limit_coins'].fillna(0).astype('int64')
+    #     df['a_win_rate'].fillna(0.0).astype('float64')
+    #     df['no_win_match_rate'].fillna(0.0).astype('float64')
+
+
+    @classmethod
+    def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
                 'turn_system': [],
                 'failure_rate': [],
@@ -533,9 +584,7 @@ class ScoreBoardDataBestTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'a_win_rate': [],
-                'no_win_match_rate': []})
-
-        ScoreBoardDataBestTable.set_type(df)
+                'no_win_match_rate': []}).astype(clazz._dtype)
 
         return df
 
@@ -569,8 +618,8 @@ class ScoreBoardDataBestTable():
         df.loc[index, ['no_win_match_rate']] = record.three_rates.no_win_match_rate
 
 
-    @staticmethod
-    def read_df(new_if_it_no_exists=False):
+    @classmethod
+    def read_df(clazz, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -597,10 +646,9 @@ class ScoreBoardDataBestTable():
                 df = None
 
         else:
-            df = pd.read_csv(csv_file_path, encoding="utf8")
-
-
-        ScoreBoardDataBestTable.set_type(df)
+            df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+        
 
         return df, is_new
 

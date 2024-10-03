@@ -43,10 +43,11 @@ def automatic(spec):
     best_win_rate_error = ABS_OUT_OF_ERROR
 
 
-    # ファイルが存在したなら、読込
-    if os.path.isfile(best_csv_file_path):
-        df_b = pd.read_csv(best_csv_file_path, encoding="utf8")
+    # ファイルが存在しなかったなら、空データフレーム作成
+    df_b, is_new = ScoreBoardDataBestTable.read_df(new_if_it_no_exists=True)
 
+    # ファイルが存在したなら、読込
+    if not is_new:
         # （書き込むファイルの）該当レコードのキー
         key_b = (df_b['turn_system']==turn_system_str) & (df_b['failure_rate']==spec.failure_rate) & (df_b['p']==spec.p)
 
@@ -57,20 +58,18 @@ def automatic(spec):
             best_win_rate_error = best_record.three_rates.a_win_rate - EVEN
 
 
-    # ファイルが存在しなかったなら、空データフレーム作成
-    else:
-        df_b = ScoreBoardDataBestTable.new_data_frame()
+    def on_each(record):
 
+        error = record.a_win_rate - EVEN
 
-    for           turn_system_str,       failure_rate,         p,         span,         t_step,         h_step,         shortest_coins,         upper_limit_coins,         a_win_rate,         no_win_match_rate in\
-        zip(df_d['turn_system']  , df_d['failure_rate'], df_d['p'], df_d['span'], df_d['t_step'], df_d['h_step'], df_d['shortest_coins'], df_d['upper_limit_coins'], df_d['a_win_rate'], df_d['no_win_match_rate']):
-
-        error = a_win_rate - EVEN
-
+        # 誤差が縮まれば更新
         if abs(error) < abs(best_win_rate_error):
             is_update = True
-        elif error == best_win_rate_error and (best_record.three_rates.no_win_match_rate is None or no_win_match_rate < best_record.three_rates.no_win_match_rate):
+        
+        # 誤差が同じでも、引き分け率が下がれば更新
+        elif error == best_win_rate_error and (best_record.three_rates.no_win_match_rate is None or record.no_win_match_rate < best_record.three_rates.no_win_match_rate):
             is_update = True
+        
         else:
             is_update = False
 
@@ -78,17 +77,20 @@ def automatic(spec):
         if is_update:
             best_win_rate_error = error
             best_record = ScoreBoardDataBestRecord(
-                    turn_system_str=turn_system_str,
-                    failure_rate=failure_rate,
-                    p=p,
-                    span=span,
-                    t_step=t_step,
-                    h_step=h_step,
-                    shortest_coins=shortest_coins,
-                    upper_limit_coins=upper_limit_coins,
+                    turn_system_str=record.turn_system_str,
+                    failure_rate=record.failure_rate,
+                    p=record.p,
+                    span=record.span,
+                    t_step=record.t_step,
+                    h_step=record.h_step,
+                    shortest_coins=record.shortest_coins,
+                    upper_limit_coins=record.upper_limit_coins,
                     three_rates=ThreeRates(
-                            a_win_rate=a_win_rate,
-                            no_win_match_rate=no_win_match_rate))
+                            a_win_rate=record.a_win_rate,
+                            no_win_match_rate=record.no_win_match_rate))
+
+
+    ScoreBoardDataBestTable.for_each(on_each=on_each)
 
 
     if best_record.turn_system_str is not None:

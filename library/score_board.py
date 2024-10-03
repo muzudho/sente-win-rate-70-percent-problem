@@ -46,7 +46,7 @@ def search_all_score_boards(series_rule, on_score_board_created):
         trial_results_for_one_series = judge_series(
                 spec=series_rule.spec,
                 series_rule=series_rule,
-                list_of_face_of_coin=path_of_face_of_coin)
+                path_of_face_of_coin=path_of_face_of_coin)
 
 
         # FIXME 検証
@@ -71,11 +71,11 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
 
         # コインの出目のリストはサイズが切り詰められて縮まってるケースがある
-        id = ''.join([str(num) for num in trial_results_for_one_series.list_of_face_of_coin])
+        id = ''.join([str(num) for num in trial_results_for_one_series.path_of_face_of_coin])
 
         # 既に処理済みのものはスキップ
         if id in distinct_set:
-            #print(f"既に処理済みのものはスキップ  {id=}  {trial_results_for_one_series.list_of_face_of_coin=}  {list_of_face_of_coin=}")
+            #print(f"既に処理済みのものはスキップ  {id=}  {trial_results_for_one_series.path_of_face_of_coin=}  {path_of_face_of_coin=}")
             continue
 
         distinct_set.add(id)
@@ -99,7 +99,7 @@ def search_all_score_boards(series_rule, on_score_board_created):
                 pattern_no=pattern_no,
                 spec=series_rule.spec,
                 series_rule=series_rule,
-                list_of_face_of_coin=trial_results_for_one_series.list_of_face_of_coin)
+                path_of_face_of_coin=trial_results_for_one_series.path_of_face_of_coin)
 
 
         on_score_board_created(score_board=score_board)

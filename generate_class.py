@@ -41,7 +41,8 @@ if __name__ == '__main__':
 
 
                 # データ・ファイルを読み込んで、データ・フレームにして返す
-                df = pd.read_csv(DATA_CSV_FILE_PATH, encoding="utf8")
+                df = pd.read_csv(DATA_CSV_FILE_PATH, encoding="utf8",
+                        dtype={'property_name' : 'object'})
 
 
                 # とりあえず、テキストをファイルへ保存するための簡単な書き方

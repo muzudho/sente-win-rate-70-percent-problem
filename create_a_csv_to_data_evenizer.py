@@ -223,15 +223,15 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             for i in range(0, specified_trials_series):
 
                                 # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-                                list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
+                                path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
                                         spec=spec,
                                         upper_limit_coins=latest_series_rule.upper_limit_coins)
 
                                 # FIXME 検証
-                                if len(list_of_face_of_coin) < latest_series_rule.shortest_coins:
-                                    text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {latest_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+                                if len(path_of_face_of_coin) < latest_series_rule.shortest_coins:
+                                    text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {latest_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
                                     print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {latest_series_rule.upper_limit_coins=}
 """)
                                     raise ValueError(text)
@@ -241,7 +241,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                                 trial_results_for_one_series = judge_series(
                                         spec=spec,
                                         series_rule=latest_series_rule,
-                                        list_of_face_of_coin=list_of_face_of_coin)
+                                        path_of_face_of_coin=path_of_face_of_coin)
                                 
                                 list_of_trial_results_for_one_series.append(trial_results_for_one_series)
                             

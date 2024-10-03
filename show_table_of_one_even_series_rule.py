@@ -71,15 +71,15 @@ def show_series_rule(spec, trials_series, h_step, t_step, span, presentable, com
             span=span)
 
     # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-    list_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
+    path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
             spec=spec,
             upper_limit_coins=series_rule.upper_limit_coins)
 
     # FIXME 検証
-    if len(list_of_face_of_coin) < series_rule.shortest_coins:
-        text = f"{spec.p=} 指定の対局シートの長さ {len(list_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+    if len(path_of_face_of_coin) < series_rule.shortest_coins:
+        text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
-{list_of_face_of_coin=}
+{path_of_face_of_coin=}
 {series_rule.upper_limit_coins=}
 """)
         raise ValueError(text)
@@ -89,7 +89,7 @@ def show_series_rule(spec, trials_series, h_step, t_step, span, presentable, com
     trial_results_for_one_series = judge_series(
             spec=spec,
             series_rule=series_rule,
-            list_of_face_of_coin=list_of_face_of_coin)
+            path_of_face_of_coin=path_of_face_of_coin)
 
 
     text = stringify_body(
