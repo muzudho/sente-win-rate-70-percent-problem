@@ -139,12 +139,12 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
 
 def get_score_board_data_log_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    return f'logs/score_board_data{subname}.log'
+    return f'logs/score_board/data{subname}.log'
 
 def get_score_board_data_csv_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
     # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
-    return f'logs/score_board_data{subname}.csv'
+    return f'logs/score_board/data{subname}.csv'
 
 
 #######################

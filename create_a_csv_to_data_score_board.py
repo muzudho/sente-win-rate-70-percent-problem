@@ -47,12 +47,12 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
         print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] skip={number_of_skip}")
         number_of_skip = 0
 
-        # 変更があれば保存
-        if 0 < number_of_dirty:
-            # CSVファイルへ書き出し
-            csv_file_path_to_wrote = ScoreBoardDataTable.to_csv(df, spec)
-            number_of_dirty = 0
-            print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] dirty={number_of_dirty} write file to `{csv_file_path_to_wrote}` ...")
+        # # 変更があれば保存
+        # if 0 < number_of_dirty:
+        #     # CSVファイルへ書き出し
+        #     csv_file_path_to_wrote = ScoreBoardDataTable.to_csv(df, spec)
+        #     number_of_dirty = 0
+        #     print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] dirty={number_of_dirty} write file to `{csv_file_path_to_wrote}` ...")
 
         # 計算未停止だが、譲る（タイムシェアリング）
         return YIELD
@@ -79,9 +79,10 @@ def automatic_in_loop(df, spec, span, t_step, h_step):
         if is_almost_even(df.loc[key, ['a_win_rate']].iat[0, 0]):
             print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] even!   {span=:2}  {t_step=:2}  {h_step=:2}  shortest_coins={specified_series_rule.shortest_coins}  upper_limit_coins={specified_series_rule.upper_limit_coins}")
 
-            # CSVファイルへ書き出し
-            ScoreBoardDataTable.to_csv(df, spec)
+            # # CSVファイルへ書き出し
+            # ScoreBoardDataTable.to_csv(df, spec)
             return TERMINATED
+
 
         # スキップ
         number_of_skip += 1
@@ -144,12 +145,7 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
             failure_rate=failure_rate,
             turn_system=turn_system)
 
-    # CSVファイルパス
-    csv_file_path = get_score_board_data_csv_file_path(
-            p=spec.p,
-            failure_rate=spec.failure_rate,
-            turn_system=spec.turn_system)
-
+    turn_system_str = Converter.turn_system_to_code(spec.turn_system)
 
     df, is_new = ScoreBoardDataTable.read_df(spec=spec, new_if_it_no_exists=True)
 
@@ -161,6 +157,10 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
         span = 1        # ［目標の点数］
         t_step = 1      # ［後手で勝ったときの勝ち点］
         h_step = 1      # ［先手で勝ったときの勝ち点］
+
+        print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={spec.p:.2f}  turn_system={turn_system_str:11}] new file  {upper_limit_span=}")
+        # CSVファイルへ書き出し
+        ScoreBoardDataTable.to_csv(df, spec)
 
     # ファイルが存在して、読み込まれたなら
     else:
@@ -182,7 +182,6 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
             h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
 
-            turn_system_str = Converter.turn_system_to_code(spec.turn_system)
             print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}] restart {span=:2}  {t_step=:2}  {h_step=:2}")
 
 
@@ -203,6 +202,14 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
                 h_step=h_step)
 
         if calculation_status in [TERMINATED, YIELD]:
+
+            # 変更があれば保存
+            if 0 < number_of_dirty:
+                # CSVファイルへ書き出し
+                csv_file_path_to_wrote = ScoreBoardDataTable.to_csv(df, spec)
+                print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}]  dirty={number_of_dirty}  {calculation_status=}  write file to `{csv_file_path_to_wrote}` ...")
+                number_of_dirty = 0
+
             return calculation_status, span
 
         # カウントアップ
@@ -214,6 +221,13 @@ def automatic(turn_system, failure_rate, p, upper_limit_span):
                 t_step = 1
                 span += 1
 
+
+    # 変更があれば保存
+    if 0 < number_of_dirty:
+        # CSVファイルへ書き出し
+        csv_file_path_to_wrote = ScoreBoardDataTable.to_csv(df, spec)
+        print(f"[{datetime.datetime.now()}][failure_rate={spec.failure_rate:.2f}  p={p:.2f}  turn_system={turn_system_str:11}]  dirty={number_of_dirty}  TERMINATED  write file to `{csv_file_path_to_wrote}` ...")
+        number_of_dirty = 0
 
     # 探索範囲内に見つからなかったが、計算停止扱いとする
     return TERMINATED, span
@@ -233,6 +247,9 @@ if __name__ == '__main__':
         number_of_not_terminated = 1
 
         while number_of_not_terminated != 0:
+
+            print("search ...")
+
             # リセット
             number_of_not_terminated = 0
 
