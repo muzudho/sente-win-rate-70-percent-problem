@@ -2114,14 +2114,17 @@ class ScoreBoard():
     @staticmethod
     def make_score_board(pattern_no, spec, series_rule, list_of_face_of_coin):
 
-        # ［表が出る確率］は分かっているので、［出目］のリストが出る確率を算出する
-        # TODO 引分けも含めた確率で考慮する必要がある
+        # 入力値チェック
+        # いったん、［表が出る確率］、［裏が出る確率］、［表も裏も出なかった確率］を足して１００％になるような数にします
+        #
+        #   NOTE 自明の計算式だが、float 型でピッタリ 1 にならないケースがあることに注意しておく必要がある
+        #
         p_with_draw = (1 - spec.failure_rate) * spec.p
         q_with_draw = (1 - spec.failure_rate) * (1 - spec.p)
         sum_rate = p_with_draw + q_with_draw + spec.failure_rate
-        # NOTE 誤差が出てしまうので、ぴったり 1 にはならない。有効桁数を決めておく
+        # ぴったり 1 にはならない。有効桁数を決めておく
         if not is_almost_one(sum_rate):
-            raise ValueError(f"誤差はあれども合計は1になるはずです {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
+            raise ValueError(f"［ほぼ］ではなく［ピッタリ］合計は1になるはずですが、コンピューターの都合でピッタリ 1 になりません。それにしても大きく外れています {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
 
         pattern_p = 1
         for face_of_coin in list_of_face_of_coin:
