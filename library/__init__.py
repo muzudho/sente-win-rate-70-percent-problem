@@ -115,8 +115,8 @@ OUT_OF_P = 1.01
 ABS_OUT_OF_ERROR = 0.51
 
 
-# span が 255 より上回ることはないだろう。計算の処理時間が甚大になるだろうから
-OUT_OF_UPPER_SPAN = 255
+# span に上限を付ける。計算の処理時間が甚大になるだろうから
+OUT_OF_UPPER_SPAN = 99
 
 
 # 五分五分
@@ -279,6 +279,16 @@ class Converter():
             ［精度］
         """
         return 0.9 * 10 ** -precision
+
+
+    _calculation_status_to_code = {
+        TERMINATED : 'terminated',
+        YIELD : 'yield',
+        CONTINUE : 'continue'}
+
+    @classmethod
+    def calculation_status_to_code(clazz, calculation_status):
+        return clazz._calculation_status_to_code[calculation_status]
 
 
 class Specification():

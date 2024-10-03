@@ -5,7 +5,7 @@ import os
 import datetime
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, round_letro, Converter, ThreeRates
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
 from library.file_paths import get_even_data_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
 
 
@@ -357,6 +357,7 @@ class ScoreBoardDataTable():
         'shortest_coins':'int64',
         'upper_limit_coins':'int64',
         'a_win_rate':'float64',
+        'a_win_rate_abs_error':'float64',
         'no_win_match_rate':'float64'}
 
 
@@ -389,6 +390,7 @@ class ScoreBoardDataTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'a_win_rate': [],
+                'a_win_rate_abs_error': [],
                 'no_win_match_rate': []}).astype(clazz._dtype)
 
         return df
@@ -449,9 +451,18 @@ class ScoreBoardDataTable():
         df.loc[index, ['t_step']] = t_step
         df.loc[index, ['h_step']] = h_step
         df.loc[index, ['shortest_coins']] = shortest_coins
-        df.loc[index, ['upper_limit_coins']] = upper_limit_coins                
-        df.loc[index, ['a_win_rate']] = three_rates.a_win_rate
-        df.loc[index, ['no_win_match_rate']] = three_rates.no_win_match_rate
+        df.loc[index, ['upper_limit_coins']] = upper_limit_coins
+
+        if three_rates is None:
+            # あとで設定する
+            df.loc[index, ['a_win_rate']] = OUT_OF_P
+            df.loc[index, ['a_win_rate_abs_error']] = abs(OUT_OF_P - EVEN)
+            df.loc[index, ['no_win_match_rate']] = OUT_OF_P
+
+        else:
+            df.loc[index, ['a_win_rate']] = three_rates.a_win_rate
+            df.loc[index, ['a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
+            df.loc[index, ['no_win_match_rate']] = three_rates.no_win_match_rate
 
 
     @staticmethod
@@ -471,7 +482,7 @@ class ScoreBoardDataTable():
                 turn_system=spec.turn_system)
 
         df.to_csv(csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'no_win_match_rate'],
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'a_win_rate_abs_error', 'no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
