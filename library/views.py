@@ -64,65 +64,6 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     return text
 
 
-def print_even_series_rule(p, best_p, best_p_error, series_rule):
-
-    # 対局数
-    if series_rule.turn_system == FROZEN_TURN:
-        ts = '先後固定制'
-    elif series_rule.turn_system == ALTERNATING_TURN:
-        ts = '先後交互制'
-    else:
-        raise ValueError(f'{series_rule.turn_system=}')
-
-    if series_rule.turn_system == ALTERNATING_TURN:
-        # ［表が出る確率（％）］
-        seg_1a = p*100
-
-        # ［調整後の表が出る確率（％）］
-        seg_1b = best_p * 100
-
-        # ［調整後の表が出る確率（％）と 0.5 との誤差］
-        seg_1c = best_p_error * 100
-        
-        seg_3a = series_rule.shortest_coins
-        seg_3b = series_rule.upper_limit_coins
-
-        seg_4a = series_rule.step_table.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-        seg_4b = series_rule.step_table.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
-
-        # ［目標の点数］
-        seg_4c = series_rule.step_table.span
-
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{series_rule.trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
-        return
-
-    if series_rule.turn_system == FROZEN_TURN:
-        # ［表が出る確率（％）］
-        seg_1a = p*100
-
-        # ［調整後の表が出る確率（％）］
-        seg_1b = best_p * 100
-
-        # ［調整後の表が出る確率（％）と 0.5 との誤差］
-        seg_1c = best_p_error * 100
-
-        # 対局数
-        seg_3a = series_rule.shortest_coins
-        seg_3b = series_rule.upper_limit_coins
-
-        seg_4a = series_rule.step_table.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-        seg_4b = series_rule.step_table.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
-
-        # ［目標の点数］
-        seg_4c = series_rule.step_table.span
-
-        print(f"先手勝率：{seg_1a:2.0f} ％ --調整--> {seg_1b:>7.04f} ％（± {seg_1c:>7.04f}）  試行{series_rule.trials_series:6}シリーズ回    対局数 {seg_3a:>2}～{seg_3b:>2}（{ts}）    先手勝ち{seg_4a:2.0f}点、後手勝ち{seg_4b:2.0f}点　目標{seg_4c:3.0f}点", flush=True)
-        return
-
-
-    raise ValueError(f"{turn_system=}")
-
-
 def stringify_series_log(
         p, failure_rate, series_rule, trial_results_for_one_series, title, turn_system):
     """シリーズのログの文言作成

@@ -1,6 +1,6 @@
 #
 # 生成
-# python create_a_csv_to_data_evenizer.py
+# python create_a_csv_to_data_ep.py
 #
 #   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
@@ -13,8 +13,7 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, OUT_OF_P, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
-from library.database import EvenTable
-from library.views import print_even_series_rule
+from library.database import EmpiricalProbabilityTable
 
 
 # 探索の上限
@@ -34,7 +33,7 @@ class Automation():
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
 
-        self._df_ev = None
+        self._df_ep = None
         self._current_abs_lower_limit_of_error = None
         self._passage_upper_limit = None
 
@@ -57,15 +56,8 @@ class Automation():
             ［仕様］
         """
 
-        # # 表示
-        # print_even_series_rule(
-        #         p=p,
-        #         best_p=best_p,
-        #         best_p_error=best_p_error,
-        #         series_rule=best_series_rule_if_it_exists)
-
-        EvenTable.update_record(
-                df=self._df_ev,
+        EmpiricalProbabilityTable.update_record(
+                df=self._df_ep,
                 specified_p = spec.p,
                 trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
                 best_p=best_p,
@@ -92,7 +84,7 @@ class Automation():
             p = p_parcent / 100
             
             # 存在しなければデフォルトのレコード追加
-            if not ((self._df_ev['p'] == p) & (self._df_ev['failure_rate'] == self._specified_failure_rate) & (self._df_ev['trials_series'] == self._specified_trials_series)).any():
+            if not ((self._df_ep['p'] == p) & (self._df_ep['failure_rate'] == self._specified_failure_rate) & (self._df_ep['trials_series'] == self._specified_trials_series)).any():
 
                 # ［仕様］
                 spec = Specification(
@@ -100,16 +92,16 @@ class Automation():
                         failure_rate=self._specified_failure_rate,
                         turn_system=self._specified_turn_system)
                 
-                EvenTable.append_default_record(
-                        df=self._df_ev,
+                EmpiricalProbabilityTable.append_default_record(
+                        df=self._df_ep,
                         spec=spec,
                         trials_series=self._specified_trials_series)
                 is_append_new_record = True
 
         if is_append_new_record:
             # CSV保存
-            EvenTable.to_csv(
-                    df=self._df_ev,
+            EmpiricalProbabilityTable.to_csv(
+                    df=self._df_ep,
                     failure_rate=self._specified_failure_rate,
                     turn_system=self._specified_turn_system,
                     trials_series=self._specified_trials_series)
@@ -298,7 +290,7 @@ class Automation():
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
+                                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -366,7 +358,7 @@ class Automation():
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
+                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
 
 
     def iteration_deeping(self):
@@ -393,7 +385,7 @@ class Automation():
         self._number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-        EvenTable.for_each(df=self._df_ev, on_each=self.on_each)
+        EmpiricalProbabilityTable.for_each(df=self._df_ep, on_each=self.on_each)
 
         return is_update_table
 
@@ -401,8 +393,8 @@ class Automation():
     # automatic
     def execute(self):
 
-        self._df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
-        #print(self._df_ev)
+        self._df_ep = EmpiricalProbabilityTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
+        #print(self._df_ep)
 
 
         self._start_time_for_save = time.time()
@@ -430,13 +422,13 @@ class Automation():
         #
         #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
         #
-        while len(self._df_ev) < 1 or self._specified_abs_small_error < worst_abs_best_p_error:
+        while len(self._df_ep) < 1 or self._specified_abs_small_error < worst_abs_best_p_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            best_p_error_min = self._df_ev['best_p_error'].min()
-            best_p_error_max = self._df_ev['best_p_error'].max()
+            best_p_error_min = self._df_ep['best_p_error'].min()
+            best_p_error_max = self._df_ep['best_p_error'].max()
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
 
@@ -501,7 +493,7 @@ class Automation():
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            EvenTable.to_csv(df=self._df_ev, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
+            EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
 
 
 ########################################

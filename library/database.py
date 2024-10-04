@@ -273,7 +273,7 @@ class KakukinDataSheetTable():
 # Even table
 #############
 
-class EvenRecord():
+class EmpiricalProbabilityRecord():
 
 
     def __init__(self, p, failure_rate, turn_system_str, trials_series, best_p, best_p_error, best_h_step, best_t_step, best_span, latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span, candidates):
@@ -378,7 +378,10 @@ class EvenRecord():
         return self._candidates
 
 
-class EvenTable():
+class EmpiricalProbabilityTable():
+    """経験的確率論テーブル
+    旧名： EvenTable
+    """
 
 
     _dtype = {
@@ -523,7 +526,7 @@ class EvenTable():
         Parameters
         ----------
         df : DataFrame
-            even の表
+            データフレーム
         """
         for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
             zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
@@ -538,7 +541,7 @@ class EvenTable():
             latest_span = round_letro(latest_span)
 
             # レコード作成
-            even_record = EvenRecord(
+            record = EmpiricalProbabilityRecord(
                     p=p,
                     failure_rate=failure_rate,
                     turn_system_str=turn_system_str,
@@ -555,7 +558,7 @@ class EvenTable():
                     latest_span=latest_span,
                     candidates=candidates)
 
-            on_each(even_record)
+            on_each(record)
 
 
 class CalculateProbabilityTable():
@@ -942,7 +945,7 @@ class ScoreBoardDataBestTable():
         Parameters
         ----------
         df : DataFrame
-            even の表
+            データフレーム
         """
         for         turn_system_str,   failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       a_win_rate,       no_win_match_rate in\
             zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['a_win_rate'], df['no_win_match_rate']):
@@ -955,7 +958,7 @@ class ScoreBoardDataBestTable():
             upper_limit_coins = round_letro(upper_limit_coins)
 
             # レコード作成
-            even_record = ScoreBoardDataBestRecord(
+            record = ScoreBoardDataBestRecord(
                     turn_system_str=turn_system_str,
                     failure_rate=failure_rate,
                     p=p,
@@ -968,4 +971,4 @@ class ScoreBoardDataBestTable():
                             a_win_rate=a_win_rate,
                             no_win_match_rate=no_win_match_rate))
 
-            on_each(even_record)
+            on_each(record)

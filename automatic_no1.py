@@ -8,8 +8,8 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
-from create_a_csv_to_data_evenizer import Automation as AutomationForData
-from create_a_csv_to_view_evenizer_in_excel_ver2 import Automation as AutomationForView
+from create_a_csv_to_data_ep import Automation as AutomationForData
+from create_a_csv_to_view_ep_in_excel_ver2 import Automation as AutomationForView
 
 
 LOG_FILE_PATH = 'logs/automatic_no1.log'

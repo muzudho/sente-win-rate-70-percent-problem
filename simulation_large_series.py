@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import EvenTable
+from library.database import EmpiricalProbabilityTable
 from library.views import stringify_simulation_log
 
 
@@ -120,10 +120,10 @@ Example: 3
         title='イーブン［シリーズ・ルール］'
 
 
-        df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
 
         for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-            zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
+            zip(df_ep['p'], df_ep['failure_rate'], df_ep['turn_system'], df_ep['trials_series'], df_ep['best_p'], df_ep['best_p_error'], df_ep['best_h_step'], df_ep['best_t_step'], df_ep['best_span'], df_ep['latest_p'], df_ep['latest_p_error'], df_ep['latest_h_step'], df_ep['latest_t_step'], df_ep['latest_span'], df_ep['candidates']):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:

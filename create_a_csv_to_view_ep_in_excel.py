@@ -3,7 +3,7 @@
 #
 #
 # 表示
-# python create_a_csv_to_view_evenizer_in_excel.py
+# python create_a_csv_to_view_ep_in_excel.py
 #
 #   Excel で［かくきんシステムの表］を表示するための CSV を作成する
 #
@@ -15,7 +15,7 @@ import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_kakukin_data_sheet_csv_file_path
-from library.database import EvenTable, EvenRecord
+from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
 from library.views import KakukinDataSheetTableCsv
 
 
@@ -43,28 +43,28 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         f.write(f"{header_csv}\n")
 
 
-    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, trials_series=specified_trials_series)
+    df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, trials_series=specified_trials_series)
 
 
-    def on_each(even_record):
+    def on_each(record):
 
         # 対象外のものはスキップ　［将棋の引分け率］
-        if specified_failure_rate != even_record.failure_rate:
+        if specified_failure_rate != record.failure_rate:
             return
 
         # 対象外のものはスキップ　［試行シリーズ数］
-        if specified_trials_series != even_record.trials_series:
+        if specified_trials_series != record.trials_series:
             return
 
-        if even_record.best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-            print(f"[p={even_record.p}  failure_rate={even_record.failure_rate}] ベスト値が設定されていません。スキップします")
+        if record.best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+            print(f"[p={record.p}  failure_rate={record.failure_rate}] ベスト値が設定されていません。スキップします")
             return
 
 
         # 仕様
         spec = Specification(
-                p=even_record.p,
-                failure_rate=even_record.failure_rate,
+                p=record.p,
+                failure_rate=record.failure_rate,
                 turn_system=specified_turn_system)
 
 
@@ -72,9 +72,9 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
                 trials_series=specified_trials_series,
-                h_step=even_record.best_h_step,
-                t_step=even_record.best_t_step,
-                span=even_record.best_span)
+                h_step=record.best_h_step,
+                t_step=record.best_t_step,
+                span=record.best_span)
 
 
         # シミュレーションします
@@ -104,7 +104,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
             f.write(f"{csv}\n")    # ファイルへ出力
 
 
-    EvenTable.for_each(df=df_ev, on_each=on_each)
+    EmpiricalProbabilityTable.for_each(df=df_ep, on_each=on_each)
 
 
 

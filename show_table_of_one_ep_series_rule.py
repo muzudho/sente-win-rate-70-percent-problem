@@ -1,6 +1,6 @@
 #
 # 表示
-# python show_table_of_one_even_series_rule.py
+# python show_table_of_one_ep_series_rule.py
 #
 #   テーブル形式でただ表示するだけ
 #
@@ -9,7 +9,7 @@ import traceback
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import get_simulation_large_series_log_file_path
-from library.database import EvenTable, EvenRecord
+from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
 
 
 def stringify_header(turn_system):
@@ -154,10 +154,10 @@ Which one(1-2)? """
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
 
         for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-            zip(df_ev['p'], df_ev['failure_rate'], df_ev['turn_system'], df_ev['trials_series'], df_ev['best_p'], df_ev['best_p_error'], df_ev['best_h_step'], df_ev['best_t_step'], df_ev['best_span'], df_ev['latest_p'], df_ev['latest_p_error'], df_ev['latest_h_step'], df_ev['latest_t_step'], df_ev['latest_span'], df_ev['candidates']):
+            zip(df_ep['p'], df_ep['failure_rate'], df_ep['turn_system'], df_ep['trials_series'], df_ep['best_p'], df_ep['best_p_error'], df_ep['best_h_step'], df_ep['best_t_step'], df_ep['best_span'], df_ep['latest_p'], df_ep['latest_p_error'], df_ep['latest_h_step'], df_ep['latest_t_step'], df_ep['latest_span'], df_ep['candidates']):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:
@@ -167,7 +167,7 @@ Which one(1-2)? """
                 print(f"[p={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
                 continue
 
-            even_record = EvenRecord(
+            record = EmpiricalProbabilityRecord(
                     p=p,
                     failure_rate=failure_rate,
                     turn_system_str=turn_system,
@@ -193,9 +193,9 @@ Which one(1-2)? """
             show_series_rule(
                     spec=spec,
                     trials_series=trials_series,
-                    h_step=even_record.best_h_step,
-                    t_step=even_record.best_t_step,
-                    span=even_record.best_span,
+                    h_step=record.best_h_step,
+                    t_step=record.best_t_step,
+                    span=record.best_span,
                     presentable='',
                     comment='')
 

@@ -1,6 +1,6 @@
 #
 # 表示
-# python create_a_csv_to_view_evenizer_in_excel_ver2.py
+# python create_a_csv_to_view_ep_in_excel_ver2.py
 #
 #   Excel で［かくきんシステムの表］を表示するための CSV を作成する
 #
