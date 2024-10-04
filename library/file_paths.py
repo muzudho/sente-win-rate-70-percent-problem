@@ -133,6 +133,15 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
     return f'_{subname}'
 
 
+###################
+# Kakukin data file
+###################
+
+def get_kakukin_data_excel_file_path(turn_system, trials_series):
+    subname = make_file_subname(turn_system=turn_system, trials_series=trials_series)
+    return f'reports/kakukin_data{subname}_ver2.xlsx'
+
+
 ##################
 # Score board data
 ##################
