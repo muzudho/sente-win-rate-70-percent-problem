@@ -8,7 +8,7 @@
 import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
-from library.file_paths import get_simulation_large_series_log_file_path
+from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityTable
 from library.views import stringify_simulation_log
 
@@ -51,7 +51,7 @@ def simulate_series_rule(spec, trials_series, h_step, t_step, span, presentable,
 
 
     # ログ出力
-    log_file_path = get_simulation_large_series_log_file_path(
+    log_file_path = SimulationLargeSeriesFilePaths.as_log(
             failure_rate=spec.failure_rate,
             turn_system=spec.turn_system)
     with open(log_file_path, 'a', encoding='utf8') as f:

@@ -8,7 +8,7 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
-from library.file_paths import get_automatic_no1_log_file_path
+from library.file_paths import AutomaticNo1FilePaths
 from library.logging import AutomaticNo1Logging
 from scripts.create_a_csv_to_epdt import Automation as CreateCsvToEPDT
 from scripts.create_kakukin_data_sheet_csv_file import Automation as CreateKakukinDataSheetCsvFile
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         print(progress)
   
         # ファイルへログ出力
-        log_file_path = get_automatic_no1_log_file_path()
+        log_file_path = AutomaticNo1FilePaths.as_log()
         with open(log_file_path, 'a', encoding='utf8') as f:
             f.write(f"{progress}\n")
 

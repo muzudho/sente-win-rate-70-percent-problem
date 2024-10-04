@@ -104,107 +104,89 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, trials_series
     return f'_{subname}'
 
 
-################
-# Automatic No.1
-################
-
-def get_automatic_no1_log_file_path():
-    return 'logs/automatic_no1.log'
-
-
-###################
-# Kakukin Data File
-###################
-
-def get_kakukin_data_excel_file_path(turn_system, trials_series):
-    subname = make_file_subname(turn_system=turn_system, trials_series=trials_series)
-    return f'reports/auto_generated_kakukin_data{subname}.xlsx'
+class AutomaticNo1FilePaths():
+    """自動スクリプト１号のファイルパス一覧"""
+    @staticmethod
+    def as_log():
+        return 'logs/automatic_no1.log'
 
 
-####################
-# Kakukin Data Sheet
-####################
-
-def get_kakukin_data_sheet_csv_file_path(failure_rate, turn_system, trials_series=None):
-    """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
-    Excel で表示するためのデータファイル
-    """
-    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
-    # ファイル名は長くなりすぎないようにする
-    return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
+class KakukinDataFilePaths():
+    """［かくきんデータ］関連のファイルパス一覧"""
+    @staticmethod
+    def as_excel(turn_system, trials_series):
+        subname = make_file_subname(turn_system=turn_system, trials_series=trials_series)
+        return f'reports/auto_generated_kakukin_data{subname}.xlsx'
 
 
-#########################
-# Theoretical Probability
-#########################
-
-def get_theoretical_probability_log_file_path(p, failure_rate, turn_system):
-    subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    return f'logs/theoretical_probability/TP{subname}.log'
-
-def get_theoretical_probability_csv_file_path(p, failure_rate, turn_system):
-    subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
-    return f'temp/theoretical_probability/TP{subname}.csv'
+    @staticmethod
+    def as_sheet_csv(failure_rate, turn_system, trials_series=None):
+        """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
+        Excel で表示するためのデータファイル
+        """
+        subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
+        # ファイル名は長くなりすぎないようにする
+        return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
 
 
-##############################
-# Theoretical Probability Best
-##############################
-
-def get_theoretical_probability_best_csv_file_path():
-    # データ・フォルダーの方に置く
-    return f'data/thoretical_probability_best.csv'
-
-
-######################################
-# Empirical Probability (元データの方)
-######################################
-
-def get_empirical_probability_csv_file_path(failure_rate=None, turn_system=None, trials_series=None):
-    """勝ち点を探索した記録ファイルへのパス
-    
-    Parameters
-    ----------
-    failure_rate : float
-        ［将棋の引分け率］
-    turn_system : int
-        ［先後の決め方］
-    trials_series : int
-        ［試行シリーズ数］
-    """
-    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
-
-    # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
-    return f'./temp/empirical_probability_during_trials/EPDT{subname}.csv'
+class TheoreticalProbabilityFilePaths():
+    """理論的確率データのファイルパス一覧"""
+    @staticmethod
+    def as_csv(p, failure_rate, turn_system):
+        subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
+        # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
+        return f'temp/theoretical_probability/TP{subname}.csv'
 
 
-##################
-# Score board view
-##################
-
-def get_score_board_view_log_file_path(p, failure_rate, turn_system, h_step, t_step, span):
-    subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system, h_step=h_step, t_step=t_step, span=span)
-    return f'logs/score_board_view{subname}.log'
-
-def get_score_board_view_csv_file_path(p, failure_rate, turn_system, h_step, t_step, span):
-    subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system, h_step=h_step, t_step=t_step, span=span)
-    return f'output/score_board_view{subname}.csv'
+class TheoreticalProbabilityBestFilePaths():
+    """理論的確率ベスト・データのファイルパス一覧"""
+    @staticmethod
+    def as_csv():
+        # データ・フォルダーの方に置く
+        return f'data/thoretical_probability_best.csv'
 
 
-##########################
-# Simulation large series
-##########################
+class EmpiricalProbabilityDuringTrialsFilePaths():
+    """試行中の経験的確率データのファイルパス一覧"""
+    @staticmethod
+    def as_csv(failure_rate=None, turn_system=None, trials_series=None):
+        """勝ち点を探索した記録ファイルへのパス
+        
+        Parameters
+        ----------
+        failure_rate : float
+            ［将棋の引分け率］
+        turn_system : int
+            ［先後の決め方］
+        trials_series : int
+            ［試行シリーズ数］
+        """
+        subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
-def get_simulation_large_series_log_file_path(failure_rate, turn_system):
-    """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
+        # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
+        return f'./temp/empirical_probability_during_trials/EPDT{subname}.csv'
 
-    Parameters
-    ----------
-    failure_rate : float
-        ［コインを投げて表も裏も出ない確率］
-    turn_system : float
-        ［先後の選び方の制度］
-    """
-    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
-    return f'logs/simulation_large_series{subname}.log'
+
+class ScoreBoardFilePaths():
+    """スコアボードのファイルパス一覧"""
+    @staticmethod
+    def as_csv(p, failure_rate, turn_system, h_step, t_step, span):
+        subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system, h_step=h_step, t_step=t_step, span=span)
+        return f'output/score_board_view{subname}.csv'
+
+
+class SimulationLargeSeriesFilePaths():
+    """大量のシリーズのシミュレーションのファイルパス一覧"""
+    @staticmethod
+    def as_log(failure_rate, turn_system):
+        """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
+
+        Parameters
+        ----------
+        failure_rate : float
+            ［コインを投げて表も裏も出ない確率］
+        turn_system : float
+            ［先後の選び方の制度］
+        """
+        subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
+        return f'logs/simulation_large_series{subname}.log'

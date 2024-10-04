@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
-from library.file_paths import get_empirical_probability_csv_file_path, get_theoretical_probability_csv_file_path, get_theoretical_probability_best_csv_file_path, get_kakukin_data_sheet_csv_file_path
+from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataFilePaths
 
 
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
@@ -210,7 +210,7 @@ class KakukinDataSheetTable():
             ［試行シリーズ数］
         """
 
-        csv_file_path = get_kakukin_data_sheet_csv_file_path(
+        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=failure_rate,
                 turn_system=turn_system,
                 trials_series=trials_series)
@@ -492,11 +492,11 @@ class EmpiricalProbabilityTable():
             ［試行シリーズ数］
         """
 
-        csv_file_path = get_empirical_probability_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
+        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
         # ファイルが存在しなかった場合
         if not os.path.isfile(csv_file_path):
-            csv_file_path = get_empirical_probability_csv_file_path()
+            csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv()
 
 
         df = pd.read_csv(csv_file_path, encoding="utf8",
@@ -508,7 +508,7 @@ class EmpiricalProbabilityTable():
     @staticmethod
     def to_csv(df, failure_rate, turn_system, trials_series):
         # ファイルが存在しなかった場合、新規作成
-        csv_file_path = get_empirical_probability_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
+        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
         print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
@@ -635,7 +635,7 @@ class TheoreticalProbabilityTable():
         """
 
         # CSVファイルパス
-        csv_file_path = get_theoretical_probability_csv_file_path(
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
                 turn_system=spec.turn_system)
@@ -695,7 +695,7 @@ class TheoreticalProbabilityTable():
         """
 
         # CSVファイルパス
-        csv_file_path = get_theoretical_probability_csv_file_path(
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
                 turn_system=spec.turn_system)
@@ -848,7 +848,7 @@ class TheoreticalProbabilityBestTable():
             新規作成されたか？
         """
 
-        csv_file_path = get_theoretical_probability_best_csv_file_path()
+        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
         # ファイルが存在しなかった場合
         is_new = not os.path.isfile(csv_file_path)
@@ -896,7 +896,7 @@ class TheoreticalProbabilityBestTable():
             書き込んだファイルへのパス
         """
         # CSVファイルパス（書き込むファイル）
-        csv_file_path = get_theoretical_probability_best_csv_file_path()
+        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
         df.to_csv(csv_file_path,
                 columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],

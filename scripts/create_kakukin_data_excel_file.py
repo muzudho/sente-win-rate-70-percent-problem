@@ -7,7 +7,7 @@ import os
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
-from library.file_paths import get_kakukin_data_excel_file_path
+from library.file_paths import KakukinDataFilePaths
 from library.database import KakukinDataSheetTable
 from library.excel_files import KakukinDataExcelFile
 
@@ -57,7 +57,7 @@ class Automation():
 
 
         # エクセル・ファイルへのパス
-        excel_file_path = get_kakukin_data_excel_file_path(
+        excel_file_path = KakukinDataFilePaths.as_excel(
                 turn_system=self._specified_turn_system,
                 trials_series=self._specified_trials_series)
 

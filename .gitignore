@@ -1,6 +1,5 @@
 # (^q^)
-logs/theoretical_probability/*
-!logs/theoretical_probability/.gitkeep
+*.log
 
 temp/empirical_probability_during_trials/*
 !temp/empirical_probability_during_trials/.gitkeep
@@ -9,7 +8,6 @@ temp/kakukin_data_sheet/*
 temp/theoretical_probability/*
 !temp/theoretical_probability/.gitkeep
 
-*.log
 *.bak
 
 

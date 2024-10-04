@@ -9,7 +9,6 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
-from library.file_paths import get_theoretical_probability_best_csv_file_path
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from scripts.create_a_csv_of_theoretical_probability_best import Automation
 

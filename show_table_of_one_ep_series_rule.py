@@ -8,7 +8,7 @@
 import traceback
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
-from library.file_paths import get_simulation_large_series_log_file_path
+from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
 
 
@@ -103,7 +103,7 @@ def show_series_rule(spec, trials_series, h_step, t_step, span, presentable, com
     print(text) # 表示
 
     # ログ出力
-    with open(get_simulation_large_series_log_file_path(
+    with open(SimulationLargeSeriesFilePaths.as_log(
             failure_rate=spec.failure_rate,
             turn_system=turn_system), 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
@@ -147,7 +147,7 @@ Which one(1-2)? """
         print(text) # 表示
 
         # ログ出力
-        log_file_path = get_simulation_large_series_log_file_path(
+        log_file_path = SimulationLargeSeriesFilePaths.as_log(
                 failure_rate=specified_failure_rate,
                 turn_system=specified_turn_system)
         with open(log_file_path, 'a', encoding='utf8') as f:

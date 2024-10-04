@@ -192,12 +192,12 @@ class AllTheoreticalProbabilityFilesOperation():
                         continue
 
                     # イーブンが見つかっているなら、探索打ち切り
-                    if is_almost_even(df['a_win_rate_abs_error'].min()):
+                    if is_almost_even(df['theoretical_a_win_rate_abs_error'].min()):
                         print(f"[{datetime.datetime.now()}][turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RE_EVEN_")
                         continue
 
                     # 該当レコードのキー
-                    key = (df['a_win_rate']==OUT_OF_P) & (df['upper_limit_coins']<=upper_limit_upper_limit_coins)
+                    key = (df['theoretical_a_win_rate']==OUT_OF_P) & (df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
                     # データが既存なら
                     if key.any():

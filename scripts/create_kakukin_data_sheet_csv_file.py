@@ -4,7 +4,7 @@
 import datetime
 
 from library import IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, simulate_series
-from library.file_paths import get_kakukin_data_sheet_csv_file_path
+from library.file_paths import KakukinDataFilePaths
 from library.database import TheoreticalProbabilityBestTable
 from library.views import KakukinDataSheetTableCsv
 
@@ -83,7 +83,7 @@ class Automation():
         print(csv) # 表示
 
         # ログ出力
-        csv_file_path_of_view = get_kakukin_data_sheet_csv_file_path(
+        csv_file_path_of_view = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system=spec.turn_system,
                 trials_series=self._specified_trials_series)
@@ -109,7 +109,7 @@ class Automation():
         #
         #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
         #
-        csv_file_path_of_view = get_kakukin_data_sheet_csv_file_path(
+        csv_file_path_of_view = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system=spec.turn_system,
                 trials_series=self._specified_trials_series)

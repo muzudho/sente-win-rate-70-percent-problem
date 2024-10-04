@@ -1,3 +1,6 @@
+from library.file_paths import KakukinDataFilePaths
+
+
 class KakukinDataExcelFile():
     """［かくきんデータ・エクセル・ファイル］"""
 
@@ -14,7 +17,7 @@ class KakukinDataExcelFile():
         """インスタンス生成"""
 
         # エクセル・ファイルへのパス
-        excel_file_path = get_kakukin_data_excel_file_path(
+        excel_file_path = KakukinDataFilePaths.as_excel(
                 turn_system=turn_system,
                 trials_series=trials_series)
 
