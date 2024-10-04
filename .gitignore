@@ -7,6 +7,8 @@ temp/kakukin_data_sheet/*
 !temp/kakukin_data_sheet/.gitkeep
 temp/theoretical_probability/*
 !temp/theoretical_probability/.gitkeep
+temp/theoretical_probability_trial_results/*
+!temp/theoretical_probability_trial_results/.gitkeep
 
 *.bak
 
