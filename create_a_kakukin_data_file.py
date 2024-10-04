@@ -14,8 +14,106 @@ from library.file_paths import get_kakukin_data_excel_file_path, get_kakukin_dat
 from library.database import KakukinDataSheetTable
 
 
-ws = None
-row_number = 0
+class Automation():
+
+
+    def __init__(self, specified_failure_rate, specified_turn_system, specified_trials_series):
+        self._specified_failure_rate = specified_failure_rate
+        self._specified_turn_system = specified_turn_system
+        self._specified_trials_series = specified_trials_series
+
+        self._ws = None
+        self._row_number = 0
+
+
+    def execute(self):
+        excel_file_path = get_kakukin_data_excel_file_path(
+                turn_system=self._specified_turn_system,
+                trials_series=self._specified_trials_series)
+
+
+        # ワークブックの作成
+        wb = xl.Workbook()
+
+        while True:
+            if os.path.isfile(excel_file_path):
+                command = input(f"""\
+{excel_file_path} という名前のファイルは既にあります。
+上書きしますか(Y/n)? """)
+
+                if command == 'n':
+                    continue
+
+            break
+
+
+        # 最初に Sheet という名前のシートができているので、それを参照します
+        #self._ws = wb["Sheet"]
+        #self._ws.title = sheet_name
+
+        # シートの名前を作成するぞ
+        #
+        #   Example: ［将棋の引分け率］が 0.05 なら `f5.0%`
+        #
+        sheet_name = f'f{self._specified_failure_rate * 100:.1f}%'
+        self._ws = wb.create_sheet(title=sheet_name)
+
+        # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
+        # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
+
+        df_kds = KakukinDataSheetTable.read_df(
+                failure_rate=self._specified_failure_rate,
+                turn_system=self._specified_turn_system,
+                trials_series=self._specified_trials_series)
+
+
+        for index, column_name in enumerate(df_kds.columns.values, 1):
+            self._ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
+
+        # データ部
+        # --------
+
+        self._row_number = 2
+
+        def on_each(record):
+            self._ws[f'A{self._row_number}'].value = record.p
+            self._ws[f'B{self._row_number}'].value = record.failure_rate
+            self._ws[f'C{self._row_number}'].value = record.turn_system
+            self._ws[f'D{self._row_number}'].value = record.head_step
+            self._ws[f'E{self._row_number}'].value = record.tail_step
+            self._ws[f'F{self._row_number}'].value = record.span
+            self._ws[f'G{self._row_number}'].value = record.shortest_coins
+            self._ws[f'H{self._row_number}'].value = record.upper_limit_coins
+            self._ws[f'I{self._row_number}'].value = record.trials_series
+            self._ws[f'J{self._row_number}'].value = record.series_shortest_coins
+            self._ws[f'K{self._row_number}'].value = record.series_longest_coins
+            self._ws[f'L{self._row_number}'].value = record.wins_a
+            self._ws[f'M{self._row_number}'].value = record.wins_b
+            self._ws[f'N{self._row_number}'].value = record.succucessful_series
+            self._ws[f'O{self._row_number}'].value = record.s_ful_wins_a
+            self._ws[f'P{self._row_number}'].value = record.s_ful_wins_b
+            self._ws[f'Q{self._row_number}'].value = record.s_pts_wins_a
+            self._ws[f'R{self._row_number}'].value = record.s_pts_wins_b
+            self._ws[f'S{self._row_number}'].value = record.failed_series
+            self._ws[f'T{self._row_number}'].value = record.f_ful_wins_a
+            self._ws[f'U{self._row_number}'].value = record.f_ful_wins_b
+            self._ws[f'V{self._row_number}'].value = record.f_pts_wins_a
+            self._ws[f'W{self._row_number}'].value = record.f_pts_wins_b
+            self._ws[f'X{self._row_number}'].value = record.no_wins_ab
+
+            self._row_number += 1
+
+        KakukinDataSheetTable.for_each(
+                df=df_kds,
+                on_each=on_each)
+
+
+        wb.save(excel_file_path)
+
+        print(f"""\
+{excel_file_path} ファイルを保存しました。
+
+でーきたっ！""")
 
 
 ########################################
@@ -62,129 +160,14 @@ Example: 3
 (0-6)? """
         precision = int(input(prompt))
         specified_trials_series = Converter.precision_to_trials_series(precision)
-        specified_abs_small_error = Converter.precision_to_small_error(precision)
 
 
-        excel_file_path = get_kakukin_data_excel_file_path(turn_system=specified_turn_system, trials_series=specified_trials_series)
+        automation = Automation(
+                specified_failure_rate=specified_failure_rate,
+                specified_turn_system=specified_turn_system,
+                specified_trials_series=specified_trials_series)
 
-
-        # ワークブックの作成
-        wb = xl.Workbook()
-
-        while True:
-            if os.path.isfile(excel_file_path):
-                command = input(f"""\
-{excel_file_path} という名前のファイルは既にあります。
-上書きしますか(Y/n)? """)
-
-                if command == 'n':
-                    continue
-
-            break
-
-        wb.save(excel_file_path)
-
-        print(f"""\
-{excel_file_path} を保存しました。
-""")
-
-        sheet_name = "f0"
-
-        # 最初に Sheet という名前のシートができているので、それを参照します
-        ws = wb["Sheet"]
-
-        # シートの名前を変更します
-        ws.title = sheet_name
-        wb.save(excel_file_path)
-
-        # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
-        # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
-
-        df_kds = KakukinDataSheetTable.read_df(
-                failure_rate=specified_failure_rate,
-                turn_system=specified_turn_system,
-                trials_series=specified_trials_series)
-
-
-        print(f"""\
-シートの名前を {ws.title} に変更しました。
-{excel_file_path} を保存しました。
-""")
-
-        # 列名 A ～
-        column_names = [
-            'p',
-            'failure_rate',
-            'turn_system',
-            'head_step',
-            'tail_step',
-            'span',
-            'shortest_coins',
-            'upper_limit_coins',
-            'trials_series',
-            'series_shortest_coins',
-            'series_longest_coins',
-            'wins_a',
-            'wins_b',
-            'succucessful_series',
-            's_ful_wins_a',
-            's_ful_wins_b',
-            's_pts_wins_a',
-            's_pts_wins_b',
-            'failed_series',
-            'f_ful_wins_a',
-            'f_ful_wins_b',
-            'f_pts_wins_a',
-            'f_pts_wins_b',
-            'no_wins_ab',
-        ]
-
-        for index, column_name in enumerate(column_names, 1):
-            ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
-
-        # データ部
-        # --------
-
-        row_number = 2
-
-        def on_each(record):
-            global ws, row_number
-
-            ws[f'A{row_number}'].value = record.p
-            ws[f'B{row_number}'].value = record.failure_rate
-            ws[f'C{row_number}'].value = record.turn_system
-            ws[f'D{row_number}'].value = record.head_step
-            ws[f'E{row_number}'].value = record.tail_step
-            ws[f'F{row_number}'].value = record.span
-            ws[f'G{row_number}'].value = record.shortest_coins
-            ws[f'H{row_number}'].value = record.upper_limit_coins
-            ws[f'I{row_number}'].value = record.trials_series
-            ws[f'J{row_number}'].value = record.series_shortest_coins
-            ws[f'K{row_number}'].value = record.series_longest_coins
-            ws[f'L{row_number}'].value = record.wins_a
-            ws[f'M{row_number}'].value = record.wins_b
-            ws[f'N{row_number}'].value = record.succucessful_series
-            ws[f'O{row_number}'].value = record.s_ful_wins_a
-            ws[f'P{row_number}'].value = record.s_ful_wins_b
-            ws[f'Q{row_number}'].value = record.s_pts_wins_a
-            ws[f'R{row_number}'].value = record.s_pts_wins_b
-            ws[f'S{row_number}'].value = record.failed_series
-            ws[f'T{row_number}'].value = record.f_ful_wins_a
-            ws[f'U{row_number}'].value = record.f_ful_wins_b
-            ws[f'V{row_number}'].value = record.f_pts_wins_a
-            ws[f'W{row_number}'].value = record.f_pts_wins_b
-            ws[f'X{row_number}'].value = record.no_wins_ab
-
-            row_number += 1
-
-        KakukinDataSheetTable.for_each(
-                df=df_kds,
-                on_each=on_each)
-
-
-        wb.save(excel_file_path)
-
-        print(f"""でーきたっ！""")
+        automation.execute()
 
 
     except Exception as err:
