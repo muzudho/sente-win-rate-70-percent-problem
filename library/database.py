@@ -6,10 +6,267 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
-from library.file_paths import get_even_data_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
+from library.file_paths import get_even_data_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path, get_kakukin_data_sheet_csv_file_path
 
 
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
+
+
+####################
+# Kakukin Data Sheet
+####################
+
+class KakukinDataSheetRecord():
+
+
+    def __init__(self, p, failure_rate, turn_system, head_step, tail_step, span, shortest_coins, upper_limit_coins, trials_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+        self._p = p
+        self._failure_rate = failure_rate
+        self._turn_system = turn_system
+        self._head_step = head_step
+        self._tail_step = tail_step
+        self._span = span
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._trials_series = trials_series
+        self._series_shortest_coins = series_shortest_coins
+        self._series_longest_coins = series_longest_coins
+        self._wins_a = wins_a
+        self._wins_b = wins_b
+        self._succucessful_series = succucessful_series
+        self._s_ful_wins_a = s_ful_wins_a
+        self._s_ful_wins_b = s_ful_wins_b
+        self._s_pts_wins_a = s_pts_wins_a
+        self._s_pts_wins_b = s_pts_wins_b
+        self._failed_series = failed_series
+        self._f_ful_wins_a = f_ful_wins_a
+        self._f_ful_wins_b = f_ful_wins_b
+        self._f_pts_wins_a = f_pts_wins_a
+        self._f_pts_wins_b = f_pts_wins_b
+        self._no_wins_ab = no_wins_ab
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def turn_system(self):
+        return self._turn_system
+
+
+    @property
+    def head_step(self):
+        return self._head_step
+
+
+    @property
+    def tail_step(self):
+        return self._tail_step
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def trials_series(self):
+        return self._trials_series
+
+
+    @property
+    def series_shortest_coins(self):
+        return self._series_shortest_coins
+
+
+    @property
+    def series_longest_coins(self):
+        return self._series_longest_coins
+
+
+    @property
+    def wins_a(self):
+        return self._wins_a
+
+
+    @property
+    def wins_b(self):
+        return self._wins_b
+
+
+    @property
+    def succucessful_series(self):
+        return self._succucessful_series
+
+
+    @property
+    def s_ful_wins_a(self):
+        return self._s_ful_wins_a
+
+
+    @property
+    def s_ful_wins_b(self):
+        return self._s_ful_wins_b
+
+
+    @property
+    def s_pts_wins_a(self):
+        return self._s_pts_wins_a
+
+
+    @property
+    def s_pts_wins_b(self):
+        return self._s_pts_wins_b
+
+
+    @property
+    def failed_series(self):
+        return self._failed_series
+
+
+    @property
+    def f_ful_wins_a(self):
+        return self._f_ful_wins_a
+
+
+    @property
+    def f_ful_wins_b(self):
+        return self._f_ful_wins_b
+
+
+    @property
+    def f_pts_wins_a(self):
+        return self._f_pts_wins_a
+
+
+    @property
+    def f_pts_wins_b(self):
+        return self._f_pts_wins_b
+
+
+    @property
+    def no_wins_ab(self):
+        return self._no_wins_ab
+
+
+class KakukinDataSheetTable():
+
+
+    _dtype = {
+        'p':'float64',
+        'failure_rate':'float64',
+        'turn_system':'object',     # string 型は無いから object
+        'head_step':'int64',
+        'tail_step':'int64',
+        'span':'int64',
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'trials_series':'int64',
+        'series_shortest_coins':'int64',
+        'series_longest_coins':'int64',
+        'wins_a':'float64',
+        'wins_b':'float64',
+        'succucessful_series':'float64',
+        's_ful_wins_a':'float64',
+        's_ful_wins_b':'float64',
+        's_pts_wins_a':'float64',
+        's_pts_wins_b':'float64',
+        'failed_series':'float64',
+        'f_ful_wins_a':'float64',
+        'f_ful_wins_b':'float64',
+        'f_pts_wins_a':'float64',
+        'f_pts_wins_b':'float64',
+        'no_wins_ab':'float64'}
+
+
+    @classmethod
+    def read_df(clazz, failure_rate, turn_system, trials_series):
+        """
+
+        Parameters
+        ----------
+        failure_rate : float
+            ［将棋の引分け率］
+        turn_system : int
+            ［手番が回ってくる制度］
+        trials_series : int
+            ［試行シリーズ数］
+        """
+
+        csv_file_path = get_kakukin_data_sheet_csv_file_path(
+                failure_rate=failure_rate,
+                turn_system=turn_system,
+                trials_series=trials_series)
+
+        # ファイルが存在しなかった場合
+        if not os.path.isfile(csv_file_path):
+            return None
+
+
+        df = pd.read_csv(csv_file_path, encoding="utf8",
+                dtype=clazz._dtype)
+
+        return df
+
+
+    @staticmethod
+    def for_each(df, on_each):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        on_each : func
+            record 引数を受け取る関数
+        """
+        for         p  ,     failure_rate  ,     turn_system  ,     head_step  ,     tail_step  ,     span  ,     shortest_coins  ,     upper_limit_coins  ,     trials_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
+            zip(df['p'], df['failure_rate'], df['turn_system'], df['head_step'], df['tail_step'], df['span'], df['shortest_coins'], df['upper_limit_coins'], df['trials_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
+
+            # レコード作成
+            record = EvenRecord(
+                    p=p,
+                    failure_rate=failure_rate,
+                    turn_system=turn_system,
+                    head_step=head_step,
+                    tail_step=tail_step,
+                    span=span,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    trials_series=trials_series,
+                    series_shortest_coins=series_shortest_coins,
+                    series_longest_coins=series_longest_coins,
+                    wins_a=wins_a,
+                    wins_b=wins_b,
+                    succucessful_series=succucessful_series,
+                    s_ful_wins_a=s_ful_wins_a,
+                    s_ful_wins_b=s_ful_wins_b,
+                    s_pts_wins_a=s_pts_wins_a,
+                    s_pts_wins_b=s_pts_wins_b,
+                    failed_series=failed_series,
+                    f_ful_wins_a=f_ful_wins_a,
+                    f_ful_wins_b=f_ful_wins_b,
+                    f_pts_wins_a=f_pts_wins_a,
+                    f_pts_wins_b=f_pts_wins_b,
+                    no_wins_ab=no_wins_ab)
+
+            on_each(record)
 
 
 #############
@@ -142,28 +399,6 @@ class EvenTable():
         'candidates':'object'}
 
 
-    # @staticmethod
-    # def set_type(df):
-    #     #
-    #     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-    #     #
-    #     df['p'].astype('float64')
-    #     df['failure_rate'].astype('float64')
-    #     df['turn_system'].astype('object')    # string 型は無い？
-    #     df['trials_series'].fillna(0).astype('int64')
-    #     df['best_p'].fillna(0.0).astype('float64')
-    #     df['best_p_error'].fillna(0.0).astype('float64')
-    #     df['best_h_step'].fillna(0).astype('int64')
-    #     df['best_t_step'].fillna(0).astype('int64')
-    #     df['best_span'].fillna(0).astype('int64')
-    #     df['latest_p'].fillna(0.0).astype('float64')
-    #     df['latest_p_error'].fillna(0.0).astype('float64')
-    #     df['latest_h_step'].fillna(0).astype('int64')
-    #     df['latest_t_step'].fillna(0).astype('int64')
-    #     df['latest_span'].fillna(0).astype('int64')
-    #     df['candidates'].fillna('').astype('object')    # string 型は無い？
-
-
     @staticmethod
     def append_default_record(df, spec, trials_series):
         """
@@ -264,7 +499,7 @@ class EvenTable():
 
 
         df = pd.read_csv(csv_file_path, encoding="utf8",
-                dtype=clazz._dtype)     # string 型は無い？
+                dtype=clazz._dtype)
 
         return df
 

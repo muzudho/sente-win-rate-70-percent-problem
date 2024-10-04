@@ -9,8 +9,9 @@ import traceback
 import openpyxl as xl
 import os
 
-from library import FROZEN_TURN, ALTERNATING_TURN, Converter
-from library.file_paths import get_kakukin_data_excel_file_path
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
+from library.file_paths import get_kakukin_data_excel_file_path, get_kakukin_data_sheet_csv_file_path
+from library.database import KakukinDataSheetTable
 
 
 ########################################
@@ -18,6 +19,13 @@ from library.file_paths import get_kakukin_data_excel_file_path
 ########################################
 if __name__ == '__main__':
     try:
+        # ［将棋の引分け率］を尋ねる
+        prompt = f"""\
+What is the failure rate?
+Example: 10% is 0.1
+? """
+        specified_failure_rate = float(input(prompt))
+
 
         # ［先後の決め方］を尋ねる
         prompt = f"""\
@@ -84,6 +92,21 @@ Example: 3
         # シートの名前を変更します
         ws.title = sheet_name
         wb.save(excel_file_path)
+
+        # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
+        # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
+
+        df_kds = KakukinDataSheetTable.read_df(
+                failure_rate=specified_failure_rate,
+                turn_system=specified_turn_system,
+                trials_series=specified_trials_series)
+
+        def on_each(record):
+            pass
+
+        KakukinDataSheetTable.for_each(
+                df=df_kds,
+                on_each=on_each)
 
         print(f"""\
 シートの名前を {ws.title} に変更しました。

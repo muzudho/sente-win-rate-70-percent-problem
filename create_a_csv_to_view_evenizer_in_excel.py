@@ -14,7 +14,7 @@ import traceback
 import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
-from library.file_paths import get_even_view_csv_file_path
+from library.file_paths import get_kakukin_data_sheet_csv_file_path
 from library.database import EvenTable, EvenRecord
 from library.views import KakukinViewerInExcel
 
@@ -35,7 +35,10 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
     #
     #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
     #
-    csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
+    csv_file_path = get_kakukin_data_sheet_csv_file_path(
+            failure_rate=spec.failure_rate,
+            turn_system=spec.turn_system,
+            trials_series=specified_trials_series)
     with open(csv_file_path, 'w', encoding='utf8') as f:
         f.write(f"{header_csv}\n")
 
@@ -101,7 +104,10 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         print(csv) # 表示
 
         # ログ出力
-        csv_file_path = get_even_view_csv_file_path(spec=spec, trials_series=specified_trials_series)
+        csv_file_path = get_kakukin_data_sheet_csv_file_path(
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system,
+                trials_series=specified_trials_series)
         print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(f"{csv}\n")    # ファイルへ出力

@@ -11,7 +11,7 @@ import traceback
 import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
-from library.file_paths import get_even_view_csv_file_path, get_score_board_data_best_csv_file_path
+from library.file_paths import get_kakukin_data_sheet_csv_file_path, get_score_board_data_best_csv_file_path
 from library.database import ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 from library.views import KakukinViewerInExcel
 
@@ -79,7 +79,10 @@ class Automation():
         print(csv) # 表示
 
         # ログ出力
-        csv_file_path_of_view = get_even_view_csv_file_path(spec=spec, trials_series=self._specified_trials_series)
+        csv_file_path_of_view = get_kakukin_data_sheet_csv_file_path(
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system,
+                trials_series=self._specified_trials_series)
         print(f"[{datetime.datetime.now()}] write view to `{csv_file_path_of_view}` file ...")
         with open(csv_file_path_of_view, 'a', encoding='utf8') as f:
             f.write(f"{csv}\n")    # ファイルへ出力
@@ -102,7 +105,10 @@ class Automation():
         #
         #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
         #
-        csv_file_path_of_view = get_even_view_csv_file_path(spec=spec, trials_series=self._specified_trials_series)
+        csv_file_path_of_view = get_kakukin_data_sheet_csv_file_path(
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system,
+                trials_series=self._specified_trials_series)
         with open(csv_file_path_of_view, 'w', encoding='utf8') as f:
             f.write(f"{header_csv}\n")
 
