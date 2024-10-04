@@ -26,13 +26,13 @@ python -m pip install pandas
 # プログラムの使い方
 
 ```
-python create_a_csv_to_data_score_board.py
+python automatic_no2.py
 ```
 
 最終的な成果物は、以下の３つの Excel ファイル
 
-* 📄 kakukin_data_alter_try2000.xlsx
-* 📄 kakukin_data_froze_try2000.xlsx
+* 📄 auto_generated_kakukin_data_alter_try2000.xlsx
+* 📄 auto_generated_kakukin_data_froze_try2000.xlsx
 * 📄 kakukin_viewer.xlsx
 
 
