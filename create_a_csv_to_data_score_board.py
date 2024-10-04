@@ -265,15 +265,17 @@ if __name__ == '__main__':
     try:
         number_of_dirty = 0
 
+        # TODO 自動調整のいい方法が思い浮かばない
+        #
         # まず、ファイルを全部作る
         create_or_update_all_files(
-            upper_limit_span=5  # 11     # 数字が増えると処理が重くなる
+            upper_limit_span=11     # 数字が増えると処理が重くなる
             #upper_limit_span=OUT_OF_UPPER_SPAN + 1
             )
 
         # 次に、スリー・レーツを更新する
         # depth は upper_limit_coins に対応
-        for depth in range(1, 4):      # range(1, 10)
+        for depth in range(1, 10):      # range(1, 10)
             print(f"search {depth=} ...")
 
             calculation_status = update_three_rates_for_all_files(

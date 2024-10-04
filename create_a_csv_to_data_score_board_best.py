@@ -16,6 +16,10 @@ from library.file_paths import get_score_board_data_csv_file_path, get_score_boa
 from library.database import ScoreBoardDataTable, ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 
 
+best_win_rate_error = None
+best_record = None
+
+
 def automatic(spec):
     """
     Returns
@@ -23,6 +27,8 @@ def automatic(spec):
     is_terminated : bool
         計算停止
     """
+
+    global best_win_rate_error, best_record
 
     turn_system_str = Converter.turn_system_to_code(spec.turn_system)
 
@@ -60,14 +66,16 @@ def automatic(spec):
 
     def on_each(record):
 
-        error = record.a_win_rate - EVEN
+        global best_win_rate_error, best_record
+
+        error = record.three_rates.a_win_rate - EVEN
 
         # 誤差が縮まれば更新
         if abs(error) < abs(best_win_rate_error):
             is_update = True
         
         # 誤差が同じでも、引き分け率が下がれば更新
-        elif error == best_win_rate_error and (best_record.three_rates.no_win_match_rate is None or record.no_win_match_rate < best_record.three_rates.no_win_match_rate):
+        elif error == best_win_rate_error and (best_record.three_rates.no_win_match_rate is None or record.three_rates.no_win_match_rate < best_record.three_rates.no_win_match_rate):
             is_update = True
         
         else:
@@ -86,11 +94,11 @@ def automatic(spec):
                     shortest_coins=record.shortest_coins,
                     upper_limit_coins=record.upper_limit_coins,
                     three_rates=ThreeRates(
-                            a_win_rate=record.a_win_rate,
-                            no_win_match_rate=record.no_win_match_rate))
+                            a_win_rate=record.three_rates.a_win_rate,
+                            no_win_match_rate=record.three_rates.no_win_match_rate))
 
 
-    ScoreBoardDataBestTable.for_each(on_each=on_each)
+    ScoreBoardDataBestTable.for_each(df=df_b, on_each=on_each)
 
 
     if best_record.turn_system_str is not None:
