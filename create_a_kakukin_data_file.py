@@ -60,14 +60,9 @@ Example: 3
         wb = xl.Workbook()
 
         while True:
-            file_name = input(f"""\
-Excel ファイルを作ろう！
-例： {excel_file_path}
-ファイル名を入力してください> """)
-
-            if os.path.isfile(file_name):
+            if os.path.isfile(excel_file_path):
                 command = input(f"""\
-{file_name} という名前のファイルは既にあります。
+{excel_file_path} という名前のファイルは既にあります。
 上書きしますか(Y/n)? """)
 
                 if command == 'n':
@@ -75,40 +70,62 @@ Excel ファイルを作ろう！
 
             break
 
-        wb.save(file_name)
+        wb.save(excel_file_path)
 
         print(f"""\
-{file_name} を保存しました。
+{excel_file_path} を保存しました。
 """)
 
-        sheet_name = input(f"""\
-最初に作るシートの名前を決めよう！
-例： Hello world
-シート名を入力してください> """)
+        sheet_name = "f0"
 
         # 最初に Sheet という名前のシートができているので、それを参照します
         ws = wb["Sheet"]
 
         # シートの名前を変更します
         ws.title = sheet_name
-        wb.save(file_name)
+        wb.save(excel_file_path)
 
         print(f"""\
 シートの名前を {ws.title} に変更しました。
-{file_name} を保存しました。
+{excel_file_path} を保存しました。
 """)
 
-        column_name = input(f"""\
-{ws.title} シートの左上のセルに列名を入れてみましょう。
-例: Name
-列名を入力してください> """)
+        # 列名 A ～
+        column_names = [
+            'p',
+            'failure_rate',
+            'turn_system',
+            'head_step',
+            'tail_step',
+            'span',
+            'shortest_coins',
+            'upper_limit_coins',
+            'trials_series',
+            'series_shortest_coins',
+            'series_longest_coins',
+            'wins_a',
+            'wins_b',
+            'succucessful_series',
+            's_ful_wins_a',
+            's_ful_wins_b',
+            's_pts_wins_a',
+            's_pts_wins_b',
+            'failed_series',
+            'f_ful_wins_a',
+            'f_ful_wins_b',
+            'f_pts_wins_a',
+            'f_pts_wins_b',
+            'no_wins_ab',
+        ]
 
-        ws['A1'] = column_name
-        wb.save(file_name)
+        for index, column_name in enumerate(column_names, 1):
+            ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
+
+        wb.save(excel_file_path)
 
         print(f"""\
-{ws.title} シートの左上のセルに {column_name} と入れました。
-{file_name} を保存しました。
+{ws.title} シートの１行目に列名を入れました。
+{excel_file_path} を保存しました。
 """)
 
     except Exception as err:
