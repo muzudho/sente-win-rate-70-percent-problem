@@ -2,6 +2,7 @@
 # 分析
 # python automatic_no2.py
 #
+#   ［理論的確率データ］を作成します。
 #   １シリーズのコインの出目について、全パターン網羅した表を作成します
 #
 
@@ -14,6 +15,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_even
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable
+from scripts.upsert_a_csv_of_theoretical_probability_best import AutomationAll as UpsertCsvOfTheoreticalProbabilityBestAll
 
 
 # CSV保存間隔（秒）、またはタイムシェアリング間隔
@@ -252,6 +254,12 @@ class AllTheoreticalProbabilityFilesOperation():
         return CONTINUE
 
 
+    def upsert_csv_of_theoretical_probability_best(self):
+        """［理論的確率ベストデータ］新規作成または更新"""
+        upsert_csv_of_theoretical_probability_best_one = UpsertCsvOfTheoreticalProbabilityBestOne()
+        upsert_csv_of_theoretical_probability_best_one.execute_one(spec=spec)
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -264,11 +272,12 @@ if __name__ == '__main__':
         # TODO 自動調整のいい方法が思い浮かばない
         # とりあえず、 depth が どんどん増えていくものとする。
         for depth in range(1, 1000):
-            print(f"search {depth=} ...")
+            print(f"search. {depth=} ...")
+
 
             all_theoretical_probability_files_operation = AllTheoreticalProbabilityFilesOperation()
 
-            # まず、ファイルを全部作る
+            # まず、［理論的確率データ］ファイルを全部作る。このとき、スリー・レーツ列は仮
             all_theoretical_probability_files_operation.create_or_update_all_files(
                 #
                 # NOTE 内容をどれぐらい作るかは、 upper_limit_span （span の上限）を指定することにする。
@@ -276,13 +285,23 @@ if __name__ == '__main__':
                 #
                 upper_limit_span=3 * depth)
 
-            # 次に、スリー・レーツを更新する
+
+            # 次に、［理論的確率データ］のスリー・レーツ列を更新する
             calculation_status = all_theoretical_probability_files_operation.update_three_rates_for_all_files(
                 #
                 # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
                 # 7 ぐらいで激重
                 #
                 upper_limit_upper_limit_coins=depth)
+
+
+            # ［理論的確率ベストデータ］新規作成または更新
+            print(f"upsert csv of theoretical probability best. {depth=} ...")
+            upsert_csv_of_theoretical_probability_best_all = UpsertCsvOfTheoreticalProbabilityBestAll()
+            upsert_csv_of_theoretical_probability_best_all.execute_all()
+
+
+            # TODO ［理論的確率データ］のうち、［理論的確率ベスト・データ］に載っているものについて、試行して、その結果を［理論的確率の試行結果データ］に保存したい
 
 
         # 現実的に、完了しない想定
