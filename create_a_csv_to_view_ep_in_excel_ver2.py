@@ -10,7 +10,7 @@
 import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
-from scripts.create_kakukin_data_sheet_csv_file import Automation
+from scripts.create_kakukin_data_sheet_csv_file import CreateKakukinDataSheetCsvFile
 
 
 ########################################
@@ -64,12 +64,12 @@ How many times do you want to try the series(0-6)? """
         specified_trials_series = Converter.precision_to_trials_series(precision)
 
 
-        automation = Automation(
+        create_kakukin_data_sheet_csv_file = CreateKakukinDataSheetCsvFile(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system=specified_turn_system,
                 specified_trials_series=specified_trials_series)
 
-        automation.execute()
+        create_kakukin_data_sheet_csv_file.execute()
 
 
     except Exception as err:

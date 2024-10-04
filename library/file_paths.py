@@ -104,6 +104,14 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, trials_series
     return f'_{subname}'
 
 
+################
+# Automatic No.1
+################
+
+def get_automatic_no1_log_file_path():
+    return 'logs/automatic_no1.log'
+
+
 ###################
 # Kakukin Data File
 ###################

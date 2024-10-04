@@ -8,11 +8,10 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
-from create_a_csv_to_data_ep import Automation as AutomationForData
-from create_a_csv_to_view_ep_in_excel_ver2 import Automation as AutomationForView
-
-
-LOG_FILE_PATH = 'logs/automatic_no1.log'
+from library.file_paths import get_automatic_no1_log_file_path
+from library.logging import AutomaticNo1Logging
+from create_a_csv_to_data_ep import Automation as CreateCSVToDataEP
+from scripts.create_kakukin_data_sheet_csv_file import CreateKakukinDataSheetCsvFile
 
 
 ########################################
@@ -24,38 +23,39 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
+        # ［試行シリーズ回数］
         specified_trials_series = 2000
 
+        # ［先後の決め方］
         for specified_turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
             # ［将棋の引分け率］
-            for specified_failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):   # 5％刻み
+            #  0％～上限、5%刻み
+            for specified_failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):
                 specified_failure_rate = specified_failure_rate_percent / 100
 
-                progress = f"[{datetime.datetime.now()}] {specified_failure_rate=}"
+                # 進捗記録
+                AutomaticNo1Logging.log_progress(
+                        failure_rate=specified_failure_rate,
+                        shall_print=True)
 
-                print(progress)
-
-                # ファイルへログ出力
-                with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
-                    f.write(f"{progress}\n")
-
-                
-                automation_for_data = AutomationForData(
+                # CSV作成 EP
+                create_csv_to_data_ep = CreateCSVToDataEP(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
                         specified_trials_series=specified_trials_series,
                         specified_abs_small_error=0.0009)
                 
-                automation_for_data.execute()
+                create_csv_to_data_ep.execute()
 
 
-                automation_for_view = AutomationForView(
+                # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
+                create_kakukin_data_sheet_csv_file = CreateKakukinDataSheetCsvFile(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
                         specified_trials_series=specified_trials_series)
 
-                automation_for_view.execute()
+                create_kakukin_data_sheet_csv_file.execute()
 
 
         progress = f"[{datetime.datetime.now()}] 完了"
@@ -64,7 +64,8 @@ if __name__ == '__main__':
         print(progress)
   
         # ファイルへログ出力
-        with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
+        log_file_path = get_automatic_no1_log_file_path()
+        with open(log_file_path, 'a', encoding='utf8') as f:
             f.write(f"{progress}\n")
 
 
