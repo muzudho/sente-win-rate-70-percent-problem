@@ -11,8 +11,8 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, toss_a_coin
-from create_a_csv_to_data_evenizer import automatic as automatic_for_data
-from create_a_csv_to_view_evenizer_in_excel import automatic as automatic_for_view
+from create_a_csv_to_data_evenizer import Automation as AutomationForData
+from create_a_csv_to_view_evenizer_in_excel_ver2 import Automation as AutomationForView
 
 
 LOG_FILE_PATH = 'logs/automatic.log'
@@ -43,18 +43,23 @@ if __name__ == '__main__':
                 with open(LOG_FILE_PATH, 'a', encoding='utf8') as f:
                     f.write(f"{progress}\n")
 
-
-                automatic_for_data(
+                
+                automation_for_data = AutomationForData(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
                         generation_algorythm=generation_algorythm,
                         specified_trials_series=specified_trials_series,
                         specified_abs_small_error=0.0009)
+                
+                automation_for_data.execute()
 
-                automatic_for_view(
+
+                automation_for_view = AutomationForView(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
                         specified_trials_series=specified_trials_series)
+
+                automation_for_view.execute()
 
 
         progress = f"[{datetime.datetime.now()}] 完了"

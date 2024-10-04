@@ -14,7 +14,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, OUT_OF_P, ABS_OUT_OF_ERROR, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, OUT_OF_P, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import EvenTable
 from library.views import print_even_series_rule
 
@@ -29,126 +29,110 @@ INTERVAL_SECONDS_FOR_SAVE_CSV = 60
 start_time_for_save = None
 is_dirty_csv = False
 
-
-def update_dataframe(df, spec, best_p, best_p_error, best_series_rule_if_it_exists,
-        latest_p, latest_p_error, latest_series_rule, candidates):
-    """データフレーム更新
-    
-    Parameters
-    ----------
-    spec : Specification
-        ［仕様］
-    """
-
-    global start_time_for_save, is_dirty_csv
-
-    # # 表示
-    # print_even_series_rule(
-    #         p=p,
-    #         best_p=best_p,
-    #         best_p_error=best_p_error,
-    #         series_rule=best_series_rule_if_it_exists)
-
-    EvenTable.update_record(
-            df=df,
-            specified_p = spec.p,
-            trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
-            best_p=best_p,
-            best_p_error=best_p_error,
-            best_h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),
-            best_t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
-            best_span=best_series_rule_if_it_exists.step_table.span,
-            latest_p=latest_p,
-            latest_p_error=latest_p_error,
-            latest_h_step=latest_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-            latest_t_step=latest_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-            latest_span=latest_series_rule.step_table.span,
-            candidates=candidates)
-
-    is_dirty_csv = True
+number_of_target = None
+number_of_smalled = None
 
 
-def ready_records(df, specified_failure_rate, turn_system, generation_algorythm, specified_trials_series):
-    """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
-    is_append_new_record = False
+class Automation():
+    """自動化"""
 
-    # ［コインを投げて表が出る確率］
-    for p_parcent in range(EVEN * 100, UPPER_LIMIT_OF_P * 100):
-        p = p_parcent / 100
+
+    def __init__(self, specified_failure_rate, specified_turn_system, generation_algorythm, specified_trials_series, specified_abs_small_error):
+        self._specified_failure_rate=specified_failure_rate
+        self._specified_turn_system=specified_turn_system
+        self._generation_algorythm=generation_algorythm
+        self._specified_trials_series=specified_trials_series
+        self._specified_abs_small_error=specified_abs_small_error
+
+
+    def update_dataframe(self, df, spec, best_p, best_p_error, best_series_rule_if_it_exists,
+            latest_p, latest_p_error, latest_series_rule, candidates):
+        """データフレーム更新
         
-        # 存在しなければデフォルトのレコード追加
-        if not ((df['p'] == p) & (df['failure_rate'] == specified_failure_rate) & (df['trials_series'] == specified_trials_series)).any():
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        """
 
-            # ［仕様］
-            spec = Specification(
-                    p=p,
-                    failure_rate=specified_failure_rate,
-                    turn_system=turn_system)
+        global start_time_for_save, is_dirty_csv
+
+        # # 表示
+        # print_even_series_rule(
+        #         p=p,
+        #         best_p=best_p,
+        #         best_p_error=best_p_error,
+        #         series_rule=best_series_rule_if_it_exists)
+
+        EvenTable.update_record(
+                df=df,
+                specified_p = spec.p,
+                trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
+                best_p=best_p,
+                best_p_error=best_p_error,
+                best_h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),
+                best_t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
+                best_span=best_series_rule_if_it_exists.step_table.span,
+                latest_p=latest_p,
+                latest_p_error=latest_p_error,
+                latest_h_step=latest_series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                latest_t_step=latest_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                latest_span=latest_series_rule.step_table.span,
+                candidates=candidates)
+
+        is_dirty_csv = True
+
+
+    def ready_records(self, df):
+        """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
+        is_append_new_record = False
+
+        # ［コインを投げて表が出る確率］
+        for p_parcent in range(int(EVEN * 100), int(UPPER_LIMIT_OF_P * 100) + 1):
+            p = p_parcent / 100
             
-            EvenTable.append_default_record(
+            # 存在しなければデフォルトのレコード追加
+            if not ((df['p'] == p) & (df['failure_rate'] == self._specified_failure_rate) & (df['trials_series'] == self._specified_trials_series)).any():
+
+                # ［仕様］
+                spec = Specification(
+                        p=p,
+                        failure_rate=self._specified_failure_rate,
+                        turn_system=self._specified_turn_system)
+                
+                EvenTable.append_default_record(
+                        df=df,
+                        spec=spec,
+                        trials_series=self._specified_trials_series)
+                is_append_new_record = True
+
+        if is_append_new_record:
+            # CSV保存
+            EvenTable.to_csv(
                     df=df,
-                    spec=spec,
-                    trials_series=specified_trials_series)
-            is_append_new_record = True
-
-    if is_append_new_record:
-        # CSV保存
-        EvenTable.to_csv(df=df, failure_rate=specified_failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+                    failure_rate=self._specified_failure_rate,
+                    turn_system=self._specified_turn_system,
+                    generation_algorythm=self._generation_algorythm,
+                    trials_series=self._specified_trials_series)
 
 
-def iteration_deeping(df, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error, current_abs_lower_limit_of_error, generation_algorythm, passage_upper_limit):
-    """反復深化探索の１セット
+    def on_each(self, record):
 
-    Parameters
-    ----------
-    df : DataFrame
-        データフレーム
-    current_abs_lower_limit_of_error : float
-        下限
-    
-    Returns
-    -------
-    is_update_table : bool
-        更新が有ったか？
-    number_of_target : int
-        処理対象の数
-    number_of_smalled : int
-        処理完了の数
-    number_of_yield : int
-        処理を途中で譲った数
-    """
+        global number_of_target, number_of_smalled, is_dirty_csv, start_time_for_save, number_of_yield
 
-    global start_time_for_save, is_dirty_csv
-
-    is_update_table = False
-
-    # まず、行の存在チェック。無ければ追加
-    ready_records(df=df, specified_failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, specified_trials_series=specified_trials_series)
-
-
-    # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
-
-
-    number_of_target = 0        # 処理対象の数
-    number_of_smalled = 0       # 処理完了の数
-    number_of_yield = 0         # 処理を途中で譲った数
-    number_of_passaged = 0      # 空振りで終わったレコード数
-
-
-    def on_each(record):
 
         # FIXME 自明のチェック。１つのファイルには、同じ［将棋の引分け率］のデータしかない
-        if specified_failure_rate != record.failure_rate:
-            raise ValueError(f"{specified_failure_rate=} != {record.failure_rate=}")
+        if self._specified_failure_rate != record.failure_rate:
+            raise ValueError(f"{self._specified_failure_rate=} != {record.failure_rate=}")
 
 
-        if specified_turn_system != Converter.code_to_turn_system(record.turn_system_str):
-            raise ValueError(f"{Converter.turn_system_to_code(specified_turn_system)=} != {record.turn_system_str=}")
+        if self._specified_turn_system != Converter.code_to_turn_system(record.turn_system_str):
+            raise ValueError(f"{Converter.turn_system_to_code(self._specified_turn_system)=} != {record.turn_system_str=}")
 
 
-        # FIXME 自明のチェック。 specified_trials_series と record.trials_series は必ず一致する
-        if specified_trials_series != record.trials_series:
-            raise ValueError(f"{specified_trials_series=} != {record.trials_series=}")
+        # FIXME 自明のチェック。 self._specified_trials_series と record.trials_series は必ず一致する
+        if self._specified_trials_series != record.trials_series:
+            raise ValueError(f"{self._specified_trials_series=} != {record.trials_series=}")
 
 
         # どんどん更新されていく
@@ -167,7 +151,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
         spec = Specification(
                 p=record.p,
                 failure_rate=record.failure_rate,
-                turn_system=specified_turn_system)
+                turn_system=self._specified_turn_system)
 
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
@@ -185,7 +169,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
         # 既存データの方が信用のおけるデータだった場合、スキップ
         # エラーが十分小さければスキップ
-        if abs(best_p_error) <= specified_abs_small_error:
+        if abs(best_p_error) <= self._specified_abs_small_error:
             is_automatic = False
 
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
@@ -217,10 +201,10 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
 
                         # 力任せ探索の場合                        
-                        if generation_algorythm == BRUTE_FORCE:
+                        if self._generation_algorythm == BRUTE_FORCE:
                             list_of_trial_results_for_one_series = []
 
-                            for i in range(0, specified_trials_series):
+                            for i in range(0, self._specified_trials_series):
 
                                 # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
                                 path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -252,12 +236,12 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                             # Ａさんが勝った回数
                             s_wins_a = large_series_trial_summary.wins(challenged=SUCCESSFUL, winner=ALICE)
                             f_wins_a = large_series_trial_summary.wins(challenged=FAILED, winner=ALICE)
-                            latest_p = (s_wins_a + f_wins_a) / specified_trials_series
+                            latest_p = (s_wins_a + f_wins_a) / self._specified_trials_series
                             latest_p_error = latest_p - 0.5
 
 
                         # 理論値の場合
-                        elif generation_algorythm == THEORETICAL:
+                        elif self._generation_algorythm == THEORETICAL:
 
                             # オーバーフロー例外に対応したプログラミングをすること
                             latest_p, err = calculate_probability(
@@ -273,7 +257,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
 
                         else:
-                            raise ValueError(f"{generation_algorythm=}")
+                            raise ValueError(f"{self._generation_algorythm=}")
 
 
                         if abs(latest_p_error) < abs(best_p_error):
@@ -305,7 +289,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
                                 candidates = candidate_str
 
                             # 表示とデータフレーム更新
-                            update_dataframe(
+                            self.update_dataframe(
                                     df=df,
                                     spec=spec,
                                     best_p=best_p,
@@ -324,7 +308,7 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=record.trials_series)
+                                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -365,8 +349,10 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
             # print() # 改行
 
 
+        # 続行
         if is_good:
-            continue
+            return
+            #continue
 
 
         # 空振りが１回でもあれば、途中状態を保存
@@ -391,129 +377,162 @@ def iteration_deeping(df, specified_failure_rate, specified_turn_system, specifi
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=record.trials_series)
+                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
 
 
-    EvenTable.for_each(df=df, on_each=on_each)
+    def iteration_deeping(self, df, current_abs_lower_limit_of_error, passage_upper_limit):
+        """反復深化探索の１セット
 
-    return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        current_abs_lower_limit_of_error : float
+            下限
+        
+        Returns
+        -------
+        is_update_table : bool
+            更新が有ったか？
+        number_of_target : int
+            処理対象の数
+        number_of_smalled : int
+            処理完了の数
+        number_of_yield : int
+            処理を途中で譲った数
+        """
 
+        global start_time_for_save, is_dirty_csv, number_of_target, number_of_smalled, number_of_yield
 
-def automatic(specified_failure_rate, specified_turn_system, generation_algorythm, specified_trials_series, specified_abs_small_error):
+        is_update_table = False
 
-    global start_time_for_save, is_dirty_csv
-
-    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=record.trials_series)
-    #print(df_ev)
-
-
-    start_time_for_save = time.time()
-    is_dirty_csv = False
-
-
-    # 反復深化探索
-    # ===========
-    #
-    #   ［エラー］が 0 になることを目指していますが、最初から 0 を目指すと、もしかするとエラーは 0 にならなくて、
-    #   処理が永遠に終わらないかもしれません。
-    #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
-    #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
-    #
-
-    speed = 10
-    current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
-    passage_upper_limit = 10
-
-    # ループに最初に１回入るためだけの設定
-    worst_abs_best_p_error = ABS_OUT_OF_ERROR
-
-    # １件もデータがない、または
-    # 指定の誤差の最小値より、誤差が大きい間繰り返す
-    #
-    #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
-    #
-    while len(df_ev) < 1 or specified_abs_small_error < worst_abs_best_p_error:
-        # ［エラー］列で一番大きい値を取得します
-        #
-        #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
-        #
-        best_p_error_min = df_ev['best_p_error'].min()
-        best_p_error_max = df_ev['best_p_error'].max()
-        worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
+        # まず、行の存在チェック。無ければ追加
+        self.ready_records(df=df)
 
 
-        # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
-        if pd.isnull(worst_abs_best_p_error):
-            worst_abs_best_p_error = ABS_OUT_OF_ERROR
+        # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
 
 
-        # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
-        #
-        #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
-        #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
-        #
-        #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
-        #
-        is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged = iteration_deeping(
-                df=df_ev,
-                specified_failure_rate=specified_failure_rate,
-                specified_turn_system=specified_turn_system,
-                specified_trials_series=specified_trials_series,
-                specified_abs_small_error=specified_abs_small_error,
-
-                current_abs_lower_limit_of_error=current_abs_lower_limit_of_error,
-
-                generation_algorythm=generation_algorythm,
-                passage_upper_limit=passage_upper_limit)
+        number_of_target = 0        # 処理対象の数
+        number_of_smalled = 0       # 処理完了の数
+        number_of_yield = 0         # 処理を途中で譲った数
+        number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-        #
-        # NOTE 小数点以下の桁を長く出しても見づらい
-        #
-        print(f"[{datetime.datetime.now()}][failure_rate={specified_failure_rate}]  update={is_update_table}  target={number_of_target}  smalled={number_of_smalled}  yield={number_of_yield}  passaged={number_of_passaged}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={current_abs_lower_limit_of_error:.7f}  small_error={specified_abs_small_error:.7f}  {passage_upper_limit=}")
+        EvenTable.for_each(df=df, on_each=self.on_each)
+
+        return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
 
 
-        # 処理が完了したから、ループを抜ける
-        if number_of_target == number_of_smalled:
-            print(f"すべてのデータについて、誤差が {specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
-            break
+    # automatic
+    def execute(self):
+
+        global start_time_for_save, is_dirty_csv, number_of_target, number_of_smalled, number_of_yield
+
+        df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
+        #print(df_ev)
 
 
-        # タイムシェアリングのために、処理を譲ることがオーバーヘッドになってきそうなら        
-        if 0 < number_of_passaged:
-            # 初期値が 10 なら 1.1 倍で必ず 1 は増える
-            passage_upper_limit = int(passage_upper_limit * 1.1)
-
-        else:
-            passage_upper_limit = int(passage_upper_limit * 0.9)
-            if  passage_upper_limit < 10:
-                passage_upper_limit = 10
-
-            # タイムシェアリングのために、処理を譲っているというわけでもないとき
-            if number_of_yield < 1:
-                # スピードがどんどん上がっていく
-                if not is_update_table:
-                    speed += 1
-
-                    # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-                    if current_abs_lower_limit_of_error is None:
-                        current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
-                    else:
-                        current_abs_lower_limit_of_error *= 9/speed
-                    
-                    if current_abs_lower_limit_of_error < specified_abs_small_error:
-                        current_abs_lower_limit_of_error = specified_abs_small_error
-
-
-    print(f"ループから抜けました")
-
-
-    if is_dirty_csv:
+        start_time_for_save = time.time()
         is_dirty_csv = False
 
-        # 最後に CSV保存
-        print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-        EvenTable.to_csv(df=df_ev, failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+
+        # 反復深化探索
+        # ===========
+        #
+        #   ［エラー］が 0 になることを目指していますが、最初から 0 を目指すと、もしかするとエラーは 0 にならなくて、
+        #   処理が永遠に終わらないかもしれません。
+        #   そこで、［エラー］列は、一気に 0 を目指すのではなく、手前の目標を設定し、その目標を徐々に小さくしていきます。
+        #   リミットを指定して、リミットより［エラー］が下回ったら、処理を打ち切ることにします
+        #
+
+        speed = 10
+        current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
+        passage_upper_limit = 10
+
+        # ループに最初に１回入るためだけの設定
+        worst_abs_best_p_error = ABS_OUT_OF_ERROR
+
+        # １件もデータがない、または
+        # 指定の誤差の最小値より、誤差が大きい間繰り返す
+        #
+        #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
+        #
+        while len(df_ev) < 1 or self._specified_abs_small_error < worst_abs_best_p_error:
+            # ［エラー］列で一番大きい値を取得します
+            #
+            #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
+            #
+            best_p_error_min = df_ev['best_p_error'].min()
+            best_p_error_max = df_ev['best_p_error'].max()
+            worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
+
+
+            # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
+            if pd.isnull(worst_abs_best_p_error):
+                worst_abs_best_p_error = ABS_OUT_OF_ERROR
+
+
+            # とりあえず、［調整後の表が出る確率］が［最大エラー］値の半分未満になるよう目指す
+            #
+            #   NOTE P=0.99 の探索は、 p=0.50～0.98 を全部合わせた処理時間よりも、時間がかかるかも。だから p=0.99 のケースだけに合わせて時間調整するといいかも。
+            #   NOTE エラー値を下げるときに、８本勝負の次に９本勝負を見つけられればいいですが、そういうのがなく次が１５本勝負だったりするような、跳ねるケースでは処理が長くなりがちです。リミットをゆっくり下げればいいですが、どれだけ気を使っても避けようがありません
+            #
+            #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
+            #
+            is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged = self.iteration_deeping(
+                    df=df_ev,
+                    current_abs_lower_limit_of_error=current_abs_lower_limit_of_error,
+                    passage_upper_limit=passage_upper_limit)
+
+
+            #
+            # NOTE 小数点以下の桁を長く出しても見づらい
+            #
+            print(f"[{datetime.datetime.now()}][failure_rate={self._specified_failure_rate}]  update={is_update_table}  target={number_of_target}  smalled={number_of_smalled}  yield={number_of_yield}  passaged={number_of_passaged}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={current_abs_lower_limit_of_error:.7f}  small_error={self._specified_abs_small_error:.7f}  {passage_upper_limit=}")
+
+
+            # 処理が完了したから、ループを抜ける
+            if number_of_target == number_of_smalled:
+                print(f"すべてのデータについて、誤差が {self._specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
+                break
+
+
+            # タイムシェアリングのために、処理を譲ることがオーバーヘッドになってきそうなら        
+            if 0 < number_of_passaged:
+                # 初期値が 10 なら 1.1 倍で必ず 1 は増える
+                passage_upper_limit = int(passage_upper_limit * 1.1)
+
+            else:
+                passage_upper_limit = int(passage_upper_limit * 0.9)
+                if  passage_upper_limit < 10:
+                    passage_upper_limit = 10
+
+                # タイムシェアリングのために、処理を譲っているというわけでもないとき
+                if number_of_yield < 1:
+                    # スピードがどんどん上がっていく
+                    if not is_update_table:
+                        speed += 1
+
+                        # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
+                        if current_abs_lower_limit_of_error is None:
+                            current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
+                        else:
+                            current_abs_lower_limit_of_error *= 9/speed
+                        
+                        if current_abs_lower_limit_of_error < self._specified_abs_small_error:
+                            current_abs_lower_limit_of_error = self._specified_abs_small_error
+
+
+        print(f"ループから抜けました")
+
+
+        if is_dirty_csv:
+            is_dirty_csv = False
+
+            # 最後に CSV保存
+            print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
+            EvenTable.to_csv(df=df_ev, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
 
 
 ########################################
@@ -578,12 +597,13 @@ Example: 3
             raise ValueError(f"{generation_algorythm=}")
 
 
-        automatic(
+        automation = Automation(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system=specified_turn_system,
                 generation_algorythm=generation_algorythm,
                 specified_trials_series=specified_trials_series,
                 specified_abs_small_error=specified_abs_small_error)
+        automation.execute()
 
 
     except Exception as err:

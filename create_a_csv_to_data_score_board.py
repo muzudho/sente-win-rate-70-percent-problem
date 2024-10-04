@@ -269,13 +269,13 @@ if __name__ == '__main__':
         #
         # まず、ファイルを全部作る
         create_or_update_all_files(
-            upper_limit_span=11     # 数字が増えると処理が重くなる
+            upper_limit_span=15     # 数字が増えると処理が重くなる  3,  11, 15
             #upper_limit_span=OUT_OF_UPPER_SPAN + 1
             )
 
         # 次に、スリー・レーツを更新する
         # depth は upper_limit_coins に対応
-        for depth in range(1, 10):      # range(1, 10)
+        for depth in range(1, 15):      # range(1, 10)
             print(f"search {depth=} ...")
 
             calculation_status = update_three_rates_for_all_files(
