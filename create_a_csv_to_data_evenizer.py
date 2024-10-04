@@ -36,7 +36,7 @@ class Automation():
         self._generation_algorythm=generation_algorythm
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
-        
+
         self._df_ev = None
         self._current_abs_lower_limit_of_error = None
         self._passage_upper_limit = None
@@ -356,7 +356,7 @@ class Automation():
         # 空振りが１回でもあれば、途中状態を保存
         if 0 < passage_count:
             # 表示とデータフレーム更新
-            update_dataframe(
+            self.update_dataframe(
                     spec=spec,
                     best_p=best_p,
                     best_p_error=best_p_error,
