@@ -9,12 +9,25 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import get_kakukin_data_excel_file_path
 from library.database import KakukinDataSheetTable
+from library.excel_files import KakukinDataExcelFile
 
 
 class Automation():
+    """自動化"""
 
 
     def __init__(self, specified_failure_rate, specified_turn_system, specified_trials_series):
+        """初期化
+
+        Parameters
+        ----------
+        specified_failure_rate : float
+            ［コインを投げて表も裏も出ない確率］
+        specified_turn_system : int
+            ［先後の決め方］
+        specified_trials_series : int
+            ［試行シリーズ数］
+        """
         self._specified_failure_rate = specified_failure_rate
         self._specified_turn_system = specified_turn_system
         self._specified_trials_series = specified_trials_series
@@ -24,37 +37,32 @@ class Automation():
 
 
     def execute(self):
-        excel_file_path = get_kakukin_data_excel_file_path(
+        """実行"""
+
+        # 対エクセル・ファイル用オブジェクト作成
+        kakukin_data_excel_file = KakukinDataExcelFile.instantiate(
                 turn_system=self._specified_turn_system,
                 trials_series=self._specified_trials_series)
 
+        # エクセル・ファイルの読込
+        kakukin_data_excel_file.load_workbook()
 
-        # ファイルが既存なら読込
-        if os.path.isfile(excel_file_path):
-            wb = xl.load_workbook(filename=excel_file_path)
-
-        # ファイルが存在しなければ新規作成
-        else:
-            # ワークブックの作成
-            wb = xl.Workbook()
-
-
-        # 最初に Sheet という名前のシートができているので、それを参照します
-        #self._ws = wb["Sheet"]
-        #self._ws.title = sheet_name
-
-        # シートの名前を作成するぞ
+        # シートの名前を作成するぞ（シートが既存なら上書き）
         #
         #   Example: ［将棋の引分け率］が 0.05 なら `f5.0per`
         #   NOTE シート名に "%" を付けると Excel の式が動かなくなった
         #
         sheet_name = f'f{self._specified_failure_rate * 100:.1f}per'
+        self._ws = kakukin_data_excel_file.create_sheet(title=sheet_name, shall_overwrite=True)
 
-        # もしシートが既存なら削除する
-        if sheet_name in wb.sheetnames:
-            del wb[sheet_name]
 
-        self._ws = wb.create_sheet(title=sheet_name)
+        # エクセル・ファイルへのパス
+        excel_file_path = get_kakukin_data_excel_file_path(
+                turn_system=self._specified_turn_system,
+                trials_series=self._specified_trials_series)
+
+
+
 
         # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
         # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
@@ -77,14 +85,16 @@ class Automation():
             self._ws[f'A{self._row_number}'].value = record.p
             self._ws[f'B{self._row_number}'].value = record.failure_rate
             self._ws[f'C{self._row_number}'].value = record.turn_system
-            self._ws[f'D{self._row_number}'].value = record.head_step
+
+            self._ws[f'D{self._row_number}'].value = record.head_step               # TODO ［シリーズ・ルール］は、理論値が選ばれるように仕様変更したい
             self._ws[f'E{self._row_number}'].value = record.tail_step
             self._ws[f'F{self._row_number}'].value = record.span
             self._ws[f'G{self._row_number}'].value = record.shortest_coins
             self._ws[f'H{self._row_number}'].value = record.upper_limit_coins
-            self._ws[f'I{self._row_number}'].value = record.trials_series
-            self._ws[f'J{self._row_number}'].value = record.series_shortest_coins
-            self._ws[f'K{self._row_number}'].value = record.series_longest_coins
+
+            self._ws[f'I{self._row_number}'].value = record.trials_series           # TODO ［シミュレーション結果］は、理論値の［シリーズ・ルール］をもとに、計測し直したい
+            self._ws[f'J{self._row_number}'].value = record.series_shortest_coins   
+            self._ws[f'K{self._row_number}'].value = record.series_longest_coins    
             self._ws[f'L{self._row_number}'].value = record.wins_a
             self._ws[f'M{self._row_number}'].value = record.wins_b
             self._ws[f'N{self._row_number}'].value = record.succucessful_series
@@ -106,5 +116,6 @@ class Automation():
                 on_each=on_each)
 
 
-        wb.save(excel_file_path)
+        # ［かくきんデータ・エクセル・ファイル］保存
+        excel_file_path = kakukin_data_excel_file.save()
         print(f"[{datetime.datetime.now()}] saved: `{excel_file_path}` file")
