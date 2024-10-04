@@ -43,9 +43,10 @@ class Automation():
         self._generation_algorythm=generation_algorythm
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
+        self._df_ev = None
 
 
-    def update_dataframe(self, df, spec, best_p, best_p_error, best_series_rule_if_it_exists,
+    def update_dataframe(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
             latest_p, latest_p_error, latest_series_rule, candidates):
         """データフレーム更新
         
@@ -65,7 +66,7 @@ class Automation():
         #         series_rule=best_series_rule_if_it_exists)
 
         EvenTable.update_record(
-                df=df,
+                df=self._df_ev,
                 specified_p = spec.p,
                 trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
                 best_p=best_p,
@@ -83,7 +84,7 @@ class Automation():
         is_dirty_csv = True
 
 
-    def ready_records(self, df):
+    def ready_records(self):
         """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
         is_append_new_record = False
 
@@ -92,7 +93,7 @@ class Automation():
             p = p_parcent / 100
             
             # 存在しなければデフォルトのレコード追加
-            if not ((df['p'] == p) & (df['failure_rate'] == self._specified_failure_rate) & (df['trials_series'] == self._specified_trials_series)).any():
+            if not ((self._df_ev['p'] == p) & (self._df_ev['failure_rate'] == self._specified_failure_rate) & (self._df_ev['trials_series'] == self._specified_trials_series)).any():
 
                 # ［仕様］
                 spec = Specification(
@@ -101,7 +102,6 @@ class Automation():
                         turn_system=self._specified_turn_system)
                 
                 EvenTable.append_default_record(
-                        df=df,
                         spec=spec,
                         trials_series=self._specified_trials_series)
                 is_append_new_record = True
@@ -109,7 +109,7 @@ class Automation():
         if is_append_new_record:
             # CSV保存
             EvenTable.to_csv(
-                    df=df,
+                    df=self._df_ev,
                     failure_rate=self._specified_failure_rate,
                     turn_system=self._specified_turn_system,
                     generation_algorythm=self._generation_algorythm,
@@ -290,7 +290,6 @@ class Automation():
 
                             # 表示とデータフレーム更新
                             self.update_dataframe(
-                                    df=df,
                                     spec=spec,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
@@ -359,7 +358,6 @@ class Automation():
         if 0 < passage_count:
             # 表示とデータフレーム更新
             update_dataframe(
-                    df=df,
                     spec=spec,
                     best_p=best_p,
                     best_p_error=best_p_error,
@@ -377,10 +375,10 @@ class Automation():
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EvenTable.to_csv(df=df, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
+                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
 
 
-    def iteration_deeping(self, df, current_abs_lower_limit_of_error, passage_upper_limit):
+    def iteration_deeping(self, current_abs_lower_limit_of_error, passage_upper_limit):
         """反復深化探索の１セット
 
         Parameters
@@ -407,7 +405,7 @@ class Automation():
         is_update_table = False
 
         # まず、行の存在チェック。無ければ追加
-        self.ready_records(df=df)
+        self.ready_records()
 
 
         # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
@@ -419,7 +417,7 @@ class Automation():
         number_of_passaged = 0      # 空振りで終わったレコード数
 
 
-        EvenTable.for_each(df=df, on_each=self.on_each)
+        EvenTable.for_each(df=self._df_ev, on_each=self.on_each)
 
         return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
 
@@ -429,8 +427,8 @@ class Automation():
 
         global start_time_for_save, is_dirty_csv, number_of_target, number_of_smalled, number_of_yield
 
-        df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
-        #print(df_ev)
+        self._df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
+        #print(self._df_ev)
 
 
         start_time_for_save = time.time()
@@ -458,13 +456,13 @@ class Automation():
         #
         #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
         #
-        while len(df_ev) < 1 or self._specified_abs_small_error < worst_abs_best_p_error:
+        while len(self._df_ev) < 1 or self._specified_abs_small_error < worst_abs_best_p_error:
             # ［エラー］列で一番大きい値を取得します
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            best_p_error_min = df_ev['best_p_error'].min()
-            best_p_error_max = df_ev['best_p_error'].max()
+            best_p_error_min = self._df_ev['best_p_error'].min()
+            best_p_error_max = self._df_ev['best_p_error'].max()
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
 
@@ -481,7 +479,6 @@ class Automation():
             #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
             #
             is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged = self.iteration_deeping(
-                    df=df_ev,
                     current_abs_lower_limit_of_error=current_abs_lower_limit_of_error,
                     passage_upper_limit=passage_upper_limit)
 
@@ -532,7 +529,7 @@ class Automation():
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            EvenTable.to_csv(df=df_ev, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
+            EvenTable.to_csv(df=self._df_ev, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
 
 
 ########################################
