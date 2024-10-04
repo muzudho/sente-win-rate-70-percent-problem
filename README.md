@@ -25,9 +25,38 @@ python -m pip install pandas
 
 # プログラムの使い方
 
+
+## create_a_csv_to_data_score_board.py
+
+```shell
+python create_a_csv_to_data_score_board.py
+```
+
+以下の csvファイルを生成します  
+
+* 📄 `temp/score_board/data_alter_p50.0_f0.0.csv` - ファイル名は一部変わります。 **理論値** のデータです
+
+
+## create_a_csv_to_data_score_board_best.py
+
+```shell
+python create_a_csv_to_data_score_board_best.py
+```
+
+以下のファイルを入力に使います。  
+
+* 📄 `temp/score_board/data_alter_p50.0_f0.0.csv` - ファイル名は一部変わります。 **理論値** のデータです
+
+理論値をマージします  
+
+以下の csvファイルを生成します  
+
+* 📄 `reports/score_board_data_best.csv` - **理論値** をマージしたデータです
+
+
 ## automatic_no1.py
 
-```
+```shell
 python automatic_no1.py
 ```
 
@@ -37,22 +66,22 @@ python automatic_no1.py
 * ［先後の決め方］
 * ［試行シリーズ数］
 
-入力を元にシミュレーションします。  
+入力を元に **試行** します。  
 
 以下の csvファイルを生成します  
 
-* 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります
+* 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります。 **試行** の結果のデータです
 
 
 ## automatic_no2.py
 
-```
+```shell
 python automatic_no2.py
 ```
 
 以下のファイルを入力に使います。  
 
-* 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります
+* 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります。 **試行** の結果のデータです
 
 最終的な成果物は、以下の３つの Excel ファイル  
 

@@ -1,7 +1,7 @@
 #
 # TODO 作成中
 #
-# python create_a_kakukin_data_file.py
+# python create_a_kakukin_data_excel_file.py
 #
 # Excel ファイルを作ろう
 #
