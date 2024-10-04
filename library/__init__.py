@@ -123,7 +123,7 @@ OUT_OF_UPPER_SPAN = 99
 EVEN = 0.5
 
 
-# failure_rate が上がると upper_limit_coins も増えて、処理時間が増えるから、上限を決めておく
+# failure_rate が上がると upper_limit_coins も増えて、処理時間が増えるから、上限を決めておく。また、100% は 0除算が発生するので、それを取り除く意味もある
 UPPER_LIMIT_FAILURE_RATE = 0.7
 
 

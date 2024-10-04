@@ -129,8 +129,8 @@ class Table():
 
     except Exception as err:
         print(f"""\
-おお、残念！　例外が投げられてしまった！  
-{err=}  {type(err)=}
+おお、残念！　例外が投げられてしまった！
+{type(err)=}  {err=}
 
 以下はスタックトレース表示じゃ。
 {traceback.format_exc()}

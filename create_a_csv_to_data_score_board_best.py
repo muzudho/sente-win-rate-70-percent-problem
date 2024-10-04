@@ -123,7 +123,7 @@ if __name__ == '__main__':
         for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
             # ［将棋の引分け率］
-            for failure_rate_percent in range(0, 100, 5): # 5％刻み。 100%は除く。0除算が発生するので
+            for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み
                 failure_rate = failure_rate_percent / 100
 
                 # ［将棋の先手勝率］
