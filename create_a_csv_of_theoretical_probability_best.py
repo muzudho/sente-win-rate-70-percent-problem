@@ -1,6 +1,6 @@
 #
 # 分析
-# python create_a_csv_to_data_score_board_best.py
+# python create_a_csv_of_theoretical_probability_best.py
 #
 #   ［仕様］［シリーズ・ルール］について、５分５分に近いものをピックアップします
 #
@@ -12,7 +12,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
-from library.file_paths import get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path
+from library.file_paths import get_theoretical_probability_best_csv_file_path
 from library.database import ScoreBoardDataTable, ScoreBoardDataBestRecord, ScoreBoardDataBestTable
 
 
@@ -40,7 +40,7 @@ def automatic(spec):
 
 
     # CSVファイルパス（書き込むファイル）
-    best_csv_file_path = get_score_board_data_best_csv_file_path()
+    best_csv_file_path = get_theoretical_probability_best_csv_file_path()
 
 
     best_record = ScoreBoardDataBestTable.create_none_record()

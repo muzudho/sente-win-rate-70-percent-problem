@@ -1,6 +1,6 @@
 #
 # 分析
-# python create_a_csv_to_data_score_board.py
+# python create_a_csv_of_theoretical_probability.py
 #
 #   １シリーズのコインの出目について、全パターン網羅した表を作成します
 #
@@ -12,7 +12,6 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_even
-from library.file_paths import get_score_board_data_csv_file_path
 from library.score_board import search_all_score_boards
 from library.database import ScoreBoardDataTable
 
@@ -268,7 +267,7 @@ if __name__ == '__main__':
     try:
         # TODO 自動調整のいい方法が思い浮かばない
         # とりあえず、 depth が どんどん増えていくものとする。
-        for depth in range(1, 100):
+        for depth in range(1, 1000):
             print(f"search {depth=} ...")
 
             all_summary_files_operation = AllSummaryFilesOperation()

@@ -155,27 +155,27 @@ def get_kakukin_data_sheet_csv_file_path(failure_rate, turn_system, trials_serie
     return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
 
 
-##################
-# Score board data
-##################
+#########################
+# Theoretical Probability
+#########################
 
-def get_score_board_data_log_file_path(p, failure_rate, turn_system):
+def get_theoretical_probability_log_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    return f'temp/score_board/data{subname}.log'
+    return f'logs/theoretical_probability/TB{subname}.log'
 
-def get_score_board_data_csv_file_path(p, failure_rate, turn_system):
+def get_theoretical_probability_csv_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
     # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
-    return f'temp/score_board/data{subname}.csv'
+    return f'temp/theoretical_probability/TB{subname}.csv'
 
 
-#######################
-# Score board data best
-#######################
+##############################
+# Theoretical Probability Best
+##############################
 
-def get_score_board_data_best_csv_file_path():
+def get_theoretical_probability_best_csv_file_path():
     # データ・フォルダーの方に置く
-    return f'data/score_board_data_best.csv'
+    return f'data/thoretical_probability_best.csv'
 
 
 ##################

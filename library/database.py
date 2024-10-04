@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
-from library.file_paths import get_even_data_csv_file_path, get_score_board_data_csv_file_path, get_score_board_data_best_csv_file_path, get_kakukin_data_sheet_csv_file_path
+from library.file_paths import get_even_data_csv_file_path, get_theoretical_probability_csv_file_path, get_theoretical_probability_best_csv_file_path, get_kakukin_data_sheet_csv_file_path
 
 
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
@@ -651,7 +651,7 @@ class ScoreBoardDataTable():
         """
 
         # CSVファイルパス
-        csv_file_path = get_score_board_data_csv_file_path(
+        csv_file_path = get_theoretical_probability_csv_file_path(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
                 turn_system=spec.turn_system)
@@ -711,7 +711,7 @@ class ScoreBoardDataTable():
         """
 
         # CSVファイルパス
-        csv_file_path = get_score_board_data_csv_file_path(
+        csv_file_path = get_theoretical_probability_csv_file_path(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
                 turn_system=spec.turn_system)
@@ -881,7 +881,7 @@ class ScoreBoardDataBestTable():
             新規作成されたか？
         """
 
-        csv_file_path = get_score_board_data_best_csv_file_path()
+        csv_file_path = get_theoretical_probability_best_csv_file_path()
 
         # ファイルが存在しなかった場合
         is_new = not os.path.isfile(csv_file_path)
@@ -929,7 +929,7 @@ class ScoreBoardDataBestTable():
             書き込んだファイルへのパス
         """
         # CSVファイルパス（書き込むファイル）
-        csv_file_path = get_score_board_data_best_csv_file_path()
+        csv_file_path = get_theoretical_probability_best_csv_file_path()
 
         df.to_csv(csv_file_path,
                 columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'a_win_rate', 'no_win_match_rate'],

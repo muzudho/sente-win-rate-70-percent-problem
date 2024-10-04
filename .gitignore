@@ -1,11 +1,13 @@
 # (^q^)
-logs/
+logs/theoretical_probability/*
+!logs/theoretical_probability/.gitkeep
 
 temp/kakukin_data_sheet/*
 !temp/kakukin_data_sheet/.gitkeep
-temp/score_board/*
-!temp/score_board/.gitkeep
+temp/theoretical_probability/*
+!temp/theoretical_probability/.gitkeep
 
+*.log
 *.bak
 
 
