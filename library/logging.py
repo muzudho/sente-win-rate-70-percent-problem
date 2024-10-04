@@ -13,7 +13,7 @@ class AutomaticNo1Logging():
 
 
     @classmethod
-    def log_progress(clazz, self, failure_rate, shall_print=False):
+    def log_progress(clazz, failure_rate, shall_print=False):
         progress = f"[{datetime.datetime.now()}] {failure_rate=}"
 
         if shall_print:

@@ -56,6 +56,8 @@ python create_a_csv_to_data_score_board_best.py
 
 ## automatic_no1.py
 
+`automatic_no1.py` は、 `automatic_no2.py` と並行して動かすことができますが、 `automatic_no3.py` とは並行して動かしてはいけません  
+
 ```shell
 python automatic_no1.py
 ```
@@ -75,6 +77,8 @@ python automatic_no1.py
 
 ## automatic_no2.py
 
+`automatic_no2.py` は、 `automatic_no1.py` と並行して動かすことができますが、 `automatic_no3.py` とは並行して動かしてはいけません  
+
 ```shell
 python automatic_no2.py
 ```
@@ -85,6 +89,8 @@ python automatic_no2.py
 
 
 ## automatic_no3.py
+
+`automatic_no3.py` は、 `automatic_no1.py` や `automatic_no2.py` とは並行して動かしてはいけません  
 
 ```shell
 python automatic_no3.py

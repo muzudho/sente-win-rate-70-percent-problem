@@ -1,18 +1,14 @@
 #
-# 生成
-# python create_a_csv_to_data_ep.py
+# 経験的確率CSVを生成する
 #
-#   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
 
 import traceback
-import random
-import math
 import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, OUT_OF_P, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import EmpiricalProbabilityTable
 
 
@@ -494,68 +490,3 @@ class Automation():
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
             EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
-
-
-########################################
-# コマンドから実行時
-########################################
-
-
-if __name__ == '__main__':
-    """コマンドから実行時"""
-
-    try:
-        # ［将棋の引分け率］を尋ねる
-        prompt = f"""\
-What is the failure rate?
-Example: 10% is 0.1
-? """
-        specified_failure_rate = float(input(prompt))
-
-
-        # ［先後の決め方］を尋ねる
-        prompt = f"""\
-(1) Frozen turn
-(2) Alternating turn
-Which one(1-2)? """
-        choice = input(prompt)
-        if choice == '1':
-            specified_turn_system = FROZEN_TURN
-        elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
-        else:
-            raise ValueError(f"{choice=}")
-
-
-        # ［試行シリーズ数］を尋ねる
-        prompt = f"""\
-How many times do you want to try the series?
-
-(0) Try       2 series
-(1) Try      20 series
-(2) Try     200 series
-(3) Try    2000 series
-(4) Try   20000 series
-(5) Try  200000 series
-(6) Try 2000000 series
-
-Example: 3
-(0-6)? """
-        precision = int(input(prompt))
-        specified_trials_series = Converter.precision_to_trials_series(precision)
-        specified_abs_small_error = Converter.precision_to_small_error(precision)
-
-
-        automation = Automation(
-                specified_failure_rate=specified_failure_rate,
-                specified_turn_system=specified_turn_system,
-                specified_trials_series=specified_trials_series,
-                specified_abs_small_error=specified_abs_small_error)
-        automation.execute()
-
-
-    except Exception as err:
-        print(f"[unexpected error] {err=}  {type(err)=}")
-
-        # スタックトレース表示
-        print(traceback.format_exc())

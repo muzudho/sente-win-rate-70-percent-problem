@@ -10,8 +10,8 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
 from library.file_paths import get_automatic_no1_log_file_path
 from library.logging import AutomaticNo1Logging
-from create_a_csv_to_data_ep import Automation as CreateCSVToDataEP
-from scripts.create_kakukin_data_sheet_csv_file import CreateKakukinDataSheetCsvFile
+from scripts.create_a_csv_to_epdt import Automation as CreateCsvToEPDT
+from scripts.create_kakukin_data_sheet_csv_file import Automation as CreateKakukinDataSheetCsvFile
 
 
 ########################################
@@ -39,14 +39,14 @@ if __name__ == '__main__':
                         failure_rate=specified_failure_rate,
                         shall_print=True)
 
-                # CSV作成 EP
-                create_csv_to_data_ep = CreateCSVToDataEP(
+                # CSV作成 ［試行中の経験的確率データファイル］
+                create_csv_to_epdt = CreateCsvToEPDT(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
                         specified_trials_series=specified_trials_series,
                         specified_abs_small_error=0.0009)
                 
-                create_csv_to_data_ep.execute()
+                create_csv_to_epdt.execute()
 
 
                 # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］

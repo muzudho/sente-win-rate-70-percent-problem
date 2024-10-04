@@ -176,7 +176,7 @@ def get_empirical_probability_csv_file_path(failure_rate=None, turn_system=None,
     subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
     # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
-    return f'./temp/empirical_probability/EP{subname}.csv'
+    return f'./temp/empirical_probability_during_trials/EPDT{subname}.csv'
 
 
 ##################
