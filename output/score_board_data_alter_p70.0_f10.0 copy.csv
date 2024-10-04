@@ -1,4 +1,4 @@
-turn_system,failure_rate,p,span,t_step,h_step,shortest_coins,upper_limit_coins,a_win_rate,no_win_match_rate
+turn_system,failure_rate,p,span,t_step,h_step,shortest_coins,upper_limit_coins,theoretical_a_win_rate,theoretical_no_win_match_rate
 alternating,0.1,0.7,1.0,1.0,1.0,1.0,2.0,0.6636363636363637,0.010000000000000002
 alternating,0.1,0.7,2.0,1.0,1.0,2.0,4.0,0.5781148389003843,0.025696000000000007
 alternating,0.1,0.7,2.0,2.0,1.0,1.0,4.0,0.5232622375064023,0.015976

@@ -231,13 +231,9 @@ class AllTheoreticalProbabilityFilesOperation():
                                     on_score_board_created=on_score_board_created)
 
                             # データフレーム更新
-                            # row['a_win_rate'] = three_rates.a_win_rate
-                            # row['a_win_rate_abs_error'] = abs(three_rates.a_win_rate - EVEN)
-                            # row['no_win_match_rate'] = three_rates.no_win_match_rate
-
-                            df.loc[index,['a_win_rate']] = three_rates.a_win_rate
-                            df.loc[index,['a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
-                            df.loc[index,['no_win_match_rate']] = three_rates.no_win_match_rate
+                            df.loc[index,['theoretical_a_win_rate']] = three_rates.a_win_rate
+                            df.loc[index,['theoretical_a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
+                            df.loc[index,['theoretical_no_win_match_rate']] = three_rates.no_win_match_rate
 
                             self._number_of_dirty += 1
 
