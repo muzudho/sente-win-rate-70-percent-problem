@@ -25,13 +25,6 @@ LIMIT_SPAN = 1001
 # CSV保存間隔（秒）
 INTERVAL_SECONDS_FOR_SAVE_CSV = 60
 
-# CSV保存用タイマー
-start_time_for_save = None
-is_dirty_csv = False
-
-number_of_target = None
-number_of_smalled = None
-
 
 class Automation():
     """自動化"""
@@ -43,7 +36,18 @@ class Automation():
         self._generation_algorythm=generation_algorythm
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
+        
         self._df_ev = None
+        self._current_abs_lower_limit_of_error = None
+        self._passage_upper_limit = None
+
+        self._start_time_for_save = None    # CSV保存用タイマー
+        self._is_dirty_csv = False
+
+        self._number_of_target = None       # 処理対象の数
+        self._number_of_smalled = None      # 処理完了の数
+        self._number_of_yield = None        # 処理を途中で譲った数
+        self._number_of_passaged = None     # 空振りで終わったレコード数
 
 
     def update_dataframe(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
@@ -55,8 +59,6 @@ class Automation():
         spec : Specification
             ［仕様］
         """
-
-        global start_time_for_save, is_dirty_csv
 
         # # 表示
         # print_even_series_rule(
@@ -81,7 +83,7 @@ class Automation():
                 latest_span=latest_series_rule.step_table.span,
                 candidates=candidates)
 
-        is_dirty_csv = True
+        self._is_dirty_csv = True
 
 
     def ready_records(self):
@@ -118,9 +120,6 @@ class Automation():
 
     def on_each(self, record):
 
-        global number_of_target, number_of_smalled, is_dirty_csv, start_time_for_save, number_of_yield
-
-
         # FIXME 自明のチェック。１つのファイルには、同じ［将棋の引分け率］のデータしかない
         if self._specified_failure_rate != record.failure_rate:
             raise ValueError(f"{self._specified_failure_rate=} != {record.failure_rate=}")
@@ -144,7 +143,7 @@ class Automation():
 
 
         # ここから先、処理対象行
-        number_of_target += 1
+        self._number_of_target += 1
 
 
         # 仕様
@@ -173,7 +172,7 @@ class Automation():
             is_automatic = False
 
             # FIXME 全部のレコードがスキップされたとき、無限ループに陥る
-            number_of_smalled += 1
+            self._number_of_smalled += 1
 
         # アルゴリズムで求めるケース
         else:
@@ -301,9 +300,9 @@ class Automation():
 
                             # 指定間隔（秒）で保存
                             end_time_for_save = time.time()
-                            if is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
-                                start_time_for_save = end_time_for_save
-                                is_dirty_csv = False
+                            if self._is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save:
+                                self._start_time_for_save = end_time_for_save
+                                self._is_dirty_csv = False
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
@@ -311,10 +310,10 @@ class Automation():
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
-                            if abs(best_p_error) < current_abs_lower_limit_of_error or 2 < update_count:
+                            if abs(best_p_error) < self._current_abs_lower_limit_of_error or 2 < update_count:
                                 is_good = True
                                 is_cutoff = True
-                                number_of_yield += 1
+                                self._number_of_yield += 1
                                 # # 進捗バー
                                 # print('cutoff (good)', flush=True)
                                 break
@@ -327,9 +326,9 @@ class Automation():
                             # print('.', end='', flush=True)
 
                             # 空振りが多いとき、探索を打ち切ります
-                            if passage_upper_limit < passage_count:
+                            if self._passage_upper_limit < passage_count:
                                 is_cutoff = True
-                                number_of_passaged += 1
+                                self._number_of_passaged += 1
 
                                 # # 進捗バー
                                 # print('cutoff (procrastinate)', flush=True)
@@ -369,38 +368,23 @@ class Automation():
 
             # 指定間隔（秒）で保存
             end_time_for_save = time.time()
-            if is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
-                start_time_for_save = end_time_for_save
-                is_dirty_csv = False
+            if self._is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save:
+                self._start_time_for_save = end_time_for_save
+                self._is_dirty_csv = False
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
                 EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
 
 
-    def iteration_deeping(self, current_abs_lower_limit_of_error, passage_upper_limit):
+    def iteration_deeping(self):
         """反復深化探索の１セット
-
-        Parameters
-        ----------
-        df : DataFrame
-            データフレーム
-        current_abs_lower_limit_of_error : float
-            下限
         
         Returns
         -------
         is_update_table : bool
             更新が有ったか？
-        number_of_target : int
-            処理対象の数
-        number_of_smalled : int
-            処理完了の数
-        number_of_yield : int
-            処理を途中で譲った数
         """
-
-        global start_time_for_save, is_dirty_csv, number_of_target, number_of_smalled, number_of_yield
 
         is_update_table = False
 
@@ -411,28 +395,26 @@ class Automation():
         # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
 
 
-        number_of_target = 0        # 処理対象の数
-        number_of_smalled = 0       # 処理完了の数
-        number_of_yield = 0         # 処理を途中で譲った数
-        number_of_passaged = 0      # 空振りで終わったレコード数
+        self._number_of_target = 0        # 処理対象の数
+        self._number_of_smalled = 0       # 処理完了の数
+        self._number_of_yield = 0         # 処理を途中で譲った数
+        self._number_of_passaged = 0      # 空振りで終わったレコード数
 
 
         EvenTable.for_each(df=self._df_ev, on_each=self.on_each)
 
-        return is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged
+        return is_update_table
 
 
     # automatic
     def execute(self):
 
-        global start_time_for_save, is_dirty_csv, number_of_target, number_of_smalled, number_of_yield
-
         self._df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
         #print(self._df_ev)
 
 
-        start_time_for_save = time.time()
-        is_dirty_csv = False
+        self._start_time_for_save = time.time()
+        self._is_dirty_csv = False
 
 
         # 反復深化探索
@@ -445,8 +427,8 @@ class Automation():
         #
 
         speed = 10
-        current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
-        passage_upper_limit = 10
+        self._current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
+        self._passage_upper_limit = 10
 
         # ループに最初に１回入るためだけの設定
         worst_abs_best_p_error = ABS_OUT_OF_ERROR
@@ -478,54 +460,52 @@ class Automation():
             #
             #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
             #
-            is_update_table, number_of_target, number_of_smalled, number_of_yield, number_of_passaged = self.iteration_deeping(
-                    current_abs_lower_limit_of_error=current_abs_lower_limit_of_error,
-                    passage_upper_limit=passage_upper_limit)
+            is_update_table = self.iteration_deeping()
 
 
             #
             # NOTE 小数点以下の桁を長く出しても見づらい
             #
-            print(f"[{datetime.datetime.now()}][failure_rate={self._specified_failure_rate}]  update={is_update_table}  target={number_of_target}  smalled={number_of_smalled}  yield={number_of_yield}  passaged={number_of_passaged}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={current_abs_lower_limit_of_error:.7f}  small_error={self._specified_abs_small_error:.7f}  {passage_upper_limit=}")
+            print(f"[{datetime.datetime.now()}][failure_rate={self._specified_failure_rate}]  update={is_update_table}  target={self._number_of_target}  smalled={self._number_of_smalled}  yield={self._number_of_yield}  passaged={self._number_of_passaged}  {speed=}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  current_error={self._current_abs_lower_limit_of_error:.7f}  small_error={self._specified_abs_small_error:.7f}  {self._passage_upper_limit=}")
 
 
             # 処理が完了したから、ループを抜ける
-            if number_of_target == number_of_smalled:
+            if self._number_of_target == self._number_of_smalled:
                 print(f"すべてのデータについて、誤差が {self._specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
                 break
 
 
             # タイムシェアリングのために、処理を譲ることがオーバーヘッドになってきそうなら        
-            if 0 < number_of_passaged:
+            if 0 < self._number_of_passaged:
                 # 初期値が 10 なら 1.1 倍で必ず 1 は増える
-                passage_upper_limit = int(passage_upper_limit * 1.1)
+                self._passage_upper_limit = int(self._passage_upper_limit * 1.1)
 
             else:
-                passage_upper_limit = int(passage_upper_limit * 0.9)
-                if  passage_upper_limit < 10:
-                    passage_upper_limit = 10
+                self._passage_upper_limit = int(self._passage_upper_limit * 0.9)
+                if  self._passage_upper_limit < 10:
+                    self._passage_upper_limit = 10
 
                 # タイムシェアリングのために、処理を譲っているというわけでもないとき
-                if number_of_yield < 1:
+                if self._number_of_yield < 1:
                     # スピードがどんどん上がっていく
                     if not is_update_table:
                         speed += 1
 
                         # 半分、半分でも速そうなので、１０分の９を繰り返す感じで。
-                        if current_abs_lower_limit_of_error is None:
-                            current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
+                        if self._current_abs_lower_limit_of_error is None:
+                            self._current_abs_lower_limit_of_error = worst_abs_best_p_error * 9/speed
                         else:
-                            current_abs_lower_limit_of_error *= 9/speed
+                            self._current_abs_lower_limit_of_error *= 9/speed
                         
-                        if current_abs_lower_limit_of_error < self._specified_abs_small_error:
-                            current_abs_lower_limit_of_error = self._specified_abs_small_error
+                        if self._current_abs_lower_limit_of_error < self._specified_abs_small_error:
+                            self._current_abs_lower_limit_of_error = self._specified_abs_small_error
 
 
         print(f"ループから抜けました")
 
 
-        if is_dirty_csv:
-            is_dirty_csv = False
+        if self._is_dirty_csv:
+            self._is_dirty_csv = False
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")

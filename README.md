@@ -23,6 +23,19 @@ python -m pip install pandas
 ```
 
 
+# プログラムの使い方
+
+```
+python create_a_csv_to_data_score_board.py
+```
+
+最終的な成果物は、以下の３つの Excel ファイル
+
+* 📄 kakukin_data_alter_try2000.xlsx
+* 📄 kakukin_data_froze_try2000.xlsx
+* 📄 kakukin_viewer.xlsx
+
+
 # 参考
 
 * 📖 [光学技術の基礎用語 ＞ 確率の英語表現](https://www.optics-words.com/english_for_science/probability.html) - 確率の英語表現一覧
