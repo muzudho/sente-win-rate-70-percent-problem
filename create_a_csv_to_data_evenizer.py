@@ -104,6 +104,7 @@ class Automation():
                         turn_system=self._specified_turn_system)
                 
                 EvenTable.append_default_record(
+                        df=self._df_ev,
                         spec=spec,
                         trials_series=self._specified_trials_series)
                 is_append_new_record = True

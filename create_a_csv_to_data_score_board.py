@@ -263,25 +263,29 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        number_of_dirty = 0
-
         # TODO 自動調整のいい方法が思い浮かばない
-        #
-        # まず、ファイルを全部作る
-        create_or_update_all_files(
-            upper_limit_span=15     # 数字が増えると処理が重くなる  3,  11, 15
-            #upper_limit_span=OUT_OF_UPPER_SPAN + 1
-            )
-
-        # 次に、スリー・レーツを更新する
-        # depth は upper_limit_coins に対応
-        for depth in range(1, 15):      # range(1, 10)
+        # とりあえず、 depth が どんどん増えていくものとする。
+        for depth in range(1, 100):
             print(f"search {depth=} ...")
 
+            # まず、ファイルを全部作る
+            create_or_update_all_files(
+                #
+                # NOTE 内容をどれぐらい作るかは、 upper_limit_span （span の上限）を指定することにする。
+                # 数字が増えると処理が重くなる。 10 ぐらいまですぐ作れるが、 20 を超えると数秒かかるようになる
+                #
+                upper_limit_span=3 * depth)
+
+            # 次に、スリー・レーツを更新する
             calculation_status = update_three_rates_for_all_files(
-                upper_limit_upper_limit_coins=depth)     # 数字が増えると処理が重くなる
+                #
+                # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
+                # 7 ぐらいで激重
+                #
+                upper_limit_upper_limit_coins=depth)
 
 
+        # 現実的に、完了しない想定
         print("完了")
 
 
