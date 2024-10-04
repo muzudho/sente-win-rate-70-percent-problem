@@ -3,7 +3,7 @@
 #
 import datetime
 
-from library import BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, simulate_series
+from library import IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, simulate_series
 from library.file_paths import get_kakukin_data_sheet_csv_file_path
 from library.database import ScoreBoardDataBestTable
 from library.views import KakukinDataSheetTableCsv
@@ -115,15 +115,6 @@ class Automation():
                 trials_series=self._specified_trials_series)
         with open(csv_file_path_of_view, 'w', encoding='utf8') as f:
             f.write(f"{header_csv}\n")
-
-
-        generation_algorythm = Converter.make_generation_algorythm(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system)
-        if generation_algorythm == BRUTE_FORCE:
-            print("力任せ探索で行われたデータです")
-        elif generation_algorythm == THEORETICAL:
-            print("理論値で求められたデータです")
-        else:
-            raise ValueError(f"{generation_algorythm=}")
 
 
         # ベスト・テーブルを読込

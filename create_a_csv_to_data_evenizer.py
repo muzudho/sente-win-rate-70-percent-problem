@@ -2,8 +2,6 @@
 # 生成
 # python create_a_csv_to_data_evenizer.py
 #
-#   TODO 実際値ではなく、理論値を記録したい。 alternating_turn の方がそれに対応してない
-#
 #   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
 
@@ -14,7 +12,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, OUT_OF_P, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, OUT_OF_P, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, round_letro, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import EvenTable
 from library.views import print_even_series_rule
 
@@ -30,10 +28,9 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system, generation_algorythm, specified_trials_series, specified_abs_small_error):
+    def __init__(self, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error):
         self._specified_failure_rate=specified_failure_rate
         self._specified_turn_system=specified_turn_system
-        self._generation_algorythm=generation_algorythm
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
 
@@ -115,7 +112,6 @@ class Automation():
                     df=self._df_ev,
                     failure_rate=self._specified_failure_rate,
                     turn_system=self._specified_turn_system,
-                    generation_algorythm=self._generation_algorythm,
                     trials_series=self._specified_trials_series)
 
 
@@ -200,64 +196,59 @@ class Automation():
                                 span=cur_span)
 
 
-                        # 力任せ探索の場合                        
-                        if self._generation_algorythm == BRUTE_FORCE:
-                            list_of_trial_results_for_one_series = []
+                        # 力任せ探索
+                        list_of_trial_results_for_one_series = []
 
-                            for i in range(0, self._specified_trials_series):
+                        for i in range(0, self._specified_trials_series):
 
-                                # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
-                                path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
-                                        spec=spec,
-                                        upper_limit_coins=latest_series_rule.upper_limit_coins)
+                            # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
+                            path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
+                                    spec=spec,
+                                    upper_limit_coins=latest_series_rule.upper_limit_coins)
 
-                                # FIXME 検証
-                                if len(path_of_face_of_coin) < latest_series_rule.shortest_coins:
-                                    text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {latest_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
-                                    print(f"""{text}
+                            # FIXME 検証
+                            if len(path_of_face_of_coin) < latest_series_rule.shortest_coins:
+                                text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {latest_series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
+                                print(f"""{text}
 {path_of_face_of_coin=}
 {latest_series_rule.upper_limit_coins=}
 """)
-                                    raise ValueError(text)
+                                raise ValueError(text)
 
 
-                                # 疑似のリストをもとに、シリーズとして見てみる
-                                trial_results_for_one_series = judge_series(
-                                        spec=spec,
-                                        series_rule=latest_series_rule,
-                                        path_of_face_of_coin=path_of_face_of_coin)
-                                
-                                list_of_trial_results_for_one_series.append(trial_results_for_one_series)
+                            # 疑似のリストをもとに、シリーズとして見てみる
+                            trial_results_for_one_series = judge_series(
+                                    spec=spec,
+                                    series_rule=latest_series_rule,
+                                    path_of_face_of_coin=path_of_face_of_coin)
                             
-                            # シミュレーションの結果
-                            large_series_trial_summary = LargeSeriesTrialSummary(
-                                    list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
+                            list_of_trial_results_for_one_series.append(trial_results_for_one_series)
+                        
+                        # シミュレーションの結果
+                        large_series_trial_summary = LargeSeriesTrialSummary(
+                                list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
-                            # Ａさんが勝った回数
-                            s_wins_a = large_series_trial_summary.wins(challenged=SUCCESSFUL, winner=ALICE)
-                            f_wins_a = large_series_trial_summary.wins(challenged=FAILED, winner=ALICE)
-                            latest_p = (s_wins_a + f_wins_a) / self._specified_trials_series
-                            latest_p_error = latest_p - 0.5
+                        # Ａさんが勝った回数
+                        s_wins_a = large_series_trial_summary.wins(challenged=SUCCESSFUL, winner=ALICE)
+                        f_wins_a = large_series_trial_summary.wins(challenged=FAILED, winner=ALICE)
+                        latest_p = (s_wins_a + f_wins_a) / self._specified_trials_series
+                        latest_p_error = latest_p - 0.5
 
 
-                        # 理論値の場合
-                        elif self._generation_algorythm == THEORETICAL:
+                        # # 理論値の場合
+                        # elif self._generation_algorythm == THEORETICAL:
 
-                            # オーバーフロー例外に対応したプログラミングをすること
-                            latest_p, err = calculate_probability(
-                                    p=spec.p,
-                                    H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                                    T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                        #     # オーバーフロー例外に対応したプログラミングをすること
+                        #     latest_p, err = calculate_probability(
+                        #             p=spec.p,
+                        #             H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                        #             T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
                             
-                            # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
-                            if err is not None:
-                                latest_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
-                            else:
-                                latest_p_error = latest_p - 0.5
-
-
-                        else:
-                            raise ValueError(f"{self._generation_algorythm=}")
+                        #     # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+                        #     if err is not None:
+                        #         latest_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
+                        #     else:
+                        #         latest_p_error = latest_p - 0.5
 
 
                         if abs(latest_p_error) < abs(best_p_error):
@@ -307,7 +298,7 @@ class Automation():
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
+                                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -375,7 +366,7 @@ class Automation():
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=record.trials_series)
+                EvenTable.to_csv(df=self._df_ev, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
 
 
     def iteration_deeping(self):
@@ -410,7 +401,7 @@ class Automation():
     # automatic
     def execute(self):
 
-        self._df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
+        self._df_ev = EvenTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
         #print(self._df_ev)
 
 
@@ -510,7 +501,7 @@ class Automation():
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            EvenTable.to_csv(df=self._df_ev, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, generation_algorythm=self._generation_algorythm, trials_series=self._specified_trials_series)
+            EvenTable.to_csv(df=self._df_ev, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
 
 
 ########################################
@@ -544,12 +535,8 @@ Which one(1-2)? """
             raise ValueError(f"{choice=}")
 
 
-        generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
-        if generation_algorythm == BRUTE_FORCE:
-            print("力任せ探索を行います")
-
-            # ［試行シリーズ数］を尋ねる
-            prompt = f"""\
+        # ［試行シリーズ数］を尋ねる
+        prompt = f"""\
 How many times do you want to try the series?
 
 (0) Try       2 series
@@ -562,23 +549,14 @@ How many times do you want to try the series?
 
 Example: 3
 (0-6)? """
-            precision = int(input(prompt))
-            specified_trials_series = Converter.precision_to_trials_series(precision)
-            specified_abs_small_error = Converter.precision_to_small_error(precision)
-
-        elif generation_algorythm == THEORETICAL:
-            print("理論値を求めます。便宜的に試行回数は 1 と記入することにします")
-            specified_trials_series = 1
-            specified_abs_small_error = 0.0000009   # 便宜的
-
-        else:
-            raise ValueError(f"{generation_algorythm=}")
+        precision = int(input(prompt))
+        specified_trials_series = Converter.precision_to_trials_series(precision)
+        specified_abs_small_error = Converter.precision_to_small_error(precision)
 
 
         automation = Automation(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system=specified_turn_system,
-                generation_algorythm=generation_algorythm,
                 specified_trials_series=specified_trials_series,
                 specified_abs_small_error=specified_abs_small_error)
         automation.execute()

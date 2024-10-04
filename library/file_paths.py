@@ -1,11 +1,11 @@
-from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL
+from library import FROZEN_TURN, ALTERNATING_TURN
 
 
 ################
 # File sub-name
 ################
 
-def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None, h_step=None, t_step=None, span=None):
+def make_file_subname(p=None, failure_rate=None, turn_system=None, trials_series=None, h_step=None, t_step=None, span=None):
     """ファイル名の部分を作成
 
     Parameters
@@ -16,8 +16,6 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
         ［表も裏も出ない確率］
     turn_system : int
         ［先後の決め方］
-    generation_algorythm : int
-        ［データ生成アルゴリズム］
     trials_series : int
         ［試行シリーズ数］
     h_step : int
@@ -56,35 +54,12 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
         subname.append(f'p{p*100:.1f}')
 
 
-    if generation_algorythm is None:
-        pass
-
-
     # ［表も裏も出ない確率（％）］
     if failure_rate is None:
         pass
 
     else:
         subname.append(f'f{failure_rate*100:.1f}')
-
-
-    if generation_algorythm is None:
-        pass
-    
-
-    # ［生成アルゴリズム］
-    elif generation_algorythm == BRUTE_FORCE:
-        # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
-        # brute-force の略
-        subname.append('brute')
-
-    elif generation_algorythm == THEORETICAL:
-        # NOTE ファイル名は長くならないようにしたい。パースのしやすさは保ちつつ、読みやすさは捨てる
-        # theoretical の略
-        subname.append('theor')
-
-    else:
-        raise ValueError(f"{generation_algorythm=}")
 
 
     # ［試行シリーズ数］
@@ -118,10 +93,6 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
 
     else:
         subname.append(f's{span}')
-
-
-    if generation_algorythm is None:
-        pass
 
 
     # サブ・ファイル名の連結
@@ -182,7 +153,7 @@ def get_theoretical_probability_best_csv_file_path():
 # Empirical Probability (元データの方)
 ######################################
 
-def get_empirical_probability_csv_file_path(failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None):
+def get_empirical_probability_csv_file_path(failure_rate=None, turn_system=None, trials_series=None):
     """勝ち点を探索した記録ファイルへのパス
     
     Parameters
@@ -191,12 +162,10 @@ def get_empirical_probability_csv_file_path(failure_rate=None, turn_system=None,
         ［将棋の引分け率］
     turn_system : int
         ［先後の決め方］
-    generation_algorythm : int
-        ［データ生成アルゴリズム］
     trials_series : int
         ［試行シリーズ数］
     """
-    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
     # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
     return f'./temp/empirical_probability/EP{subname}.csv'

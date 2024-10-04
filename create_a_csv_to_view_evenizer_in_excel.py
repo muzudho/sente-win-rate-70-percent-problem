@@ -13,7 +13,7 @@
 import traceback
 import datetime
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_kakukin_data_sheet_csv_file_path
 from library.database import EvenTable, EvenRecord
 from library.views import KakukinDataSheetTableCsv
@@ -43,16 +43,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         f.write(f"{header_csv}\n")
 
 
-    generation_algorythm = Converter.make_generation_algorythm(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
-    if generation_algorythm == BRUTE_FORCE:
-        print("力任せ探索で行われたデータです")
-    elif generation_algorythm == THEORETICAL:
-        print("理論値で求められたデータです")
-    else:
-        raise ValueError(f"{generation_algorythm=}")
-
-
-    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, generation_algorythm=generation_algorythm, trials_series=specified_trials_series)
+    df_ev = EvenTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, trials_series=specified_trials_series)
 
 
     def on_each(even_record):

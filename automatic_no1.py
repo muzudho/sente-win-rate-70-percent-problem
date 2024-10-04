@@ -7,7 +7,7 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, UPPER_LIMIT_FAILURE_RATE
+from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
 from create_a_csv_to_data_evenizer import Automation as AutomationForData
 from create_a_csv_to_view_evenizer_in_excel_ver2 import Automation as AutomationForView
 
@@ -24,7 +24,6 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        generation_algorythm = BRUTE_FORCE
         specified_trials_series = 2000
 
         for specified_turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
@@ -45,7 +44,6 @@ if __name__ == '__main__':
                 automation_for_data = AutomationForData(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system=specified_turn_system,
-                        generation_algorythm=generation_algorythm,
                         specified_trials_series=specified_trials_series,
                         specified_abs_small_error=0.0009)
                 

@@ -71,16 +71,6 @@ FACE_OF_COIN = 1
 PLAYERS = 2
 
 
-# Generation Algorithm
-# --------------------
-
-# 力任せ探索
-BRUTE_FORCE = 1
-
-# 理論から算出する
-THEORETICAL = 2
-
-
 # Geme results
 # ------------
 IN_GAME = 0             # ゲーム中
@@ -208,14 +198,6 @@ class Converter():
     @classmethod
     def opponent(clazz, elementary_event):
         return clazz._opponent[elementary_event]
-
-
-    @staticmethod
-    def make_generation_algorythm(failure_rate, turn_system):
-        # 現在のところ、［先後固定制］で、かつ［表も裏も出ない確率］が 0 のときのみ、理論値を求めることができます
-        if failure_rate == 0 and turn_system == FROZEN_TURN:
-            return THEORETICAL
-        return BRUTE_FORCE
 
 
     _precision_to_trials_series = {

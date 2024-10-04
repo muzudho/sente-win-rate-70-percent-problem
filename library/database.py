@@ -476,7 +476,7 @@ class EvenTable():
 
 
     @classmethod
-    def read_df(clazz, failure_rate, turn_system, generation_algorythm, trials_series):
+    def read_df(clazz, failure_rate, turn_system, trials_series):
         """
 
         Parameters
@@ -485,13 +485,11 @@ class EvenTable():
             ［将棋の引分け率］
         turn_system : int
             ［手番が回ってくる制度］
-        generation_algorythm : int
-            ［生成アルゴリズム］
         trials_series : int
             ［試行シリーズ数］
         """
 
-        csv_file_path = get_empirical_probability_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+        csv_file_path = get_empirical_probability_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
         # ファイルが存在しなかった場合
         if not os.path.isfile(csv_file_path):
@@ -505,9 +503,9 @@ class EvenTable():
 
 
     @staticmethod
-    def to_csv(df, failure_rate, turn_system, generation_algorythm, trials_series):
+    def to_csv(df, failure_rate, turn_system, trials_series):
         # ファイルが存在しなかった場合、新規作成
-        csv_file_path = get_empirical_probability_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+        csv_file_path = get_empirical_probability_csv_file_path(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
 
         print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
