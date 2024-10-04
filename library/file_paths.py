@@ -161,12 +161,12 @@ def get_kakukin_data_sheet_csv_file_path(failure_rate, turn_system, trials_serie
 
 def get_theoretical_probability_log_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    return f'logs/theoretical_probability/TB{subname}.log'
+    return f'logs/theoretical_probability/TP{subname}.log'
 
 def get_theoretical_probability_csv_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
     # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
-    return f'temp/theoretical_probability/TB{subname}.csv'
+    return f'temp/theoretical_probability/TP{subname}.csv'
 
 
 ##############################
@@ -176,6 +176,30 @@ def get_theoretical_probability_csv_file_path(p, failure_rate, turn_system):
 def get_theoretical_probability_best_csv_file_path():
     # データ・フォルダーの方に置く
     return f'data/thoretical_probability_best.csv'
+
+
+######################################
+# Empirical Probability (元データの方)
+######################################
+
+def get_empirical_probability_csv_file_path(failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None):
+    """勝ち点を探索した記録ファイルへのパス
+    
+    Parameters
+    ----------
+    failure_rate : float
+        ［将棋の引分け率］
+    turn_system : int
+        ［先後の決め方］
+    generation_algorythm : int
+        ［データ生成アルゴリズム］
+    trials_series : int
+        ［試行シリーズ数］
+    """
+    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
+
+    # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
+    return f'./temp/empirical_probability/EP{subname}.csv'
 
 
 ##################
@@ -207,27 +231,3 @@ def get_simulation_large_series_log_file_path(failure_rate, turn_system):
     """
     subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system)
     return f'logs/simulation_large_series{subname}.log'
-
-
-#############
-# Even table (元データの方)
-#############
-
-def get_even_data_csv_file_path(failure_rate=None, turn_system=None, generation_algorythm=None, trials_series=None):
-    """勝ち点を探索した記録ファイルへのパス
-    
-    Parameters
-    ----------
-    failure_rate : float
-        ［将棋の引分け率］
-    turn_system : int
-        ［先後の決め方］
-    generation_algorythm : int
-        ［データ生成アルゴリズム］
-    trials_series : int
-        ［試行シリーズ数］
-    """
-    subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, generation_algorythm=generation_algorythm, trials_series=trials_series)
-
-    # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
-    return f'./data/even{subname}.csv'

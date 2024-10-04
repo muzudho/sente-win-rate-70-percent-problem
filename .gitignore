@@ -2,6 +2,8 @@
 logs/theoretical_probability/*
 !logs/theoretical_probability/.gitkeep
 
+temp/empirical_probability/*
+!temp/empirical_probability/.gitkeep
 temp/kakukin_data_sheet/*
 !temp/kakukin_data_sheet/.gitkeep
 temp/theoretical_probability/*
