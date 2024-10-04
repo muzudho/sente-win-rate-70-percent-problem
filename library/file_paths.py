@@ -1,10 +1,6 @@
 from library import FROZEN_TURN, ALTERNATING_TURN
 
 
-################
-# File sub-name
-################
-
 def make_file_subname(p=None, failure_rate=None, turn_system=None, trials_series=None, h_step=None, t_step=None, span=None):
     """ファイル名の部分を作成
 
@@ -136,6 +132,15 @@ class TheoreticalProbabilityFilePaths():
         subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
         # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
         return f'temp/theoretical_probability/TP{subname}.csv'
+
+
+class TheoreticalProbabilityTrialResultsFilePaths():
+    """理論的確率の試行結果データのファイルパス一覧"""
+    @staticmethod
+    def as_csv(p, failure_rate, turn_system):
+        subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
+        # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
+        return f'temp/theoretical_probability_trial_results/TPTR{subname}.csv'
 
 
 class TheoreticalProbabilityBestFilePaths():

@@ -579,6 +579,78 @@ class CalculateProbabilityTable():
         return df
 
 
+class TheoreticalProbabilityRecord():
+
+
+    def __init__(self, turn_system, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_a_win_rate_abs_error, theoretical_no_win_match_rate):
+        self._turn_system = turn_system
+        self._failure_rate = failure_rate
+        self._p = p
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._theoretical_a_win_rate = theoretical_a_win_rate
+        self._theoretical_a_win_rate_abs_error = theoretical_a_win_rate_abs_error
+        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+
+
+    @property
+    def turn_system(self):
+        return self._turn_system
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def theoretical_a_win_rate(self):
+        return self._theoretical_a_win_rate
+
+
+    @property
+    def theoretical_a_win_rate_abs_error(self):
+        return self._theoretical_a_win_rate_abs_error
+
+
+    @property
+    def theoretical_no_win_match_rate(self):
+        return self._theoretical_no_win_match_rate
+
+
 class TheoreticalProbabilityTable():
     """理論的確率データ"""
 
@@ -705,6 +777,267 @@ class TheoreticalProbabilityTable():
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
+
+
+    @staticmethod
+    def for_each(df, on_each):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        on_each : func
+            record 引数を受け取る関数
+        """
+        for         turn_system  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_a_win_rate_abs_error  ,     theoretical_no_win_match_rate in\
+            zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_a_win_rate_abs_error'], df['theoretical_no_win_match_rate']):
+
+            # レコード作成
+            record = EmpiricalProbabilityRecord(
+                    turn_system=turn_system,
+                    failure_rate=failure_rate,
+                    p=p,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    theoretical_a_win_rate=theoretical_a_win_rate,
+                    theoretical_a_win_rate_abs_error=theoretical_a_win_rate_abs_error,
+                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+
+            on_each(record)
+
+
+class TheoreticalProbabilityTrialResultsRecord():
+    """理論的確率の試行結果レコード"""
+
+
+    def __init__(self, turn_system, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_a_win_rate_abs_error, trial_no_win_match_rate):
+        self._turn_system = turn_system
+        self._failure_rate = failure_rate
+        self._p = p
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._trial_a_win_rate = trial_a_win_rate
+        self._trial_a_win_rate_abs_error = trial_a_win_rate_abs_error
+        self._trial_no_win_match_rate = trial_no_win_match_rate
+
+
+    @property
+    def turn_system(self):
+        return self._turn_system
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def trial_a_win_rate(self):
+        return self._trial_a_win_rate
+
+
+    @property
+    def trial_a_win_rate_abs_error(self):
+        return self._trial_a_win_rate_abs_error
+
+
+    @property
+    def trial_no_win_match_rate(self):
+        return self._trial_no_win_match_rate
+
+
+class TheoreticalProbabilityTrialResultsTable():
+    """理論的確率の試行結果テーブル"""
+
+
+    _dtype = {
+        'turn_system':'object',     # string 型は無い？
+        'failure_rate':'float64',
+        'p':'float64',
+        'span':'int64',
+        't_step':'int64',
+        'h_step':'int64',
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'trial_a_win_rate':'float64',
+        'trial_a_win_rate_abs_error':'float64',
+        'trial_no_win_match_rate':'float64'}
+
+
+    @classmethod
+    def new_data_frame(clazz):
+        df = pd.DataFrame.from_dict({
+                'turn_system': [],
+                'failure_rate': [],
+                'p': [],
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'shortest_coins': [],
+                'upper_limit_coins': [],
+                'trial_a_win_rate': [],
+                'trial_a_win_rate_abs_error': [],
+                'trial_no_win_match_rate': []}).astype(clazz._dtype)
+
+        return df
+
+
+    @classmethod
+    def read_df(clazz, spec, new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+        
+        Returns
+        -------
+        df : DataFrame
+            データフレーム
+        is_new : bool
+            新規作成されたか？
+        """
+
+        # CSVファイルパス
+        csv_file_path = TheoreticalProbabilityTrialResultsFilePaths.as_csv(
+                p=spec.p,
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system)
+
+
+        # ファイルが存在しなかった場合
+        is_new = not os.path.isfile(csv_file_path)
+        if is_new:
+            if new_if_it_no_exists:
+                df = TheoreticalProbabilityTrialResultsTable.new_data_frame()
+            else:
+                df = None
+
+        else:
+            df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+
+
+        return df, is_new
+
+
+    @staticmethod
+    def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+        index = len(df.index)
+
+
+        df.loc[index, [ 'turn_system']] = turn_system_str   # FIXME ここで型エラー？
+
+        df.loc[index, ['failure_rate']] = failure_rate
+        df.loc[index, ['p']] = p
+        df.loc[index, ['span']] = span
+        df.loc[index, ['t_step']] = t_step
+        df.loc[index, ['h_step']] = h_step
+        df.loc[index, ['shortest_coins']] = shortest_coins
+        df.loc[index, ['upper_limit_coins']] = upper_limit_coins
+
+        if three_rates is None:
+            # あとで設定する
+            df.loc[index, ['trial_a_win_rate']] = OUT_OF_P
+            df.loc[index, ['trial_a_win_rate_abs_error']] = abs(OUT_OF_P - EVEN)
+            df.loc[index, ['trial_no_win_match_rate']] = OUT_OF_P
+
+        else:
+            df.loc[index, ['trial_a_win_rate']] = three_rates.a_win_rate
+            df.loc[index, ['trial_a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
+            df.loc[index, ['trial_no_win_match_rate']] = three_rates.no_win_match_rate
+
+
+    @staticmethod
+    def to_csv(df, spec):
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
+
+        # CSVファイルパス
+        csv_file_path = TheoreticalProbabilityTrialResultsFilePaths.as_csv(
+                p=spec.p,
+                failure_rate=spec.failure_rate,
+                turn_system=spec.turn_system)
+
+        df.to_csv(csv_file_path,
+                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_a_win_rate', 'trial_a_win_rate_abs_error', 'trial_no_win_match_rate'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+        return csv_file_path
+
+
+    @staticmethod
+    def for_each(df, on_each):
+        """
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        on_each : func
+            record 引数を受け取る関数
+        """
+        for         turn_system  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_a_win_rate_abs_error  ,     trial_no_win_match_rate in\
+            zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_a_win_rate_abs_error'], df['trial_no_win_match_rate']):
+
+            # レコード作成
+            record = EmpiricalProbabilityRecord(
+                    turn_system=turn_system,
+                    failure_rate=failure_rate,
+                    p=p,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    trial_a_win_rate=trial_a_win_rate,
+                    trial_a_win_rate_abs_error=trial_a_win_rate_abs_error,
+                    trial_no_win_match_rate=trial_no_win_match_rate)
+
+            on_each(record)
 
 
 class TheoreticalProbabilityBestRecord():
