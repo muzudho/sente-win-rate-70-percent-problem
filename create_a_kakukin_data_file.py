@@ -14,6 +14,10 @@ from library.file_paths import get_kakukin_data_excel_file_path, get_kakukin_dat
 from library.database import KakukinDataSheetTable
 
 
+ws = None
+row_number = 0
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -101,12 +105,6 @@ Example: 3
                 turn_system=specified_turn_system,
                 trials_series=specified_trials_series)
 
-        def on_each(record):
-            pass
-
-        KakukinDataSheetTable.for_each(
-                df=df_kds,
-                on_each=on_each)
 
         print(f"""\
 シートの名前を {ws.title} に変更しました。
@@ -144,12 +142,50 @@ Example: 3
         for index, column_name in enumerate(column_names, 1):
             ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
 
+        # データ部
+        # --------
+
+        row_number = 2
+
+        def on_each(record):
+            global ws, row_number
+
+            ws[f'A{row_number}'].value = record.p
+            ws[f'B{row_number}'].value = record.failure_rate
+            ws[f'C{row_number}'].value = record.turn_system
+            ws[f'D{row_number}'].value = record.head_step
+            ws[f'E{row_number}'].value = record.tail_step
+            ws[f'F{row_number}'].value = record.span
+            ws[f'G{row_number}'].value = record.shortest_coins
+            ws[f'H{row_number}'].value = record.upper_limit_coins
+            ws[f'I{row_number}'].value = record.trials_series
+            ws[f'J{row_number}'].value = record.series_shortest_coins
+            ws[f'K{row_number}'].value = record.series_longest_coins
+            ws[f'L{row_number}'].value = record.wins_a
+            ws[f'M{row_number}'].value = record.wins_b
+            ws[f'N{row_number}'].value = record.succucessful_series
+            ws[f'O{row_number}'].value = record.s_ful_wins_a
+            ws[f'P{row_number}'].value = record.s_ful_wins_b
+            ws[f'Q{row_number}'].value = record.s_pts_wins_a
+            ws[f'R{row_number}'].value = record.s_pts_wins_b
+            ws[f'S{row_number}'].value = record.failed_series
+            ws[f'T{row_number}'].value = record.f_ful_wins_a
+            ws[f'U{row_number}'].value = record.f_ful_wins_b
+            ws[f'V{row_number}'].value = record.f_pts_wins_a
+            ws[f'W{row_number}'].value = record.f_pts_wins_b
+            ws[f'X{row_number}'].value = record.no_wins_ab
+
+            row_number += 1
+
+        KakukinDataSheetTable.for_each(
+                df=df_kds,
+                on_each=on_each)
+
+
         wb.save(excel_file_path)
 
-        print(f"""\
-{ws.title} シートの１行目に列名を入れました。
-{excel_file_path} を保存しました。
-""")
+        print(f"""でーきたっ！""")
+
 
     except Exception as err:
         print(f"""\

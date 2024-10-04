@@ -240,7 +240,7 @@ class KakukinDataSheetTable():
             zip(df['p'], df['failure_rate'], df['turn_system'], df['head_step'], df['tail_step'], df['span'], df['shortest_coins'], df['upper_limit_coins'], df['trials_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
 
             # レコード作成
-            record = EvenRecord(
+            record = KakukinDataSheetRecord(
                     p=p,
                     failure_rate=failure_rate,
                     turn_system=turn_system,

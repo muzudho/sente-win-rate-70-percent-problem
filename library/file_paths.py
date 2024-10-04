@@ -139,7 +139,7 @@ def make_file_subname(p=None, failure_rate=None, turn_system=None, generation_al
 
 def get_kakukin_data_excel_file_path(turn_system, trials_series):
     subname = make_file_subname(turn_system=turn_system, trials_series=trials_series)
-    return f'reports/kakukin_data{subname}_ver2.xlsx'
+    return f'reports/auto_generated_kakukin_data{subname}.xlsx'
 
 
 ####################
