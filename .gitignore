@@ -1,5 +1,11 @@
 # (^q^)
 logs/
+
+temp/kakukin_data_sheet/*
+!temp/kakukin_data_sheet/.gitkeep
+temp/score_board/*
+!temp/score_board/.gitkeep
+
 *.bak
 
 

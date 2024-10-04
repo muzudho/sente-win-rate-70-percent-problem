@@ -152,8 +152,7 @@ def get_kakukin_data_sheet_csv_file_path(failure_rate, turn_system, trials_serie
     """
     subname = make_file_subname(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
     # ファイル名は長くなりすぎないようにする
-    return f'logs/kakukin_data_sheet/KDS{subname}.csv'    
-    # 旧 f'logs/even_view{subname}.csv'
+    return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
 
 
 ##################
@@ -162,12 +161,12 @@ def get_kakukin_data_sheet_csv_file_path(failure_rate, turn_system, trials_serie
 
 def get_score_board_data_log_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
-    return f'logs/score_board/data{subname}.log'
+    return f'temp/score_board/data{subname}.log'
 
 def get_score_board_data_csv_file_path(p, failure_rate, turn_system):
     subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system=turn_system)
     # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
-    return f'logs/score_board/data{subname}.csv'
+    return f'temp/score_board/data{subname}.csv'
 
 
 #######################
