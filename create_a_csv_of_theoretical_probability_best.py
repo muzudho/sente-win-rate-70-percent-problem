@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
 from library.file_paths import get_theoretical_probability_best_csv_file_path
-from library.database import ScoreBoardDataTable, ScoreBoardDataBestRecord, ScoreBoardDataBestTable
+from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 
 
 best_win_rate_error = None
@@ -32,7 +32,7 @@ def automatic(spec):
 
     turn_system_str = Converter.turn_system_to_code(spec.turn_system)
 
-    df_d, is_new = ScoreBoardDataTable.read_df(spec=spec, new_if_it_no_exists=False)
+    df_d, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=False)
 
     # 読み込むファイルが存在しなければ無視
     if is_new:
@@ -43,14 +43,14 @@ def automatic(spec):
     best_csv_file_path = get_theoretical_probability_best_csv_file_path()
 
 
-    best_record = ScoreBoardDataBestTable.create_none_record()
+    best_record = TheoreticalProbabilityBestTable.create_none_record()
 
     # a_win_rate と EVEN の誤差
     best_win_rate_error = ABS_OUT_OF_ERROR
 
 
     # ファイルが存在しなかったなら、空データフレーム作成
-    df_b, is_new = ScoreBoardDataBestTable.read_df(new_if_it_no_exists=True)
+    df_b, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=True)
 
     # ファイルが存在したなら、読込
     if not is_new:
@@ -59,7 +59,7 @@ def automatic(spec):
 
         # データが既存なら、取得
         if key_b.any():
-            best_record = ScoreBoardDataBestTable.get_record_by_key(df=df_b, key=key_b)
+            best_record = TheoreticalProbabilityBestTable.get_record_by_key(df=df_b, key=key_b)
 
             best_win_rate_error = best_record.three_rates.a_win_rate - EVEN
 
@@ -84,7 +84,7 @@ def automatic(spec):
 
         if is_update:
             best_win_rate_error = error
-            best_record = ScoreBoardDataBestRecord(
+            best_record = TheoreticalProbabilityBestRecord(
                     turn_system_str=record.turn_system_str,
                     failure_rate=record.failure_rate,
                     p=record.p,
@@ -98,15 +98,15 @@ def automatic(spec):
                             no_win_match_rate=record.three_rates.no_win_match_rate))
 
 
-    ScoreBoardDataBestTable.for_each(df=df_b, on_each=on_each)
+    TheoreticalProbabilityBestTable.for_each(df=df_b, on_each=on_each)
 
 
     if best_record.turn_system_str is not None:
         # データフレーム更新
         # 新規レコード追加
-        ScoreBoardDataBestTable.append_record(df=df_b, record=best_record)
+        TheoreticalProbabilityBestTable.append_record(df=df_b, record=best_record)
 
-        csv_file_path_to_wrote = ScoreBoardDataBestTable.to_csv(df=df_b)
+        csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_b)
         print(f"[{datetime.datetime.now()}][turn_system={best_record.turn_system_str}  failure_rate={best_record.failure_rate}  p={best_record.p}] write a csv to `{csv_file_path_to_wrote}` file ...")
 
 

@@ -79,6 +79,17 @@ python automatic_no1.py
 python automatic_no2.py
 ```
 
+以下の csvファイルを生成します  
+
+* 📄 `temp/theoretical_probability/TP_alter_p50.0_f0.0.csv` - ファイル名は一部変わります。 **理論値** の算出データです
+
+
+## automatic_no3.py
+
+```shell
+python automatic_no3.py
+```
+
 以下のファイルを入力に使います。  
 
 * 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります。 **試行** の結果のデータです

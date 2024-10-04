@@ -579,8 +579,8 @@ class CalculateProbabilityTable():
         return df
 
 
-class ScoreBoardDataTable():
-    """スコアボード・データ"""
+class TheoreticalProbabilityTable():
+    """理論的確率データ"""
 
 
     _dtype = {
@@ -595,23 +595,6 @@ class ScoreBoardDataTable():
         'a_win_rate':'float64',
         'a_win_rate_abs_error':'float64',
         'no_win_match_rate':'float64'}
-
-
-    # @staticmethod
-    # def set_type(df):
-    #     #
-    #     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-    #     #
-    #     df['turn_system'].astype('object')    # string 型は無い？
-    #     df['failure_rate'].astype('float64')
-    #     df['p'].astype('float64')
-    #     df['span'].fillna(0).astype('int64')
-    #     df['t_step'].fillna(0).astype('int64')
-    #     df['h_step'].fillna(0).astype('int64')
-    #     df['shortest_coins'].fillna(0).astype('int64')
-    #     df['upper_limit_coins'].fillna(0).astype('int64')
-    #     df['a_win_rate'].fillna(0.0).astype('float64')
-    #     df['no_win_match_rate'].fillna(0.0).astype('float64')
 
 
     @classmethod
@@ -662,7 +645,7 @@ class ScoreBoardDataTable():
         is_new = not os.path.isfile(csv_file_path)
         if is_new:
             if new_if_it_no_exists:
-                df = ScoreBoardDataTable.new_data_frame()
+                df = TheoreticalProbabilityTable.new_data_frame()
             else:
                 df = None
 
@@ -724,8 +707,8 @@ class ScoreBoardDataTable():
         return csv_file_path
 
 
-class ScoreBoardDataBestRecord():
-    """スコアボード・データ・ベスト・レコード"""
+class TheoreticalProbabilityBestRecord():
+    """理論的確率ベスト・レコード"""
 
 
     def __init__(self, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
@@ -785,8 +768,8 @@ class ScoreBoardDataBestRecord():
         return self._three_rates
 
 
-class ScoreBoardDataBestTable():
-    """スコアボード・データ・ベスト"""
+class TheoreticalProbabilityBestTable():
+    """理論的確率ベスト・テーブル"""
 
 
     _dtype = {
@@ -800,23 +783,6 @@ class ScoreBoardDataBestTable():
         'upper_limit_coins':'int64',
         'a_win_rate':'float64',
         'no_win_match_rate':'float64'}
-
-
-    # @staticmethod
-    # def set_type(df):
-    #     #
-    #     # NOTE pandas のデータフレームの列の型の初期値が float なので、それぞれ設定しておく
-    #     #
-    #     df['turn_system'].astype('object')    # string 型は無い？
-    #     df['failure_rate'].astype('float64')
-    #     df['p'].fillna(0.0).astype('float64')
-    #     df['span'].fillna(0).astype('int64')
-    #     df['t_step'].fillna(0).astype('int64')
-    #     df['h_step'].fillna(0).astype('int64')
-    #     df['shortest_coins'].fillna(0).astype('int64')
-    #     df['upper_limit_coins'].fillna(0).astype('int64')
-    #     df['a_win_rate'].fillna(0.0).astype('float64')
-    #     df['no_win_match_rate'].fillna(0.0).astype('float64')
 
 
     @classmethod
@@ -838,7 +804,7 @@ class ScoreBoardDataBestTable():
 
     @staticmethod
     def create_none_record():
-        return ScoreBoardDataBestRecord(
+        return TheoreticalProbabilityBestRecord(
                 turn_system_str=None,
                 failure_rate=None,
                 p=None,
@@ -888,7 +854,7 @@ class ScoreBoardDataBestTable():
         is_new = not os.path.isfile(csv_file_path)
         if is_new:
             if new_if_it_no_exists:
-                df = ScoreBoardDataBestTable.new_data_frame()
+                df = TheoreticalProbabilityBestTable.new_data_frame()
             else:
                 df = None
 
@@ -907,7 +873,7 @@ class ScoreBoardDataBestTable():
         -------
 
         """
-        return ScoreBoardDataBestRecord(
+        return TheoreticalProbabilityBestRecord(
                 turn_system_str=df.loc[key, ['turn_system']].iat[0,0],
                 failure_rate=df.loc[key, ['failure_rate']].iat[0,0],
                 p=df.loc[key, ['p']].iat[0,0],
@@ -958,7 +924,7 @@ class ScoreBoardDataBestTable():
             upper_limit_coins = round_letro(upper_limit_coins)
 
             # レコード作成
-            record = ScoreBoardDataBestRecord(
+            record = TheoreticalProbabilityBestRecord(
                     turn_system_str=turn_system_str,
                     failure_rate=failure_rate,
                     p=p,

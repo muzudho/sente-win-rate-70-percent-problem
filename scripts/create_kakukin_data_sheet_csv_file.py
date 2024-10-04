@@ -5,7 +5,7 @@ import datetime
 
 from library import IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, simulate_series
 from library.file_paths import get_kakukin_data_sheet_csv_file_path
-from library.database import ScoreBoardDataBestTable
+from library.database import TheoreticalProbabilityBestTable
 from library.views import KakukinDataSheetTableCsv
 
 
@@ -118,11 +118,11 @@ class Automation():
 
 
         # ベスト・テーブルを読込
-        df_b, is_new = ScoreBoardDataBestTable.read_df(new_if_it_no_exists=False)
+        df_b, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=False)
 
         # ファイルが存在しなければスキップ
         if is_new==True:
             return
 
 
-        ScoreBoardDataBestTable.for_each(df=df_b, on_each=self.on_each)
+        TheoreticalProbabilityBestTable.for_each(df=df_b, on_each=self.on_each)
