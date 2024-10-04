@@ -1,21 +1,18 @@
 #
-# やっつけプログラム
-# python automatic.py
+# やっつけプログラム１号
+# python automatic_no1.py
 #
 #
 
 import traceback
-import random
-import math
 import datetime
-import pandas as pd
 
-from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, toss_a_coin
+from library import FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, UPPER_LIMIT_FAILURE_RATE
 from create_a_csv_to_data_evenizer import Automation as AutomationForData
 from create_a_csv_to_view_evenizer_in_excel_ver2 import Automation as AutomationForView
 
 
-LOG_FILE_PATH = 'logs/automatic.log'
+LOG_FILE_PATH = 'logs/automatic_no1.log'
 
 
 ########################################
@@ -32,7 +29,8 @@ if __name__ == '__main__':
 
         for specified_turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
 
-            for specified_failure_rate_percent in range(0, 100, 5): # NOTE 100 を含めると 0除算エラー が起こるから、含めません
+            # ［将棋の引分け率］
+            for specified_failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):   # 5％刻み
                 specified_failure_rate = specified_failure_rate_percent / 100
 
                 progress = f"[{datetime.datetime.now()}] {specified_failure_rate=}"

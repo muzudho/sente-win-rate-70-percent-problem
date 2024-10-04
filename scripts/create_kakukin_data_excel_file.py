@@ -7,7 +7,7 @@ import os
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
-from library.file_paths import get_kakukin_data_excel_file_path, get_kakukin_data_sheet_csv_file_path
+from library.file_paths import get_kakukin_data_excel_file_path
 from library.database import KakukinDataSheetTable
 
 

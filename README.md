@@ -25,15 +25,40 @@ python -m pip install pandas
 
 # プログラムの使い方
 
+## automatic_no1.py
+
+```
+python automatic_no1.py
+```
+
+入力は以下の３つです。  
+
+* ［コインの表も裏も出ない確率］
+* ［先後の決め方］
+* ［試行シリーズ数］
+
+入力を元にシミュレーションします。  
+
+以下の csvファイルを生成します  
+
+* 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります
+
+
+## automatic_no2.py
+
 ```
 python automatic_no2.py
 ```
 
-最終的な成果物は、以下の３つの Excel ファイル
+以下のファイルを入力に使います。  
 
-* 📄 auto_generated_kakukin_data_alter_try2000.xlsx
-* 📄 auto_generated_kakukin_data_froze_try2000.xlsx
-* 📄 kakukin_viewer.xlsx
+* 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります
+
+最終的な成果物は、以下の３つの Excel ファイル  
+
+* 📄 `reports/auto_generated_kakukin_data_alter_try2000.xlsx`
+* 📄 `reports/auto_generated_kakukin_data_froze_try2000.xlsx`
+* 📄 `reports/kakukin_viewer.xlsx`
 
 
 # 参考

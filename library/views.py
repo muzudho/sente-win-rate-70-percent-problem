@@ -628,7 +628,7 @@ def stringify_csv_of_score_board_view_footer(three_rates, all_patterns_p):
 """
 
 
-class KakukinViewerInExcel():
+class KakukinDataSheetTableCsv():
     """Excel の［かくきんビューワー］"""
 
 

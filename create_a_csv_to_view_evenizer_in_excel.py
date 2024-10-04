@@ -16,11 +16,11 @@ import datetime
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, BRUTE_FORCE, THEORETICAL, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import get_kakukin_data_sheet_csv_file_path
 from library.database import EvenTable, EvenRecord
-from library.views import KakukinViewerInExcel
+from library.views import KakukinDataSheetTableCsv
 
 
 def automatic(specified_failure_rate, specified_turn_system, specified_trials_series):
-    header_csv = KakukinViewerInExcel.stringify_header()
+    header_csv = KakukinDataSheetTableCsv.stringify_header()
 
     print(header_csv) # 表示
 
@@ -94,7 +94,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
 
 
         # CSV作成
-        csv = KakukinViewerInExcel.stringify_csv_of_body(
+        csv = KakukinDataSheetTableCsv.stringify_csv_of_body(
                 spec=spec,
                 series_rule=series_rule,
                 presentable='',
