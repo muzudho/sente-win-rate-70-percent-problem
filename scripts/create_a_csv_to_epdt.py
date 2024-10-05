@@ -75,7 +75,7 @@ class Automation():
 
     def ready_records(self):
         """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
-        is_append_new_record = False
+        is_insert_record = False
 
         # ［コインを投げて表が出る確率］
         for p_parcent in range(int(EVEN * 100), int(UPPER_LIMIT_OF_P * 100) + 1):
@@ -94,9 +94,9 @@ class Automation():
                         df=self._df_ep,
                         spec=spec,
                         trials_series=self._specified_trials_series)
-                is_append_new_record = True
+                is_insert_record = True
 
-        if is_append_new_record:
+        if is_insert_record:
             # CSV保存
             EmpiricalProbabilityTable.to_csv(
                     df=self._df_ep,

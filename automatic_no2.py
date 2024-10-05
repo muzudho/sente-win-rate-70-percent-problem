@@ -118,7 +118,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
                             # データフレーム更新
                             # 新規レコード追加
-                            TheoreticalProbabilityTable.append_new_record(
+                            TheoreticalProbabilityTable.insert_record(
                                     df=df,
                                     welcome_record=TheoreticalProbabilityRecord(
                                             turn_system_name=turn_system_name,
