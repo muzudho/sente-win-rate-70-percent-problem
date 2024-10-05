@@ -14,17 +14,18 @@ INTERVAL_SECONDS_FOR_SAVE_CSV = 30
 class AutomationOne():
 
 
-    def __init__(self, spec):
+    def __init__(self, df_best):
         """初期化
         
         Parameters
         ----------
-        spec : Specification
-            ［仕様］
+        df_best : DataFrame
+            データフレーム
         """
-        self._spec = spec
 
-        self._df_best = None
+        self._df_best = df_best
+
+        self._spec = None
         self._is_update_df_best = False
         self._best_record = None
 
@@ -121,17 +122,19 @@ class AutomationOne():
         return None
 
 
-    def execute_one(self):
+    def execute_one(self, spec):
         """
         
         Returns
         -------
         is_dirty : bool
             ファイル変更の有無
-        df_best : DataFrame
-            データフレーム
         """
 
+        if self._df_best is None:
+            raise ValueError("self._df_best を先に設定しておかなければいけません")
+
+        self._spec = spec
         self._is_update_df_best = False
 
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
@@ -141,12 +144,7 @@ class AutomationOne():
 
         if df_tp is None:
             print(f"[{datetime.datetime.now()}][turn_system={Converter.turn_system_id_to_name(self._spec.turn_system_id)}  failure_rate={self._spec.failure_rate * 100:.1f}%  p={self._spec.p * 100:.1f}%] スキップ。［理論的確率データ］ファイルがない。")
-            return
-
-
-        # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        self._df_best, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=True)
-
+            return False
 
         if is_new:
             self._is_update_df_best = True
@@ -162,13 +160,23 @@ class AutomationOne():
         #TheoreticalProbabilityTable.for_each(df=df_tp, on_each=)
 
 
-        return self._is_update_df_best, self._df_best
+        return self._is_update_df_best
 
 
 class AutomationAll():
 
 
     def execute_all(self):
+
+        # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
+        df_best, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=True)
+
+        if df_best is None:
+            raise ValueError("ここで df_best がナンなのはおかしい")
+
+        # ［理論的確率ベストデータ］新規作成または更新
+        automation_one = AutomationOne(df_best=df_best)
+
         # ［先後の決め方］
         for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
             turn_system_name = Converter.turn_system_id_to_name(specified_turn_system_id)
@@ -179,7 +187,7 @@ class AutomationAll():
 
                 # リセット
                 number_of_dirty_rows = 0                # 変更された行数
-                df_best = None
+                number_of_bright_rows = 0               # 変更されなかった行数
                 start_time_for_save = time.time()       # CSV保存用タイマー
 
                 # ［将棋の先手勝率］
@@ -193,31 +201,30 @@ class AutomationAll():
                             failure_rate=specified_failure_rate,
                             turn_system_id=specified_turn_system_id)
 
-                    # ［理論的確率ベストデータ］新規作成または更新
-                    automation_one = AutomationOne(spec=spec)
-                    is_dirty_temp, df_best = automation_one.execute_one()
+                    is_dirty_temp = automation_one.execute_one(spec=spec)
 
                     if is_dirty_temp:
                         number_of_dirty_rows += 1
+                    
+                    else:
+                        number_of_bright_rows += 1
+                    
 
                     if 0 < number_of_dirty_rows:
                         # 指定間隔（秒）でファイル保存
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                             csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
-                            print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                            print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
 
                             # リセット
                             start_time_for_save = time.time()
                             number_of_dirty_rows = 0
-                    
-                    # # ベスト日更新
-                    # else:
-                    #     print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}  p={specified_p * 100:.1f}] ベスト非更新")
+                            number_of_bright_rows = 0
 
 
                 # 忘れずに flush
                 if 0 < number_of_dirty_rows:
                     csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
                     # specified_p はまだ入ってるはず
-                    print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                    print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
