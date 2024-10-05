@@ -29,14 +29,14 @@ class AutomationOne():
 
     def on_each(self, record_tp):
 
-        error = record_tp.three_rates.a_win_rate - EVEN
+        error = record_tp.theoretical_a_win_rate - EVEN
 
         # 誤差が縮まれば更新
         if abs(error) < abs(self._best_win_rate_error):
             is_update = True
         
         # 誤差が同じでも、引き分け率が下がれば更新
-        elif error == self._best_win_rate_error and (self._best_record.three_rates.no_win_match_rate is None or record_tp.three_rates.no_win_match_rate < self._best_record.three_rates.no_win_match_rate):
+        elif error == self._best_win_rate_error and (self._best_record.three_rates.no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < self._best_record.three_rates.no_win_match_rate):
             is_update = True
         
         else:
@@ -55,8 +55,8 @@ class AutomationOne():
                     shortest_coins=record_tp.shortest_coins,
                     upper_limit_coins=record_tp.upper_limit_coins,
                     three_rates=ThreeRates(
-                            a_win_rate=record_tp.three_rates.a_win_rate,
-                            no_win_match_rate=record_tp.three_rates.no_win_match_rate))
+                            a_win_rate=record_tp.theoretical_a_win_rate,
+                            no_win_match_rate=record_tp.theoretical_no_win_match_rate))
 
 
     def execute_one(self):

@@ -1016,7 +1016,7 @@ class TheoreticalProbabilityTrialResultsTable():
         on_each : func
             record 引数を受け取る関数
         """
-        for         turn_system_name,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_a_win_rate_abs_error  ,     trial_no_win_match_rate in\
+        for         turn_system_name,         failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_a_win_rate_abs_error  ,     trial_no_win_match_rate in\
             zip(df['turn_system_name']  , df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_a_win_rate_abs_error'], df['trial_no_win_match_rate']):
 
             # レコード作成
@@ -1040,7 +1040,7 @@ class TheoreticalProbabilityBestRecord():
     """理論的確率ベスト・レコード"""
 
 
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
         self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
@@ -1050,6 +1050,8 @@ class TheoreticalProbabilityBestRecord():
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
         self._three_rates = three_rates
+        self._theoretical_a_win_rate = theoretical_a_win_rate
+        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
 
 
     @property
@@ -1093,8 +1095,13 @@ class TheoreticalProbabilityBestRecord():
 
 
     @property
-    def three_rates(self):
-        return self._three_rates
+    def theoretical_a_win_rate(self):
+        return self._theoretical_a_win_rate
+
+
+    @property
+    def theoretical_no_win_match_rate(self):
+        return self._theoretical_no_win_match_rate
 
 
 class TheoreticalProbabilityBestTable():
@@ -1142,7 +1149,8 @@ class TheoreticalProbabilityBestTable():
                 h_step=None,
                 shortest_coins=None,
                 upper_limit_coins=None,
-                three_rates=None)
+                theoretical_a_win_rate=None,
+                theoretical_no_win_match_rate=None)
 
 
     @staticmethod
@@ -1156,8 +1164,8 @@ class TheoreticalProbabilityBestTable():
         df.loc[index, ['h_step']] = record.h_step
         df.loc[index, ['shortest_coins']] = record.shortest_coins
         df.loc[index, ['upper_limit_coins']] = record.upper_limit_coins
-        df.loc[index, ['theoretical_a_win_rate']] = record.three_rates.a_win_rate
-        df.loc[index, ['theoretical_no_win_match_rate']] = record.three_rates.no_win_match_rate
+        df.loc[index, ['theoretical_a_win_rate']] = record.theoretical_a_win_rate
+        df.loc[index, ['theoretical_no_win_match_rate']] = record.theoretical_no_win_match_rate
 
 
     @staticmethod
@@ -1191,8 +1199,8 @@ class TheoreticalProbabilityBestTable():
                 df.loc[key, ['h_step']] != record.h_step or\
                 df.loc[key, ['shortest_coins']] != record.shortest_coins or\
                 df.loc[key, ['upper_limit_coins']] != record.upper_limit_coins or\
-                df.loc[key, ['theoretical_a_win_rate']] != record.three_rates.a_win_rate or\
-                df.loc[key, ['theoretical_no_win_match_rate']] != record.three_rates.no_win_match_rate
+                df.loc[key, ['theoretical_a_win_rate']] != record.theoretical_a_win_rate or\
+                df.loc[key, ['theoretical_no_win_match_rate']] != record.theoretical_no_win_match_rate
 
             if is_dirty:
                 df.loc[key, ['turn_system_name'] ] = record.turn_system_name
@@ -1203,8 +1211,8 @@ class TheoreticalProbabilityBestTable():
                 df.loc[key, ['h_step']] = record.h_step
                 df.loc[key, ['shortest_coins']] = record.shortest_coins
                 df.loc[key, ['upper_limit_coins']] = record.upper_limit_coins
-                df.loc[key, ['theoretical_a_win_rate']] = record.three_rates.a_win_rate
-                df.loc[key, ['theoretical_no_win_match_rate']] = record.three_rates.no_win_match_rate
+                df.loc[key, ['theoretical_a_win_rate']] = record.theoretical_a_win_rate
+                df.loc[key, ['theoretical_no_win_match_rate']] = record.theoretical_no_win_match_rate
 
         # データが既存でないなら、新規追加
         else:
@@ -1266,9 +1274,8 @@ class TheoreticalProbabilityBestTable():
                 h_step=df.loc[key, ['h_step']].iat[0,0],
                 shortest_coins=df.loc[key, ['shortest_coins']].iat[0,0],
                 upper_limit_coins=df.loc[key, ['upper_limit_coins']].iat[0,0],
-                three_rates=ThreeRates(
-                        a_win_rate=df.loc[key, ['theoretical_a_win_rate']].iat[0,0],
-                        no_win_match_rate=df.loc[key, ['theoretical_no_win_match_rate']].iat[0,0]))
+                theoretical_a_win_rate=df.loc[key, ['theoretical_a_win_rate']].iat[0,0],
+                theoretical_no_win_match_rate=df.loc[key, ['theoretical_no_win_match_rate']].iat[0,0])
 
 
     @staticmethod
@@ -1303,7 +1310,7 @@ class TheoreticalProbabilityBestTable():
         df : DataFrame
             データフレーム
         """
-        for         turn_system_name,   failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate in\
+        for         turn_system_name,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate in\
             zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
@@ -1323,8 +1330,7 @@ class TheoreticalProbabilityBestTable():
                     h_step=h_step,
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
-                    three_rates=ThreeRates(
-                            a_win_rate=theoretical_a_win_rate,
-                            no_win_match_rate=theoretical_no_win_match_rate))
+                    theoretical_a_win_rate=theoretical_a_win_rate,
+                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
 
             on_each(record)
