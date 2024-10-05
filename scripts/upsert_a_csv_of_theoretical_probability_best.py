@@ -101,21 +101,52 @@ class AutomationOne():
         # ［理論的確率ベストデータ］ファイルが存在したなら、読込
         else:
             # FIXME set_index() するとおかしくなる？
+#             print(f"""\
+# FIXME set_index() するとおかしくなる？
+# {df_best.columns.values=}
+# {df_best.index=}
+# """)
+            #df_best:
+            #{df_best}
+
             try:
-                # 該当する［理論的確率ベストデータ］レコードのキー
-                key_b = (df_best['turn_system_name']==turn_system_name) & (df_best['failure_rate']==self._spec.failure_rate) & (df_best['p']==self._spec.p)
+                # 絞り込み。 0 ～複数件の DataFrame型が返ってくる
+                df_result_set = df_best.query('turn_system_name==@turn_system_name & failure_rate==@self._spec.failure_rate & p==@self._spec.p')
+
+                # まだ複数件拾っていたら、［理論的なＡさんの勝率］が 0.5 に近いものを選ぶ
+                if 1 < len(df_result_set):
+                    df_result_set = df_result_set.loc[abs(df_result_set['theoretical_a_win_rate'] - 0.5) == min(abs(df_result_set['theoretical_a_win_rate'] - 0.5))]
+
+                # FIXME このコードで動くか？ まだ複数件拾っていたら、［上限対局数］が最小のものを選ぶ
+                if 1 < len(df_result_set):
+                    df_result_set = df_result_set.loc[df_result_set['theoretical_a_win_rate'] == min(df_result_set['upper_limit_coins'])]
+
+                # FIXME このコードで動くか？ まだ複数件拾っていたら、とりあえず１件選ぶ
+                if 1 < len(df_result_set):
+                    df_result_set = df_result_set.iloc[0]
+
+                # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
+                if len(df_result_set) == 1:
+                    row_index = df_result_set.index[0]  # 行番号を取得
+                    self._best_record = TheoreticalProbabilityBestRecord(
+                            turn_system_name=df_result_set.at[row_index, 'turn_system_name'],
+                            failure_rate=df_result_set.at[row_index, 'failure_rate'],
+                            p=df_result_set.at[row_index, 'p'],
+                            span=df_result_set.at[row_index, 'span'],
+                            t_step=df_result_set.at[row_index, 't_step'],
+                            h_step=df_result_set.at[row_index, 'h_step'],
+                            shortest_coins=df_result_set.at[row_index, 'shortest_coins'],
+                            upper_limit_coins=df_result_set.at[row_index, 'upper_limit_coins'],
+                            theoretical_a_win_rate=df_result_set.at[row_index, 'theoretical_a_win_rate'],
+                            theoretical_no_win_match_rate=df_result_set.at[row_index, 'theoretical_no_win_match_rate'])
+                    
+                    self._best_theoretical_win_rate_error = self._best_record.theoretical_a_win_rate - EVEN
 
             except KeyError as ex:
                 print(f"列名がないという例外が発生中")
                 for index, column_name in enumerate(df_best.columns.values, 1):
                     print(f"({index}) {column_name=}")
                 raise # 再スロー
-
-
-            # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
-            if key_b.any():
-                self._best_record = TheoreticalProbabilityBestTable.get_record_by_key(df=df_best, key=key_b)
-                self._best_theoretical_win_rate_error = self._best_record.theoretical_a_win_rate - EVEN
 
 
         # ［理論的確率データ］の各レコードについて

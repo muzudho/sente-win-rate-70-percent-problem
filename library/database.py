@@ -1292,26 +1292,6 @@ class TheoreticalProbabilityBestTable():
 
 
     @staticmethod
-    def get_record_by_key(df, key):
-        """
-        Returns
-        -------
-
-        """
-        return TheoreticalProbabilityBestRecord(
-                turn_system_name=df.loc[key, ['turn_system_name']].iat[0,0],
-                failure_rate=df.loc[key, ['failure_rate']].iat[0,0],
-                p=df.loc[key, ['p']].iat[0,0],
-                span=df.loc[key, ['span']].iat[0,0],
-                t_step=df.loc[key, ['t_step']].iat[0,0],
-                h_step=df.loc[key, ['h_step']].iat[0,0],
-                shortest_coins=df.loc[key, ['shortest_coins']].iat[0,0],
-                upper_limit_coins=df.loc[key, ['upper_limit_coins']].iat[0,0],
-                theoretical_a_win_rate=df.loc[key, ['theoretical_a_win_rate']].iat[0,0],
-                theoretical_no_win_match_rate=df.loc[key, ['theoretical_no_win_match_rate']].iat[0,0])
-
-
-    @staticmethod
     def to_csv(df):
         """CSV形式でファイルへ保存
 
