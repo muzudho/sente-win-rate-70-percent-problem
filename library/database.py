@@ -672,15 +672,11 @@ class TheoreticalProbabilityTable():
 
 
     @staticmethod
-    def get_result_set_by_primary_key(df, turn_system_name, failure_rate, p):
-        """0～1件のレコードを含むデータフレームを返します"""
+    def get_result_set_by_index(df, turn_system_name, failure_rate, p):
+        """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
         df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-
-        if 1 < len(df_result_set):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}")
-
         return df_result_set
 
 
@@ -789,14 +785,14 @@ class TheoreticalProbabilityTable():
 
 
     @staticmethod
-    def upsert_record(df, df_result_set_by_primary_key, welcome_record):
+    def upsert_record(df, df_result_set_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
         df : DataFrame
             データフレーム
-        df_result_set_by_primary_key : DataFrame
+        df_result_set_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -807,17 +803,17 @@ class TheoreticalProbabilityTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_primary_key):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_primary_key)=}")
+        if 1 < len(df_result_set_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_primary_key) == 0:
+        if len(df_result_set_by_index) == 0:
             TheoreticalProbabilityTable.insert_record(df=df, welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        row_index = df_result_set_by_primary_key.index[0]
+        row_index = df_result_set_by_index.index[0]
 
         return TheoreticalProbabilityTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
@@ -1058,14 +1054,14 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
     @staticmethod
-    def upsert_record(df, df_result_set_by_primary_key, welcome_record):
+    def upsert_record(df, df_result_set_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
         df : DataFrame
             データフレーム
-        df_result_set_by_primary_key : DataFrame
+        df_result_set_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -1076,17 +1072,17 @@ class TheoreticalProbabilityTrialResultsTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_primary_key):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_primary_key)=}")
+        if 1 < len(df_result_set_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_primary_key) == 0:
+        if len(df_result_set_by_index) == 0:
             TheoreticalProbabilityTrialResultsTable.insert_record(df=df, welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        row_index = df_result_set_by_primary_key.index[0]
+        row_index = df_result_set_by_index.index[0]
 
         return TheoreticalProbabilityTrialResultsTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
@@ -1241,15 +1237,11 @@ class TheoreticalProbabilityBestTable():
 
 
     @staticmethod
-    def get_result_set_by_primary_key(df, turn_system_name, failure_rate, p):
-        """0～1件のレコードを含むデータフレームを返します"""
+    def get_result_set_by_index(df, turn_system_name, failure_rate, p):
+        """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
         df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-
-        if 1 < len(df_result_set):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}")
-
         return df_result_set
 
 
@@ -1325,14 +1317,14 @@ class TheoreticalProbabilityBestTable():
 
 
     @staticmethod
-    def upsert_record(df, df_result_set_by_primary_key, welcome_record):
+    def upsert_record(df, df_result_set_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
         df : DataFrame
             データフレーム
-        df_result_set_by_primary_key : DataFrame
+        df_result_set_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -1343,17 +1335,17 @@ class TheoreticalProbabilityBestTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_primary_key):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_primary_key)=}")
+        if 1 < len(df_result_set_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_primary_key) == 0:
+        if len(df_result_set_by_index) == 0:
             TheoreticalProbabilityBestTable.insert_record(df=df, welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        row_index = df_result_set_by_primary_key.index[0]
+        row_index = df_result_set_by_index.index[0]
 
         return TheoreticalProbabilityBestTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
