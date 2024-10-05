@@ -27,7 +27,7 @@ if __name__ == '__main__':
         specified_trials_series = 2000
 
         # ［先後の決め方］
-        for specified_turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
+        for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
 
             # ［将棋の引分け率］
             #  0％～上限、5%刻み
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                 # CSV作成 ［試行中の経験的確率データファイル］
                 create_csv_to_epdt = CreateCsvToEPDT(
                         specified_failure_rate=specified_failure_rate,
-                        specified_turn_system=specified_turn_system,
+                        specified_turn_system_id=specified_turn_system_id,
                         specified_trials_series=specified_trials_series,
                         specified_abs_small_error=0.0009)
                 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
                 # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
                 create_kakukin_data_sheet_csv_file = CreateKakukinDataSheetCsvFile(
                         specified_failure_rate=specified_failure_rate,
-                        specified_turn_system=specified_turn_system,
+                        specified_turn_system_id=specified_turn_system_id,
                         specified_trials_series=specified_trials_series)
 
                 create_kakukin_data_sheet_csv_file.execute()

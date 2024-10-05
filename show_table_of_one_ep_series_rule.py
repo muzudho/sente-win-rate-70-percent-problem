@@ -12,9 +12,9 @@ from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
 
 
-def stringify_header(turn_system):
+def stringify_header(turn_system_id):
     return f"""\
-turn system={Converter.turn_system_to_readable(turn_system)}
+turn system={Converter.turn_system_to_readable(turn_system_id)}
 
 +---------------------------+------------------------------------------+--------------------------------+
 | Spec                      | Series rule                              | 1 Trial                        |
@@ -105,7 +105,7 @@ def show_series_rule(spec, trials_series, h_step, t_step, span, presentable, com
     # ログ出力
     with open(SimulationLargeSeriesFilePaths.as_log(
             failure_rate=spec.failure_rate,
-            turn_system=turn_system), 'a', encoding='utf8') as f:
+            turn_system_id=turn_system_id), 'a', encoding='utf8') as f:
         f.write(f"{text}\n")    # ファイルへ出力
 
 
@@ -133,31 +133,31 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = FROZEN_TURN
+            specified_turn_system_id = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
+            specified_turn_system_id = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
 
 
-        text = stringify_header(specified_turn_system)
+        text = stringify_header(specified_turn_system_id)
 
         print(text) # 表示
 
         # ログ出力
         log_file_path = SimulationLargeSeriesFilePaths.as_log(
                 failure_rate=specified_failure_rate,
-                turn_system=specified_turn_system)
+                turn_system_id=specified_turn_system_id)
         with open(log_file_path, 'a', encoding='utf8') as f:
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system)
+        df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
 
-        for            p,          failure_rate,          turn_system,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-            zip(df_ep['p'], df_ep['failure_rate'], df_ep['turn_system'], df_ep['trials_series'], df_ep['best_p'], df_ep['best_p_error'], df_ep['best_h_step'], df_ep['best_t_step'], df_ep['best_span'], df_ep['latest_p'], df_ep['latest_p_error'], df_ep['latest_h_step'], df_ep['latest_t_step'], df_ep['latest_span'], df_ep['candidates']):
+        for            p,          failure_rate,          turn_system_name,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
+            zip(df_ep['p'], df_ep['failure_rate'], df_ep['turn_system_name'], df_ep['trials_series'], df_ep['best_p'], df_ep['best_p_error'], df_ep['best_h_step'], df_ep['best_t_step'], df_ep['best_span'], df_ep['latest_p'], df_ep['latest_p_error'], df_ep['latest_h_step'], df_ep['latest_t_step'], df_ep['latest_span'], df_ep['candidates']):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:
@@ -170,7 +170,7 @@ Which one(1-2)? """
             record = EmpiricalProbabilityRecord(
                     p=p,
                     failure_rate=failure_rate,
-                    turn_system_str=turn_system,
+                    turn_system_name=turn_system_name,
                     trials_series=trials_series,
                     best_p=best_p,
                     best_p_error=best_p_error,
@@ -188,7 +188,7 @@ Which one(1-2)? """
             spec = Specification(
                     p=p,
                     failure_rate=failure_rate,
-                    turn_system=specified_turn_system)
+                    turn_system_id=specified_turn_system_id)
 
             show_series_rule(
                     spec=spec,

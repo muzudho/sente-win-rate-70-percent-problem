@@ -21,7 +21,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［将棋の先手勝率］を尋ねます
+        # ［将棋の引分け率］を尋ねます
         prompt = f"""\
 
 Example: 10% is 0.1
@@ -38,10 +38,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = FROZEN_TURN
+            specified_turn_system_id = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
+            specified_turn_system_id = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -66,7 +66,7 @@ How many times do you want to try the series(0-6)? """
 
         create_kakukin_data_sheet_csv_file = CreateKakukinDataSheetCsvFile(
                 specified_failure_rate=specified_failure_rate,
-                specified_turn_system=specified_turn_system,
+                specified_turn_system_id=specified_turn_system_id,
                 specified_trials_series=specified_trials_series)
 
         create_kakukin_data_sheet_csv_file.execute()

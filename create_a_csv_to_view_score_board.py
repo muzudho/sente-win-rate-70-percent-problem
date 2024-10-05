@@ -26,7 +26,7 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［将棋の先手勝率］
+        # ［将棋の先手勝率］を尋ねます
         prompt = f"""\
 
 Example: 70% is 0.7
@@ -34,7 +34,7 @@ What is the probability of flipping a coin and getting heads? """
         specified_p = float(input(prompt))
 
 
-        # ［将棋の引分け率］
+        # ［将棋の引分け率］を尋ねます
         prompt = f"""\
 
 Example: 10% is 0.1
@@ -42,7 +42,7 @@ What is the failure rate? """
         specified_failure_rate = float(input(prompt))
 
 
-        # ［先後の決め方］
+        # ［先後の決め方］を尋ねます
         prompt = f"""\
 
 (1) Frozen turn
@@ -52,16 +52,16 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = FROZEN_TURN
+            specified_turn_system_id = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
+            specified_turn_system_id = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
 
 
-        # ［先手で勝ったときの勝ち点］
+        # ［先手で勝ったときの勝ち点］を尋ねます
         prompt = f"""\
 
 Example: 2
@@ -69,7 +69,7 @@ How many win points of head of coin? """
         specified_h_step = int(input(prompt))
 
 
-        # ［後手で勝ったときの勝ち点］
+        # ［後手で勝ったときの勝ち点］を尋ねます
         prompt = f"""\
 
 Example: 3
@@ -77,7 +77,7 @@ How many win points of tail of coin? """
         specified_t_step = int(input(prompt))
 
 
-        # ［目標の点数］
+        # ［目標の点数］を尋ねます
         prompt = f"""\
 
 Example: 6
@@ -85,11 +85,11 @@ How many goal win points? """
         specified_span = int(input(prompt))
 
 
-        # 仕様
+        # ［仕様］
         spec = Specification(
                 p=specified_p,
                 failure_rate=specified_failure_rate,
-                turn_system=specified_turn_system)
+                turn_system_id=specified_turn_system_id)
 
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
         specified_trials_series = 1
@@ -110,7 +110,7 @@ How many goal win points? """
         csv_file_path = ScoreBoardFilePaths.as_csv(
                 p=specified_series_rule.spec.p,
                 failure_rate=specified_series_rule.spec.failure_rate,
-                turn_system=specified_series_rule.spec.turn_system,
+                turn_system_id=specified_series_rule.spec.turn_system_id,
                 h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
                 t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
                 span=specified_series_rule.step_table.span)
@@ -128,7 +128,7 @@ How many goal win points? """
             csv_file_path = ScoreBoardFilePaths.as_csv(
                     p=score_board.spec.p,
                     failure_rate=score_board.spec.failure_rate,
-                    turn_system=score_board.spec.turn_system,
+                    turn_system_id=score_board.spec.turn_system_id,
                     h_step=score_board.series_rule.step_table.get_step_by(face_of_coin=HEAD),
                     t_step=score_board.series_rule.step_table.get_step_by(face_of_coin=TAIL),
                     span=score_board.series_rule.step_table.span)
@@ -146,7 +146,7 @@ How many goal win points? """
         csv_file_path = ScoreBoardFilePaths.as_csv(
                 p=specified_series_rule.spec.p,
                 failure_rate=specified_series_rule.spec.failure_rate,
-                turn_system=specified_series_rule.spec.turn_system,
+                turn_system_id=specified_series_rule.spec.turn_system_id,
                 h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
                 t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
                 span=specified_series_rule.step_table.span)

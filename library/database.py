@@ -19,10 +19,10 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class KakukinDataSheetRecord():
 
 
-    def __init__(self, p, failure_rate, turn_system, head_step, tail_step, span, shortest_coins, upper_limit_coins, trials_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+    def __init__(self, p, failure_rate, turn_system_name, head_step, tail_step, span, shortest_coins, upper_limit_coins, trials_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
         self._p = p
         self._failure_rate = failure_rate
-        self._turn_system = turn_system
+        self._turn_system_name = turn_system_name
         self._head_step = head_step
         self._tail_step = tail_step
         self._span = span
@@ -57,8 +57,8 @@ class KakukinDataSheetRecord():
 
 
     @property
-    def turn_system(self):
-        return self._turn_system
+    def turn_system_name(self):
+        return self._turn_system_name
 
 
     @property
@@ -172,7 +172,7 @@ class KakukinDataSheetTable():
     _dtype = {
         'p':'float64',
         'failure_rate':'float64',
-        'turn_system':'object',     # string 型は無いから object
+        'turn_system_name':'object',     # string 型は無いから object
         'head_step':'int64',
         'tail_step':'int64',
         'span':'int64',
@@ -197,14 +197,14 @@ class KakukinDataSheetTable():
 
 
     @classmethod
-    def read_df(clazz, failure_rate, turn_system, trials_series):
+    def read_df(clazz, failure_rate, turn_system_id, trials_series):
         """
 
         Parameters
         ----------
         failure_rate : float
             ［将棋の引分け率］
-        turn_system : int
+        turn_system_id : int
             ［手番が回ってくる制度］
         trials_series : int
             ［試行シリーズ数］
@@ -212,7 +212,7 @@ class KakukinDataSheetTable():
 
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=failure_rate,
-                turn_system=turn_system,
+                turn_system_id=turn_system_id,
                 trials_series=trials_series)
 
         # ファイルが存在しなかった場合
@@ -236,14 +236,14 @@ class KakukinDataSheetTable():
         on_each : func
             record 引数を受け取る関数
         """
-        for         p  ,     failure_rate  ,     turn_system  ,     head_step  ,     tail_step  ,     span  ,     shortest_coins  ,     upper_limit_coins  ,     trials_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
-            zip(df['p'], df['failure_rate'], df['turn_system'], df['head_step'], df['tail_step'], df['span'], df['shortest_coins'], df['upper_limit_coins'], df['trials_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
+        for         p  ,     failure_rate  ,     turn_system_name  ,     head_step  ,     tail_step  ,     span  ,     shortest_coins  ,     upper_limit_coins  ,     trials_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
+            zip(df['p'], df['failure_rate'], df['turn_system_name'], df['head_step'], df['tail_step'], df['span'], df['shortest_coins'], df['upper_limit_coins'], df['trials_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
 
             # レコード作成
             record = KakukinDataSheetRecord(
                     p=p,
                     failure_rate=failure_rate,
-                    turn_system=turn_system,
+                    turn_system_name=turn_system_name,
                     head_step=head_step,
                     tail_step=tail_step,
                     span=span,
@@ -269,14 +269,10 @@ class KakukinDataSheetTable():
             on_each(record)
 
 
-#############
-# Even table
-#############
-
 class EmpiricalProbabilityRecord():
 
 
-    def __init__(self, p, failure_rate, turn_system_str, trials_series, best_p, best_p_error, best_h_step, best_t_step, best_span, latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span, candidates):
+    def __init__(self, p, failure_rate, turn_system_name, trials_series, best_p, best_p_error, best_h_step, best_t_step, best_span, latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span, candidates):
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_h_step = round_letro(best_h_step)
@@ -288,7 +284,7 @@ class EmpiricalProbabilityRecord():
 
         self._p=p
         self._failure_rate=failure_rate
-        self._turn_system_str=turn_system_str
+        self._turn_system_name=turn_system_name
         self._trials_series=trials_series
         self._best_p=best_p
         self._best_p_error=best_p_error
@@ -314,8 +310,8 @@ class EmpiricalProbabilityRecord():
 
 
     @property
-    def turn_system_str(self):
-        return self._turn_system_str
+    def turn_system_name(self):
+        return self._turn_system_name
 
 
     @property
@@ -387,7 +383,7 @@ class EmpiricalProbabilityTable():
     _dtype = {
         'p':'float64',
         'failure_rate':'float64',
-        'turn_system':'object',     # string 型は無いから object
+        'turn_system_name':'object',     # string 型は無いから object
         'trials_series':'int64',
         'best_p':'float64',
         'best_p_error':'float64',
@@ -415,7 +411,7 @@ class EmpiricalProbabilityTable():
         # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
         df.loc[index, ['p']] = spec.p
         df.loc[index, ['failure_rate']] = spec.failure_rate
-        df.loc[ index, ['turn_system']] = Converter.turn_system_to_code(spec.turn_system)
+        df.loc[ index, ['turn_system_name']] = Converter.turn_system_to_code(spec.turn_system_id)
         df.loc[index, ['trials_series']] = trials_series
         df.loc[index, ['best_p']] = 0
         df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
@@ -479,20 +475,20 @@ class EmpiricalProbabilityTable():
 
 
     @classmethod
-    def read_df(clazz, failure_rate, turn_system, trials_series):
+    def read_df(clazz, failure_rate, turn_system_id, trials_series):
         """
 
         Parameters
         ----------
         failure_rate : float
             ［将棋の引分け率］
-        turn_system : int
+        turn_system_id : int
             ［手番が回ってくる制度］
         trials_series : int
             ［試行シリーズ数］
         """
 
-        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
+        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system_id=turn_system_id, trials_series=trials_series)
 
         # ファイルが存在しなかった場合
         if not os.path.isfile(csv_file_path):
@@ -506,9 +502,9 @@ class EmpiricalProbabilityTable():
 
 
     @staticmethod
-    def to_csv(df, failure_rate, turn_system, trials_series):
+    def to_csv(df, failure_rate, turn_system_id, trials_series):
         # ファイルが存在しなかった場合、新規作成
-        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system=turn_system, trials_series=trials_series)
+        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system_id=turn_system_id, trials_series=trials_series)
 
         print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
@@ -516,7 +512,7 @@ class EmpiricalProbabilityTable():
         df.to_csv(
                 csv_file_path,
                 # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
-                columns=['p', 'failure_rate', 'turn_system', 'trials_series', 'best_p', 'best_p_error', 'best_h_step', 'best_t_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_h_step', 'latest_t_step', 'latest_span', 'candidates'],
+                columns=['p', 'failure_rate', 'turn_system_name', 'trials_series', 'best_p', 'best_p_error', 'best_h_step', 'best_t_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_h_step', 'latest_t_step', 'latest_span', 'candidates'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
@@ -528,8 +524,8 @@ class EmpiricalProbabilityTable():
         df : DataFrame
             データフレーム
         """
-        for         p,       failure_rate,       turn_system_str,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
-            zip(df['p'], df['failure_rate'], df['turn_system'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
+        for         p,       failure_rate,       turn_system_name,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
+            zip(df['p'], df['failure_rate'], df['turn_system_name'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
             trials_series = round_letro(trials_series)
@@ -544,7 +540,7 @@ class EmpiricalProbabilityTable():
             record = EmpiricalProbabilityRecord(
                     p=p,
                     failure_rate=failure_rate,
-                    turn_system_str=turn_system_str,
+                    turn_system_name=turn_system_name,
                     trials_series=trials_series,
                     best_p=best_p,
                     best_p_error=best_p_error,
@@ -582,8 +578,8 @@ class CalculateProbabilityTable():
 class TheoreticalProbabilityRecord():
 
 
-    def __init__(self, turn_system, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_a_win_rate_abs_error, theoretical_no_win_match_rate):
-        self._turn_system = turn_system
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_a_win_rate_abs_error, theoretical_no_win_match_rate):
+        self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
         self._span = span
@@ -597,8 +593,8 @@ class TheoreticalProbabilityRecord():
 
 
     @property
-    def turn_system(self):
-        return self._turn_system
+    def turn_system_name(self):
+        return self._turn_system_name
 
 
     @property
@@ -656,7 +652,7 @@ class TheoreticalProbabilityTable():
 
 
     _dtype = {
-        'turn_system':'object',     # string 型は無い？
+        'turn_system_name':'object',     # string 型は無い？
         'failure_rate':'float64',
         'p':'float64',
         'span':'int64',
@@ -672,7 +668,7 @@ class TheoreticalProbabilityTable():
     @classmethod
     def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
-                'turn_system': [],
+                'turn_system_name': [],
                 'failure_rate': [],
                 'p': [],
                 'span': [],
@@ -710,7 +706,7 @@ class TheoreticalProbabilityTable():
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system)
+                turn_system_id=spec.turn_system_id)
 
 
         # ファイルが存在しなかった場合
@@ -730,11 +726,11 @@ class TheoreticalProbabilityTable():
 
 
     @staticmethod
-    def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
         index = len(df.index)
 
 
-        df.loc[index, [ 'turn_system']] = turn_system_str   # FIXME ここで型エラー？
+        df.loc[index, [ 'turn_system_name']] = turn_system_name   # FIXME ここで型エラー？
 
         df.loc[index, ['failure_rate']] = failure_rate
         df.loc[index, ['p']] = p
@@ -770,10 +766,10 @@ class TheoreticalProbabilityTable():
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system)
+                turn_system_id=spec.turn_system_id)
 
         df.to_csv(csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_a_win_rate_abs_error', 'theoretical_no_win_match_rate'],
+                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_a_win_rate_abs_error', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
@@ -789,12 +785,12 @@ class TheoreticalProbabilityTable():
         on_each : func
             record 引数を受け取る関数
         """
-        for         turn_system  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_a_win_rate_abs_error  ,     theoretical_no_win_match_rate in\
-            zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_a_win_rate_abs_error'], df['theoretical_no_win_match_rate']):
+        for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_a_win_rate_abs_error  ,     theoretical_no_win_match_rate in\
+            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_a_win_rate_abs_error'], df['theoretical_no_win_match_rate']):
 
             # レコード作成
             record = EmpiricalProbabilityRecord(
-                    turn_system=turn_system,
+                    turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
                     p=p,
                     span=span,
@@ -813,8 +809,8 @@ class TheoreticalProbabilityTrialResultsRecord():
     """理論的確率の試行結果レコード"""
 
 
-    def __init__(self, turn_system, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_a_win_rate_abs_error, trial_no_win_match_rate):
-        self._turn_system = turn_system
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_a_win_rate_abs_error, trial_no_win_match_rate):
+        self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
         self._span = span
@@ -828,8 +824,8 @@ class TheoreticalProbabilityTrialResultsRecord():
 
 
     @property
-    def turn_system(self):
-        return self._turn_system
+    def turn_system_name(self):
+        return self._turn_system_name
 
 
     @property
@@ -887,7 +883,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
     _dtype = {
-        'turn_system':'object',     # string 型は無い？
+        'turn_system_name':'object',     # string 型は無い？
         'failure_rate':'float64',
         'p':'float64',
         'span':'int64',
@@ -903,7 +899,7 @@ class TheoreticalProbabilityTrialResultsTable():
     @classmethod
     def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
-                'turn_system': [],
+                'turn_system_name': [],
                 'failure_rate': [],
                 'p': [],
                 'span': [],
@@ -941,7 +937,7 @@ class TheoreticalProbabilityTrialResultsTable():
         csv_file_path = TheoreticalProbabilityTrialResultsFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system)
+                turn_system_id=spec.turn_system_id)
 
 
         # ファイルが存在しなかった場合
@@ -961,11 +957,11 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
     @staticmethod
-    def append_new_record(df, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
         index = len(df.index)
 
 
-        df.loc[index, [ 'turn_system']] = turn_system_str   # FIXME ここで型エラー？
+        df.loc[index, [ 'turn_system_name']] = turn_system_name   # FIXME ここで型エラー？
 
         df.loc[index, ['failure_rate']] = failure_rate
         df.loc[index, ['p']] = p
@@ -1001,10 +997,10 @@ class TheoreticalProbabilityTrialResultsTable():
         csv_file_path = TheoreticalProbabilityTrialResultsFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system)
+                turn_system_id=spec.turn_system_id)
 
         df.to_csv(csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_a_win_rate', 'trial_a_win_rate_abs_error', 'trial_no_win_match_rate'],
+                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_a_win_rate', 'trial_a_win_rate_abs_error', 'trial_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
@@ -1020,12 +1016,12 @@ class TheoreticalProbabilityTrialResultsTable():
         on_each : func
             record 引数を受け取る関数
         """
-        for         turn_system  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_a_win_rate_abs_error  ,     trial_no_win_match_rate in\
-            zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_a_win_rate_abs_error'], df['trial_no_win_match_rate']):
+        for         turn_system_name,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_a_win_rate_abs_error  ,     trial_no_win_match_rate in\
+            zip(df['turn_system_name']  , df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_a_win_rate_abs_error'], df['trial_no_win_match_rate']):
 
             # レコード作成
             record = EmpiricalProbabilityRecord(
-                    turn_system=turn_system,
+                    turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
                     p=p,
                     span=span,
@@ -1044,8 +1040,8 @@ class TheoreticalProbabilityBestRecord():
     """理論的確率ベスト・レコード"""
 
 
-    def __init__(self, turn_system_str, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
-        self._turn_system_str = turn_system_str
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+        self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
         self._span = span
@@ -1057,8 +1053,8 @@ class TheoreticalProbabilityBestRecord():
 
 
     @property
-    def turn_system_str(self):
-        return self._turn_system_str
+    def turn_system_name(self):
+        return self._turn_system_name
 
 
     @property
@@ -1106,7 +1102,7 @@ class TheoreticalProbabilityBestTable():
 
 
     _dtype = {
-        'turn_system':'object',     # string 型は無い？
+        'turn_system_name':'object',     # string 型は無い？
         'failure_rate':'float64',
         'p':'float64',
         'span':'int64',
@@ -1121,7 +1117,7 @@ class TheoreticalProbabilityBestTable():
     @classmethod
     def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
-                'turn_system': [],
+                'turn_system_name': [],
                 'failure_rate': [],
                 'p': [],
                 'span': [],
@@ -1138,7 +1134,7 @@ class TheoreticalProbabilityBestTable():
     @staticmethod
     def create_none_record():
         return TheoreticalProbabilityBestRecord(
-                turn_system_str=None,
+                turn_system_name=None,
                 failure_rate=None,
                 p=None,
                 span=None,
@@ -1152,7 +1148,7 @@ class TheoreticalProbabilityBestTable():
     @staticmethod
     def append_record(df, record):
         index = len(df.index)
-        df.loc[index, ['turn_system'] ] = record.turn_system_str
+        df.loc[index, ['turn_system_name'] ] = record.turn_system_name
         df.loc[index, ['failure_rate']] = record.failure_rate
         df.loc[index, ['p']] = record.p
         df.loc[index, ['span']] = record.span
@@ -1162,6 +1158,61 @@ class TheoreticalProbabilityBestTable():
         df.loc[index, ['upper_limit_coins']] = record.upper_limit_coins
         df.loc[index, ['theoretical_a_win_rate']] = record.three_rates.a_win_rate
         df.loc[index, ['theoretical_no_win_match_rate']] = record.three_rates.no_win_match_rate
+
+
+    @staticmethod
+    def upsert_record(df, record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        is_dirty : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        # 該当レコードセット
+        key = (df['span']==span) & (df['t_step']==t_step) & (df['h_step']==h_step)
+
+        # TODO データが既存なら、差異があれば、上書き
+        if key.any():
+            is_dirty =\
+                df.loc[key, ['turn_system_name'] ] != record.turn_system_name or\
+                df.loc[key, ['failure_rate']] != record.failure_rate or\
+                df.loc[key, ['p']] != record.p or\
+                df.loc[key, ['span']] != record.span or\
+                df.loc[key, ['t_step']] != record.t_step or\
+                df.loc[key, ['h_step']] != record.h_step or\
+                df.loc[key, ['shortest_coins']] != record.shortest_coins or\
+                df.loc[key, ['upper_limit_coins']] != record.upper_limit_coins or\
+                df.loc[key, ['theoretical_a_win_rate']] != record.three_rates.a_win_rate or\
+                df.loc[key, ['theoretical_no_win_match_rate']] != record.three_rates.no_win_match_rate
+
+            if is_dirty:
+                df.loc[key, ['turn_system_name'] ] = record.turn_system_name
+                df.loc[key, ['failure_rate']] = record.failure_rate
+                df.loc[key, ['p']] = record.p
+                df.loc[key, ['span']] = record.span
+                df.loc[key, ['t_step']] = record.t_step
+                df.loc[key, ['h_step']] = record.h_step
+                df.loc[key, ['shortest_coins']] = record.shortest_coins
+                df.loc[key, ['upper_limit_coins']] = record.upper_limit_coins
+                df.loc[key, ['theoretical_a_win_rate']] = record.three_rates.a_win_rate
+                df.loc[key, ['theoretical_no_win_match_rate']] = record.three_rates.no_win_match_rate
+
+        # データが既存でないなら、新規追加
+        else:
+            self.append_record(df=df, record=record)
+            is_dirty = True
+
+
+        return is_dirty
 
 
     @classmethod
@@ -1207,7 +1258,7 @@ class TheoreticalProbabilityBestTable():
 
         """
         return TheoreticalProbabilityBestRecord(
-                turn_system_str=df.loc[key, ['turn_system']].iat[0,0],
+                turn_system_name=df.loc[key, ['turn_system_name']].iat[0,0],
                 failure_rate=df.loc[key, ['failure_rate']].iat[0,0],
                 p=df.loc[key, ['p']].iat[0,0],
                 span=df.loc[key, ['span']].iat[0,0],
@@ -1222,7 +1273,13 @@ class TheoreticalProbabilityBestTable():
 
     @staticmethod
     def to_csv(df):
-        """
+        """CSV形式でファイルへ保存
+
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        
         Returns
         -------
         csv_file_path : str
@@ -1232,7 +1289,7 @@ class TheoreticalProbabilityBestTable():
         csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
         df.to_csv(csv_file_path,
-                columns=['turn_system', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
+                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
@@ -1246,8 +1303,8 @@ class TheoreticalProbabilityBestTable():
         df : DataFrame
             データフレーム
         """
-        for         turn_system_str,   failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate in\
-            zip(df['turn_system'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
+        for         turn_system_name,   failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate in\
+            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
             span = round_letro(span)
@@ -1258,7 +1315,7 @@ class TheoreticalProbabilityBestTable():
 
             # レコード作成
             record = TheoreticalProbabilityBestRecord(
-                    turn_system_str=turn_system_str,
+                    turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
                     p=p,
                     span=span,

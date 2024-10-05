@@ -18,18 +18,18 @@ if __name__ == '__main__':
     try:
 
         # ［先後の決め方］
-        for specified_turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
+        for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
 
             # ［将棋の引分け率］
             for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):   # 5％刻み
                 specified_failure_rate = failure_rate_percent / 100
 
-                print(f"[{datetime.datetime.now()}][turn_system={Converter.turn_system_to_code(specified_turn_system)}  failure_rete={specified_failure_rate * 100:.1f}%] create kakukin data excel file ...")
+                print(f"[{datetime.datetime.now()}][turn_system_name={Converter.turn_system_to_code(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] create kakukin data excel file ...")
 
                 # ［かくきんデータ］エクセル・ファイルの作成
                 automation = CreateKakukinDataExcelFileAutomation(
                         specified_failure_rate=specified_failure_rate,
-                        specified_turn_system=specified_turn_system,
+                        specified_turn_system_id=specified_turn_system_id,
                         specified_trials_series=2000)
 
                 automation.execute()

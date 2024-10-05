@@ -47,15 +47,15 @@ class AllTheoreticalProbabilityFilesOperation():
                 #print(f"[{datetime.datetime.now()}] CREATE_FILE {p=:.2f}")
 
                 # ［先後の決め方］
-                for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
-                    turn_system_str = Converter.turn_system_to_code(turn_system)
-                    #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_str=}")
+                for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
+                    turn_system_name = Converter.turn_system_to_code(turn_system_id)
+                    #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_name=}")
 
                     # 仕様
                     spec = Specification(
                             p=p,
                             failure_rate=failure_rate,
-                            turn_system=turn_system)
+                            turn_system_id=turn_system_id)
 
                     df, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=True)
 
@@ -72,7 +72,7 @@ class AllTheoreticalProbabilityFilesOperation():
                         t_step = 1      # ［後手で勝ったときの勝ち点］
                         h_step = 1      # ［先手で勝ったときの勝ち点］
 
-                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] NEW_FILE")
+                        print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] NEW_FILE")
 
                         # １件も処理してないが、ファイルを保存したいのでフラグを立てる
                         self._number_of_dirty += 1
@@ -97,7 +97,7 @@ class AllTheoreticalProbabilityFilesOperation():
                             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
                             h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
 
-                            print(f"[{datetime.datetime.now()}][turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
+                            print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
 
 
                     while span < upper_limit_span + 1:
@@ -120,7 +120,7 @@ class AllTheoreticalProbabilityFilesOperation():
                             # 新規レコード追加
                             TheoreticalProbabilityTable.append_new_record(
                                     df=df,
-                                    turn_system_str=turn_system_str,
+                                    turn_system_name=turn_system_name,
                                     failure_rate=spec.failure_rate,
                                     p=spec.p,
                                     span=span,
@@ -145,7 +145,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
                     if 0 < self._number_of_dirty:
                         csv_file_path_to_wrote = TheoreticalProbabilityTable.to_csv(df=df, spec=spec)
-                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
+                        print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
                         self._number_of_dirty = 0
 
 
@@ -164,38 +164,38 @@ class AllTheoreticalProbabilityFilesOperation():
         # ［将棋の引分け率］
         for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
             failure_rate = failure_rate_percent / 100
-            print(f"[{datetime.datetime.now()}] CREATE_FILE {failure_rate=:.2f}")
+            #print(f"[{datetime.datetime.now()}] CREATE_FILE {failure_rate=:.2f}")
 
             # ［将棋の先手勝率］
             for p_percent in range(50, 96):
                 p = p_percent / 100
-                print(f"[{datetime.datetime.now()}] CREATE_FILE {p=:.2f}")
+                #print(f"[{datetime.datetime.now()}] CREATE_FILE {p=:.2f}")
 
                 # ［先後の決め方］
-                for turn_system in [ALTERNATING_TURN, FROZEN_TURN]:
+                for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
 
                     # リセット
                     self._number_of_dirty = 0
                     self._start_time_for_save = time.time()       # CSV保存用タイマー
 
-                    turn_system_str = Converter.turn_system_to_code(turn_system)
-                    print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_str=}")
+                    turn_system_name = Converter.turn_system_to_code(turn_system_id)
+                    #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_name=}")
 
                     # 仕様
                     spec = Specification(
                             p=p,
                             failure_rate=failure_rate,
-                            turn_system=turn_system)
+                            turn_system_id=turn_system_id)
 
                     df, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=False)
 
                     if df is None:
-                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] FILE_NOT_FOUND")
+                        print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] FILE_NOT_FOUND")
                         continue
 
                     # イーブンが見つかっているなら、探索打ち切り
                     if is_almost_even(df['theoretical_a_win_rate_abs_error'].min()):
-                        print(f"[{datetime.datetime.now()}][turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RE_EVEN_")
+                        print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RE_EVEN_")
                         continue
 
                     # 該当レコードのキー
@@ -245,10 +245,10 @@ class AllTheoreticalProbabilityFilesOperation():
                         # CSVファイルへ書き出し
                         csv_file_path_to_wrote = TheoreticalProbabilityTable.to_csv(df, spec)
 
-                        print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
+                        print(f"[{datetime.datetime.now()}][{depth=}  turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
                     
                     else:
-                        print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] UNCHANGE dirty={self._number_of_dirty}")
+                        print(f"[{datetime.datetime.now()}][{depth=}  turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] UNCHANGE dirty={self._number_of_dirty}")
 
 
         return CONTINUE

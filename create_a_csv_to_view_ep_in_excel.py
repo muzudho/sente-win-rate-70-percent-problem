@@ -19,7 +19,7 @@ from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityReco
 from library.views import KakukinDataSheetTableCsv
 
 
-def automatic(specified_failure_rate, specified_turn_system, specified_trials_series):
+def automatic(specified_failure_rate, specified_turn_system_id, specified_trials_series):
     header_csv = KakukinDataSheetTableCsv.stringify_header()
 
     print(header_csv) # 表示
@@ -28,7 +28,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
     spec = Specification(
             p=None,
             failure_rate=specified_failure_rate,
-            turn_system=specified_turn_system)
+            turn_system_id=specified_turn_system_id)
 
 
     # ヘッダー出力（ファイルは上書きします）
@@ -37,13 +37,13 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
     #
     csv_file_path = KakukinDataFilePaths.as_sheet_csv(
             failure_rate=spec.failure_rate,
-            turn_system=spec.turn_system,
+            turn_system_id=spec.turn_system_id,
             trials_series=specified_trials_series)
     with open(csv_file_path, 'w', encoding='utf8') as f:
         f.write(f"{header_csv}\n")
 
 
-    df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system=specified_turn_system, trials_series=specified_trials_series)
+    df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id, trials_series=specified_trials_series)
 
 
     def on_each(record):
@@ -65,7 +65,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         spec = Specification(
                 p=record.p,
                 failure_rate=record.failure_rate,
-                turn_system=specified_turn_system)
+                turn_system_id=specified_turn_system_id)
 
 
         # ［シリーズ・ルール］
@@ -97,7 +97,7 @@ def automatic(specified_failure_rate, specified_turn_system, specified_trials_se
         # ログ出力
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system,
+                turn_system_id=spec.turn_system_id,
                 trials_series=specified_trials_series)
         print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
@@ -133,10 +133,10 @@ Which one(1-2)? """
         choice = input(prompt)
 
         if choice == '1':
-            specified_turn_system = FROZEN_TURN
+            specified_turn_system_id = FROZEN_TURN
 
         elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
+            specified_turn_system_id = ALTERNATING_TURN
 
         else:
             raise ValueError(f"{choice=}")
@@ -161,7 +161,7 @@ How many times do you want to try the series(0-6)? """
 
         automatic(
                 specified_failure_rate=specified_failure_rate,
-                specified_turn_system=specified_turn_system,
+                specified_turn_system_id=specified_turn_system_id,
                 specified_trials_series=specified_trials_series)
 
 

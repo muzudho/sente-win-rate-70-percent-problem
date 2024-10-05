@@ -13,12 +13,12 @@ class KakukinDataExcelFile():
 
 
     @staticmethod
-    def instantiate(turn_system, trials_series):
+    def instantiate(turn_system_id, trials_series):
         """インスタンス生成"""
 
         # エクセル・ファイルへのパス
         excel_file_path = KakukinDataFilePaths.as_excel(
-                turn_system=turn_system,
+                turn_system_id=turn_system_id,
                 trials_series=trials_series)
 
         return KakukinDataExcelFile(

@@ -124,7 +124,7 @@
         t_step = 1      # ［後手で勝ったときの勝ち点］
         h_step = 1      # ［先手で勝ったときの勝ち点］
 
-        print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_str:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] NEW_FILE")
+        print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] NEW_FILE")
 
         # １件も処理してないが、ファイルを保存したいのでフラグを立てる
         number_of_dirty += 1
@@ -149,7 +149,7 @@
             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
             h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
 
-            print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_str:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
+            print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
 ```
 
 ```

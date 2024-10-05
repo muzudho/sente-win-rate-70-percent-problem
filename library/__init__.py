@@ -151,27 +151,27 @@ class Converter():
     _turn_system_to_readable = None
 
     @classmethod
-    def turn_system_to_readable(clazz, turn_system):
+    def turn_system_to_readable(clazz, turn_system_id):
         if clazz._turn_system_to_readable is None:
             clazz._turn_system_to_readable = {
                 FROZEN_TURN : '先後固定制',
                 ALTERNATING_TURN : '先後交互制',
             }
 
-        return clazz._turn_system_to_readable[turn_system]
+        return clazz._turn_system_to_readable[turn_system_id]
 
 
     _turn_system_to_code = None
 
     @classmethod
-    def turn_system_to_code(clazz, turn_system):
+    def turn_system_to_code(clazz, turn_system_id):
         if clazz._turn_system_to_code is None:
             clazz._turn_system_to_code = {
                 FROZEN_TURN : 'frozen',
                 ALTERNATING_TURN : 'alternating',
             }
 
-        return clazz._turn_system_to_code[turn_system]
+        return clazz._turn_system_to_code[turn_system_id]
 
 
     _code_to_turn_system = None
@@ -277,7 +277,7 @@ class Specification():
     """仕様"""
 
 
-    def __init__(self, p, failure_rate, turn_system):
+    def __init__(self, p, failure_rate, turn_system_id):
         """初期化
 
         Parameters
@@ -286,13 +286,13 @@ class Specification():
             ［表が出る確率］
         failure_rate : float
             ［表も裏も出ない確率］。例： １割が引き分けなら 0.1
-        turn_system : int
+        turn_system_id : int
             ［先後の決め方］
         """
 
         self._p = p
         self._failure_rate = failure_rate
-        self._turn_system = turn_system
+        self._turn_system_id = turn_system_id
 
 
     @property
@@ -308,9 +308,9 @@ class Specification():
 
 
     @property
-    def turn_system(self):
+    def turn_system_id(self):
         """［先後運営制度］"""
-        return self._turn_system
+        return self._turn_system_id
 
 
     def stringify_dump(self, indent):
@@ -320,7 +320,7 @@ class Specification():
 {indent}-------------
 {succ_indent}{self._p=}
 {succ_indent}{self._failure_rate=}
-{succ_indent}{self._turn_system=}
+{succ_indent}{self._turn_system_id=}
 """
 
 
@@ -806,10 +806,10 @@ class PointCalculation():
 
 
     @staticmethod
-    def get_successful_player(elementary_event, time_th, turn_system):
+    def get_successful_player(elementary_event, time_th, turn_system_id):
 
         # ［先後交互制］
-        if turn_system == ALTERNATING_TURN:
+        if turn_system_id == ALTERNATING_TURN:
             # 表が出た
             if elementary_event == HEAD:
 
@@ -837,7 +837,7 @@ class PointCalculation():
             raise ValueError(f"{elementary_event=}")
 
         # ［先後固定制］
-        if turn_system == FROZEN_TURN:
+        if turn_system_id == FROZEN_TURN:
             if elementary_event == HEAD:
                 return ALICE
 
@@ -851,7 +851,7 @@ class PointCalculation():
             raise ValueError(f"{elementary_event=}")
 
 
-        raise ValueError(f"{turn_system=}")
+        raise ValueError(f"{turn_system_id=}")
 
 
     def get_gameover_reason(self):
@@ -890,7 +890,7 @@ class PointCalculation():
             ［検証用］
         """
 
-        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._spec.turn_system)
+        successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._spec.turn_system_id)
 
         # ［勝ち点］
         step = self._series_rule.step_table.get_step_by(face_of_coin=successful_face_of_coin)
@@ -1345,7 +1345,7 @@ class SeriesRule():
                     h_step=h_step,
                     t_step=t_step,
                     span=span,
-                    turn_system=spec.turn_system)
+                    turn_system_id=spec.turn_system_id)
 
             # ［上限対局数］
             upper_limit_coins = SeriesRule.let_upper_limit_coins(
@@ -1455,10 +1455,10 @@ step_table:
 
 
     @staticmethod
-    def let_shortest_coins(h_step, t_step, span, turn_system):
+    def let_shortest_coins(h_step, t_step, span, turn_system_id):
         """［最短対局数］を算出"""
 
-        if turn_system == FROZEN_TURN:
+        if turn_system_id == FROZEN_TURN:
             """［先後固定制］での［最短対局数］
             
             裏が全勝したときの回数と同じ
@@ -1472,7 +1472,7 @@ step_table:
             # ［目標の点数］は最小公倍数なので割り切れる
             return round_letro(span / t_step)
 
-        if turn_system == ALTERNATING_TURN:
+        if turn_system_id == ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］
             
             Ｂさんだけが勝ったときの回数と同じ。
@@ -1551,7 +1551,7 @@ step_table:
             return time
 
 
-        raise ValueError(f"{turn_system=}")
+        raise ValueError(f"{turn_system_id=}")
 
 
     @staticmethod
@@ -1565,7 +1565,7 @@ step_table:
         """
 
         # ［先後固定制］
-        if spec.turn_system == FROZEN_TURN:
+        if spec.turn_system_id == FROZEN_TURN:
             """
             裏があと１つで勝てるところで止まり、表が全勝したときの回数と同じ
 
@@ -1593,7 +1593,7 @@ step_table:
 
 
         # ［先後交互制］
-        elif spec.turn_system == ALTERNATING_TURN:
+        elif spec.turn_system_id == ALTERNATING_TURN:
             """
             ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
 
@@ -1619,7 +1619,7 @@ step_table:
 
 
         else:
-            raise ValueError(f"{spec.turn_system=}")
+            raise ValueError(f"{spec.turn_system_id=}")
 
 
     @staticmethod
@@ -2248,7 +2248,7 @@ class ScoreBoard():
     -------------
 
         Specification
-        p        failure_rate  turn_system
+        p        failure_rate  turn_system_name
         70.0000  10.0000       frozen
 
         Series Rule
@@ -2269,7 +2269,7 @@ class ScoreBoard():
     -------------
 
         Specification
-        p        failure_rate  turn_system
+        p        failure_rate  turn_system_name
         70.0000  10.0000       alternating
 
         Series Rule
@@ -2365,18 +2365,18 @@ class ScoreBoard():
             # 表番がどちらか？
             #
             # ［先後固定制］では表番はずっとＡさん
-            if spec.turn_system == FROZEN_TURN:
+            if spec.turn_system_id == FROZEN_TURN:
                 head_player = 'A'
 
             # ［先後交互制］では、表番は１局ごとに入れ替えます
-            elif spec.turn_system == ALTERNATING_TURN:
+            elif spec.turn_system_id == ALTERNATING_TURN:
                 if last_round[1] in ['', 'B']:
                     head_player = 'A'
                 else:
                     head_player = 'B'
             
             else:
-                raise ValueError(f"{spec.turn_system=}")
+                raise ValueError(f"{spec.turn_system_id=}")
 
             face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
 
@@ -2408,7 +2408,7 @@ class ScoreBoard():
 
         # 対局不成立
         if last_a_count_down_point <= 0 and last_b_count_down_point <= 0:
-            raise ValueError(f"両者が満点はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system={Converter.turn_system_to_code(spec.turn_system)}  {span=}  {t_step=}  {h_step=}")
+            raise ValueError(f"両者が満点はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system_id={Converter.turn_system_to_code(spec.turn_system_id)}  {span=}  {t_step=}  {h_step=}")
         
         # 満点で,Ａさんの勝ち
         elif last_a_count_down_point <= 0:

@@ -16,20 +16,20 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system, specified_trials_series):
+    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trials_series):
         """初期化
 
         Parameters
         ----------
         specified_failure_rate : float
             ［コインを投げて表も裏も出ない確率］
-        specified_turn_system : int
+        specified_turn_system_id : int
             ［先後の決め方］
         specified_trials_series : int
             ［試行シリーズ数］
         """
         self._specified_failure_rate = specified_failure_rate
-        self._specified_turn_system = specified_turn_system
+        self._specified_turn_system_id = specified_turn_system_id
         self._specified_trials_series = specified_trials_series
 
         self._ws = None
@@ -41,7 +41,7 @@ class Automation():
 
         # 対エクセル・ファイル用オブジェクト作成
         kakukin_data_excel_file = KakukinDataExcelFile.instantiate(
-                turn_system=self._specified_turn_system,
+                turn_system_id=self._specified_turn_system_id,
                 trials_series=self._specified_trials_series)
 
         # エクセル・ファイルの読込
@@ -58,7 +58,7 @@ class Automation():
 
         # エクセル・ファイルへのパス
         excel_file_path = KakukinDataFilePaths.as_excel(
-                turn_system=self._specified_turn_system,
+                turn_system_id=self._specified_turn_system_id,
                 trials_series=self._specified_trials_series)
 
 
@@ -69,7 +69,7 @@ class Automation():
 
         df_kds = KakukinDataSheetTable.read_df(
                 failure_rate=self._specified_failure_rate,
-                turn_system=self._specified_turn_system,
+                turn_system_id=self._specified_turn_system_id,
                 trials_series=self._specified_trials_series)
 
 
@@ -84,7 +84,7 @@ class Automation():
         def on_each(record):
             self._ws[f'A{self._row_number}'].value = record.p
             self._ws[f'B{self._row_number}'].value = record.failure_rate
-            self._ws[f'C{self._row_number}'].value = record.turn_system
+            self._ws[f'C{self._row_number}'].value = record.turn_system_name
 
             self._ws[f'D{self._row_number}'].value = record.head_step               # TODO ［シリーズ・ルール］は、理論値が選ばれるように仕様変更したい
             self._ws[f'E{self._row_number}'].value = record.tail_step

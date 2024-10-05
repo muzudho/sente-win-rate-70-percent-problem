@@ -35,9 +35,9 @@ Example: 10% is 0.1
 Which one(1-2)? """
         choice = input(prompt)
         if choice == '1':
-            specified_turn_system = FROZEN_TURN
+            specified_turn_system_id = FROZEN_TURN
         elif choice == '2':
-            specified_turn_system = ALTERNATING_TURN
+            specified_turn_system_id = ALTERNATING_TURN
         else:
             raise ValueError(f"{choice=}")
 
@@ -63,7 +63,7 @@ Example: 3
 
         create_csv_to_epdt = CreateCsvToEPDT(
                 specified_failure_rate=specified_failure_rate,
-                specified_turn_system=specified_turn_system,
+                specified_turn_system_id=specified_turn_system_id,
                 specified_trials_series=specified_trials_series,
                 specified_abs_small_error=specified_abs_small_error)
         

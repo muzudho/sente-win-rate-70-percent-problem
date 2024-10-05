@@ -23,9 +23,9 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system, specified_trials_series, specified_abs_small_error):
+    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trials_series, specified_abs_small_error):
         self._specified_failure_rate=specified_failure_rate
-        self._specified_turn_system=specified_turn_system
+        self._specified_turn_system_id=specified_turn_system_id
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
 
@@ -86,7 +86,7 @@ class Automation():
                 spec = Specification(
                         p=p,
                         failure_rate=self._specified_failure_rate,
-                        turn_system=self._specified_turn_system)
+                        turn_system_id=self._specified_turn_system_id)
                 
                 EmpiricalProbabilityTable.append_default_record(
                         df=self._df_ep,
@@ -99,7 +99,7 @@ class Automation():
             EmpiricalProbabilityTable.to_csv(
                     df=self._df_ep,
                     failure_rate=self._specified_failure_rate,
-                    turn_system=self._specified_turn_system,
+                    turn_system_id=self._specified_turn_system_id,
                     trials_series=self._specified_trials_series)
 
 
@@ -110,8 +110,8 @@ class Automation():
             raise ValueError(f"{self._specified_failure_rate=} != {record.failure_rate=}")
 
 
-        if self._specified_turn_system != Converter.code_to_turn_system(record.turn_system_str):
-            raise ValueError(f"{Converter.turn_system_to_code(self._specified_turn_system)=} != {record.turn_system_str=}")
+        if self._specified_turn_system_id != Converter.code_to_turn_system(record.turn_system_name):
+            raise ValueError(f"{Converter.turn_system_to_code(self._specified_turn_system_id)=} != {record.turn_system_name=}")
 
 
         # FIXME 自明のチェック。 self._specified_trials_series と record.trials_series は必ず一致する
@@ -135,7 +135,7 @@ class Automation():
         spec = Specification(
                 p=record.p,
                 failure_rate=record.failure_rate,
-                turn_system=self._specified_turn_system)
+                turn_system_id=self._specified_turn_system_id)
 
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
@@ -256,7 +256,7 @@ class Automation():
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[{datetime.datetime.now()}][p={spec.p * 100:3.0f}％  failure_rate={spec.failure_rate * 100:3.0f}％  turn_system={record.turn_system_str}] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][p={spec.p * 100:3.0f}％  failure_rate={spec.failure_rate * 100:3.0f}％  turn_system_name={record.turn_system_name}] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
@@ -286,7 +286,7 @@ class Automation():
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
+                                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -354,7 +354,7 @@ class Automation():
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system=self._specified_turn_system, trials_series=record.trials_series)
+                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
 
 
     def iteration_deeping(self):
@@ -389,7 +389,7 @@ class Automation():
     # automatic
     def execute(self):
 
-        self._df_ep = EmpiricalProbabilityTable.read_df(failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
+        self._df_ep = EmpiricalProbabilityTable.read_df(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
         #print(self._df_ep)
 
 
@@ -489,4 +489,4 @@ class Automation():
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=self._specified_failure_rate, turn_system=self._specified_turn_system, trials_series=self._specified_trials_series)
+            EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)

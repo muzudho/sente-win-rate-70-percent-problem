@@ -12,20 +12,20 @@ from library.views import KakukinDataSheetTableCsv
 class Automation():
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system, specified_trials_series):
+    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trials_series):
         """初期化
         
         Parameters
         ----------
         specified_failure_rate : float
             ［コインの表も裏も出ない確率］
-        specified_turn_system : float
+        specified_turn_system_id : float
             ［先後の決め方］
         specified_trials_series : float
             ［試行シリーズ数］
         """
         self._specified_failure_rate=specified_failure_rate
-        self._specified_turn_system=specified_turn_system
+        self._specified_turn_system_id=specified_turn_system_id
         self._specified_trials_series=specified_trials_series
 
 
@@ -36,7 +36,7 @@ class Automation():
             return
 
         # 対象外のものはスキップ　［先後の決め方］
-        if self._specified_turn_system != Converter.code_to_turn_system(best_record.turn_system_str):
+        if self._specified_turn_system_id != Converter.code_to_turn_system(best_record.turn_system_name):
             return
 
         # # 対象外のものはスキップ　［試行シリーズ数］
@@ -52,7 +52,7 @@ class Automation():
         spec = Specification(
                 p=best_record.p,
                 failure_rate=best_record.failure_rate,
-                turn_system=self._specified_turn_system)
+                turn_system_id=self._specified_turn_system_id)
 
 
         # ［シリーズ・ルール］
@@ -85,7 +85,7 @@ class Automation():
         # ログ出力
         csv_file_path_of_view = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system,
+                turn_system_id=spec.turn_system_id,
                 trials_series=self._specified_trials_series)
         print(f"[{datetime.datetime.now()}] write view to `{csv_file_path_of_view}` file ...")
         with open(csv_file_path_of_view, 'a', encoding='utf8') as f:
@@ -102,7 +102,7 @@ class Automation():
         spec = Specification(
                 p=None,
                 failure_rate=self._specified_failure_rate,
-                turn_system=self._specified_turn_system)
+                turn_system_id=self._specified_turn_system_id)
 
 
         # ヘッダー出力（ファイルは上書きします）
@@ -111,7 +111,7 @@ class Automation():
         #
         csv_file_path_of_view = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
-                turn_system=spec.turn_system,
+                turn_system_id=spec.turn_system_id,
                 trials_series=self._specified_trials_series)
         with open(csv_file_path_of_view, 'w', encoding='utf8') as f:
             f.write(f"{header_csv}\n")

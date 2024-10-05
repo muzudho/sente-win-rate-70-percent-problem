@@ -39,7 +39,7 @@ if __name__ == '__main__':
                     spec_ft = Specification(
                             p=PROBABILITY,
                             failure_rate=FAILURE_RATE,
-                            turn_system=FROZEN_TURN)
+                            turn_system_id=FROZEN_TURN)
 
                     series_rule_ft = SeriesRule.make_series_rule_base(
                             spec=spec_ft,
@@ -52,7 +52,7 @@ if __name__ == '__main__':
                     spec_at = Specification(
                             p=PROBABILITY,
                             failure_rate=FAILURE_RATE,
-                            turn_system=ALTERNATING_TURN)
+                            turn_system_id=ALTERNATING_TURN)
 
                     series_rule_at = SeriesRule.make_series_rule_base(
                             spec=spec_at,

@@ -42,12 +42,12 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
 
     # 対局数
 
-    if series_rule.turn_system == FROZEN_TURN:
+    if series_rule.turn_system_id == FROZEN_TURN:
         ts = '先後固定制'
-    elif series_rule.turn_system == ALTERNATING_TURN:
+    elif series_rule.turn_system_id == ALTERNATING_TURN:
         ts = '先後交互制'
     else:
-        raise ValueError(f"{series_rule.turn_system=}")
+        raise ValueError(f"{series_rule.turn_system_id=}")
 
     seg_3a = series_rule.shortest_coins
     seg_3b = series_rule.upper_limit_coins
@@ -65,7 +65,7 @@ def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_li
 
 
 def stringify_series_log(
-        p, failure_rate, series_rule, trial_results_for_one_series, title, turn_system):
+        p, failure_rate, series_rule, trial_results_for_one_series, title, turn_system_id):
     """シリーズのログの文言作成
     
     Parameters
@@ -202,12 +202,12 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
     a_sr0 = S.total      # 全シリーズ数
 
     # 全角文字の横幅は文字数を揃えること。全角文字の幅が半角のちょうど2倍ではないのでずれるので、書式設定の桁数を指定してもずれるから。
-    if spec.turn_system == FROZEN_TURN:
+    if spec.turn_system_id == FROZEN_TURN:
         a_trn = "［先後固定制］上手と下手のように、Ａさんはずっと先手、Ｂさんはずっと後手"
-    elif spec.turn_system == ALTERNATING_TURN:
+    elif spec.turn_system_id == ALTERNATING_TURN:
         a_trn = "［先後交互制］Ａさんの先手、Ｂさんの後手で始まり、１局毎に先後を入替える"
     else:
-        raise ValueError(f"{spec.turn_system=}")
+        raise ValueError(f"{spec.turn_system_id=}")
 
 
     # ［以下、［かくきんシステム］が算出したシリーズ・ルール］
@@ -435,7 +435,7 @@ def stringify_csv_of_score_board_view_header(spec, series_rule):
     # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
     str_p = str(spec.p * 100)
     str_failure_rate = str(spec.failure_rate * 100)
-    str_turn_system = str(Converter.turn_system_to_code(spec.turn_system))
+    str_turn_system = str(Converter.turn_system_to_code(spec.turn_system_id))
     str_h_step = str(h_step)
     str_t_step = str(t_step)
     str_span = str(span)
@@ -463,7 +463,7 @@ def stringify_csv_of_score_board_view_header(spec, series_rule):
 ,,--------
 ,,p,{str_p}
 ,,failure_rate,{str_failure_rate}
-,,turn_system,{str_turn_system}
+,,turn_system_name,{str_turn_system}
 
 ,,大会で設定するルール
 ,,-------------------
@@ -580,7 +580,7 @@ class KakukinDataSheetTableCsv():
         | Specification                                  | Series rule                                                               | Large Series Trial Summary                                                                                                                                                                                                                              |
         | 前提条件                                        | 大会のルール設定                                                           | シミュレーション結果                                                                                                                                                                                                                                      |
         +---------------+------------------+-------------+-------------+-------------+-----------+---------------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-        | p             | failure_rate     | turn_system | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | trials_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                            |
+        | p             | failure_rate     | turn_system_name | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | trials_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                            |
         | 将棋の先手勝率 | 将棋の引分け率    | 先後の決め方 | 先手で勝った  | 後手で勝った | シリーズ  | 最短対局数     | 上限対局数         | 試行シリーズ総数  シリーズ最短対局数      シリーズ最長対局数                                                                                                                                                                                                 |
         | ％            | ％               |             | ときの勝ち点  | ときの勝ち点 | 勝利条件  |               |                   |                                                                                            ______________________________________________________________________________________________________________________________________________________________|
         |               |                  |             |              |             |          |               |                   |                                                                                           | succucessful_series                                                   | failed_series                                                                       |
@@ -598,7 +598,7 @@ class KakukinDataSheetTableCsv():
         """
 
         # CSV
-        return f"p,failure_rate,turn_system,head_step,tail_step,span,shortest_coins,upper_limit_coins,trials_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
+        return f"p,failure_rate,turn_system_name,head_step,tail_step,span,shortest_coins,upper_limit_coins,trials_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
 
 
     def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_trial_summary):
@@ -623,7 +623,7 @@ class KakukinDataSheetTableCsv():
         # ［前提条件］
         str_p = f"{spec.p*100:.4f}"                                                 # ［将棋の先手勝率］ p （Probability）
         str_failure_rate = f"{spec.failure_rate*100:.4f}"                           # ［将棋の引分け率］
-        str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system)}"      # ［手番の決め方］
+        str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system_id)}"      # ［手番の決め方］
 
         # ［大会のルール設定］
         str_head_step = f"{series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
