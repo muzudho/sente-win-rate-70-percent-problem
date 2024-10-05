@@ -57,7 +57,7 @@ class AllTheoreticalProbabilityFilesOperation():
                             failure_rate=failure_rate,
                             turn_system_id=turn_system_id)
 
-                    tp_table, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=True)
+                    tp_table, is_new = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
 
 
                     # FIXME 便宜的に［試行シリーズ数］は 1 固定
@@ -190,7 +190,7 @@ class AllTheoreticalProbabilityFilesOperation():
                             failure_rate=failure_rate,
                             turn_system_id=turn_system_id)
 
-                    tp_table, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=False)
+                    tp_table, is_new = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
 
                     if tp_table is None:
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] FILE_NOT_FOUND")

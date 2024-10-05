@@ -933,7 +933,7 @@ class TheoreticalProbabilityTable():
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id)
 
-        self.to_csv(csv_file_path,
+        self.df.to_csv(csv_file_path,
                 columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
@@ -1036,8 +1036,9 @@ class TheoreticalProbabilityTrialResultsRecord():
         return self._trial_no_win_match_rate
 
 
+# TODO 用意してるけど使ってない
 class TheoreticalProbabilityTrialResultsTable():
-    """理論的確率の試行結果テーブル"""
+    """TODO 理論的確率の試行結果テーブル"""
 
 
     _dtype = {
@@ -1053,8 +1054,12 @@ class TheoreticalProbabilityTrialResultsTable():
         'trial_no_win_match_rate':'float64'}
 
 
+    def __init__(self, df):
+        self._df = df
+
+
     @classmethod
-    def new_data_frame(clazz):
+    def new_empty_table(clazz):
         df = pd.DataFrame.from_dict({
                 'turn_system_name': [],
                 'failure_rate': [],
@@ -1067,11 +1072,11 @@ class TheoreticalProbabilityTrialResultsTable():
                 'trial_a_win_rate': [],
                 'trial_no_win_match_rate': []}).astype(clazz._dtype)
 
-        return df
+        return TheoreticalProbabilityTrialResultsTable(df)
 
 
     @classmethod
-    def read_df(clazz, spec, new_if_it_no_exists=False):
+    def read_csv(clazz, spec, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -1083,8 +1088,8 @@ class TheoreticalProbabilityTrialResultsTable():
         
         Returns
         -------
-        df : DataFrame
-            データフレーム
+        tptr_table : TheoreticalProbabilityTrialResultsTable
+            テーブル、無ければナン
         is_new : bool
             新規作成されたか？
         """
@@ -1100,66 +1105,61 @@ class TheoreticalProbabilityTrialResultsTable():
         is_new = not os.path.isfile(csv_file_path)
         if is_new:
             if new_if_it_no_exists:
-                df = TheoreticalProbabilityTrialResultsTable.new_data_frame()
+                tptr_table = TheoreticalProbabilityTrialResultsTable.new_data_frame()
             else:
-                df = None
+                tptr_table = None
 
         else:
-            df = pd.read_csv(csv_file_path, encoding="utf8",
+            df_tptr = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+            tptr_table = TheoreticalProbabilityTrialResultsTable(df=df_tptr)
 
 
-        return df, is_new
+        return tptr_table, is_new
 
 
-    @staticmethod
-    def sub_insert_record(df, row_index, welcome_record):
-        df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
-        df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
-        df.at[row_index, 'p'] = welcome_record.p
-        df.at[row_index, 'span'] = welcome_record.span
-        df.at[row_index, 't_step'] = welcome_record.t_step
-        df.at[row_index, 'h_step'] = welcome_record.h_step
-        df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
-        df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        df.at[row_index, 'trial_a_win_rate'] = welcome_record.trial_a_win_rate
-        df.at[row_index, 'trial_no_win_match_rate'] = welcome_record.trial_no_win_match_rate
+    def sub_insert_record(self, index, welcome_record):
+        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
+        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
+        self._df.at[index, 'p'] = welcome_record.p
+        self._df.at[index, 'span'] = welcome_record.span
+        self._df.at[index, 't_step'] = welcome_record.t_step
+        self._df.at[index, 'h_step'] = welcome_record.h_step
+        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
+        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        self._df.at[index, 'trial_a_win_rate'] = welcome_record.trial_a_win_rate
+        self._df.at[index, 'trial_no_win_match_rate'] = welcome_record.trial_no_win_match_rate
 
 
-    @staticmethod
-    def insert_record(df, welcome_record):
-        TheoreticalProbabilityTrialResultsTable.sub_insert_record(df=df, row_index=len(df.index), welcome_record=welcome_record)
+    def insert_record(self, welcome_record):
+        self.sub_insert_record(index=len(df.index), welcome_record=welcome_record)
 
 
-    @staticmethod
-    def update_record(df, row_index, welcome_record):
+    def update_record(self, index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
         # インデックスが一致するのは前提事項
         is_dirty =\
-            df.at[row_index, 'span'] != welcome_record.span or\
-            df.at[row_index, 't_step'] != welcome_record.t_step or\
-            df.at[row_index, 'h_step'] != welcome_record.h_step or\
-            df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            df.at[row_index, 'trial_a_win_rate'] != welcome_record.trial_a_win_rate or\
-            df.at[row_index, 'trial_no_win_match_rate'] != welcome_record.trial_no_win_match_rate
+            self._df.at[index, 'span'] != welcome_record.span or\
+            self._df.at[index, 't_step'] != welcome_record.t_step or\
+            self._df.at[index, 'h_step'] != welcome_record.h_step or\
+            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            self._df.at[index, 'trial_a_win_rate'] != welcome_record.trial_a_win_rate or\
+            self._df.at[index, 'trial_no_win_match_rate'] != welcome_record.trial_no_win_match_rate
 
         if is_dirty:
             # データフレーム更新
-            TheoreticalProbabilityTrialResultTable.sub_insert_record(df=df, row_index=row_index, welcome_record=welcome_record)
+            self.sub_insert_record(index=index, welcome_record=welcome_record)
 
         return is_dirty
 
 
-    @staticmethod
-    def upsert_record(df, df_result_set_by_index, welcome_record):
+    def upsert_record(self, df_result_set_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
         df_result_set_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
@@ -1174,20 +1174,19 @@ class TheoreticalProbabilityTrialResultsTable():
         if 1 < len(df_result_set_by_index):
             raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
 
-        # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
-            TheoreticalProbabilityTrialResultsTable.insert_record(df=df, welcome_record=welcome_record)
-            return True
-
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        row_index = df_result_set_by_index.index[0]
+        index = df_result_set_by_index.index[0]
 
-        return TheoreticalProbabilityTrialResultsTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_index) == 0:
+            self.insert_record(index=index, welcome_record=welcome_record)
+            return True
+
+        return self.update_record(index=index, welcome_record=welcome_record)
 
 
-    @staticmethod
-    def to_csv(df, spec):
+    def to_csv(self, spec):
         """ファイル書き出し
         
         Returns
@@ -1202,23 +1201,23 @@ class TheoreticalProbabilityTrialResultsTable():
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id)
 
-        df.to_csv(csv_file_path,
+        self._df.to_csv(csv_file_path,
                 columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_a_win_rate', 'trial_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
 
 
-    @staticmethod
-    def for_each(df, on_each):
+    def for_each(self, on_each):
         """
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
         on_each : func
             record 引数を受け取る関数
         """
+
+        df = self._df
+
         for         turn_system_name,         failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_no_win_match_rate in\
             zip(df['turn_system_name']  , df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_no_win_match_rate']):
 
@@ -1322,31 +1321,34 @@ class TheoreticalProbabilityBestTable():
         'theoretical_no_win_match_rate':'float64'}
 
 
-    @staticmethod
-    def set_index(df):
+    def __init__(self, df):
+        self._df = df
+        self.set_index()
+
+
+    def set_index(self):
         """主キーの設定"""
-        df.set_index(
+        self._df.set_index(
                 ['turn_system_name', 'failure_rate', 'p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
         # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
-        df.sort_index(
+        self._df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
-    @staticmethod
-    def get_result_set_by_index(df, turn_system_name, failure_rate, p):
+    def get_result_set_by_index(self, turn_system_name, failure_rate, p):
         """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
         return df_result_set
 
 
     @classmethod
-    def new_data_frame(clazz):
-        df = pd.DataFrame.from_dict({
+    def new_empty_table(clazz):
+        df_tpb = pd.DataFrame.from_dict({
                 'turn_system_name': [],
                 'failure_rate': [],
                 'p': [],
@@ -1358,13 +1360,10 @@ class TheoreticalProbabilityBestTable():
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
 
-        TheoreticalProbabilityBestTable.set_index(df)
-
-        return df
+        return TheoreticalProbabilityBestTable(df=df_tpb)
 
 
-    @staticmethod
-    def create_none_record():
+    def create_none_record(self):
         return TheoreticalProbabilityBestRecord(
                 turn_system_name=None,
                 failure_rate=None,
@@ -1378,51 +1377,45 @@ class TheoreticalProbabilityBestTable():
                 theoretical_no_win_match_rate=None)
 
 
-    @staticmethod
-    def sub_insert_record(df, row_index, welcome_record):
-        df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
-        df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
-        df.at[row_index, 'p'] = welcome_record.p
-        df.at[row_index, 'span'] = welcome_record.span
-        df.at[row_index, 't_step'] = welcome_record.t_step
-        df.at[row_index, 'h_step'] = welcome_record.h_step
-        df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
-        df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+    def sub_insert_record(self, index, welcome_record):
+        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
+        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
+        self._df.at[index, 'p'] = welcome_record.p
+        self._df.at[index, 'span'] = welcome_record.span
+        self._df.at[index, 't_step'] = welcome_record.t_step
+        self._df.at[index, 'h_step'] = welcome_record.h_step
+        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
+        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        self._df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+        self._df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
 
 
-    @staticmethod
-    def insert_record(df, welcome_record):
-        TheoreticalProbabilityBestTable.sub_insert_record(df=df, row_index=len(df.index), welcome_record=welcome_record)
+    def insert_record(self, welcome_record):
+        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
 
 
-    @staticmethod
-    def update_record(df, row_index, welcome_record):
+    def update_record(self, index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
         # インデックスが一致するのは前提事項
         is_dirty =\
-            df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            df.at[row_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            df.at[row_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
+            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            self._df.at[index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
+            self._df.at[index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
 
         if is_dirty:
             # データフレーム更新
-            TheoreticalProbabilityBestTable.sub_insert_record(df=df, row_index=row_index, welcome_record=welcome_record)
+            self.sub_insert_record(index=index, welcome_record=welcome_record)
 
         return is_dirty
 
 
-    @staticmethod
-    def upsert_record(df, df_result_set_by_index, welcome_record):
+    def upsert_record(self, df_result_set_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
         df_result_set_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
@@ -1437,20 +1430,20 @@ class TheoreticalProbabilityBestTable():
         if 1 < len(df_result_set_by_index):
             raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
 
-        # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
-            TheoreticalProbabilityBestTable.insert_record(df=df, welcome_record=welcome_record)
-            return True
-
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        row_index = df_result_set_by_index.index[0]
+        index = df_result_set_by_index.index[0]
 
-        return TheoreticalProbabilityBestTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_index) == 0:
+            self.insert_record(index=index, welcome_record=welcome_record)
+            return True
+
+        return self.update_record(index=index, welcome_record=welcome_record)
 
 
     @classmethod
-    def read_df(clazz, new_if_it_no_exists=False):
+    def read_csv(clazz, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -1460,8 +1453,8 @@ class TheoreticalProbabilityBestTable():
 
         Returns
         -------
-        df : DataFrame
-            データフレーム
+        tpb_table : TheoreticalProbabilityBestTable
+            テーブル
         is_new : bool
             新規作成されたか？
         """
@@ -1472,30 +1465,22 @@ class TheoreticalProbabilityBestTable():
         # ファイルが存在しなかった場合
         if is_new:
             if new_if_it_no_exists:
-                df = TheoreticalProbabilityBestTable.new_data_frame()
+                tpb_table = TheoreticalProbabilityBestTable.new_data_frame()
             else:
-                df = None
+                tpb_table = None
 
         # ファイルが存在した場合
         else:
-            df = pd.read_csv(csv_file_path, encoding="utf8",
+            tpb_df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+            tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
 
 
-        if df is not None:
-            TheoreticalProbabilityBestTable.set_index(df)
-
-        return df, is_new
+        return tpb_table, is_new
 
 
-    @staticmethod
-    def to_csv(df):
+    def to_csv(self):
         """CSV形式でファイルへ保存
-
-        Parameters
-        ----------
-        df : DataFrame
-            データフレーム
         
         Returns
         -------
@@ -1505,30 +1490,33 @@ class TheoreticalProbabilityBestTable():
         # CSVファイルパス（書き込むファイル）
         csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
-        df.to_csv(csv_file_path,
+        self.to_csv(csv_file_path,
                 columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
 
 
-    @staticmethod
-    def for_each(df, on_each):
+    def for_each(self, on_each):
         """
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
+        on_each : func
+            関数
         """
+
+        df = self._df
+
         for         turn_system_name,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate in\
             zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
 
-            # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-            span = round_letro(span)
-            t_step = round_letro(t_step)
-            h_step = round_letro(h_step)
-            shortest_coins = round_letro(shortest_coins)
-            upper_limit_coins = round_letro(upper_limit_coins)
+            # FIXME これはもう要らないのでは？
+            # # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+            # span = round_letro(span)
+            # t_step = round_letro(t_step)
+            # h_step = round_letro(h_step)
+            # shortest_coins = round_letro(shortest_coins)
+            # upper_limit_coins = round_letro(upper_limit_coins)
 
             # レコード作成
             record = TheoreticalProbabilityBestRecord(

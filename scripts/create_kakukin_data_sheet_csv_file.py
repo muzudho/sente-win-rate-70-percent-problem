@@ -119,11 +119,11 @@ class Automation():
 
 
         # ベスト・テーブルを読込
-        df_b, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=False)
+        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
 
         # ファイルが存在しなければスキップ
-        if is_new==True:
+        if tpb_table==True:
             return
 
 
-        TheoreticalProbabilityBestTable.for_each(df=df_b, on_each=self.on_each)
+        tpb_table.for_each(on_each=self.on_each)

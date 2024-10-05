@@ -14,7 +14,7 @@ INTERVAL_SECONDS_FOR_SAVE_CSV = 30
 class AutomationOne():
 
 
-    def __init__(self, df_best):
+    def __init__(self, tpb_table):
         """初期化
         
         Parameters
@@ -23,7 +23,7 @@ class AutomationOne():
             データフレーム
         """
 
-        self._df_best = df_best
+        self._tpb_table = tpb_table
 
         self._spec = None
         self._best_record = None
@@ -41,8 +41,7 @@ class AutomationOne():
 
             # 絞り込み。 0～複数件の DataFrame型が返ってくる
             # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］の３列
-            df_result_set_by_index = TheoreticalProbabilityBestTable.get_result_set_by_index(
-                    df=self._df_best,
+            df_result_set_by_index = self._tpb_table.get_result_set_by_index(
                     turn_system_name=record_tp.turn_system_name,
                     failure_rate=record_tp.failure_rate,
                     p=record_tp.p)
@@ -85,8 +84,7 @@ class AutomationOne():
                         theoretical_no_win_match_rate=record_tp.theoretical_no_win_match_rate)
 
                 # レコードの新規作成または更新
-                is_dirty_temp = TheoreticalProbabilityBestTable.upsert_record(
-                        df=self._df_best,
+                is_dirty_temp = self._tpb_table.upsert_record(
                         df_result_set_by_index=df_result_set_by_index,
                         welcome_record=welcome_record)
 
@@ -96,7 +94,7 @@ class AutomationOne():
 
         except KeyError as ex:
             print(f"列名がないという例外が発生中")
-            for index, column_name in enumerate(self._df_best.columns.values, 1):
+            for index, column_name in enumerate(self._tpb_table.df.columns.values, 1):
                 print(f"({index}) {column_name=}")
             raise # 再スロー
 
@@ -137,8 +135,8 @@ class AutomationOne():
             ファイル変更の有無
         """
 
-        if self._df_best is None:
-            raise ValueError("self._df_best を先に設定しておかなければいけません")
+        if self._tpb_table is None:
+            raise ValueError("self._tpb_table を先に設定しておかなければいけません")
 
         self._spec = spec
         self._is_tp_update = False
@@ -174,13 +172,13 @@ class AutomationAll():
     def execute_all(self):
 
         # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        df_best, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=True)
+        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=True)
 
-        if df_best is None:
-            raise ValueError("ここで df_best がナンなのはおかしい")
+        if tpb_table is None:
+            raise ValueError("ここで tpb_table がナンなのはおかしい")
 
         # ［理論的確率ベストデータ］新規作成または更新
-        automation_one = AutomationOne(df_best=df_best)
+        automation_one = AutomationOne(tpb_table=tpb_table)
 
         # ［先後の決め方］
         for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
@@ -219,7 +217,7 @@ class AutomationAll():
                         # 指定間隔（秒）でファイル保存
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
-                            csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
+                            csv_file_path_to_wrote = tpb_table.to_csv()
                             print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
 
                             # リセット
@@ -230,6 +228,6 @@ class AutomationAll():
 
                 # 忘れずに flush
                 if 0 < number_of_dirty_rows:
-                    csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
+                    csv_file_path_to_wrote = tpb_table.to_csv()
                     # specified_p はまだ入ってるはず
                     print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
