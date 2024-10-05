@@ -26,8 +26,10 @@ class AutomationOne():
         self._df_best = df_best
 
         self._spec = None
-        self._is_update_df_best = False
         self._best_record = None
+
+        self._tp_table = None
+        self._is_tp_update = False
 
 
     def on_match(self, record_tp):
@@ -89,7 +91,7 @@ class AutomationOne():
                         welcome_record=welcome_record)
 
                 if is_dirty_temp:
-                    self._is_update_df_best = True
+                    self._is_tp_update = True
 
 
         except KeyError as ex:
@@ -99,11 +101,10 @@ class AutomationOne():
             raise # 再スロー
 
 
-    def get_reocrd_of_best_tp_or_none(self, df_tp):
+    def get_reocrd_of_best_tp_or_none(self):
         """TODO ［理論的確率データ］テーブルから、イーブンに一番近い行を抽出します"""
 
-        df_result_set_by_index = TheoreticalProbabilityTable.get_result_set_by_index(
-                df=df_tp,
+        df_result_set_by_index = self._tp_table.get_result_set_by_index(
                 turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
                 failure_rate=self._spec.failure_rate,
                 p=self._spec.p)
@@ -140,31 +141,31 @@ class AutomationOne():
             raise ValueError("self._df_best を先に設定しておかなければいけません")
 
         self._spec = spec
-        self._is_update_df_best = False
+        self._is_tp_update = False
 
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        df_tp, is_new = TheoreticalProbabilityTable.read_df(spec=self._spec, new_if_it_no_exists=False)
+        self._tp_table, is_new = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
 
-        if df_tp is None:
+        if self._tp_table is None:
             print(f"[{datetime.datetime.now()}][turn_system={Converter.turn_system_id_to_name(self._spec.turn_system_id)}  failure_rate={self._spec.failure_rate * 100:.1f}%  p={self._spec.p * 100:.1f}%] スキップ。［理論的確率データ］ファイルがない。")
             return False
 
         if is_new:
-            self._is_update_df_best = True
+            self._is_tp_update = True
 
 
         # ［理論的確率データ］の各レコードについて
         #
         #   FIXME TPテーブルは行が膨大にあるので、for_each するのは良くない。まず、ベスト・レコードを取得すべき
         #
-        record_in_best_tp_or_none = self.get_reocrd_of_best_tp_or_none(df_tp=df_tp)
+        record_in_best_tp_or_none = self.get_reocrd_of_best_tp_or_none()
         if record_in_best_tp_or_none is not None:
             self.on_match(record_tp=record_in_best_tp_or_none)
 
 
-        return self._is_update_df_best
+        return self._is_tp_update
 
 
 class AutomationAll():

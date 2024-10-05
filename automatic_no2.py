@@ -57,7 +57,7 @@ class AllTheoreticalProbabilityFilesOperation():
                             failure_rate=failure_rate,
                             turn_system_id=turn_system_id)
 
-                    df, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=True)
+                    tp_table, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=True)
 
 
                     # FIXME 便宜的に［試行シリーズ数］は 1 固定
@@ -80,7 +80,7 @@ class AllTheoreticalProbabilityFilesOperation():
                     # ファイルが存在して、読み込まれたなら
                     else:
                         # ループカウンター
-                        if len(df) < 1:
+                        if len(tp_table._df) < 1:
                             span = 1        # ［目標の点数］
                             t_step = 1      # ［後手で勝ったときの勝ち点］
                             h_step = 1      # ［先手で勝ったときの勝ち点］
@@ -89,13 +89,13 @@ class AllTheoreticalProbabilityFilesOperation():
                             # 途中まで処理が終わってるんだったら、途中から再開したいが。ループの途中から始められるか？
 
                             # TODO 最後に処理された span は？
-                            span = int(df['span'].max())
+                            span = int(tp_table._df['span'].max())
 
                             # TODO 最後に処理された span のうち、最後に処理された t_step は？
-                            t_step = int(df.loc[df['span']==span, 't_step'].max())
+                            t_step = int(tp_table._df.loc[tp_table._df['span']==span, 't_step'].max())
 
                             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
-                            h_step = int(df.loc[(df['span']==span) & (df['t_step']==t_step), 'h_step'].max())
+                            h_step = int(tp_table._df.loc[(tp_table._df['span']==span) & (tp_table._df['t_step']==t_step), 'h_step'].max())
 
                             print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
 
@@ -103,7 +103,7 @@ class AllTheoreticalProbabilityFilesOperation():
                     while span < upper_limit_span + 1:
 
                         # 該当レコードのキー
-                        key = (df['span']==span) & (df['t_step']==t_step) & (df['h_step']==h_step)
+                        key = (tp_table._df['span']==span) & (tp_table._df['t_step']==t_step) & (tp_table._df['h_step']==h_step)
 
                         # データが既存でないなら
                         if not key.any():
@@ -118,8 +118,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
                             # データフレーム更新
                             # 新規レコード追加
-                            TheoreticalProbabilityTable.insert_record(
-                                    df=df,
+                            tp_table.insert_record(
                                     welcome_record=TheoreticalProbabilityRecord(
                                             turn_system_name=turn_system_name,
                                             failure_rate=spec.failure_rate,
@@ -148,7 +147,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
                     if 0 < self._number_of_dirty:
-                        csv_file_path_to_wrote = TheoreticalProbabilityTable.to_csv(df=df, spec=spec)
+                        csv_file_path_to_wrote = tp_table.to_csv(spec=spec)
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
                         self._number_of_dirty = 0
 
@@ -191,9 +190,9 @@ class AllTheoreticalProbabilityFilesOperation():
                             failure_rate=failure_rate,
                             turn_system_id=turn_system_id)
 
-                    df, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=False)
+                    tp_table, is_new = TheoreticalProbabilityTable.read_df(spec=spec, new_if_it_no_exists=False)
 
-                    if df is None:
+                    if tp_table is None:
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] FILE_NOT_FOUND")
                         continue
 
@@ -201,13 +200,13 @@ class AllTheoreticalProbabilityFilesOperation():
                     #
                     #   FIXME このコードの書き方で動くのかわからない。もし書けないなら、１件ずつ調べていけばいいか
                     #
-                    min_abs_error = (df['theoretical_a_win_rate'] - EVEN).abs().min()
+                    min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
                     if is_almost_zero(min_abs_error):
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RE_EVEN_")
                         continue
 
                     # 該当レコードのキー
-                    key = (df['theoretical_a_win_rate']==OUT_OF_P) & (df['upper_limit_coins']<=upper_limit_upper_limit_coins)
+                    key = (tp_table.df['theoretical_a_win_rate']==OUT_OF_P) & (tp_table.df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
                     # データが既存なら
                     if key.any():
@@ -215,7 +214,7 @@ class AllTheoreticalProbabilityFilesOperation():
                         # FIXME 便宜的に［試行シリーズ数］は 1 固定
                         trials_series = 1
 
-                        for index, row in df[key].iterrows():
+                        for index, row in tp_table.df[key].iterrows():
 
                             # 指定間隔（秒）でループを抜ける
                             end_time_for_save = time.time()
@@ -241,8 +240,8 @@ class AllTheoreticalProbabilityFilesOperation():
                                     on_score_board_created=on_score_board_created)
 
                             # データフレーム更新
-                            df.loc[index,['theoretical_a_win_rate']] = three_rates.a_win_rate
-                            df.loc[index,['theoretical_no_win_match_rate']] = three_rates.no_win_match_rate
+                            tp_table.df.loc[index,['theoretical_a_win_rate']] = three_rates.a_win_rate
+                            tp_table.df.loc[index,['theoretical_no_win_match_rate']] = three_rates.no_win_match_rate
 
                             self._number_of_dirty += 1
 
@@ -250,7 +249,7 @@ class AllTheoreticalProbabilityFilesOperation():
                     # 変更があれば保存
                     if 0 < self._number_of_dirty:
                         # CSVファイルへ書き出し
-                        csv_file_path_to_wrote = TheoreticalProbabilityTable.to_csv(df, spec)
+                        csv_file_path_to_wrote = tp_table.to_csv(spec=spec)
 
                         print(f"[{datetime.datetime.now()}][{depth=}  turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
                     

@@ -509,17 +509,36 @@ class EmpiricalProbabilityTable():
         self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
 
 
-    def update_record(self, specified_p, welcome_record):
-        """レコード更新
+    def update_record(self, index, welcome_record):
+        """データが既存なら、差異があれば、上書き、無ければ何もしません
         
         Parameters
         ----------
-        specified_p : float
-
         welcome_record : EmpiricalProbabilityRecord
             レコード
         """
-        self.sub_insert_record(index=self._df['p']==specified_p, welcome_record=welcome_record)
+
+        index = self._df['p']==welcome_record.p
+
+        # インデックスが一致するのは前提事項
+        is_dirty =\
+            df.at[index, 'trials_series'] != welcome_record.trials_series or\
+            df.at[index, 'best_p'] != welcome_record.best_p or\
+            df.at[index, 'best_p_error'] != welcome_record.best_p_error or\
+            df.at[index, 'best_h_step'] != welcome_record.best_h_step or\
+            df.at[index, 'best_t_step'] != welcome_record.best_t_step or\
+            df.at[index, 'best_span'] != welcome_record.best_span or\
+            df.at[index, 'latest_p'] != welcome_record.latest_p or\
+            df.at[index, 'latest_p_error'] != welcome_record.latest_p_error or\
+            df.at[index, 'latest_h_step'] != welcome_record.latest_h_step or\
+            df.at[index, 'latest_t_step'] != welcome_record.latest_t_step or\
+            df.at[index, 'latest_span'] != welcome_record.latest_span or\
+            df.at[index, 'candidates'] != welcome_record.candidates
+
+
+        if is_dirty:
+            # データフレーム更新
+            self.sub_insert_record(index=index, welcome_record=welcome_record)
 
 
     def to_csv(self, failure_rate, turn_system_id, trials_series):
@@ -680,31 +699,15 @@ class TheoreticalProbabilityTable():
         'theoretical_no_win_match_rate':'float64'}
 
 
-    @staticmethod
-    def set_index(df):
-        """主キーの設定"""
-        df.set_index(
-                ['turn_system_name', 'failure_rate', 'p'],
-                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
-        df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+    def __init__(self, df):
+        self._df = df
+        self.set_index()
 
 
-    @staticmethod
-    def get_result_set_by_index(df, turn_system_name, failure_rate, p):
-        """0～複数件のレコードを含むデータフレームを返します"""
-
-        # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-        return df_result_set
-
-
+    # 旧: new_data_frame
     @classmethod
-    def new_data_frame(clazz):
-        df = pd.DataFrame.from_dict({
+    def new_empty_table(clazz):
+        df_tp = pd.DataFrame.from_dict({
                 'turn_system_name': [],
                 'failure_rate': [],
                 'p': [],
@@ -716,13 +719,37 @@ class TheoreticalProbabilityTable():
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
 
-        TheoreticalProbabilityTable.set_index(df)
-
-        return df
+        return TheoreticalProbabilityTable(df=df_tp)
 
 
+    @property
+    def df(self):
+        return self._df
+
+
+    def set_index(self):
+        """主キーの設定"""
+        self._df.set_index(
+                ['turn_system_name', 'failure_rate', 'p'],
+                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        self._df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+    def get_result_set_by_index(self, turn_system_name, failure_rate, p):
+        """0～複数件のレコードを含むデータフレームを返します"""
+
+        # 絞り込み。 DataFrame型が返ってくる
+        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+        return df_result_set
+
+
+    # 旧: read_df
     @classmethod
-    def read_df(clazz, spec, new_if_it_no_exists=False):
+    def read_csv(clazz, spec, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -734,8 +761,8 @@ class TheoreticalProbabilityTable():
         
         Returns
         -------
-        df : DataFrame
-            データフレーム
+        tp_table : TheoreticalProbabilityTable
+            テーブル、またはナン
         is_new : bool
             新規作成されたか？
         """
@@ -751,69 +778,62 @@ class TheoreticalProbabilityTable():
         is_new = not os.path.isfile(csv_file_path)
         if is_new:
             if new_if_it_no_exists:
-                df = TheoreticalProbabilityTable.new_data_frame()
+                tp_table = TheoreticalProbabilityTable.new_empty_table()
             else:
-                df = None
+                tp_table = None
 
         else:
+
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+            tp_table = TheoreticalProbabilityTable(df=df)
 
 
-        if df is not None:
-            TheoreticalProbabilityTable.set_index(df)
-
-        return df, is_new
+        return tp_table, is_new
 
 
-    @staticmethod
-    def sub_insert_record(df, row_index, welcome_record):
-        df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
-        df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
-        df.at[row_index, 'p'] = welcome_record.p
-        df.at[row_index, 'span'] = welcome_record.span
-        df.at[row_index, 't_step'] = welcome_record.t_step
-        df.at[row_index, 'h_step'] = welcome_record.h_step
-        df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
-        df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+    def sub_insert_record(self, row_index, welcome_record):
+        self._df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
+        self._df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
+        self._df.at[row_index, 'p'] = welcome_record.p
+        self._df.at[row_index, 'span'] = welcome_record.span
+        self._df.at[row_index, 't_step'] = welcome_record.t_step
+        self._df.at[row_index, 'h_step'] = welcome_record.h_step
+        self._df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
+        self._df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        self._df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+        self._df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
 
 
-    @staticmethod
-    def insert_record(df, welcome_record):
-        TheoreticalProbabilityTable.sub_insert_record(df=df, row_index=len(df.index), welcome_record=welcome_record)
+    def insert_record(self, welcome_record):
+        self.sub_insert_record(row_index=len(self._df.index), welcome_record=welcome_record)
 
 
-    @staticmethod
-    def update_record(df, row_index, welcome_record):
+    def update_record(self, row_index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
-        # 主キーが一致するのは前提事項
+        # インデックスが一致するのは前提事項
         is_dirty =\
-            df.at[row_index, 'span'] != welcome_record.span or\
-            df.at[row_index, 't_step'] != welcome_record.t_step or\
-            df.at[row_index, 'h_step'] != welcome_record.h_step or\
-            df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            df.at[row_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            df.at[row_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
+            self._df.at[row_index, 'span'] != welcome_record.span or\
+            self._df.at[row_index, 't_step'] != welcome_record.t_step or\
+            self._df.at[row_index, 'h_step'] != welcome_record.h_step or\
+            self._df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            self._df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            self._df.at[row_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
+            self._df.at[row_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
 
         if is_dirty:
             # データフレーム更新
-            TheoreticalProbabilityTable.sub_insert_record(df=df, row_index=row_index, welcome_record=welcome_record)
+            self.sub_insert_record(row_index=row_index, welcome_record=welcome_record)
 
         return is_dirty
 
 
-    @staticmethod
-    def upsert_record(df, df_result_set_by_index, welcome_record):
+    def upsert_record(self, df_result_set_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
         df_result_set_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
@@ -830,18 +850,20 @@ class TheoreticalProbabilityTable():
 
         # データが既存でないなら、新規追加
         if len(df_result_set_by_index) == 0:
-            TheoreticalProbabilityTable.insert_record(df=df, welcome_record=welcome_record)
+            self.insert_record(welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        row_index = df_result_set_by_index.index[0]
+        index = df_result_set_by_index.index[0]
+        #index = self._df['p']==welcome_record.p
 
-        return TheoreticalProbabilityTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
+        return self.update_record(
+                index=index,
+                welcome_record=welcome_record)
 
 
-    @staticmethod
-    def to_csv(df, spec):
+    def to_csv(self, spec):
         """ファイル書き出し
         
         Returns
@@ -856,23 +878,23 @@ class TheoreticalProbabilityTable():
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id)
 
-        df.to_csv(csv_file_path,
+        self.to_csv(csv_file_path,
                 columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
 
 
-    @staticmethod
-    def for_each(df, on_each):
+    def for_each(self, on_each):
         """
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
         on_each : func
             record 引数を受け取る関数
         """
+
+        df = self._df
+
         for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate in\
             zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
 
@@ -1058,7 +1080,7 @@ class TheoreticalProbabilityTrialResultsTable():
     def update_record(df, row_index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
-        # 主キーが一致するのは前提事項
+        # インデックスが一致するのは前提事項
         is_dirty =\
             df.at[row_index, 'span'] != welcome_record.span or\
             df.at[row_index, 't_step'] != welcome_record.t_step or\
@@ -1324,7 +1346,7 @@ class TheoreticalProbabilityBestTable():
     def update_record(df, row_index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
-        # 主キーが一致するのは前提事項
+        # インデックスが一致するのは前提事項
         is_dirty =\
             df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
             df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\

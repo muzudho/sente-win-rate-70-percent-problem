@@ -55,8 +55,13 @@ class Automation():
             ［仕様］
         """
 
-        self._ep_table.update_record(
-                specified_p = spec.p,
+        df_result_set_by_index = self._ep_table.get_result_set_by_index(
+                turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
+                failure_rate=spec.failure_rate,
+                p=spec.p)
+
+        self._ep_table.upsert_record(
+                df_result_set_by_index=df_result_set_by_index,
                 welcome_record=EmpiricalProbabilityRecord(
                         turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
                         failure_rate=spec.failure_rate,
