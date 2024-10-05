@@ -539,7 +539,7 @@ class EmpiricalProbabilityTable():
             レコード
         """
 
-        index = self._df['p']==welcome_record.p
+        #index = self._df['p']==welcome_record.p
 
         # インデックスが一致するのは前提事項
         is_dirty =\
