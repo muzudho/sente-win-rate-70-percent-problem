@@ -435,7 +435,7 @@ def stringify_csv_of_score_board_view_header(spec, series_rule):
     # NOTE 書式設定の桁指定は、文字数なので、文字幅が考慮されないので桁揃えできない。CSV形式にして Excel で閲覧すること
     str_p = str(spec.p * 100)
     str_failure_rate = str(spec.failure_rate * 100)
-    str_turn_system = str(Converter.turn_system_to_code(spec.turn_system_id))
+    str_turn_system = str(Converter.turn_system_id_to_code(spec.turn_system_id))
     str_h_step = str(h_step)
     str_t_step = str(t_step)
     str_span = str(span)
@@ -623,7 +623,7 @@ class KakukinDataSheetTableCsv():
         # ［前提条件］
         str_p = f"{spec.p*100:.4f}"                                                 # ［将棋の先手勝率］ p （Probability）
         str_failure_rate = f"{spec.failure_rate*100:.4f}"                           # ［将棋の引分け率］
-        str_turn_system = f"{Converter.turn_system_to_code(spec.turn_system_id)}"      # ［手番の決め方］
+        str_turn_system = f"{Converter.turn_system_id_to_code(spec.turn_system_id)}"      # ［手番の決め方］
 
         # ［大会のルール設定］
         str_head_step = f"{series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］

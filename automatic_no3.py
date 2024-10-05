@@ -24,7 +24,7 @@ if __name__ == '__main__':
             for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):   # 5％刻み
                 specified_failure_rate = failure_rate_percent / 100
 
-                print(f"[{datetime.datetime.now()}][turn_system_name={Converter.turn_system_to_code(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] create kakukin data excel file ...")
+                print(f"[{datetime.datetime.now()}][turn_system_name={Converter.turn_system_id_to_code(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] create kakukin data excel file ...")
 
                 # ［かくきんデータ］エクセル・ファイルの作成
                 automation = CreateKakukinDataExcelFileAutomation(

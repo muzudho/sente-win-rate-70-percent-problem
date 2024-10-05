@@ -36,7 +36,7 @@ class Automation():
             return
 
         # 対象外のものはスキップ　［先後の決め方］
-        if self._specified_turn_system_id != Converter.code_to_turn_system(best_record.turn_system_name):
+        if self._specified_turn_system_id != Converter.turn_system_code_to_id(best_record.turn_system_name):
             return
 
         # # 対象外のものはスキップ　［試行シリーズ数］

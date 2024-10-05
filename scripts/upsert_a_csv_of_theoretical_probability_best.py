@@ -78,7 +78,7 @@ class AutomationOne():
 
         is_dirty = False
 
-        turn_system_name = Converter.turn_system_to_code(self._spec.turn_system_id)
+        turn_system_name = Converter.turn_system_id_to_code(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
         df_tp, is_new = TheoreticalProbabilityTable.read_df(spec=self._spec, new_if_it_no_exists=False)
@@ -130,7 +130,7 @@ class AutomationAll():
     def execute_all(self):
         # ［先後の決め方］
         for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
-            turn_system_name = Converter.turn_system_to_code(specified_turn_system_id)
+            turn_system_name = Converter.turn_system_id_to_code(specified_turn_system_id)
 
             # ［将棋の引分け率］
             for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み

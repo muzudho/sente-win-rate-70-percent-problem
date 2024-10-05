@@ -48,7 +48,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
                 # ［先後の決め方］
                 for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
-                    turn_system_name = Converter.turn_system_to_code(turn_system_id)
+                    turn_system_name = Converter.turn_system_id_to_code(turn_system_id)
                     #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_name=}")
 
                     # 仕様
@@ -178,7 +178,7 @@ class AllTheoreticalProbabilityFilesOperation():
                     self._number_of_dirty = 0
                     self._start_time_for_save = time.time()       # CSV保存用タイマー
 
-                    turn_system_name = Converter.turn_system_to_code(turn_system_id)
+                    turn_system_name = Converter.turn_system_id_to_code(turn_system_id)
                     #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_name=}")
 
                     # 仕様

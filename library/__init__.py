@@ -151,7 +151,7 @@ class Converter():
     _turn_system_to_readable = None
 
     @classmethod
-    def turn_system_to_readable(clazz, turn_system_id):
+    def turn_system_id_to_readable(clazz, turn_system_id):
         if clazz._turn_system_to_readable is None:
             clazz._turn_system_to_readable = {
                 FROZEN_TURN : '先後固定制',
@@ -164,7 +164,7 @@ class Converter():
     _turn_system_to_code = None
 
     @classmethod
-    def turn_system_to_code(clazz, turn_system_id):
+    def turn_system_id_to_code(clazz, turn_system_id):
         if clazz._turn_system_to_code is None:
             clazz._turn_system_to_code = {
                 FROZEN_TURN : 'frozen',
@@ -177,7 +177,7 @@ class Converter():
     _code_to_turn_system = None
 
     @classmethod
-    def code_to_turn_system(clazz, code):
+    def turn_system_code_to_id(clazz, code):
         if clazz._code_to_turn_system is None:
             clazz._code_to_turn_system = {
                 'frozen' : FROZEN_TURN,
@@ -2408,7 +2408,7 @@ class ScoreBoard():
 
         # 対局不成立
         if last_a_count_down_point <= 0 and last_b_count_down_point <= 0:
-            raise ValueError(f"両者が満点はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system_id={Converter.turn_system_to_code(spec.turn_system_id)}  {span=}  {t_step=}  {h_step=}")
+            raise ValueError(f"両者が満点はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system_id={Converter.turn_system_id_to_code(spec.turn_system_id)}  {span=}  {t_step=}  {h_step=}")
         
         # 満点で,Ａさんの勝ち
         elif last_a_count_down_point <= 0:

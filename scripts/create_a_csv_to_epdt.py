@@ -110,8 +110,8 @@ class Automation():
             raise ValueError(f"{self._specified_failure_rate=} != {record.failure_rate=}")
 
 
-        if self._specified_turn_system_id != Converter.code_to_turn_system(record.turn_system_name):
-            raise ValueError(f"{Converter.turn_system_to_code(self._specified_turn_system_id)=} != {record.turn_system_name=}")
+        if self._specified_turn_system_id != Converter.turn_system_code_to_id(record.turn_system_name):
+            raise ValueError(f"{Converter.turn_system_id_to_code(self._specified_turn_system_id)=} != {record.turn_system_name=}")
 
 
         # FIXME 自明のチェック。 self._specified_trials_series と record.trials_series は必ず一致する

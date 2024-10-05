@@ -411,7 +411,7 @@ class EmpiricalProbabilityTable():
         # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
         df.loc[index, ['p']] = spec.p
         df.loc[index, ['failure_rate']] = spec.failure_rate
-        df.loc[ index, ['turn_system_name']] = Converter.turn_system_to_code(spec.turn_system_id)
+        df.loc[ index, ['turn_system_name']] = Converter.turn_system_id_to_code(spec.turn_system_id)
         df.loc[index, ['trials_series']] = trials_series
         df.loc[index, ['best_p']] = 0
         df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
@@ -789,7 +789,7 @@ class TheoreticalProbabilityTable():
             zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_a_win_rate_abs_error'], df['theoretical_no_win_match_rate']):
 
             # レコード作成
-            record = EmpiricalProbabilityRecord(
+            record = TheoreticalProbabilityRecord(
                     turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
                     p=p,

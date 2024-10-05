@@ -14,7 +14,7 @@ from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityReco
 
 def stringify_header(turn_system_id):
     return f"""\
-turn system={Converter.turn_system_to_readable(turn_system_id)}
+turn system={Converter.turn_system_id_to_readable(turn_system_id)}
 
 +---------------------------+------------------------------------------+--------------------------------+
 | Spec                      | Series rule                              | 1 Trial                        |
