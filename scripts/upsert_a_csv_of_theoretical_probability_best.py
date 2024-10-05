@@ -35,8 +35,8 @@ class AutomationOne():
         if abs(error) < abs(self._best_theoretical_win_rate_error):
             is_update = True
         
-        # 誤差が同じでも、引き分け率が下がれば更新
-        elif error == self._best_theoretical_win_rate_error and (self._best_record.theoretical_no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < self.theoretical_no_win_match_rate):
+        # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
+        elif error == self._best_theoretical_win_rate_error and (self._best_record.theoretical_no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < self._best_record.theoretical_no_win_match_rate):
             is_update = True
         
         else:

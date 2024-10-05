@@ -1192,7 +1192,7 @@ class TheoreticalProbabilityBestTable():
         """
 
         # 該当レコードセット
-        key = (df['span']==span) & (df['t_step']==t_step) & (df['h_step']==h_step)
+        key = (df['span']==record.span) & (df['t_step']==record.t_step) & (df['h_step']==record.h_step)
 
         # TODO データが既存なら、差異があれば、上書き
         if key.any():
