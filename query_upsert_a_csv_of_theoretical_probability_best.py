@@ -68,7 +68,7 @@ Which one(1-2)? """
         is_dirty, df_best = upsert_csv_of_theoretical_probability_best_one.execute_one()
 
         # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
-        # span, t_step, h_step は主キーでは無いのでは？
+        # FIXME span, t_step, h_step は主キーでは無いのでは？
         # ファイルに変更があれば、CSVファイル保存
         if is_dirty:
             csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)

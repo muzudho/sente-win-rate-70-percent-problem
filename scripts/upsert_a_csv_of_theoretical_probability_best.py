@@ -51,10 +51,11 @@ class AutomationOne():
                     df=self._df_best,
                     turn_system_name=record_tp.turn_system_name,
                     failure_rate=record_tp.failure_rate,
-                    p=record_tp.p,
-                    span=record_tp.span,
-                    t_step=record_tp.t_step,
-                    h_step=record_tp.h_step)
+                    p=record_tp.p)
+            #span=record_tp.span,
+            #t_step=record_tp.t_step,
+            #h_step=record_tp.h_step                    
+
 
             if 1 < len(df_result_set_by_primary_key):
                 raise ValueError(f"複数件該当するのはおかしい {len(df_result_set_by_primary_key)=}")

@@ -1134,8 +1134,28 @@ class TheoreticalProbabilityBestTable():
 
         # # 主キーの設定
         # df.set_index(
-        #         ['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step'],
+        #         ['turn_system_name', 'failure_rate', 'p'],
         #         inplace=True)   # インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        # #, 'span', 't_step', 'h_step'
+
+
+    @staticmethod
+    def get_result_set_by_primary_key(df, turn_system_name, failure_rate, p):
+        """0～1件のレコードを含むデータフレームを返します"""
+        #, span, t_step, h_step
+
+        # 絞り込み。 DataFrame型が返ってくる
+        df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+        # & span==@span & t_step==@t_step & h_step==@h_step
+#         print(f"""\
+# df_result_set:
+# {type(df_result_set)=}
+# {df_result_set}""")
+
+        if 1 < len(df_result_set):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}  {span=}  {t_step=}  {h_step=}")
+
+        return df_result_set
 
 
     @classmethod
@@ -1215,22 +1235,6 @@ class TheoreticalProbabilityBestTable():
 
 
     @staticmethod
-    def get_result_set_by_primary_key(df, turn_system_name, failure_rate, p, span, t_step, h_step):
-        """0～1件のレコードを含むデータフレームを返します"""
-        # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p & span==@span & t_step==@t_step & h_step==@h_step')
-#         print(f"""\
-# df_result_set:
-# {type(df_result_set)=}
-# {df_result_set}""")
-
-        if 1 < len(df_result_set):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}  {span=}  {t_step=}  {h_step=}")
-
-        return df_result_set
-
-
-    @staticmethod
     def upsert_record(df, df_result_set_by_primary_key, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
@@ -1264,7 +1268,7 @@ class TheoreticalProbabilityBestTable():
         row_index = df_result_set_by_primary_key.index[0]  # NOTE <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
         #print(f"{type(row_index)=}  {row_index=}")
 
-        return TheoreticalProbabilityBestTable.update_reocrd(df=df, row_index=row_index, welcome_record=welcome_record)
+        return TheoreticalProbabilityBestTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
 
     @classmethod
