@@ -1,6 +1,6 @@
 #
 # 表示
-# python create_a_csv_to_view_ep_in_excel_ver2.py
+# python query_create_a_csv_to_view_ep_in_excel_ver2.py
 #
 #   Excel で［かくきんシステムの表］を表示するための CSV を作成する
 #
@@ -10,7 +10,7 @@
 import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
-from scripts.create_kakukin_data_sheet_csv_file import CreateKakukinDataSheetCsvFile
+from scripts.create_kakukin_data_sheet_csv_file import Automation as CreateKakukinDataSheetCsvFile
 
 
 ########################################

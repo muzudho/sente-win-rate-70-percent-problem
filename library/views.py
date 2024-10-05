@@ -601,13 +601,15 @@ class KakukinDataSheetTableCsv():
         return f"p,failure_rate,turn_system_name,head_step,tail_step,span,shortest_coins,upper_limit_coins,trials_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
 
 
-    def stringify_csv_of_body(spec, series_rule, presentable, comment, large_series_trial_summary):
+    def stringify_csv_of_body(spec, theoretical_series_rule, presentable, comment, large_series_trial_summary):
         """データ部を文字列化
 
         Parameters
         ----------
         spec : Specification
             ［仕様］
+        theoretical_series_rule : SeriesRule
+            理論値の［シリーズ・ルール］
         """
 
         # 変数名を縮める（Summary）
@@ -626,11 +628,12 @@ class KakukinDataSheetTableCsv():
         str_turn_system = f"{Converter.turn_system_id_to_name(spec.turn_system_id)}"      # ［手番の決め方］
 
         # ［大会のルール設定］
-        str_head_step = f"{series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
-        str_tail_step = f"{series_rule.step_table.get_step_by(face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
-        str_span = f"{series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
-        str_shortest_coins = f"{series_rule.shortest_coins}"                        # ［最短対局数］
-        str_upper_limit_coins = f"{series_rule.upper_limit_coins}"                  # ［上限対局数］
+        # TODO ここは理論値を入れたい
+        str_head_step = f"{theoretical_series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
+        str_tail_step = f"{theoretical_series_rule.step_table.get_step_by(face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
+        str_span = f"{theoretical_series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
+        str_shortest_coins = f"{theoretical_series_rule.shortest_coins}"                        # ［最短対局数］
+        str_upper_limit_coins = f"{theoretical_series_rule.upper_limit_coins}"                  # ［上限対局数］
                                                                                     # NOTE ルール設定を求めたときの試行回数も記録しようかと思ったが、作り方についてそんなに信用できる記録でもないので止めた
 
         # ［シミュレーション結果］

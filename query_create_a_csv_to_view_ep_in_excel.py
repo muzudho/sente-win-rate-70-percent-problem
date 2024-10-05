@@ -1,9 +1,9 @@
 #
-# NOTE こちらは古い方
+# FIXME これは廃止予定
 #
 #
 # 表示
-# python create_a_csv_to_view_ep_in_excel.py
+# python query_create_a_csv_to_view_ep_in_excel.py
 #
 #   Excel で［かくきんシステムの表］を表示するための CSV を作成する
 #
@@ -19,7 +19,7 @@ from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityReco
 from library.views import KakukinDataSheetTableCsv
 
 
-def automatic(specified_failure_rate, specified_turn_system_id, specified_trials_series):
+def automatic_deprecated(specified_failure_rate, specified_turn_system_id, specified_trials_series):
     header_csv = KakukinDataSheetTableCsv.stringify_header()
 
     print(header_csv) # 表示
@@ -87,7 +87,7 @@ def automatic(specified_failure_rate, specified_turn_system_id, specified_trials
         # CSV作成
         csv = KakukinDataSheetTableCsv.stringify_csv_of_body(
                 spec=spec,
-                series_rule=series_rule,
+                theoretical_series_rule=series_rule,    # TODO ここは理論値にしたい
                 presentable='',
                 comment='',
                 large_series_trial_summary=large_series_trial_summary)
@@ -159,7 +159,7 @@ How many times do you want to try the series(0-6)? """
         specified_trials_series = Converter.precision_to_trials_series(precision)
 
 
-        automatic(
+        automatic_deprecated(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_trials_series=specified_trials_series)

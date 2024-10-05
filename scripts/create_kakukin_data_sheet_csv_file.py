@@ -29,66 +29,67 @@ class Automation():
         self._specified_trials_series=specified_trials_series
 
 
-    def on_each(self, best_record):
+    def on_each(self, record_best_tp):
 
         # 対象外のものはスキップ　［将棋の引分け率］
-        if self._specified_failure_rate != best_record.failure_rate:
+        if self._specified_failure_rate != record_best_tp.failure_rate:
             return
 
         # 対象外のものはスキップ　［先後の決め方］
-        if self._specified_turn_system_id != Converter.turn_system_code_to_id(best_record.turn_system_name):
+        if self._specified_turn_system_id != Converter.turn_system_code_to_id(record_best_tp.turn_system_name):
             return
 
         # # 対象外のものはスキップ　［試行シリーズ数］
-        # if self._specified_trials_series != best_record.trials_series:
+        # if self._specified_trials_series != record_best_tp.trials_series:
         #     return
 
-        # if best_record.best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-        #     print(f"[p={best_record.p}  failure_rate={best_record.failure_rate}] ベスト値が設定されていません。スキップします")
+        # if record_best_tp.best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
+        #     print(f"[p={record_best_tp.p}  failure_rate={record_best_tp.failure_rate}] ベスト値が設定されていません。スキップします")
         #     return
 
 
         # 仕様
         spec = Specification(
-                p=best_record.p,
-                failure_rate=best_record.failure_rate,
+                p=record_best_tp.p,
+                failure_rate=record_best_tp.failure_rate,
                 turn_system_id=self._specified_turn_system_id)
 
 
         # ［シリーズ・ルール］
-        series_rule = SeriesRule.make_series_rule_base(
+        # TODO これは理論値にしたい
+        theoretical_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
                 trials_series=self._specified_trials_series,
-                h_step=best_record.h_step,
-                t_step=best_record.t_step,
-                span=best_record.span)
+                h_step=record_best_tp.h_step,  # TODO これは理論値にしたい
+                t_step=record_best_tp.t_step,  # TODO これは理論値にしたい
+                span=record_best_tp.span)      # TODO これは理論値にしたい
 
 
         # シミュレーションします
         large_series_trial_summary = simulate_series(
                 spec=spec,
-                series_rule=series_rule,
+                series_rule=theoretical_series_rule,
                 specified_trials_series=self._specified_trials_series)
 
 
         # CSV作成
         csv = KakukinDataSheetTableCsv.stringify_csv_of_body(
                 spec=spec,
-                series_rule=series_rule,
+                theoretical_series_rule=theoretical_series_rule,    # TODO ここは理論値にしたい
                 presentable='',
                 comment='',
                 large_series_trial_summary=large_series_trial_summary)
 
 
-        print(csv) # 表示
+        #print(csv) # 表示
 
-        # ログ出力
-        csv_file_path_of_view = KakukinDataFilePaths.as_sheet_csv(
+        # CSVファイル出力
+        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id,
                 trials_series=self._specified_trials_series)
-        print(f"[{datetime.datetime.now()}] write view to `{csv_file_path_of_view}` file ...")
-        with open(csv_file_path_of_view, 'a', encoding='utf8') as f:
+        print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
+        with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(f"{csv}\n")    # ファイルへ出力
 
 
@@ -96,7 +97,7 @@ class Automation():
     def execute(self):
         header_csv = KakukinDataSheetTableCsv.stringify_header()
 
-        print(header_csv) # 表示
+        #print(header_csv) # 表示
 
         # 仕様
         spec = Specification(
@@ -109,11 +110,11 @@ class Automation():
         #
         #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
         #
-        csv_file_path_of_view = KakukinDataFilePaths.as_sheet_csv(
+        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id,
                 trials_series=self._specified_trials_series)
-        with open(csv_file_path_of_view, 'w', encoding='utf8') as f:
+        with open(csv_file_path, 'w', encoding='utf8') as f:
             f.write(f"{header_csv}\n")
 
 
