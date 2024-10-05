@@ -1204,49 +1204,54 @@ class TheoreticalProbabilityBestTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        # 該当レコードセット
-        primary_key =\
-                (df['turn_system_name']==record.turn_system_name) &\
-                (df['failure_rate']==record.failure_rate) &\
-                (df['p']==record.p) &\
-                (df['span']==record.span) &\
-                (df['t_step']==record.t_step) &\
-                (df['h_step']==record.h_step)
+        # 絞り込み
+        df_result_set = df.query('turn_system_name==@record.turn_system_name & failure_rate==@record.failure_rate & p==@record.p & span==@record.span & t_step==@record.t_step & h_step==@record.h_step')
+#         print(f"""\
+# df_result_set:
+# {type(df_result_set)=}
+# {df_result_set}""")
 
-        if 1 < len(df.loc[primary_key]):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df.loc[primary_key])=}  {record.turn_system_name=}  {record.failure_rate=}  {record.p=}  {record.span=}  {record.t_step=}  {record.h_step=}")
-
-        # TODO データが既存なら、差異があれば、上書き
-        if primary_key.any():
-            is_dirty =\
-                df.loc[primary_key, 'turn_system_name'] != record.turn_system_name or\
-                df.loc[primary_key, 'failure_rate'] != record.failure_rate or\
-                df.loc[primary_key, 'p'] != record.p or\
-                df.loc[primary_key, 'span'] != record.span or\
-                df.loc[primary_key, 't_step'] != record.t_step or\
-                df.loc[primary_key, 'h_step'] != record.h_step or\
-                df.loc[primary_key, 'shortest_coins'] != record.shortest_coins or\
-                df.loc[primary_key, 'upper_limit_coins'] != record.upper_limit_coins or\
-                df.loc[primary_key, 'theoretical_a_win_rate'] != record.theoretical_a_win_rate or\
-                df.loc[primary_key, 'theoretical_no_win_match_rate'] != record.theoretical_no_win_match_rate
-
-            if is_dirty:
-                df.loc[primary_key, ['turn_system_name'] ] = record.turn_system_name
-                df.loc[primary_key, ['failure_rate']] = record.failure_rate
-                df.loc[primary_key, ['p']] = record.p
-                df.loc[primary_key, ['span']] = record.span
-                df.loc[primary_key, ['t_step']] = record.t_step
-                df.loc[primary_key, ['h_step']] = record.h_step
-                df.loc[primary_key, ['shortest_coins']] = record.shortest_coins
-                df.loc[primary_key, ['upper_limit_coins']] = record.upper_limit_coins
-                df.loc[primary_key, ['theoretical_a_win_rate']] = record.theoretical_a_win_rate
-                df.loc[primary_key, ['theoretical_no_win_match_rate']] = record.theoretical_no_win_match_rate
+        if 1 < len(df_result_set):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {record.turn_system_name=}  {record.failure_rate=}  {record.p=}  {record.span=}  {record.t_step=}  {record.h_step=}")
 
         # データが既存でないなら、新規追加
-        else:
+        if len(df_result_set) == 0:
             TheoreticalProbabilityBestTable.append_record(df=df, record=record)
-            is_dirty = True
+            return True
 
+        # データが既存なら、差異があれば、上書き、無ければ何もしません
+        is_dirty =\
+            df_result_set.at[0, 'turn_system_name'] != record.turn_system_name or\
+            df_result_set.at[0, 'failure_rate'] != record.failure_rate or\
+            df_result_set.at[0, 'p'] != record.p or\
+            df_result_set.at[0, 'span'] != record.span or\
+            df_result_set.at[0, 't_step'] != record.t_step or\
+            df_result_set.at[0, 'h_step'] != record.h_step or\
+            df_result_set.at[0, 'shortest_coins'] != record.shortest_coins or\
+            df_result_set.at[0, 'upper_limit_coins'] != record.upper_limit_coins or\
+            df_result_set.at[0, 'theoretical_a_win_rate'] != record.theoretical_a_win_rate or\
+            df_result_set.at[0, 'theoretical_no_win_match_rate'] != record.theoretical_no_win_match_rate
+
+        if is_dirty:
+            primary_key =\
+                    (df['turn_system_name']==record.turn_system_name) &\
+                    (df['failure_rate']==record.failure_rate) &\
+                    (df['p']==record.p) &\
+                    (df['span']==record.span) &\
+                    (df['t_step']==record.t_step) &\
+                    (df['h_step']==record.h_step)
+
+            # データフレーム更新
+            df.loc[primary_key, ['turn_system_name'] ] = record.turn_system_name
+            df.loc[primary_key, ['failure_rate']] = record.failure_rate
+            df.loc[primary_key, ['p']] = record.p
+            df.loc[primary_key, ['span']] = record.span
+            df.loc[primary_key, ['t_step']] = record.t_step
+            df.loc[primary_key, ['h_step']] = record.h_step
+            df.loc[primary_key, ['shortest_coins']] = record.shortest_coins
+            df.loc[primary_key, ['upper_limit_coins']] = record.upper_limit_coins
+            df.loc[primary_key, ['theoretical_a_win_rate']] = record.theoretical_a_win_rate
+            df.loc[primary_key, ['theoretical_no_win_match_rate']] = record.theoretical_no_win_match_rate
 
         return is_dirty
 
