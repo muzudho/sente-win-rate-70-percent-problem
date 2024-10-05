@@ -1127,6 +1127,12 @@ class TheoreticalProbabilityBestTable():
         'theoretical_no_win_match_rate':'float64'}
 
 
+    @staticmethod
+    def set_index(df):
+        # 主キーの設定
+        df.set_index(['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step'])
+
+
     @classmethod
     def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
@@ -1140,6 +1146,8 @@ class TheoreticalProbabilityBestTable():
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
+
+        TheoreticalProbabilityBestTable.set_index(df)
 
         return df
 
@@ -1192,37 +1200,46 @@ class TheoreticalProbabilityBestTable():
         """
 
         # 該当レコードセット
-        key = (df['span']==record.span) & (df['t_step']==record.t_step) & (df['h_step']==record.h_step)
+        primary_key =\
+                (df['turn_system_name']==record.turn_system_name) &\
+                (df['failure_rate']==record.failure_rate) &\
+                (df['p']==record.p) &\
+                (df['span']==record.span) &\
+                (df['t_step']==record.t_step) &\
+                (df['h_step']==record.h_step)
+
+        if 1 < len(df.loc[primary_key]):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df.loc[primary_key])=}  {record.turn_system_name=}  {record.failure_rate=}  {record.p=}  {record.span=}  {record.t_step=}  {record.h_step=}")
 
         # TODO データが既存なら、差異があれば、上書き
-        if key.any():
+        if primary_key.any():
             is_dirty =\
-                df.loc[key, ['turn_system_name'] ] != record.turn_system_name or\
-                df.loc[key, ['failure_rate']] != record.failure_rate or\
-                df.loc[key, ['p']] != record.p or\
-                df.loc[key, ['span']] != record.span or\
-                df.loc[key, ['t_step']] != record.t_step or\
-                df.loc[key, ['h_step']] != record.h_step or\
-                df.loc[key, ['shortest_coins']] != record.shortest_coins or\
-                df.loc[key, ['upper_limit_coins']] != record.upper_limit_coins or\
-                df.loc[key, ['theoretical_a_win_rate']] != record.theoretical_a_win_rate or\
-                df.loc[key, ['theoretical_no_win_match_rate']] != record.theoretical_no_win_match_rate
+                df.loc[primary_key, 'turn_system_name'] != record.turn_system_name or\
+                df.loc[primary_key, 'failure_rate'] != record.failure_rate or\
+                df.loc[primary_key, 'p'] != record.p or\
+                df.loc[primary_key, 'span'] != record.span or\
+                df.loc[primary_key, 't_step'] != record.t_step or\
+                df.loc[primary_key, 'h_step'] != record.h_step or\
+                df.loc[primary_key, 'shortest_coins'] != record.shortest_coins or\
+                df.loc[primary_key, 'upper_limit_coins'] != record.upper_limit_coins or\
+                df.loc[primary_key, 'theoretical_a_win_rate'] != record.theoretical_a_win_rate or\
+                df.loc[primary_key, 'theoretical_no_win_match_rate'] != record.theoretical_no_win_match_rate
 
             if is_dirty:
-                df.loc[key, ['turn_system_name'] ] = record.turn_system_name
-                df.loc[key, ['failure_rate']] = record.failure_rate
-                df.loc[key, ['p']] = record.p
-                df.loc[key, ['span']] = record.span
-                df.loc[key, ['t_step']] = record.t_step
-                df.loc[key, ['h_step']] = record.h_step
-                df.loc[key, ['shortest_coins']] = record.shortest_coins
-                df.loc[key, ['upper_limit_coins']] = record.upper_limit_coins
-                df.loc[key, ['theoretical_a_win_rate']] = record.theoretical_a_win_rate
-                df.loc[key, ['theoretical_no_win_match_rate']] = record.theoretical_no_win_match_rate
+                df.loc[primary_key, ['turn_system_name'] ] = record.turn_system_name
+                df.loc[primary_key, ['failure_rate']] = record.failure_rate
+                df.loc[primary_key, ['p']] = record.p
+                df.loc[primary_key, ['span']] = record.span
+                df.loc[primary_key, ['t_step']] = record.t_step
+                df.loc[primary_key, ['h_step']] = record.h_step
+                df.loc[primary_key, ['shortest_coins']] = record.shortest_coins
+                df.loc[primary_key, ['upper_limit_coins']] = record.upper_limit_coins
+                df.loc[primary_key, ['theoretical_a_win_rate']] = record.theoretical_a_win_rate
+                df.loc[primary_key, ['theoretical_no_win_match_rate']] = record.theoretical_no_win_match_rate
 
         # データが既存でないなら、新規追加
         else:
-            self.append_record(df=df, record=record)
+            TheoreticalProbabilityBestTable.append_record(df=df, record=record)
             is_dirty = True
 
 
@@ -1259,6 +1276,8 @@ class TheoreticalProbabilityBestTable():
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+
+            TheoreticalProbabilityBestTable.set_index(df)
         
 
         return df, is_new
