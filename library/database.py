@@ -446,6 +446,7 @@ class EmpiricalProbabilityTable():
 
     def __init__(self, df):
         self._df = df
+        self.set_index()
 
 
     @classmethod
@@ -478,6 +479,26 @@ class EmpiricalProbabilityTable():
     @property
     def df(self):
         return self._df
+
+
+    def set_index(self):
+        """主キーの設定"""
+        self._df.set_index(
+                ['turn_system_name', 'failure_rate', 'p'],
+                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        self._df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+    def get_result_set_by_index(self, turn_system_name, failure_rate, p):
+        """0～複数件のレコードを含むデータフレームを返します"""
+
+        # 絞り込み。 DataFrame型が返ってくる
+        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+        return df_result_set
 
 
     def sub_insert_record(self, index, welcome_record):
@@ -522,23 +543,57 @@ class EmpiricalProbabilityTable():
 
         # インデックスが一致するのは前提事項
         is_dirty =\
-            df.at[index, 'trials_series'] != welcome_record.trials_series or\
-            df.at[index, 'best_p'] != welcome_record.best_p or\
-            df.at[index, 'best_p_error'] != welcome_record.best_p_error or\
-            df.at[index, 'best_h_step'] != welcome_record.best_h_step or\
-            df.at[index, 'best_t_step'] != welcome_record.best_t_step or\
-            df.at[index, 'best_span'] != welcome_record.best_span or\
-            df.at[index, 'latest_p'] != welcome_record.latest_p or\
-            df.at[index, 'latest_p_error'] != welcome_record.latest_p_error or\
-            df.at[index, 'latest_h_step'] != welcome_record.latest_h_step or\
-            df.at[index, 'latest_t_step'] != welcome_record.latest_t_step or\
-            df.at[index, 'latest_span'] != welcome_record.latest_span or\
-            df.at[index, 'candidates'] != welcome_record.candidates
+            self._df.at[index, 'trials_series'] != welcome_record.trials_series or\
+            self._df.at[index, 'best_p'] != welcome_record.best_p or\
+            self._df.at[index, 'best_p_error'] != welcome_record.best_p_error or\
+            self._df.at[index, 'best_h_step'] != welcome_record.best_h_step or\
+            self._df.at[index, 'best_t_step'] != welcome_record.best_t_step or\
+            self._df.at[index, 'best_span'] != welcome_record.best_span or\
+            self._df.at[index, 'latest_p'] != welcome_record.latest_p or\
+            self._df.at[index, 'latest_p_error'] != welcome_record.latest_p_error or\
+            self._df.at[index, 'latest_h_step'] != welcome_record.latest_h_step or\
+            self._df.at[index, 'latest_t_step'] != welcome_record.latest_t_step or\
+            self._df.at[index, 'latest_span'] != welcome_record.latest_span or\
+            self._df.at[index, 'candidates'] != welcome_record.candidates
 
 
         if is_dirty:
             # データフレーム更新
             self.sub_insert_record(index=index, welcome_record=welcome_record)
+
+
+    def upsert_record(self, df_result_set_by_index, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        df_result_set_by_index : DataFrame
+            主キーで絞り込んだレコードセット
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        is_dirty : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        if 1 < len(df_result_set_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_index) == 0:
+            self.insert_record(welcome_record=welcome_record)
+            return True
+
+        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
+        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
+        index = df_result_set_by_index.index[0]
+        #index = self._df['p']==welcome_record.p
+
+        return self.update_record(
+                index=index,
+                welcome_record=welcome_record)
 
 
     def to_csv(self, failure_rate, turn_system_id, trials_series):
