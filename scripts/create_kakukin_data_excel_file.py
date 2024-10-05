@@ -93,29 +93,29 @@ class Automation():
         # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
         # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
 
-        df_kds = KakukinDataSheetTable.read_df(
+        kds_table = KakukinDataSheetTable.read_csv(
                 failure_rate=self._specified_failure_rate,
                 turn_system_id=self._specified_turn_system_id,
                 trials_series=self._specified_trials_series)
 
 
         # KDSファイルが無かったのならスキップする
-        if df_kds is None:
+        if kds_table.df is None:
             print(f"[{datetime.datetime.now()}] KDSファイルが無かったのならスキップする")
             return
 
 
         # ヘッダー部
         # ----------
-        for index, column_name in enumerate(df_kds.columns.values, 1):
+        for index, column_name in enumerate(kds_table.df.columns.values, 1):
             self._ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
 
         # データ部
         # --------
         self._row_number = 2
 
-        KakukinDataSheetTable.for_each(
-                df=df_kds,
+        kds_table.for_each(
+                df=kds_table.df,
                 on_each=self.on_each)
 
 

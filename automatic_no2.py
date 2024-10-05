@@ -14,7 +14,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
-from library.database import TheoreticalProbabilityTable
+from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
 from scripts.upsert_a_csv_of_theoretical_probability_best import AutomationAll as UpsertCsvOfTheoreticalProbabilityBestAll
 
 

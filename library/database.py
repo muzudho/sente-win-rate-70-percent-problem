@@ -196,8 +196,19 @@ class KakukinDataSheetTable():
         'no_wins_ab':'float64'}
 
 
+    def __init__(self, df):
+        """初期化
+
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        """
+        self._df = df
+
+
     @classmethod
-    def read_df(clazz, failure_rate, turn_system_id, trials_series):
+    def read_csv(clazz, failure_rate, turn_system_id, trials_series):
         """
 
         Parameters
@@ -223,19 +234,25 @@ class KakukinDataSheetTable():
         df = pd.read_csv(csv_file_path, encoding="utf8",
                 dtype=clazz._dtype)
 
-        return df
+        return KakukinDataSheetTable(df)
 
 
-    @staticmethod
-    def for_each(df, on_each):
+    @property
+    def df(self):
+        """データフレーム"""
+        return self._df
+
+
+    def for_each(self, on_each):
         """
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
         on_each : func
             record 引数を受け取る関数
         """
+
+        df = self._df
+
         for         p  ,     failure_rate  ,     turn_system_name  ,     head_step  ,     tail_step  ,     span  ,     shortest_coins  ,     upper_limit_coins  ,     trials_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
             zip(df['p'], df['failure_rate'], df['turn_system_name'], df['head_step'], df['tail_step'], df['span'], df['shortest_coins'], df['upper_limit_coins'], df['trials_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
 
