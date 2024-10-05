@@ -68,7 +68,10 @@ class Automation():
 
 
     def execute(self):
-        """実行"""
+        """実行
+        
+        NOTE 先にKDSファイルを作成しておく必要があります
+        """
 
         # 対エクセル・ファイル用オブジェクト作成
         kakukin_data_excel_file = KakukinDataExcelFile.instantiate(
@@ -87,14 +90,6 @@ class Automation():
         self._ws = kakukin_data_excel_file.create_sheet(title=sheet_name, shall_overwrite=True)
 
 
-        # エクセル・ファイルへのパス
-        excel_file_path = KakukinDataFilePaths.as_excel(
-                turn_system_id=self._specified_turn_system_id,
-                trials_series=self._specified_trials_series)
-
-
-
-
         # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
         # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
 
@@ -104,17 +99,19 @@ class Automation():
                 trials_series=self._specified_trials_series)
 
 
-        # ファイルが無かったのならスキップする
+        # KDSファイルが無かったのならスキップする
         if df_kds is None:
+            print(f"[{datetime.datetime.now()}] KDSファイルが無かったのならスキップする")
             return
 
 
+        # ヘッダー部
+        # ----------
         for index, column_name in enumerate(df_kds.columns.values, 1):
             self._ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
 
         # データ部
         # --------
-
         self._row_number = 2
 
         KakukinDataSheetTable.for_each(

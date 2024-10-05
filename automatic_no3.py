@@ -27,6 +27,9 @@ if __name__ == '__main__':
                 print(f"[{datetime.datetime.now()}][turn_system_name={Converter.turn_system_id_to_name(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] create kakukin data excel file ...")
 
                 # ［かくきんデータ］エクセル・ファイルの作成
+                #
+                #   NOTE 先にKDSファイルを作成しておく必要があります
+                #
                 automation = CreateKakukinDataExcelFileAutomation(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
