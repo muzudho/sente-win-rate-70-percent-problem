@@ -53,11 +53,11 @@ class AutomationOne():
 
             # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
             else:
-                row_index = df_result_set_by_index.index[0]  # 行番号を取得
+                index = df_result_set_by_index.index[0]  # 行番号を取得
 
                 # 既存のベスト値
-                old_theoretical_a_win_rate = df_result_set_by_index.at[row_index, 'theoretical_a_win_rate']
-                old_theoretical_no_win_match_rate = df_result_set_by_index.at[row_index, 'theoretical_no_win_match_rate']
+                old_theoretical_a_win_rate = df_result_set_by_index.at[index, 'theoretical_a_win_rate']
+                old_theoretical_no_win_match_rate = df_result_set_by_index.at[index, 'theoretical_no_win_match_rate']
 
                 # 誤差が縮まれば更新
                 welcome_theoretical_a_win_error = record_tp.theoretical_a_win_rate - EVEN
@@ -156,7 +156,7 @@ class AutomationOne():
 
         # ［理論的確率データ］の各レコードについて
         #
-        #   FIXME TPテーブルは行が膨大にあるので、for_each するのは良くない。まず、ベスト・レコードを取得すべき
+        #   NOTE TPテーブルは行が膨大にあるので、for_each するのは良くない。まず、ベスト・レコードを取得すべき
         #
         record_in_best_tp_or_none = self.get_reocrd_of_best_tp_or_none()
         if record_in_best_tp_or_none is not None:

@@ -847,39 +847,39 @@ class TheoreticalProbabilityTable():
         return tp_table, is_new
 
 
-    def sub_insert_record(self, row_index, welcome_record):
-        self._df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
-        self._df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
-        self._df.at[row_index, 'p'] = welcome_record.p
-        self._df.at[row_index, 'span'] = welcome_record.span
-        self._df.at[row_index, 't_step'] = welcome_record.t_step
-        self._df.at[row_index, 'h_step'] = welcome_record.h_step
-        self._df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
-        self._df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        self._df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        self._df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+    def sub_insert_record(self, index, welcome_record):
+        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
+        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
+        self._df.at[index, 'p'] = welcome_record.p
+        self._df.at[index, 'span'] = welcome_record.span
+        self._df.at[index, 't_step'] = welcome_record.t_step
+        self._df.at[index, 'h_step'] = welcome_record.h_step
+        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
+        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        self._df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+        self._df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
 
 
     def insert_record(self, welcome_record):
-        self.sub_insert_record(row_index=len(self._df.index), welcome_record=welcome_record)
+        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
 
 
-    def update_record(self, row_index, welcome_record):
+    def update_record(self, index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
         # インデックスが一致するのは前提事項
         is_dirty =\
-            self._df.at[row_index, 'span'] != welcome_record.span or\
-            self._df.at[row_index, 't_step'] != welcome_record.t_step or\
-            self._df.at[row_index, 'h_step'] != welcome_record.h_step or\
-            self._df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            self._df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            self._df.at[row_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            self._df.at[row_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
+            self._df.at[index, 'span'] != welcome_record.span or\
+            self._df.at[index, 't_step'] != welcome_record.t_step or\
+            self._df.at[index, 'h_step'] != welcome_record.h_step or\
+            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            self._df.at[index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
+            self._df.at[index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
 
         if is_dirty:
             # データフレーム更新
-            self.sub_insert_record(row_index=row_index, welcome_record=welcome_record)
+            self.sub_insert_record(index=index, welcome_record=welcome_record)
 
         return is_dirty
 
