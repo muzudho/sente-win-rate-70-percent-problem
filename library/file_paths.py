@@ -100,12 +100,9 @@ def make_file_subname(p=None, failure_rate=None, turn_system_id=None, trials_ser
     return f'_{subname}'
 
 
-class AutomaticNo1FilePaths():
-    """自動スクリプト１号のファイルパス一覧"""
-    @staticmethod
-    def as_log():
-        return 'logs/automatic_no1.log'
-
+#####
+# KDF
+#####
 
 class KakukinDataFilePaths():
     """［かくきんデータ］関連のファイルパス一覧"""
@@ -125,6 +122,22 @@ class KakukinDataFilePaths():
         return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
 
 
+#####
+# TPB
+#####
+
+class TheoreticalProbabilityBestFilePaths():
+    """理論的確率ベスト・データのファイルパス一覧"""
+    @staticmethod
+    def as_csv():
+        # データ・フォルダーの方に置く
+        return f'data/thoretical_probability_best.csv'
+
+
+####
+# TP
+####
+
 class TheoreticalProbabilityFilePaths():
     """理論的確率データのファイルパス一覧"""
     @staticmethod
@@ -133,6 +146,21 @@ class TheoreticalProbabilityFilePaths():
         # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
         return f'temp/theoretical_probability/TP{subname}.csv'
 
+
+################
+# Automatic No.1
+################
+
+class AutomaticNo1FilePaths():
+    """自動スクリプト１号のファイルパス一覧"""
+    @staticmethod
+    def as_log():
+        return 'logs/automatic_no1.log'
+
+
+######
+# TPTR
+######
 
 class TheoreticalProbabilityTrialResultsFilePaths():
     """理論的確率の試行結果データのファイルパス一覧"""
@@ -143,13 +171,9 @@ class TheoreticalProbabilityTrialResultsFilePaths():
         return f'temp/theoretical_probability_trial_results/TPTR{subname}.csv'
 
 
-class TheoreticalProbabilityBestFilePaths():
-    """理論的確率ベスト・データのファイルパス一覧"""
-    @staticmethod
-    def as_csv():
-        # データ・フォルダーの方に置く
-        return f'data/thoretical_probability_best.csv'
-
+######
+# EPDT
+######
 
 class EmpiricalProbabilityDuringTrialsFilePaths():
     """試行中の経験的確率データのファイルパス一覧"""
@@ -172,6 +196,10 @@ class EmpiricalProbabilityDuringTrialsFilePaths():
         return f'./temp/empirical_probability_during_trials/EPDT{subname}.csv'
 
 
+####
+# SB
+####
+
 class ScoreBoardFilePaths():
     """スコアボードのファイルパス一覧"""
     @staticmethod
@@ -179,6 +207,10 @@ class ScoreBoardFilePaths():
         subname = make_file_subname(p=p, failure_rate=failure_rate, turn_system_id=turn_system_id, h_step=h_step, t_step=t_step, span=span)
         return f'output/score_board_view{subname}.csv'
 
+
+#####
+# SLS
+#####
 
 class SimulationLargeSeriesFilePaths():
     """大量のシリーズのシミュレーションのファイルパス一覧"""

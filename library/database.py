@@ -12,9 +12,9 @@ from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, Theore
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
-####################
-# Kakukin Data Sheet
-####################
+#####
+# KDS
+#####
 
 class KakukinDataSheetRecord():
 
@@ -285,6 +285,315 @@ class KakukinDataSheetTable():
 
             on_each(record)
 
+
+####
+# TP
+####
+
+class TheoreticalProbabilityRecord():
+
+
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+        self._turn_system_name = turn_system_name
+        self._failure_rate = failure_rate
+        self._p = p
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._theoretical_a_win_rate = theoretical_a_win_rate
+        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+
+
+    @property
+    def turn_system_name(self):
+        return self._turn_system_name
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def theoretical_a_win_rate(self):
+        return self._theoretical_a_win_rate
+
+
+    @property
+    def theoretical_no_win_match_rate(self):
+        return self._theoretical_no_win_match_rate
+
+
+class TheoreticalProbabilityTable():
+    """理論的確率データ"""
+
+
+    _dtype = {
+        'turn_system_name':'object',     # string 型は無い？
+        'failure_rate':'float64',
+        'p':'float64',
+        'span':'int64',
+        't_step':'int64',
+        'h_step':'int64',
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'theoretical_a_win_rate':'float64',
+        'theoretical_no_win_match_rate':'float64'}
+
+
+    def __init__(self, df, spec):
+        self._df = df
+        self._spec = spec
+
+        self.set_index()
+
+
+    @classmethod
+    def new_empty_table(clazz, spec):
+        df_tp = pd.DataFrame.from_dict({
+                'turn_system_name': [],
+                'failure_rate': [],
+                'p': [],
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'shortest_coins': [],
+                'upper_limit_coins': [],
+                'theoretical_a_win_rate': [],
+                'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
+
+        return TheoreticalProbabilityTable(df=df_tp, spec=spec)
+
+
+    @classmethod
+    def read_csv(clazz, spec, new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+        
+        Returns
+        -------
+        tp_table : TheoreticalProbabilityTable
+            テーブル、またはナン
+        is_new : bool
+            新規作成されたか？
+        """
+
+        # CSVファイルパス
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
+                p=spec.p,
+                failure_rate=spec.failure_rate,
+                turn_system_id=spec.turn_system_id)
+
+
+        # ファイルが存在しなかった場合
+        is_new = not os.path.isfile(csv_file_path)
+        if is_new:
+            if new_if_it_no_exists:
+                tp_table = TheoreticalProbabilityTable.new_empty_table(spec=spec)
+            else:
+                tp_table = None
+
+        else:
+
+            df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+            tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
+
+
+        return tp_table, is_new
+
+
+    @property
+    def df(self):
+        return self._df
+
+
+    def set_index(self):
+        """主キーの設定"""
+        self._df.set_index(
+                ['turn_system_name', 'failure_rate', 'p'],
+                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        self._df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+    def get_result_set_by_index(self):
+        """0～複数件のレコードを含むデータフレームを返します"""
+
+        turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
+
+        # 絞り込み。 DataFrame型が返ってくる
+        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@self._spec.failure_rate & p==@self._spec.p')
+
+        return df_result_set
+
+
+    def sub_insert_record(self, index, welcome_record):
+        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
+        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
+        self._df.at[index, 'p'] = welcome_record.p
+        self._df.at[index, 'span'] = welcome_record.span
+        self._df.at[index, 't_step'] = welcome_record.t_step
+        self._df.at[index, 'h_step'] = welcome_record.h_step
+        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
+        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        self._df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+        self._df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+
+
+    def insert_record(self, welcome_record):
+        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+
+
+    def update_record(self, index, welcome_record):
+        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
+
+        # インデックスが一致するのは前提事項
+        is_dirty =\
+            self._df.at[index, 'span'] != welcome_record.span or\
+            self._df.at[index, 't_step'] != welcome_record.t_step or\
+            self._df.at[index, 'h_step'] != welcome_record.h_step or\
+            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            self._df.at[index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
+            self._df.at[index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
+
+        if is_dirty:
+            # データフレーム更新
+            self.sub_insert_record(index=index, welcome_record=welcome_record)
+
+        return is_dirty
+
+
+    def upsert_record(self, df_result_set_by_index, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        df_result_set_by_index : DataFrame
+            主キーで絞り込んだレコードセット
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        is_dirty : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        if 1 < len(df_result_set_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_index) == 0:
+            self.insert_record(welcome_record=welcome_record)
+            return True
+
+        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
+        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
+        index = df_result_set_by_index.index[0]
+        #index = self._df['p']==welcome_record.p
+
+        return self.update_record(
+                index=index,
+                welcome_record=welcome_record)
+
+
+    def to_csv(self):
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
+
+        # CSVファイルパス
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
+                p=self._spec.p,
+                failure_rate=self._spec.failure_rate,
+                turn_system_id=self._spec.turn_system_id)
+
+        self.df.to_csv(csv_file_path,
+                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+        return csv_file_path
+
+
+    def for_each(self, on_each):
+        """
+        Parameters
+        ----------
+        on_each : func
+            record 引数を受け取る関数
+        """
+
+        df = self._df
+
+        for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate in\
+            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
+
+            # レコード作成
+            record = TheoreticalProbabilityRecord(
+                    turn_system_name=turn_system_name,
+                    failure_rate=failure_rate,
+                    p=p,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    theoretical_a_win_rate=theoretical_a_win_rate,
+                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+
+            on_each(record)
+
+
+####
+# EP
+####
 
 class EmpiricalProbabilityRecord():
 
@@ -653,6 +962,10 @@ class EmpiricalProbabilityTable():
             on_each(record)
 
 
+#####
+# CPT
+#####
+
 class CalculateProbabilityTable():
 
 
@@ -671,303 +984,9 @@ class CalculateProbabilityTable():
         return df
 
 
-class TheoreticalProbabilityRecord():
-
-
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
-        self._turn_system_name = turn_system_name
-        self._failure_rate = failure_rate
-        self._p = p
-        self._span = span
-        self._t_step = t_step
-        self._h_step = h_step
-        self._shortest_coins = shortest_coins
-        self._upper_limit_coins = upper_limit_coins
-        self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
-
-
-    @property
-    def turn_system_name(self):
-        return self._turn_system_name
-
-
-    @property
-    def failure_rate(self):
-        return self._failure_rate
-
-
-    @property
-    def p(self):
-        return self._p
-
-
-    @property
-    def span(self):
-        return self._span
-
-
-    @property
-    def t_step(self):
-        return self._t_step
-
-
-    @property
-    def h_step(self):
-        return self._h_step
-
-
-    @property
-    def shortest_coins(self):
-        return self._shortest_coins
-
-
-    @property
-    def upper_limit_coins(self):
-        return self._upper_limit_coins
-
-
-    @property
-    def theoretical_a_win_rate(self):
-        return self._theoretical_a_win_rate
-
-
-    @property
-    def theoretical_no_win_match_rate(self):
-        return self._theoretical_no_win_match_rate
-
-
-class TheoreticalProbabilityTable():
-    """理論的確率データ"""
-
-
-    _dtype = {
-        'turn_system_name':'object',     # string 型は無い？
-        'failure_rate':'float64',
-        'p':'float64',
-        'span':'int64',
-        't_step':'int64',
-        'h_step':'int64',
-        'shortest_coins':'int64',
-        'upper_limit_coins':'int64',
-        'theoretical_a_win_rate':'float64',
-        'theoretical_no_win_match_rate':'float64'}
-
-
-    def __init__(self, df):
-        self._df = df
-        self.set_index()
-
-
-    # 旧: new_data_frame
-    @classmethod
-    def new_empty_table(clazz):
-        df_tp = pd.DataFrame.from_dict({
-                'turn_system_name': [],
-                'failure_rate': [],
-                'p': [],
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'shortest_coins': [],
-                'upper_limit_coins': [],
-                'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
-
-        return TheoreticalProbabilityTable(df=df_tp)
-
-
-    @property
-    def df(self):
-        return self._df
-
-
-    def set_index(self):
-        """主キーの設定"""
-        self._df.set_index(
-                ['turn_system_name', 'failure_rate', 'p'],
-                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
-        self._df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
-
-
-    def get_result_set_by_index(self, turn_system_name, failure_rate, p):
-        """0～複数件のレコードを含むデータフレームを返します"""
-
-        # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-        return df_result_set
-
-
-    # 旧: read_df
-    @classmethod
-    def read_csv(clazz, spec, new_if_it_no_exists=False):
-        """ファイル読込
-
-        Parameters
-        ----------
-        spec : Specification
-            ［仕様］
-        new_if_it_no_exists : bool
-            ファイルが存在しなければ新規作成するか？
-        
-        Returns
-        -------
-        tp_table : TheoreticalProbabilityTable
-            テーブル、またはナン
-        is_new : bool
-            新規作成されたか？
-        """
-
-        # CSVファイルパス
-        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
-                p=spec.p,
-                failure_rate=spec.failure_rate,
-                turn_system_id=spec.turn_system_id)
-
-
-        # ファイルが存在しなかった場合
-        is_new = not os.path.isfile(csv_file_path)
-        if is_new:
-            if new_if_it_no_exists:
-                tp_table = TheoreticalProbabilityTable.new_empty_table()
-            else:
-                tp_table = None
-
-        else:
-
-            df = pd.read_csv(csv_file_path, encoding="utf8",
-                    dtype=clazz._dtype)
-            tp_table = TheoreticalProbabilityTable(df=df)
-
-
-        return tp_table, is_new
-
-
-    def sub_insert_record(self, index, welcome_record):
-        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        self._df.at[index, 'p'] = welcome_record.p
-        self._df.at[index, 'span'] = welcome_record.span
-        self._df.at[index, 't_step'] = welcome_record.t_step
-        self._df.at[index, 'h_step'] = welcome_record.h_step
-        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
-        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        self._df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        self._df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
-
-
-    def insert_record(self, welcome_record):
-        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
-
-
-    def update_record(self, index, welcome_record):
-        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
-
-        # インデックスが一致するのは前提事項
-        is_dirty =\
-            self._df.at[index, 'span'] != welcome_record.span or\
-            self._df.at[index, 't_step'] != welcome_record.t_step or\
-            self._df.at[index, 'h_step'] != welcome_record.h_step or\
-            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            self._df.at[index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            self._df.at[index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
-
-        if is_dirty:
-            # データフレーム更新
-            self.sub_insert_record(index=index, welcome_record=welcome_record)
-
-        return is_dirty
-
-
-    def upsert_record(self, df_result_set_by_index, welcome_record):
-        """該当レコードが無ければ新規作成、あれば更新
-
-        Parameters
-        ----------
-        df_result_set_by_index : DataFrame
-            主キーで絞り込んだレコードセット
-        welcome_record : TheoreticalProbabilityBestRecord
-            レコード
-
-        Returns
-        -------
-        is_dirty : bool
-            レコードの新規追加、または更新があれば真。変更が無ければ偽
-        """
-
-        if 1 < len(df_result_set_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
-
-        # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
-            self.insert_record(welcome_record=welcome_record)
-            return True
-
-        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = df_result_set_by_index.index[0]
-        #index = self._df['p']==welcome_record.p
-
-        return self.update_record(
-                index=index,
-                welcome_record=welcome_record)
-
-
-    def to_csv(self, spec):
-        """ファイル書き出し
-        
-        Returns
-        -------
-        csv_file_path : str
-            ファイルパス
-        """
-
-        # CSVファイルパス
-        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
-                p=spec.p,
-                failure_rate=spec.failure_rate,
-                turn_system_id=spec.turn_system_id)
-
-        self.df.to_csv(csv_file_path,
-                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
-                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
-
-        return csv_file_path
-
-
-    def for_each(self, on_each):
-        """
-        Parameters
-        ----------
-        on_each : func
-            record 引数を受け取る関数
-        """
-
-        df = self._df
-
-        for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate in\
-            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
-
-            # レコード作成
-            record = TheoreticalProbabilityRecord(
-                    turn_system_name=turn_system_name,
-                    failure_rate=failure_rate,
-                    p=p,
-                    span=span,
-                    t_step=t_step,
-                    h_step=h_step,
-                    shortest_coins=shortest_coins,
-                    upper_limit_coins=upper_limit_coins,
-                    theoretical_a_win_rate=theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
-
-            on_each(record)
-
+######
+# TPTR
+######
 
 class TheoreticalProbabilityTrialResultsRecord():
     """理論的確率の試行結果レコード"""
@@ -1237,6 +1256,10 @@ class TheoreticalProbabilityTrialResultsTable():
             on_each(record)
 
 
+######
+# TPBR
+######
+
 class TheoreticalProbabilityBestRecord():
     """理論的確率ベスト・レコード"""
 
@@ -1303,6 +1326,10 @@ class TheoreticalProbabilityBestRecord():
     def theoretical_no_win_match_rate(self):
         return self._theoretical_no_win_match_rate
 
+
+#####
+# TPB
+#####
 
 class TheoreticalProbabilityBestTable():
     """理論的確率ベスト・テーブル"""

@@ -102,10 +102,7 @@ class AutomationOne():
     def get_reocrd_of_best_tp_or_none(self):
         """TODO ［理論的確率データ］テーブルから、イーブンに一番近い行を抽出します"""
 
-        df_result_set_by_index = self._tp_table.get_result_set_by_index(
-                turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
-                failure_rate=self._spec.failure_rate,
-                p=self._spec.p)
+        df_result_set_by_index = self._tp_table.get_result_set_by_index()
 
         # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
         df_result_set = df_result_set_by_index.loc[abs(df_result_set_by_index['theoretical_a_win_rate'] - 0.5) == min(abs(df_result_set_by_index['theoretical_a_win_rate'] - 0.5))]

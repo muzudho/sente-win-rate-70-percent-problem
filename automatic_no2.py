@@ -147,7 +147,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
                     if 0 < self._number_of_dirty:
-                        csv_file_path_to_wrote = tp_table.to_csv(spec=spec)
+                        csv_file_path_to_wrote = tp_table.to_csv()
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
                         self._number_of_dirty = 0
 
@@ -240,6 +240,9 @@ class AllTheoreticalProbabilityFilesOperation():
                                     on_score_board_created=on_score_board_created)
 
                             # データフレーム更新
+                            #
+                            #   FIXME ここは .at[] では不正なスカラーアクセスになる。なんで？
+                            #
                             tp_table.df.loc[index, 'theoretical_a_win_rate'] = three_rates.a_win_rate
                             tp_table.df.loc[index, 'theoretical_no_win_match_rate'] = three_rates.no_win_match_rate
 
@@ -249,7 +252,7 @@ class AllTheoreticalProbabilityFilesOperation():
                     # 変更があれば保存
                     if 0 < self._number_of_dirty:
                         # CSVファイルへ書き出し
-                        csv_file_path_to_wrote = tp_table.to_csv(spec=spec)
+                        csv_file_path_to_wrote = tp_table.to_csv()
 
                         print(f"[{datetime.datetime.now()}][{depth=}  turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
                     

@@ -14,7 +14,7 @@
 * [x] BRUTE_FORCE とか THEORETICAL の分類を廃止したい。 BRUTE_FORCE を残して THEORETICAL を削除
 * [x] `thoretical_probability_best.csv` がキー重複データだらけ、なんで？ ----> ループするデータフレームを間違えてた？
 * [x] `theoretical_a_win_rate_abs_error` 列を廃止したい
-* [ ] temp/TPファイルの中身がバグってる？
+* [ ] temp/TPファイルの中身がバグってる？ TPテーブルに turn_system_name, failure_rate, p は要らない。ファイル名に書いてある
 * [ ] コイン投げで引き分けがあるとどうなる？
     * [-] タイブレークを導入するか？ ----> ［将棋の引分け率］が上がればあがるほど、引き分けを勝ちにされた方が有利になってしまう
     * [ ] 勝ち点のスケールを２倍にしておいて、引分けになったら両者に勝ち点の半分が入るようにしたらどうか？
