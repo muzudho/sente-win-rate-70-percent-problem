@@ -58,7 +58,9 @@ class Automation():
         self._ep_table.update_record(
                 specified_p = spec.p,
                 welcome_record=EmpiricalProbabilityRecord(
-                        p = spec.p,
+                        turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
+                        failure_rate=spec.failure_rate,
+                        p=spec.p,
                         trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
                         best_p=best_p,
                         best_p_error=best_p_error,
