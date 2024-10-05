@@ -393,6 +393,7 @@ class Automation():
         if 0 < len(self._df_ep):
             best_p_error_min = self._df_ep['best_p_error'].min()
             best_p_error_max = self._df_ep['best_p_error'].max()
+            # 絶対値にする
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
             # ［小さな値］を下回っていれば、対象外です
@@ -400,6 +401,8 @@ class Automation():
                 return
         
         else:
+            best_p_error_min = - ABS_OUT_OF_ERROR
+            best_p_error_max = ABS_OUT_OF_ERROR
             # ループに最初に１回入るためだけの設定
             worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
