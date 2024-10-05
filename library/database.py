@@ -1137,6 +1137,10 @@ class TheoreticalProbabilityBestTable():
                 ['turn_system_name', 'failure_rate', 'p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
     @staticmethod
@@ -1206,37 +1210,34 @@ class TheoreticalProbabilityBestTable():
 
 
     @staticmethod
-    def update_record(df, row_multi_index, welcome_record):
+    def update_record(df, row_index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
 #         print(f"""\
 # update_record:
-#     {type(row_multi_index)=}
-#     {row_multi_index=}
+#     {type(row_index)=}
+#     {row_index=}
 # """)
 
         # 主キーが一致するのは前提事項
-        #
-        #   NOTE 主キーが複数列の場合、 df.at[] は使えない。 df.loc[] を使う
-        #
         is_dirty =\
-            df.loc[row_multi_index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            df.loc[row_multi_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            df.loc[row_multi_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            df.loc[row_multi_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
+            df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            df.at[row_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
+            df.at[row_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
 
         if is_dirty:
             # データフレーム更新
-            df.at[row_multi_index, 'turn_system_name'] = welcome_record.turn_system_name
-            df.at[row_multi_index, 'failure_rate'] = welcome_record.failure_rate
-            df.at[row_multi_index, 'p'] = welcome_record.p
-            df.at[row_multi_index, 'span'] = welcome_record.span
-            df.at[row_multi_index, 't_step'] = welcome_record.t_step
-            df.at[row_multi_index, 'h_step'] = welcome_record.h_step
-            df.at[row_multi_index, 'shortest_coins'] = welcome_record.shortest_coins
-            df.at[row_multi_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-            df.at[row_multi_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-            df.at[row_multi_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+            df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
+            df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
+            df.at[row_index, 'p'] = welcome_record.p
+            df.at[row_index, 'span'] = welcome_record.span
+            df.at[row_index, 't_step'] = welcome_record.t_step
+            df.at[row_index, 'h_step'] = welcome_record.h_step
+            df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
+            df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+            df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+            df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
 
         return is_dirty
 
@@ -1272,24 +1273,24 @@ class TheoreticalProbabilityBestTable():
             return True
 
         # データが既存なら、その行番号を取得
-        print(f"""\
-upsert_record:
-    {type(df_result_set_by_primary_key.index)=}
-    {df_result_set_by_primary_key.index=}
-    {type(df_result_set_by_primary_key.index[0])=}
-    {df_result_set_by_primary_key.index[0]=}
-""")
+        #         print(f"""\
+        # upsert_record:
+        #     {type(df_result_set_by_primary_key.index)=}
+        #     {df_result_set_by_primary_key.index=}
+        #     {type(df_result_set_by_primary_key.index[0])=}
+        #     {df_result_set_by_primary_key.index[0]=}
+        # """)
         #upsert_record:
         #    type(df_result_set_by_primary_key.index)=<class 'pandas.core.indexes.multi.MultiIndex'>
         #    df_result_set_by_primary_key.index=MultiIndex([(14, '', '')],
         #   names=['turn_system_name', 'failure_rate', 'p'])
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        row_multi_index = df_result_set_by_primary_key.index[0]
+        row_index = df_result_set_by_primary_key.index[0]
         #row_index = df_result_set_by_primary_key.index[0]  # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        #print(f"{type(row_multi_index)=}  {row_multi_index=}")
+        #print(f"{type(row_index)=}  {row_index=}")
 
-        return TheoreticalProbabilityBestTable.update_record(df=df, row_multi_index=row_multi_index, welcome_record=welcome_record)
+        return TheoreticalProbabilityBestTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
 
     @classmethod

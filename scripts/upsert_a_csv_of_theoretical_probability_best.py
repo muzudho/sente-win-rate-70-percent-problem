@@ -29,32 +29,20 @@ class AutomationOne():
         self._best_record = None
 
 
-    def on_each(self, record_tp):
+    def on_match(self, record_tp):
 
         # ベスト値と比較したい。
-        # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］［目標の点数］［裏番で勝ったときの勝ち点］［表番で勝ったときの勝ち点］の６列
 
         try:
             shall_upsert_record = False
 
-            # FIXME set_index() するとおかしくなる？
-#             print(f"""\
-# FIXME set_index() するとおかしくなる？
-# {self._df_best.columns.values=}
-# {self._df_best.index=}
-# """)
-            #self._df_best:
-            #{self._df_best}
-
             # 絞り込み。 1件の DataFrame型が返ってくる
+            # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］の３列
             df_result_set_by_primary_key = TheoreticalProbabilityBestTable.get_result_set_by_primary_key(
                     df=self._df_best,
                     turn_system_name=record_tp.turn_system_name,
                     failure_rate=record_tp.failure_rate,
                     p=record_tp.p)
-            #span=record_tp.span,
-            #t_step=record_tp.t_step,
-            #h_step=record_tp.h_step                    
 
 
             if 1 < len(df_result_set_by_primary_key):
@@ -69,8 +57,8 @@ class AutomationOne():
                 row_index = df_result_set_by_primary_key.index[0]  # 行番号を取得
 
                 # 既存のベスト値
-                old_theoretical_a_win_rate=df_result_set_by_primary_key.at[row_index, 'theoretical_a_win_rate']
-                old_theoretical_no_win_match_rate=df_result_set_by_primary_key.at[row_index, 'theoretical_no_win_match_rate']
+                old_theoretical_a_win_rate = df_result_set_by_primary_key.at[row_index, 'theoretical_a_win_rate']
+                old_theoretical_no_win_match_rate = df_result_set_by_primary_key.at[row_index, 'theoretical_no_win_match_rate']
 
                 # 誤差が縮まれば更新
                 welcome_theoretical_a_win_error = record_tp.theoretical_a_win_rate - EVEN
@@ -113,6 +101,26 @@ class AutomationOne():
             raise # 再スロー
 
 
+    def get_best_reocrd_of_tp_or_none(self, df_tp):
+        # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
+        df_result_set = df_tp.loc[abs(df_tp['theoretical_a_win_rate'] - 0.5) == min(abs(df_tp['theoretical_a_win_rate'] - 0.5))]
+
+        # それでも１件に絞り込めない場合、［コインを投げて表も裏も出ない確率］が最小のレコードのセット
+        if 1 < len(df_result_set):
+            df_result_set = df_tp.loc[df_tp['theoretical_no_win_match_rate'] == min(df_tp['theoretical_no_win_match_rate'])]
+
+            # それでも１件に絞り込めない場合、［上限対局数］が最小のレコードのセット
+            if 1 < len(df_result_set):
+                df_result_set = df_tp.loc[df_tp['upper_limit_coins'] == min(df_tp['upper_limit_coins'])]
+
+
+        # 該当レコードがあれば、適当に先頭の１件だけ返す。無ければナンを返す
+        if 0 < len(df_result_set):
+            return df_tp.iloc[0]
+
+        return None
+
+
     def execute_one(self):
         """
         
@@ -144,7 +152,13 @@ class AutomationOne():
 
 
         # ［理論的確率データ］の各レコードについて
-        TheoreticalProbabilityTable.for_each(df=df_tp, on_each=self.on_each)
+        #
+        #   FIXME TPテーブルは行が膨大にあるので、for_each するのは良くない。まず、ベスト・レコードを取得すべき
+        #
+        best_record_in_tp_or_none = self.get_best_reocrd_of_tp_or_none(df_tp=df_tp)
+        if best_record_in_tp_or_none is not None:
+            self.on_match(record_tp=best_record_in_tp_or_none)
+        #TheoreticalProbabilityTable.for_each(df=df_tp, on_each=)
 
 
         return self._is_update_df_best, self._df_best
