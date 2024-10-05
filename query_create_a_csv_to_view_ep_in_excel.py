@@ -99,7 +99,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id,
                 trials_series=specified_trials_series)
-        print(f"[{datetime.datetime.now()}] write view to `{csv_file_path}` file ...")
+        print(f"[{datetime.datetime.now()}] query_create_a_csv_to_view_ep_in_excel. write view to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(f"{csv}\n")    # ファイルへ出力
 

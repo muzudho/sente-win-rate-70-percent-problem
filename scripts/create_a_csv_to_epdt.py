@@ -41,6 +41,8 @@ class Automation():
         self._number_of_yield = None        # 処理を途中で譲った数
         self._number_of_passaged = None     # 空振りで終わったレコード数
 
+        self._cut_off = False   # FIXME 打ち切りフラグ。本当はタイムシェアリング書くべき
+
 
     def update_dataframe(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
             latest_p, latest_p_error, latest_series_rule, candidates):
@@ -223,22 +225,6 @@ class Automation():
                         latest_p_error = latest_p - 0.5
 
 
-                        # # 理論値の場合
-                        # elif self._generation_algorythm == THEORETICAL:
-
-                        #     # オーバーフロー例外に対応したプログラミングをすること
-                        #     latest_p, err = calculate_probability(
-                        #             p=spec.p,
-                        #             H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                        #             T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
-                            
-                        #     # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
-                        #     if err is not None:
-                        #         latest_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
-                        #     else:
-                        #         latest_p_error = latest_p - 0.5
-
-
                         if abs(latest_p_error) < abs(best_p_error):
                             is_update_table = True
                             update_count += 1
@@ -256,7 +242,7 @@ class Automation():
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[{datetime.datetime.now()}][p={spec.p * 100:3.0f}％  failure_rate={spec.failure_rate * 100:3.0f}％  turn_system_name={record.turn_system_name}] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][turn_system_name={record.turn_system_name}  failure_rate={spec.failure_rate * 100:3.0f}％  p={spec.p * 100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
@@ -287,6 +273,9 @@ class Automation():
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
                                 EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
+
+                                # FIXME タイムシェアリング書くの、めんどくさいんで、ループから抜ける
+                                self._cut_off = True
 
 
                             # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
@@ -386,11 +375,33 @@ class Automation():
         return is_update_table
 
 
-    # automatic
     def execute(self):
+        """実行
+        
+        Returns
+        -------
+        None
+        """
 
         self._df_ep = EmpiricalProbabilityTable.read_df(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
         #print(self._df_ep)
+
+        # 対象外のケース
+        # =============
+
+        # NOTE １件以上ないと、 .min() や .max() が nan になってしまう。１件以上あるときに判定する
+        if 0 < len(self._df_ep):
+            best_p_error_min = self._df_ep['best_p_error'].min()
+            best_p_error_max = self._df_ep['best_p_error'].max()
+            worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
+
+            # ［小さな値］を下回っていれば、対象外です
+            if worst_abs_best_p_error <= self._specified_abs_small_error:
+                return
+        
+        else:
+            # ループに最初に１回入るためだけの設定
+            worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
 
         self._start_time_for_save = time.time()
@@ -410,23 +421,9 @@ class Automation():
         self._current_abs_lower_limit_of_error = ABS_OUT_OF_ERROR
         self._passage_upper_limit = 10
 
-        # ループに最初に１回入るためだけの設定
-        worst_abs_best_p_error = ABS_OUT_OF_ERROR
 
-        # １件もデータがない、または
-        # 指定の誤差の最小値より、誤差が大きい間繰り返す
-        #
-        #   NOTE データ件数が０件だと、誤差の最大値が nan になってしまう。データは生成される前提
-        #
-        while len(self._df_ep) < 1 or self._specified_abs_small_error < worst_abs_best_p_error:
-            # ［エラー］列で一番大きい値を取得します
-            #
-            #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
-            #
-            best_p_error_min = self._df_ep['best_p_error'].min()
-            best_p_error_max = self._df_ep['best_p_error'].max()
-            worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
-
+        # FIXME どこかのタイミングで抜けたい。タイムシェアリングのコードをきちんと書くべきだが
+        while not self._cut_off and (len(self._df_ep) < 1 or self._specified_abs_small_error < worst_abs_best_p_error):
 
             # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
             if pd.isnull(worst_abs_best_p_error):
@@ -479,6 +476,15 @@ class Automation():
                         
                         if self._current_abs_lower_limit_of_error < self._specified_abs_small_error:
                             self._current_abs_lower_limit_of_error = self._specified_abs_small_error
+
+
+            # ［エラー］列で一番大きい値を取得します
+            #
+            #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
+            #
+            best_p_error_min = self._df_ep['best_p_error'].min()
+            best_p_error_max = self._df_ep['best_p_error'].max()
+            worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
 
         print(f"ループから抜けました")

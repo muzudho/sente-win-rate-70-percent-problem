@@ -175,3 +175,21 @@
                 t_step = 1
                 span += 1
 ```
+
+
+```
+                        # # 理論値の場合
+                        # elif self._generation_algorythm == THEORETICAL:
+
+                        #     # オーバーフロー例外に対応したプログラミングをすること
+                        #     latest_p, err = calculate_probability(
+                        #             p=spec.p,
+                        #             H=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                        #             T=latest_series_rule.step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                            
+                        #     # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
+                        #     if err is not None:
+                        #         latest_p_error = 0      # 何度計算しても失敗するだろうから、計算完了するようにしておく
+                        #     else:
+                        #         latest_p_error = latest_p - 0.5
+```

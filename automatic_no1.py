@@ -40,6 +40,9 @@ if __name__ == '__main__':
                         shall_print=True)
 
                 # CSV作成 ［試行中の経験的確率データファイル］
+                #
+                #   NOTE ここ、時間がかかりすぎじゃないか？
+                #
                 create_csv_to_epdt = CreateCsvToEPDT(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
