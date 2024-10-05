@@ -73,6 +73,11 @@ class Automation():
                 trials_series=self._specified_trials_series)
 
 
+        # ファイルが無かったのならスキップする
+        if df_kds is None:
+            return
+
+
         for index, column_name in enumerate(df_kds.columns.values, 1):
             self._ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
 

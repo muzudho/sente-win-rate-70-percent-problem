@@ -1,3 +1,7 @@
+import os
+import openpyxl as xl
+
+
 from library.file_paths import KakukinDataFilePaths
 
 
@@ -38,7 +42,7 @@ class KakukinDataExcelFile():
         return self._wb
 
 
-    def create_sheet(title, shall_overwrite=False):
+    def create_sheet(self, title, shall_overwrite=False):
         """シート作成
 
         Parameters
@@ -49,10 +53,10 @@ class KakukinDataExcelFile():
 
         # もしシートが既存なら削除する
         if shall_overwrite:
-            if title in wb.sheetnames:
-                del self._wb[sheet_name]
+            if title in self._wb.sheetnames:
+                del self._wb[title]
 
-        self._current_ws = self._wb.create_sheet(title=sheet_name)
+        self._current_ws = self._wb.create_sheet(title=title)
         return self._current_ws
 
 
@@ -64,5 +68,5 @@ class KakukinDataExcelFile():
         excel_file_path : str
             ファイルパス
         """
-        wb.save(self._excel_file_path)
+        self._wb.save(self._excel_file_path)
         return self._excel_file_path
