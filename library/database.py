@@ -578,7 +578,7 @@ class CalculateProbabilityTable():
 class TheoreticalProbabilityRecord():
 
 
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_a_win_rate_abs_error, theoretical_no_win_match_rate):
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
         self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
@@ -588,7 +588,6 @@ class TheoreticalProbabilityRecord():
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
         self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_a_win_rate_abs_error = theoretical_a_win_rate_abs_error
         self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
 
 
@@ -638,11 +637,6 @@ class TheoreticalProbabilityRecord():
 
 
     @property
-    def theoretical_a_win_rate_abs_error(self):
-        return self._theoretical_a_win_rate_abs_error
-
-
-    @property
     def theoretical_no_win_match_rate(self):
         return self._theoretical_no_win_match_rate
 
@@ -661,7 +655,6 @@ class TheoreticalProbabilityTable():
         'shortest_coins':'int64',
         'upper_limit_coins':'int64',
         'theoretical_a_win_rate':'float64',
-        'theoretical_a_win_rate_abs_error':'float64',
         'theoretical_no_win_match_rate':'float64'}
 
 
@@ -677,7 +670,6 @@ class TheoreticalProbabilityTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
-                'theoretical_a_win_rate_abs_error': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
 
         return df
@@ -743,10 +735,8 @@ class TheoreticalProbabilityTable():
         # あとで設定する
         if theoretical_a_win_rate is None:
             df.loc[index, ['theoretical_a_win_rate']] = OUT_OF_P
-            df.loc[index, ['theoretical_a_win_rate_abs_error']] = abs(OUT_OF_P - EVEN)
         else:
             df.loc[index, ['theoretical_a_win_rate']] = theoretical_a_win_rate
-            df.loc[index, ['theoretical_a_win_rate_abs_error']] = abs(theoretical_a_win_rate - EVEN)
 
         # あとで設定する
         if theoretical_no_win_match_rate is None:
@@ -772,7 +762,7 @@ class TheoreticalProbabilityTable():
                 turn_system_id=spec.turn_system_id)
 
         df.to_csv(csv_file_path,
-                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_a_win_rate_abs_error', 'theoretical_no_win_match_rate'],
+                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
@@ -788,8 +778,8 @@ class TheoreticalProbabilityTable():
         on_each : func
             record 引数を受け取る関数
         """
-        for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_a_win_rate_abs_error  ,     theoretical_no_win_match_rate in\
-            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_a_win_rate_abs_error'], df['theoretical_no_win_match_rate']):
+        for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate in\
+            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
 
             # レコード作成
             record = TheoreticalProbabilityRecord(
@@ -802,7 +792,6 @@ class TheoreticalProbabilityTable():
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
                     theoretical_a_win_rate=theoretical_a_win_rate,
-                    theoretical_a_win_rate_abs_error=theoretical_a_win_rate_abs_error,
                     theoretical_no_win_match_rate=theoretical_no_win_match_rate)
 
             on_each(record)

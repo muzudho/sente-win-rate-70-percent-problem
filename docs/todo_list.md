@@ -12,7 +12,8 @@
 * [ ] failure_rate が増えて upper_limit_coins が増えれば、かかる時間も増えていくし。 failure_rate は 70% までにするか？
 * [ ] span ではなく、 upper_limit_coins の上限を抑え込みたい
 * [x] BRUTE_FORCE とか THEORETICAL の分類を廃止したい。 BRUTE_FORCE を残して THEORETICAL を削除
-* [ ] `thoretical_probability_best.csv` がキー重複データだらけ、なんで？ ----> ループするデータフレームを間違えてた？
+* [x] `thoretical_probability_best.csv` がキー重複データだらけ、なんで？ ----> ループするデータフレームを間違えてた？
+* [x] `theoretical_a_win_rate_abs_error` 列を廃止したい
 * [ ] コイン投げで引き分けがあるとどうなる？
     * [-] タイブレークを導入するか？ ----> ［将棋の引分け率］が上がればあがるほど、引き分けを勝ちにされた方が有利になってしまう
     * [ ] 勝ち点のスケールを２倍にしておいて、引分けになったら両者に勝ち点の半分が入るようにしたらどうか？

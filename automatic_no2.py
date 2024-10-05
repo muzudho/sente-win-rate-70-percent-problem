@@ -196,11 +196,10 @@ class AllTheoreticalProbabilityFilesOperation():
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] FILE_NOT_FOUND")
                         continue
 
-                    # イーブンが見つかっているなら、探索打ち切り
+                    # テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
                     #
-                    #   FIXME `theoretical_a_win_rate_abs_error` という列を余分に作らなくてすむ方法はないか？
+                    #   FIXME このコードの書き方で動くのかわからない。もし書けないなら、１件ずつ調べていけばいいか
                     #
-                    #min_abs_error = df['theoretical_a_win_rate_abs_error'].min()
                     min_abs_error = (df['theoretical_a_win_rate'] - EVEN).abs().min()
                     if is_almost_zero(min_abs_error):
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RE_EVEN_")
@@ -242,7 +241,6 @@ class AllTheoreticalProbabilityFilesOperation():
 
                             # データフレーム更新
                             df.loc[index,['theoretical_a_win_rate']] = three_rates.a_win_rate
-                            df.loc[index,['theoretical_a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
                             df.loc[index,['theoretical_no_win_match_rate']] = three_rates.no_win_match_rate
 
                             self._number_of_dirty += 1
