@@ -444,53 +444,12 @@ class EmpiricalProbabilityTable():
         'candidates':'object'}
 
 
-    @staticmethod
-    def sub_insert_record(df, index, welcome_record):
-        df.at[index, 'p'] = welcome_record.p
-        df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        df.at[index, 'trials_series'] = welcome_record.trials_series
-        df.at[index, 'best_p'] = welcome_record.best_p
-        df.at[index, 'best_p_error'] = welcome_record.best_p_error
-        df.at[index, 'best_h_step'] = welcome_record.best_h_step
-        df.at[index, 'best_t_step'] = welcome_record.best_t_step
-        df.at[index, 'best_span'] = welcome_record.best_span
-        df.at[index, 'latest_p'] = welcome_record.latest_p
-        df.at[index, 'latest_p_error'] = welcome_record.latest_p_error
-        df.at[index, 'latest_h_step'] = welcome_record.latest_h_step
-        df.at[index, 'latest_t_step'] = welcome_record.latest_t_step
-        df.at[index, 'latest_span'] = welcome_record.latest_span
-        df.at[index, 'candidates'] = welcome_record.candidates
-
-
-    @staticmethod
-    def insert_record(df, welcome_record):
-        """
-
-        Parameters
-        ----------
-        spec : Specification
-            ［仕様］
-        """
-        EmpiricalProbabilityTable.sub_insert_record(df=df, index=len(df.index), welcome_record=welcome_record)
-
-
-    @staticmethod
-    def update_record(df, specified_p, welcome_record):
-        """レコード更新
-        
-        Parameters
-        ----------
-        specified_p : float
-
-        welcome_record : EmpiricalProbabilityRecord
-            レコード
-        """
-        EmpiricalProbabilityTable.sub_insert_record(df=df, index=df['p']==specified_p, welcome_record=welcome_record)
+    def __init__(self, df):
+        self._df = df
 
 
     @classmethod
-    def read_df(clazz, failure_rate, turn_system_id, trials_series):
+    def read_csv(clazz, failure_rate, turn_system_id, trials_series):
         """
 
         Parameters
@@ -513,32 +472,80 @@ class EmpiricalProbabilityTable():
         df = pd.read_csv(csv_file_path, encoding="utf8",
                 dtype=clazz._dtype)
 
-        return df
+        return EmpiricalProbabilityTable(df)
 
 
-    @staticmethod
-    def to_csv(df, failure_rate, turn_system_id, trials_series):
+    @property
+    def df(self):
+        return self._df
+
+
+    def sub_insert_record(self, index, welcome_record):
+        self._df.at[index, 'p'] = welcome_record.p
+        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
+        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
+        self._df.at[index, 'trials_series'] = welcome_record.trials_series
+        self._df.at[index, 'best_p'] = welcome_record.best_p
+        self._df.at[index, 'best_p_error'] = welcome_record.best_p_error
+        self._df.at[index, 'best_h_step'] = welcome_record.best_h_step
+        self._df.at[index, 'best_t_step'] = welcome_record.best_t_step
+        self._df.at[index, 'best_span'] = welcome_record.best_span
+        self._df.at[index, 'latest_p'] = welcome_record.latest_p
+        self._df.at[index, 'latest_p_error'] = welcome_record.latest_p_error
+        self._df.at[index, 'latest_h_step'] = welcome_record.latest_h_step
+        self._df.at[index, 'latest_t_step'] = welcome_record.latest_t_step
+        self._df.at[index, 'latest_span'] = welcome_record.latest_span
+        self._df.at[index, 'candidates'] = welcome_record.candidates
+
+
+    def insert_record(self, welcome_record):
+        """
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        """
+        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+
+
+    def update_record(self, specified_p, welcome_record):
+        """レコード更新
+        
+        Parameters
+        ----------
+        specified_p : float
+
+        welcome_record : EmpiricalProbabilityRecord
+            レコード
+        """
+        self.sub_insert_record(index=self._df['p']==specified_p, welcome_record=welcome_record)
+
+
+    def to_csv(self, failure_rate, turn_system_id, trials_series):
         # ファイルが存在しなかった場合、新規作成
         csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system_id=turn_system_id, trials_series=trials_series)
 
         print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
         # CSV保存
-        df.to_csv(
+        self._df.to_csv(
                 csv_file_path,
                 # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
                 columns=['p', 'failure_rate', 'turn_system_name', 'trials_series', 'best_p', 'best_p_error', 'best_h_step', 'best_t_step', 'best_span', 'latest_p', 'latest_p_error', 'latest_h_step', 'latest_t_step', 'latest_span', 'candidates'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
 
-    @staticmethod
-    def for_each(df, on_each):
+    def for_each(self, on_each):
         """
         Parameters
         ----------
-        df : DataFrame
-            データフレーム
+        on_each : func
+            関数
         """
+
+        df = self._df
+
         for         p,       failure_rate,       turn_system_name,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
             zip(df['p'], df['failure_rate'], df['turn_system_name'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
 

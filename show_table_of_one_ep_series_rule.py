@@ -154,7 +154,8 @@ Which one(1-2)? """
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        df_ep = EmpiricalProbabilityTable.read_df(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
+        ep_table = EmpiricalProbabilityTable.read_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
+        df_ep = ep_table.df
 
         for            p,          failure_rate,          turn_system_name,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
             zip(df_ep['p'], df_ep['failure_rate'], df_ep['turn_system_name'], df_ep['trials_series'], df_ep['best_p'], df_ep['best_p_error'], df_ep['best_h_step'], df_ep['best_t_step'], df_ep['best_span'], df_ep['latest_p'], df_ep['latest_p_error'], df_ep['latest_h_step'], df_ep['latest_t_step'], df_ep['latest_span'], df_ep['candidates']):

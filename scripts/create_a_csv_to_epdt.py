@@ -29,7 +29,8 @@ class Automation():
         self._specified_trials_series=specified_trials_series
         self._specified_abs_small_error=specified_abs_small_error
 
-        self._df_ep = None
+        self._ep_table = None
+
         self._current_abs_lower_limit_of_error = None
         self._passage_upper_limit = None
 
@@ -54,8 +55,7 @@ class Automation():
             ［仕様］
         """
 
-        EmpiricalProbabilityTable.update_record(
-                df=self._df_ep,
+        self._ep_table.update_record(
                 specified_p = spec.p,
                 welcome_record=EmpiricalProbabilityRecord(
                         specified_p = spec.p,
@@ -84,7 +84,8 @@ class Automation():
             p = p_parcent / 100
             
             # 存在しなければデフォルトのレコード追加
-            if not ((self._df_ep['p'] == p) & (self._df_ep['failure_rate'] == self._specified_failure_rate) & (self._df_ep['trials_series'] == self._specified_trials_series)).any():
+            df_ep = self._ep_table.df
+            if not ((df_ep['p'] == p) & (df_ep['failure_rate'] == self._specified_failure_rate) & (df_ep['trials_series'] == self._specified_trials_series)).any():
 
                 # ［仕様］
                 spec = Specification(
@@ -92,8 +93,7 @@ class Automation():
                         failure_rate=self._specified_failure_rate,
                         turn_system_id=self._specified_turn_system_id)
                 
-                EmpiricalProbabilityTable.insert_record(
-                        df=self._df_ep,
+                self._ep_table.insert_record(
                         welcome_record=EmpiricalProbabilityTable(
                                 p=spec.p,
                                 failure_rate=spec.failure_rate,
@@ -114,8 +114,7 @@ class Automation():
 
         if is_insert_record:
             # CSV保存
-            EmpiricalProbabilityTable.to_csv(
-                    df=self._df_ep,
+            self._ep_table.to_csv(
                     failure_rate=self._specified_failure_rate,
                     turn_system_id=self._specified_turn_system_id,
                     trials_series=self._specified_trials_series)
@@ -288,7 +287,7 @@ class Automation():
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
+                                self._ep_table.to_csv(failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
 
                                 # FIXME タイムシェアリング書くの、めんどくさいんで、ループから抜ける
                                 self._cut_off = True
@@ -359,7 +358,7 @@ class Automation():
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
+                self._ep_table.to_csv(failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
 
 
     def iteration_deeping(self):
@@ -385,8 +384,7 @@ class Automation():
         self._number_of_yield = 0         # 処理を途中で譲った数
         self._number_of_passaged = 0      # 空振りで終わったレコード数
 
-
-        EmpiricalProbabilityTable.for_each(df=self._df_ep, on_each=self.on_each)
+        self._ep_table.for_each(on_each=self.on_each)
 
         return is_update_table
 
@@ -399,16 +397,16 @@ class Automation():
         None
         """
 
-        self._df_ep = EmpiricalProbabilityTable.read_df(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
-        #print(self._df_ep)
+        self._ep_table = EmpiricalProbabilityTable.read_csv(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
+        #print(self._ep_table.df)
 
         # 対象外のケース
         # =============
 
         # NOTE １件以上ないと、 .min() や .max() が nan になってしまう。１件以上あるときに判定する
-        if 0 < len(self._df_ep):
-            best_p_error_min = self._df_ep['best_p_error'].min()
-            best_p_error_max = self._df_ep['best_p_error'].max()
+        if 0 < len(self._ep_table.df):
+            best_p_error_min = self._ep_table.df['best_p_error'].min()
+            best_p_error_max = self._ep_table.df['best_p_error'].max()
             # 絶対値にする
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
@@ -442,7 +440,7 @@ class Automation():
 
 
         # FIXME どこかのタイミングで抜けたい。タイムシェアリングのコードをきちんと書くべきだが
-        while not self._cut_off and (len(self._df_ep) < 1 or self._specified_abs_small_error < worst_abs_best_p_error):
+        while not self._cut_off and (len(self._ep_table.df) < 1 or self._specified_abs_small_error < worst_abs_best_p_error):
 
             # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
             if pd.isnull(worst_abs_best_p_error):
@@ -501,8 +499,8 @@ class Automation():
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            best_p_error_min = self._df_ep['best_p_error'].min()
-            best_p_error_max = self._df_ep['best_p_error'].max()
+            best_p_error_min = self._ep_table.df['best_p_error'].min()
+            best_p_error_max = self._ep_table.df['best_p_error'].max()
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
 
@@ -514,4 +512,4 @@ class Automation():
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            EmpiricalProbabilityTable.to_csv(df=self._df_ep, failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
+            self._ep_table.to_csv(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
