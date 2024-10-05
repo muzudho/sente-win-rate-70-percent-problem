@@ -128,7 +128,10 @@ class AllTheoreticalProbabilityFilesOperation():
                                     h_step=h_step,
                                     shortest_coins=specified_series_rule.shortest_coins,
                                     upper_limit_coins=specified_series_rule.upper_limit_coins,
-                                    three_rates=None)    # NOTE three_rates を求める処理は重たいので、後回しにする
+
+                                    # NOTE スリー・レーツを求める処理は重たいので、後回しにする
+                                    trial_a_win_rate=None,
+                                    trial_no_win_match_rate=None)
                             
                             self._number_of_dirty += 1
 

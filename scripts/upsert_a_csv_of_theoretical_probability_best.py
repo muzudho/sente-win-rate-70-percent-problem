@@ -23,7 +23,7 @@ class AutomationOne():
             ［仕様］
         """
         self._spec = spec
-        self._best_win_rate_error = None
+        self._best_theoretical_win_rate_error = None
         self._best_record = None
 
 
@@ -32,11 +32,11 @@ class AutomationOne():
         error = record_tp.theoretical_a_win_rate - EVEN
 
         # 誤差が縮まれば更新
-        if abs(error) < abs(self._best_win_rate_error):
+        if abs(error) < abs(self._best_theoretical_win_rate_error):
             is_update = True
         
         # 誤差が同じでも、引き分け率が下がれば更新
-        elif error == self._best_win_rate_error and (self._best_record.three_rates.no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < self._best_record.three_rates.no_win_match_rate):
+        elif error == self._best_theoretical_win_rate_error and (self._best_record.theoretical_no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < self.theoretical_no_win_match_rate):
             is_update = True
         
         else:
@@ -44,7 +44,7 @@ class AutomationOne():
 
 
         if is_update:
-            self._best_win_rate_error = error
+            self._best_theoretical_win_rate_error = error
             self._best_record = TheoreticalProbabilityBestRecord(
                     turn_system_name=record_tp.turn_system_name,
                     failure_rate=record_tp.failure_rate,
@@ -54,9 +54,8 @@ class AutomationOne():
                     h_step=record_tp.h_step,
                     shortest_coins=record_tp.shortest_coins,
                     upper_limit_coins=record_tp.upper_limit_coins,
-                    three_rates=ThreeRates(
-                            a_win_rate=record_tp.theoretical_a_win_rate,
-                            no_win_match_rate=record_tp.theoretical_no_win_match_rate))
+                    theoretical_a_win_rate=record_tp.theoretical_a_win_rate,
+                    theoretical_no_win_match_rate=record_tp.theoretical_no_win_match_rate)
 
 
     def execute_one(self):
@@ -89,7 +88,7 @@ class AutomationOne():
 
         # リセット
         self._best_record = TheoreticalProbabilityBestTable.create_none_record()
-        self._best_win_rate_error = ABS_OUT_OF_ERROR    # a_win_rate と EVEN の誤差
+        self._best_theoretical_win_rate_error = ABS_OUT_OF_ERROR    # a_win_rate と EVEN の誤差
 
 
         # 読み込む［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
@@ -107,7 +106,7 @@ class AutomationOne():
             # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
             if key_b.any():
                 self._best_record = TheoreticalProbabilityBestTable.get_record_by_key(df=df_best, key=key_b)
-                self._best_win_rate_error = self._best_record.three_rates.a_win_rate - EVEN
+                self._best_theoretical_win_rate_error = self._best_record.theoretical_a_win_rate - EVEN
 
 
         # ［理論的確率データ］の各レコードについて

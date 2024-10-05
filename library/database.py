@@ -726,7 +726,7 @@ class TheoreticalProbabilityTable():
 
 
     @staticmethod
-    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
         index = len(df.index)
 
 
@@ -740,16 +740,19 @@ class TheoreticalProbabilityTable():
         df.loc[index, ['shortest_coins']] = shortest_coins
         df.loc[index, ['upper_limit_coins']] = upper_limit_coins
 
-        if three_rates is None:
-            # あとで設定する
+        # あとで設定する
+        if theoretical_a_win_rate is None:
             df.loc[index, ['theoretical_a_win_rate']] = OUT_OF_P
             df.loc[index, ['theoretical_a_win_rate_abs_error']] = abs(OUT_OF_P - EVEN)
-            df.loc[index, ['theoretical_no_win_match_rate']] = OUT_OF_P
-
         else:
-            df.loc[index, ['theoretical_a_win_rate']] = three_rates.a_win_rate
-            df.loc[index, ['theoretical_a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
-            df.loc[index, ['theoretical_no_win_match_rate']] = three_rates.no_win_match_rate
+            df.loc[index, ['theoretical_a_win_rate']] = theoretical_a_win_rate
+            df.loc[index, ['theoretical_a_win_rate_abs_error']] = abs(theoretical_a_win_rate - EVEN)
+
+        # あとで設定する
+        if theoretical_no_win_match_rate is None:
+            df.loc[index, ['theoretical_no_win_match_rate']] = OUT_OF_P
+        else:
+            df.loc[index, ['theoretical_no_win_match_rate']] = theoretical_no_win_match_rate
 
 
     @staticmethod
@@ -957,7 +960,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
     @staticmethod
-    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, three_rates):
+    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_no_win_match_rate):
         index = len(df.index)
 
 
@@ -971,16 +974,20 @@ class TheoreticalProbabilityTrialResultsTable():
         df.loc[index, ['shortest_coins']] = shortest_coins
         df.loc[index, ['upper_limit_coins']] = upper_limit_coins
 
-        if three_rates is None:
-            # あとで設定する
+        # あとで設定する
+        if trial_a_win_rate is None:
             df.loc[index, ['trial_a_win_rate']] = OUT_OF_P
             df.loc[index, ['trial_a_win_rate_abs_error']] = abs(OUT_OF_P - EVEN)
+        else:
+            df.loc[index, ['trial_a_win_rate']] = trial_a_win_rate
+            df.loc[index, ['trial_a_win_rate_abs_error']] = abs(trial_a_win_rate - EVEN)
+
+        # あとで設定する
+        if trial_no_win_match_rate is None:
             df.loc[index, ['trial_no_win_match_rate']] = OUT_OF_P
 
         else:
-            df.loc[index, ['trial_a_win_rate']] = three_rates.a_win_rate
-            df.loc[index, ['trial_a_win_rate_abs_error']] = abs(three_rates.a_win_rate - EVEN)
-            df.loc[index, ['trial_no_win_match_rate']] = three_rates.no_win_match_rate
+            df.loc[index, ['trial_no_win_match_rate']] = trial_no_win_match_rate
 
 
     @staticmethod
@@ -1049,7 +1056,6 @@ class TheoreticalProbabilityBestRecord():
         self._h_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
-        self._three_rates = three_rates
         self._theoretical_a_win_rate = theoretical_a_win_rate
         self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
 
