@@ -111,7 +111,7 @@ class Automation():
 
 
         if self._specified_turn_system_id != Converter.turn_system_code_to_id(record.turn_system_name):
-            raise ValueError(f"{Converter.turn_system_id_to_code(self._specified_turn_system_id)=} != {record.turn_system_name=}")
+            raise ValueError(f"{Converter.turn_system_id_to_name(self._specified_turn_system_id)=} != {record.turn_system_name=}")
 
 
         # FIXME 自明のチェック。 self._specified_trials_series と record.trials_series は必ず一致する

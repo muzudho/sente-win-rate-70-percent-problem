@@ -77,7 +77,7 @@ class AutomationOne():
 
         is_dirty = False
 
-        turn_system_name = Converter.turn_system_id_to_code(self._spec.turn_system_id)
+        turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
         df_tp, is_new = TheoreticalProbabilityTable.read_df(spec=self._spec, new_if_it_no_exists=False)
@@ -100,8 +100,17 @@ class AutomationOne():
         
         # ［理論的確率ベストデータ］ファイルが存在したなら、読込
         else:
-            # 該当する［理論的確率ベストデータ］レコードのキー
-            key_b = (df_best['turn_system_name']==turn_system_name) & (df_best['failure_rate']==self._spec.failure_rate) & (df_best['p']==self._spec.p)
+            # FIXME set_index() するとおかしくなる？
+            try:
+                # 該当する［理論的確率ベストデータ］レコードのキー
+                key_b = (df_best['turn_system_name']==turn_system_name) & (df_best['failure_rate']==self._spec.failure_rate) & (df_best['p']==self._spec.p)
+
+            except KeyError as ex:
+                print(f"列名がないという例外が発生中")
+                for index, column_name in enumerate(df_best.columns.values, 1):
+                    print(f"({index}) {column_name=}")
+                raise # 再スロー
+
 
             # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
             if key_b.any():
@@ -129,7 +138,7 @@ class AutomationAll():
     def execute_all(self):
         # ［先後の決め方］
         for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
-            turn_system_name = Converter.turn_system_id_to_code(specified_turn_system_id)
+            turn_system_name = Converter.turn_system_id_to_name(specified_turn_system_id)
 
             # ［将棋の引分け率］
             for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み

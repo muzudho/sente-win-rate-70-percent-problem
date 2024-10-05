@@ -411,7 +411,7 @@ class EmpiricalProbabilityTable():
         # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
         df.loc[index, ['p']] = spec.p
         df.loc[index, ['failure_rate']] = spec.failure_rate
-        df.loc[ index, ['turn_system_name']] = Converter.turn_system_id_to_code(spec.turn_system_id)
+        df.loc[index, ['turn_system_name']] = Converter.turn_system_id_to_name(spec.turn_system_id)
         df.loc[index, ['trials_series']] = trials_series
         df.loc[index, ['best_p']] = 0
         df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
@@ -1129,8 +1129,13 @@ class TheoreticalProbabilityBestTable():
 
     @staticmethod
     def set_index(df):
-        # 主キーの設定
-        df.set_index(['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step'])
+        # NOTE index に設定した列は、 columns.values で列名が取れなくなる？ df.locでアクセスもできなくなる？
+        pass
+
+        # # 主キーの設定
+        # df.set_index(
+        #         ['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step'],
+        #         inplace=True)   # インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
 
     @classmethod
@@ -1265,20 +1270,22 @@ class TheoreticalProbabilityBestTable():
 
         csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
-        # ファイルが存在しなかった場合
         is_new = not os.path.isfile(csv_file_path)
+        # ファイルが存在しなかった場合
         if is_new:
             if new_if_it_no_exists:
                 df = TheoreticalProbabilityBestTable.new_data_frame()
             else:
                 df = None
 
+        # ファイルが存在した場合
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
 
+
+        if df is not None:
             TheoreticalProbabilityBestTable.set_index(df)
-        
 
         return df, is_new
 

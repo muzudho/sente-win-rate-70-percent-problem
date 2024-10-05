@@ -51,6 +51,8 @@ Which one(1-2)? """
         else:
             raise ValueError(f"{choice=}")
 
+        turn_system_name = Converter.turn_system_id_to_name(specified_turn_system_id)
+
 
         # ［仕様］
         spec = Specification(
@@ -61,7 +63,17 @@ Which one(1-2)? """
 
         # ［理論的確率ベストデータ］新規作成または更新
         upsert_csv_of_theoretical_probability_best_one = UpsertCsvOfTheoreticalProbabilityBestOne(spec=spec)
-        upsert_csv_of_theoretical_probability_best_one.execute_one()
+
+        # FIXME
+        is_dirty, df_best = upsert_csv_of_theoretical_probability_best_one.execute_one()
+
+        # ファイルに変更があれば、CSVファイル保存
+        if is_dirty:
+            csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
+            print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={spec.failure_rate * 100:.1f}%  p={spec.p * 100:.1f}] write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+
+
+        print(f"おわり！")
 
 
     except Exception as err:

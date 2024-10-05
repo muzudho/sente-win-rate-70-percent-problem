@@ -48,7 +48,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
                 # ［先後の決め方］
                 for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
-                    turn_system_name = Converter.turn_system_id_to_code(turn_system_id)
+                    turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
                     #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_name=}")
 
                     # 仕様
@@ -130,8 +130,8 @@ class AllTheoreticalProbabilityFilesOperation():
                                     upper_limit_coins=specified_series_rule.upper_limit_coins,
 
                                     # NOTE スリー・レーツを求める処理は重たいので、後回しにする
-                                    trial_a_win_rate=None,
-                                    trial_no_win_match_rate=None)
+                                    theoretical_a_win_rate=None,
+                                    theoretical_no_win_match_rate=None)
                             
                             self._number_of_dirty += 1
 
@@ -181,7 +181,7 @@ class AllTheoreticalProbabilityFilesOperation():
                     self._number_of_dirty = 0
                     self._start_time_for_save = time.time()       # CSV保存用タイマー
 
-                    turn_system_name = Converter.turn_system_id_to_code(turn_system_id)
+                    turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
                     #print(f"[{datetime.datetime.now()}] CREATE_FILE {turn_system_name=}")
 
                     # 仕様
@@ -255,12 +255,6 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
         return CONTINUE
-
-
-    def upsert_csv_of_theoretical_probability_best(self):
-        """［理論的確率ベストデータ］新規作成または更新"""
-        upsert_csv_of_theoretical_probability_best_one = UpsertCsvOfTheoreticalProbabilityBestOne()
-        upsert_csv_of_theoretical_probability_best_one.execute_one(spec=spec)
 
 
 ########################################
