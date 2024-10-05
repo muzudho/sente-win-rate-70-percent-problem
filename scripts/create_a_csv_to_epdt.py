@@ -9,7 +9,7 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
-from library.database import EmpiricalProbabilityTable
+from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
 
 
 # 探索の上限
@@ -57,18 +57,20 @@ class Automation():
         EmpiricalProbabilityTable.update_record(
                 df=self._df_ep,
                 specified_p = spec.p,
-                trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
-                best_p=best_p,
-                best_p_error=best_p_error,
-                best_h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),
-                best_t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
-                best_span=best_series_rule_if_it_exists.step_table.span,
-                latest_p=latest_p,
-                latest_p_error=latest_p_error,
-                latest_h_step=latest_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                latest_t_step=latest_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                latest_span=latest_series_rule.step_table.span,
-                candidates=candidates)
+                welcome_record=EmpiricalProbabilityRecord(
+                        specified_p = spec.p,
+                        trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
+                        best_p=best_p,
+                        best_p_error=best_p_error,
+                        best_h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),
+                        best_t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
+                        best_span=best_series_rule_if_it_exists.step_table.span,
+                        latest_p=latest_p,
+                        latest_p_error=latest_p_error,
+                        latest_h_step=latest_series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                        latest_t_step=latest_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                        latest_span=latest_series_rule.step_table.span,
+                        candidates=candidates))
 
         self._is_dirty_csv = True
 
@@ -90,10 +92,24 @@ class Automation():
                         failure_rate=self._specified_failure_rate,
                         turn_system_id=self._specified_turn_system_id)
                 
-                EmpiricalProbabilityTable.append_default_record(
+                EmpiricalProbabilityTable.insert_record(
                         df=self._df_ep,
-                        spec=spec,
-                        trials_series=self._specified_trials_series)
+                        welcome_record=EmpiricalProbabilityTable(
+                                p=spec.p,
+                                failure_rate=spec.failure_rate,
+                                turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
+                                trials_series=trials_series,
+                                best_p=0,
+                                best_p_error=ABS_OUT_OF_ERROR,
+                                best_h_step=0,
+                                best_t_step=1,
+                                best_span=1,
+                                latest_p=0,
+                                latest_p_error=ABS_OUT_OF_ERROR,
+                                latest_h_step=0,
+                                latest_t_step=1,
+                                latest_span=1,
+                                candidates=''))
                 is_insert_record = True
 
         if is_insert_record:

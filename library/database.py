@@ -290,6 +290,35 @@ class EmpiricalProbabilityRecord():
 
 
     def __init__(self, p, failure_rate, turn_system_name, trials_series, best_p, best_p_error, best_h_step, best_t_step, best_span, latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span, candidates):
+        """初期化
+        
+        Parameters
+        ----------
+        trials_series : int
+            ［試行シリーズ数］
+        best_p : float
+            ［調整後の表が出る確率］列を更新
+        best_p_error : float
+            ［調整後の表が出る確率の５割との誤差］
+        best_h_step : int
+            ［表番で勝ったときの勝ち点］列を更新
+        best_t_step : int
+            ［裏番で勝ったときの勝ち点］列を更新
+        best_span : int
+            ［目標の点数］列を更新 
+        latest_p : float
+            ［調整後の表が出る確率］列を更新
+        latest_p_error : float
+            ［調整後の表が出る確率の５割との誤差］
+        latest_h_step : int
+            ［表番で勝ったときの勝ち点］列を更新
+        latest_t_step : int
+            ［裏番で勝ったときの勝ち点］列を更新
+        latest_span : int
+            ［目標の点数］列を更新 
+        candidates : str
+            ［シリーズ・ルール候補］
+        """
 
         # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
         best_h_step = round_letro(best_h_step)
@@ -416,79 +445,48 @@ class EmpiricalProbabilityTable():
 
 
     @staticmethod
-    def append_default_record(df, spec, trials_series):
+    def sub_insert_record(df, index, welcome_record):
+        df.at[index, 'p'] = welcome_record.p
+        df.at[index, 'failure_rate'] = welcome_record.failure_rate
+        df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
+        df.at[index, 'trials_series'] = welcome_record.trials_series
+        df.at[index, 'best_p'] = welcome_record.best_p
+        df.at[index, 'best_p_error'] = welcome_record.best_p_error
+        df.at[index, 'best_h_step'] = welcome_record.best_h_step
+        df.at[index, 'best_t_step'] = welcome_record.best_t_step
+        df.at[index, 'best_span'] = welcome_record.best_span
+        df.at[index, 'latest_p'] = welcome_record.latest_p
+        df.at[index, 'latest_p_error'] = welcome_record.latest_p_error
+        df.at[index, 'latest_h_step'] = welcome_record.latest_h_step
+        df.at[index, 'latest_t_step'] = welcome_record.latest_t_step
+        df.at[index, 'latest_span'] = welcome_record.latest_span
+        df.at[index, 'candidates'] = welcome_record.candidates
+
+
+    @staticmethod
+    def insert_record(df, welcome_record):
         """
+
         Parameters
         ----------
         spec : Specification
             ［仕様］
         """
-        index = len(df.index)
-
-        # TODO int 型が float になって入ってしまうのを防ぎたい ----> 防げない？
-        df.loc[index, ['p']] = spec.p
-        df.loc[index, ['failure_rate']] = spec.failure_rate
-        df.loc[index, ['turn_system_name']] = Converter.turn_system_id_to_name(spec.turn_system_id)
-        df.loc[index, ['trials_series']] = trials_series
-        df.loc[index, ['best_p']] = 0
-        df.loc[index, ['best_p_error']] = ABS_OUT_OF_ERROR
-        df.loc[index, ['best_h_step']] = 0
-        df.loc[index, ['best_t_step']] = 1
-        df.loc[index, ['best_span']] = 1
-        df.loc[index, ['latest_p']] = 0
-        df.loc[index, ['latest_p_error']] = ABS_OUT_OF_ERROR
-        df.loc[index, ['latest_h_step']] = 0
-        df.loc[index, ['latest_t_step']] = 1
-        df.loc[index, ['latest_span']] = 1
-        df.loc[index, ['candidates']] = ''
+        EmpiricalProbabilityTable.sub_insert_record(df=df, index=len(df.index), welcome_record=welcome_record)
 
 
     @staticmethod
-    def update_record(df, specified_p, trials_series,
-            best_p, best_p_error, best_h_step, best_t_step, best_span,
-            latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span,
-            candidates):
+    def update_record(df, specified_p, welcome_record):
         """レコード更新
         
         Parameters
         ----------
-        trials_series : int
-            ［試行シリーズ数］
-        best_p : float
-            ［調整後の表が出る確率］列を更新
-        best_p_error : float
-            ［調整後の表が出る確率の５割との誤差］
-        best_h_step : int
-            ［表番で勝ったときの勝ち点］列を更新
-        best_t_step : int
-            ［裏番で勝ったときの勝ち点］列を更新
-        best_span : int
-            ［目標の点数］列を更新 
-        latest_p : float
-            ［調整後の表が出る確率］列を更新
-        latest_p_error : float
-            ［調整後の表が出る確率の５割との誤差］
-        latest_h_step : int
-            ［表番で勝ったときの勝ち点］列を更新
-        latest_t_step : int
-            ［裏番で勝ったときの勝ち点］列を更新
-        latest_span : int
-            ［目標の点数］列を更新 
-        candidates : str
-            ［シリーズ・ルール候補］
+        specified_p : float
+
+        welcome_record : EmpiricalProbabilityRecord
+            レコード
         """
-        df.loc[df['p']==specified_p, ['trials_series']] = trials_series
-        df.loc[df['p']==specified_p, ['best_p']] = best_p
-        df.loc[df['p']==specified_p, ['best_p_error']] = best_p_error
-        df.loc[df['p']==specified_p, ['best_h_step']] = best_h_step
-        df.loc[df['p']==specified_p, ['best_t_step']] = best_t_step
-        df.loc[df['p']==specified_p, ['best_span']] = best_span
-        df.loc[df['p']==specified_p, ['latest_p']] = latest_p
-        df.loc[df['p']==specified_p, ['latest_p_error']] = latest_p_error
-        df.loc[df['p']==specified_p, ['latest_h_step']] = latest_h_step
-        df.loc[df['p']==specified_p, ['latest_t_step']] = latest_t_step
-        df.loc[df['p']==specified_p, ['latest_span']] = latest_span
-        df.loc[df['p']==specified_p, ['candidates']] = candidates
+        EmpiricalProbabilityTable.sub_insert_record(df=df, index=df['p']==specified_p, welcome_record=welcome_record)
 
 
     @classmethod
