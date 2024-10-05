@@ -23,59 +23,107 @@ class AutomationOne():
             ［仕様］
         """
         self._spec = spec
-        self._best_theoretical_win_rate_error = None
+
+        self._df_best = None
+        self._is_update_df_best = False
         self._best_record = None
 
 
     def on_each(self, record_tp):
 
-        error = record_tp.theoretical_a_win_rate - EVEN
+        # ベスト値と比較したい。
+        # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］［目標の点数］［裏番で勝ったときの勝ち点］［表番で勝ったときの勝ち点］の６列
 
-        # 誤差が縮まれば更新
-        if abs(error) < abs(self._best_theoretical_win_rate_error):
-            is_update = True
-        
-        # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
-        elif error == self._best_theoretical_win_rate_error and (self._best_record.theoretical_no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < self._best_record.theoretical_no_win_match_rate):
-            is_update = True
-        
-        else:
-            is_update = False
+        try:
+            shall_upsert_record = False
 
+            # FIXME set_index() するとおかしくなる？
+#             print(f"""\
+# FIXME set_index() するとおかしくなる？
+# {self._df_best.columns.values=}
+# {self._df_best.index=}
+# """)
+            #self._df_best:
+            #{self._df_best}
 
-        if is_update:
-            self._best_theoretical_win_rate_error = error
-            self._best_record = TheoreticalProbabilityBestRecord(
+            # 絞り込み。 1件の DataFrame型が返ってくる
+            df_result_set_by_primary_key = TheoreticalProbabilityBestTable.get_result_set_by_primary_key(
+                    df=self._df_best,
                     turn_system_name=record_tp.turn_system_name,
                     failure_rate=record_tp.failure_rate,
                     p=record_tp.p,
                     span=record_tp.span,
                     t_step=record_tp.t_step,
-                    h_step=record_tp.h_step,
-                    shortest_coins=record_tp.shortest_coins,
-                    upper_limit_coins=record_tp.upper_limit_coins,
-                    theoretical_a_win_rate=record_tp.theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=record_tp.theoretical_no_win_match_rate)
+                    h_step=record_tp.h_step)
+
+            if 1 < len(df_result_set_by_primary_key):
+                raise ValueError(f"複数件該当するのはおかしい {len(df_result_set_by_primary_key)=}")
+            
+            # TODO 該当なしなら、即、ベスト値追加
+            if 0 == len(df_result_set_by_primary_key):
+                shall_upsert_record = True
+
+            # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
+            else:
+                row_index = df_result_set_by_primary_key.index[0]  # 行番号を取得
+
+                # 既存のベスト値
+                old_theoretical_a_win_rate=df_result_set_by_primary_key.at[row_index, 'theoretical_a_win_rate']
+                old_theoretical_no_win_match_rate=df_result_set_by_primary_key.at[row_index, 'theoretical_no_win_match_rate']
+
+                # 誤差が縮まれば更新
+                welcome_theoretical_a_win_error = record_tp.theoretical_a_win_rate - EVEN
+                if abs(welcome_theoretical_a_win_error) < abs(old_theoretical_a_win_rate - EVEN):
+                    shall_upsert_record = True
+
+                # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
+                elif welcome_theoretical_a_win_error == abs(old_theoretical_a_win_rate - EVEN) and (old_theoretical_no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < old_theoretical_no_win_match_rate):
+                    shall_upsert_record = True
+
+
+            if shall_upsert_record:
+                # 型変換
+                welcome_record = TheoreticalProbabilityBestRecord(
+                        turn_system_name=record_tp.turn_system_name,
+                        failure_rate=record_tp.failure_rate,
+                        p=record_tp.p,
+                        span=record_tp.span,
+                        t_step=record_tp.t_step,
+                        h_step=record_tp.h_step,
+                        shortest_coins=record_tp.shortest_coins,
+                        upper_limit_coins=record_tp.upper_limit_coins,
+                        theoretical_a_win_rate=record_tp.theoretical_a_win_rate,
+                        theoretical_no_win_match_rate=record_tp.theoretical_no_win_match_rate)
+
+                # レコードの新規作成または更新
+                is_dirty_temp = TheoreticalProbabilityBestTable.upsert_record(
+                        df=self._df_best,
+                        df_result_set_by_primary_key=df_result_set_by_primary_key,
+                        welcome_record=welcome_record)
+
+                if is_dirty_temp:
+                    self._is_update_df_best = True
+
+
+        except KeyError as ex:
+            print(f"列名がないという例外が発生中")
+            for index, column_name in enumerate(self._df_best.columns.values, 1):
+                print(f"({index}) {column_name=}")
+            raise # 再スロー
 
 
     def execute_one(self):
         """
+        
         Returns
         -------
         is_dirty : bool
             ファイル変更の有無
         df_best : DataFrame
             データフレーム
-        
-        Returns
-        -------
-        is_dirty : bool
-            ファイルに変更があったか？
-        df_best : DataFrame
-            データフレーム
         """
 
-        is_dirty = False
+        self._is_update_df_best = False
 
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
@@ -86,81 +134,19 @@ class AutomationOne():
             return
 
 
-        # リセット
-        self._best_record = TheoreticalProbabilityBestTable.create_none_record()
-        self._best_theoretical_win_rate_error = ABS_OUT_OF_ERROR    # a_win_rate と EVEN の誤差
-
-
-        # 読み込む［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        df_best, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=True)
+        # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
+        self._df_best, is_new = TheoreticalProbabilityBestTable.read_df(new_if_it_no_exists=True)
 
 
         if is_new:
-            is_dirty = True
-        
-        # ［理論的確率ベストデータ］ファイルが存在したなら、読込
-        else:
-            # FIXME set_index() するとおかしくなる？
-#             print(f"""\
-# FIXME set_index() するとおかしくなる？
-# {df_best.columns.values=}
-# {df_best.index=}
-# """)
-            #df_best:
-            #{df_best}
-
-            try:
-                # 絞り込み。 0 ～複数件の DataFrame型が返ってくる
-                df_result_set = df_best.query('turn_system_name==@turn_system_name & failure_rate==@self._spec.failure_rate & p==@self._spec.p')
-
-                # まだ複数件拾っていたら、［理論的なＡさんの勝率］が 0.5 に近いものを選ぶ
-                if 1 < len(df_result_set):
-                    df_result_set = df_result_set.loc[abs(df_result_set['theoretical_a_win_rate'] - 0.5) == min(abs(df_result_set['theoretical_a_win_rate'] - 0.5))]
-
-                # FIXME このコードで動くか？ まだ複数件拾っていたら、［上限対局数］が最小のものを選ぶ
-                if 1 < len(df_result_set):
-                    df_result_set = df_result_set.loc[df_result_set['theoretical_a_win_rate'] == min(df_result_set['upper_limit_coins'])]
-
-                # FIXME このコードで動くか？ まだ複数件拾っていたら、とりあえず１件選ぶ
-                if 1 < len(df_result_set):
-                    df_result_set = df_result_set.iloc[0]
-
-                # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
-                if len(df_result_set) == 1:
-                    row_index = df_result_set.index[0]  # 行番号を取得
-                    self._best_record = TheoreticalProbabilityBestRecord(
-                            turn_system_name=df_result_set.at[row_index, 'turn_system_name'],
-                            failure_rate=df_result_set.at[row_index, 'failure_rate'],
-                            p=df_result_set.at[row_index, 'p'],
-                            span=df_result_set.at[row_index, 'span'],
-                            t_step=df_result_set.at[row_index, 't_step'],
-                            h_step=df_result_set.at[row_index, 'h_step'],
-                            shortest_coins=df_result_set.at[row_index, 'shortest_coins'],
-                            upper_limit_coins=df_result_set.at[row_index, 'upper_limit_coins'],
-                            theoretical_a_win_rate=df_result_set.at[row_index, 'theoretical_a_win_rate'],
-                            theoretical_no_win_match_rate=df_result_set.at[row_index, 'theoretical_no_win_match_rate'])
-                    
-                    self._best_theoretical_win_rate_error = self._best_record.theoretical_a_win_rate - EVEN
-
-            except KeyError as ex:
-                print(f"列名がないという例外が発生中")
-                for index, column_name in enumerate(df_best.columns.values, 1):
-                    print(f"({index}) {column_name=}")
-                raise # 再スロー
+            self._is_update_df_best = True
 
 
         # ［理論的確率データ］の各レコードについて
         TheoreticalProbabilityTable.for_each(df=df_tp, on_each=self.on_each)
 
 
-        if self._best_record.turn_system_name is not None:
-            # レコードの新規作成または更新
-            is_dirty_temp = TheoreticalProbabilityBestTable.upsert_record(df=df_best, record=self._best_record)
-            if is_dirty_temp:
-                is_dirty = True
-
-
-        return is_dirty, df_best
+        return self._is_update_df_best, self._df_best
 
 
 class AutomationAll():
@@ -195,6 +181,8 @@ class AutomationAll():
 
                     if is_dirty_temp:
                         is_dirty = True
+
+                        # TODO ここでタイマーで保存してもいいのでは？
 
                 # ファイルに変更があれば、CSVファイル保存
                 if is_dirty:

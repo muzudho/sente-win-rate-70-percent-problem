@@ -293,7 +293,7 @@ if __name__ == '__main__':
 
 
             # ［理論的確率ベストデータ］新規作成または更新
-            print(f"upsert csv of theoretical probability best. {depth=} ...")
+            print(f"[{datetime.datetime.now()}] upsert csv of theoretical probability best. {depth=} ...")
             upsert_csv_of_theoretical_probability_best_all = UpsertCsvOfTheoreticalProbabilityBestAll()
             upsert_csv_of_theoretical_probability_best_all.execute_all()
 
