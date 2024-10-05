@@ -105,7 +105,7 @@ class Automation():
                                 p=spec.p,
                                 failure_rate=spec.failure_rate,
                                 turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
-                                trials_series=trials_series,
+                                trials_series=spec.trials_series,
                                 best_p=0,
                                 best_p_error=ABS_OUT_OF_ERROR,
                                 best_h_step=0,
