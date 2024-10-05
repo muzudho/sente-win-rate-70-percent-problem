@@ -103,6 +103,8 @@ class AutomationOne():
 
 
     def get_best_reocrd_of_tp_or_none(self, df_tp):
+        """TODO ［理論的確率データ］テーブルから、イーブンに一番近い行を抽出します"""
+
         # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
         df_result_set = df_tp.loc[abs(df_tp['theoretical_a_win_rate'] - 0.5) == min(abs(df_tp['theoretical_a_win_rate'] - 0.5))]
 

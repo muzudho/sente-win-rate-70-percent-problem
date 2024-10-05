@@ -658,6 +658,32 @@ class TheoreticalProbabilityTable():
         'theoretical_no_win_match_rate':'float64'}
 
 
+    @staticmethod
+    def set_index(df):
+        """主キーの設定"""
+        df.set_index(
+                ['turn_system_name', 'failure_rate', 'p'],
+                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+    @staticmethod
+    def get_result_set_by_primary_key(df, turn_system_name, failure_rate, p):
+        """0～1件のレコードを含むデータフレームを返します"""
+
+        # 絞り込み。 DataFrame型が返ってくる
+        df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+
+        if 1 < len(df_result_set):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}")
+
+        return df_result_set
+
+
     @classmethod
     def new_data_frame(clazz):
         df = pd.DataFrame.from_dict({
@@ -671,6 +697,8 @@ class TheoreticalProbabilityTable():
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
+
+        TheoreticalProbabilityTable.set_index(df)
 
         return df
 
@@ -714,16 +742,16 @@ class TheoreticalProbabilityTable():
                     dtype=clazz._dtype)
 
 
+        if df is not None:
+            TheoreticalProbabilityTable.set_index(df)
+
         return df, is_new
 
 
     @staticmethod
     def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
         index = len(df.index)
-
-
-        df.loc[index, [ 'turn_system_name']] = turn_system_name   # FIXME ここで型エラー？
-
+        df.loc[index, ['turn_system_name']] = turn_system_name
         df.loc[index, ['failure_rate']] = failure_rate
         df.loc[index, ['p']] = p
         df.loc[index, ['span']] = span
@@ -731,18 +759,8 @@ class TheoreticalProbabilityTable():
         df.loc[index, ['h_step']] = h_step
         df.loc[index, ['shortest_coins']] = shortest_coins
         df.loc[index, ['upper_limit_coins']] = upper_limit_coins
-
-        # あとで設定する
-        if theoretical_a_win_rate is None:
-            df.loc[index, ['theoretical_a_win_rate']] = OUT_OF_P
-        else:
-            df.loc[index, ['theoretical_a_win_rate']] = theoretical_a_win_rate
-
-        # あとで設定する
-        if theoretical_no_win_match_rate is None:
-            df.loc[index, ['theoretical_no_win_match_rate']] = OUT_OF_P
-        else:
-            df.loc[index, ['theoretical_no_win_match_rate']] = theoretical_no_win_match_rate
+        df.loc[index, ['theoretical_a_win_rate']] = theoretical_a_win_rate
+        df.loc[index, ['theoretical_no_win_match_rate']] = theoretical_no_win_match_rate
 
 
     @staticmethod
@@ -801,7 +819,7 @@ class TheoreticalProbabilityTrialResultsRecord():
     """理論的確率の試行結果レコード"""
 
 
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_a_win_rate_abs_error, trial_no_win_match_rate):
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_no_win_match_rate):
         self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
@@ -811,7 +829,6 @@ class TheoreticalProbabilityTrialResultsRecord():
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
         self._trial_a_win_rate = trial_a_win_rate
-        self._trial_a_win_rate_abs_error = trial_a_win_rate_abs_error
         self._trial_no_win_match_rate = trial_no_win_match_rate
 
 
@@ -861,11 +878,6 @@ class TheoreticalProbabilityTrialResultsRecord():
 
 
     @property
-    def trial_a_win_rate_abs_error(self):
-        return self._trial_a_win_rate_abs_error
-
-
-    @property
     def trial_no_win_match_rate(self):
         return self._trial_no_win_match_rate
 
@@ -884,7 +896,6 @@ class TheoreticalProbabilityTrialResultsTable():
         'shortest_coins':'int64',
         'upper_limit_coins':'int64',
         'trial_a_win_rate':'float64',
-        'trial_a_win_rate_abs_error':'float64',
         'trial_no_win_match_rate':'float64'}
 
 
@@ -900,7 +911,6 @@ class TheoreticalProbabilityTrialResultsTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'trial_a_win_rate': [],
-                'trial_a_win_rate_abs_error': [],
                 'trial_no_win_match_rate': []}).astype(clazz._dtype)
 
         return df
@@ -951,10 +961,7 @@ class TheoreticalProbabilityTrialResultsTable():
     @staticmethod
     def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_no_win_match_rate):
         index = len(df.index)
-
-
-        df.loc[index, [ 'turn_system_name']] = turn_system_name   # FIXME ここで型エラー？
-
+        df.loc[index, ['turn_system_name']] = turn_system_name
         df.loc[index, ['failure_rate']] = failure_rate
         df.loc[index, ['p']] = p
         df.loc[index, ['span']] = span
@@ -962,21 +969,8 @@ class TheoreticalProbabilityTrialResultsTable():
         df.loc[index, ['h_step']] = h_step
         df.loc[index, ['shortest_coins']] = shortest_coins
         df.loc[index, ['upper_limit_coins']] = upper_limit_coins
-
-        # あとで設定する
-        if trial_a_win_rate is None:
-            df.loc[index, ['trial_a_win_rate']] = OUT_OF_P
-            df.loc[index, ['trial_a_win_rate_abs_error']] = abs(OUT_OF_P - EVEN)
-        else:
-            df.loc[index, ['trial_a_win_rate']] = trial_a_win_rate
-            df.loc[index, ['trial_a_win_rate_abs_error']] = abs(trial_a_win_rate - EVEN)
-
-        # あとで設定する
-        if trial_no_win_match_rate is None:
-            df.loc[index, ['trial_no_win_match_rate']] = OUT_OF_P
-
-        else:
-            df.loc[index, ['trial_no_win_match_rate']] = trial_no_win_match_rate
+        df.loc[index, ['trial_a_win_rate']] = trial_a_win_rate
+        df.loc[index, ['trial_no_win_match_rate']] = trial_no_win_match_rate
 
 
     @staticmethod
@@ -996,7 +990,7 @@ class TheoreticalProbabilityTrialResultsTable():
                 turn_system_id=spec.turn_system_id)
 
         df.to_csv(csv_file_path,
-                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_a_win_rate', 'trial_a_win_rate_abs_error', 'trial_no_win_match_rate'],
+                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_a_win_rate', 'trial_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
@@ -1012,8 +1006,8 @@ class TheoreticalProbabilityTrialResultsTable():
         on_each : func
             record 引数を受け取る関数
         """
-        for         turn_system_name,         failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_a_win_rate_abs_error  ,     trial_no_win_match_rate in\
-            zip(df['turn_system_name']  , df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_a_win_rate_abs_error'], df['trial_no_win_match_rate']):
+        for         turn_system_name,         failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_a_win_rate  ,     trial_no_win_match_rate in\
+            zip(df['turn_system_name']  , df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_no_win_match_rate']):
 
             # レコード作成
             record = EmpiricalProbabilityRecord(
@@ -1026,7 +1020,6 @@ class TheoreticalProbabilityTrialResultsTable():
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
                     trial_a_win_rate=trial_a_win_rate,
-                    trial_a_win_rate_abs_error=trial_a_win_rate_abs_error,
                     trial_no_win_match_rate=trial_no_win_match_rate)
 
             on_each(record)
@@ -1118,10 +1111,7 @@ class TheoreticalProbabilityBestTable():
 
     @staticmethod
     def set_index(df):
-        # # NOTE index に設定した列は、 columns.values で列名が取れなくなる？ df.locでアクセスもできなくなる？
-        # pass
-
-        # 主キーの設定
+        """主キーの設定"""
         df.set_index(
                 ['turn_system_name', 'failure_rate', 'p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
@@ -1138,13 +1128,9 @@ class TheoreticalProbabilityBestTable():
 
         # 絞り込み。 DataFrame型が返ってくる
         df_result_set = df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-#         print(f"""\
-# df_result_set:
-# {type(df_result_set)=}
-# {df_result_set}""")
 
         if 1 < len(df_result_set):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}  {span=}  {t_step=}  {h_step=}")
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set)=}  {turn_system_name=}  {failure_rate=}  {p=}")
 
         return df_result_set
 
@@ -1202,12 +1188,6 @@ class TheoreticalProbabilityBestTable():
     def update_record(df, row_index, welcome_record):
         """データが既存なら、差異があれば、上書き、無ければ何もしません"""
 
-#         print(f"""\
-# update_record:
-#     {type(row_index)=}
-#     {row_index=}
-# """)
-
         # 主キーが一致するのは前提事項
         is_dirty =\
             df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
@@ -1248,11 +1228,6 @@ class TheoreticalProbabilityBestTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-#         print(f"""\
-# df_result_set_by_primary_key:
-# {type(df_result_set_by_primary_key)=}
-# {df_result_set_by_primary_key}""")
-
         if 1 < len(df_result_set_by_primary_key):
             raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_primary_key)=}")
 
@@ -1261,23 +1236,9 @@ class TheoreticalProbabilityBestTable():
             TheoreticalProbabilityBestTable.insert_record(df=df, welcome_record=welcome_record)
             return True
 
-        # データが既存なら、その行番号を取得
-        #         print(f"""\
-        # upsert_record:
-        #     {type(df_result_set_by_primary_key.index)=}
-        #     {df_result_set_by_primary_key.index=}
-        #     {type(df_result_set_by_primary_key.index[0])=}
-        #     {df_result_set_by_primary_key.index[0]=}
-        # """)
-        #upsert_record:
-        #    type(df_result_set_by_primary_key.index)=<class 'pandas.core.indexes.multi.MultiIndex'>
-        #    df_result_set_by_primary_key.index=MultiIndex([(14, '', '')],
-        #   names=['turn_system_name', 'failure_rate', 'p'])
-
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
+        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
         row_index = df_result_set_by_primary_key.index[0]
-        #row_index = df_result_set_by_primary_key.index[0]  # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        #print(f"{type(row_index)=}  {row_index=}")
 
         return TheoreticalProbabilityBestTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 

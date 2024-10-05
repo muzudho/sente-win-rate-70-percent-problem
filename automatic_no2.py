@@ -130,8 +130,8 @@ class AllTheoreticalProbabilityFilesOperation():
                                     upper_limit_coins=specified_series_rule.upper_limit_coins,
 
                                     # NOTE スリー・レーツを求める処理は重たいので、後回しにする
-                                    theoretical_a_win_rate=None,
-                                    theoretical_no_win_match_rate=None)
+                                    theoretical_a_win_rate=OUT_OF_P,
+                                    theoretical_no_win_match_rate=OUT_OF_P)
                             
                             self._number_of_dirty += 1
 
