@@ -749,18 +749,77 @@ class TheoreticalProbabilityTable():
 
 
     @staticmethod
-    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
-        index = len(df.index)
-        df.loc[index, ['turn_system_name']] = turn_system_name
-        df.loc[index, ['failure_rate']] = failure_rate
-        df.loc[index, ['p']] = p
-        df.loc[index, ['span']] = span
-        df.loc[index, ['t_step']] = t_step
-        df.loc[index, ['h_step']] = h_step
-        df.loc[index, ['shortest_coins']] = shortest_coins
-        df.loc[index, ['upper_limit_coins']] = upper_limit_coins
-        df.loc[index, ['theoretical_a_win_rate']] = theoretical_a_win_rate
-        df.loc[index, ['theoretical_no_win_match_rate']] = theoretical_no_win_match_rate
+    def sub_insert_record(df, row_index, welcome_record):
+        df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
+        df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
+        df.at[row_index, 'p'] = welcome_record.p
+        df.at[row_index, 'span'] = welcome_record.span
+        df.at[row_index, 't_step'] = welcome_record.t_step
+        df.at[row_index, 'h_step'] = welcome_record.h_step
+        df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
+        df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+        df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+
+
+    @staticmethod
+    def insert_record(df, welcome_record):
+        TheoreticalProbabilityTable.sub_insert_record(df=df, row_index=len(df.index), welcome_record=welcome_record)
+
+
+    @staticmethod
+    def update_record(df, row_index, welcome_record):
+        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
+
+        # 主キーが一致するのは前提事項
+        is_dirty =\
+            df.at[row_index, 'span'] != welcome_record.span or\
+            df.at[row_index, 't_step'] != welcome_record.t_step or\
+            df.at[row_index, 'h_step'] != welcome_record.h_step or\
+            df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            df.at[row_index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
+            df.at[row_index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
+
+        if is_dirty:
+            # データフレーム更新
+            TheoreticalProbabilityTable.sub_insert_record(df=df, row_index=row_index, welcome_record=welcome_record)
+
+        return is_dirty
+
+
+    @staticmethod
+    def upsert_record(df, df_result_set_by_primary_key, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        df_result_set_by_primary_key : DataFrame
+            主キーで絞り込んだレコードセット
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        is_dirty : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        if 1 < len(df_result_set_by_primary_key):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_primary_key)=}")
+
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_primary_key) == 0:
+            TheoreticalProbabilityTable.insert_record(df=df, welcome_record=welcome_record)
+            return True
+
+        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
+        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
+        row_index = df_result_set_by_primary_key.index[0]
+
+        return TheoreticalProbabilityTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
 
     @staticmethod
@@ -959,18 +1018,77 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
     @staticmethod
-    def append_new_record(df, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_a_win_rate, trial_no_win_match_rate):
-        index = len(df.index)
-        df.loc[index, ['turn_system_name']] = turn_system_name
-        df.loc[index, ['failure_rate']] = failure_rate
-        df.loc[index, ['p']] = p
-        df.loc[index, ['span']] = span
-        df.loc[index, ['t_step']] = t_step
-        df.loc[index, ['h_step']] = h_step
-        df.loc[index, ['shortest_coins']] = shortest_coins
-        df.loc[index, ['upper_limit_coins']] = upper_limit_coins
-        df.loc[index, ['trial_a_win_rate']] = trial_a_win_rate
-        df.loc[index, ['trial_no_win_match_rate']] = trial_no_win_match_rate
+    def sub_insert_record(df, row_index, welcome_record):
+        df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
+        df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
+        df.at[row_index, 'p'] = welcome_record.p
+        df.at[row_index, 'span'] = welcome_record.span
+        df.at[row_index, 't_step'] = welcome_record.t_step
+        df.at[row_index, 'h_step'] = welcome_record.h_step
+        df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
+        df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        df.at[row_index, 'trial_a_win_rate'] = welcome_record.trial_a_win_rate
+        df.at[row_index, 'trial_no_win_match_rate'] = welcome_record.trial_no_win_match_rate
+
+
+    @staticmethod
+    def insert_record(df, welcome_record):
+        TheoreticalProbabilityTrialResultsTable.sub_insert_record(df=df, row_index=len(df.index), welcome_record=welcome_record)
+
+
+    @staticmethod
+    def update_record(df, row_index, welcome_record):
+        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
+
+        # 主キーが一致するのは前提事項
+        is_dirty =\
+            df.at[row_index, 'span'] != welcome_record.span or\
+            df.at[row_index, 't_step'] != welcome_record.t_step or\
+            df.at[row_index, 'h_step'] != welcome_record.h_step or\
+            df.at[row_index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            df.at[row_index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            df.at[row_index, 'trial_a_win_rate'] != welcome_record.trial_a_win_rate or\
+            df.at[row_index, 'trial_no_win_match_rate'] != welcome_record.trial_no_win_match_rate
+
+        if is_dirty:
+            # データフレーム更新
+            TheoreticalProbabilityTrialResultTable.sub_insert_record(df=df, row_index=row_index, welcome_record=welcome_record)
+
+        return is_dirty
+
+
+    @staticmethod
+    def upsert_record(df, df_result_set_by_primary_key, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        df : DataFrame
+            データフレーム
+        df_result_set_by_primary_key : DataFrame
+            主キーで絞り込んだレコードセット
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        is_dirty : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        if 1 < len(df_result_set_by_primary_key):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_primary_key)=}")
+
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_primary_key) == 0:
+            TheoreticalProbabilityTrialResultsTable.insert_record(df=df, welcome_record=welcome_record)
+            return True
+
+        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
+        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
+        row_index = df_result_set_by_primary_key.index[0]
+
+        return TheoreticalProbabilityTrialResultsTable.update_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
 
     @staticmethod
@@ -1170,18 +1288,22 @@ class TheoreticalProbabilityBestTable():
 
 
     @staticmethod
+    def sub_insert_record(df, row_index, welcome_record):
+        df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
+        df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
+        df.at[row_index, 'p'] = welcome_record.p
+        df.at[row_index, 'span'] = welcome_record.span
+        df.at[row_index, 't_step'] = welcome_record.t_step
+        df.at[row_index, 'h_step'] = welcome_record.h_step
+        df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
+        df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
+        df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+
+
+    @staticmethod
     def insert_record(df, welcome_record):
-        index = len(df.index)
-        df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        df.at[index, 'p'] = welcome_record.p
-        df.at[index, 'span'] = welcome_record.span
-        df.at[index, 't_step'] = welcome_record.t_step
-        df.at[index, 'h_step'] = welcome_record.h_step
-        df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
-        df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+        TheoreticalProbabilityBestTable.sub_insert_record(df=df, row_index=len(df.index), welcome_record=welcome_record)
 
 
     @staticmethod
@@ -1197,16 +1319,7 @@ class TheoreticalProbabilityBestTable():
 
         if is_dirty:
             # データフレーム更新
-            df.at[row_index, 'turn_system_name'] = welcome_record.turn_system_name
-            df.at[row_index, 'failure_rate'] = welcome_record.failure_rate
-            df.at[row_index, 'p'] = welcome_record.p
-            df.at[row_index, 'span'] = welcome_record.span
-            df.at[row_index, 't_step'] = welcome_record.t_step
-            df.at[row_index, 'h_step'] = welcome_record.h_step
-            df.at[row_index, 'shortest_coins'] = welcome_record.shortest_coins
-            df.at[row_index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-            df.at[row_index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-            df.at[row_index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+            TheoreticalProbabilityBestTable.sub_insert_record(df=df, row_index=row_index, welcome_record=welcome_record)
 
         return is_dirty
 
@@ -1219,6 +1332,8 @@ class TheoreticalProbabilityBestTable():
         ----------
         df : DataFrame
             データフレーム
+        df_result_set_by_primary_key : DataFrame
+            主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 

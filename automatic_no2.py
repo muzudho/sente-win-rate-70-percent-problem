@@ -120,18 +120,19 @@ class AllTheoreticalProbabilityFilesOperation():
                             # 新規レコード追加
                             TheoreticalProbabilityTable.append_new_record(
                                     df=df,
-                                    turn_system_name=turn_system_name,
-                                    failure_rate=spec.failure_rate,
-                                    p=spec.p,
-                                    span=span,
-                                    t_step=t_step,
-                                    h_step=h_step,
-                                    shortest_coins=specified_series_rule.shortest_coins,
-                                    upper_limit_coins=specified_series_rule.upper_limit_coins,
+                                    welcome_record=TheoreticalProbabilityRecord(
+                                            turn_system_name=turn_system_name,
+                                            failure_rate=spec.failure_rate,
+                                            p=spec.p,
+                                            span=span,
+                                            t_step=t_step,
+                                            h_step=h_step,
+                                            shortest_coins=specified_series_rule.shortest_coins,
+                                            upper_limit_coins=specified_series_rule.upper_limit_coins,
 
-                                    # NOTE スリー・レーツを求める処理は重たいので、後回しにする
-                                    theoretical_a_win_rate=OUT_OF_P,
-                                    theoretical_no_win_match_rate=OUT_OF_P)
+                                            # NOTE スリー・レーツを求める処理は重たいので、後回しにする
+                                            theoretical_a_win_rate=OUT_OF_P,
+                                            theoretical_no_win_match_rate=OUT_OF_P))
                             
                             self._number_of_dirty += 1
 
