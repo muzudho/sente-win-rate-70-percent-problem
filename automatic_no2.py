@@ -12,7 +12,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_even
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable
 from scripts.upsert_a_csv_of_theoretical_probability_best import AutomationAll as UpsertCsvOfTheoreticalProbabilityBestAll
@@ -197,7 +197,12 @@ class AllTheoreticalProbabilityFilesOperation():
                         continue
 
                     # イーブンが見つかっているなら、探索打ち切り
-                    if is_almost_even(df['theoretical_a_win_rate_abs_error'].min()):
+                    #
+                    #   FIXME `theoretical_a_win_rate_abs_error` という列を余分に作らなくてすむ方法はないか？
+                    #
+                    #min_abs_error = df['theoretical_a_win_rate_abs_error'].min()
+                    min_abs_error = (df['theoretical_a_win_rate'] - EVEN).abs().min()
+                    if is_almost_zero(min_abs_error):
                         print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={p:.2f}  failure_rate={spec.failure_rate:.2f}] RE_EVEN_")
                         continue
 
