@@ -164,6 +164,7 @@ class AutomationAll():
                 # リセット
                 is_dirty = False    # ファイル変更の有無
                 df_best = None
+                start_time_for_save = time.time()       # CSV保存用タイマー
 
                 # ［将棋の先手勝率］
                 for p_percent in range(50, 96):
@@ -182,9 +183,18 @@ class AutomationAll():
                     if is_dirty_temp:
                         is_dirty = True
 
-                        # TODO ここでタイマーで保存してもいいのでは？
+                        # 指定間隔（秒）でファイル保存
+                        end_time_for_save = time.time()
+                        if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
+                            csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
+                            print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
 
-                # ファイルに変更があれば、CSVファイル保存
+                            # リセット
+                            start_time_for_save = time.time()
+                            is_dirty = False
+
+                # 忘れずに flush
                 if is_dirty:
                     csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv(df=df_best)
+                    # specified_p はまだ入ってるはず
                     print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
