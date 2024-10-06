@@ -15,7 +15,7 @@ import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import KakukinDataFilePaths
-from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
+from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import KakukinDataSheetTableCsv
 
 

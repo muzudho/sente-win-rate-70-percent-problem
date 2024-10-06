@@ -7,7 +7,7 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
+from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, ABS_SMALL_P_ERROR
 from library.file_paths import StepO1o0AutomaticFilePaths
 from library.logging import StepO1o0AutomaticLogging
 from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as StepO1o1o0CreateCsvToEPDT
@@ -57,7 +57,7 @@ if __name__ == '__main__':
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
                         specified_trials_series=specified_trials_series,
-                        specified_abs_small_error=0.0009)
+                        specified_abs_small_error=ABS_SMALL_P_ERROR)
                 
                 create_csv_to_epdt.execute()
 

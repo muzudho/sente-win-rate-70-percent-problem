@@ -105,6 +105,10 @@ OUT_OF_P = 1.01
 ABS_OUT_OF_ERROR = 0.51
 
 
+# 小数点第４位を四捨五入しても 0.01% の精度が出るように
+ABS_SMALL_P_ERROR = 0.0004
+
+
 # span に上限を付ける。計算の処理時間が甚大になるだろうから
 OUT_OF_UPPER_SPAN = 99
 

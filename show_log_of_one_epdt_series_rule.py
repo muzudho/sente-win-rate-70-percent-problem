@@ -1,8 +1,8 @@
 #
 # 表示
-# python show_table_of_one_ep_series_rule.py
+# python show_log_of_one_epdt_series_rule.py
 #
-#   テーブル形式でただ表示するだけ
+#   ログ表示するだけ。CSV編集してない
 #
 
 import traceback
@@ -24,8 +24,10 @@ turn system={Converter.turn_system_id_to_readable(turn_system_id)}
 """
 
 
-def stringify_body(p, spec, series_rule, presentable, comment, trial_results_for_one_series):
+def stringify_log_body(p, spec, series_rule, presentable, comment, trial_results_for_one_series):
     """データ部を文字列化
+
+    TODO pandas に書き直せるか？
 
     Parameters
     ----------
@@ -59,8 +61,11 @@ def stringify_body(p, spec, series_rule, presentable, comment, trial_results_for
 """
 
 
-def show_series_rule(spec, trials_series, h_step, t_step, span, presentable, comment):
-    """［シリーズ・ルール］を表示します"""
+def show_log_of_series_rule(spec, trials_series, h_step, t_step, span, presentable, comment):
+    """［シリーズ・ルール］を表示します
+    
+    FIXME ログ出力してるだけ？要らない？ 試行結果をCSVに保存してない？
+    """
 
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
@@ -92,21 +97,20 @@ def show_series_rule(spec, trials_series, h_step, t_step, span, presentable, com
             path_of_face_of_coin=path_of_face_of_coin)
 
 
-    text = stringify_body(
+    # ログ出力
+    # -------
+    log_text = stringify_log_body(
             p=p,
             spec=spec,
             series_rule=series_rule,
             presentable=presentable,
             comment=comment,
             trial_results_for_one_series=trial_results_for_one_series)
-
-    print(text) # 表示
-
-    # ログ出力
+    print(log_text) # 表示
     with open(SimulationLargeSeriesFilePaths.as_log(
             failure_rate=spec.failure_rate,
             turn_system_id=turn_system_id), 'a', encoding='utf8') as f:
-        f.write(f"{text}\n")    # ファイルへ出力
+        f.write(f"{log_text}\n")    # ファイルへ出力
 
 
 ########################################
@@ -178,48 +182,34 @@ How many times do you want to try the series(0-6)? """
                 new_if_it_no_exists=True)
         df_ep = ep_table.df
 
-        for            p,          failure_rate,          turn_system_name,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
-            zip(df_ep['p'], df_ep['failure_rate'], df_ep['turn_system_name'], df_ep['trials_series'], df_ep['best_p'], df_ep['best_p_error'], df_ep['best_h_step'], df_ep['best_t_step'], df_ep['best_span'], df_ep['latest_p'], df_ep['latest_p_error'], df_ep['latest_h_step'], df_ep['latest_t_step'], df_ep['latest_span'], df_ep['candidates']):
+
+        def on_each(epdt_record):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:
-                continue
+                return
 
             if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
                 print(f"[p={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
-                continue
-
-            record = EmpiricalProbabilityDuringTrialsRecord(
-                    p=p,
-                    failure_rate=failure_rate,
-                    turn_system_name=turn_system_name,
-                    trials_series=trials_series,
-                    best_p=best_p,
-                    best_p_error=best_p_error,
-                    best_h_step=best_h_step,
-                    best_t_step=best_t_step,
-                    best_span=best_span,
-                    latest_p=latest_p,
-                    latest_p_error=latest_p_error,
-                    latest_h_step=latest_h_step,
-                    latest_t_step=latest_t_step,
-                    latest_span=latest_span,
-                    candidates=candidates)
+                return
 
             # 仕様
             spec = Specification(
-                    p=p,
-                    failure_rate=failure_rate,
+                    p=epdt_record.p,
+                    failure_rate=specified_failure_rate,
                     turn_system_id=specified_turn_system_id)
 
-            show_series_rule(
+            show_log_of_series_rule(
                     spec=spec,
-                    trials_series=trials_series,
-                    h_step=record.best_h_step,
-                    t_step=record.best_t_step,
-                    span=record.best_span,
+                    trials_series=specified_trials_series,
+                    h_step=epdt_record.best_h_step,
+                    t_step=epdt_record.best_t_step,
+                    span=epdt_record.best_span,
                     presentable='',
                     comment='')
+
+
+        EmpiricalProbabilityDuringTrialsTable.for_each(on_each=on_each)
 
 
     except Exception as err:

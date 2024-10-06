@@ -56,17 +56,12 @@ class Automation():
         """
 
         df_result_set_by_index = self._ep_table.get_result_set_by_index(
-                turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
-                failure_rate=spec.failure_rate,
                 p=spec.p)
 
         self._ep_table.upsert_record(
                 df_result_set_by_index=df_result_set_by_index,
                 welcome_record=EmpiricalProbabilityDuringTrialsRecord(
-                        turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
-                        failure_rate=spec.failure_rate,
                         p=spec.p,
-                        trials_series=latest_series_rule.trials_series,     # NOTE best と latest のどちらにも同じ値が入っているはずです
                         best_p=best_p,
                         best_p_error=best_p_error,
                         best_h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),
@@ -90,9 +85,10 @@ class Automation():
         for p_parcent in range(int(EVEN * 100), int(UPPER_LIMIT_OF_P * 100) + 1):
             p = p_parcent / 100
             
-            # 存在しなければデフォルトのレコード追加
+            # 指定の p のレコードが１件も存在しなければデフォルトのレコード追加
             df_ep = self._ep_table.df
-            if not ((df_ep['p'] == p) & (df_ep['failure_rate'] == self._specified_failure_rate) & (df_ep['trials_series'] == self._specified_trials_series)).any():
+            list_of_enable_each_row = (df_ep['p'] == p)
+            if not list_of_enable_each_row.any():
 
                 # ［仕様］
                 spec = Specification(
@@ -103,9 +99,6 @@ class Automation():
                 self._ep_table.insert_record(
                         welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                                 p=spec.p,
-                                failure_rate=spec.failure_rate,
-                                turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
-                                trials_series=self._specified_trials_series,
                                 best_p=0,
                                 best_p_error=ABS_OUT_OF_ERROR,
                                 best_h_step=0,
@@ -121,27 +114,10 @@ class Automation():
 
         if is_insert_record:
             # CSV保存
-            self._ep_table.to_csv(
-                    failure_rate=self._specified_failure_rate,
-                    turn_system_id=self._specified_turn_system_id,
-                    trials_series=self._specified_trials_series)
+            self._ep_table.to_csv()
 
 
     def on_each(self, record):
-
-        # FIXME 自明のチェック。１つのファイルには、同じ［将棋の引分け率］のデータしかない
-        if self._specified_failure_rate != record.failure_rate:
-            raise ValueError(f"{self._specified_failure_rate=} != {record.failure_rate=}")
-
-
-        if self._specified_turn_system_id != Converter.turn_system_code_to_id(record.turn_system_name):
-            raise ValueError(f"{Converter.turn_system_id_to_name(self._specified_turn_system_id)=} != {record.turn_system_name=}")
-
-
-        # FIXME 自明のチェック。 self._specified_trials_series と record.trials_series は必ず一致する
-        if self._specified_trials_series != record.trials_series:
-            raise ValueError(f"{self._specified_trials_series=} != {record.trials_series=}")
-
 
         # どんどん更新されていく
         best_p = record.best_p
@@ -158,13 +134,13 @@ class Automation():
         # 仕様
         spec = Specification(
                 p=record.p,
-                failure_rate=record.failure_rate,
+                failure_rate=self._specified_failure_rate,
                 turn_system_id=self._specified_turn_system_id)
 
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trials_series=record.trials_series,
+                trials_series=self._specified_trials_series,
                 h_step=record.best_h_step,
                 t_step=record.best_t_step,
                 span=record.best_span)
@@ -202,7 +178,7 @@ class Automation():
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                trials_series=record.trials_series,
+                                trials_series=self._specified_trials_series,
                                 h_step=cur_h_step,
                                 t_step=cur_t_step,
                                 span=cur_span)
@@ -257,14 +233,15 @@ class Automation():
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
-                                    trials_series=record.trials_series,
+                                    trials_series=self._specified_trials_series,
                                     h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
                                     span=best_series_rule_if_it_exists.step_table.span,
                                     shortest_coins=best_series_rule_if_it_exists.shortest_coins,             # ［最短対局数］
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
-                            print(f"[{datetime.datetime.now()}][turn_system_name={record.turn_system_name}  failure_rate={spec.failure_rate * 100:3.0f}％  p={spec.p * 100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
+                            turn_system_name = Converter.turn_system_id_to_name(self._specified_turn_system_id)
+                            print(f"[{datetime.datetime.now()}][trials_series={self._specified_trials_series}  turn_system_name={turn_system_name}  failure_rate={self._specified_failure_rate * 100:3.0f}％  p={spec.p * 100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
@@ -294,7 +271,7 @@ class Automation():
 
                                 # CSV保存
                                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                self._ep_table.to_csv(failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
+                                self._ep_table.to_csv()
 
                                 # FIXME タイムシェアリング書くの、めんどくさいんで、ループから抜ける
                                 self._cut_off = True
@@ -365,7 +342,7 @@ class Automation():
 
                 # CSV保存
                 print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                self._ep_table.to_csv(failure_rate=spec.failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=record.trials_series)
+                self._ep_table.to_csv()
 
 
     def iteration_deeping(self):
@@ -406,9 +383,9 @@ class Automation():
 
         # ファイル読取り。無ければ空テーブル新規作成して保存
         self._ep_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
-                failure_rate=self._specified_failure_rate,
-                turn_system_id=self._specified_turn_system_id,
                 trials_series=self._specified_trials_series,
+                turn_system_id=self._specified_turn_system_id,
+                failure_rate=self._specified_failure_rate,
                 new_if_it_no_exists=True)
         #print(self._ep_table.df)
 
@@ -524,4 +501,4 @@ class Automation():
 
             # 最後に CSV保存
             print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            self._ep_table.to_csv(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
+            self._ep_table.to_csv()

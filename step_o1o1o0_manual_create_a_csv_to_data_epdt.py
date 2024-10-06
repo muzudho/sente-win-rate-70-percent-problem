@@ -1,6 +1,6 @@
 #
 # 生成
-# python step_o1o1o0_manual_create_a_csv_to_data_ep.py
+# python step_o1o1o0_manual_create_a_csv_to_data_epdt.py
 #
 #   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #

@@ -1,19 +1,19 @@
 from library import FROZEN_TURN, ALTERNATING_TURN
 
 
-def make_file_subname(p=None, failure_rate=None, turn_system_id=None, trials_series=None, h_step=None, t_step=None, span=None):
+def make_file_subname(trials_series=None, turn_system_id=None, failure_rate=None, p=None, h_step=None, t_step=None, span=None):
     """ファイル名の部分を作成
 
     Parameters
     ----------
-    p : float
-        ［表が出る確率］
-    failure_rate : float
-        ［表も裏も出ない確率］
-    turn_system_id : int
-        ［先後の決め方］
     trials_series : int
         ［試行シリーズ数］
+    turn_system_id : int
+        ［先後の決め方］
+    failure_rate : float
+        ［表も裏も出ない確率］
+    p : float
+        ［表が出る確率］
     h_step : int
         ［表番で勝ったときの勝ち点］
     t_step : int
