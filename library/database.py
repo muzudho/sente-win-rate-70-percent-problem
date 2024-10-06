@@ -12,9 +12,9 @@ from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, Theore
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
-#####
-# KDS
-#####
+###########
+# MARK: KDS
+###########
 
 class KakukinDataSheetRecord():
 
@@ -286,9 +286,9 @@ class KakukinDataSheetTable():
             on_each(record)
 
 
-####
-# TP
-####
+##########
+# MARK: TP
+##########
 
 class TheoreticalProbabilityRecord():
 
@@ -554,11 +554,12 @@ class TheoreticalProbabilityTable():
             on_each(record)
 
 
-####
-# EP
-####
+############
+# MARK: EPDT
+############
 
-class EmpiricalProbabilityRecord():
+class EmpiricalProbabilityDuringTrialsRecord():
+    """試行中の経験論的確率レコード"""
 
 
     def __init__(self, p, failure_rate, turn_system_name, trials_series, best_p, best_p_error, best_h_step, best_t_step, best_span, latest_p, latest_p_error, latest_h_step, latest_t_step, latest_span, candidates):
@@ -692,9 +693,8 @@ class EmpiricalProbabilityRecord():
         return self._candidates
 
 
-class EmpiricalProbabilityTable():
-    """経験的確率論テーブル
-    旧名： EvenTable
+class EmpiricalProbabilityDuringTrialsTable():
+    """試行中の経験的確率論テーブル
     """
 
 
@@ -740,7 +740,7 @@ class EmpiricalProbabilityTable():
                 'latest_span': [],
                 'candidates': []}).astype(clazz._dtype)
 
-        return EmpiricalProbabilityTable(df=df_ep)
+        return EmpiricalProbabilityDuringTrialsTable(df=df_ep)
 
 
     @classmethod
@@ -766,13 +766,13 @@ class EmpiricalProbabilityTable():
         is_new = not os.path.isfile(csv_file_path)
         if is_new:
             if new_if_it_no_exists:
-                ep_table = EmpiricalProbabilityTable.new_empty_table()
+                ep_table = EmpiricalProbabilityDuringTrialsTable.new_empty_table()
             else:
                 ep_table = None
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
-            ep_table = EmpiricalProbabilityTable(df)
+            ep_table = EmpiricalProbabilityDuringTrialsTable(df)
 
 
         return ep_table, is_new
@@ -837,7 +837,7 @@ class EmpiricalProbabilityTable():
         
         Parameters
         ----------
-        welcome_record : EmpiricalProbabilityRecord
+        welcome_record : EmpiricalProbabilityDuringTrialsRecord
             レコード
         """
 
@@ -935,7 +935,7 @@ class EmpiricalProbabilityTable():
             latest_span = round_letro(latest_span)
 
             # レコード作成
-            record = EmpiricalProbabilityRecord(
+            record = EmpiricalProbabilityDuringTrialsRecord(
                     p=p,
                     failure_rate=failure_rate,
                     turn_system_name=turn_system_name,
@@ -955,9 +955,9 @@ class EmpiricalProbabilityTable():
             on_each(record)
 
 
-#####
-# CPT
-#####
+###########
+# MARK: CPT
+###########
 
 class CalculateProbabilityTable():
 
@@ -977,9 +977,9 @@ class CalculateProbabilityTable():
         return df
 
 
-######
-# TPTR
-######
+############
+# MARK: TPTR
+############
 
 class TheoreticalProbabilityTrialResultsRecord():
     """理論的確率の試行結果レコード"""
@@ -1234,7 +1234,7 @@ class TheoreticalProbabilityTrialResultsTable():
             zip(df['turn_system_name']  , df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_a_win_rate'], df['trial_no_win_match_rate']):
 
             # レコード作成
-            record = EmpiricalProbabilityRecord(
+            record = EmpiricalProbabilityDuringTrialsRecord(
                     turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
                     p=p,
@@ -1249,9 +1249,9 @@ class TheoreticalProbabilityTrialResultsTable():
             on_each(record)
 
 
-######
-# TPBR
-######
+###########
+# MARK: TPB
+###########
 
 class TheoreticalProbabilityBestRecord():
     """理論的確率ベスト・レコード"""
@@ -1319,10 +1319,6 @@ class TheoreticalProbabilityBestRecord():
     def theoretical_no_win_match_rate(self):
         return self._theoretical_no_win_match_rate
 
-
-#####
-# TPB
-#####
 
 class TheoreticalProbabilityBestTable():
     """理論的確率ベスト・テーブル"""

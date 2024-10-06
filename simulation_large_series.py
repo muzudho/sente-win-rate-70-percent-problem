@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import SimulationLargeSeriesFilePaths
-from library.database import EmpiricalProbabilityTable
+from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import stringify_simulation_log
 
 
@@ -120,7 +120,7 @@ Example: 3
         title='イーブン［シリーズ・ルール］'
 
 
-        ep_table = EmpiricalProbabilityTable.read_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
+        ep_table = EmpiricalProbabilityDuringTrialsTable.read_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
         df_ep = ep_table.df
 
         for            p,          failure_rate,          turn_system_name,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\

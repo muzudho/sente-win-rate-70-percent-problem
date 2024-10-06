@@ -102,7 +102,7 @@ class Table():
             zip({line_2}):
 
             # レコード作成
-            record = EmpiricalProbabilityRecord(
+            record = EmpiricalProbabilityDuringTrialsRecord(
 ''')
 
                 for index_th, property_name in enumerate(property_name_list, 1):

@@ -9,7 +9,7 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
-from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
+from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
 
 
 # 探索の上限
@@ -62,7 +62,7 @@ class Automation():
 
         self._ep_table.upsert_record(
                 df_result_set_by_index=df_result_set_by_index,
-                welcome_record=EmpiricalProbabilityRecord(
+                welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                         turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
                         failure_rate=spec.failure_rate,
                         p=spec.p,
@@ -101,7 +101,7 @@ class Automation():
                         turn_system_id=self._specified_turn_system_id)
                 
                 self._ep_table.insert_record(
-                        welcome_record=EmpiricalProbabilityRecord(
+                        welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                                 p=spec.p,
                                 failure_rate=spec.failure_rate,
                                 turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
@@ -405,7 +405,7 @@ class Automation():
         """
 
         # ファイル読取り。無ければ空テーブル新規作成して保存
-        self._ep_table, is_new = EmpiricalProbabilityTable.read_csv(
+        self._ep_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 failure_rate=self._specified_failure_rate,
                 turn_system_id=self._specified_turn_system_id,
                 trials_series=self._specified_trials_series,

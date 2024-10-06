@@ -15,7 +15,7 @@ import datetime
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import KakukinDataFilePaths
-from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
+from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
 from library.views import KakukinDataSheetTableCsv
 
 
@@ -43,7 +43,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
         f.write(f"{header_csv}\n")
 
 
-    ep_table = EmpiricalProbabilityTable.read_csv(
+    ep_table = EmpiricalProbabilityDuringTrialsTable.read_csv(
             failure_rate=specified_failure_rate,
             turn_system_id=specified_turn_system_id,
             trials_series=specified_trials_series,

@@ -9,7 +9,7 @@ import traceback
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import SimulationLargeSeriesFilePaths
-from library.database import EmpiricalProbabilityTable, EmpiricalProbabilityRecord
+from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
 
 
 def stringify_header(turn_system_id):
@@ -171,7 +171,7 @@ How many times do you want to try the series(0-6)? """
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        ep_table = EmpiricalProbabilityTable.read_csv(
+        ep_table = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 failure_rate=specified_failure_rate,
                 turn_system_id=specified_turn_system_id,
                 trials_series=specified_trials_series,
@@ -189,7 +189,7 @@ How many times do you want to try the series(0-6)? """
                 print(f"[p={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
                 continue
 
-            record = EmpiricalProbabilityRecord(
+            record = EmpiricalProbabilityDuringTrialsRecord(
                     p=p,
                     failure_rate=failure_rate,
                     turn_system_name=turn_system_name,
