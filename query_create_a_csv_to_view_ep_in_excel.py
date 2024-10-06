@@ -43,7 +43,11 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
         f.write(f"{header_csv}\n")
 
 
-    ep_table = EmpiricalProbabilityTable.read_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id, trials_series=specified_trials_series)
+    ep_table = EmpiricalProbabilityTable.read_csv(
+            failure_rate=specified_failure_rate,
+            turn_system_id=specified_turn_system_id,
+            trials_series=specified_trials_series,
+            new_if_it_no_exists=True)
 
 
     def on_each(record):

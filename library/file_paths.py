@@ -24,6 +24,18 @@ def make_file_subname(p=None, failure_rate=None, turn_system_id=None, trials_ser
     subname = []
 
 
+    # ［試行シリーズ数］
+    #
+    #   NOTE 試行回数が異なれば、試行回数が少ないデータが混じってしまうと、全く内容が正しくなくなるという考え方で、重要度を１番上にする
+    #
+    if trials_series is None:
+        pass
+
+    else:
+        # try は number of trials series の略
+        subname.append(f'try{trials_series}')
+
+
     # ［手番の決め方］
     if turn_system_id is None:
         pass
@@ -42,14 +54,6 @@ def make_file_subname(p=None, failure_rate=None, turn_system_id=None, trials_ser
         raise ValueError(f"{turn_system_id=}")
 
 
-    # ［表が出る確率（％）］
-    if p is None:
-        pass
-
-    else:
-        subname.append(f'p{p*100:.1f}')
-
-
     # ［表も裏も出ない確率（％）］
     if failure_rate is None:
         pass
@@ -58,21 +62,21 @@ def make_file_subname(p=None, failure_rate=None, turn_system_id=None, trials_ser
         subname.append(f'f{failure_rate*100:.1f}')
 
 
-    # ［試行シリーズ数］
-    if trials_series is None:
+    # ［表が出る確率（％）］
+    if p is None:
         pass
 
     else:
-        # try は number of trials series の略
-        subname.append(f'try{trials_series}')
+        subname.append(f'p{p*100:.1f}')
 
-
-    # ［表番で勝ったときの勝ち点］
-    if h_step is None:
+    # NOTE ［表番で勝ったときの勝ち点］≦［裏番で勝ったときの勝ち点］≦［目標の点数］
+    #
+    # ［目標の点数］
+    if span is None:
         pass
 
     else:
-        subname.append(f'h{h_step}')
+        subname.append(f's{span}')
 
 
     # ［裏番で勝ったときの勝ち点］
@@ -83,12 +87,12 @@ def make_file_subname(p=None, failure_rate=None, turn_system_id=None, trials_ser
         subname.append(f't{t_step}')
 
 
-    # ［目標の点数］
-    if span is None:
+    # ［表番で勝ったときの勝ち点］
+    if h_step is None:
         pass
 
     else:
-        subname.append(f's{span}')
+        subname.append(f'h{h_step}')
 
 
     # サブ・ファイル名の連結

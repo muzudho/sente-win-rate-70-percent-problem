@@ -293,10 +293,7 @@ class KakukinDataSheetTable():
 class TheoreticalProbabilityRecord():
 
 
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
-        self._turn_system_name = turn_system_name
-        self._failure_rate = failure_rate
-        self._p = p
+    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
@@ -304,21 +301,6 @@ class TheoreticalProbabilityRecord():
         self._upper_limit_coins = upper_limit_coins
         self._theoretical_a_win_rate = theoretical_a_win_rate
         self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
-
-
-    @property
-    def turn_system_name(self):
-        return self._turn_system_name
-
-
-    @property
-    def failure_rate(self):
-        return self._failure_rate
-
-
-    @property
-    def p(self):
-        return self._p
 
 
     @property
@@ -361,9 +343,6 @@ class TheoreticalProbabilityTable():
 
 
     _dtype = {
-        'turn_system_name':'object',     # string 型は無い？
-        'failure_rate':'float64',
-        'p':'float64',
         'span':'int64',
         't_step':'int64',
         'h_step':'int64',
@@ -383,9 +362,6 @@ class TheoreticalProbabilityTable():
     @classmethod
     def new_empty_table(clazz, spec):
         df_tp = pd.DataFrame.from_dict({
-                'turn_system_name': [],
-                'failure_rate': [],
-                'p': [],
                 'span': [],
                 't_step': [],
                 'h_step': [],
@@ -416,12 +392,10 @@ class TheoreticalProbabilityTable():
             新規作成されたか？
         """
 
-        # CSVファイルパス
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
                 p=spec.p,
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id)
-
 
         # ファイルが存在しなかった場合
         is_new = not os.path.isfile(csv_file_path)
@@ -430,9 +404,7 @@ class TheoreticalProbabilityTable():
                 tp_table = TheoreticalProbabilityTable.new_empty_table(spec=spec)
             else:
                 tp_table = None
-
         else:
-
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
             tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
@@ -449,7 +421,7 @@ class TheoreticalProbabilityTable():
     def set_index(self):
         """主キーの設定"""
         self._df.set_index(
-                ['turn_system_name', 'failure_rate', 'p'],
+                ['span', 't_step', 'h_step'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
@@ -458,21 +430,16 @@ class TheoreticalProbabilityTable():
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
-    def get_result_set_by_index(self):
+    def get_result_set_by_index(self, span, t_step, h_step):
         """0～複数件のレコードを含むデータフレームを返します"""
 
-        turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
-
         # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@self._spec.failure_rate & p==@self._spec.p')
+        df_result_set = self._df.query('span==@span & t_step==@t_step & h_step==@h_step')
 
         return df_result_set
 
 
     def sub_insert_record(self, index, welcome_record):
-        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        self._df.at[index, 'p'] = welcome_record.p
         self._df.at[index, 'span'] = welcome_record.span
         self._df.at[index, 't_step'] = welcome_record.t_step
         self._df.at[index, 'h_step'] = welcome_record.h_step
@@ -533,7 +500,6 @@ class TheoreticalProbabilityTable():
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
         index = df_result_set_by_index.index[0]
-        #index = self._df['p']==welcome_record.p
 
         return self.update_record(
                 index=index,
@@ -556,7 +522,7 @@ class TheoreticalProbabilityTable():
                 turn_system_id=self._spec.turn_system_id)
 
         self.df.to_csv(csv_file_path,
-                columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
+                columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
         return csv_file_path
@@ -572,14 +538,11 @@ class TheoreticalProbabilityTable():
 
         df = self._df
 
-        for         turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate in\
-            zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
+        for         span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate in\
+            zip(df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate']):
 
             # レコード作成
             record = TheoreticalProbabilityRecord(
-                    turn_system_name=turn_system_name,
-                    failure_rate=failure_rate,
-                    p=p,
                     span=span,
                     t_step=t_step,
                     h_step=h_step,
@@ -759,7 +722,29 @@ class EmpiricalProbabilityTable():
 
 
     @classmethod
-    def read_csv(clazz, failure_rate, turn_system_id, trials_series):
+    def new_empty_table(clazz):
+        df_ep = pd.DataFrame.from_dict({
+                'p': [],
+                'failure_rate': [],
+                'turn_system_name': [],
+                'trials_series': [],
+                'best_p': [],
+                'best_p_error': [],
+                'best_h_step': [],
+                'best_t_step': [],
+                'best_span': [],
+                'latest_p': [],
+                'latest_p_error': [],
+                'latest_h_step': [],
+                'latest_t_step': [],
+                'latest_span': [],
+                'candidates': []}).astype(clazz._dtype)
+
+        return EmpiricalProbabilityTable(df=df_ep)
+
+
+    @classmethod
+    def read_csv(clazz, failure_rate, turn_system_id, trials_series, new_if_it_no_exists):
         """
 
         Parameters
@@ -772,17 +757,25 @@ class EmpiricalProbabilityTable():
             ［試行シリーズ数］
         """
 
-        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(failure_rate=failure_rate, turn_system_id=turn_system_id, trials_series=trials_series)
+        csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(
+                failure_rate=failure_rate,
+                turn_system_id=turn_system_id,
+                trials_series=trials_series)
 
         # ファイルが存在しなかった場合
-        if not os.path.isfile(csv_file_path):
-            csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv()
+        is_new = not os.path.isfile(csv_file_path)
+        if is_new:
+            if new_if_it_no_exists:
+                ep_table = EmpiricalProbabilityTable.new_empty_table()
+            else:
+                ep_table = None
+        else:
+            df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+            ep_table = EmpiricalProbabilityTable(df)
 
 
-        df = pd.read_csv(csv_file_path, encoding="utf8",
-                dtype=clazz._dtype)
-
-        return EmpiricalProbabilityTable(df)
+        return ep_table, is_new
 
 
     @property
@@ -929,7 +922,7 @@ class EmpiricalProbabilityTable():
 
         df = self._df
 
-        for         p,       failure_rate,       turn_system_name,   trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
+        for         p,       failure_rate,       turn_system_name,       trials_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
             zip(df['p'], df['failure_rate'], df['turn_system_name'], df['trials_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある

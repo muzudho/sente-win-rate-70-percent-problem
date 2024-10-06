@@ -101,11 +101,11 @@ class Automation():
                         turn_system_id=self._specified_turn_system_id)
                 
                 self._ep_table.insert_record(
-                        welcome_record=EmpiricalProbabilityTable(
+                        welcome_record=EmpiricalProbabilityRecord(
                                 p=spec.p,
                                 failure_rate=spec.failure_rate,
                                 turn_system_name=Converter.turn_system_id_to_name(spec.turn_system_id),
-                                trials_series=spec.trials_series,
+                                trials_series=self._specified_trials_series,
                                 best_p=0,
                                 best_p_error=ABS_OUT_OF_ERROR,
                                 best_h_step=0,
@@ -404,7 +404,12 @@ class Automation():
         None
         """
 
-        self._ep_table = EmpiricalProbabilityTable.read_csv(failure_rate=self._specified_failure_rate, turn_system_id=self._specified_turn_system_id, trials_series=self._specified_trials_series)
+        # ファイル読取り。無ければ空テーブル新規作成して保存
+        self._ep_table, is_new = EmpiricalProbabilityTable.read_csv(
+                failure_rate=self._specified_failure_rate,
+                turn_system_id=self._specified_turn_system_id,
+                trials_series=self._specified_trials_series,
+                new_if_it_no_exists=True)
         #print(self._ep_table.df)
 
         # 対象外のケース

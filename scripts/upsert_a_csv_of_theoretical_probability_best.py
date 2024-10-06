@@ -32,32 +32,34 @@ class AutomationOne():
         self._is_tp_update = False
 
 
-    def on_match(self, record_tp):
-
-        # ベスト値と比較したい。
+    def _on_match_file(self, record_tp):
+        """TP表の span, t_step, h_step をインデックスとする各行について"""
 
         try:
             shall_upsert_record = False
 
             # 絞り込み。 0～複数件の DataFrame型が返ってくる
             # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］の３列
-            df_result_set_by_index = self._tpb_table.get_result_set_by_index(
-                    turn_system_name=record_tp.turn_system_name,
-                    failure_rate=record_tp.failure_rate,
-                    p=record_tp.p)
+            tpb_result_set_by_index_df = self._tpb_table.get_result_set_by_index(
+                    turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
+                    failure_rate=self._spec.failure_rate,
+                    p=self._spec.p)
 
             
-            # TODO 該当なしなら、即、ベスト値追加
-            if 0 == len(df_result_set_by_index):
+            # 空テーブルを想定。
+            #
+            #   ただし、TP テーブルは先にインデックス列を埋めた仮表を作るから、テーブルが空ということはないはず
+            #
+            if 0 == len(tpb_result_set_by_index_df):
                 shall_upsert_record = True
 
-            # 該当する［理論的確率ベストデータ］レコードが既存なら、取得
+            # ［理論的確率データ］表にある span, t_step, h_step に一致する［理論的確率ベスト］表のレコードがあれば、それを取得
             else:
-                index = df_result_set_by_index.index[0]  # 行番号を取得
+                index = tpb_result_set_by_index_df.index[0]  # インデックスを取得
 
-                # 既存のベスト値
-                old_theoretical_a_win_rate = df_result_set_by_index.at[index, 'theoretical_a_win_rate']
-                old_theoretical_no_win_match_rate = df_result_set_by_index.at[index, 'theoretical_no_win_match_rate']
+                # ［理論的確率ベスト］表から、［理論的なＡさんの勝率］と、［理論的なコインを投げて表も裏も出ない確率］を抽出
+                old_theoretical_a_win_rate = tpb_result_set_by_index_df.at[index, 'theoretical_a_win_rate']
+                old_theoretical_no_win_match_rate = tpb_result_set_by_index_df.at[index, 'theoretical_no_win_match_rate']
 
                 # 誤差が縮まれば更新
                 welcome_theoretical_a_win_error = record_tp.theoretical_a_win_rate - EVEN
@@ -85,7 +87,7 @@ class AutomationOne():
 
                 # レコードの新規作成または更新
                 is_dirty_temp = self._tpb_table.upsert_record(
-                        df_result_set_by_index=df_result_set_by_index,
+                        df_result_set_by_index=tpb_result_set_by_index_df,
                         welcome_record=welcome_record)
 
                 if is_dirty_temp:
@@ -100,30 +102,28 @@ class AutomationOne():
 
 
     def get_reocrd_of_best_tp_or_none(self):
-        """TODO ［理論的確率データ］テーブルから、イーブンに一番近い行を抽出します"""
-
-        df_result_set_by_index = self._tp_table.get_result_set_by_index()
+        """［理論的確率データ］表から、イーブンに一番近い行を抽出します"""
 
         # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
-        df_result_set = df_result_set_by_index.loc[abs(df_result_set_by_index['theoretical_a_win_rate'] - 0.5) == min(abs(df_result_set_by_index['theoretical_a_win_rate'] - 0.5))]
+        df_result_set = self._tp_table.df.loc[abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5) == min(abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5))]
 
         # それでも１件に絞り込めない場合、［コインを投げて表も裏も出ない確率］が最小のレコードのセット
         if 1 < len(df_result_set):
-            df_result_set = df_result_set_by_index.loc[df_result_set_by_index['theoretical_no_win_match_rate'] == min(df_result_set_by_index['theoretical_no_win_match_rate'])]
+            df_result_set = self._tp_table.df.loc[self._tp_table.df['theoretical_no_win_match_rate'] == min(self._tp_table.df['theoretical_no_win_match_rate'])]
 
             # それでも１件に絞り込めない場合、［上限対局数］が最小のレコードのセット
             if 1 < len(df_result_set):
-                df_result_set = df_result_set_by_index.loc[df_result_set_by_index['upper_limit_coins'] == min(df_result_set_by_index['upper_limit_coins'])]
+                df_result_set = self._tp_table.df.loc[self._tp_table.df['upper_limit_coins'] == min(self._tp_table.df['upper_limit_coins'])]
 
 
         # 該当レコードがあれば、適当に先頭の１件だけ返す。無ければナンを返す
         if 0 < len(df_result_set):
-            return df_result_set_by_index.iloc[0]
+            return self._tp_table.df.iloc[0]
 
         return None
 
 
-    def execute_one(self, spec):
+    def execute_a_spec(self, spec):
         """
         
         Returns
@@ -151,13 +151,13 @@ class AutomationOne():
             self._is_tp_update = True
 
 
-        # ［理論的確率データ］の各レコードについて
+        # ［理論的確率データ］ファイルの中から、ベストな１行を取得します
         #
-        #   NOTE TPテーブルは行が膨大にあるので、for_each するのは良くない。まず、ベスト・レコードを取得すべき
+        #   NOTE TPテーブルは行が膨大にあるので、for_each するのは良くない。集計を使って１回でベスト・レコードを取得すべき
         #
         record_in_best_tp_or_none = self.get_reocrd_of_best_tp_or_none()
         if record_in_best_tp_or_none is not None:
-            self.on_match(record_tp=record_in_best_tp_or_none)
+            self._on_match_file(record_tp=record_in_best_tp_or_none)
 
 
         return self._is_tp_update
@@ -201,7 +201,7 @@ class AutomationAll():
                             failure_rate=specified_failure_rate,
                             turn_system_id=specified_turn_system_id)
 
-                    is_dirty_temp = automation_one.execute_one(spec=spec)
+                    is_dirty_temp = automation_one.execute_a_spec(spec=spec)
 
                     if is_dirty_temp:
                         number_of_dirty_rows += 1

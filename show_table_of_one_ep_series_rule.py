@@ -142,6 +142,23 @@ Which one(1-2)? """
             raise ValueError(f"{choice=}")
 
 
+        # ［試行シリーズ数］を尋ねる
+        prompt = f"""\
+
+(0) Try       2 series
+(1) Try      20 series
+(2) Try     200 series
+(3) Try    2000 series
+(4) Try   20000 series
+(5) Try  200000 series
+(6) Try 2000000 series
+
+Example: 3
+How many times do you want to try the series(0-6)? """
+        precision = int(input(prompt))
+        specified_trials_series = Converter.precision_to_trials_series(precision)
+
+
         text = stringify_header(specified_turn_system_id)
 
         print(text) # 表示
@@ -154,7 +171,11 @@ Which one(1-2)? """
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        ep_table = EmpiricalProbabilityTable.read_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
+        ep_table = EmpiricalProbabilityTable.read_csv(
+                failure_rate=specified_failure_rate,
+                turn_system_id=specified_turn_system_id,
+                trials_series=specified_trials_series,
+                new_if_it_no_exists=True)
         df_ep = ep_table.df
 
         for            p,          failure_rate,          turn_system_name,          trials_series,          best_p,          best_p_error,          best_h_step,          best_t_step,          best_span,          latest_p,          latest_p_error,          latest_h_step,          latest_t_step,          latest_span,          candidates in\
