@@ -45,9 +45,9 @@ if __name__ == '__main__':
                         shall_print=True)
 
 
-                #############
-                # Step.o1o1o0
-                #############
+                #######################
+                # Step.o1o1o0 EPDT 作成
+                #######################
 
                 # CSV作成 ［試行中の経験的確率データファイル］
                 #
@@ -62,9 +62,9 @@ if __name__ == '__main__':
                 create_csv_to_epdt.execute()
 
 
-                #############
-                # Step.o1o2o0
-                #############
+                ###############################
+                # Step.o1o2o0 かくきんデータ作成
+                ###############################
 
                 # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
                 step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(

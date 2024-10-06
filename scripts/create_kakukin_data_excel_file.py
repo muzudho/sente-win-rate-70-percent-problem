@@ -114,9 +114,7 @@ class Automation():
         # --------
         self._row_number = 2
 
-        kds_table.for_each(
-                df=kds_table.df,
-                on_each=self.on_each)
+        kds_table.for_each(on_each=self.on_each)
 
 
         # ［かくきんデータ・エクセル・ファイル］保存

@@ -1,8 +1,8 @@
 #
-# 表示
 # python step_o1o2o0_manual_create_a_csv_to_view_ep_in_excel_ver2.py
 #
-#   Excel で［かくきんシステムの表］を表示するための CSV を作成する
+#   ［かくきんデータ］を作成する。
+#   ［かくきんデータ］とは、Excel で［かくきんシステムの表］を表示するための CSV
 #
 #   NOTE 書式のような仕様は頻繁に変更することがあります
 #
