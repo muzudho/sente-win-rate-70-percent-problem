@@ -1,6 +1,6 @@
 #
 # やっつけプログラム１号
-# python step1_automatic.py
+# python step_o1o0_automatic.py
 #
 #
 
@@ -8,9 +8,9 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
-from library.file_paths import Step1AutomaticFilePaths
-from library.logging import Step1AutomaticLogging
-from scripts.create_a_csv_to_epdt import Automation as CreateCsvToEPDT
+from library.file_paths import StepO1o0AutomaticFilePaths
+from library.logging import StepO1o0AutomaticLogging
+from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as CreateCsvToEPDT
 from scripts.create_kakukin_data_sheet_csv_file import Automation as CreateKakukinDataSheetCsvFile
 
 
@@ -35,7 +35,7 @@ if __name__ == '__main__':
                 specified_failure_rate = specified_failure_rate_percent / 100
 
                 # 進捗記録
-                Step1AutomaticLogging.log_progress(
+                StepO1o0AutomaticLogging.log_progress(
                         failure_rate=specified_failure_rate,
                         shall_print=True)
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         print(progress)
   
         # ファイルへログ出力
-        log_file_path = Step1AutomaticFilePaths.as_log()
+        log_file_path = StepO1o0AutomaticFilePaths.as_log()
         with open(log_file_path, 'a', encoding='utf8') as f:
             f.write(f"{progress}\n")
 

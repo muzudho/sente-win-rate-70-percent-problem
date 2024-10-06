@@ -1,6 +1,6 @@
 #
 # 生成
-# python query_create_a_csv_to_epdt.py
+# python step_o1o1o0_manual_create_a_csv_to_data_ep.py
 #
 #   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
@@ -8,7 +8,7 @@
 import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
-from scripts.create_a_csv_to_epdt import CreateCsvToEPDT
+from scripts.step_o1o1o0_create_a_csv_to_epdt import CreateCsvToEPDT
 
 
 ########################################

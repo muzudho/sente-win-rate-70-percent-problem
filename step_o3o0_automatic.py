@@ -1,6 +1,6 @@
 #
 # やっつけプログラム３号
-# python automatic_no3.py
+# python step_o3o0_automatic.py
 #
 #
 

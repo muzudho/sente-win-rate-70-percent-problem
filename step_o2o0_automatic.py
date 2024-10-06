@@ -1,6 +1,6 @@
 #
 # 分析
-# python automatic_no2.py
+# python step_o2o0_automatic.py
 #
 #   ［理論的確率データ］を作成します。
 #   １シリーズのコインの出目について、全パターン網羅した表を作成します

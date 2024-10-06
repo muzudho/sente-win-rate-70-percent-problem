@@ -155,11 +155,11 @@ class TheoreticalProbabilityFilePaths():
 # Step.1
 ########
 
-class Step1AutomaticFilePaths():
+class StepO1o0AutomaticFilePaths():
     """自動スクリプト１号のファイルパス一覧"""
     @staticmethod
     def as_log():
-        return 'logs/step1_automatic.log'
+        return 'logs/step_o1o0_automatic.log'
 
 
 ######

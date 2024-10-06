@@ -54,12 +54,12 @@ python create_a_csv_to_data_score_board_best.py
 * 📄 `reports/score_board_data_best.csv` - **理論値** をマージしたデータです
 
 
-## step1_automatic.py
+## step_o1o0_automatic.py
 
-`step1_automatic.py` は、 `step2_automatic.py` と並行して動かすことができますが、 `step3_automatic.py` とは並行して動かしてはいけません  
+`step_o1o0_automatic.py` は、 `step_o2o0_automatic.py` と並行して動かすことができますが、 `step_o3o0_automatic.py` とは並行して動かしてはいけません  
 
 ```shell
-python step1_automatic.py
+python step_o1o0_automatic.py
 ```
 
 入力は以下の３つです。  
@@ -75,12 +75,12 @@ python step1_automatic.py
 * 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります。 **試行** の結果のデータです
 
 
-## step2_automatic.py
+## step_o2o0_automatic.py
 
-`step2_automatic.py` は、 `step1_automatic.py` と並行して動かすことができますが、 `step3_automatic.py` とは並行して動かしてはいけません  
+`step_o2o0_automatic.py` は、 `step_o1o0_automatic.py` と並行して動かすことができますが、 `step_o3o0_automatic.py` とは並行して動かしてはいけません  
 
 ```shell
-python step2_automatic.py
+python step_o2o0_automatic.py
 ```
 
 以下の csvファイルを生成します  
@@ -88,12 +88,12 @@ python step2_automatic.py
 * 📄 `temp/theoretical_probability/TP_alter_p50.0_f0.0.csv` - ファイル名は一部変わります。 **理論値** の算出データです
 
 
-## step3_automatic.py
+## step_o3o0_automatic.py
 
-`step3_automatic.py` は、 `step1_automatic.py` や `step2_automatic.py` とは並行して動かしてはいけません  
+`step_o3o0_automatic.py` は、 `step_o1o0_automatic.py` や `step_o2o0_automatic.py` とは並行して動かしてはいけません  
 
 ```shell
-python step3_automatic.py
+python step_o3o0_automatic.py
 ```
 
 以下のファイルを入力に使います。  
