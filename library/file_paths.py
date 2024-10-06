@@ -151,15 +151,15 @@ class TheoreticalProbabilityFilePaths():
         return f'temp/theoretical_probability/TP{subname}.csv'
 
 
-################
-# Automatic No.1
-################
+########
+# Step.1
+########
 
-class AutomaticNo1FilePaths():
+class Step1AutomaticFilePaths():
     """自動スクリプト１号のファイルパス一覧"""
     @staticmethod
     def as_log():
-        return 'logs/automatic_no1.log'
+        return 'logs/step1_automatic.log'
 
 
 ######

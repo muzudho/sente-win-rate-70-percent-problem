@@ -54,12 +54,12 @@ python create_a_csv_to_data_score_board_best.py
 * 📄 `reports/score_board_data_best.csv` - **理論値** をマージしたデータです
 
 
-## automatic_no1.py
+## step1_automatic.py
 
-`automatic_no1.py` は、 `automatic_no2.py` と並行して動かすことができますが、 `automatic_no3.py` とは並行して動かしてはいけません  
+`step1_automatic.py` は、 `step2_automatic.py` と並行して動かすことができますが、 `step3_automatic.py` とは並行して動かしてはいけません  
 
 ```shell
-python automatic_no1.py
+python step1_automatic.py
 ```
 
 入力は以下の３つです。  
@@ -75,12 +75,12 @@ python automatic_no1.py
 * 📄 `temp/kakukin_data_sheet/KDS_alter_f0.0_try2000.csv` - ファイル名は一部変わります。 **試行** の結果のデータです
 
 
-## automatic_no2.py
+## step2_automatic.py
 
-`automatic_no2.py` は、 `automatic_no1.py` と並行して動かすことができますが、 `automatic_no3.py` とは並行して動かしてはいけません  
+`step2_automatic.py` は、 `step1_automatic.py` と並行して動かすことができますが、 `step3_automatic.py` とは並行して動かしてはいけません  
 
 ```shell
-python automatic_no2.py
+python step2_automatic.py
 ```
 
 以下の csvファイルを生成します  
@@ -88,12 +88,12 @@ python automatic_no2.py
 * 📄 `temp/theoretical_probability/TP_alter_p50.0_f0.0.csv` - ファイル名は一部変わります。 **理論値** の算出データです
 
 
-## automatic_no3.py
+## step3_automatic.py
 
-`automatic_no3.py` は、 `automatic_no1.py` や `automatic_no2.py` とは並行して動かしてはいけません  
+`step3_automatic.py` は、 `step1_automatic.py` や `step2_automatic.py` とは並行して動かしてはいけません  
 
 ```shell
-python automatic_no3.py
+python step3_automatic.py
 ```
 
 以下のファイルを入力に使います。  

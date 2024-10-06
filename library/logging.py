@@ -3,10 +3,10 @@
 #
 import datetime
 
-from library.file_paths import AutomaticNo1FilePaths
+from library.file_paths import Step1AutomaticFilePaths
 
 
-class AutomaticNo1Logging():
+class Step1AutomaticLogging():
 
 
     _log_file_path = None
@@ -20,7 +20,7 @@ class AutomaticNo1Logging():
             print(progress)
 
         if clazz._log_file_path is None:
-            clazz._log_file_path = AutomaticNo1FilePaths.as_log()
+            clazz._log_file_path = Step1AutomaticFilePaths.as_log()
         
         with open(clazz._log_file_path, 'a', encoding='utf8') as f:
             f.write(f"{progress}\n")
