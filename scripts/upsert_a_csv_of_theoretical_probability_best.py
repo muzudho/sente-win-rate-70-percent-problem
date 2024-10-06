@@ -4,7 +4,7 @@ import time
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
 from library.file_paths import TheoreticalProbabilityBestFilePaths
-from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from library.database import TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 
 
 # CSV保存間隔（秒）
@@ -32,7 +32,7 @@ class AutomationOne():
         self._is_tp_update = False
 
 
-    def _on_match_file(self, record_tp):
+    def _on_match_file(self, tp_record):
         """TP表の span, t_step, h_step をインデックスとする各行について"""
 
         try:
@@ -62,28 +62,28 @@ class AutomationOne():
                 old_theoretical_no_win_match_rate = tpb_result_set_by_index_df.at[index, 'theoretical_no_win_match_rate']
 
                 # 誤差が縮まれば更新
-                welcome_theoretical_a_win_error = record_tp.theoretical_a_win_rate - EVEN
+                welcome_theoretical_a_win_error = tp_record.theoretical_a_win_rate - EVEN
                 if abs(welcome_theoretical_a_win_error) < abs(old_theoretical_a_win_rate - EVEN):
                     shall_upsert_record = True
 
                 # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
-                elif welcome_theoretical_a_win_error == abs(old_theoretical_a_win_rate - EVEN) and (old_theoretical_no_win_match_rate is None or record_tp.theoretical_no_win_match_rate < old_theoretical_no_win_match_rate):
+                elif welcome_theoretical_a_win_error == abs(old_theoretical_a_win_rate - EVEN) and (old_theoretical_no_win_match_rate is None or tp_record.theoretical_no_win_match_rate < old_theoretical_no_win_match_rate):
                     shall_upsert_record = True
 
 
             if shall_upsert_record:
-                # 型変換
+                # TP から TPB へ型変換
                 welcome_record = TheoreticalProbabilityBestRecord(
-                        turn_system_name=record_tp.turn_system_name,
-                        failure_rate=record_tp.failure_rate,
-                        p=record_tp.p,
-                        span=record_tp.span,
-                        t_step=record_tp.t_step,
-                        h_step=record_tp.h_step,
-                        shortest_coins=record_tp.shortest_coins,
-                        upper_limit_coins=record_tp.upper_limit_coins,
-                        theoretical_a_win_rate=record_tp.theoretical_a_win_rate,
-                        theoretical_no_win_match_rate=record_tp.theoretical_no_win_match_rate)
+                        turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
+                        failure_rate=self._spec.failure_rate,
+                        p=self._spec.p,
+                        span=tp_record.span,
+                        t_step=tp_record.t_step,
+                        h_step=tp_record.h_step,
+                        shortest_coins=tp_record.shortest_coins,
+                        upper_limit_coins=tp_record.upper_limit_coins,
+                        theoretical_a_win_rate=tp_record.theoretical_a_win_rate,
+                        theoretical_no_win_match_rate=tp_record.theoretical_no_win_match_rate)
 
                 # レコードの新規作成または更新
                 is_dirty_temp = self._tpb_table.upsert_record(
@@ -101,24 +101,38 @@ class AutomationOne():
             raise # 再スロー
 
 
-    def get_reocrd_of_best_tp_or_none(self):
-        """［理論的確率データ］表から、イーブンに一番近い行を抽出します"""
+    def get_best_tp_record_or_none(self):
+        """［理論的確率データ］表から、イーブンに一番近い行を抽出します
+        
+        Returns
+        -------
+        best_tp_record : TheoreticalProbabilityRecord
+            レコード、またはナン
+        """
 
         # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
-        df_result_set = self._tp_table.df.loc[abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5) == min(abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5))]
+        result_set_df = self._tp_table.df.loc[abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5) == min(abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5))]
 
         # それでも１件に絞り込めない場合、［コインを投げて表も裏も出ない確率］が最小のレコードのセット
-        if 1 < len(df_result_set):
-            df_result_set = self._tp_table.df.loc[self._tp_table.df['theoretical_no_win_match_rate'] == min(self._tp_table.df['theoretical_no_win_match_rate'])]
+        if 1 < len(result_set_df):
+            result_set_df = result_set_df.loc[result_set_df['theoretical_no_win_match_rate'] == min(result_set_df['theoretical_no_win_match_rate'])]
 
             # それでも１件に絞り込めない場合、［上限対局数］が最小のレコードのセット
-            if 1 < len(df_result_set):
-                df_result_set = self._tp_table.df.loc[self._tp_table.df['upper_limit_coins'] == min(self._tp_table.df['upper_limit_coins'])]
+            if 1 < len(result_set_df):
+                result_set_df = result_set_df.loc[result_set_df['upper_limit_coins'] == min(result_set_df['upper_limit_coins'])]
 
 
         # 該当レコードがあれば、適当に先頭の１件だけ返す。無ければナンを返す
-        if 0 < len(df_result_set):
-            return self._tp_table.df.iloc[0]
+        if 0 < len(result_set_df):
+            index = result_set_df.index[0]
+            return TheoreticalProbabilityRecord(
+                    span=result_set_df.at[index, 'span'],
+                    t_step=result_set_df.at[index, 't_step'],
+                    h_step=result_set_df.at[index, 'h_step'],
+                    shortest_coins=result_set_df.at[index, 'shortest_coins'],
+                    upper_limit_coins=result_set_df.at[index, 'upper_limit_coins'],
+                    theoretical_a_win_rate=result_set_df.at[index, 'theoretical_a_win_rate'],
+                    theoretical_no_win_match_rate=result_set_df.at[index, 'theoretical_no_win_match_rate'])
 
         return None
 
@@ -155,9 +169,9 @@ class AutomationOne():
         #
         #   NOTE TPテーブルは行が膨大にあるので、for_each するのは良くない。集計を使って１回でベスト・レコードを取得すべき
         #
-        record_in_best_tp_or_none = self.get_reocrd_of_best_tp_or_none()
-        if record_in_best_tp_or_none is not None:
-            self._on_match_file(record_tp=record_in_best_tp_or_none)
+        best_tp_record_or_none = self.get_best_tp_record_or_none()
+        if best_tp_record_or_none is not None:
+            self._on_match_file(tp_record=best_tp_record_or_none)
 
 
         return self._is_tp_update

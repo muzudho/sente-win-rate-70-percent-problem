@@ -122,7 +122,7 @@ class Automation():
         tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
 
         # ファイルが存在しなければスキップ
-        if tpb_table==True:
+        if tpb_table==None:
             return
 
 

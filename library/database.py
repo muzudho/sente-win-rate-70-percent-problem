@@ -521,7 +521,7 @@ class TheoreticalProbabilityTable():
                 failure_rate=self._spec.failure_rate,
                 turn_system_id=self._spec.turn_system_id)
 
-        self.df.to_csv(csv_file_path,
+        self._df.to_csv(csv_file_path,
                 columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
@@ -1450,14 +1450,15 @@ class TheoreticalProbabilityBestTable():
         if 1 < len(df_result_set_by_index):
             raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
 
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_index) == 0:
+            self.insert_record(welcome_record=welcome_record)
+            return True
+
+
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
         index = df_result_set_by_index.index[0]
-
-        # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
-            self.insert_record(index=index, welcome_record=welcome_record)
-            return True
 
         return self.update_record(index=index, welcome_record=welcome_record)
 
@@ -1485,7 +1486,7 @@ class TheoreticalProbabilityBestTable():
         # ファイルが存在しなかった場合
         if is_new:
             if new_if_it_no_exists:
-                tpb_table = TheoreticalProbabilityBestTable.new_data_frame()
+                tpb_table = TheoreticalProbabilityBestTable.new_empty_table()
             else:
                 tpb_table = None
 
@@ -1510,7 +1511,7 @@ class TheoreticalProbabilityBestTable():
         # CSVファイルパス（書き込むファイル）
         csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
-        self.to_csv(csv_file_path,
+        self._df.to_csv(csv_file_path,
                 columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
