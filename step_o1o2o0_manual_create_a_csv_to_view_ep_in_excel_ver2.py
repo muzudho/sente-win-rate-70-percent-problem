@@ -1,6 +1,6 @@
 #
 # 表示
-# python query_create_a_csv_to_view_ep_in_excel_ver2.py
+# python step_o1o2o0_manual_create_a_csv_to_view_ep_in_excel_ver2.py
 #
 #   Excel で［かくきんシステムの表］を表示するための CSV を作成する
 #
@@ -10,7 +10,7 @@
 import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
-from scripts.create_kakukin_data_sheet_csv_file import Automation as CreateKakukinDataSheetCsvFile
+from scripts.step_o1o2o0_create_kakukin_data_sheet_csv_file import Automation as StepO1o2o0CreateKakukinDataSheetCsvFile
 
 
 ########################################
@@ -64,12 +64,12 @@ How many times do you want to try the series(0-6)? """
         specified_trials_series = Converter.precision_to_trials_series(precision)
 
 
-        create_kakukin_data_sheet_csv_file = CreateKakukinDataSheetCsvFile(
+        step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_trials_series=specified_trials_series)
 
-        create_kakukin_data_sheet_csv_file.execute()
+        step_o1o2o0_create_kakukin_data_sheet_csv_file.execute()
 
 
     except Exception as err:

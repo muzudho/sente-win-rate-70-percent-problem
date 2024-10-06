@@ -10,8 +10,8 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
 from library.file_paths import StepO1o0AutomaticFilePaths
 from library.logging import StepO1o0AutomaticLogging
-from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as CreateCsvToEPDT
-from scripts.create_kakukin_data_sheet_csv_file import Automation as CreateKakukinDataSheetCsvFile
+from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as StepO1o1o0CreateCsvToEPDT
+from scripts.step_o1o2o0_create_kakukin_data_sheet_csv_file import Automation as StepO1o2o0CreateKakukinDataSheetCsvFile
 
 
 ########################################
@@ -34,16 +34,26 @@ if __name__ == '__main__':
             for specified_failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):
                 specified_failure_rate = specified_failure_rate_percent / 100
 
+
+                ###########
+                # Step.o1o0
+                ###########
+
                 # 進捗記録
                 StepO1o0AutomaticLogging.log_progress(
                         failure_rate=specified_failure_rate,
                         shall_print=True)
 
+
+                #############
+                # Step.o1o1o0
+                #############
+
                 # CSV作成 ［試行中の経験的確率データファイル］
                 #
                 #   NOTE ここ、時間がかかりすぎじゃないか？
                 #
-                create_csv_to_epdt = CreateCsvToEPDT(
+                create_csv_to_epdt = StepO1o1o0CreateCsvToEPDT(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
                         specified_trials_series=specified_trials_series,
@@ -52,13 +62,17 @@ if __name__ == '__main__':
                 create_csv_to_epdt.execute()
 
 
+                #############
+                # Step.o1o2o0
+                #############
+
                 # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
-                create_kakukin_data_sheet_csv_file = CreateKakukinDataSheetCsvFile(
+                step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
                         specified_trials_series=specified_trials_series)
 
-                create_kakukin_data_sheet_csv_file.execute()
+                step_o1o2o0_create_kakukin_data_sheet_csv_file.execute()
 
 
         progress = f"[{datetime.datetime.now()}] 完了"
