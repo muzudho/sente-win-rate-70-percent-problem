@@ -29,8 +29,10 @@ if __name__ == '__main__':
 
     try:
 
-        df = CalculateProbabilityTable.get_df_let_calculate_probability()
-        print(df)
+        cp_df = CalculateProbabilityTable.get_let_calculate_probability_df()
+        print(cp_df)
+
+        df = cp_df
 
         # * `p` - 先手が勝つ確率
         # * `p_time` - ［表勝ちだけでの対局数］

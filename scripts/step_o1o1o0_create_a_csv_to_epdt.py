@@ -55,11 +55,11 @@ class Automation():
             ［仕様］
         """
 
-        df_result_set_by_index = self._ep_table.get_result_set_by_index(
+        result_set_df_by_index = self._ep_table.get_result_set_by_index(
                 p=spec.p)
 
         self._ep_table.upsert_record(
-                df_result_set_by_index=df_result_set_by_index,
+                result_set_df_by_index=result_set_df_by_index,
                 welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                         p=spec.p,
                         best_p=best_p,
@@ -86,8 +86,8 @@ class Automation():
             p = p_parcent / 100
             
             # 指定の p のレコードが１件も存在しなければデフォルトのレコード追加
-            df_ep = self._ep_table.df
-            list_of_enable_each_row = (df_ep['p'] == p)
+            ep_df = self._ep_table.df
+            list_of_enable_each_row = (ep_df['p'] == p)
             if not list_of_enable_each_row.any():
 
                 # ［仕様］

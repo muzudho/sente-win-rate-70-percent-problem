@@ -151,7 +151,6 @@ if __name__ == '__main__':
                 turn_system_id=specified_turn_system_id,
                 trial_series=specified_trial_series,
                 new_if_it_no_exists=True)
-        df_ep = ep_table.df
 
 
         def on_each(epdt_record):

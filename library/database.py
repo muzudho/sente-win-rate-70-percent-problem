@@ -305,9 +305,8 @@ class KakukinDataSheetTable():
         """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = self._df.query('p==@p')
-
-        return df_result_set
+        result_set_df = self._df.query('p==@p')
+        return result_set_df
 
 
     def sub_insert_record(self, index, welcome_record):
@@ -372,12 +371,12 @@ class KakukinDataSheetTable():
         return is_dirty
 
 
-    def upsert_record(self, df_result_set_by_index, welcome_record):
+    def upsert_record(self, result_set_df_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df_result_set_by_index : DataFrame
+        result_set_df_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -388,17 +387,17 @@ class KakukinDataSheetTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+        if 1 < len(result_set_df_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
+        if len(result_set_df_by_index) == 0:
             self.insert_record(welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = df_result_set_by_index.index[0]
+        index = result_set_df_by_index.index[0]
 
         return self.update_record(
                 index=index,
@@ -542,7 +541,7 @@ class TheoreticalProbabilityTable():
 
     @classmethod
     def new_empty_table(clazz, spec):
-        df_tp = pd.DataFrame.from_dict({
+        tp_df = pd.DataFrame.from_dict({
                 'span': [],
                 't_step': [],
                 'h_step': [],
@@ -551,7 +550,7 @@ class TheoreticalProbabilityTable():
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
 
-        return TheoreticalProbabilityTable(df=df_tp, spec=spec)
+        return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
 
     @classmethod
@@ -615,9 +614,8 @@ class TheoreticalProbabilityTable():
         """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = self._df.query('span==@span & t_step==@t_step & h_step==@h_step')
-
-        return df_result_set
+        result_set_df = self._df.query('span==@span & t_step==@t_step & h_step==@h_step')
+        return result_set_df
 
 
     def sub_insert_record(self, index, welcome_record):
@@ -654,12 +652,12 @@ class TheoreticalProbabilityTable():
         return is_dirty
 
 
-    def upsert_record(self, df_result_set_by_index, welcome_record):
+    def upsert_record(self, result_set_df_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df_result_set_by_index : DataFrame
+        result_set_df_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -670,17 +668,17 @@ class TheoreticalProbabilityTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+        if 1 < len(result_set_df_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
+        if len(result_set_df_by_index) == 0:
             self.insert_record(welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = df_result_set_by_index.index[0]
+        index = result_set_df_by_index.index[0]
 
         return self.update_record(
                 index=index,
@@ -884,7 +882,7 @@ class EmpiricalProbabilityDuringTrialsTable():
 
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
-        df_ep = pd.DataFrame.from_dict({
+        ep_df = pd.DataFrame.from_dict({
                 'p': [],
                 'best_p': [],
                 'best_p_error': [],
@@ -899,7 +897,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                 'candidates': []}).astype(clazz._dtype)
 
         return EmpiricalProbabilityDuringTrialsTable(
-                df=df_ep,
+                df=ep_df,
                 trial_series=trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate)
@@ -983,8 +981,8 @@ class EmpiricalProbabilityDuringTrialsTable():
         """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = self._df.query('p==@p')
-        return df_result_set
+        result_set_df = self._df.query('p==@p')
+        return result_set_df
 
 
     def sub_insert_record(self, index, welcome_record):
@@ -1044,12 +1042,12 @@ class EmpiricalProbabilityDuringTrialsTable():
             self.sub_insert_record(index=index, welcome_record=welcome_record)
 
 
-    def upsert_record(self, df_result_set_by_index, welcome_record):
+    def upsert_record(self, result_set_df_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df_result_set_by_index : DataFrame
+        result_set_df_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -1060,17 +1058,17 @@ class EmpiricalProbabilityDuringTrialsTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+        if 1 < len(result_set_df_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
+        if len(result_set_df_by_index) == 0:
             self.insert_record(welcome_record=welcome_record)
             return True
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = df_result_set_by_index.index[0]
+        index = result_set_df_by_index.index[0]
 
         return self.update_record(
                 index=index,
@@ -1141,8 +1139,9 @@ class CalculateProbabilityTable():
 
 
     @staticmethod
-    def get_df_let_calculate_probability():
-        df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
+    def get_let_calculate_probability_df():
+        """TODO read_csv に名称変更したい"""
+        cp_df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
                 dtype={
                     'p':'float64',
                     'p_time':'int64',
@@ -1152,7 +1151,7 @@ class CalculateProbabilityTable():
                     'comment':'object'
                 })
 
-        return df
+        return cp_df
 
 
 ############
@@ -1300,9 +1299,9 @@ class TheoreticalProbabilityTrialResultsTable():
                 tptr_table = None
 
         else:
-            df_tptr = pd.read_csv(csv_file_path, encoding="utf8",
+            tptr_df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
-            tptr_table = TheoreticalProbabilityTrialResultsTable(df=df_tptr)
+            tptr_table = TheoreticalProbabilityTrialResultsTable(df=tptr_df)
 
 
         return tptr_table, is_new
@@ -1345,12 +1344,12 @@ class TheoreticalProbabilityTrialResultsTable():
         return is_dirty
 
 
-    def upsert_record(self, df_result_set_by_index, welcome_record):
+    def upsert_record(self, result_set_df_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df_result_set_by_index : DataFrame
+        result_set_df_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -1361,15 +1360,15 @@ class TheoreticalProbabilityTrialResultsTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+        if 1 < len(result_set_df_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = df_result_set_by_index.index[0]
+        index = result_set_df_by_index.index[0]
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
+        if len(result_set_df_by_index) == 0:
             self.insert_record(index=index, welcome_record=welcome_record)
             return True
 
@@ -1536,13 +1535,13 @@ class TheoreticalProbabilityBestTable():
         """0～複数件のレコードを含むデータフレームを返します"""
 
         # 絞り込み。 DataFrame型が返ってくる
-        df_result_set = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-        return df_result_set
+        result_set_df = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+        return result_set_df
 
 
     @classmethod
     def new_empty_table(clazz):
-        df_tpb = pd.DataFrame.from_dict({
+        tpb_df = pd.DataFrame.from_dict({
                 'turn_system_name': [],
                 'failure_rate': [],
                 'p': [],
@@ -1554,7 +1553,7 @@ class TheoreticalProbabilityBestTable():
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
 
-        return TheoreticalProbabilityBestTable(df=df_tpb)
+        return TheoreticalProbabilityBestTable(df=tpb_df)
 
 
     def create_none_record(self):
@@ -1605,12 +1604,12 @@ class TheoreticalProbabilityBestTable():
         return is_dirty
 
 
-    def upsert_record(self, df_result_set_by_index, welcome_record):
+    def upsert_record(self, result_set_df_by_index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        df_result_set_by_index : DataFrame
+        result_set_df_by_index : DataFrame
             主キーで絞り込んだレコードセット
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
@@ -1621,18 +1620,18 @@ class TheoreticalProbabilityBestTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(df_result_set_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+        if 1 < len(result_set_df_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
         # データが既存でないなら、新規追加
-        if len(df_result_set_by_index) == 0:
+        if len(result_set_df_by_index) == 0:
             self.insert_record(welcome_record=welcome_record)
             return True
 
 
         # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
         # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = df_result_set_by_index.index[0]
+        index = result_set_df_by_index.index[0]
 
         return self.update_record(index=index, welcome_record=welcome_record)
 

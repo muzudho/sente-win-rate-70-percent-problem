@@ -18,8 +18,8 @@ class AutomationOne():
         
         Parameters
         ----------
-        df_best : DataFrame
-            データフレーム
+        tpb_table : TheoreticalProbabilityBestTable
+            テーブル
         """
 
         self._tpb_table = tpb_table
@@ -39,7 +39,7 @@ class AutomationOne():
 
             # 絞り込み。 0～複数件の DataFrame型が返ってくる
             # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］の３列
-            tpb_result_set_by_index_df = self._tpb_table.get_result_set_by_index(
+            tpb_result_set_df_by_index = self._tpb_table.get_result_set_by_index(
                     turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
                     failure_rate=self._spec.failure_rate,
                     p=self._spec.p)
@@ -49,16 +49,16 @@ class AutomationOne():
             #
             #   ただし、TP テーブルは先にインデックス列を埋めた仮表を作るから、テーブルが空ということはないはず
             #
-            if 0 == len(tpb_result_set_by_index_df):
+            if 0 == len(tpb_result_set_df_by_index):
                 shall_upsert_record = True
 
             # ［理論的確率データ］表にある span, t_step, h_step に一致する［理論的確率ベスト］表のレコードがあれば、それを取得
             else:
-                index = tpb_result_set_by_index_df.index[0]  # インデックスを取得。例： ('alternating', 0.1, 0.7)
+                index = tpb_result_set_df_by_index.index[0]  # インデックスを取得。例： ('alternating', 0.1, 0.7)
 
                 # ［理論的確率ベスト］表から、［理論的なＡさんの勝率］と、［理論的なコインを投げて表も裏も出ない確率］を抽出
-                old_theoretical_a_win_rate = tpb_result_set_by_index_df.at[index, 'theoretical_a_win_rate']                 # 例： 0.5232622375064023
-                old_theoretical_no_win_match_rate = tpb_result_set_by_index_df.at[index, 'theoretical_no_win_match_rate']   # 例： 0.015976
+                old_theoretical_a_win_rate = tpb_result_set_df_by_index.at[index, 'theoretical_a_win_rate']                 # 例： 0.5232622375064023
+                old_theoretical_no_win_match_rate = tpb_result_set_df_by_index.at[index, 'theoretical_no_win_match_rate']   # 例： 0.015976
 
                 # ［理論的確率データ］表のレコードの［Ａさんの勝率の互角からの誤差］
                 welcome_theoretical_a_win_error = tp_record.theoretical_a_win_rate - EVEN           # 例： 0.51
@@ -88,7 +88,7 @@ class AutomationOne():
 
                 # レコードの新規作成または更新
                 is_dirty_temp = self._tpb_table.upsert_record(
-                        df_result_set_by_index=tpb_result_set_by_index_df,
+                        result_set_df_by_index=tpb_result_set_df_by_index,
                         welcome_record=welcome_record)
 
                 if is_dirty_temp:
