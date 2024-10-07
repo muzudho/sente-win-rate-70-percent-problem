@@ -580,7 +580,7 @@ class KakukinDataSheetTableCsv():
         | Specification                                  | Series rule                                                               | Large Series Trial Summary                                                                                                                                                                                                                              |
         | 前提条件                                        | 大会のルール設定                                                           | シミュレーション結果                                                                                                                                                                                                                                      |
         +---------------+------------------+-------------+-------------+-------------+-----------+---------------+-------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-        | p             | failure_rate     | turn_system_name | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | trials_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                            |
+        | p             | failure_rate     | turn_system_name | head_step   | tail_step   | span     | shortest_coins | upper_limit_coins | trial_series    series_shortest_coins  series_longest_coins                                                                                                                                                                                            |
         | 将棋の先手勝率 | 将棋の引分け率    | 先後の決め方 | 先手で勝った  | 後手で勝った | シリーズ  | 最短対局数     | 上限対局数         | 試行シリーズ総数  シリーズ最短対局数      シリーズ最長対局数                                                                                                                                                                                                 |
         | ％            | ％               |             | ときの勝ち点  | ときの勝ち点 | 勝利条件  |               |                   |                                                                                            ______________________________________________________________________________________________________________________________________________________________|
         |               |                  |             |              |             |          |               |                   |                                                                                           | succucessful_series                                                   | failed_series                                                                       |
@@ -598,7 +598,7 @@ class KakukinDataSheetTableCsv():
         """
 
         # CSV
-        return f"p,failure_rate,turn_system_name,head_step,tail_step,span,shortest_coins,upper_limit_coins,trials_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
+        return f"p,failure_rate,turn_system_name,head_step,tail_step,span,shortest_coins,upper_limit_coins,trial_series,series_shortest_coins,series_longest_coins,wins_a,wins_b,succucessful_series,s_ful_wins_a,s_ful_wins_b,s_pts_wins_a,s_pts_wins_b,failed_series,f_ful_wins_a,f_ful_wins_b,f_pts_wins_a,f_pts_wins_b,no_wins_ab"
 
 
     def stringify_csv_of_body(spec, theoretical_series_rule, presentable, comment, large_series_trial_summary):
@@ -637,7 +637,7 @@ class KakukinDataSheetTableCsv():
                                                                                     # NOTE ルール設定を求めたときの試行回数も記録しようかと思ったが、作り方についてそんなに信用できる記録でもないので止めた
 
         # ［シミュレーション結果］
-        str_trials_series = f"{S.total}"                                             # ［試行シリーズ総数］
+        str_trial_series = f"{S.total}"                                             # ［試行シリーズ総数］
         str_series_shortest_coins = f"{S.series_shortest_coins}"                    # ［シリーズ最短局数］
         str_series_longest_coins = f"{S.series_longest_coins}"                      # ［シリーズ最長局数］
         str_wins_a = f"{s_wins_a + f_wins_a}"                                       # ［Ａさんの勝ちシリーズ数］
@@ -656,7 +656,7 @@ class KakukinDataSheetTableCsv():
 
 
         # CSV
-        return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_trials_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
+        return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_trial_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
 
 
 class PromptCatalog():
@@ -682,10 +682,10 @@ Example: 3
 シリーズを何回試行しますか？
 How many times do you want to try the series(0-6)? """
         precision = int(input(prompt))
-        specified_trials_series = Converter.precision_to_trials_series(precision)
+        specified_trial_series = Converter.precision_to_trial_series(precision)
         specified_abs_small_error = Converter.precision_to_small_error(precision)
 
-        return specified_trials_series, specified_abs_small_error
+        return specified_trial_series, specified_abs_small_error
 
 
     @staticmethod

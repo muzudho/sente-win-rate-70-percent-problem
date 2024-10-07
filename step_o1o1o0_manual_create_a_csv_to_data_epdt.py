@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     try:
         # ［試行シリーズ数］を尋ねます
-        specified_trials_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
+        specified_trial_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
 
 
         # ［先後の決め方］を尋ねます
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         create_csv_to_epdt = CreateCsvToEPDT(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
-                specified_trials_series=specified_trials_series,
+                specified_trial_series=specified_trial_series,
                 specified_abs_small_error=specified_abs_small_error)
         
         create_csv_to_epdt.execute()

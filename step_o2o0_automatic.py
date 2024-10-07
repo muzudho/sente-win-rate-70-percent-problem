@@ -135,7 +135,7 @@ class AllTheoreticalProbabilityFilesOperation():
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        trials_series = 1
+        trial_series = 1
 
 
         # ファイルが存在せず、空データフレームが新規作成されたら
@@ -196,7 +196,7 @@ class AllTheoreticalProbabilityFilesOperation():
                 #
                 specified_series_rule = SeriesRule.make_series_rule_base(
                         spec=spec,
-                        trials_series=trials_series,
+                        trial_series=trial_series,
                         h_step=h_step,
                         t_step=t_step,
                         span=span)
@@ -259,7 +259,7 @@ class AllTheoreticalProbabilityFilesOperation():
         if list_of_enable_each_row.any():
 
             # FIXME 便宜的に［試行シリーズ数］は 1 固定
-            trials_series = 1
+            trial_series = 1
 
             for index, row in tp_table.df[list_of_enable_each_row].iterrows():
 
@@ -277,7 +277,7 @@ class AllTheoreticalProbabilityFilesOperation():
                 # ［シリーズ・ルール］
                 specified_series_rule = SeriesRule.make_series_rule_base(
                         spec=spec,
-                        trials_series=trials_series,
+                        trial_series=trial_series,
                         h_step=h_step,
                         t_step=t_step,
                         span=span)

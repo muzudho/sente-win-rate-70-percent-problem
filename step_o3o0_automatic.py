@@ -33,7 +33,7 @@ if __name__ == '__main__':
                 automation = CreateKakukinDataExcelFileAutomation(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
-                        specified_trials_series=2000)
+                        specified_trial_series=2000)
 
                 automation.execute()
 

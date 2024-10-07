@@ -19,8 +19,8 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class KakukinDataSheetRecord():
 
 
-    def __init__(self, trials_series, turn_system_name, failure_rate, p, span, tail_step, head_step, shortest_coins, upper_limit_coins, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
-        self._trials_series = trials_series
+    def __init__(self, trial_series, turn_system_name, failure_rate, p, span, tail_step, head_step, shortest_coins, upper_limit_coins, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+        self._trial_series = trial_series
         self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
@@ -47,8 +47,8 @@ class KakukinDataSheetRecord():
 
 
     @property
-    def trials_series(self):
-        return self._trials_series
+    def trial_series(self):
+        return self._trial_series
 
 
     @property
@@ -170,7 +170,7 @@ class KakukinDataSheetTable():
 
 
     _dtype = {
-        'trials_series':'int64',
+        'trial_series':'int64',
         'turn_system_name':'object',     # string 型は無いから object
         'failure_rate':'float64',
         'p':'float64',
@@ -208,12 +208,12 @@ class KakukinDataSheetTable():
 
 
     @classmethod
-    def read_csv(clazz, trials_series, turn_system_id, failure_rate):
+    def read_csv(clazz, trial_series, turn_system_id, failure_rate):
         """
 
         Parameters
         ----------
-        trials_series : int
+        trial_series : int
             ［試行シリーズ数］
         turn_system_id : int
             ［手番が回ってくる制度］
@@ -222,7 +222,7 @@ class KakukinDataSheetTable():
         """
 
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
-                trials_series=trials_series,
+                trial_series=trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate)
 
@@ -253,12 +253,12 @@ class KakukinDataSheetTable():
 
         df = self._df
 
-        for         trials_series  ,     turn_system_name  ,     failure_rate  ,     p  ,     span  ,     tail_step  ,     head_step  ,     shortest_coins  ,     upper_limit_coins  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
-            zip(df['trials_series'], df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['tail_step'], df['head_step'], df['shortest_coins'], df['upper_limit_coins'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
+        for         trial_series  ,     turn_system_name  ,     failure_rate  ,     p  ,     span  ,     tail_step  ,     head_step  ,     shortest_coins  ,     upper_limit_coins  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
+            zip(df['trial_series'], df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['tail_step'], df['head_step'], df['shortest_coins'], df['upper_limit_coins'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
 
             # レコード作成
             record = KakukinDataSheetRecord(
-                    trials_series=trials_series,
+                    trial_series=trial_series,
                     turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
                     p=p,
@@ -693,16 +693,16 @@ class EmpiricalProbabilityDuringTrialsTable():
         'candidates':'object'}
 
 
-    def __init__(self, df, trials_series, turn_system_id, failure_rate):
+    def __init__(self, df, trial_series, turn_system_id, failure_rate):
         self._df = df
-        self._trials_series = trials_series
+        self._trial_series = trial_series
         self._turn_system_id = turn_system_id
         self._failure_rate = failure_rate
         self.set_index()
 
 
     @classmethod
-    def new_empty_table(clazz, trials_series, turn_system_id, failure_rate):
+    def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
         df_ep = pd.DataFrame.from_dict({
                 'p': [],
                 'best_p': [],
@@ -719,18 +719,18 @@ class EmpiricalProbabilityDuringTrialsTable():
 
         return EmpiricalProbabilityDuringTrialsTable(
                 df=df_ep,
-                trials_series=trials_series,
+                trial_series=trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate)
 
 
     @classmethod
-    def read_csv(clazz, trials_series, turn_system_id, failure_rate, new_if_it_no_exists):
+    def read_csv(clazz, trial_series, turn_system_id, failure_rate, new_if_it_no_exists):
         """
 
         Parameters
         ----------
-        trials_series : int
+        trial_series : int
             ［試行シリーズ数］
         turn_system_id : int
             ［手番が回ってくる制度］
@@ -739,7 +739,7 @@ class EmpiricalProbabilityDuringTrialsTable():
         """
 
         csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(
-                trials_series=trials_series,
+                trial_series=trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate)
 
@@ -748,7 +748,7 @@ class EmpiricalProbabilityDuringTrialsTable():
         if is_new:
             if new_if_it_no_exists:
                 ep_table = EmpiricalProbabilityDuringTrialsTable.new_empty_table(
-                        trials_series=trials_series,
+                        trial_series=trial_series,
                         turn_system_id=turn_system_id,
                         failure_rate=failure_rate)
             else:
@@ -758,7 +758,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                     dtype=clazz._dtype)
             ep_table = EmpiricalProbabilityDuringTrialsTable(
                     df,
-                    trials_series=trials_series,
+                    trial_series=trial_series,
                     turn_system_id=turn_system_id,
                     failure_rate=failure_rate)
 
@@ -772,8 +772,8 @@ class EmpiricalProbabilityDuringTrialsTable():
 
 
     @property
-    def trials_series(self):
-        return self._trials_series
+    def trial_series(self):
+        return self._trial_series
 
 
     @property
@@ -899,7 +899,7 @@ class EmpiricalProbabilityDuringTrialsTable():
     def to_csv(self):
         # ファイルが存在しなかった場合、新規作成
         csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(
-                trials_series=self._trials_series,
+                trial_series=self._trial_series,
                 turn_system_id=self._turn_system_id,
                 failure_rate=self._failure_rate)
 

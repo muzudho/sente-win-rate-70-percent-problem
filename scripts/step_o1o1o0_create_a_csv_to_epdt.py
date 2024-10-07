@@ -23,10 +23,10 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trials_series, specified_abs_small_error):
+    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trial_series, specified_abs_small_error):
         self._specified_failure_rate=specified_failure_rate
         self._specified_turn_system_id=specified_turn_system_id
-        self._specified_trials_series=specified_trials_series
+        self._specified_trial_series=specified_trial_series
         self._specified_abs_small_error=specified_abs_small_error
 
         self._ep_table = None
@@ -140,7 +140,7 @@ class Automation():
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trials_series=self._specified_trials_series,
+                trial_series=self._specified_trial_series,
                 h_step=record.best_h_step,
                 t_step=record.best_t_step,
                 span=record.best_span)
@@ -178,7 +178,7 @@ class Automation():
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                trials_series=self._specified_trials_series,
+                                trial_series=self._specified_trial_series,
                                 h_step=cur_h_step,
                                 t_step=cur_t_step,
                                 span=cur_span)
@@ -187,7 +187,7 @@ class Automation():
                         # 力任せ探索
                         list_of_trial_results_for_one_series = []
 
-                        for i in range(0, self._specified_trials_series):
+                        for i in range(0, self._specified_trial_series):
 
                             # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
                             path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(
@@ -219,7 +219,7 @@ class Automation():
                         # Ａさんが勝った回数
                         s_wins_a = large_series_trial_summary.wins(challenged=SUCCESSFUL, winner=ALICE)
                         f_wins_a = large_series_trial_summary.wins(challenged=FAILED, winner=ALICE)
-                        latest_p = (s_wins_a + f_wins_a) / self._specified_trials_series
+                        latest_p = (s_wins_a + f_wins_a) / self._specified_trial_series
                         latest_p_error = latest_p - 0.5
 
 
@@ -233,7 +233,7 @@ class Automation():
                             # ［シリーズ・ルール候補］
                             candidate_obj = Candidate(
                                     p_error=best_p_error,
-                                    trials_series=self._specified_trials_series,
+                                    trial_series=self._specified_trial_series,
                                     h_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                                     t_step=best_series_rule_if_it_exists.step_table.get_step_by(face_of_coin=TAIL),
                                     span=best_series_rule_if_it_exists.step_table.span,
@@ -241,7 +241,7 @@ class Automation():
                                     upper_limit_coins=best_series_rule_if_it_exists.upper_limit_coins)       # ［上限対局数］
                             candidate_str = candidate_obj.as_str()
                             turn_system_name = Converter.turn_system_id_to_name(self._specified_turn_system_id)
-                            print(f"[{datetime.datetime.now()}][trials_series={self._specified_trials_series}  turn_system_name={turn_system_name}  failure_rate={self._specified_failure_rate * 100:3.0f}％  p={spec.p * 100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
+                            print(f"[{datetime.datetime.now()}][trial_series={self._specified_trial_series}  turn_system_name={turn_system_name}  failure_rate={self._specified_failure_rate * 100:3.0f}％  p={spec.p * 100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
 
                             # ［シリーズ・ルール候補］列を更新
                             #
@@ -383,7 +383,7 @@ class Automation():
 
         # ファイル読取り。無ければ空テーブル新規作成して保存
         self._ep_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
-                trials_series=self._specified_trials_series,
+                trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
                 new_if_it_no_exists=True)

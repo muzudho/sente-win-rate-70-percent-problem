@@ -16,7 +16,7 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trials_series):
+    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trial_series):
         """初期化
 
         Parameters
@@ -25,12 +25,12 @@ class Automation():
             ［コインを投げて表も裏も出ない確率］
         specified_turn_system_id : int
             ［先後の決め方］
-        specified_trials_series : int
+        specified_trial_series : int
             ［試行シリーズ数］
         """
         self._specified_failure_rate = specified_failure_rate
         self._specified_turn_system_id = specified_turn_system_id
-        self._specified_trials_series = specified_trials_series
+        self._specified_trial_series = specified_trial_series
 
         self._ws = None
         self._row_number = 0
@@ -47,7 +47,7 @@ class Automation():
         self._ws[f'G{self._row_number}'].value = record.shortest_coins
         self._ws[f'H{self._row_number}'].value = record.upper_limit_coins
 
-        self._ws[f'I{self._row_number}'].value = record.trials_series           # TODO ［シミュレーション結果］は、理論値の［シリーズ・ルール］をもとに、計測し直したい
+        self._ws[f'I{self._row_number}'].value = record.trial_series           # TODO ［シミュレーション結果］は、理論値の［シリーズ・ルール］をもとに、計測し直したい
         self._ws[f'J{self._row_number}'].value = record.series_shortest_coins   
         self._ws[f'K{self._row_number}'].value = record.series_longest_coins    
         self._ws[f'L{self._row_number}'].value = record.wins_a
@@ -76,7 +76,7 @@ class Automation():
         # 対エクセル・ファイル用オブジェクト作成
         kakukin_data_excel_file = KakukinDataExcelFile.instantiate(
                 turn_system_id=self._specified_turn_system_id,
-                trials_series=self._specified_trials_series)
+                trial_series=self._specified_trial_series)
 
         # エクセル・ファイルの読込
         kakukin_data_excel_file.load_workbook()
@@ -96,7 +96,7 @@ class Automation():
         kds_table = KakukinDataSheetTable.read_csv(
                 failure_rate=self._specified_failure_rate,
                 turn_system_id=self._specified_turn_system_id,
-                trials_series=self._specified_trials_series)
+                trial_series=self._specified_trial_series)
 
 
         # KDSファイルが無かったのならスキップする

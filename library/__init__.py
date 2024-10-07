@@ -90,6 +90,7 @@ CONTINUE = 3        # 計算は終わっていないが、時間は譲らず、�
 
 
 # h_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
+# FIXME 廃止？ a_win_rate が OUT_OF_P かを判定した方がいい？
 IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
 
 
@@ -209,23 +210,23 @@ class Converter():
         return clazz._opponent[elementary_event]
 
 
-    _precision_to_trials_series = {
+    _precision_to_trial_series = {
         -1: 1
     }
 
 
     @staticmethod
-    def precision_to_trials_series(precision):
+    def precision_to_trial_series(precision):
         """
         下式の通り
 
-            trials_series = 2 * 10 ^ precision
+            trial_series = 2 * 10 ^ precision
 
-            # 逆関数は precision = lg(trials_series / 2)
+            # 逆関数は precision = lg(trial_series / 2)
 
         NOTE n を 0 にしても 2 になるので、 1 にするには 0.3000...ちょっとの数だから整数では precision を指定できない
 
-        precision  trials_series
+        precision  trial_series
         ---------  -------------
                 0              2
                 1             20
@@ -247,7 +248,7 @@ class Converter():
 
     @staticmethod
     def precision_to_small_error(precision):
-        """誤差がこの数以下なら十分だ、といったように判定するのに使う閾値。precision_to_trials_series() に対応。
+        """誤差がこの数以下なら十分だ、といったように判定するのに使う閾値。precision_to_trial_series() に対応。
 
         small_error = 0.9 * 10^-precision
 
@@ -1272,14 +1273,14 @@ class SeriesRule():
 """
 
 
-    def __init__(self, spec, trials_series, step_table, shortest_coins, upper_limit_coins):
+    def __init__(self, spec, trial_series, step_table, shortest_coins, upper_limit_coins):
         """初期化
         
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        trials_series : int
+        trial_series : int
             この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
         step_table : StepTable
             ［１勝の点数テーブル］
@@ -1290,20 +1291,20 @@ class SeriesRule():
         """
 
         self._spec = spec
-        self._trials_series = trials_series
+        self._trial_series = trial_series
         self._step_table = step_table
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
 
 
     @staticmethod
-    def make_series_rule_base(spec, trials_series, h_step, t_step, span):
+    def make_series_rule_base(spec, trial_series, h_step, t_step, span):
         """
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        trials_series : int
+        trial_series : int
             この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
         """
 
@@ -1382,21 +1383,21 @@ step_table:
 
         return SeriesRule(
                 spec=spec,
-                trials_series=trials_series,            # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
+                trial_series=trial_series,            # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
                 step_table=step_table,
                 shortest_coins=shortest_coins,          # ［最短対局数］
                 upper_limit_coins=upper_limit_coins)    # ［上限対局数］
 
 
     @staticmethod
-    def make_series_rule_auto_span(spec, trials_series, p_time, q_time):
+    def make_series_rule_auto_span(spec, trial_series, p_time, q_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
         spec : Specificetion
             ［仕様］
-        trials_series : int
+        trial_series : int
             ［試行シリーズ数］
         p_time : int
             ［表勝ちだけでの対局数］
@@ -1422,7 +1423,7 @@ step_table:
 
         return SeriesRule.make_series_rule_base(
                 spec=spec,
-                trials_series=trials_series,
+                trial_series=trial_series,
                 h_step=h_step,
                 t_step=t_step,
                 span=span)
@@ -1441,9 +1442,9 @@ step_table:
 
 
     @property
-    def trials_series(self):
+    def trial_series(self):
         """この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］"""
-        return self._trials_series
+        return self._trial_series
 
 
     @property
@@ -2158,10 +2159,10 @@ class Candidate():
     """［シリーズ・ルール候補］"""
 
 
-    def __init__(self, p_error, trials_series, h_step, t_step, span, shortest_coins, upper_limit_coins):
+    def __init__(self, p_error, trial_series, h_step, t_step, span, shortest_coins, upper_limit_coins):
 
-        if not isinstance(trials_series, int):
-            raise ValueError(f"［試行シリーズ数］は int 型である必要があります {trials_series=}")
+        if not isinstance(trial_series, int):
+            raise ValueError(f"［試行シリーズ数］は int 型である必要があります {trial_series=}")
 
         if not isinstance(h_step, int):
             raise ValueError(f"［表番で勝ったときの勝ち点］は int 型である必要があります {h_step=}")
@@ -2179,7 +2180,7 @@ class Candidate():
             raise ValueError(f"［上限対局数］は int 型である必要があります {upper_limit_coins=}")
 
         self._p_error = p_error
-        self._trials_series = trials_series
+        self._trial_series = trial_series
         self._h_step = h_step
         self._t_step = t_step
         self._span = span
@@ -2193,8 +2194,8 @@ class Candidate():
 
 
     @property
-    def trials_series(self):
-        return self._trials_series
+    def trial_series(self):
+        return self._trial_series
 
 
     @property
@@ -2224,7 +2225,7 @@ class Candidate():
 
     def as_str(self):
         # NOTE 可読性があり、かつ、パースのしやすい書式にする
-        return f'[{self._p_error:.6f} {self._h_step}表 {self._t_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._trials_series}試]'
+        return f'[{self._p_error:.6f} {self._h_step}表 {self._t_step}裏 {self._span}目 {self._shortest_coins}～{self._upper_limit_coins}局 {self._trial_series}試]'
 
 
     _re_pattern_of_candidate = None
@@ -2239,7 +2240,7 @@ class Candidate():
         if result:
             return Candidate(
                     p_error=float(result.group(1)),
-                    trials_series=float(result.group(7)),
+                    trial_series=float(result.group(7)),
                     h_step=int(result.group(2)),
                     t_step=int(result.group(3)),
                     span=int(result.group(4)),
@@ -2558,7 +2559,7 @@ class ThreeRates():
         return is_almost_even(self._a_win_rate)
 
 
-def simulate_series(spec, series_rule, specified_trials_series):
+def simulate_series(spec, series_rule, specified_trial_series):
     """シリーズをシミュレーションします
     
     Returns
@@ -2569,7 +2570,7 @@ def simulate_series(spec, series_rule, specified_trials_series):
     list_of_trial_results_for_one_series = []
 
     # シミュレーション
-    for round in range(0, specified_trials_series):
+    for round in range(0, specified_trial_series):
 
         # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
         path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(

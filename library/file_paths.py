@@ -1,12 +1,12 @@
 from library import FROZEN_TURN, ALTERNATING_TURN
 
 
-def make_file_subname(trials_series=None, turn_system_id=None, failure_rate=None, p=None, h_step=None, t_step=None, span=None):
+def make_file_subname(trial_series=None, turn_system_id=None, failure_rate=None, p=None, h_step=None, t_step=None, span=None):
     """ファイル名の部分を作成
 
     Parameters
     ----------
-    trials_series : int
+    trial_series : int
         ［試行シリーズ数］
     turn_system_id : int
         ［先後の決め方］
@@ -28,12 +28,12 @@ def make_file_subname(trials_series=None, turn_system_id=None, failure_rate=None
     #
     #   NOTE 試行回数が異なれば、試行回数が少ないデータが混じってしまうと、全く内容が正しくなくなるという考え方で、重要度を１番上にする
     #
-    if trials_series is None:
+    if trial_series is None:
         pass
 
     else:
         # try は number of trials series の略
-        subname.append(f'try{trials_series}')
+        subname.append(f'try{trial_series}')
 
 
     # ［手番の決め方］
@@ -111,17 +111,17 @@ def make_file_subname(trials_series=None, turn_system_id=None, failure_rate=None
 class KakukinDataFilePaths():
     """［かくきんデータ］関連のファイルパス一覧"""
     @staticmethod
-    def as_excel(turn_system_id, trials_series):
-        subname = make_file_subname(turn_system_id=turn_system_id, trials_series=trials_series)
+    def as_excel(turn_system_id, trial_series):
+        subname = make_file_subname(turn_system_id=turn_system_id, trial_series=trial_series)
         return f'reports/auto_generated_kakukin_data{subname}.xlsx'
 
 
     @staticmethod
-    def as_sheet_csv(failure_rate, turn_system_id, trials_series=None):
+    def as_sheet_csv(failure_rate, turn_system_id, trial_series=None):
         """大量のシリーズをシミュレーションしたログを保存するファイルへのパスを取得します
         Excel で表示するためのデータファイル
         """
-        subname = make_file_subname(failure_rate=failure_rate, turn_system_id=turn_system_id, trials_series=trials_series)
+        subname = make_file_subname(failure_rate=failure_rate, turn_system_id=turn_system_id, trial_series=trial_series)
         # ファイル名は長くなりすぎないようにする
         return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
 
@@ -182,7 +182,7 @@ class TheoreticalProbabilityTrialResultsFilePaths():
 class EmpiricalProbabilityDuringTrialsFilePaths():
     """試行中の経験的確率データのファイルパス一覧"""
     @staticmethod
-    def as_csv(failure_rate=None, turn_system_id=None, trials_series=None):
+    def as_csv(failure_rate=None, turn_system_id=None, trial_series=None):
         """勝ち点を探索した記録ファイルへのパス
         
         Parameters
@@ -191,10 +191,10 @@ class EmpiricalProbabilityDuringTrialsFilePaths():
             ［将棋の引分け率］
         turn_system_id : int
             ［先後の決め方］
-        trials_series : int
+        trial_series : int
             ［試行シリーズ数］
         """
-        subname = make_file_subname(failure_rate=failure_rate, turn_system_id=turn_system_id, trials_series=trials_series)
+        subname = make_file_subname(failure_rate=failure_rate, turn_system_id=turn_system_id, trial_series=trial_series)
 
         # NOTE ファイル名が長いと、Excel のシート名にそのまま貼り付けられなくて不便なので短くする
         return f'./temp/empirical_probability_during_trials/EPDT{subname}.csv'

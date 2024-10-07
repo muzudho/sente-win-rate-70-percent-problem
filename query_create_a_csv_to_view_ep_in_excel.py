@@ -19,7 +19,7 @@ from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import KakukinDataSheetTableCsv, PromptCatalog
 
 
-def automatic_deprecated(specified_failure_rate, specified_turn_system_id, specified_trials_series):
+def automatic_deprecated(specified_failure_rate, specified_turn_system_id, specified_trial_series):
     header_csv = KakukinDataSheetTableCsv.stringify_header()
 
     print(header_csv) # 表示
@@ -38,7 +38,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
     csv_file_path = KakukinDataFilePaths.as_sheet_csv(
             failure_rate=spec.failure_rate,
             turn_system_id=spec.turn_system_id,
-            trials_series=specified_trials_series)
+            trial_series=specified_trial_series)
     with open(csv_file_path, 'w', encoding='utf8') as f:
         f.write(f"{header_csv}\n")
 
@@ -46,7 +46,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
     ep_table = EmpiricalProbabilityDuringTrialsTable.read_csv(
             failure_rate=specified_failure_rate,
             turn_system_id=specified_turn_system_id,
-            trials_series=specified_trials_series,
+            trial_series=specified_trial_series,
             new_if_it_no_exists=True)
 
 
@@ -57,7 +57,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
             return
 
         # 対象外のものはスキップ　［試行シリーズ数］
-        if specified_trials_series != record.trials_series:
+        if specified_trial_series != record.trial_series:
             return
 
         if record.best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
@@ -75,7 +75,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
         # ［シリーズ・ルール］
         series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trials_series=specified_trials_series,
+                trial_series=specified_trial_series,
                 h_step=record.best_h_step,
                 t_step=record.best_t_step,
                 span=record.best_span)
@@ -85,7 +85,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
         large_series_trial_summary = simulate_series(
                 spec=spec,
                 series_rule=series_rule,
-                specified_trials_series=specified_trials_series)
+                specified_trial_series=specified_trial_series)
 
 
         # CSV作成
@@ -102,7 +102,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id,
-                trials_series=specified_trials_series)
+                trial_series=specified_trial_series)
         print(f"[{datetime.datetime.now()}] query_create_a_csv_to_view_ep_in_excel. write view to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(f"{csv}\n")    # ファイルへ出力
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     try:
         # ［試行シリーズ数］を尋ねます
-        specified_trials_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
+        specified_trial_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
 
 
         # ［先後の決め方］を尋ねます
@@ -135,7 +135,7 @@ if __name__ == '__main__':
         automatic_deprecated(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
-                specified_trials_series=specified_trials_series)
+                specified_trial_series=specified_trial_series)
 
 
     except Exception as err:

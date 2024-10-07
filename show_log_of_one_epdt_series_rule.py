@@ -62,7 +62,7 @@ def stringify_log_body(p, spec, series_rule, presentable, comment, trial_results
 """
 
 
-def show_log_of_series_rule(spec, trials_series, h_step, t_step, span, presentable, comment):
+def show_log_of_series_rule(spec, trial_series, h_step, t_step, span, presentable, comment):
     """［シリーズ・ルール］を表示します
     
     FIXME ログ出力してるだけ？要らない？ 試行結果をCSVに保存してない？
@@ -71,7 +71,7 @@ def show_log_of_series_rule(spec, trials_series, h_step, t_step, span, presentab
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
-            trials_series=trials_series,
+            trial_series=trial_series,
             h_step=h_step,
             t_step=t_step,
             span=span)
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     try:
         # ［試行シリーズ数］を尋ねます
-        specified_trials_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
+        specified_trial_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
 
 
         # ［先後の決め方］を尋ねます
@@ -150,7 +150,7 @@ if __name__ == '__main__':
         ep_table = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 failure_rate=specified_failure_rate,
                 turn_system_id=specified_turn_system_id,
-                trials_series=specified_trials_series,
+                trial_series=specified_trial_series,
                 new_if_it_no_exists=True)
         df_ep = ep_table.df
 
@@ -173,7 +173,7 @@ if __name__ == '__main__':
 
             show_log_of_series_rule(
                     spec=spec,
-                    trials_series=specified_trials_series,
+                    trial_series=specified_trial_series,
                     h_step=epdt_record.best_h_step,
                     t_step=epdt_record.best_t_step,
                     span=epdt_record.best_span,

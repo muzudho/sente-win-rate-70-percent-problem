@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     try:
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        specified_trials_series = 1
+        specified_trial_series = 1
 
         # ［目標の点数］
         for span in range(1,101):
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
                     series_rule_ft = SeriesRule.make_series_rule_base(
                             spec=spec_ft,
-                            trials_series=specified_trials_series,
+                            trial_series=specified_trial_series,
                             h_step=h_step,
                             t_step=t_step,
                             span=span)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
                     series_rule_at = SeriesRule.make_series_rule_base(
                             spec=spec_at,
-                            trials_series=specified_trials_series,
+                            trial_seriesspecified_trial_series,
                             h_step=h_step,
                             t_step=t_step,
                             span=span)

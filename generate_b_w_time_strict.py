@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     try:
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        specified_trials_series = 1
+        specified_trial_series = 1
 
         # ［コインを投げて表が出る確率］
         for p_parcent in range(EVEN * 100, UPPER_LIMIT_OF_P * 100):
@@ -90,7 +90,7 @@ if __name__ == '__main__':
                         # TODO データをちゃんと入れたい
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                trials_series=specified_trials_series,
+                                trial_series=specified_trial_series,
                                 # FIXME タイムではなくステップが欲しい
                                 h_step=-1,
                                 t_step=-1,
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
                         candidate_obj = Candidate(
                                 p_error=best_p_error,
-                                trials_series=specified_trials_series,
+                                trial_series=specified_trial_series,
                                 h_step=latest_series_rule.h_step,
                                 t_step=latest_series_rule.t_step,
                                 span=latest_series_rule.span,
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                 # ［シリーズ・ルール］
                 series_rule = SeriesRule.make_series_rule_auto_span(
                     spec=spec,
-                    trials_series=specified_trials_series,
+                    trial_series=specified_trial_series,
                     p_time=best_p_time,
                     q_time=best_q_time)
 

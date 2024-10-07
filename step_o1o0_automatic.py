@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     try:
         # ［試行シリーズ回数］
-        specified_trials_series = 2000
+        specified_trial_series = 2000
 
         # ［先後の決め方］
         for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
@@ -56,7 +56,7 @@ if __name__ == '__main__':
                 create_csv_to_epdt = StepO1o1o0CreateCsvToEPDT(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
-                        specified_trials_series=specified_trials_series,
+                        specified_trial_series=specified_trial_series,
                         specified_abs_small_error=ABS_SMALL_P_ERROR)
                 
                 create_csv_to_epdt.execute()
@@ -70,7 +70,7 @@ if __name__ == '__main__':
                 step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
-                        specified_trials_series=specified_trials_series)
+                        specified_trial_series=specified_trial_series)
 
                 step_o1o2o0_create_kakukin_data_sheet_csv_file.execute()
 

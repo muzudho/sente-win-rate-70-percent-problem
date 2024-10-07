@@ -57,12 +57,12 @@ if __name__ == '__main__':
                 turn_system_id=specified_turn_system_id)
 
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        specified_trials_series = 1
+        specified_trial_series = 1
 
         # ［シリーズ・ルール］。任意に指定します
         specified_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trials_series=specified_trials_series,      # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
+                trial_series=specified_trial_series,      # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
                 h_step=specified_h_step,
                 t_step=specified_t_step,
                 span=specified_span)
