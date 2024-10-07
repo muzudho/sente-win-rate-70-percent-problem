@@ -339,8 +339,9 @@ class KakukinDataSheetTable():
         if welcome_record.trial_series != self._trial_series:
             raise ValueError(f"ファイル名と trial_series 列で内容が異なるのはおかしいです {welcome_record.trial_series=}  {self._trial_series=}")
 
-        if welcome_record.turn_system_name != self._turn_system_name:
-            raise ValueError(f"ファイル名と turn_system_name 列で内容が異なるのはおかしいです {welcome_record.turn_system_name=}  {self._turn_system_name=}")
+        specified_turn_system_name = Converter.turn_system_id_to_name(self._turn_system_id)
+        if welcome_record.turn_system_name != turn_system_name:
+            raise ValueError(f"ファイル名と turn_system_name 列で内容が異なるのはおかしいです {welcome_record.turn_system_name=}  {specified_turn_system_name=}")
 
         if welcome_record.failure_rate != self._failure_rate:
             raise ValueError(f"ファイル名と failure_rate 列で内容が異なるのはおかしいです {welcome_record.failure_rate=}  {self._failure_rate=}")
