@@ -29,29 +29,29 @@ class Automation():
         self._specified_failure_rate=specified_failure_rate
 
 
-    def on_each_tpb_record(self, record_best_tp):
+    def on_each_tpb_record(self, tp_record):
 
         # 対象外のものはスキップ　［試行シリーズ数］
-        if self._specified_trial_series != record_best_tp.trial_series:
+        if self._specified_trial_series != tp_record.trial_series:
             return
 
         # 対象外のものはスキップ　［先後の決め方］
-        if self._specified_turn_system_id != Converter.turn_system_code_to_id(record_best_tp.turn_system_name):
+        if self._specified_turn_system_id != Converter.turn_system_code_to_id(tp_record.turn_system_name):
             return
 
         # 対象外のものはスキップ　［将棋の引分け率］
-        if self._specified_failure_rate != record_best_tp.failure_rate:
+        if self._specified_failure_rate != tp_record.failure_rate:
             return
 
-        if record_best_tp.theoretical_a_win_rate == OUT_OF_P:
-            print(f"[trial_series={self._specified_trial_series}  failure_rate={record_best_tp.failure_rate}  p={record_best_tp.p}] ベスト値が設定されていません。スキップします")
+        if tp_record.theoretical_a_win_rate == OUT_OF_P:
+            print(f"[trial_series={self._specified_trial_series}  failure_rate={tp_record.failure_rate}  p={tp_record.p}] ベスト値が設定されていません。スキップします")
             return
 
 
         # 仕様
         spec = Specification(
-                p=record_best_tp.p,
-                failure_rate=record_best_tp.failure_rate,
+                p=tp_record.p,
+                failure_rate=tp_record.failure_rate,
                 turn_system_id=self._specified_turn_system_id)
 
 
@@ -60,9 +60,9 @@ class Automation():
         theoretical_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
                 trial_series=self._specified_trial_series,
-                h_step=record_best_tp.h_step,  # TODO これは理論値にしたい
-                t_step=record_best_tp.t_step,  # TODO これは理論値にしたい
-                span=record_best_tp.span)      # TODO これは理論値にしたい
+                h_step=tp_record.h_step,  # TODO これは理論値にしたい
+                t_step=tp_record.t_step,  # TODO これは理論値にしたい
+                span=tp_record.span)      # TODO これは理論値にしたい
 
 
         # シミュレーションします
