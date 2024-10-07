@@ -1,6 +1,5 @@
 #
-# やっつけプログラム３号
-# python step_o3o0_automatic.py
+# python step_o9o0_automatic.py
 #
 #
 
@@ -8,7 +7,7 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, Converter
-from scripts.step_o3o0_create_kakukin_data_excel_file import Automation as StepO3o0CreateKakukinDataExcelFileAutomation
+from scripts.step_o9o0_create_kakukin_data_excel_file import Automation as StepO9o0CreateKakukinDataExcelFileAutomation
 
 
 ########################################
@@ -30,7 +29,7 @@ if __name__ == '__main__':
                 #
                 #   NOTE 先にKDSファイルを作成しておく必要があります
                 #
-                automation = StepO3o0CreateKakukinDataExcelFileAutomation(
+                automation = StepO9o0CreateKakukinDataExcelFileAutomation(
                         specified_trial_series=2000,
                         specified_turn_system_id=specified_turn_system_id,
                         specified_failure_rate=specified_failure_rate)
