@@ -75,7 +75,6 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
         # ［シリーズ・ルール］
         series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trial_series=specified_trial_series,
                 h_step=record.best_h_step,
                 t_step=record.best_t_step,
                 span=record.best_span)

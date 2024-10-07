@@ -46,9 +46,6 @@ class Automation():
         # 該当行が１つでもあれば
         if list_of_enable_each_row.any():
 
-            # FIXME 便宜的に［試行シリーズ数］は 1 固定
-            trial_series = 1
-
             for index, row in tp_table.df[list_of_enable_each_row].iterrows():
 
                 # 指定間隔（秒）でループを抜ける
@@ -65,7 +62,6 @@ class Automation():
                 # ［シリーズ・ルール］
                 specified_series_rule = SeriesRule.make_series_rule_base(
                         spec=spec,
-                        trial_series=trial_series,
                         h_step=h_step,
                         t_step=t_step,
                         span=span)

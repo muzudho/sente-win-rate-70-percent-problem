@@ -19,7 +19,6 @@ def try_series_rule(spec, trial_series, h_step, t_step, span, presentable, comme
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
-            trial_series=trial_series,
             h_step=h_step,
             t_step=t_step,
             span=span)

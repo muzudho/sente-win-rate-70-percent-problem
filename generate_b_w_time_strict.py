@@ -90,7 +90,6 @@ if __name__ == '__main__':
                         # TODO データをちゃんと入れたい
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                trial_series=specified_trial_series,
                                 # FIXME タイムではなくステップが欲しい
                                 h_step=-1,
                                 t_step=-1,

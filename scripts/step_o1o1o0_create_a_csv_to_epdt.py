@@ -140,7 +140,6 @@ class Automation():
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trial_series=self._specified_trial_series,
                 h_step=record.best_h_step,
                 t_step=record.best_t_step,
                 span=record.best_span)
@@ -178,7 +177,6 @@ class Automation():
                         # ［シリーズ・ルール］
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                trial_series=self._specified_trial_series,
                                 h_step=cur_h_step,
                                 t_step=cur_t_step,
                                 span=cur_span)
@@ -214,6 +212,7 @@ class Automation():
                         
                         # シミュレーションの結果
                         large_series_trial_summary = LargeSeriesTrialSummary(
+                                specified_trial_series=self._specified_trial_series,
                                 list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
                         # Ａさんが勝った回数

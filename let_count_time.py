@@ -44,7 +44,6 @@ if __name__ == '__main__':
 
                     series_rule_ft = SeriesRule.make_series_rule_base(
                             spec=spec_ft,
-                            trial_series=specified_trial_series,
                             h_step=h_step,
                             t_step=t_step,
                             span=span)
@@ -58,7 +57,6 @@ if __name__ == '__main__':
 
                     series_rule_at = SeriesRule.make_series_rule_base(
                             spec=spec_at,
-                            trial_series=specified_trial_series,
                             h_step=h_step,
                             t_step=t_step,
                             span=span)

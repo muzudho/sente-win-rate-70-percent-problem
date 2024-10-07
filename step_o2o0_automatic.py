@@ -211,7 +211,6 @@ class AllTheoreticalProbabilityFilesOperation():
                 #
                 specified_series_rule = SeriesRule.make_series_rule_base(
                         spec=spec,
-                        trial_series=trial_series,
                         h_step=h_step,
                         t_step=t_step,
                         span=span)

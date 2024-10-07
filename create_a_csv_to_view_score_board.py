@@ -62,7 +62,6 @@ if __name__ == '__main__':
         # ［シリーズ・ルール］。任意に指定します
         specified_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                trial_series=specified_trial_series,      # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
                 h_step=specified_h_step,
                 t_step=specified_t_step,
                 span=specified_span)

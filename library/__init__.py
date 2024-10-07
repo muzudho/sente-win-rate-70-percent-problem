@@ -1273,15 +1273,13 @@ class SeriesRule():
 """
 
 
-    def __init__(self, spec, trial_series, step_table, shortest_coins, upper_limit_coins):
+    def __init__(self, spec, step_table, shortest_coins, upper_limit_coins):
         """初期化
         
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        trial_series : int
-            この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
         step_table : StepTable
             ［１勝の点数テーブル］
         shortest_coins : int
@@ -1291,21 +1289,18 @@ class SeriesRule():
         """
 
         self._spec = spec
-        self._trial_series = trial_series
         self._step_table = step_table
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
 
 
     @staticmethod
-    def make_series_rule_base(spec, trial_series, h_step, t_step, span):
+    def make_series_rule_base(spec, h_step, t_step, span):
         """
         Parameters
         ----------
         spec : Specification
             ［仕様］
-        trial_series : int
-            この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
         """
 
         # NOTE numpy.int64 型は、 float NaN が入っていることがある？
@@ -1383,22 +1378,19 @@ step_table:
 
         return SeriesRule(
                 spec=spec,
-                trial_series=trial_series,            # この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］
                 step_table=step_table,
                 shortest_coins=shortest_coins,          # ［最短対局数］
                 upper_limit_coins=upper_limit_coins)    # ［上限対局数］
 
 
     @staticmethod
-    def make_series_rule_auto_span(spec, trial_series, p_time, q_time):
+    def make_series_rule_auto_span(spec, p_time, q_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
         spec : Specificetion
             ［仕様］
-        trial_series : int
-            ［試行シリーズ数］
         p_time : int
             ［表勝ちだけでの対局数］
         q_time : int
@@ -1423,7 +1415,6 @@ step_table:
 
         return SeriesRule.make_series_rule_base(
                 spec=spec,
-                trial_series=trial_series,
                 h_step=h_step,
                 t_step=t_step,
                 span=span)
@@ -1439,12 +1430,6 @@ step_table:
     def spec(self):
         """［仕様］"""
         return self._spec
-
-
-    @property
-    def trial_series(self):
-        """この［シリーズ・ルール］を作成するために行われた［試行シリーズ数］"""
-        return self._trial_series
 
 
     @property
@@ -1845,15 +1830,18 @@ class LargeSeriesTrialSummary():
     """［大量のシリーズを試行した結果］"""
 
 
-    def __init__(self, list_of_trial_results_for_one_series):
+    def __init__(self, specified_trial_series, list_of_trial_results_for_one_series):
         """初期化
         
         Parameters
         ----------
+        specified_trial_series : int
+            ［シリーズ試行回数］
         list_of_trial_results_for_one_series : list
             ［シリーズ］の結果のリスト
         """
 
+        self._specified_trial_series = specified_trial_series
         self._list_of_trial_results_for_one_series = list_of_trial_results_for_one_series
         self._series_shortest_coins = None
         self._series_longest_coins = None
@@ -1902,6 +1890,12 @@ class LargeSeriesTrialSummary():
 
         # ［勝者がなかった回数］。ＡさんとＢさんについて。初期値は None
         self._no_wins = None
+
+
+    @property
+    def specified_trial_series(self):
+        """シリーズ試行回数"""
+        return self._specified_trial_series
 
 
     # 共通
@@ -2619,6 +2613,7 @@ def try_series(spec, series_rule, specified_trial_series):
 
     # ［大量のシリーズを試行した結果］
     large_series_trial_summary = LargeSeriesTrialSummary(
+            specified_trial_series=specified_trial_series,
             list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
     return large_series_trial_summary
