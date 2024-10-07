@@ -1,5 +1,7 @@
 #
-# python step_o2o2o0_manual_update_three_rates_for_a_file.py
+# python step_o2o2o0_manual_update_three_rates_in_tp.py
+#
+# 手動で［理論的確率データ］（TP）表のスリー・レーツ列を更新します
 #
 
 import traceback

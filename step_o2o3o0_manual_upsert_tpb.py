@@ -1,6 +1,7 @@
 #
-# python step_o2o3o0_manual_upsert_a_csv_of_theoretical_probability_best.py
+# python step_o2o3o0_manual_upsert_tpb.py
 #
+#   手動で［理論的確率ベスト］（TPB）CSVファイルへアップサートします。
 #   ［仕様］［シリーズ・ルール］について、５分５分に近いものをピックアップします
 #
 

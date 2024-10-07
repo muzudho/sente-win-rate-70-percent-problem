@@ -7,7 +7,7 @@ from library.score_board import search_all_score_boards
 
 
 class Automation():
-    """次に、［理論的確率データ］のスリー・レーツ列を更新する"""
+    """［理論的確率データ］（TP）表のスリー・レーツ列を更新する"""
 
 
     def __init__(self, seconds_of_time_up):
