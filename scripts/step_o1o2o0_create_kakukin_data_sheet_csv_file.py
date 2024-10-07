@@ -81,6 +81,8 @@ class Automation():
         self._kds_table.upsert_record(
                 result_set_df_by_index=result_set_df_by_index,
                 welcome_record=KakukinDataSheetRecord(
+                        turn_system_name=Converter.turn_system_id_to_name(self._specified_turn_system_id),  # ［先後の決め方］
+                        failure_rate=self._specified_failure_rate,                                  # ［将棋の引分け率］
                         p=spec.p,                                                                   # ［将棋の先手勝率］ p （Probability）
                         span=theoretical_series_rule.step_table.span,                               # ［シリーズ勝利条件］
                         t_step=theoretical_series_rule.step_table.get_step_by(face_of_coin=TAIL),   # ［後手で勝ったときの勝ち点］
@@ -89,6 +91,7 @@ class Automation():
                         upper_limit_coins=theoretical_series_rule.upper_limit_coins,                # ［上限対局数］
                         series_shortest_coins=S.series_shortest_coins,                              # ［シリーズ最短局数］
                         series_longest_coins=S.series_longest_coins,                                # ［シリーズ最長局数］
+                        trial_series=self._specified_trial_series,                                  # ［シリーズ試行回数］
                         wins_a=s_wins_a + f_wins_a,                                                 # ［Ａさんの勝ちシリーズ数］
                         wins_b=s_wins_b + f_wins_b,                                                 # ［Ｂさんの勝ちシリーズ数］
                         succucessful_series=S.successful_series,                                    # ［引分けが起こらなかったシリーズ数］
