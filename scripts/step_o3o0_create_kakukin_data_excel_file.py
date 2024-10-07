@@ -36,33 +36,38 @@ class Automation():
         self._row_number = 0
 
 
-    def on_each(self, record):
-        self._ws[f'A{self._row_number}'].value = record.p
-        self._ws[f'B{self._row_number}'].value = record.failure_rate
-        self._ws[f'C{self._row_number}'].value = record.turn_system_name
+    def on_each_kds_record(self, kds_record):
 
-        self._ws[f'D{self._row_number}'].value = record.head_step               # TODO ［シリーズ・ルール］は、理論値が選ばれるように仕様変更したい
-        self._ws[f'E{self._row_number}'].value = record.tail_step
-        self._ws[f'F{self._row_number}'].value = record.span
-        self._ws[f'G{self._row_number}'].value = record.shortest_coins
-        self._ws[f'H{self._row_number}'].value = record.upper_limit_coins
+        self._ws[f'A{self._row_number}'].value = kds_record.p
 
-        self._ws[f'I{self._row_number}'].value = record.trial_series           # TODO ［シミュレーション結果］は、理論値の［シリーズ・ルール］をもとに、計測し直したい
-        self._ws[f'J{self._row_number}'].value = record.series_shortest_coins   
-        self._ws[f'K{self._row_number}'].value = record.series_longest_coins    
-        self._ws[f'L{self._row_number}'].value = record.wins_a
-        self._ws[f'M{self._row_number}'].value = record.wins_b
-        self._ws[f'N{self._row_number}'].value = record.succucessful_series
-        self._ws[f'O{self._row_number}'].value = record.s_ful_wins_a
-        self._ws[f'P{self._row_number}'].value = record.s_ful_wins_b
-        self._ws[f'Q{self._row_number}'].value = record.s_pts_wins_a
-        self._ws[f'R{self._row_number}'].value = record.s_pts_wins_b
-        self._ws[f'S{self._row_number}'].value = record.failed_series
-        self._ws[f'T{self._row_number}'].value = record.f_ful_wins_a
-        self._ws[f'U{self._row_number}'].value = record.f_ful_wins_b
-        self._ws[f'V{self._row_number}'].value = record.f_pts_wins_a
-        self._ws[f'W{self._row_number}'].value = record.f_pts_wins_b
-        self._ws[f'X{self._row_number}'].value = record.no_wins_ab
+        self._ws[f'B{self._row_number}'].value = self._specified_failure_rate
+        self._ws[f'C{self._row_number}'].value = Converter.turn_system_id_to_name(self._specified_turn_system_id)
+
+        # TODO ［シリーズ・ルール］は、理論値が選ばれるように仕様変更したい
+        self._ws[f'D{self._row_number}'].value = kds_record.head_step
+        self._ws[f'E{self._row_number}'].value = kds_record.tail_step
+        self._ws[f'F{self._row_number}'].value = kds_record.span
+        self._ws[f'G{self._row_number}'].value = kds_record.shortest_coins
+        self._ws[f'H{self._row_number}'].value = kds_record.upper_limit_coins
+
+        self._ws[f'I{self._row_number}'].value = self._specified_trial_series
+        
+        # TODO ［シミュレーション結果］は、理論値の［シリーズ・ルール］をもとに、計測し直したい
+        self._ws[f'J{self._row_number}'].value = kds_record.series_shortest_coins   
+        self._ws[f'K{self._row_number}'].value = kds_record.series_longest_coins    
+        self._ws[f'L{self._row_number}'].value = kds_record.wins_a
+        self._ws[f'M{self._row_number}'].value = kds_record.wins_b
+        self._ws[f'N{self._row_number}'].value = kds_record.succucessful_series
+        self._ws[f'O{self._row_number}'].value = kds_record.s_ful_wins_a
+        self._ws[f'P{self._row_number}'].value = kds_record.s_ful_wins_b
+        self._ws[f'Q{self._row_number}'].value = kds_record.s_pts_wins_a
+        self._ws[f'R{self._row_number}'].value = kds_record.s_pts_wins_b
+        self._ws[f'S{self._row_number}'].value = kds_record.failed_series
+        self._ws[f'T{self._row_number}'].value = kds_record.f_ful_wins_a
+        self._ws[f'U{self._row_number}'].value = kds_record.f_ful_wins_b
+        self._ws[f'V{self._row_number}'].value = kds_record.f_pts_wins_a
+        self._ws[f'W{self._row_number}'].value = kds_record.f_pts_wins_b
+        self._ws[f'X{self._row_number}'].value = kds_record.no_wins_ab
 
         self._row_number += 1
 
@@ -114,7 +119,7 @@ class Automation():
         # --------
         self._row_number = 2
 
-        kds_table.for_each(on_each=self.on_each)
+        kds_table.for_each(on_each=self.on_each_kds_record)
 
 
         # ［かくきんデータ・エクセル・ファイル］保存

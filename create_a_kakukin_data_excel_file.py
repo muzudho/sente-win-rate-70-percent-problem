@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.create_kakukin_data_excel_file import Automation as CreateKakukinDataExcelFileAutomation
+from scripts.step_o3o0_create_kakukin_data_excel_file import Automation as StepO3o0CreateKakukinDataExcelFileAutomation
 
 
 ########################################
@@ -29,10 +29,10 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        automation = CreateKakukinDataExcelFileAutomation(
-                specified_failure_rate=specified_failure_rate,
+        automation = StepO3o0CreateKakukinDataExcelFileAutomation(
+                specified_trial_series=specified_trial_series,
                 specified_turn_system_id=specified_turn_system_id,
-                specified_trial_series=specified_trial_series)
+                specified_failure_rate=specified_failure_rate)
 
         automation.execute()
 

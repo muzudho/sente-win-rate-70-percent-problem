@@ -19,10 +19,7 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 class KakukinDataSheetRecord():
 
 
-    def __init__(self, trial_series, turn_system_name, failure_rate, p, span, tail_step, head_step, shortest_coins, upper_limit_coins, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
-        self._trial_series = trial_series
-        self._turn_system_name = turn_system_name
-        self._failure_rate = failure_rate
+    def __init__(self, p, span, tail_step, head_step, shortest_coins, upper_limit_coins, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
         self._p = p
         self._span = span
         self._tail_step = tail_step
@@ -44,21 +41,6 @@ class KakukinDataSheetRecord():
         self._f_pts_wins_a = f_pts_wins_a
         self._f_pts_wins_b = f_pts_wins_b
         self._no_wins_ab = no_wins_ab
-
-
-    @property
-    def trial_series(self):
-        return self._trial_series
-
-
-    @property
-    def turn_system_name(self):
-        return self._turn_system_name
-
-
-    @property
-    def failure_rate(self):
-        return self._failure_rate
 
 
     @property
@@ -170,9 +152,6 @@ class KakukinDataSheetTable():
 
 
     _dtype = {
-        'trial_series':'int64',
-        'turn_system_name':'object',     # string 型は無いから object
-        'failure_rate':'float64',
         'p':'float64',
         'head_step':'int64',
         'tail_step':'int64',
@@ -253,14 +232,11 @@ class KakukinDataSheetTable():
 
         df = self._df
 
-        for         trial_series  ,     turn_system_name  ,     failure_rate  ,     p  ,     span  ,     tail_step  ,     head_step  ,     shortest_coins  ,     upper_limit_coins  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
-            zip(df['trial_series'], df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['tail_step'], df['head_step'], df['shortest_coins'], df['upper_limit_coins'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
+        for         p  ,     span  ,     tail_step  ,     head_step  ,     shortest_coins  ,     upper_limit_coins  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
+            zip(df['p'], df['span'], df['tail_step'], df['head_step'], df['shortest_coins'], df['upper_limit_coins'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
 
             # レコード作成
             record = KakukinDataSheetRecord(
-                    trial_series=trial_series,
-                    turn_system_name=turn_system_name,
-                    failure_rate=failure_rate,
                     p=p,
                     span=span,
                     tail_step=tail_step,
