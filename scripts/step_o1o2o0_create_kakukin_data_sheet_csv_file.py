@@ -12,21 +12,21 @@ from library.views import KakukinDataSheetTableCsv
 class Automation():
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trials_series):
+    def __init__(self, specified_trials_series, specified_turn_system_id, specified_failure_rate):
         """初期化
         
         Parameters
         ----------
-        specified_failure_rate : float
-            ［コインの表も裏も出ない確率］
-        specified_turn_system_id : float
-            ［先後の決め方］
         specified_trials_series : float
             ［試行シリーズ数］
+        specified_turn_system_id : float
+            ［先後の決め方］
+        specified_failure_rate : float
+            ［コインの表も裏も出ない確率］
         """
-        self._specified_failure_rate=specified_failure_rate
-        self._specified_turn_system_id=specified_turn_system_id
         self._specified_trials_series=specified_trials_series
+        self._specified_turn_system_id=specified_turn_system_id
+        self._specified_failure_rate=specified_failure_rate
 
 
     def on_each(self, record_best_tp):

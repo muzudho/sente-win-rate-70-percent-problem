@@ -8,6 +8,7 @@
 import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
+from library.views import PromptCatalog
 from scripts.create_kakukin_data_excel_file import Automation as CreateKakukinDataExcelFileAutomation
 
 
@@ -16,45 +17,16 @@ from scripts.create_kakukin_data_excel_file import Automation as CreateKakukinDa
 ########################################
 if __name__ == '__main__':
     try:
-        # ［将棋の引分け率］を尋ねる
-        prompt = f"""\
-What is the failure rate?
-Example: 10% is 0.1
-? """
-        specified_failure_rate = float(input(prompt))
+        # ［試行シリーズ数］を尋ねます
+        specified_trials_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
 
 
-        # ［先後の決め方］を尋ねる
-        prompt = f"""\
-(1) Frozen turn
-(2) Alternating turn
-Which one(1-2)? """
-
-        choice = input(prompt)
-        if choice == '1':
-            specified_turn_system_id = FROZEN_TURN
-        elif choice == '2':
-            specified_turn_system_id = ALTERNATING_TURN
-        else:
-            raise ValueError(f"{choice=}")
+        # ［先後の決め方］を尋ねます
+        specified_turn_system_id = PromptCatalog.which_method_do_you_use_to_determine_sente_and_gote()
 
 
-        # ［試行シリーズ数］を尋ねる
-        prompt = f"""\
-How many times do you want to try the series?
-
-(0) Try       2 series
-(1) Try      20 series
-(2) Try     200 series
-(3) Try    2000 series
-(4) Try   20000 series
-(5) Try  200000 series
-(6) Try 2000000 series
-
-Example: 3
-(0-6)? """
-        precision = int(input(prompt))
-        specified_trials_series = Converter.precision_to_trials_series(precision)
+        # ［将棋の引分け率］を尋ねます
+        specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
         automation = CreateKakukinDataExcelFileAutomation(

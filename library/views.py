@@ -657,3 +657,127 @@ class KakukinDataSheetTableCsv():
 
         # CSV
         return f"{str_p},{str_failure_rate},{str_turn_system},{str_head_step},{str_tail_step},{str_span},{str_shortest_coins},{str_upper_limit_coins},{str_trials_series},{str_series_shortest_coins},{str_series_longest_coins},{str_wins_a},{str_wins_b},{str_succucessful_series},{str_s_ful_wins_a},{str_s_ful_wins_b},{str_s_pts_wins_a},{str_s_pts_wins_b},{str_failed_series},{str_f_ful_wins_a},{str_f_ful_wins_b},{str_f_pts_wins_a},{str_f_pts_wins_b},{str_no_wins_ab}"
+
+
+class PromptCatalog():
+    """プロンプト・カタログ"""
+
+
+    @staticmethod
+    def how_many_times_do_you_want_to_try_the_series():
+        """シリーズを何回試行するか？　つまり［試行シリーズ数］を尋ねます"""
+        prompt = f"""\
+
+(0) Try       2 series
+(1) Try      20 series
+(2) Try     200 series
+(3) Try    2000 series
+(4) Try   20000 series
+(5) Try  200000 series
+(6) Try 2000000 series
+
+例：
+Example: 3
+
+シリーズを何回試行しますか？
+How many times do you want to try the series(0-6)? """
+        precision = int(input(prompt))
+        specified_trials_series = Converter.precision_to_trials_series(precision)
+        specified_abs_small_error = Converter.precision_to_small_error(precision)
+
+        return specified_trials_series, specified_abs_small_error
+
+
+    @staticmethod
+    def which_method_do_you_use_to_determine_sente_and_gote():
+        """［対局者が先手と後手のどちらの番になるかの決め方］をどちらの方法にするか？　つまり［先後の決め方］を尋ねます"""
+        prompt = f"""\
+
+先後固定制
+(1) Frozen turn
+
+先後交互制
+(2) Alternating turn
+
+［対局者が先手と後手のどちらの番になるかの決め方］をどちらの方法にしますか？　つまり［先後の決め方］はどちらにしますか？
+Which method do you use to determine sente and gote(1-2)? """
+        choice = input(prompt)
+
+        if choice == '1':
+            specified_turn_system_id = FROZEN_TURN
+
+        elif choice == '2':
+            specified_turn_system_id = ALTERNATING_TURN
+
+        else:
+            raise ValueError(f"{choice=}")
+    
+        return specified_turn_system_id
+
+
+    @staticmethod
+    def what_is_the_failure_rate():
+        """［コインを投げて表も裏も出ない確率］をいくらにするか、つまり［将棋の引分け率］を尋ねます"""
+        prompt = f"""\
+
+Example: 10% is 0.1
+
+［コインを投げて表も裏も出ない確率］はいくらにしますか？　つまり［将棋の引分け率］はいくらにしますか？
+What is the failure rate? """
+        specified_failure_rate = float(input(prompt))
+
+        return specified_failure_rate
+
+
+    @staticmethod
+    def what_is_the_probability_of_flipping_a_coin_and_getting_heads():
+        """［コインを投げて表が出る確率］はいくらにするか？　つまり［将棋の先手勝率］を尋ねます"""
+        prompt = f"""\
+
+Example: 70% is 0.7
+
+［コインを投げて表が出る確率］はいくらにしますか？　つまり［将棋の先手勝率］はいくらにしますか？
+What is the probability of flipping a coin and getting heads? """
+        specified_p = float(input(prompt))
+
+        return specified_p
+
+
+    @staticmethod
+    def how_many_goal_win_points():
+        """［目標の点数］をいくつにするか？　つまり［目標の点数］を尋ねます"""
+        prompt = f"""\
+
+Example: 6
+
+［目標の点数］はいくつにしますか？
+How many goal win points? """
+        specified_span = int(input(prompt))
+
+        return specified_span
+
+
+    @staticmethod
+    def how_many_win_points_of_tail_of_coin():
+        """［後手で勝ったときの勝ち点］をいくつにするか？　つまり［後手で勝ったときの勝ち点］を尋ねます"""
+        prompt = f"""\
+
+Example: 3
+
+［後手で勝ったときの勝ち点］はいくつにしますか？
+How many win points of tail of coin? """
+        specified_t_step = int(input(prompt))
+
+        return specified_t_step
+
+
+    @staticmethod
+    def how_many_win_points_of_head_of_coin():
+        """［先手で勝ったときの勝ち点］をいくつにするか？　つまり［先手で勝ったときの勝ち点］を尋ねます"""
+        prompt = f"""\
+
+Example: 2
+How many win points of head of coin? """
+        specified_h_step = int(input(prompt))
+
+        return specified_h_step

@@ -16,7 +16,7 @@ import datetime
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
 from library.file_paths import KakukinDataFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
-from library.views import KakukinDataSheetTableCsv
+from library.views import KakukinDataSheetTableCsv, PromptCatalog
 
 
 def automatic_deprecated(specified_failure_rate, specified_turn_system_id, specified_trials_series):
@@ -120,47 +120,16 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［将棋の先手勝率］を尋ねます
-        prompt = f"""\
-
-Example: 10% is 0.1
-What is the failure rate? """
-        specified_failure_rate = float(input(prompt))
+        # ［試行シリーズ数］を尋ねます
+        specified_trials_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
 
 
         # ［先後の決め方］を尋ねます
-        prompt = f"""\
-
-(1) Frozen turn
-(2) Alternating turn
-Which one(1-2)? """
-        choice = input(prompt)
-
-        if choice == '1':
-            specified_turn_system_id = FROZEN_TURN
-
-        elif choice == '2':
-            specified_turn_system_id = ALTERNATING_TURN
-
-        else:
-            raise ValueError(f"{choice=}")
+        specified_turn_system_id = PromptCatalog.which_method_do_you_use_to_determine_sente_and_gote()
 
 
-        # ［試行シリーズ数］を尋ねる
-        prompt = f"""\
-
-(0) Try       2 series
-(1) Try      20 series
-(2) Try     200 series
-(3) Try    2000 series
-(4) Try   20000 series
-(5) Try  200000 series
-(6) Try 2000000 series
-
-Example: 3
-How many times do you want to try the series(0-6)? """
-        precision = int(input(prompt))
-        specified_trials_series = Converter.precision_to_trials_series(precision)
+        # ［将棋の引分け率］を尋ねます
+        specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
         automatic_deprecated(

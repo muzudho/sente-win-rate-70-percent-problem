@@ -10,6 +10,7 @@ import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from library.views import PromptCatalog
 from scripts.upsert_a_csv_of_theoretical_probability_best import AutomationOne as UpsertCsvOfTheoreticalProbabilityBestOne
 
 
@@ -21,37 +22,17 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［将棋の先手勝率］を尋ねます
-        prompt = f"""\
-
-Example: 70% is 0.7
-What is the probability of flipping a coin and getting heads? """
-        specified_p = float(input(prompt))
-
-
-        # ［将棋の引分け率］を尋ねる
-        prompt = f"""\
-What is the failure rate?
-Example: 10% is 0.1
-? """
-        specified_failure_rate = float(input(prompt))
-
-
-        # ［先後の決め方］を尋ねる
-        prompt = f"""\
-(1) Frozen turn
-(2) Alternating turn
-Which one(1-2)? """
-
-        choice = input(prompt)
-        if choice == '1':
-            specified_turn_system_id = FROZEN_TURN
-        elif choice == '2':
-            specified_turn_system_id = ALTERNATING_TURN
-        else:
-            raise ValueError(f"{choice=}")
-
+        # ［先後の決め方］を尋ねます
+        specified_turn_system_id = PromptCatalog.which_method_do_you_use_to_determine_sente_and_gote()
         turn_system_name = Converter.turn_system_id_to_name(specified_turn_system_id)
+
+
+        # ［将棋の引分け率］を尋ねます
+        specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
+
+
+        # ［将棋の先手勝率］を尋ねます
+        specified_p = PromptCatalog.what_is_the_probability_of_flipping_a_coin_and_getting_heads()
 
 
         # ［仕様］

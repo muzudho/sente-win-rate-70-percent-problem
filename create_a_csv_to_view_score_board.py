@@ -13,7 +13,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import ScoreBoardFilePaths
-from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer
+from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer, PromptCatalog
 from library.score_board import search_all_score_boards
 
 
@@ -26,63 +26,28 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        # ［将棋の先手勝率］を尋ねます
-        prompt = f"""\
-
-Example: 70% is 0.7
-What is the probability of flipping a coin and getting heads? """
-        specified_p = float(input(prompt))
+        # ［先後の決め方］を尋ねます
+        specified_turn_system_id = PromptCatalog.which_method_do_you_use_to_determine_sente_and_gote()
 
 
         # ［将棋の引分け率］を尋ねます
-        prompt = f"""\
-
-Example: 10% is 0.1
-What is the failure rate? """
-        specified_failure_rate = float(input(prompt))
+        specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        # ［先後の決め方］を尋ねます
-        prompt = f"""\
-
-(1) Frozen turn
-(2) Alternating turn
-Example: Alternating turn is 2
-Which one(1-2)? """
-        choice = input(prompt)
-
-        if choice == '1':
-            specified_turn_system_id = FROZEN_TURN
-
-        elif choice == '2':
-            specified_turn_system_id = ALTERNATING_TURN
-
-        else:
-            raise ValueError(f"{choice=}")
-
-
-        # ［先手で勝ったときの勝ち点］を尋ねます
-        prompt = f"""\
-
-Example: 2
-How many win points of head of coin? """
-        specified_h_step = int(input(prompt))
-
-
-        # ［後手で勝ったときの勝ち点］を尋ねます
-        prompt = f"""\
-
-Example: 3
-How many win points of tail of coin? """
-        specified_t_step = int(input(prompt))
+        # ［将棋の先手勝率］を尋ねます
+        specified_p = PromptCatalog.what_is_the_probability_of_flipping_a_coin_and_getting_heads()
 
 
         # ［目標の点数］を尋ねます
-        prompt = f"""\
+        specified_span = PromptCatalog.hou_many_goal_win_points()
 
-Example: 6
-How many goal win points? """
-        specified_span = int(input(prompt))
+
+        # ［後手で勝ったときの勝ち点］を尋ねます
+        specified_t_step = PromptCatalog.how_many_win_points_of_tail_of_coin()
+
+
+        # ［先手で勝ったときの勝ち点］を尋ねます
+        specified_h_step = PromptCatalog.how_many_win_points_of_head_of_coin()
 
 
         # ［仕様］
