@@ -100,7 +100,7 @@ class Automation():
 
 
         # KDSファイルが無かったのならスキップする
-        if kds_table.df is None:
+        if kds_table is None:
             print(f"[{datetime.datetime.now()}] KDSファイルが無かったのならスキップする")
             return
 

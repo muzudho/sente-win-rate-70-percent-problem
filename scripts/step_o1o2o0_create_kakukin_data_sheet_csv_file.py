@@ -31,10 +31,6 @@ class Automation():
 
     def on_each_tpb_record(self, tpb_record):
 
-        # 対象外のものはスキップ　［試行シリーズ数］
-        if self._specified_trial_series != tpb_record.trial_series:
-            return
-
         # 対象外のものはスキップ　［先後の決め方］
         if self._specified_turn_system_id != Converter.turn_system_code_to_id(tpb_record.turn_system_name):
             return

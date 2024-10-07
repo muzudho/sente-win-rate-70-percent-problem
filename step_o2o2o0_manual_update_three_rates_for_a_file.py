@@ -11,6 +11,10 @@ from library.views import PromptCatalog
 from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
 
 
+# タイムアップ間隔（秒）。タイムシェアリング間隔
+INTERVAL_SECONDS_FOR_SAVE_CSV = 180
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -63,7 +67,8 @@ if __name__ == '__main__':
             
             else:
 
-                step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile()
+                step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile(
+                        seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
 
                 #
                 # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
@@ -76,7 +81,7 @@ if __name__ == '__main__':
                         # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
                         # 7 ぐらいで激重
                         #
-                        upper_limit_upper_limit_coins=1)
+                        upper_limit_upper_limit_coins=INTERVAL_SECONDS_FOR_SAVE_CSV)    # FIXME 5 ぐらいに設定してみる
 
                 # 途中の行まで処理したところでタイムアップ
                 if calculation_status == YIELD:

@@ -12,15 +12,15 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
 from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
 from scripts.step_o2o3o0_upsert_a_csv_of_theoretical_probability_best import AutomationAll as StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll
 
 
-# CSV保存間隔（秒）、またはタイムシェアリング間隔
-INTERVAL_SECONDS_FOR_SAVE_CSV = 5   # 2
+# タイムアップ間隔（秒）。タイムシェアリング間隔
+INTERVAL_SECONDS_FOR_SAVE_CSV = 5
 
 
 class AllTheoreticalProbabilityFilesOperation():
@@ -94,6 +94,7 @@ class AllTheoreticalProbabilityFilesOperation():
                 print(f"{self.stringify_log_stamp(spec=spec)}READY_EVEN....")
                 return
 
+
         #############
         # ステップ 2.1
         #############
@@ -108,14 +109,23 @@ class AllTheoreticalProbabilityFilesOperation():
                 # NOTE 内容をどれぐらい作るかは、 upper_limit_span （span の上限）を指定することにする。
                 # 数字が増えると処理が重くなる。 10 ぐらいまですぐ作れるが、 20 を超えると数秒かかるようになる
                 #
-                upper_limit_span=3 * self._depth)
+                upper_limit_span=self._depth)
 
 
         ##########################################################
         # Step o2o2o0 ［理論的確率データ］のスリー・レーツ列を更新する
         ##########################################################
 
-        step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile()
+        step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile(
+                seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
+
+
+        # upper_limit_coins が 6 ぐらいなら計算はすぐ終わる。 7 ぐらいから激重になる
+        upper_limit_upper_limit_coins = self._depth
+        if upper_limit_upper_limit_coins < 6:
+            upper_limit_upper_limit_coins = 6
+
+
         calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
                 spec=spec,
                 tp_table=tp_table,
@@ -124,7 +134,24 @@ class AllTheoreticalProbabilityFilesOperation():
                 # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
                 # 7 ぐらいで激重
                 #
-                upper_limit_upper_limit_coins=self._depth)
+                upper_limit_upper_limit_coins=upper_limit_upper_limit_coins)
+
+        # # 途中の行まで処理したところでタイムアップ
+        # if calculation_status == YIELD:
+        #     #print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
+        #     pass
+
+        # # このファイルは処理失敗した
+        # elif calculation_status == CALCULATION_FAILED:
+        #     print(f"[{datetime.datetime.now()}] このファイルは処理失敗した")
+
+        # # このファイルは処理完了した
+        # elif calculation_status == TERMINATED:
+        #     #print(f"[{datetime.datetime.now()}] このファイルは処理完了した")
+        #     pass
+        
+        # else:
+        #     raise ValueError(f"{calculation_status=}")
 
 
         ######################################################

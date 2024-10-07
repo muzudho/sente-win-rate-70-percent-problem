@@ -10,10 +10,11 @@ class Automation():
     """次に、［理論的確率データ］のスリー・レーツ列を更新する"""
 
 
-    def __init__(self):
+    def __init__(self, seconds_of_time_up):
 
         # CSV保存用タイマー
         self._start_time_for_save = None
+        self._seconds_of_time_up = seconds_of_time_up
 
         # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
         self._number_of_dirty = 0
@@ -50,7 +51,7 @@ class Automation():
 
                 # 指定間隔（秒）でループを抜ける
                 end_time_for_save = time.time()
-                if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save:
+                if self._seconds_of_time_up < end_time_for_save - self._start_time_for_save:
                     # 途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）
                     return YIELD
 
