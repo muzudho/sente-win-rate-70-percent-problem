@@ -41,7 +41,8 @@ class Automation():
         self._start_time_for_save = time.time()       # CSV保存用タイマー
 
 
-        # 該当行
+        # 該当行にチェックを入れたリスト
+        # ［理論的Ａさんの勝率］列が未設定で、かつ、［上限対局数］が、指定の上限対局数以下のとき
         list_of_enable_each_row = (tp_table.df['theoretical_a_win_rate']==OUT_OF_P) & (tp_table.df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
         # 該当行が１つでもあれば
@@ -90,7 +91,7 @@ class Automation():
             # CSVファイルへ書き出し
             csv_file_path_to_wrote = tp_table.to_csv()
 
-            print(f"{self.stringify_log_stamp(spec=spec)}SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
+            print(f"{self.stringify_log_stamp(spec=spec)}SAVE____ dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  write file to `{csv_file_path_to_wrote}` ...")
 
             # このファイルは処理完了した
             return TERMINATED

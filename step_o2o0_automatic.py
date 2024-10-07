@@ -15,6 +15,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
+from scripts.step_o2o1o0_insert_new_record_in_tp import Automation as StepO2o1o0InsertNewRecordInTp
 from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
 from scripts.step_o2o3o0_upsert_a_csv_of_theoretical_probability_best import AutomationAll as StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll
 
@@ -85,6 +86,12 @@ class AllTheoreticalProbabilityFilesOperation():
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
         if is_tp_file_created:
+            print(f"{self.stringify_log_stamp(spec=spec)}NEW_FILE")
+
+            # １件も処理してないが、ファイルを保存したいのでフラグを立てる
+            self._number_of_dirty += 1
+
+        else:
             # ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
             #
             #   FIXME このコードの書き方で動くのかわからない。もし書けないなら、１件ずつ調べていけばいいか
@@ -95,12 +102,18 @@ class AllTheoreticalProbabilityFilesOperation():
                 return
 
 
-        #############
-        # ステップ 2.1
-        #############
+        #################################################
+        # Step o2o1o0 ［理論的確率データ］に新規行を挿入する
+        #################################################
+
+        #
+        # FIXME 飛び番で挿入されてる？
+        #
+        print(f"{self.stringify_log_stamp(spec=spec)}step o2o1o0 insert new record in tp...")
+        step_o2o1o0_insert_new_record_in_tp = StepO2o1o0InsertNewRecordInTp()
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-        self.upsert_a_file(
+        temp_number_of_dirty = step_o2o1o0_insert_new_record_in_tp.upsert_a_file(
                 spec=spec,
                 tp_table=tp_table,
                 is_tp_file_created=is_tp_file_created,
@@ -112,10 +125,19 @@ class AllTheoreticalProbabilityFilesOperation():
                 upper_limit_span=self._depth)
 
 
+        # ［理論的確率データ］（TP）ファイル保存
+        if 0 < temp_number_of_dirty:
+            self._number_of_dirty += temp_number_of_dirty
+            csv_file_path_to_wrote = tp_table.to_csv()
+            print(f"{self.stringify_log_stamp(spec=spec)}SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
+            self._number_of_dirty = 0
+
+
         ##########################################################
         # Step o2o2o0 ［理論的確率データ］のスリー・レーツ列を更新する
         ##########################################################
 
+        print(f"{self.stringify_log_stamp(spec=spec)}step o2o2o0 update three-rates of tp...")
         step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile(
                 seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
 
@@ -161,121 +183,12 @@ class AllTheoreticalProbabilityFilesOperation():
         #
         # TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
         #
-        print(f"{self.stringify_log_stamp(spec=spec)}upsert csv of theoretical probability best...")
+        print(f"{self.stringify_log_stamp(spec=spec)}step o2o3o0 upsert record of tpb...")
         step_o2o3o0_upsert_csv_of_theoretical_probability_best_all = StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll()
         step_o2o3o0_upsert_csv_of_theoretical_probability_best_all.execute_all()
 
 
         # TODO ［理論的確率データ］のうち、［理論的確率ベスト・データ］に載っているものについて、試行して、その結果を［理論的確率の試行結果データ］に保存したい
-
-
-    def upsert_a_file(self, spec, tp_table, is_tp_file_created, upper_limit_span):
-        tp_table, is_new = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
-
-        turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-
-        # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        trial_series = 1
-
-
-        # ファイルが存在せず、空データフレームが新規作成されたら
-        if is_tp_file_created:
-
-            # ループカウンター
-            span = 1        # ［目標の点数］
-            t_step = 1      # ［後手で勝ったときの勝ち点］
-            h_step = 1      # ［先手で勝ったときの勝ち点］
-
-            print(f"{self.stringify_log_stamp(spec=spec)}NEW_FILE")
-
-            # １件も処理してないが、ファイルを保存したいのでフラグを立てる
-            self._number_of_dirty += 1
-
-        # ファイルが存在して、読み込まれたなら
-        else:
-            # ループカウンター
-            if len(tp_table._df) < 1:
-                span = 1        # ［目標の点数］
-                t_step = 1      # ［後手で勝ったときの勝ち点］
-                h_step = 1      # ［先手で勝ったときの勝ち点］
-
-            else:
-                # 途中まで処理が終わってるんだったら、途中から再開したいが。ループの途中から始められるか？
-
-                # FIXME ここもっと簡潔に書けそう？
-                # TODO 最後に処理された span は？
-                span = int(tp_table._df['span'].max())
-
-                # TODO 最後に処理された span のうち、最後に処理された t_step は？
-                t_step = int(tp_table._df.loc[tp_table._df['span']==span, 't_step'].max())
-
-                # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
-                h_step = int(tp_table._df.loc[(tp_table._df['span']==span) & (tp_table._df['t_step']==t_step), 'h_step'].max())
-
-                print(f"{self.stringify_log_stamp(spec=spec)}RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
-
-
-        while span < upper_limit_span + 1:
-
-            # 該当レコードのキー
-            #
-            #   <class 'pandas.core.series.Series'>
-            #   各行について True, False の論理値を付けたシリーズ
-            #
-            list_of_enable_each_row = (tp_table._df['span']==span) & (tp_table._df['t_step']==t_step) & (tp_table._df['h_step']==h_step)
-#                         print(f"""\
-# {type(list_of_enable_each_row)=}
-# {list_of_enable_each_row=}""")
-
-            # 該当データが１つも無いなら、新規追加
-            if not list_of_enable_each_row.any():
-
-                # ［シリーズ・ルール］
-                #
-                #   ［最短対局数］と［上限対局数］を求めるのに使う
-                #
-                specified_series_rule = SeriesRule.make_series_rule_base(
-                        spec=spec,
-                        span=span,
-                        t_step=t_step,
-                        h_step=h_step)
-
-                result_set_df_by_index = tp_table.get_result_set_by_index(
-                        span=span,
-                        t_step=t_step,
-                        h_step=h_step)
-
-                # レコードの挿入または更新
-                tp_table.upsert_record(
-                        result_set_df_by_index=result_set_df_by_index,
-                        welcome_record=TheoreticalProbabilityRecord(
-                                span=span,
-                                t_step=t_step,
-                                h_step=h_step,
-                                shortest_coins=specified_series_rule.shortest_coins,
-                                upper_limit_coins=specified_series_rule.upper_limit_coins,
-
-                                # NOTE スリー・レーツを求める処理は重たいので、後回しにする
-                                theoretical_a_win_rate=OUT_OF_P,
-                                theoretical_no_win_match_rate=OUT_OF_P))
-                
-                self._number_of_dirty += 1
-
-
-            # カウントアップ
-            h_step += 1
-            if t_step < h_step:
-                h_step = 1
-                t_step += 1
-                if span < t_step:
-                    t_step = 1
-                    span += 1
-
-
-        if 0 < self._number_of_dirty:
-            csv_file_path_to_wrote = tp_table.to_csv()
-            print(f"{self.stringify_log_stamp(spec=spec)}SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
-            self._number_of_dirty = 0
 
 
 ########################################
