@@ -15,6 +15,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
+from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
 from scripts.step_o2o3o0_upsert_a_csv_of_theoretical_probability_best import AutomationAll as StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll
 
 
@@ -98,7 +99,7 @@ class AllTheoreticalProbabilityFilesOperation():
         #############
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-        all_theoretical_probability_files_operation.upsert_a_file(
+        self.upsert_a_file(
                 spec=spec,
                 tp_table=tp_table,
                 is_tp_file_created=is_tp_file_created,
@@ -115,7 +116,8 @@ class AllTheoreticalProbabilityFilesOperation():
         #############
 
         # 次に、［理論的確率データ］のスリー・レーツ列を更新する
-        calculation_status = all_theoretical_probability_files_operation.update_three_rates_for_a_file(
+        step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile(depth=self._depth)
+        calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file(
                 spec=spec,
                 tp_table=tp_table,
                 is_tp_file_created=is_tp_file_created,
@@ -127,9 +129,9 @@ class AllTheoreticalProbabilityFilesOperation():
                 upper_limit_upper_limit_coins=self._depth)
 
 
-        ##########################################
-        # ステップ 2.3 ［理論的確率ベストデータ］新規作成または更新
-        ##########################################
+        ######################################################
+        # Step o2o3o0 ［理論的確率ベストデータ］新規作成または更新
+        ######################################################
 
         #
         # TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
@@ -244,87 +246,6 @@ class AllTheoreticalProbabilityFilesOperation():
             csv_file_path_to_wrote = tp_table.to_csv()
             print(f"{self.stringify_log_stamp(spec=spec)}SAVE_FILE  {self._number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
             self._number_of_dirty = 0
-
-
-    def update_three_rates_for_a_file(self, spec, tp_table, is_tp_file_created, upper_limit_upper_limit_coins):
-        """次に、スリー・レーツを更新する
-        
-        Returns
-        -------
-        calculation_status : int
-            計算状況
-        """
-
-        def on_score_board_created(score_board):
-            pass
-
-        turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-
-        # リセット
-        self._number_of_dirty = 0
-        self._start_time_for_save = time.time()       # CSV保存用タイマー
-
-
-        # 該当行
-        list_of_enable_each_row = (tp_table.df['theoretical_a_win_rate']==OUT_OF_P) & (tp_table.df['upper_limit_coins']<=upper_limit_upper_limit_coins)
-
-        # 該当行が１つでもあれば
-        if list_of_enable_each_row.any():
-
-            # FIXME 便宜的に［試行シリーズ数］は 1 固定
-            trial_series = 1
-
-            for index, row in tp_table.df[list_of_enable_each_row].iterrows():
-
-                # 指定間隔（秒）でループを抜ける
-                end_time_for_save = time.time()
-                if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save:
-                    # 計算未停止だが、譲る（タイムシェアリング）
-                    return YIELD
-
-                # FIXME int型の行から、float型が取れてしまう？
-                h_step = int(row['h_step'])
-                t_step = int(row['t_step'])
-                span = int(row['span'])
-
-                # ［シリーズ・ルール］
-                specified_series_rule = SeriesRule.make_series_rule_base(
-                        spec=spec,
-                        trial_series=trial_series,
-                        h_step=h_step,
-                        t_step=t_step,
-                        span=span)
-
-                # 確率を求める
-                #
-                #   NOTE 指数関数的に激重になっていく処理
-                #
-                three_rates, all_patterns_p = search_all_score_boards(
-                        series_rule=specified_series_rule,
-                        on_score_board_created=on_score_board_created)
-
-                # データフレーム更新
-                #
-                #   FIXME ここは .at[] では不正なスカラーアクセスになる。なんで？
-                #
-                tp_table.df.loc[index, 'theoretical_a_win_rate'] = three_rates.a_win_rate
-                tp_table.df.loc[index, 'theoretical_no_win_match_rate'] = three_rates.no_win_match_rate
-
-                self._number_of_dirty += 1
-
-
-        # 変更があれば保存
-        if 0 < self._number_of_dirty:
-            # CSVファイルへ書き出し
-            csv_file_path_to_wrote = tp_table.to_csv()
-
-            print(f"{self.stringify_log_stamp(spec=spec)}SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
-        
-        else:
-            print(f"{self.stringify_log_stamp(spec=spec)}UNCHANGE dirty={self._number_of_dirty}")
-
-
-        return CONTINUE
 
 
 ########################################
