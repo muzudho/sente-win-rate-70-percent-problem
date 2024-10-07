@@ -3,7 +3,6 @@ import datetime
 import time
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
-from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 
 
@@ -46,7 +45,7 @@ class AutomationOne():
                     p=self._spec.p)
 
             
-            # 空テーブルを想定。
+            # 空テーブルのケースにも対応。
             #
             #   ただし、TP テーブルは先にインデックス列を埋めた仮表を作るから、テーブルが空ということはないはず
             #
@@ -55,14 +54,16 @@ class AutomationOne():
 
             # ［理論的確率データ］表にある span, t_step, h_step に一致する［理論的確率ベスト］表のレコードがあれば、それを取得
             else:
-                index = tpb_result_set_by_index_df.index[0]  # インデックスを取得
+                index = tpb_result_set_by_index_df.index[0]  # インデックスを取得。例： ('alternating', 0.1, 0.7)
 
                 # ［理論的確率ベスト］表から、［理論的なＡさんの勝率］と、［理論的なコインを投げて表も裏も出ない確率］を抽出
-                old_theoretical_a_win_rate = tpb_result_set_by_index_df.at[index, 'theoretical_a_win_rate']
-                old_theoretical_no_win_match_rate = tpb_result_set_by_index_df.at[index, 'theoretical_no_win_match_rate']
+                old_theoretical_a_win_rate = tpb_result_set_by_index_df.at[index, 'theoretical_a_win_rate']                 # 例： 0.5232622375064023
+                old_theoretical_no_win_match_rate = tpb_result_set_by_index_df.at[index, 'theoretical_no_win_match_rate']   # 例： 0.015976
+
+                # ［理論的確率データ］表のレコードの［Ａさんの勝率の互角からの誤差］
+                welcome_theoretical_a_win_error = tp_record.theoretical_a_win_rate - EVEN           # 例： 0.51
 
                 # 誤差が縮まれば更新
-                welcome_theoretical_a_win_error = tp_record.theoretical_a_win_rate - EVEN
                 if abs(welcome_theoretical_a_win_error) < abs(old_theoretical_a_win_rate - EVEN):
                     shall_upsert_record = True
 

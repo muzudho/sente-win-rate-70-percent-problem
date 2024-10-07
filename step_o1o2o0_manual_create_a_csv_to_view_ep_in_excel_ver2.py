@@ -34,6 +34,9 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
+        # FIXME ［理論値の確率ベスト］表は先に更新されている必要があります
+
+
         step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(
                 specified_trial_series=specified_trial_series,
                 specified_turn_system_id=specified_turn_system_id,

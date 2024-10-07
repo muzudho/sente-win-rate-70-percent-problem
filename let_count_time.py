@@ -35,6 +35,7 @@ if __name__ == '__main__':
                 # ［表勝ち１つの点数］
                 for h_step in range(1, t_step):
 
+                    # ［先後固定制］
                     # 仕様
                     spec_ft = Specification(
                             p=PROBABILITY,
@@ -48,6 +49,7 @@ if __name__ == '__main__':
                             t_step=t_step,
                             span=span)
 
+                    # ［先後交互制］
                     # 仕様
                     spec_at = Specification(
                             p=PROBABILITY,

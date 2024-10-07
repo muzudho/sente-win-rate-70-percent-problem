@@ -15,7 +15,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
-from scripts.upsert_a_csv_of_theoretical_probability_best import AutomationAll as UpsertCsvOfTheoreticalProbabilityBestAll
+from scripts.step_o2o3o0_upsert_a_csv_of_theoretical_probability_best import AutomationAll as StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll
 
 
 # CSV保存間隔（秒）、またはタイムシェアリング間隔
@@ -93,6 +93,9 @@ class AllTheoreticalProbabilityFilesOperation():
                 print(f"{self.stringify_log_stamp(spec=spec)}READY_EVEN....")
                 return
 
+        #############
+        # ステップ 2.1
+        #############
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
         all_theoretical_probability_files_operation.upsert_a_file(
@@ -107,6 +110,10 @@ class AllTheoreticalProbabilityFilesOperation():
                 upper_limit_span=3 * self._depth)
 
 
+        #############
+        # ステップ 2.2
+        #############
+
         # 次に、［理論的確率データ］のスリー・レーツ列を更新する
         calculation_status = all_theoretical_probability_files_operation.update_three_rates_for_a_file(
                 spec=spec,
@@ -120,10 +127,16 @@ class AllTheoreticalProbabilityFilesOperation():
                 upper_limit_upper_limit_coins=self._depth)
 
 
-        # ［理論的確率ベストデータ］新規作成または更新
+        ##########################################
+        # ステップ 2.3 ［理論的確率ベストデータ］新規作成または更新
+        ##########################################
+
+        #
+        # TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
+        #
         print(f"{self.stringify_log_stamp(spec=spec)}upsert csv of theoretical probability best...")
-        upsert_csv_of_theoretical_probability_best_all = UpsertCsvOfTheoreticalProbabilityBestAll()
-        upsert_csv_of_theoretical_probability_best_all.execute_all()
+        step_o2o3o0_upsert_csv_of_theoretical_probability_best_all = StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll()
+        step_o2o3o0_upsert_csv_of_theoretical_probability_best_all.execute_all()
 
 
         # TODO ［理論的確率データ］のうち、［理論的確率ベスト・データ］に載っているものについて、試行して、その結果を［理論的確率の試行結果データ］に保存したい

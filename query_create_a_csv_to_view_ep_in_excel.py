@@ -13,7 +13,7 @@
 import traceback
 import datetime
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, try_series
 from library.file_paths import KakukinDataFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import KakukinDataSheetTableCsv, PromptCatalog
@@ -82,7 +82,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
 
 
         # シミュレーションします
-        large_series_trial_summary = simulate_series(
+        large_series_trial_summary = try_series(
                 spec=spec,
                 series_rule=series_rule,
                 specified_trial_series=specified_trial_series)

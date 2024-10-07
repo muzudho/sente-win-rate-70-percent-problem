@@ -104,9 +104,9 @@ def make_file_subname(trial_series=None, turn_system_id=None, failure_rate=None,
     return f'_{subname}'
 
 
-#####
-# KDF
-#####
+###########
+# MARK: KDF
+###########
 
 class KakukinDataFilePaths():
     """［かくきんデータ］関連のファイルパス一覧"""
@@ -126,9 +126,9 @@ class KakukinDataFilePaths():
         return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
 
 
-#####
-# TPB
-#####
+###########
+# MARK: TPB
+###########
 
 class TheoreticalProbabilityBestFilePaths():
     """理論的確率ベスト・データのファイルパス一覧"""
@@ -138,9 +138,9 @@ class TheoreticalProbabilityBestFilePaths():
         return f'data/thoretical_probability_best.csv'
 
 
-####
-# TP
-####
+##########
+# MARK: TP
+##########
 
 class TheoreticalProbabilityFilePaths():
     """理論的確率データのファイルパス一覧"""
@@ -151,9 +151,9 @@ class TheoreticalProbabilityFilePaths():
         return f'temp/theoretical_probability/TP{subname}.csv'
 
 
-########
-# Step.1
-########
+################
+# MARK: StepO1o0
+################
 
 class StepO1o0AutomaticFilePaths():
     """自動スクリプト１号のファイルパス一覧"""
@@ -162,9 +162,9 @@ class StepO1o0AutomaticFilePaths():
         return 'logs/step_o1o0_automatic.log'
 
 
-######
-# TPTR
-######
+############
+# MARK: TPTR
+############
 
 class TheoreticalProbabilityTrialResultsFilePaths():
     """理論的確率の試行結果データのファイルパス一覧"""
@@ -175,9 +175,9 @@ class TheoreticalProbabilityTrialResultsFilePaths():
         return f'temp/theoretical_probability_trial_results/TPTR{subname}.csv'
 
 
-######
-# EPDT
-######
+############
+# MARK: EPDT
+############
 
 class EmpiricalProbabilityDuringTrialsFilePaths():
     """試行中の経験的確率データのファイルパス一覧"""
@@ -200,9 +200,9 @@ class EmpiricalProbabilityDuringTrialsFilePaths():
         return f'./temp/empirical_probability_during_trials/EPDT{subname}.csv'
 
 
-####
-# SB
-####
+##########
+# MARK: SB
+##########
 
 class ScoreBoardFilePaths():
     """スコアボードのファイルパス一覧"""
@@ -212,9 +212,9 @@ class ScoreBoardFilePaths():
         return f'output/score_board_view{subname}.csv'
 
 
-#####
-# SLS
-#####
+###########
+# MARK: SLS
+###########
 
 class SimulationLargeSeriesFilePaths():
     """大量のシリーズのシミュレーションのファイルパス一覧"""

@@ -3,7 +3,7 @@
 #
 import datetime
 
-from library import OUT_OF_P, Converter, Specification, SeriesRule, simulate_series
+from library import OUT_OF_P, Converter, Specification, SeriesRule, try_series
 from library.file_paths import KakukinDataFilePaths
 from library.database import TheoreticalProbabilityBestTable
 from library.views import KakukinDataSheetTableCsv
@@ -29,44 +29,43 @@ class Automation():
         self._specified_failure_rate=specified_failure_rate
 
 
-    def on_each_tpb_record(self, tp_record):
+    def on_each_tpb_record(self, tpb_record):
 
         # 対象外のものはスキップ　［試行シリーズ数］
-        if self._specified_trial_series != tp_record.trial_series:
+        if self._specified_trial_series != tpb_record.trial_series:
             return
 
         # 対象外のものはスキップ　［先後の決め方］
-        if self._specified_turn_system_id != Converter.turn_system_code_to_id(tp_record.turn_system_name):
+        if self._specified_turn_system_id != Converter.turn_system_code_to_id(tpb_record.turn_system_name):
             return
 
         # 対象外のものはスキップ　［将棋の引分け率］
-        if self._specified_failure_rate != tp_record.failure_rate:
+        if self._specified_failure_rate != tpb_record.failure_rate:
             return
 
-        if tp_record.theoretical_a_win_rate == OUT_OF_P:
-            print(f"[trial_series={self._specified_trial_series}  failure_rate={tp_record.failure_rate}  p={tp_record.p}] ベスト値が設定されていません。スキップします")
+        if tpb_record.theoretical_a_win_rate == OUT_OF_P:
+            print(f"[trial_series={self._specified_trial_series}  failure_rate={tpb_record.failure_rate}  p={tpb_record.p}] ベスト値が設定されていません。スキップします")
             return
 
 
         # 仕様
         spec = Specification(
-                p=tp_record.p,
-                failure_rate=tp_record.failure_rate,
+                p=tpb_record.p,
+                failure_rate=self._specified_failure_rate,
                 turn_system_id=self._specified_turn_system_id)
 
 
-        # ［シリーズ・ルール］
-        # TODO これは理論値にしたい
+        # 理論値による［シリーズ・ルール］
         theoretical_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
                 trial_series=self._specified_trial_series,
-                h_step=tp_record.h_step,  # TODO これは理論値にしたい
-                t_step=tp_record.t_step,  # TODO これは理論値にしたい
-                span=tp_record.span)      # TODO これは理論値にしたい
+                h_step=tpb_record.h_step,
+                t_step=tpb_record.t_step,
+                span=tpb_record.span)
 
 
-        # シミュレーションします
-        large_series_trial_summary = simulate_series(
+        # シリーズを試行します
+        large_series_trial_summary = try_series(
                 spec=spec,
                 series_rule=theoretical_series_rule,
                 specified_trial_series=self._specified_trial_series)
@@ -118,7 +117,7 @@ class Automation():
             f.write(f"{header_csv}\n")
 
 
-        # ベスト・テーブルを読込
+        # ［理論的確率ベスト］表を読込。無ければナン
         tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
 
         # ファイルが存在しなければスキップ

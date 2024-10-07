@@ -7,13 +7,13 @@
 
 import traceback
 
-from library import FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, simulate_series
+from library import FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, try_series
 from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import stringify_simulation_log, PromptCatalog
 
 
-def simulate_series_rule(spec, trial_series, h_step, t_step, span, presentable, comment):
+def try_series_rule(spec, trial_series, h_step, t_step, span, presentable, comment):
     """［シリーズ・ルール］をシミュレーションします"""
 
     # ［シリーズ・ルール］。任意に指定します
@@ -31,7 +31,7 @@ def simulate_series_rule(spec, trial_series, h_step, t_step, span, presentable, 
 
 
     # シミュレーションします
-    large_series_trial_summary = simulate_series(
+    large_series_trial_summary = try_series(
             spec=spec,
             series_rule=series_rule,
             specified_trial_series=trial_series)
@@ -114,7 +114,7 @@ if __name__ == '__main__':
                     failure_rate=failure_rate,
                     turn_system_id=specified_turn_system_id)
 
-            simulate_series_rule(
+            try_series_rule(
                     spec=spec,
                     trial_series=specified_trial_series,
                     h_step=h_step,

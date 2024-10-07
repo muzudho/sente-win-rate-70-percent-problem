@@ -2559,7 +2559,7 @@ class ThreeRates():
         return is_almost_even(self._a_win_rate)
 
 
-def simulate_series(spec, series_rule, specified_trial_series):
+def try_series(spec, series_rule, specified_trial_series):
     """シリーズをシミュレーションします
     
     Returns
