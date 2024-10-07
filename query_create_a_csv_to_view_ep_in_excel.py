@@ -26,9 +26,9 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
 
     # 仕様
     spec = Specification(
-            p=None,
+            turn_system_id=specified_turn_system_id,
             failure_rate=specified_failure_rate,
-            turn_system_id=specified_turn_system_id)
+            p=None)
 
 
     # ヘッダー出力（ファイルは上書きします）
@@ -67,9 +67,9 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
 
         # 仕様
         spec = Specification(
-                p=record.p,
+                turn_system_id=specified_turn_system_id,
                 failure_rate=record.failure_rate,
-                turn_system_id=specified_turn_system_id)
+                p=record.p)
 
 
         # ［シリーズ・ルール］

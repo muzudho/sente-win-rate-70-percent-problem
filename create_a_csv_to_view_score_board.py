@@ -52,9 +52,9 @@ if __name__ == '__main__':
 
         # ［仕様］
         spec = Specification(
-                p=specified_p,
+                turn_system_id=specified_turn_system_id,
                 failure_rate=specified_failure_rate,
-                turn_system_id=specified_turn_system_id)
+                p=specified_p)
 
         # FIXME 便宜的に［試行シリーズ数］は 1 固定
         specified_trial_series = 1

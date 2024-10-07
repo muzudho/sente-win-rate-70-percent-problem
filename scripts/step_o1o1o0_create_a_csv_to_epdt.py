@@ -92,9 +92,9 @@ class Automation():
 
                 # ［仕様］
                 spec = Specification(
-                        p=p,
+                        turn_system_id=self._specified_turn_system_id,
                         failure_rate=self._specified_failure_rate,
-                        turn_system_id=self._specified_turn_system_id)
+                        p=p)
                 
                 self._ep_table.insert_record(
                         welcome_record=EmpiricalProbabilityDuringTrialsRecord(
@@ -133,9 +133,9 @@ class Automation():
 
         # 仕様
         spec = Specification(
-                p=record.p,
+                turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
-                turn_system_id=self._specified_turn_system_id)
+                p=record.p)
 
         # ダミー値。ベスト値が見つかっていないときは、この値は使えない値です
         best_series_rule_if_it_exists = SeriesRule.make_series_rule_base(

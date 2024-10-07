@@ -50,9 +50,9 @@ class Automation():
 
         # 仕様
         spec = Specification(
-                p=tpb_record.p,
+                turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
-                turn_system_id=self._specified_turn_system_id)
+                p=tpb_record.p)
 
 
         # 理論値による［シリーズ・ルール］
@@ -99,9 +99,9 @@ class Automation():
 
         # 仕様
         spec = Specification(
-                p=None,
+                turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
-                turn_system_id=self._specified_turn_system_id)
+                p=None)
 
 
         # ヘッダー出力（ファイルは上書きします）

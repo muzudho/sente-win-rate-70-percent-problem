@@ -71,9 +71,9 @@ class AllTheoreticalProbabilityFilesOperation():
 
                     # 仕様
                     spec = Specification(
-                            p=p,
+                            turn_system_id=turn_system_id,
                             failure_rate=failure_rate,
-                            turn_system_id=turn_system_id)
+                            p=p)
                     
                     on_each_spec(spec=spec)
 
@@ -111,16 +111,14 @@ class AllTheoreticalProbabilityFilesOperation():
                 upper_limit_span=3 * self._depth)
 
 
-        #############
-        # ステップ 2.2
-        #############
+        ##########################################################
+        # Step o2o2o0 ［理論的確率データ］のスリー・レーツ列を更新する
+        ##########################################################
 
-        # 次に、［理論的確率データ］のスリー・レーツ列を更新する
-        step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile(depth=self._depth)
+        step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile()
         calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file(
                 spec=spec,
                 tp_table=tp_table,
-                is_tp_file_created=is_tp_file_created,
 
                 #
                 # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる

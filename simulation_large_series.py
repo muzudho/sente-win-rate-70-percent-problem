@@ -109,9 +109,9 @@ if __name__ == '__main__':
 
             # 仕様
             spec = Specification(
-                    p=p,
+                    turn_system_id=specified_turn_system_id,
                     failure_rate=failure_rate,
-                    turn_system_id=specified_turn_system_id)
+                    p=p)
 
             try_series_rule(
                     spec=spec,

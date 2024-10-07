@@ -166,9 +166,9 @@ if __name__ == '__main__':
 
             # 仕様
             spec = Specification(
-                    p=epdt_record.p,
+                    turn_system_id=specified_turn_system_id,
                     failure_rate=specified_failure_rate,
-                    turn_system_id=specified_turn_system_id)
+                    p=epdt_record.p)
 
             show_log_of_series_rule(
                     spec=spec,

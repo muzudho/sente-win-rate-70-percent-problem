@@ -212,9 +212,9 @@ class AutomationAll():
 
                     # 仕様
                     spec = Specification(
-                            p=specified_p,
+                            turn_system_id=specified_turn_system_id,
                             failure_rate=specified_failure_rate,
-                            turn_system_id=specified_turn_system_id)
+                            p=specified_p)
 
                     is_dirty_temp = automation_one.execute_a_spec(spec=spec)
 

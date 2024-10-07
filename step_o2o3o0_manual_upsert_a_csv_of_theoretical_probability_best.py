@@ -54,9 +54,9 @@ if __name__ == '__main__':
 
             # ［仕様］
             spec = Specification(
-                    p=specified_p,
+                    turn_system_id=specified_turn_system_id,
                     failure_rate=specified_failure_rate,
-                    turn_system_id=specified_turn_system_id)
+                    p=specified_p)
 
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？

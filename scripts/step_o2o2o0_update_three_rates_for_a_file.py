@@ -10,7 +10,7 @@ class Automation():
     """次に、［理論的確率データ］のスリー・レーツ列を更新する"""
 
 
-    def __init__(self, depth):
+    def __init__(self):
 
         # CSV保存用タイマー
         self._start_time_for_save = None
@@ -18,10 +18,8 @@ class Automation():
         # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
         self._number_of_dirty = 0
 
-        self._depth = depth
 
-
-    def update_three_rates_for_a_file(self, spec, tp_table, is_tp_file_created, upper_limit_upper_limit_coins):
+    def update_three_rates_for_a_file(self, spec, tp_table, upper_limit_upper_limit_coins):
         """次に、スリー・レーツを更新する
         
         Returns
@@ -101,5 +99,5 @@ class Automation():
     def stringify_log_stamp(self, spec):
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
         return f"""\
-[{datetime.datetime.now()}][depth={self._depth}  turn_system_name={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] \
+[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] \
 """

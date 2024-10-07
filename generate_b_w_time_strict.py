@@ -82,9 +82,9 @@ if __name__ == '__main__':
 
                         # 仕様
                         spec = Specification(
-                                p=p,
+                                turn_system_id=TURN_SYSTEM,
                                 failure_rate=failure_rate,
-                                turn_system_id=TURN_SYSTEM)
+                                p=p)
 
                         # ［シリーズ・ルール］
                         # TODO データをちゃんと入れたい
@@ -118,9 +118,9 @@ if __name__ == '__main__':
 
                 # 仕様
                 spec = Specification(
-                        p=p,
+                        turn_system_id=FROZEN_TURN,
                         failure_rate=FAILURE_RATE,
-                        turn_system_id=FROZEN_TURN)
+                        p=p)
 
                 # ［シリーズ・ルール］
                 series_rule = SeriesRule.make_series_rule_auto_span(
