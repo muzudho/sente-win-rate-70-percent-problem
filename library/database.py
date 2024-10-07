@@ -194,8 +194,8 @@ class KakukinDataSheetTable():
 
 
     @classmethod
-    def new_empty_table(clazz, spec):
-        df_tp = pd.DataFrame.from_dict({
+    def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
+        kds_df = pd.DataFrame.from_dict({
                 'p':[],
                 'span':[],
                 't_step':[],
@@ -219,7 +219,7 @@ class KakukinDataSheetTable():
                 'no_wins_ab':[]}).astype(clazz._dtype)
 
         return KakukinDataSheetTable(
-                df=df,
+                df=kds_df,
                 trial_series=trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate)

@@ -6,7 +6,6 @@ import datetime
 from library import ALICE, BOB, SUCCESSFUL, FAILED, HEAD, TAIL, OUT_OF_P, Converter, Specification, SeriesRule, try_series
 from library.file_paths import KakukinDataFilePaths
 from library.database import TheoreticalProbabilityBestTable, KakukinDataSheetRecord, KakukinDataSheetTable
-from library.views import KakukinDataSheetTableCsv
 
 
 class Automation():
@@ -27,6 +26,7 @@ class Automation():
         self._specified_trial_series=specified_trial_series
         self._specified_turn_system_id=specified_turn_system_id
         self._specified_failure_rate=specified_failure_rate
+        self._kds_table = None
 
 
     def on_each_tpb_record(self, tpb_record):
@@ -74,16 +74,8 @@ class Automation():
         f_wins_b = S.wins(challenged=FAILED, winner=BOB)
 
 
-        # テーブル作成
-        kds_table, is_new = KakukinDataSheetTable.read_csv(
-                trial_series=self._specified_trial_series,
-                turn_system_id=self._specified_turn_system_id,
-                failure_rate=self._specified_failure_rate,
-                new_if_it_no_exists=True)
-
-
-        # TODO データフレーム更新。レコード挿入
-        kds_table.insert_record(
+        # データフレーム更新。レコード挿入
+        self._kds_table.insert_record(
                 welcome_record=KakukinDataSheetRecord(
                         p=spec.p,                                                                   # ［将棋の先手勝率］ p （Probability）
                         span=theoretical_series_rule.step_table.span,                               # ［シリーズ勝利条件］
@@ -108,36 +100,9 @@ class Automation():
                         no_wins_ab=S.no_wins))                                                      # ［勝敗付かずシリーズ数］
 
 
-        # # CSV作成
-        # csv = KakukinDataSheetTableCsv.stringify_csv_of_body(
-        #         spec=spec,
-        #         theoretical_series_rule=theoretical_series_rule,
-        #         presentable='',
-        #         comment='',
-        #         large_series_trial_summary=large_series_trial_summary)
-
-        #print(csv) # 表示
-
-        # CSVファイル出力
-        #
-        #   TODO pandas にすれば、ここでファイル出力は不要（タイムアップ除く）
-        #
-        csv_file_path = kds_table.to_csv()
-        # csv_file_path = KakukinDataFilePaths.as_sheet_csv(
-        #         failure_rate=spec.failure_rate,
-        #         turn_system_id=spec.turn_system_id,
-        #         trial_series=self._specified_trial_series)
-        print(f"[{datetime.datetime.now()}] step_o1o2o0_create_kakukin_data_sheet_csv_file. write view to `{csv_file_path}` file ...")
-        # with open(csv_file_path, 'a', encoding='utf8') as f:
-        #     f.write(f"{csv}\n")    # ファイルへ出力
-
-
     # automatic
     def execute(self):
-        """実行
-
-        TODO pandas で書き直せないか？
-        """
+        """実行"""
 
 
         # ［理論的確率ベスト］表を読込。無ければナン
@@ -148,31 +113,18 @@ class Automation():
             return
 
 
-        # 列定義
-        header_csv = KakukinDataSheetTableCsv.stringify_header()
-        #print(header_csv) # 表示
-
-
-        # 仕様
-        spec = Specification(
+        # ［かくきんデータ・シート］テーブル作成
+        self._kds_table, is_new = KakukinDataSheetTable.read_csv(
+                trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
-                p=None)
+                new_if_it_no_exists=True)
 
 
-        # ヘッダー出力（ファイルは上書きします）
-        #
-        #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
-        #   TODO pandas にすれば、CSV出力１回で済むはず
-        #
-        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
-                failure_rate=spec.failure_rate,
-                turn_system_id=spec.turn_system_id,
-                trial_series=self._specified_trial_series)
-        with open(csv_file_path, 'w', encoding='utf8') as f:
-            f.write(f"{header_csv}\n")
-
-
-        # データ部各行出力
-        #   TODO pandas にすれば、CSV出力１回で済むはず
+        # ［かくきんデータ・シート］のデータ行出力
         tpb_table.for_each(on_each=self.on_each_tpb_record)
+
+
+        # ［かくきんデータ・シート］のCSVファイル出力
+        csv_file_path = self._kds_table.to_csv()
+        print(f"[{datetime.datetime.now()}] step_o1o2o0_create_kakukin_data_sheet_csv_file. write view to `{csv_file_path}` file ...")
