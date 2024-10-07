@@ -74,8 +74,12 @@ class Automation():
         f_wins_b = S.wins(challenged=FAILED, winner=BOB)
 
 
-        # データフレーム更新。レコード挿入
-        self._kds_table.insert_record(
+        result_set_df_by_index = self._kds_table.get_result_set_by_index(
+                p=spec.p)
+
+        # データフレーム更新。レコードの挿入または更新
+        self._kds_table.upsert_record(
+                result_set_df_by_index=result_set_df_by_index,
                 welcome_record=KakukinDataSheetRecord(
                         p=spec.p,                                                                   # ［将棋の先手勝率］ p （Probability）
                         span=theoretical_series_rule.step_table.span,                               # ［シリーズ勝利条件］

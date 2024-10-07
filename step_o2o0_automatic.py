@@ -236,12 +236,18 @@ class AllTheoreticalProbabilityFilesOperation():
                 #
                 specified_series_rule = SeriesRule.make_series_rule_base(
                         spec=spec,
-                        h_step=h_step,
+                        span=span,
                         t_step=t_step,
-                        span=span)
+                        h_step=h_step)
 
-                # 新規レコード追加
-                tp_table.insert_record(
+                result_set_df_by_index = tp_table.get_result_set_by_index(
+                        span=span,
+                        t_step=t_step,
+                        h_step=h_step)
+
+                # レコードの挿入または更新
+                tp_table.upsert_record(
+                        result_set_df_by_index=result_set_df_by_index,
                         welcome_record=TheoreticalProbabilityRecord(
                                 span=span,
                                 t_step=t_step,

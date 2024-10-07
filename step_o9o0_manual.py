@@ -1,12 +1,13 @@
 #
-# python step_o9o0_automatic.py
+# python step_o9o0_manual.py
 #
 #
 
 import traceback
 import datetime
 
-from library import Converter, PromptCatalog
+from library import Converter
+from library.views import PromptCatalog
 from scripts.step_o9o0_create_kakukin_data_excel_file import Automation as StepO9o0CreateKakukinDataExcelFileAutomation
 
 

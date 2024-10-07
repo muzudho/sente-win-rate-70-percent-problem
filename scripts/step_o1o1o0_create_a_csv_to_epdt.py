@@ -96,7 +96,12 @@ class Automation():
                         failure_rate=self._specified_failure_rate,
                         p=p)
                 
-                self._ep_table.insert_record(
+                result_set_df_by_index = self._ep_table.get_result_set_by_index(
+                        p=spec.p)
+
+                # レコードの挿入または更新
+                self._ep_table.upsert_record(
+                        result_set_df_by_index=result_set_df_by_index,
                         welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                                 p=spec.p,
                                 best_p=0,
