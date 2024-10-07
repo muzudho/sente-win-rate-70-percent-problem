@@ -38,21 +38,20 @@ class Automation():
 
     def on_each_kds_record(self, kds_record):
 
-        self._ws[f'A{self._row_number}'].value = kds_record.p
-
+        # ［仕様］
+        self._ws[f'A{self._row_number}'].value = Converter.turn_system_id_to_name(self._specified_turn_system_id)
         self._ws[f'B{self._row_number}'].value = self._specified_failure_rate
-        self._ws[f'C{self._row_number}'].value = Converter.turn_system_id_to_name(self._specified_turn_system_id)
+        self._ws[f'C{self._row_number}'].value = kds_record.p
 
-        # TODO ［シリーズ・ルール］は、理論値が選ばれるように仕様変更したい
-        self._ws[f'D{self._row_number}'].value = kds_record.h_step
+        # ［シリーズ・ルール］
+        self._ws[f'D{self._row_number}'].value = kds_record.span
         self._ws[f'E{self._row_number}'].value = kds_record.t_step
-        self._ws[f'F{self._row_number}'].value = kds_record.span
+        self._ws[f'F{self._row_number}'].value = kds_record.h_step
         self._ws[f'G{self._row_number}'].value = kds_record.shortest_coins
         self._ws[f'H{self._row_number}'].value = kds_record.upper_limit_coins
 
+        # ［シミュレーション結果］
         self._ws[f'I{self._row_number}'].value = self._specified_trial_series
-        
-        # TODO ［シミュレーション結果］は、理論値の［シリーズ・ルール］をもとに、計測し直したい
         self._ws[f'J{self._row_number}'].value = kds_record.series_shortest_coins   
         self._ws[f'K{self._row_number}'].value = kds_record.series_longest_coins    
         self._ws[f'L{self._row_number}'].value = kds_record.wins_a

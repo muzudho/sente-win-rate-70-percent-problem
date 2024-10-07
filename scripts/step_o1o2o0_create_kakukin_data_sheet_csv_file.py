@@ -89,9 +89,9 @@ class Automation():
                         h_step=theoretical_series_rule.step_table.get_step_by(face_of_coin=HEAD),   # ［先手で勝ったときの勝ち点］
                         shortest_coins=theoretical_series_rule.shortest_coins,                      # ［最短対局数］
                         upper_limit_coins=theoretical_series_rule.upper_limit_coins,                # ［上限対局数］
+                        trial_series=self._specified_trial_series,                                  # ［シリーズ試行回数］
                         series_shortest_coins=S.series_shortest_coins,                              # ［シリーズ最短局数］
                         series_longest_coins=S.series_longest_coins,                                # ［シリーズ最長局数］
-                        trial_series=self._specified_trial_series,                                  # ［シリーズ試行回数］
                         wins_a=s_wins_a + f_wins_a,                                                 # ［Ａさんの勝ちシリーズ数］
                         wins_b=s_wins_b + f_wins_b,                                                 # ［Ｂさんの勝ちシリーズ数］
                         succucessful_series=S.successful_series,                                    # ［引分けが起こらなかったシリーズ数］
