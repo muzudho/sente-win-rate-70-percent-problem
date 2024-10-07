@@ -415,11 +415,10 @@ class KakukinDataSheetTable():
         """
 
         # CSVファイルパス
-        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
-                p=self._spec.p,
-                failure_rate=self._spec.failure_rate,
-                turn_system_id=self._spec.turn_system_id)
-
+        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
+                trial_series=self._trial_series,
+                turn_system_id=self._turn_system_id,
+                failure_rate=self._failure_rate)
 
         self._df.to_csv(csv_file_path,
                 columns=['p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'],

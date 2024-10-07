@@ -604,6 +604,8 @@ class KakukinDataSheetTableCsv():
     def stringify_csv_of_body(spec, theoretical_series_rule, presentable, comment, large_series_trial_summary):
         """データ部を文字列化
 
+        TODO 廃止方針
+
         Parameters
         ----------
         spec : Specification
@@ -629,8 +631,8 @@ class KakukinDataSheetTableCsv():
 
         # ［大会のルール設定］
         # TODO ここは理論値を入れたい
-        str_head_step = f"{theoretical_series_rule.step_table.get_step_by(face_of_coin=HEAD)}"   # ［先手で勝ったときの勝ち点］
-        str_tail_step = f"{theoretical_series_rule.step_table.get_step_by(face_of_coin=TAIL)}"   # ［後手で勝ったときの勝ち点］
+        str_head_step = f"{theoretical_series_rule.step_table.get_step_by(face_of_coin=HEAD)}"  # ［先手で勝ったときの勝ち点］
+        str_tail_step = f"{theoretical_series_rule.step_table.get_step_by(face_of_coin=TAIL)}"  # ［後手で勝ったときの勝ち点］
         str_span = f"{theoretical_series_rule.step_table.span}"                                 # ［シリーズ勝利条件］
         str_shortest_coins = f"{theoretical_series_rule.shortest_coins}"                        # ［最短対局数］
         str_upper_limit_coins = f"{theoretical_series_rule.upper_limit_coins}"                  # ［上限対局数］
