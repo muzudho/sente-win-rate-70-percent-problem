@@ -17,13 +17,14 @@ CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 ###########
 
 class KakukinDataSheetRecord():
+    """［かくきんデータ・シート］レコード"""
 
 
-    def __init__(self, p, span, tail_step, head_step, shortest_coins, upper_limit_coins, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+    def __init__(self, p, span, t_step, h_step, shortest_coins, upper_limit_coins, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
         self._p = p
         self._span = span
-        self._tail_step = tail_step
-        self._head_step = head_step
+        self._tail_step = t_step
+        self._head_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
         self._series_shortest_coins = series_shortest_coins
@@ -54,12 +55,12 @@ class KakukinDataSheetRecord():
 
 
     @property
-    def tail_step(self):
+    def t_step(self):
         return self._tail_step
 
 
     @property
-    def head_step(self):
+    def h_step(self):
         return self._head_step
 
 
@@ -149,13 +150,14 @@ class KakukinDataSheetRecord():
 
 
 class KakukinDataSheetTable():
+    """［かくきんデータ・シート］テーブル"""
 
 
     _dtype = {
         'p':'float64',
-        'head_step':'int64',
-        'tail_step':'int64',
         'span':'int64',
+        't_step':'int64',
+        'h_step':'int64',
         'shortest_coins':'int64',
         'upper_limit_coins':'int64',
         'series_shortest_coins':'int64',
@@ -175,7 +177,7 @@ class KakukinDataSheetTable():
         'no_wins_ab':'float64'}
 
 
-    def __init__(self, df):
+    def __init__(self, df, trial_series, turn_system_id, failure_rate):
         """初期化
 
         Parameters
@@ -184,10 +186,47 @@ class KakukinDataSheetTable():
             データフレーム
         """
         self._df = df
+        self._trial_series = trial_series
+        self._turn_system_id = turn_system_id
+        self._failure_rate = failure_rate
+
+        self.set_index()
 
 
     @classmethod
-    def read_csv(clazz, trial_series, turn_system_id, failure_rate):
+    def new_empty_table(clazz, spec):
+        df_tp = pd.DataFrame.from_dict({
+                'p':[],
+                'span':[],
+                't_step':[],
+                'h_step':[],
+                'shortest_coins':[],
+                'upper_limit_coins':[],
+                'series_shortest_coins':[],
+                'series_longest_coins':[],
+                'wins_a':[],
+                'wins_b':[],
+                'succucessful_series':[],
+                's_ful_wins_a':[],
+                's_ful_wins_b':[],
+                's_pts_wins_a':[],
+                's_pts_wins_b':[],
+                'failed_series':[],
+                'f_ful_wins_a':[],
+                'f_ful_wins_b':[],
+                'f_pts_wins_a':[],
+                'f_pts_wins_b':[],
+                'no_wins_ab':[]}).astype(clazz._dtype)
+
+        return KakukinDataSheetTable(
+                df=df,
+                trial_series=trial_series,
+                turn_system_id=turn_system_id,
+                failure_rate=failure_rate)
+
+
+    @classmethod
+    def read_csv(clazz, trial_series, turn_system_id, failure_rate, new_if_it_no_exists=False):
         """
 
         Parameters
@@ -206,20 +245,187 @@ class KakukinDataSheetTable():
                 failure_rate=failure_rate)
 
         # ファイルが存在しなかった場合
-        if not os.path.isfile(csv_file_path):
-            return None
+        is_new = not os.path.isfile(csv_file_path)
+        if is_new:
+            if new_if_it_no_exists:
+                kds_table = KakukinDataSheetTable.new_empty_table(
+                        trial_series=trial_series,
+                        turn_system_id=turn_system_id,
+                        failure_rate=failure_rate)
+            else:
+                kds_table = None
+                return None
+        else:
+            df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+            kds_table = KakukinDataSheetTable(
+                    df=df,
+                    trial_series=trial_series,
+                    turn_system_id=turn_system_id,
+                    failure_rate=failure_rate)
 
 
-        df = pd.read_csv(csv_file_path, encoding="utf8",
-                dtype=clazz._dtype)
-
-        return KakukinDataSheetTable(df)
+        return kds_table, is_new
 
 
     @property
     def df(self):
         """データフレーム"""
         return self._df
+
+
+    @property
+    def trial_series(self):
+        return self._trial_series
+
+    
+    @property
+    def turn_system_id(self):
+        return self._turn_system_id
+    
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    def set_index(self):
+        """主キーの設定"""
+        self._df.set_index(
+                ['p'],
+                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
+        self._df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+    def get_result_set_by_index(self, p):
+        """0～複数件のレコードを含むデータフレームを返します"""
+
+        # 絞り込み。 DataFrame型が返ってくる
+        df_result_set = self._df.query('p==@p')
+
+        return df_result_set
+
+
+    def sub_insert_record(self, index, welcome_record):
+        self._df.at[index, 'p'] = welcome_record.p
+        self._df.at[index, 'span'] = welcome_record.span
+        self._df.at[index, 't_step'] = welcome_record.t_step
+        self._df.at[index, 'h_step'] = welcome_record.h_step
+        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
+        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
+        self._df.at[index, 'series_shortest_coins'] = welcome_record.series_shortest_coins
+        self._df.at[index, 'series_longest_coins'] = welcome_record.series_longest_coins
+        self._df.at[index, 'wins_a'] = welcome_record.wins_a
+        self._df.at[index, 'wins_b'] = welcome_record.wins_b
+        self._df.at[index, 'succucessful_series'] = welcome_record.succucessful_series
+        self._df.at[index, 's_ful_wins_a'] = welcome_record.s_ful_wins_a
+        self._df.at[index, 's_ful_wins_b'] = welcome_record.s_ful_wins_b
+        self._df.at[index, 's_pts_wins_a'] = welcome_record.s_pts_wins_a
+        self._df.at[index, 's_pts_wins_b'] = welcome_record.s_pts_wins_b
+        self._df.at[index, 'failed_series'] = welcome_record.failed_series
+        self._df.at[index, 'f_ful_wins_a'] = welcome_record.f_ful_wins_a
+        self._df.at[index, 'f_ful_wins_b'] = welcome_record.f_ful_wins_b
+        self._df.at[index, 'f_pts_wins_a'] = welcome_record.f_pts_wins_a
+        self._df.at[index, 'f_pts_wins_b'] = welcome_record.f_pts_wins_b
+        self._df.at[index, 'no_wins_ab'] = welcome_record.no_wins_ab
+
+
+    def insert_record(self, welcome_record):
+        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+
+
+    def update_record(self, index, welcome_record):
+        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
+
+        # インデックスが一致するのは前提事項
+        is_dirty =\
+            self._df.at[index, 'span'] != welcome_record.span or\
+            self._df.at[index, 't_step'] != welcome_record.t_step or\
+            self._df.at[index, 'h_step'] != welcome_record.h_step or\
+            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
+            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
+            self._df.at[index, 'series_shortest_coins'] != welcome_record.series_shortest_coins or\
+            self._df.at[index, 'series_longest_coins'] != welcome_record.series_longest_coins or\
+            self._df.at[index, 'wins_a'] != welcome_record.wins_a or\
+            self._df.at[index, 'wins_b'] != welcome_record.wins_b or\
+            self._df.at[index, 'succucessful_series'] != welcome_record.succucessful_series or\
+            self._df.at[index, 's_ful_wins_a'] != welcome_record.s_ful_wins_a or\
+            self._df.at[index, 's_ful_wins_b'] != welcome_record.s_ful_wins_b or\
+            self._df.at[index, 's_pts_wins_a'] != welcome_record.s_pts_wins_a or\
+            self._df.at[index, 's_pts_wins_b'] != welcome_record.s_pts_wins_b or\
+            self._df.at[index, 'failed_series'] != welcome_record.failed_series or\
+            self._df.at[index, 'f_ful_wins_a'] != welcome_record.f_ful_wins_a or\
+            self._df.at[index, 'f_ful_wins_b'] != welcome_record.f_ful_wins_b or\
+            self._df.at[index, 'f_pts_wins_a'] != welcome_record.f_pts_wins_a or\
+            self._df.at[index, 'f_pts_wins_b'] != welcome_record.f_pts_wins_b or\
+            self._df.at[index, 'no_wins_ab'] != welcome_record.no_wins_ab
+
+
+        if is_dirty:
+            # データフレーム更新
+            self.sub_insert_record(index=index, welcome_record=welcome_record)
+
+        return is_dirty
+
+
+    def upsert_record(self, df_result_set_by_index, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        df_result_set_by_index : DataFrame
+            主キーで絞り込んだレコードセット
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        is_dirty : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        if 1 < len(df_result_set_by_index):
+            raise ValueError(f"データが重複しているのはおかしいです {len(df_result_set_by_index)=}")
+
+        # データが既存でないなら、新規追加
+        if len(df_result_set_by_index) == 0:
+            self.insert_record(welcome_record=welcome_record)
+            return True
+
+        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
+        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
+        index = df_result_set_by_index.index[0]
+
+        return self.update_record(
+                index=index,
+                welcome_record=welcome_record)
+
+
+    def to_csv(self):
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
+
+        # CSVファイルパス
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
+                p=self._spec.p,
+                failure_rate=self._spec.failure_rate,
+                turn_system_id=self._spec.turn_system_id)
+
+
+        self._df.to_csv(csv_file_path,
+                columns=['p', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'],
+                index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+        return csv_file_path
 
 
     def for_each(self, on_each):
@@ -232,15 +438,15 @@ class KakukinDataSheetTable():
 
         df = self._df
 
-        for         p  ,     span  ,     tail_step  ,     head_step  ,     shortest_coins  ,     upper_limit_coins  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
-            zip(df['p'], df['span'], df['tail_step'], df['head_step'], df['shortest_coins'], df['upper_limit_coins'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
+        for         p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab in\
+            zip(df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab']):
 
             # レコード作成
             record = KakukinDataSheetRecord(
                     p=p,
                     span=span,
-                    tail_step=tail_step,
-                    head_step=head_step,
+                    t_step=t_step,
+                    h_step=h_step,
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
                     series_shortest_coins=series_shortest_coins,
@@ -401,7 +607,7 @@ class TheoreticalProbabilityTable():
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
         self._df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
@@ -769,7 +975,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
         self._df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
@@ -1322,7 +1528,7 @@ class TheoreticalProbabilityBestTable():
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない？ 毎回この関数をコールする必要があるか？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
         self._df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 

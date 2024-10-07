@@ -104,9 +104,9 @@ def make_file_subname(trial_series=None, turn_system_id=None, failure_rate=None,
     return f'_{subname}'
 
 
-###########
-# MARK: KDF
-###########
+###############
+# MARK: KD, KDS
+###############
 
 class KakukinDataFilePaths():
     """［かくきんデータ］関連のファイルパス一覧"""

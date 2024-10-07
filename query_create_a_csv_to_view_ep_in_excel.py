@@ -97,7 +97,7 @@ def automatic_deprecated(specified_failure_rate, specified_turn_system_id, speci
 
         print(csv) # 表示
 
-        # ログ出力
+        # CSV出力
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id,

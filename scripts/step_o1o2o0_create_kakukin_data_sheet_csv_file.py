@@ -65,11 +65,12 @@ class Automation():
                 series_rule=theoretical_series_rule,
                 specified_trial_series=self._specified_trial_series)
 
-
+        # TODO データフレーム更新
+        # TODO レコード挿入
         # CSV作成
         csv = KakukinDataSheetTableCsv.stringify_csv_of_body(
                 spec=spec,
-                theoretical_series_rule=theoretical_series_rule,    # TODO ここは理論値にしたい
+                theoretical_series_rule=theoretical_series_rule,
                 presentable='',
                 comment='',
                 large_series_trial_summary=large_series_trial_summary)
@@ -78,6 +79,9 @@ class Automation():
         #print(csv) # 表示
 
         # CSVファイル出力
+        #
+        #   TODO pandas にすれば、ここでファイル出力は不要（タイムアップ除く）
+        #
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id,
@@ -89,9 +93,24 @@ class Automation():
 
     # automatic
     def execute(self):
-        header_csv = KakukinDataSheetTableCsv.stringify_header()
+        """実行
 
+        TODO pandas で書き直せないか？
+        """
+
+
+        # ［理論的確率ベスト］表を読込。無ければナン
+        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
+
+        # ［理論的確率ベスト］ファイルが存在しなければスキップ
+        if tpb_table==None:
+            return
+
+
+        # 列定義
+        header_csv = KakukinDataSheetTableCsv.stringify_header()
         #print(header_csv) # 表示
+
 
         # 仕様
         spec = Specification(
@@ -103,6 +122,7 @@ class Automation():
         # ヘッダー出力（ファイルは上書きします）
         #
         #   NOTE ビューは既存ファイルの内容は破棄して、毎回、１から作成します
+        #   TODO pandas にすれば、CSV出力１回で済むはず
         #
         csv_file_path = KakukinDataFilePaths.as_sheet_csv(
                 failure_rate=spec.failure_rate,
@@ -112,12 +132,6 @@ class Automation():
             f.write(f"{header_csv}\n")
 
 
-        # ［理論的確率ベスト］表を読込。無ければナン
-        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
-
-        # ファイルが存在しなければスキップ
-        if tpb_table==None:
-            return
-
-
+        # データ部各行出力
+        #   TODO pandas にすれば、CSV出力１回で済むはず
         tpb_table.for_each(on_each=self.on_each_tpb_record)
