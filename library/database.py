@@ -254,7 +254,6 @@ class KakukinDataSheetTable():
                         failure_rate=failure_rate)
             else:
                 kds_table = None
-                return None
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
