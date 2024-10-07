@@ -2,7 +2,7 @@ import traceback
 import time
 import datetime
 
-from library import YIELD, CONTINUE, OUT_OF_P, Converter, SeriesRule
+from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule
 from library.score_board import search_all_score_boards
 
 
@@ -19,8 +19,10 @@ class Automation():
         self._number_of_dirty = 0
 
 
-    def update_three_rates_for_a_file(self, spec, tp_table, upper_limit_upper_limit_coins):
+    def update_three_rates_for_a_file_and_save(self, spec, tp_table, upper_limit_upper_limit_coins):
         """次に、スリー・レーツを更新する
+
+        ファイルの保存機能も含む
         
         Returns
         -------
@@ -49,7 +51,7 @@ class Automation():
                 # 指定間隔（秒）でループを抜ける
                 end_time_for_save = time.time()
                 if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save:
-                    # 計算未停止だが、譲る（タイムシェアリング）
+                    # 途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）
                     return YIELD
 
                 # FIXME int型の行から、float型が取れてしまう？
@@ -88,12 +90,16 @@ class Automation():
             csv_file_path_to_wrote = tp_table.to_csv()
 
             print(f"{self.stringify_log_stamp(spec=spec)}SAVE____ dirty={self._number_of_dirty}  write file to `{csv_file_path_to_wrote}` ...")
-        
-        else:
-            print(f"{self.stringify_log_stamp(spec=spec)}UNCHANGE dirty={self._number_of_dirty}")
+
+            # このファイルは処理完了した
+            return TERMINATED
 
 
-        return CONTINUE
+        # 処理失敗
+        print(f"{self.stringify_log_stamp(spec=spec)}UNCHANGE dirty={self._number_of_dirty}")
+        return CALCULATION_FAILED
+
+
 
 
     def stringify_log_stamp(self, spec):

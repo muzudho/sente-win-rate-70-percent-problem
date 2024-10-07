@@ -5,10 +5,10 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
-from library.database import TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
+from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
 from library.views import PromptCatalog
-from scripts.step_o2o2o0_update_three_rates_for_a_file import AutomationOne as StepO2o2o0UpdateThreeRatesForAFile
+from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
 
 
 ########################################
@@ -68,7 +68,7 @@ if __name__ == '__main__':
                 #
                 # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
                 #
-                calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file(
+                calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
                         spec=spec,
                         tp_table=tp_table,
 
@@ -78,10 +78,20 @@ if __name__ == '__main__':
                         #
                         upper_limit_upper_limit_coins=1)
 
-                # ファイルに変更があれば、CSVファイル保存
-                if is_dirty:
-                    csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv()
-                    print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={spec.failure_rate * 100:.1f}%  p={spec.p * 100:.1f}] write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                # 途中の行まで処理したところでタイムアップ
+                if calculation_status == YIELD:
+                    print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
+
+                # このファイルは処理失敗した
+                elif calculation_status == CALCULATION_FAILED:
+                    print(f"[{datetime.datetime.now()}] このファイルは処理失敗した")
+
+                # このファイルは処理完了した
+                elif calculation_status == TERMINATED:
+                    print(f"[{datetime.datetime.now()}] このファイルは処理完了した")
+                
+                else:
+                    raise ValueError(f"{calculation_status=}")
 
 
         print(f"おわり！")

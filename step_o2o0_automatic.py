@@ -116,7 +116,7 @@ class AllTheoreticalProbabilityFilesOperation():
         ##########################################################
 
         step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile()
-        calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file(
+        calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
                 spec=spec,
                 tp_table=tp_table,
 
