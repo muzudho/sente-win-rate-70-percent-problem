@@ -213,8 +213,6 @@ class KakukinDataSheetTable():
         self._turn_system_id = turn_system_id
         self._failure_rate = failure_rate
 
-        self.set_index()
-
 
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
@@ -242,8 +240,8 @@ class KakukinDataSheetTable():
                 'f_ful_wins_b':[],
                 'f_pts_wins_a':[],
                 'f_pts_wins_b':[],
-                'no_wins_ab':[]}).astype(clazz._dtype)
-
+                'no_wins_ab':[]})
+        clazz.setup_data_frame(df=kds_df)
         return KakukinDataSheetTable(
                 df=kds_df,
                 trial_series=trial_series,
@@ -283,6 +281,7 @@ class KakukinDataSheetTable():
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+            clazz.setup_data_frame(df=df)
             kds_table = KakukinDataSheetTable(
                     df=df,
                     trial_series=trial_series,
@@ -314,16 +313,21 @@ class KakukinDataSheetTable():
         return self._failure_rate
 
 
-    def set_index(self):
-        """主キーの設定"""
+    @classmethod
+    def setup_data_frame(clazz, df):
+        """データフレームの設定"""
+
+        # データ型の設定
+        df.astype(clazz._dtype)
+
         # trial_series と turn_system_name と failure_rate はファイル名と同じはず
-        self._df.set_index(
+        df.set_index(
                 ['p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
         # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
-        self._df.sort_index(
+        df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
@@ -656,7 +660,7 @@ class TheoreticalProbabilityTable():
 
     @classmethod
     def setup_data_frame(clazz, df):
-        """テーブルの設定"""
+        """データフレームの設定"""
 
         # データ型の設定
         df.astype(clazz._dtype)
@@ -953,7 +957,6 @@ class EmpiricalProbabilityDuringTrialsTable():
         self._trial_series = trial_series
         self._turn_system_id = turn_system_id
         self._failure_rate = failure_rate
-        self.set_index()
 
 
     @classmethod
@@ -970,8 +973,8 @@ class EmpiricalProbabilityDuringTrialsTable():
                 'latest_span': [],
                 'latest_t_step': [],
                 'latest_h_step': [],
-                'candidates': []}).astype(clazz._dtype)
-
+                'candidates': []})
+        clazz.setup_data_frame(df=ep_df)
         return EmpiricalProbabilityDuringTrialsTable(
                 df=ep_df,
                 trial_series=trial_series,
@@ -1011,6 +1014,7 @@ class EmpiricalProbabilityDuringTrialsTable():
         else:
             df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+            clazz.setup_data_frame(df=df)
             ep_table = EmpiricalProbabilityDuringTrialsTable(
                     df,
                     trial_series=trial_series,
@@ -1041,15 +1045,20 @@ class EmpiricalProbabilityDuringTrialsTable():
         return self._failure_rate
 
 
-    def set_index(self):
-        """主キーの設定"""
-        self._df.set_index(
+    @classmethod
+    def setup_data_frame(clazz, df):
+        """データフレームの設定"""
+
+        # データ型の設定
+        df.astype(clazz._dtype)
+
+        df.set_index(
                 ['p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
         # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
-        self._df.sort_index(
+        df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
@@ -1344,8 +1353,8 @@ class TheoreticalProbabilityTrialResultsTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'trial_a_win_rate': [],
-                'trial_no_win_match_rate': []}).astype(clazz._dtype)
-
+                'trial_no_win_match_rate': []})
+        clazz.setup_data_frame(df=df)
         return TheoreticalProbabilityTrialResultsTable(df)
 
 
@@ -1386,10 +1395,35 @@ class TheoreticalProbabilityTrialResultsTable():
         else:
             tptr_df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
+            clazz.setup_data_frame(df=tptr_df)
             tptr_table = TheoreticalProbabilityTrialResultsTable(df=tptr_df)
 
 
         return tptr_table, is_new
+
+
+    @property
+    def df(self):
+        return self._df
+
+
+    @classmethod
+    def setup_data_frame(clazz, df):
+        """データフレームの設定"""
+
+        # データ型の設定
+        df.astype(clazz._dtype)
+
+        # インデックスの設定
+        df.set_index(
+                ['p'],
+                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+        # ソートの設定        
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
+        df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
     def sub_insert_record(self, index, welcome_record):
@@ -1601,18 +1635,22 @@ class TheoreticalProbabilityBestTable():
 
     def __init__(self, df):
         self._df = df
-        self.set_index()
 
 
-    def set_index(self):
-        """主キーの設定"""
-        self._df.set_index(
+    @classmethod
+    def setup_data_frame(clazz, df):
+        """データフレームの設定"""
+
+        # データ型の設定
+        df.astype(clazz._dtype)
+
+        df.set_index(
                 ['turn_system_name', 'failure_rate', 'p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
         # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
-        self._df.sort_index(
+        df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
@@ -1636,9 +1674,47 @@ class TheoreticalProbabilityBestTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
-
+                'theoretical_no_win_match_rate': []})
+        clazz.setup_data_frame(df=tpd_df)
         return TheoreticalProbabilityBestTable(df=tpb_df)
+
+
+    @classmethod
+    def read_csv(clazz, new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+
+        Returns
+        -------
+        tpb_table : TheoreticalProbabilityBestTable
+            テーブル
+        is_new : bool
+            新規作成されたか？
+        """
+
+        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
+
+        is_new = not os.path.isfile(csv_file_path)
+        # ファイルが存在しなかった場合
+        if is_new:
+            if new_if_it_no_exists:
+                tpb_table = TheoreticalProbabilityBestTable.new_empty_table()
+            else:
+                tpb_table = None
+
+        # ファイルが存在した場合
+        else:
+            tpb_df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+            clazz.setup_data_frame(df=tpd_df)
+            tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
+
+
+        return tpb_table, is_new
 
 
     def create_none_record(self):
@@ -1719,43 +1795,6 @@ class TheoreticalProbabilityBestTable():
         index = result_set_df_by_index.index[0]
 
         return self.update_record(index=index, welcome_record=welcome_record)
-
-
-    @classmethod
-    def read_csv(clazz, new_if_it_no_exists=False):
-        """ファイル読込
-
-        Parameters
-        ----------
-        new_if_it_no_exists : bool
-            ファイルが存在しなければ新規作成するか？
-
-        Returns
-        -------
-        tpb_table : TheoreticalProbabilityBestTable
-            テーブル
-        is_new : bool
-            新規作成されたか？
-        """
-
-        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
-
-        is_new = not os.path.isfile(csv_file_path)
-        # ファイルが存在しなかった場合
-        if is_new:
-            if new_if_it_no_exists:
-                tpb_table = TheoreticalProbabilityBestTable.new_empty_table()
-            else:
-                tpb_table = None
-
-        # ファイルが存在した場合
-        else:
-            tpb_df = pd.read_csv(csv_file_path, encoding="utf8",
-                    dtype=clazz._dtype)
-            tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
-
-
-        return tpb_table, is_new
 
 
     def to_csv(self):
