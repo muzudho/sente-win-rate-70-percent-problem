@@ -167,11 +167,18 @@ class TheoreticalProbabilityBestFilePaths():
 
 class TheoreticalProbabilityFilePaths():
     """理論的確率データのファイルパス一覧"""
+
+
     @staticmethod
     def as_csv(turn_system_id, failure_rate, p):
         subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
-        # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
         return f'temp/theoretical_probability/TP{subname}.csv'
+
+
+    @staticmethod
+    def as_log(turn_system_id, failure_rate, p):
+        subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
+        return f'logs/theoretical_probability/TP{subname}.csv'
 
 
 ################

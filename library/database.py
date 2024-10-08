@@ -619,9 +619,9 @@ class TheoreticalProbabilityTable():
         """
 
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
-                p=spec.p,
+                turn_system_id=spec.turn_system_id,
                 failure_rate=spec.failure_rate,
-                turn_system_id=spec.turn_system_id)
+                p=spec.p)
 
         is_file_exists = os.path.isfile(csv_file_path)
 

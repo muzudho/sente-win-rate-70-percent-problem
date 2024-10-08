@@ -4,6 +4,7 @@
 import time
 import random
 
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, UPPER_LIMIT_FAILURE_RATE, Specification
 from library.logging import Logging
 
 
@@ -78,3 +79,36 @@ class SaveWithRetry():
                         shall_print=True)
 
                 time.sleep(wait_for_seconds)
+
+
+class ForEachSpec():
+
+
+    @staticmethod
+    def execute(on_each_spec):
+        """
+        Parameters
+        ----------
+        on_each_spec : func
+            関数
+        """
+
+        # ［先後の決め方］
+        for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
+            turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
+
+            # ［将棋の引分け率］
+            for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
+                failure_rate = failure_rate_percent / 100
+
+                # ［将棋の先手勝率］
+                for p_percent in range(50, 96):
+                    p = p_percent / 100
+
+                    # 仕様
+                    spec = Specification(
+                            turn_system_id=turn_system_id,
+                            failure_rate=failure_rate,
+                            p=p)
+                    
+                    on_each_spec(spec=spec)

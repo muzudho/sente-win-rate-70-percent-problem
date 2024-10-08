@@ -193,3 +193,25 @@
                         #     else:
                         #         latest_p_error = latest_p - 0.5
 ```
+
+
+```
+#             # 該当レコードのキー
+#             #
+#             #   <class 'pandas.core.series.Series'>
+#             #   各行について True, False の論理値を付けたシリーズ
+#             #
+#             list_of_enable_each_row = (tp_table._df['span']==span) & (tp_table._df['t_step']==t_step) & (tp_table._df['h_step']==h_step)
+# #                         print(f"""\
+# # {type(list_of_enable_each_row)=}
+# # {list_of_enable_each_row=}""")
+
+
+            # # 該当データが１つも無いなら、新規追加
+            # #
+            # #   TODO データが飛び番とか無ければ、必ずデータは無いはずだが。一応確認しておく？
+            # #
+            # is_new = not list_of_enable_each_row.any()
+            # if is_new:
+            #if len(result_set_df_by_index) < 1:
+```

@@ -14,7 +14,6 @@ from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
 from config import DEFAULT_MAX_DEPTH
-from scripts.step_o2o1o0_upsert_new_record_in_tp import Automation as StepO2o1o0UpsertNewRecordInTp
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
 
 
@@ -48,7 +47,7 @@ class AllTheoreticalProbabilityFilesOperation():
 """
 
 
-    def on_each_spec(self, spec):
+    def execute_by_spec(self, spec):
         # ファイルが存在しなければ、新規作成する。あれば読み込む
         tp_table, is_tp_file_created = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
 
@@ -150,7 +149,7 @@ if __name__ == '__main__':
                                 failure_rate=failure_rate,
                                 p=p)
                         
-                        all_theoretical_probability_files_operation.on_each_spec(spec=spec)
+                        all_theoretical_probability_files_operation.execute_by_spec(spec=spec)
 
 
         # 現実的に、完了しない想定
