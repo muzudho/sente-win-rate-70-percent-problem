@@ -337,11 +337,54 @@ class KakukinDataSheetTable():
         # 絞り込み。 DataFrame型が返ってくる
         # trial_series と turn_system_name と failure_rate はファイル名と同じはず
         result_set_df = self._df.query('p==@p')
+
+        if 1 < len(result_set_df):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {p=}")
+
         return result_set_df
 
 
-    def sub_insert_record(self, index, welcome_record):
+    @classmethod
+    def sub_insert_record(clazz, base_df, welcome_record):
 
+        # 新規レコードが入ったデータフレームを新規作成します
+        new_df = pd.DataFrame.from_dict({
+            'turn_system_name': [welcome_record.turn_system_name],
+            'failure_rate': [welcome_record.failure_rate],
+            'p': [welcome_record.p],
+            'span': [welcome_record.span],
+            't_step': [welcome_record.t_step],
+            'h_step': [welcome_record.h_step],
+            'shortest_coins': [welcome_record.shortest_coins],
+            'upper_limit_coins': [welcome_record.upper_limit_coins],
+            'trial_series': [welcome_record.trial_series],
+            'series_shortest_coins': [welcome_record.series_shortest_coins],
+            'series_longest_coins': [welcome_record.series_longest_coins],
+            'wins_a': [welcome_record.wins_a],
+            'wins_b': [welcome_record.wins_b],
+            'succucessful_series': [welcome_record.succucessful_series],
+            's_ful_wins_a': [welcome_record.s_ful_wins_a],
+            's_ful_wins_b': [welcome_record.s_ful_wins_b],
+            's_pts_wins_a': [welcome_record.s_pts_wins_a],
+            's_pts_wins_b': [welcome_record.s_pts_wins_b],
+            'failed_series': [welcome_record.failed_series],
+            'f_ful_wins_a': [welcome_record.f_ful_wins_a],
+            'f_ful_wins_b': [welcome_record.f_ful_wins_b],
+            'f_pts_wins_a': [welcome_record.f_pts_wins_a],
+            'f_pts_wins_b': [welcome_record.f_pts_wins_b],
+            'no_wins_ab': [welcome_record.no_wins_ab]})
+        clazz.setup_data_frame(new_df)
+
+        # ２つのテーブルを連結します
+        merged_df = pd.concat(
+                [base_df, new_df],
+                ignore_index=True)  # 真： インデックスを振り直します
+        clazz.setup_data_frame(merged_df)
+
+        return merged_df
+
+
+    def assert_welcome_record(self, welcome_record):
         if welcome_record.trial_series != self._trial_series:
             raise ValueError(f"ファイル名と trial_series 列で内容が異なるのはおかしいです {welcome_record.trial_series=}  {self._trial_series=}")
 
@@ -352,34 +395,10 @@ class KakukinDataSheetTable():
         if welcome_record.failure_rate != self._failure_rate:
             raise ValueError(f"ファイル名と failure_rate 列で内容が異なるのはおかしいです {welcome_record.failure_rate=}  {self._failure_rate=}")
 
-        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        self._df.at[index, 'p'] = welcome_record.p
-        self._df.at[index, 'span'] = welcome_record.span
-        self._df.at[index, 't_step'] = welcome_record.t_step
-        self._df.at[index, 'h_step'] = welcome_record.h_step
-        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
-        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        self._df.at[index, 'trial_series'] = welcome_record.trial_series
-        self._df.at[index, 'series_shortest_coins'] = welcome_record.series_shortest_coins
-        self._df.at[index, 'series_longest_coins'] = welcome_record.series_longest_coins
-        self._df.at[index, 'wins_a'] = welcome_record.wins_a
-        self._df.at[index, 'wins_b'] = welcome_record.wins_b
-        self._df.at[index, 'succucessful_series'] = welcome_record.succucessful_series
-        self._df.at[index, 's_ful_wins_a'] = welcome_record.s_ful_wins_a
-        self._df.at[index, 's_ful_wins_b'] = welcome_record.s_ful_wins_b
-        self._df.at[index, 's_pts_wins_a'] = welcome_record.s_pts_wins_a
-        self._df.at[index, 's_pts_wins_b'] = welcome_record.s_pts_wins_b
-        self._df.at[index, 'failed_series'] = welcome_record.failed_series
-        self._df.at[index, 'f_ful_wins_a'] = welcome_record.f_ful_wins_a
-        self._df.at[index, 'f_ful_wins_b'] = welcome_record.f_ful_wins_b
-        self._df.at[index, 'f_pts_wins_a'] = welcome_record.f_pts_wins_a
-        self._df.at[index, 'f_pts_wins_b'] = welcome_record.f_pts_wins_b
-        self._df.at[index, 'no_wins_ab'] = welcome_record.no_wins_ab
-
 
     def insert_record(self, welcome_record):
-        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+        self.assert_welcome_record(welcome_record=welcome_record)
+        self._df = KakukinDataSheetTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
 
     def update_record(self, index, welcome_record):
@@ -413,7 +432,8 @@ class KakukinDataSheetTable():
 
         if is_dirty:
             # データフレーム更新
-            self.sub_insert_record(index=index, welcome_record=welcome_record)
+            self.assert_welcome_record(welcome_record=welcome_record)
+            self._df = KakukinDataSheetTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
         return is_dirty
 
@@ -682,21 +702,25 @@ class TheoreticalProbabilityTable():
 
         # 絞り込み。 DataFrame型が返ってくる
         result_set_df = self._df.query('span==@span & t_step==@t_step & h_step==@h_step')
+
+        if 1 < len(result_set_df):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {span=}  {t_step=}  {h_step=}")
+
         return result_set_df
 
 
     @classmethod
-    def merge_record(clazz, base_df, welcome_record):
+    def sub_insert_record(clazz, base_df, welcome_record):
 
         # 新規レコードが入ったデータフレームを新規作成します
         new_df = pd.DataFrame.from_dict({
-                'span': [welcome_record.span],
-                't_step': [welcome_record.t_step],
-                'h_step': [welcome_record.h_step],
-                'shortest_coins': [welcome_record.shortest_coins],
-                'upper_limit_coins': [welcome_record.upper_limit_coins],
-                'theoretical_a_win_rate': [welcome_record.theoretical_a_win_rate],
-                'theoretical_no_win_match_rate': [welcome_record.theoretical_no_win_match_rate]})
+            'span': [welcome_record.span],
+            't_step': [welcome_record.t_step],
+            'h_step': [welcome_record.h_step],
+            'shortest_coins': [welcome_record.shortest_coins],
+            'upper_limit_coins': [welcome_record.upper_limit_coins],
+            'theoretical_a_win_rate': [welcome_record.theoretical_a_win_rate],
+            'theoretical_no_win_match_rate': [welcome_record.theoretical_no_win_match_rate]})
         clazz.setup_data_frame(new_df)
 
         # ２つのテーブルを連結します
@@ -709,7 +733,7 @@ class TheoreticalProbabilityTable():
 
 
     def insert_record(self, welcome_record):
-        self._df = TheoreticalProbabilityTable.merge_record(base_df=self._df, welcome_record=welcome_record)
+        self._df = TheoreticalProbabilityTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
 
     def update_record(self, index, welcome_record):
@@ -727,7 +751,7 @@ class TheoreticalProbabilityTable():
 
         if is_dirty:
             # データフレーム更新
-            self._df = TheoreticalProbabilityTable.merge_record(base_df=self._df, welcome_record=welcome_record)
+            self._df = TheoreticalProbabilityTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
         return is_dirty
 
@@ -962,18 +986,18 @@ class EmpiricalProbabilityDuringTrialsTable():
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
         ep_df = pd.DataFrame.from_dict({
-                'p': [],
-                'best_p': [],
-                'best_p_error': [],
-                'best_span': [],
-                'best_t_step': [],
-                'best_h_step': [],
-                'latest_p': [],
-                'latest_p_error': [],
-                'latest_span': [],
-                'latest_t_step': [],
-                'latest_h_step': [],
-                'candidates': []})
+            'p': [],
+            'best_p': [],
+            'best_p_error': [],
+            'best_span': [],
+            'best_t_step': [],
+            'best_h_step': [],
+            'latest_p': [],
+            'latest_p_error': [],
+            'latest_span': [],
+            'latest_t_step': [],
+            'latest_h_step': [],
+            'candidates': []})
         clazz.setup_data_frame(df=ep_df)
         return EmpiricalProbabilityDuringTrialsTable(
                 df=ep_df,
@@ -1067,22 +1091,41 @@ class EmpiricalProbabilityDuringTrialsTable():
 
         # 絞り込み。 DataFrame型が返ってくる
         result_set_df = self._df.query('p==@p')
+
+        if 1 < len(result_set_df):
+            print(f"""\
+self._df:
+{self._df}""")
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {p=}")
+
         return result_set_df
 
 
-    def sub_insert_record(self, index, welcome_record):
-        self._df.at[index, 'p'] = welcome_record.p
-        self._df.at[index, 'best_p'] = welcome_record.best_p
-        self._df.at[index, 'best_p_error'] = welcome_record.best_p_error
-        self._df.at[index, 'best_span'] = welcome_record.best_span
-        self._df.at[index, 'best_t_step'] = welcome_record.best_t_step
-        self._df.at[index, 'best_h_step'] = welcome_record.best_h_step
-        self._df.at[index, 'latest_p'] = welcome_record.latest_p
-        self._df.at[index, 'latest_p_error'] = welcome_record.latest_p_error
-        self._df.at[index, 'latest_span'] = welcome_record.latest_span
-        self._df.at[index, 'latest_t_step'] = welcome_record.latest_t_step
-        self._df.at[index, 'latest_h_step'] = welcome_record.latest_h_step
-        self._df.at[index, 'candidates'] = welcome_record.candidates
+    @classmethod
+    def sub_insert_record(clazz, base_df, welcome_record):
+        # 新規レコードが入ったデータフレームを新規作成します
+        new_df = pd.DataFrame.from_dict({
+            'p': [welcome_record.p],
+            'best_p': [welcome_record.best_p],
+            'best_p_error': [welcome_record.best_p_error],
+            'best_span': [welcome_record.best_span],
+            'best_t_step': [welcome_record.best_t_step],
+            'best_h_step': [welcome_record.best_h_step],
+            'latest_p': [welcome_record.latest_p],
+            'latest_p_error': [welcome_record.latest_p_error],
+            'latest_span': [welcome_record.latest_span],
+            'latest_t_step': [welcome_record.latest_t_step],
+            'latest_h_step': [welcome_record.latest_h_step],
+            'candidates': [welcome_record.candidates]})
+        clazz.setup_data_frame(new_df)
+
+        # ２つのテーブルを連結します
+        merged_df = pd.concat(
+                [base_df, new_df],
+                ignore_index=True)  # 真： インデックスを振り直します
+        clazz.setup_data_frame(merged_df)
+
+        return merged_df
 
 
     def insert_record(self, welcome_record):
@@ -1093,7 +1136,7 @@ class EmpiricalProbabilityDuringTrialsTable():
         spec : Specification
             ［仕様］
         """
-        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+        self._df = EmpiricalProbabilityDuringTrialsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
 
     def update_record(self, index, welcome_record):
@@ -1104,8 +1147,6 @@ class EmpiricalProbabilityDuringTrialsTable():
         welcome_record : EmpiricalProbabilityDuringTrialsRecord
             レコード
         """
-
-        #index = self._df['p']==welcome_record.p
 
         # インデックスが一致するのは前提事項
         is_dirty =\
@@ -1124,7 +1165,9 @@ class EmpiricalProbabilityDuringTrialsTable():
 
         if is_dirty:
             # データフレーム更新
-            self.sub_insert_record(index=index, welcome_record=welcome_record)
+            self._df = EmpiricalProbabilityDuringTrialsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
+
+        return is_dirty
 
 
     def upsert_record(self, result_set_df_by_index, welcome_record):
@@ -1426,21 +1469,34 @@ class TheoreticalProbabilityTrialResultsTable():
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
-    def sub_insert_record(self, index, welcome_record):
-        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        self._df.at[index, 'p'] = welcome_record.p
-        self._df.at[index, 'span'] = welcome_record.span
-        self._df.at[index, 't_step'] = welcome_record.t_step
-        self._df.at[index, 'h_step'] = welcome_record.h_step
-        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
-        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        self._df.at[index, 'trial_a_win_rate'] = welcome_record.trial_a_win_rate
-        self._df.at[index, 'trial_no_win_match_rate'] = welcome_record.trial_no_win_match_rate
+    @classmethod
+    def sub_insert_record(clazz, base_df, welcome_record):
+
+        # 新規レコードが入ったデータフレームを新規作成します
+        new_df = pd.DataFrame.from_dict({
+            'turn_system_name': [welcome_record.turn_system_name],
+            'failure_rate': [welcome_record.failure_rate],
+            'p': [welcome_record.p],
+            'span': [welcome_record.span],
+            't_step': [welcome_record.t_step],
+            'h_step': [welcome_record.h_step],
+            'shortest_coins': [welcome_record.shortest_coins],
+            'upper_limit_coins': [welcome_record.upper_limit_coins],
+            'trial_a_win_rate': [welcome_record.trial_a_win_rate],
+            'trial_no_win_match_rate': [welcome_record.trial_no_win_match_rate]})
+        clazz.setup_data_frame(new_df)
+
+        # ２つのテーブルを連結します
+        merged_df = pd.concat(
+                [base_df, new_df],
+                ignore_index=True)  # 真： インデックスを振り直します
+        clazz.setup_data_frame(merged_df)
+
+        return merged_df
 
 
     def insert_record(self, welcome_record):
-        self.sub_insert_record(index=len(df.index), welcome_record=welcome_record)
+        self._df = TheoreticalProbabilityTrialResultsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
 
     def update_record(self, index, welcome_record):
@@ -1458,7 +1514,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
         if is_dirty:
             # データフレーム更新
-            self.sub_insert_record(index=index, welcome_record=welcome_record)
+            self._df = TheoreticalProbabilityTrialResultsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
         return is_dirty
 
@@ -1488,7 +1544,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
         # データが既存でないなら、新規追加
         if len(result_set_df_by_index) == 0:
-            self.insert_record(index=index, welcome_record=welcome_record)
+            self.insert_record(welcome_record=welcome_record)
             return True
 
         return self.update_record(index=index, welcome_record=welcome_record)
@@ -1659,6 +1715,10 @@ class TheoreticalProbabilityBestTable():
 
         # 絞り込み。 DataFrame型が返ってくる
         result_set_df = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
+
+        if 1 < len(result_set_df):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {turn_system_name=}  {failure_rate=}  {p=}")
+
         return result_set_df
 
 
@@ -1732,20 +1792,32 @@ class TheoreticalProbabilityBestTable():
 
 
     def sub_insert_record(self, index, welcome_record):
-        self._df.at[index, 'turn_system_name'] = welcome_record.turn_system_name
-        self._df.at[index, 'failure_rate'] = welcome_record.failure_rate
-        self._df.at[index, 'p'] = welcome_record.p
-        self._df.at[index, 'span'] = welcome_record.span
-        self._df.at[index, 't_step'] = welcome_record.t_step
-        self._df.at[index, 'h_step'] = welcome_record.h_step
-        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
-        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        self._df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        self._df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+
+        # 新規レコードが入ったデータフレームを新規作成します
+        new_df = pd.DataFrame.from_dict({
+            'turn_system_name': [welcome_record.turn_system_name],
+            'failure_rate': [welcome_record.failure_rate],
+            'p': [welcome_record.p],
+            'span': [welcome_record.span],
+            't_step': [welcome_record.t_step],
+            'h_step': [welcome_record.h_step],
+            'shortest_coins': [welcome_record.shortest_coins],
+            'upper_limit_coins': [welcome_record.upper_limit_coins],
+            'theoretical_a_win_rate': [welcome_record.theoretical_a_win_rate],
+            'theoretical_no_win_match_rate': [welcome_record.theoretical_no_win_match_rate]})
+        clazz.setup_data_frame(new_df)
+
+        # ２つのテーブルを連結します
+        merged_df = pd.concat(
+                [base_df, new_df],
+                ignore_index=True)  # 真： インデックスを振り直します
+        clazz.setup_data_frame(merged_df)
+
+        return merged_df
 
 
     def insert_record(self, welcome_record):
-        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+        self._df = TheoreticalProbabilityBestTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
 
     def update_record(self, index, welcome_record):
@@ -1760,7 +1832,7 @@ class TheoreticalProbabilityBestTable():
 
         if is_dirty:
             # データフレーム更新
-            self.sub_insert_record(index=index, welcome_record=welcome_record)
+            self._df = TheoreticalProbabilityBestTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
 
         return is_dirty
 
