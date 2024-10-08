@@ -10,7 +10,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, ABS_SMALL_P_ERROR
 from library.file_paths import StepO1o0AutomaticFilePaths, EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
-from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as StepO1o1o0CreateCsvToEPDT
+from scripts.step_o1o0_create_epdt_table import Automation as StepO1o1o0CreateEPDTTable
 from config import DEFAULT_TRIAL_SERIES
 
 
@@ -45,18 +45,18 @@ if __name__ == '__main__':
                         shall_print=True)
 
 
-                #######################
-                # Step.o1o1o0 EPDT 作成
-                #######################
+                #####################
+                # Step.o1o0 EPDT 作成
+                #####################
 
                 # CSV作成 ［試行中の経験的確率データファイル］
-                create_csv_to_epdt = StepO1o1o0CreateCsvToEPDT(
+                automation = StepO1o1o0CreateEPDTTable(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
                         specified_trial_series=specified_trial_series,
                         specified_abs_small_error=ABS_SMALL_P_ERROR)
                 
-                create_csv_to_epdt.execute()
+                automation.execute()
 
 
         progress = f"[{datetime.datetime.now()}] 完了"

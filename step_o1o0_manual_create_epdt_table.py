@@ -1,6 +1,6 @@
 #
 # 生成
-# python step_o1o1o0_manual_create_a_csv_to_data_epdt.py
+# python step_o1o0_manual_create_epdt_table.py
 #
 #   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #
@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.step_o1o1o0_create_a_csv_to_epdt import CreateCsvToEPDT
+from scripts.step_o1o0_create_epdt_table import StepO1o1o0CreateEPDTTable
 
 
 ########################################
@@ -33,13 +33,13 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        create_csv_to_epdt = CreateCsvToEPDT(
+        automation = StepO1o1o0CreateEPDTTable(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_trial_series=specified_trial_series,
                 specified_abs_small_error=specified_abs_small_error)
         
-        create_csv_to_epdt.execute()
+        automation.execute()
 
 
     except Exception as err:

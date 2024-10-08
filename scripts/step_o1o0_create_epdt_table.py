@@ -10,6 +10,8 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
+from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
+from scripts import SaveOrIgnore
 
 
 # 探索の上限
@@ -23,13 +25,13 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trial_series, specified_abs_small_error):
-        self._specified_failure_rate=specified_failure_rate
-        self._specified_turn_system_id=specified_turn_system_id
+    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, specified_abs_small_error):
         self._specified_trial_series=specified_trial_series
+        self._specified_turn_system_id=specified_turn_system_id
+        self._specified_failure_rate=specified_failure_rate
         self._specified_abs_small_error=specified_abs_small_error
 
-        self._ep_table = None
+        self._epdt_table = None
 
         self._current_abs_lower_limit_of_error = None
         self._passage_upper_limit = None
@@ -55,10 +57,10 @@ class Automation():
             ［仕様］
         """
 
-        result_set_df_by_index = self._ep_table.get_result_set_by_index(
+        result_set_df_by_index = self._epdt_table.get_result_set_by_index(
                 p=spec.p)
 
-        self._ep_table.upsert_record(
+        self._epdt_table.upsert_record(
                 result_set_df_by_index=result_set_df_by_index,
                 welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                         p=spec.p,
@@ -86,7 +88,7 @@ class Automation():
             p = p_parcent / 100
             
             # 指定の p のレコードが１件も存在しなければデフォルトのレコード追加
-            ep_df = self._ep_table.df
+            ep_df = self._epdt_table.df
             list_of_enable_each_row = (ep_df['p'] == p)
             if not list_of_enable_each_row.any():
 
@@ -96,11 +98,11 @@ class Automation():
                         failure_rate=self._specified_failure_rate,
                         p=p)
                 
-                result_set_df_by_index = self._ep_table.get_result_set_by_index(
+                result_set_df_by_index = self._epdt_table.get_result_set_by_index(
                         p=spec.p)
 
                 # レコードの挿入または更新
-                self._ep_table.upsert_record(
+                self._epdt_table.upsert_record(
                         result_set_df_by_index=result_set_df_by_index,
                         welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                                 p=spec.p,
@@ -119,7 +121,12 @@ class Automation():
 
         if is_insert_record:
             # CSV保存
-            self._ep_table.to_csv()
+            SaveOrIgnore.execute(
+                    log_file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
+                            trial_series=self._specified_trial_series,
+                            turn_system_id=self._specified_turn_system_id,
+                            failure_rate=self._specified_failure_rate),
+                    on_save_and_get_csv_file_name=self._epdt_table.to_csv)
 
 
     def on_each(self, record):
@@ -274,8 +281,12 @@ class Automation():
                                 self._is_dirty_csv = False
 
                                 # CSV保存
-                                print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                                self._ep_table.to_csv()
+                                SaveOrIgnore.execute(
+                                        log_file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
+                                                trial_series=self._specified_trial_series,
+                                                turn_system_id=self._specified_turn_system_id,
+                                                failure_rate=self._specified_failure_rate),
+                                        on_save_and_get_file_name=self._epdt_table.to_csv)
 
                                 # FIXME タイムシェアリング書くの、めんどくさいんで、ループから抜ける
                                 self._cut_off = True
@@ -345,8 +356,12 @@ class Automation():
                 self._is_dirty_csv = False
 
                 # CSV保存
-                print(f"[{datetime.datetime.now()}] CSV保存 ...")
-                self._ep_table.to_csv()
+                SaveOrIgnore.execute(
+                        log_file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
+                                trial_series=self._specified_trial_series,
+                                turn_system_id=self._specified_turn_system_id,
+                                failure_rate=self._specified_failure_rate),
+                        on_save_and_get_file_name=self._epdt_table.to_csv)
 
 
     def iteration_deeping(self):
@@ -372,7 +387,7 @@ class Automation():
         self._number_of_yield = 0         # 処理を途中で譲った数
         self._number_of_passaged = 0      # 空振りで終わったレコード数
 
-        self._ep_table.for_each(on_each=self.on_each)
+        self._epdt_table.for_each(on_each=self.on_each)
 
         return is_update_table
 
@@ -386,20 +401,20 @@ class Automation():
         """
 
         # ファイル読取り。無ければ空テーブル新規作成して保存
-        self._ep_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
+        self._epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
                 new_if_it_no_exists=True)
-        #print(self._ep_table.df)
+        #print(self._epdt_table.df)
 
         # 対象外のケース
         # =============
 
         # NOTE １件以上ないと、 .min() や .max() が nan になってしまう。１件以上あるときに判定する
-        if 0 < len(self._ep_table.df):
-            best_p_error_min = self._ep_table.df['best_p_error'].min()
-            best_p_error_max = self._ep_table.df['best_p_error'].max()
+        if 0 < len(self._epdt_table.df):
+            best_p_error_min = self._epdt_table.df['best_p_error'].min()
+            best_p_error_max = self._epdt_table.df['best_p_error'].max()
             # 絶対値にする
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
@@ -433,7 +448,7 @@ class Automation():
 
 
         # FIXME どこかのタイミングで抜けたい。タイムシェアリングのコードをきちんと書くべきだが
-        while not self._cut_off and (len(self._ep_table.df) < 1 or self._specified_abs_small_error < worst_abs_best_p_error):
+        while not self._cut_off and (len(self._epdt_table.df) < 1 or self._specified_abs_small_error < worst_abs_best_p_error):
 
             # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
             if pd.isnull(worst_abs_best_p_error):
@@ -492,8 +507,8 @@ class Automation():
             #
             #   ［調整後の表が出る確率］を 0.5 になるように目指します。［エラー］列は、［調整後の表が出る確率］と 0.5 の差の絶対値です
             #
-            best_p_error_min = self._ep_table.df['best_p_error'].min()
-            best_p_error_max = self._ep_table.df['best_p_error'].max()
+            best_p_error_min = self._epdt_table.df['best_p_error'].min()
+            best_p_error_max = self._epdt_table.df['best_p_error'].max()
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
 
@@ -504,5 +519,9 @@ class Automation():
             self._is_dirty_csv = False
 
             # 最後に CSV保存
-            print(f"[{datetime.datetime.now()}] 最後に CSV保存 ...")
-            self._ep_table.to_csv()
+            SaveOrIgnore.execute(
+                    log_file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
+                            trial_series=self._specified_trial_series,
+                            turn_system_id=self._specified_turn_system_id,
+                            failure_rate=self._specified_failure_rate),
+                    on_save_and_get_file_name=self._epdt_table.to_csv)

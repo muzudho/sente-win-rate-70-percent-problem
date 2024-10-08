@@ -738,13 +738,13 @@ class TheoreticalProbabilityTable():
             ファイルパス
         """
 
-        # CSVファイルパス
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
                 p=self._spec.p,
                 failure_rate=self._spec.failure_rate,
                 turn_system_id=self._spec.turn_system_id)
 
-        self._df.to_csv(csv_file_path,
+        self._df.to_csv(
+                csv_file_path,
                 columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
 
@@ -1120,13 +1120,20 @@ class EmpiricalProbabilityDuringTrialsTable():
 
 
     def to_csv(self):
-        # ファイルが存在しなかった場合、新規作成
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
+
         csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(
                 trial_series=self._trial_series,
                 turn_system_id=self._turn_system_id,
                 failure_rate=self._failure_rate)
 
-        print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
+        #print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
         # CSV保存
         self._df.to_csv(
@@ -1134,6 +1141,8 @@ class EmpiricalProbabilityDuringTrialsTable():
                 # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
                 columns=['p', 'best_p', 'best_p_error', 'best_span', 'best_t_step', 'best_h_step', 'latest_p', 'latest_p_error', 'latest_span', 'latest_t_step', 'latest_h_step', 'candidates'],
                 index=False)    # NOTE 高速化のためか、なんか列が追加されるので、列が追加されないように index=False を付けた
+
+        return csv_file_path
 
 
     def for_each(self, on_each):
