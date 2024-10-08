@@ -1,5 +1,5 @@
 #
-# python step_o2o3o0_manual_upsert_tpb.py
+# python step_o2o3o0_manual_upsert_record_in_tpb.py
 #
 #   手動で［理論的確率ベスト］（TPB）CSVファイルへアップサートします。
 #   ［仕様］［シリーズ・ルール］について、５分５分に近いものをピックアップします
@@ -11,7 +11,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import PromptCatalog
-from scripts.step_o2o3o0_upsert_a_csv_of_theoretical_probability_best import AutomationOne as StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestOne
+from scripts.step_o2o3o0_upsert_record_in_tpb import AutomationOne as StepO2o3o0UpsertRecordInTPB
 
 
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
             print(f"［理論的確率ベスト］表が有りません")
         
         else:
-            step_o2o3o0_upsert_csv_of_theoretical_probability_best_one = StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestOne(tpb_table=tpb_table)
+            step_o2o3o0_upsert_record_in_tpb = StepO2o3o0UpsertRecordInTPB(tpb_table=tpb_table)
 
             # ［仕様］
             spec = Specification(
@@ -62,7 +62,7 @@ if __name__ == '__main__':
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            is_dirty = step_o2o3o0_upsert_csv_of_theoretical_probability_best_one.execute_a_spec(spec=spec)
+            is_dirty = step_o2o3o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
 
             # ファイルに変更があれば、CSVファイル保存
             if is_dirty:

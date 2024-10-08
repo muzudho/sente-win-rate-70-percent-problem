@@ -17,7 +17,7 @@ from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
 from scripts.step_o2o1o0_insert_new_record_in_tp import Automation as StepO2o1o0InsertNewRecordInTp
 from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
-from scripts.step_o2o3o0_upsert_a_csv_of_theoretical_probability_best import AutomationAll as StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll
+from scripts.step_o2o3o0_upsert_record_in_tpb import AutomationAll as StepO2o3o0UpsertRecordInTPB
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
@@ -184,8 +184,8 @@ class AllTheoreticalProbabilityFilesOperation():
         # TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
         #
         print(f"{self.stringify_log_stamp(spec=spec)}step o2o3o0 upsert record of tpb...")
-        step_o2o3o0_upsert_csv_of_theoretical_probability_best_all = StepO2o3o0UpsertCsvOfTheoreticalProbabilityBestAll()
-        step_o2o3o0_upsert_csv_of_theoretical_probability_best_all.execute_all()
+        step_o2o3o0_upsert_record_in_tpb = StepO2o3o0UpsertRecordInTPB()
+        step_o2o3o0_upsert_record_in_tpb.execute_all()
 
 
         # TODO ［理論的確率データ］のうち、［理論的確率ベスト・データ］に載っているものについて、試行して、その結果を［理論的確率の試行結果データ］に保存したい
