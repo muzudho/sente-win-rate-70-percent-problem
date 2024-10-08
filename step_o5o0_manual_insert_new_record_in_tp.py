@@ -69,8 +69,7 @@ if __name__ == '__main__':
         # FIXME 飛び番で挿入されてる？ ----> 既存行を、最新行で上書きされてるのでは？
         #
         print(f"[{datetime.datetime.now()}] step o5o0 insert new record in tp...")
-        automation = StepO5o0InsertNewRecordInTp.instantiate(
-                depth=specified_depth)
+        automation = StepO5o0InsertNewRecordInTp(depth=specified_depth)
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
         number_of_dirty = automation.execute_by_spec(spec=spec)

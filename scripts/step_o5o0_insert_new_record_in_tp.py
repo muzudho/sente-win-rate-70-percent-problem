@@ -28,12 +28,6 @@ class Automation():
         self._number_of_dirty = 0
 
 
-    @staticmethod
-    def instantiate(depth):
-        return Automation(
-                depth=depth)
-
-
     @property
     def depth(self):
         return self._depth
@@ -147,6 +141,7 @@ class Automation():
                     h_step=h_step)
 
             # レコードの挿入
+            # FIXME 追加ではなく、先頭から上書き保存になってる？
             tp_table.insert_record(
                     welcome_record=TheoreticalProbabilityRecord(
                             span=span,
@@ -167,6 +162,15 @@ class Automation():
                     span=span,
                     t_step=t_step,
                     h_step=h_step)
+
+            # FIXME DEBUG
+            print("デバッグ中166")
+            SaveOrIgnore.execute(
+                    log_file_path=TheoreticalProbabilityFilePaths.as_log(
+                            turn_system_id=spec.turn_system_id,
+                            failure_rate=spec.failure_rate,
+                            p=spec.p),
+                    on_save_and_get_file_name=tp_table.to_csv)
 
 
         # ［理論的確率データ］（TP）ファイル保存
