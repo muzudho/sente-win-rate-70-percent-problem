@@ -16,7 +16,6 @@ from scripts.step_o8o0_create_kds_table import Automation as StepO8o0CreateKDSTa
 
 
 # 実行間隔タイマー
-start_time_for_save = None
 INTERVAL_SECONDS = 5 * 60   # ５分
 
 
@@ -35,15 +34,14 @@ if __name__ == '__main__':
                 message=f"Step o8o0: start to create KDS table. {INTERVAL_SECONDS=}",
                 shall_print=True)
 
-        # リセット
-        start_time_for_save = time.time()       # CSV保存用タイマー
-
         # ［試行シリーズ回数］
         specified_trial_series = DEFAULT_TRIAL_SERIES
 
         # 無限ループ
         while True:
             
+            time.sleep(INTERVAL_SECONDS)
+
             # ［先後の決め方］
             for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
 
@@ -53,35 +51,31 @@ if __name__ == '__main__':
                     specified_failure_rate = specified_failure_rate_percent / 100
 
 
-                    # 指定間隔（秒）
-                    end_time_for_save = time.time()
-                    if INTERVAL_SECONDS <= end_time_for_save - start_time_for_save:
-                        # リセット
-                        start_time_for_save = time.time()       # CSV保存用タイマー
+                    ###############################
+                    # Step.o1o2o0 かくきんデータ作成
+                    ###############################
 
-                        ###############################
-                        # Step.o1o2o0 かくきんデータ作成
-                        ###############################
+                    # ロギング
+                    Logging.notice_log(
+                            file_path=KakukinDataSheetFilePaths.as_log(),
+                            message=f"Step o8o0: create KDS table...",
+                            shall_print=True)
 
-                        # ロギング
-                        Logging.notice_log(
-                                file_path=KakukinDataSheetFilePaths.as_log(),
-                                message=f"Step o8o0: create KDS table...",
-                                shall_print=True)
+                    # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
+                    step_o8o0_create_kds_table = StepO8o0CreateKDSTable(
+                            specified_failure_rate=specified_failure_rate,
+                            specified_turn_system_id=specified_turn_system_id,
+                            specified_trial_series=specified_trial_series)
 
-                        # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
-                        step_o8o0_create_kds_table = StepO8o0CreateKDSTable(
-                                specified_failure_rate=specified_failure_rate,
-                                specified_turn_system_id=specified_turn_system_id,
-                                specified_trial_series=specified_trial_series)
+                    step_o8o0_create_kds_table.execute()
 
-                        step_o8o0_create_kds_table.execute()
 
-                        # ロギング
-                        Logging.notice_log(
-                                file_path=KakukinDataSheetFilePaths.as_log(),
-                                message=f"Step o8o0: restart to create KDS table. {INTERVAL_SECONDS=}",
-                                shall_print=True)
+            # ロギング
+            Logging.notice_log(
+                    file_path=KakukinDataSheetFilePaths.as_log(),
+                    message=f"Step o8o0: restart to create KDS table. {INTERVAL_SECONDS=}",
+                    shall_print=True)
+
 
         # 完了しません
 

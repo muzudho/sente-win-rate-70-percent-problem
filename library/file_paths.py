@@ -116,6 +116,11 @@ class KakukinDataFilePaths():
         return f'reports/auto_generated_kakukin_data{subname}.xlsx'
 
 
+    @staticmethod
+    def as_log():
+        return 'logs/kakukin_data.log'
+
+
 ###########
 # MARK: KDS
 ###########
