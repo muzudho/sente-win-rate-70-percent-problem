@@ -6,7 +6,7 @@ import datetime
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
-from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataFilePaths
+from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths
 
 
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
@@ -263,7 +263,7 @@ class KakukinDataSheetTable():
             ［将棋の引分け率］
         """
 
-        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
+        csv_file_path = KakukinDataSheetFilePaths.as_sheet_csv(
                 trial_series=trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate)
@@ -455,7 +455,7 @@ class KakukinDataSheetTable():
         """
 
         # CSVファイルパス
-        csv_file_path = KakukinDataFilePaths.as_sheet_csv(
+        csv_file_path = KakukinDataSheetFilePaths.as_sheet_csv(
                 trial_series=self._trial_series,
                 turn_system_id=self._turn_system_id,
                 failure_rate=self._failure_rate)

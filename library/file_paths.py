@@ -104,9 +104,9 @@ def make_file_subname(trial_series=None, turn_system_id=None, failure_rate=None,
     return f'_{subname}'
 
 
-###############
-# MARK: KD, KDS
-###############
+##########
+# MARK: KD
+##########
 
 class KakukinDataFilePaths():
     """［かくきんデータ］関連のファイルパス一覧"""
@@ -114,6 +114,14 @@ class KakukinDataFilePaths():
     def as_excel(turn_system_id, trial_series):
         subname = make_file_subname(turn_system_id=turn_system_id, trial_series=trial_series)
         return f'reports/auto_generated_kakukin_data{subname}.xlsx'
+
+
+###########
+# MARK: KDS
+###########
+
+class KakukinDataSheetFilePaths():
+    """［かくきんデータ・シート］関連ファイルパス一覧"""
 
 
     @staticmethod
@@ -124,6 +132,11 @@ class KakukinDataFilePaths():
         subname = make_file_subname(failure_rate=failure_rate, turn_system_id=turn_system_id, trial_series=trial_series)
         # ファイル名は長くなりすぎないようにする
         return f'temp/kakukin_data_sheet/KDS{subname}.csv'    
+
+
+    @staticmethod
+    def as_log():
+        return 'logs/kakukin_data_sheet.log'
 
 
 ###########

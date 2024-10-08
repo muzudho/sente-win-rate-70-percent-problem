@@ -16,9 +16,6 @@ class Logging():
 
         if shall_print:
             print(text)
-
-        if clazz._log_file_path is None:
-            clazz._log_file_path = StepO1o0AutomaticFilePaths.as_log()
         
         with open(file_path, 'a', encoding='utf8') as f:
             f.write(f"{text}\n")
