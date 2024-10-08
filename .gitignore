@@ -1,5 +1,9 @@
 # (^q^)
 *.log
+logs/empirical_probability_during_trials/*
+!logs/empirical_probability_during_trials/.gitkeep
+logs/kakukin_data_sheet/*
+!logs/kakukin_data_sheet/.gitkeep
 
 temp/empirical_probability_during_trials/*
 !temp/empirical_probability_during_trials/.gitkeep

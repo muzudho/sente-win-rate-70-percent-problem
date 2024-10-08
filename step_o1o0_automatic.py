@@ -8,9 +8,10 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, ABS_SMALL_P_ERROR
-from library.file_paths import StepO1o0AutomaticFilePaths
+from library.file_paths import StepO1o0AutomaticFilePaths, EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
 from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as StepO1o1o0CreateCsvToEPDT
+from config import DEFAULT_TRIAL_SERIES
 
 
 ########################################
@@ -23,7 +24,7 @@ if __name__ == '__main__':
 
     try:
         # ［試行シリーズ回数］
-        specified_trial_series = 2000
+        specified_trial_series = DEFAULT_TRIAL_SERIES
 
         # ［先後の決め方］
         for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
@@ -34,13 +35,12 @@ if __name__ == '__main__':
                 specified_failure_rate = specified_failure_rate_percent / 100
 
 
-                ###########
-                # Step.o1o0
-                ###########
-
                 # 進捗記録
                 Logging.notice_log(
-                        file_path=StepO1o0AutomaticFilePaths.as_log(),
+                        file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
+                                trial_series=specified_trial_series,
+                                turn_system_id=specified_turn_system_id,
+                                failure_rate=specified_failure_rate),
                         message=f"failure_rate={specified_failure_rate}",
                         shall_print=True)
 
@@ -50,9 +50,6 @@ if __name__ == '__main__':
                 #######################
 
                 # CSV作成 ［試行中の経験的確率データファイル］
-                #
-                #   NOTE ここ、時間がかかりすぎじゃないか？
-                #
                 create_csv_to_epdt = StepO1o1o0CreateCsvToEPDT(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
