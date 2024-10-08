@@ -1,5 +1,5 @@
 #
-# python step_o2o2o0_manual_update_three_rates_in_tp.py
+# python step_o6o0_manual_update_three_rates_in_tp.py
 #
 # 手動で［理論的確率データ］（TP）表のスリー・レーツ列を更新します
 #
@@ -10,7 +10,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
 from library.views import PromptCatalog
-from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
+from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
@@ -21,7 +21,8 @@ INTERVAL_SECONDS_FOR_SAVE_CSV = 180
 # コマンドから実行時
 ########################################
 if __name__ == '__main__':
-    """コマンドから実行時"""
+    """［理論的確率データ］のスリー・レーツ列を更新する
+    """
 
     try:
         # ［先後の決め方］を尋ねます
@@ -42,11 +43,6 @@ if __name__ == '__main__':
                 turn_system_id=specified_turn_system_id,
                 failure_rate=specified_failure_rate,
                 p=specified_p)
-
-
-        ##########################################################
-        # Step o2o2o0 ［理論的確率データ］のスリー・レーツ列を更新する
-        ##########################################################
 
         #
         # TODO TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列の更新
@@ -69,13 +65,13 @@ if __name__ == '__main__':
             
             else:
 
-                step_o2o2o0_update_three_rates_for_a_file = StepO2o2o0UpdateThreeRatesForAFile(
+                step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
                         seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
 
                 #
                 # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
                 #
-                calculation_status = step_o2o2o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
+                calculation_status = step_o6o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
                         spec=spec,
                         tp_table=tp_table,
 
