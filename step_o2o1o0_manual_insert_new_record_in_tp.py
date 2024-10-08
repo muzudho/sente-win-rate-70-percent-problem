@@ -10,7 +10,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
 from library.views import PromptCatalog
-from scripts.step_o2o1o0_insert_new_record_in_tp import Automation as StepO2o1o0InsertNewRecordInTp
+from scripts.step_o2o1o0_upsert_new_record_in_tp import Automation as StepO2o1o0UpsertNewRecordInTp
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
@@ -76,10 +76,10 @@ if __name__ == '__main__':
             # FIXME 飛び番で挿入されてる？ ----> 既存行を、最新行で上書きされてるのでは？
             #
             print(f"[{datetime.datetime.now()}] step o2o1o0 insert new record in tp...")
-            step_o2o1o0_insert_new_record_in_tp = StepO2o1o0InsertNewRecordInTp()
+            step_o2o1o0_upsert_new_record_in_tp = StepO2o1o0UpsertNewRecordInTp()
 
             # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-            number_of_dirty = step_o2o1o0_insert_new_record_in_tp.insert_new_file(
+            number_of_dirty = step_o2o1o0_upsert_new_record_in_tp.execute(
                     spec=spec,
                     tp_table=tp_table,
                     is_tp_file_created=is_tp_file_created,

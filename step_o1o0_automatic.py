@@ -1,5 +1,5 @@
 #
-# やっつけプログラム１号
+# 自動プログラム１号
 # python step_o1o0_automatic.py
 #
 #

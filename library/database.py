@@ -2,6 +2,8 @@
 # NOTE pandas のデータフレームの列の型の初期値が float なので、いちいち設定する手間を省くため、読み込み時にそれぞれ型を明示しておく
 #
 import os
+import time
+import random
 import datetime
 import pandas as pd
 
@@ -621,20 +623,31 @@ class TheoreticalProbabilityTable():
                 failure_rate=spec.failure_rate,
                 turn_system_id=spec.turn_system_id)
 
+        is_file_exists = os.path.isfile(csv_file_path)
+
+        # ファイルが既存だったら、そのファイルを読む
+        if is_file_exists:
+            while True: # retry
+                try:
+                    df = pd.read_csv(csv_file_path, encoding="utf8",
+                            dtype=clazz._dtype)
+                    tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
+                    break
+                
+                # テーブルに列が無かったら、ファイル生成のタイミングと被ったか？ リトライしてみる
+                except pd.errors.EmptyDataError as e:
+                    wait_for_seconds = random.randint(30, 5*60)
+                    print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
+
         # ファイルが存在しなかった場合
-        is_new = not os.path.isfile(csv_file_path)
-        if is_new:
+        else:
             if new_if_it_no_exists:
                 tp_table = TheoreticalProbabilityTable.new_empty_table(spec=spec)
             else:
                 tp_table = None
-        else:
-            df = pd.read_csv(csv_file_path, encoding="utf8",
-                    dtype=clazz._dtype)
-            tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
 
 
-        return tp_table, is_new
+        return tp_table, not is_file_exists
 
 
     @property

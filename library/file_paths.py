@@ -156,6 +156,11 @@ class TheoreticalProbabilityBestFilePaths():
         return f'data/thoretical_probability_best.csv'
 
 
+    @staticmethod
+    def as_log():
+        return f'logs/thoretical_probability_best.log'
+
+
 ##########
 # MARK: TP
 ##########

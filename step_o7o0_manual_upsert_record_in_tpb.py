@@ -1,5 +1,5 @@
 #
-# python step_o2o3o0_manual_upsert_record_in_tpb.py
+# python step_o7o0_manual_upsert_record_in_tpb.py
 #
 #   手動で［理論的確率ベスト］（TPB）CSVファイルへアップサートします。
 #   ［仕様］［シリーズ・ルール］について、５分５分に近いものをピックアップします
@@ -9,17 +9,23 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
+from library import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import PromptCatalog
-from scripts.step_o2o3o0_upsert_record_in_tpb import AutomationOne as StepO2o3o0UpsertRecordInTPB
+from scripts import SaveWithRetry
+from scripts.step_o7o0_upsert_record_in_tpb import AutomationOne as StepO7o0UpsertRecordInTPB
 
 
 
 ########################################
 # コマンドから実行時
 ########################################
+
 if __name__ == '__main__':
-    """コマンドから実行時"""
+    """Step O2o3o0 ［理論的確率ベスト］表の新規作成または更新
+
+    TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります    
+    """
 
     try:
         # ［先後の決め方］を尋ねます
@@ -35,14 +41,6 @@ if __name__ == '__main__':
         specified_p = PromptCatalog.what_is_the_probability_of_flipping_a_coin_and_getting_heads()
 
 
-        ####################################################
-        # Step O2o3o0 ［理論的確率ベスト］表の新規作成または更新
-        ####################################################
-
-        #
-        # TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
-        #
-
         # ［理論的確率ベスト］表を読込。無ければナン
         tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
 
@@ -51,7 +49,7 @@ if __name__ == '__main__':
             print(f"［理論的確率ベスト］表が有りません")
         
         else:
-            step_o2o3o0_upsert_record_in_tpb = StepO2o3o0UpsertRecordInTPB(tpb_table=tpb_table)
+            step_o7o0_upsert_record_in_tpb = StepO7o0UpsertRecordInTPB(tpb_table=tpb_table)
 
             # ［仕様］
             spec = Specification(
@@ -62,12 +60,13 @@ if __name__ == '__main__':
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            is_dirty = step_o2o3o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
+            is_dirty = step_o7o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
 
             # ファイルに変更があれば、CSVファイル保存
             if is_dirty:
-                csv_file_path_to_wrote = TheoreticalProbabilityBestTable.to_csv()
-                print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={spec.failure_rate * 100:.1f}%  p={spec.p * 100:.1f}] write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                SaveWithRetry.execute(
+                        log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
+                        on_save_and_get_file_name=TheoreticalProbabilityBestTable.to_csv)
 
 
         print(f"おわり！")

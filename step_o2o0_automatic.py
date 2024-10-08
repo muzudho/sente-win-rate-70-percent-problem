@@ -15,9 +15,9 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
-from scripts.step_o2o1o0_insert_new_record_in_tp import Automation as StepO2o1o0InsertNewRecordInTp
+from config import DEFAULT_MAX_DEPTH
+from scripts.step_o2o1o0_upsert_new_record_in_tp import Automation as StepO2o1o0UpsertNewRecordInTp
 from scripts.step_o2o2o0_update_three_rates_for_a_file import Automation as StepO2o2o0UpdateThreeRatesForAFile
-from scripts.step_o2o3o0_upsert_record_in_tpb import AutomationAll as StepO2o3o0UpsertRecordInTPB
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
@@ -110,10 +110,10 @@ class AllTheoreticalProbabilityFilesOperation():
         # FIXME 飛び番で挿入されてる？
         #
         print(f"{self.stringify_log_stamp(spec=spec)}step o2o1o0 insert new record in tp...")
-        step_o2o1o0_insert_new_record_in_tp = StepO2o1o0InsertNewRecordInTp()
+        step_o2o1o0_upsert_new_record_in_tp = StepO2o1o0UpsertNewRecordInTp()
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-        temp_number_of_dirty = step_o2o1o0_insert_new_record_in_tp.insert_new_file(
+        temp_number_of_dirty = step_o2o1o0_upsert_new_record_in_tp.execute(
                 spec=spec,
                 tp_table=tp_table,
                 is_tp_file_created=is_tp_file_created,
@@ -176,18 +176,6 @@ class AllTheoreticalProbabilityFilesOperation():
         #     raise ValueError(f"{calculation_status=}")
 
 
-        ######################################################
-        # Step o2o3o0 ［理論的確率ベストデータ］新規作成または更新
-        ######################################################
-
-        #
-        # TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
-        #
-        print(f"{self.stringify_log_stamp(spec=spec)}step o2o3o0 upsert record of tpb...")
-        step_o2o3o0_upsert_record_in_tpb = StepO2o3o0UpsertRecordInTPB()
-        step_o2o3o0_upsert_record_in_tpb.execute_all()
-
-
         # TODO ［理論的確率データ］のうち、［理論的確率ベスト・データ］に載っているものについて、試行して、その結果を［理論的確率の試行結果データ］に保存したい
 
 
@@ -195,14 +183,13 @@ class AllTheoreticalProbabilityFilesOperation():
 # コマンドから実行時
 ########################################
 
-
 if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
         # TODO 自動調整のいい方法が思い浮かばない
         # とりあえず、 depth が どんどん増えていくものとする。
-        for depth in range(1, 1000):
+        for depth in range(1, DEFAULT_MAX_DEPTH):
 
             all_theoretical_probability_files_operation = AllTheoreticalProbabilityFilesOperation(depth=depth)
 

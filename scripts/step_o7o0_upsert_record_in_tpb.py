@@ -125,7 +125,11 @@ class AutomationOne():
 
         # 該当レコードがあれば、適当に先頭の１件だけ返す。無ければナンを返す
         if 0 < len(result_set_df):
-            index = result_set_df.index[0]
+            #
+            # NOTE インデックスが重複しているデータを含んでいてはいけません
+            #
+            index = result_set_df.index[0]  # インデックスで１件に絞り込める前提
+            print(f"[{datetime.datetime.now()}] get_best_tp_record_or_none {index=}")
             return TheoreticalProbabilityRecord(
                     span=result_set_df.at[index, 'span'],
                     t_step=result_set_df.at[index, 't_step'],
