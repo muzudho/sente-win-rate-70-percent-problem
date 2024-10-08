@@ -582,8 +582,6 @@ class TheoreticalProbabilityTable():
         self._df = df
         self._spec = spec
 
-        self.set_index()
-
 
     @classmethod
     def new_empty_table(clazz, spec):
@@ -594,8 +592,8 @@ class TheoreticalProbabilityTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []}).astype(clazz._dtype)
-
+                'theoretical_no_win_match_rate': []})
+        clazz.setup_data_frame(tp_df)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
 
@@ -631,6 +629,7 @@ class TheoreticalProbabilityTable():
                 try:
                     df = pd.read_csv(csv_file_path, encoding="utf8",
                             dtype=clazz._dtype)
+                    clazz.setup_data_frame(df)
                     tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
                     break
                 
@@ -655,15 +654,22 @@ class TheoreticalProbabilityTable():
         return self._df
 
 
-    def set_index(self):
-        """主キーの設定"""
-        self._df.set_index(
+    @classmethod
+    def setup_data_frame(clazz, df):
+        """テーブルの設定"""
+
+        # データ型の設定
+        df.astype(clazz._dtype)
+
+        # インデックスの設定
+        df.set_index(
                 ['span', 't_step', 'h_step'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        
+
+        # ソートの設定        
         # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
-        self._df.sort_index(
+        df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
@@ -675,18 +681,31 @@ class TheoreticalProbabilityTable():
         return result_set_df
 
 
-    def sub_insert_record(self, index, welcome_record):
-        self._df.at[index, 'span'] = welcome_record.span
-        self._df.at[index, 't_step'] = welcome_record.t_step
-        self._df.at[index, 'h_step'] = welcome_record.h_step
-        self._df.at[index, 'shortest_coins'] = welcome_record.shortest_coins
-        self._df.at[index, 'upper_limit_coins'] = welcome_record.upper_limit_coins
-        self._df.at[index, 'theoretical_a_win_rate'] = welcome_record.theoretical_a_win_rate
-        self._df.at[index, 'theoretical_no_win_match_rate'] = welcome_record.theoretical_no_win_match_rate
+    @classmethod
+    def merge_record(clazz, base_df, welcome_record):
+
+        # 新規レコードが入ったデータフレームを新規作成します
+        new_df = pd.DataFrame.from_dict({
+                'span': [welcome_record.span],
+                't_step': [welcome_record.t_step],
+                'h_step': [welcome_record.h_step],
+                'shortest_coins': [welcome_record.shortest_coins],
+                'upper_limit_coins': [welcome_record.upper_limit_coins],
+                'theoretical_a_win_rate': [welcome_record.theoretical_a_win_rate],
+                'theoretical_no_win_match_rate': [welcome_record.theoretical_no_win_match_rate]})
+        clazz.setup_data_frame(new_df)
+
+        # ２つのテーブルを連結します
+        merged_df = pd.concat(
+                [base_df, new_df],
+                ignore_index=True)  # 真： インデックスを振り直します
+        clazz.setup_data_frame(merged_df)
+
+        return merged_df
 
 
     def insert_record(self, welcome_record):
-        self.sub_insert_record(index=len(self._df.index), welcome_record=welcome_record)
+        self._df = TheoreticalProbabilityTable.merge_record(base_df=self._df, welcome_record=welcome_record)
 
 
     def update_record(self, index, welcome_record):
@@ -704,7 +723,7 @@ class TheoreticalProbabilityTable():
 
         if is_dirty:
             # データフレーム更新
-            self.sub_insert_record(index=index, welcome_record=welcome_record)
+            self._df = TheoreticalProbabilityTable.merge_record(base_df=self._df, welcome_record=welcome_record)
 
         return is_dirty
 
