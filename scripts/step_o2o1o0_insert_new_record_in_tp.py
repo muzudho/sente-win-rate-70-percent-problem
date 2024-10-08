@@ -8,8 +8,8 @@ from library.database import TheoreticalProbabilityRecord
 class Automation():
 
 
-    def upsert_a_file(self, spec, tp_table, is_tp_file_created, upper_limit_span):
-        """［理論的確率データ］の行を更新する"""
+    def insert_new_file(self, spec, tp_table, is_tp_file_created, upper_limit_span):
+        """［理論的確率データ］の新規行を挿入する"""
         number_of_dirty = 0
 
         # ループカウンター
@@ -76,12 +76,8 @@ class Automation():
                         t_step=t_step,
                         h_step=h_step)
 
-                # レコードの挿入または更新
-                #
-                #   TODO 挿入だけでいいのでは？
-                #
-                tp_table.upsert_record(
-                        result_set_df_by_index=result_set_df_by_index,
+                # 新規レコードの挿入
+                tp_table.insert_record(
                         welcome_record=TheoreticalProbabilityRecord(
                                 span=span,
                                 t_step=t_step,

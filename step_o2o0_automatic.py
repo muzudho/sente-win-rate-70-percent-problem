@@ -113,7 +113,7 @@ class AllTheoreticalProbabilityFilesOperation():
         step_o2o1o0_insert_new_record_in_tp = StepO2o1o0InsertNewRecordInTp()
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-        temp_number_of_dirty = step_o2o1o0_insert_new_record_in_tp.upsert_a_file(
+        temp_number_of_dirty = step_o2o1o0_insert_new_record_in_tp.insert_new_file(
                 spec=spec,
                 tp_table=tp_table,
                 is_tp_file_created=is_tp_file_created,

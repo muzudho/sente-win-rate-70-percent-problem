@@ -65,37 +65,36 @@ if __name__ == '__main__':
         
         else:
 
-            # ファイルが存在しなければ、スキップ。あれば読み込む
-            tp_table, is_tp_file_created = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
+            # ファイルが存在しなければ新規作成。あれば読み込む
+            tp_table, is_tp_file_created = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
 
             if tp_table is None:
-                print(f"スキップ。［理論的確率データ］表が有りません")
+                raise ValueError(f"［理論的確率データ］表が新規作成されていないのはおかしい")
             
-            else:
 
-                #
-                # FIXME 飛び番で挿入されてる？ ----> 既存行を、最新行で上書きされてるのでは？
-                #
-                print(f"[{datetime.datetime.now()}] step o2o1o0 insert new record in tp...")
-                step_o2o1o0_insert_new_record_in_tp = StepO2o1o0InsertNewRecordInTp()
+            #
+            # FIXME 飛び番で挿入されてる？ ----> 既存行を、最新行で上書きされてるのでは？
+            #
+            print(f"[{datetime.datetime.now()}] step o2o1o0 insert new record in tp...")
+            step_o2o1o0_insert_new_record_in_tp = StepO2o1o0InsertNewRecordInTp()
 
-                # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-                number_of_dirty = step_o2o1o0_insert_new_record_in_tp.upsert_a_file(
-                        spec=spec,
-                        tp_table=tp_table,
-                        is_tp_file_created=is_tp_file_created,
+            # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
+            number_of_dirty = step_o2o1o0_insert_new_record_in_tp.insert_new_file(
+                    spec=spec,
+                    tp_table=tp_table,
+                    is_tp_file_created=is_tp_file_created,
 
-                        #
-                        # NOTE 内容をどれぐらい作るかは、 upper_limit_span （span の上限）を指定することにする。
-                        # 数字が増えると処理が重くなる。 10 ぐらいまですぐ作れるが、 20 を超えると数秒かかるようになる
-                        #
-                        upper_limit_span=specified_depth)
+                    #
+                    # NOTE 内容をどれぐらい作るかは、 upper_limit_span （span の上限）を指定することにする。
+                    # 数字が増えると処理が重くなる。 10 ぐらいまですぐ作れるが、 20 を超えると数秒かかるようになる
+                    #
+                    upper_limit_span=specified_depth)
 
 
-                # ［理論的確率データ］（TP）ファイル保存
-                if 0 < number_of_dirty:
-                    csv_file_path_to_wrote = tp_table.to_csv()
-                    print(f"[{datetime.datetime.now()}] SAVE_FILE  {number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
+            # ［理論的確率データ］（TP）ファイル保存
+            if 0 < number_of_dirty:
+                csv_file_path_to_wrote = tp_table.to_csv()
+                print(f"[{datetime.datetime.now()}] SAVE_FILE  {number_of_dirty=}  write file to `{csv_file_path_to_wrote}` ...")
 
 
         print(f"おわり！")
