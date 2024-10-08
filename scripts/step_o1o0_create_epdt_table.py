@@ -47,7 +47,7 @@ class Automation():
         self._cut_off = False   # FIXME 打ち切りフラグ。本当はタイムシェアリング書くべき
 
 
-    def update_dataframe(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
+    def upsert_data_frame(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
             latest_p, latest_p_error, latest_series_rule, candidates):
         """データフレーム更新
         
@@ -264,7 +264,7 @@ class Automation():
                                 candidates = candidate_str
 
                             # 表示とデータフレーム更新
-                            self.update_dataframe(
+                            self.upsert_data_frame(
                                     spec=spec,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
@@ -339,7 +339,7 @@ class Automation():
         # 空振りが１回でもあれば、途中状態を保存
         if 0 < passage_count:
             # 表示とデータフレーム更新
-            self.update_dataframe(
+            self.upsert_data_frame(
                     spec=spec,
                     best_p=best_p,
                     best_p_error=best_p_error,
