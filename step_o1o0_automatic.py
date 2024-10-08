@@ -9,9 +9,9 @@ import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, ABS_SMALL_P_ERROR
 from library.file_paths import StepO1o0AutomaticFilePaths
-from library.logging import StepO1o0AutomaticLogging
+from library.logging import Logging
 from scripts.step_o1o1o0_create_a_csv_to_epdt import Automation as StepO1o1o0CreateCsvToEPDT
-from scripts.step_o1o2o0_create_kakukin_data_sheet_csv_file import Automation as StepO1o2o0CreateKakukinDataSheetCsvFile
+from scripts.step_o8o0_create_kds_table import Automation as StepO8o0CreateKDSTable
 
 
 ########################################
@@ -40,8 +40,9 @@ if __name__ == '__main__':
                 ###########
 
                 # 進捗記録
-                StepO1o0AutomaticLogging.log_progress(
-                        failure_rate=specified_failure_rate,
+                Logging.debug_log(
+                        file_path=StepO1o0AutomaticFilePaths.as_log(),
+                        message=f"failure_rate={specified_failure_rate}",
                         shall_print=True)
 
 
@@ -67,12 +68,12 @@ if __name__ == '__main__':
                 ###############################
 
                 # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
-                step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(
+                step_o8o0_create_kds_table = StepO8o0CreateKDSTable(
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
                         specified_trial_series=specified_trial_series)
 
-                step_o1o2o0_create_kakukin_data_sheet_csv_file.execute()
+                step_o8o0_create_kds_table.execute()
 
 
         progress = f"[{datetime.datetime.now()}] 完了"

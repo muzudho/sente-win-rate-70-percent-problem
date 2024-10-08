@@ -1,0 +1,2 @@
+# ［試行シリーズ回数］
+DEFAULT_TRIAL_SERIES = 2000

@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.step_o1o2o0_create_kakukin_data_sheet_csv_file import Automation as StepO1o2o0CreateKakukinDataSheetCsvFile
+from scripts.step_o8o0_create_kds_table import Automation as StepO8o0CreateKDSTable
 
 
 ########################################
@@ -35,12 +35,12 @@ if __name__ == '__main__':
         # FIXME ［理論値の確率ベスト］表は先に更新されている必要があります
 
 
-        step_o1o2o0_create_kakukin_data_sheet_csv_file = StepO1o2o0CreateKakukinDataSheetCsvFile(
+        step_o8o0_create_kds_table = StepO8o0CreateKDSTable(
                 specified_trial_series=specified_trial_series,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_failure_rate=specified_failure_rate)
 
-        step_o1o2o0_create_kakukin_data_sheet_csv_file.execute()
+        step_o8o0_create_kds_table.execute()
 
 
     except Exception as err:

@@ -6,21 +6,19 @@ import datetime
 from library.file_paths import StepO1o0AutomaticFilePaths
 
 
-class StepO1o0AutomaticLogging():
+class Logging():
+    """ロギング"""
 
 
-    _log_file_path = None
-
-
-    @classmethod
-    def log_progress(clazz, failure_rate, shall_print=False):
-        progress = f"[{datetime.datetime.now()}] {failure_rate=}"
+    @staticmethod
+    def notice_log(file_path, message, shall_print=False):
+        text = f"[{datetime.datetime.now()}] NOTICE {message}"
 
         if shall_print:
-            print(progress)
+            print(text)
 
         if clazz._log_file_path is None:
             clazz._log_file_path = StepO1o0AutomaticFilePaths.as_log()
         
-        with open(clazz._log_file_path, 'a', encoding='utf8') as f:
-            f.write(f"{progress}\n")
+        with open(file_path, 'a', encoding='utf8') as f:
+            f.write(f"{text}\n")
