@@ -687,7 +687,23 @@ How many win points of tail of coin? """
         prompt = f"""\
 
 Example: 2
+
+［先手で勝ったときの勝ち点］はいくつにしますか？
 How many win points of head of coin? """
         specified_h_step = int(input(prompt))
 
         return specified_h_step
+
+
+    @staticmethod
+    def how_many_depth_in_search():
+        """［探索の深さ］を尋ねます"""
+        prompt = f"""\
+
+Example: 6
+
+［探索の深さ］はいくつにしますか？
+How many depth in search? """
+        depth = int(input(prompt))
+
+        return depth
