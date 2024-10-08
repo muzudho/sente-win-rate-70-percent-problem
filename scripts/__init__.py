@@ -20,7 +20,7 @@ class SaveOrIgnore():
         ----------
         log_file_path : str
             保存するファイルへのパス
-        on_save_and_get_csv_file_name : func
+        on_save_and_get_file_name : func
             ファイルへ保存し、そのファイル名を返す関数
         """
         try:
@@ -53,7 +53,7 @@ class SaveWithRetry():
         ----------
         log_file_path : str
             ログ・ファイルへのパス
-        on_save_and_get_csv_file_name : func
+        on_save_and_get_file_name : func
             ファイルへ保存し、そのファイル名を返す関数
         """
         while True:

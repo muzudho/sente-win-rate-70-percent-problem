@@ -215,3 +215,10 @@
             # if is_new:
             #if len(result_set_df_by_index) < 1:
 ```
+
+
+```
+            ep_df = self._epdt_table.df
+            list_of_enable_each_row = (ep_df['p'] == p)
+            if not list_of_enable_each_row.any():
+```

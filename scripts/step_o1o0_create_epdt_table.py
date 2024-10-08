@@ -8,7 +8,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, judge_series, SeriesRule, calculate_probability, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, ABS_OUT_OF_ERROR, Converter, judge_series, SeriesRule, LargeSeriesTrialSummary, Specification, SequenceOfFaceOfCoin, Candidate
 from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from scripts import SaveOrIgnore
@@ -77,56 +77,6 @@ class Automation():
                         candidates=candidates))
 
         self._is_dirty_csv = True
-
-
-    def ready_records(self):
-        """EVENテーブルについて、まず、行の存在チェック。無ければ追加"""
-        is_insert_record = False
-
-        # ［コインを投げて表が出る確率］
-        for p_parcent in range(int(EVEN * 100), int(UPPER_LIMIT_OF_P * 100) + 1):
-            p = p_parcent / 100
-            
-            # 指定の p のレコードが１件も存在しなければデフォルトのレコード追加
-            ep_df = self._epdt_table.df
-            list_of_enable_each_row = (ep_df['p'] == p)
-            if not list_of_enable_each_row.any():
-
-                # ［仕様］
-                spec = Specification(
-                        turn_system_id=self._specified_turn_system_id,
-                        failure_rate=self._specified_failure_rate,
-                        p=p)
-                
-                result_set_df_by_index = self._epdt_table.get_result_set_by_index(
-                        p=spec.p)
-
-                # レコードの挿入または更新
-                self._epdt_table.upsert_record(
-                        result_set_df_by_index=result_set_df_by_index,
-                        welcome_record=EmpiricalProbabilityDuringTrialsRecord(
-                                p=spec.p,
-                                best_p=0,
-                                best_p_error=ABS_OUT_OF_ERROR,
-                                best_h_step=0,
-                                best_t_step=1,
-                                best_span=1,
-                                latest_p=0,
-                                latest_p_error=ABS_OUT_OF_ERROR,
-                                latest_h_step=0,
-                                latest_t_step=1,
-                                latest_span=1,
-                                candidates=''))
-                is_insert_record = True
-
-        if is_insert_record:
-            # CSV保存
-            SaveOrIgnore.execute(
-                    log_file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
-                            trial_series=self._specified_trial_series,
-                            turn_system_id=self._specified_turn_system_id,
-                            failure_rate=self._specified_failure_rate),
-                    on_save_and_get_csv_file_name=self._epdt_table.to_csv)
 
 
     def on_each(self, record):
@@ -374,13 +324,6 @@ class Automation():
         """
 
         is_update_table = False
-
-        # まず、行の存在チェック。無ければ追加
-        self.ready_records()
-
-
-        # NOTE ［試行シリーズ数］が違うものを１つのファイルに混ぜたくない。ファイルを分けてある
-
 
         self._number_of_target = 0        # 処理対象の数
         self._number_of_smalled = 0       # 処理完了の数
