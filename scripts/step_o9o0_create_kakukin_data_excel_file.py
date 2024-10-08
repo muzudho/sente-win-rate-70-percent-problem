@@ -13,6 +13,7 @@ from library.file_paths import KakukinDataFilePaths
 from library.logging import Logging
 from library.database import KakukinDataSheetTable
 from library.excel_files import KakukinDataExcelFile
+from scripts import SaveWithRetry
 
 
 class Automation():
@@ -125,25 +126,6 @@ class Automation():
 
 
         # ［かくきんデータ・エクセル・ファイル］保存
-        while True:
-            try:
-                excel_file_path = kakukin_data_excel_file.save()
-
-                # ロギング
-                Logging.notice_log(
-                        file_path=KakukinDataFilePaths.as_log(),
-                        message=f"Step o9o0: save KD to `{excel_file_path}` file...",
-                        shall_print=True)
-                break
-
-            except PermissionError as e:
-                # ファイルを開いて作業中かもしれない。しばらく待ってリトライする
-                wait_for_seconds = random.randint(30, 15*60)
-
-                # ロギング
-                Logging.notice_log(
-                        file_path=KakukinDataFilePaths.as_log(),
-                        message=f"Step o9o0: save KD file to failed. wait for {wait_for_seconds} seconds and retry. {e}",
-                        shall_print=True)
-
-                time.sleep(wait_for_seconds)
+        SaveWithRetry.execute(
+                file_path=KakukinDataFilePaths.as_log(),
+                on_save_and_get_file_name=kakukin_data_excel_file.save)

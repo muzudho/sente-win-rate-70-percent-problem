@@ -134,4 +134,4 @@ class Automation():
 
         # ［かくきんデータ・シート］のCSVファイル出力
         csv_file_path = self._kds_table.to_csv()
-        print(f"[{datetime.datetime.now()}] step_o1o2o0_create_kakukin_data_sheet_csv_file. write view to `{csv_file_path}` file ...")
+        print(f"[{datetime.datetime.now()}] step_o8o0_create_kds_table. write view to `{csv_file_path}` file ...")
