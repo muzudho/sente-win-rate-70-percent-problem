@@ -127,5 +127,5 @@ class Automation():
 
         # ［かくきんデータ・エクセル・ファイル］保存
         SaveWithRetry.execute(
-                file_path=KakukinDataFilePaths.as_log(),
+                log_file_path=KakukinDataFilePaths.as_log(),
                 on_save_and_get_file_name=kakukin_data_excel_file.save)

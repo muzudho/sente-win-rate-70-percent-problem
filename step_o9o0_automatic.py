@@ -44,7 +44,7 @@ if __name__ == '__main__':
                     # ロギング
                     Logging.notice_log(
                             file_path=KakukinDataFilePaths.as_log(),
-                            message=f"[turn_system_name={Converter.turn_system_id_to_name(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] Step o9o0: create KD table. {INTERVAL_SECONDS=}",
+                            message=f"[turn_system_name={Converter.turn_system_id_to_name(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] Step o9o0: create KD table",
                             shall_print=True)
 
                     # ［かくきんデータ］エクセル・ファイルの作成

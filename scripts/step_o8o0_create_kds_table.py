@@ -4,8 +4,9 @@
 import datetime
 
 from library import ALICE, BOB, SUCCESSFUL, FAILED, HEAD, TAIL, OUT_OF_P, Converter, Specification, SeriesRule, try_series
-from library.file_paths import KakukinDataFilePaths
+from library.file_paths import KakukinDataFilePaths, KakukinDataSheetFilePaths
 from library.database import TheoreticalProbabilityBestTable, KakukinDataSheetRecord, KakukinDataSheetTable
+from scripts import SaveOrIgnore
 
 
 class Automation():
@@ -133,5 +134,8 @@ class Automation():
 
 
         # ［かくきんデータ・シート］のCSVファイル出力
-        csv_file_path = self._kds_table.to_csv()
-        print(f"[{datetime.datetime.now()}] step_o8o0_create_kds_table. write view to `{csv_file_path}` file ...")
+        SaveOrIgnore.execute(
+                log_file_path=KakukinDataSheetFilePaths.as_log(),
+                on_save_and_get_file_name=self._kds_table.to_csv)
+        #csv_file_path = self._kds_table.to_csv()
+        #print(f"[{datetime.datetime.now()}] step_o8o0_create_kds_table. write view to `{csv_file_path}` file ...")
