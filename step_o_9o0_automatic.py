@@ -7,7 +7,7 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_SMALL_P_ERROR, Converter
+from library import FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR, Converter
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
 from scripts import ForEachTsFr
@@ -41,7 +41,7 @@ class Automatic():
                 specified_trial_series=self._trial_series,
                 specified_failure_rate=failure_rate,
                 specified_turn_system_id=turn_system_id,
-                specified_abs_small_error=ABS_SMALL_P_ERROR)
+                smaller_abs_error=SMALL_P_ABS_ERROR)
         
         is_update_table = automation.execute()
 

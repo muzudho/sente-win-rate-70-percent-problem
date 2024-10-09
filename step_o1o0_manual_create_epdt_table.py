@@ -37,7 +37,7 @@ if __name__ == '__main__':
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_trial_series=specified_trial_series,
-                specified_abs_small_error=specified_abs_small_error)
+                smaller_abs_error=specified_abs_small_error)
         
         automation.execute()
 

@@ -13,11 +13,11 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, specified_abs_small_error, interval_seconds, epdt_table):
+    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, smaller_abs_error, interval_seconds, epdt_table):
         self._specified_trial_series = specified_trial_series
         self._specified_turn_system_id = specified_turn_system_id
         self._specified_failure_rate = specified_failure_rate
-        self._specified_abs_small_error = specified_abs_small_error
+        self._smaller_abs_error = smaller_abs_error
         self._interval_seconds = interval_seconds
         self._epdt_table = epdt_table
 
@@ -81,7 +81,7 @@ class Automation():
 
         # 更新が終わってるか確認
         min_best_abs_p_error = (self._epdt_table.df['best_p_error'] - EVEN).abs().min()
-        if min_best_abs_p_error < self._specified_abs_small_error:
+        if min_best_abs_p_error < self._smaller_abs_error:
             print(f"[{datetime.datetime.now()}] it was over")
             self._is_smalled = True
             return
@@ -194,7 +194,7 @@ class Automation():
 
 
         # 探索は十分か？
-        is_sufficient = (abs(B.p_error) < self._specified_abs_small_error)
+        is_sufficient = (abs(B.p_error) < self._smaller_abs_error)
 
         # 探索打切り判定
         is_cutoff = any([

@@ -99,7 +99,7 @@ ABS_OUT_OF_ERROR = 0.51
 
 
 # 小数点第４位を四捨五入しても 0.01% の精度が出るように
-ABS_SMALL_P_ERROR = 0.0004
+SMALL_P_ABS_ERROR = 0.0004
 
 
 # 五分五分

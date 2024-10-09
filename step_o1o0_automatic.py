@@ -7,7 +7,7 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_SMALL_P_ERROR, Converter
+from library import FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR, Converter
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
 from scripts.step_o1o0_create_all_epdt_tables import Automation as StepO1o0CreateAllEPDTTables
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
         automatic_1 = StepO1o0CreateAllEPDTTables(
                 trial_series=trial_series,
-                abs_small_error=ABS_SMALL_P_ERROR,
+                abs_small_error=SMALL_P_ABS_ERROR,
                 interval_seconds=INTERVAL_SECONDS_ON_TABLE)
         automatic_1.execute_all_epdt_tables()
 

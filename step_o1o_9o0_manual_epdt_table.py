@@ -7,7 +7,7 @@
 import traceback
 import datetime
 
-from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, ABS_SMALL_P_ERROR, Converter, Specification
+from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR, Converter, Specification
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
@@ -54,7 +54,7 @@ if __name__ == '__main__':
                     specified_trial_series=specified_trial_series,
                     specified_turn_system_id=specified_turn_system_id,
                     specified_failure_rate=specified_failure_rate,
-                    specified_abs_small_error=ABS_SMALL_P_ERROR,
+                    smaller_abs_error=SMALL_P_ABS_ERROR,
                     interval_seconds=INTERVAL_SECONDS_ON_TABLE,
                     epdt_table=epdt_table)
 

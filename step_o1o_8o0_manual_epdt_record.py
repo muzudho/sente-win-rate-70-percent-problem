@@ -7,7 +7,7 @@
 import traceback
 import datetime
 
-from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, ABS_SMALL_P_ERROR, Converter, Specification
+from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR, Converter, Specification
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
@@ -59,7 +59,7 @@ class Manual():
 
 
         # 探索は十分か？
-        if abs(B.p_error) < ABS_SMALL_P_ERROR:
+        if abs(B.p_error) < SMALL_P_ABS_ERROR:
             return True     # break
 
         return False    # continue

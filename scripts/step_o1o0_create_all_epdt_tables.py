@@ -125,7 +125,7 @@ class Automation():
                 specified_trial_series=self._specified_trial_series,
                 specified_turn_system_id=turn_system_id,
                 specified_failure_rate=failure_rate,
-                specified_abs_small_error=self._specified_abs_small_error,
+                smaller_abs_error=self._specified_abs_small_error,
                 interval_seconds=self._interval_seconds,
                 epdt_table=epdt_table)
         epdt_table.for_each(on_each=o1o09o0_edpt_table.execute_by_epdt_record)
@@ -134,7 +134,7 @@ class Automation():
         #
         # NOTE 小数点以下の桁を長く出しても見づらい
         #
-        print(f"[{datetime.datetime.now()}][failure_rate={self._specified_failure_rate}]  is_smalled={o1o09o0_edpt_table.is_smalled}  target={o1o09o0_edpt_table.number_of_target}  smalled={o1o09o0_edpt_table.number_of_smalled}  yield={o1o09o0_edpt_table.number_of_yield}  passaged={o1o09o0_edpt_table.number_of_passaged}  interval_seconds={self._interval_seconds}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  small_error={self._specified_abs_small_error:.7f}")
+        print(f"[{datetime.datetime.now()}][{failure_rate=}]  is_smalled={o1o09o0_edpt_table.is_smalled}  target={o1o09o0_edpt_table.number_of_target}  smalled={o1o09o0_edpt_table.number_of_smalled}  yield={o1o09o0_edpt_table.number_of_yield}  passaged={o1o09o0_edpt_table.number_of_passaged}  interval_seconds={self._interval_seconds}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  small_error={self._specified_abs_small_error:.7f}")
 
 
         # 処理が完了したから、ループを抜ける

@@ -17,11 +17,11 @@ class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, specified_abs_small_error):
-        self._specified_trial_series=specified_trial_series
-        self._specified_turn_system_id=specified_turn_system_id
-        self._specified_failure_rate=specified_failure_rate
-        self._specified_abs_small_error=specified_abs_small_error
+    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, smaller_abs_error):
+        self._specified_trial_series = specified_trial_series
+        self._specified_turn_system_id = specified_turn_system_id
+        self._specified_failure_rate = specified_failure_rate
+        self._smaller_abs_error = smaller_abs_error
 
         self._epdt_table = None
 
@@ -58,8 +58,8 @@ class Automation():
             # 絶対値にする
             worst_abs_best_p_error = max(abs(best_p_error_min), abs(best_p_error_max))
 
-            # ［小さな値］を下回っていれば、対象外です
-            if worst_abs_best_p_error <= self._specified_abs_small_error:
+            # ［小さな値］を下回っていれば、完了しているので、対象外です
+            if worst_abs_best_p_error <= self._smaller_abs_error:
                 return False
         
 
