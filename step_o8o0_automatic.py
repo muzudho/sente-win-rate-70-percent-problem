@@ -8,10 +8,10 @@ import traceback
 import datetime
 import time
 
-from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE
+from library import FROZEN_TURN, ALTERNATING_TURN
 from library.file_paths import KakukinDataSheetFilePaths
 from library.logging import Logging
-from config import DEFAULT_TRIAL_SERIES
+from config import DEFAULT_TRIAL_SERIES, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts.step_o8o0_create_kds_table import Automation as StepO8o0CreateKDSTable
 
 
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
                 # ［将棋の引分け率］
                 #  0％～上限、5%刻み
-                for specified_failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):
+                for specified_failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):
                     specified_failure_rate = specified_failure_rate_percent / 100
 
 

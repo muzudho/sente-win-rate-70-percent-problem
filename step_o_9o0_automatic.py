@@ -7,11 +7,11 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, ABS_SMALL_P_ERROR, Converter
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_SMALL_P_ERROR, Converter
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
 from scripts.step_o_9o0_ready_disable_epdt_record import Automation as StepO09o0ReadyDisableEPDTRecord
-from config import DEFAULT_TRIAL_SERIES
+from config import DEFAULT_TRIAL_SERIES, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 ########################################
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
             # ［将棋の引分け率］
             #  0％～上限、5%刻み
-            for specified_failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):
+            for specified_failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):
                 specified_failure_rate = specified_failure_rate_percent / 100
 
 

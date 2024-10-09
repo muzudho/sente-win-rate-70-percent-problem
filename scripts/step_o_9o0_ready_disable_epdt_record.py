@@ -6,10 +6,11 @@
 import traceback
 import datetime
 
-from library import ABS_OUT_OF_ERROR, EVEN, UPPER_LIMIT_OF_P, Converter, Specification
+from library import ABS_OUT_OF_ERROR, EVEN, Converter, Specification
 from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from scripts import SaveOrIgnore
+from config import DEFAULT_UPPER_LIMIT_OF_P
 
 
 class Automation():
@@ -63,7 +64,7 @@ class Automation():
         
 
         # ［コインを投げて表が出る確率］
-        for p_parcent in range(int(EVEN * 100), int(UPPER_LIMIT_OF_P * 100) + 1):
+        for p_parcent in range(int(EVEN * 100), int(DEFAULT_UPPER_LIMIT_OF_P * 100) + 1):
             p = p_parcent / 100
 
             # 行の存在チェック。無ければ追加

@@ -15,6 +15,7 @@ import pandas as pd
 
 from library import calculate_probability, SeriesRule, FROZEN_TURN, OUT_OF_P, ABS_OUT_OF_ERROR
 from library.views import stringify_p_q_time_strict
+from config import DEFAULT_UPPER_LIMIT_OF_P
 
 
 LOG_FILE_PATH = 'output/generate_b_q_time_strict.log'
@@ -38,7 +39,7 @@ if __name__ == '__main__':
         specified_trial_series = 1
 
         # ［コインを投げて表が出る確率］
-        for p_parcent in range(EVEN * 100, UPPER_LIMIT_OF_P * 100):
+        for p_parcent in range(EVEN * 100, DEFAULT_UPPER_LIMIT_OF_P * 100):
             p = p_parcent / 100
 
             # ベストな調整後の先手勝率と、その誤差

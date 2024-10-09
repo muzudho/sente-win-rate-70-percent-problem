@@ -8,7 +8,7 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
 from library import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import PromptCatalog

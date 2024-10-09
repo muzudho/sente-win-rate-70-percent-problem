@@ -6,10 +6,10 @@ import traceback
 import time
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, Converter, Specification
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestTable
-from config import DEFAULT_MAX_DEPTH
+from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts import SaveWithRetry
 from scripts.step_o7o0_upsert_record_in_tpb import AutomationOne as StepO7o0UpsertRecordInTPBOne
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
                 turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
 
                 # ［将棋の引分け率］
-                for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
+                for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
                     failure_rate = failure_rate_percent / 100
 
                     # ［将棋の先手勝率］

@@ -7,10 +7,11 @@ import traceback
 import time
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, Converter
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.file_paths import KakukinDataFilePaths
 from library.logging import Logging
 from scripts.step_o9o0_create_kakukin_data_excel_file import Automation as StepO9o0CreateKakukinDataExcelFileAutomation
+from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 # 実行間隔タイマー
@@ -38,7 +39,7 @@ if __name__ == '__main__':
             for specified_turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
 
                 # ［将棋の引分け率］
-                for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):   # 5％刻み
+                for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5):   # 5％刻み
                     specified_failure_rate = failure_rate_percent / 100
 
                     # ロギング

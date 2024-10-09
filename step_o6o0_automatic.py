@@ -10,10 +10,10 @@ import time
 import datetime
 import pandas as pd
 
-from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, OUT_OF_UPPER_SPAN, UPPER_LIMIT_FAILURE_RATE, EVEN, Converter, Specification, SeriesRule, is_almost_zero
+from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
-from config import DEFAULT_MAX_DEPTH
+from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
 
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
                 turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
 
                 # ［将棋の引分け率］
-                for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
+                for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
                     failure_rate = failure_rate_percent / 100
 
                     # ［将棋の先手勝率］

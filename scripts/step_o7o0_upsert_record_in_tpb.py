@@ -2,8 +2,9 @@ import traceback
 import datetime
 import time
 
-from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, Converter, Specification, ThreeRates
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 # CSV保存間隔（秒）
@@ -201,7 +202,7 @@ class AutomationAll():
             turn_system_name = Converter.turn_system_id_to_name(specified_turn_system_id)
 
             # ［将棋の引分け率］
-            for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み
+            for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み
                 specified_failure_rate = failure_rate_percent / 100
 
                 # リセット

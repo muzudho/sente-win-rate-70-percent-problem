@@ -153,7 +153,7 @@
 ```
 
 ```
-    while span < OUT_OF_UPPER_SPAN + 1:
+    while span < DEFAULT_UPPER_LIMIT_SPAN + 1:
 
         calculation_status = automatic_in_loop(
                 df=df,

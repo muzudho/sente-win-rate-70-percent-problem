@@ -4,8 +4,9 @@
 import time
 import random
 
-from library import FROZEN_TURN, ALTERNATING_TURN, Converter, UPPER_LIMIT_FAILURE_RATE, Specification, SeriesRule
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
 from library.logging import Logging
+from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 class SaveOrIgnore():
@@ -98,7 +99,7 @@ class ForEachSpec():
             turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
 
             # ［将棋の引分け率］
-            for failure_rate_percent in range(0, int(UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
+            for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
                 failure_rate = failure_rate_percent / 100
 
                 # ［将棋の先手勝率］

@@ -7,10 +7,11 @@
 import traceback
 import datetime
 
-from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, UPPER_LIMIT_FAILURE_RATE, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
+from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
 from library.views import PromptCatalog
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
+from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
