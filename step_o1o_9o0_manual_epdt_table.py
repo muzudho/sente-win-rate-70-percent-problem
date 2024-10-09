@@ -36,10 +36,6 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        # ［将棋の先手勝率］を尋ねます
-        specified_p = PromptCatalog.what_is_the_probability_of_flipping_a_coin_and_getting_heads()
-
-
         # EPDTファイル読取り。無ければスキップ
         epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 trial_series=specified_trial_series,
