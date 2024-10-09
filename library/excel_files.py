@@ -30,9 +30,18 @@ class KakukinDataExcelFile():
 
 
     def load_workbook(self):
+        """エクセルファイル読込"""
+        
         # ファイルが既存なら読込
         if os.path.isfile(self._excel_file_path):
-            self._wb = xl.load_workbook(filename=self._excel_file_path)
+            try:
+                self._wb = xl.load_workbook(filename=self._excel_file_path)
+            except KeyError as e:
+                print(f"""\
+{e}
+{self._excel_file_path=}
+""")
+                raise
 
         # ファイルが存在しなければ新規作成
         else:

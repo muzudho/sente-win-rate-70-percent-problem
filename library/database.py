@@ -902,6 +902,8 @@ class TheoreticalProbabilityTable():
             テーブル、またはナン
         is_new : bool
             新規作成されたか？
+        is_crush : bool
+            ファイルが破損していて続行不能か？
         """
 
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
@@ -926,6 +928,16 @@ class TheoreticalProbabilityTable():
                     wait_for_seconds = random.randint(30, 5*60)
                     print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
 
+                # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+                # とりあえず、ファイル破損と判定する
+                except KeyError as e:
+                    print(f"""\
+{e}
+{csv_file_path=}""")
+
+                    return None, None, True     # crush
+
+
         # ファイルが存在しなかった場合
         else:
             if new_if_it_no_exists:
@@ -934,7 +946,7 @@ class TheoreticalProbabilityTable():
                 tp_table = None
 
 
-        return tp_table, not is_file_exists
+        return tp_table, not is_file_exists, False
 
 
     @property
@@ -952,6 +964,8 @@ class TheoreticalProbabilityTable():
         except KeyError as e:
             print(f"""\
 {e}
+len(df):
+{len(df)}
 df:
 {df}
 """)

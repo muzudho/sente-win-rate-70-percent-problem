@@ -10,7 +10,7 @@ import traceback
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, try_series
 from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
-from library.views import stringify_simulation_log, PromptCatalog
+from library.views import stringify_simulation_log, PromptCatalog, DebugWrite
 
 
 def try_series_rule(spec, trial_series, h_step, t_step, span, presentable, comment):
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                 continue
 
             if best_p_error == ABS_OUT_OF_ERROR:
-                print(f"[P={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします  {best_p_error=}")
+                print(f"{DebugWrite.stringify(failure_rate=failure_rate, p=p)}ベスト値が設定されていません。スキップします  {best_p_error=}")
                 continue
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある

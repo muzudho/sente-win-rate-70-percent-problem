@@ -25,19 +25,22 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
     def __init__(self, depth):
-
-        # CSV保存用タイマー
-        self._start_time_for_save = None
-
-        # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
-        self._number_of_dirty = 0
-
         self._depth = depth
+        
+        self._start_time_for_save = None    # CSV保存用タイマー
+        
+        self._number_of_dirty = 0   # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
+        self._number_of_crush = 0
 
 
     @property
     def depth(self):
         return self._depth
+
+
+    @property
+    def number_of_crush(self):
+        return self._number_of_crush
 
 
     def stringify_log_stamp(self, spec):
@@ -49,7 +52,14 @@ class AllTheoreticalProbabilityFilesOperation():
 
     def execute_by_spec(self, spec):
         # ファイルが存在しなければ、新規作成する。あれば読み込む
-        tp_table, is_tp_file_created = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
+        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
+
+
+        # ファイルが破損していて処理不能なケース
+        if is_crush:
+            self._number_of_crush += 1
+            return
+
 
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 

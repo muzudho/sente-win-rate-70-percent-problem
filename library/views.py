@@ -707,3 +707,23 @@ How many depth in search? """
         depth = int(input(prompt))
 
         return depth
+
+
+class DebugWrite():
+
+
+    @staticmethod
+    def stringify(failure_rate=None, p=None):
+
+        breadcrumbs = []
+
+        if failure_rate is not None:
+            breadcrumbs.append(f"failure_rate={failure_rate * 100:.1f}%")
+        
+        if p is not None:
+            breadcrumbs.append(f"p={p * 100:.1f}%")
+
+        breadcrumb_trail = '  '.join(breadcrumbs)
+
+        # NOTE 長くても読みづらいので、浮動小数点数は切り詰める
+        return f"[{datetime.datetime.now()}][{breadcrumb_trail}] "

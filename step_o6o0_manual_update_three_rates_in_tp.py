@@ -59,7 +59,13 @@ if __name__ == '__main__':
         else:
 
             # ファイルが存在しなければ、スキップ。あれば読み込む
-            tp_table, is_tp_file_created = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
+            tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
+
+
+            if is_crush:
+                print(f"スキップ。［理論的確率データ］表ファイルが破損しています")
+                return
+
 
             if tp_table is None:
                 print(f"スキップ。［理論的確率データ］表が有りません")

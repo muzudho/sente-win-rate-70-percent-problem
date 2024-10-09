@@ -141,7 +141,11 @@ class AutomationOne():
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        self._tp_table, is_new = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
+        self._tp_table, is_new, is_crush = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
+
+        if is_crush:
+            print(f"[{datetime.datetime.now()}] ファイルが破損しています")
+            return False
 
         if self._tp_table is None:
             print(f"[{datetime.datetime.now()}][turn_system={Converter.turn_system_id_to_name(self._spec.turn_system_id)}  failure_rate={self._spec.failure_rate * 100:.1f}%  p={self._spec.p * 100:.1f}%] スキップ。［理論的確率データ］ファイルがない。")
