@@ -93,10 +93,8 @@ class Automation():
     def ready_disable_record(self, p):
         """EPDTテーブルについて、まず、行の存在チェック。無ければ追加"""
             
-        result_set_df_by_index = self._epdt_table.get_result_set_by_index(p=p)
-
         # 指定の p のレコードが１件も存在しなければデフォルトのレコード追加
-        if len(result_set_df_by_index) == 0:
+        if not self._epdt_table.exists_index(p=p):
 
             # ［仕様］
             spec = Specification(
@@ -105,7 +103,7 @@ class Automation():
                     p=p)
 
             # レコードの挿入
-            self._epdt_table.insert_record(
+            self._epdt_table.upsert_record(
                     welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                             p=spec.p,
                             best_p=0,
