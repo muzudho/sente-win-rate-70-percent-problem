@@ -7,13 +7,13 @@
 import traceback
 import datetime
 
-from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
+from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, ABS_SMALL_P_ERROR, Converter, Specification
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
 from scripts import ForEachSeriesRule, SaveOrIgnore
 from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachEdptRecord
-from config import DEFAULT_LIMIT_SPAN
+from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
 
@@ -58,8 +58,11 @@ class Manual():
                     on_save_and_get_file_name=self._epdt_table.to_csv)
 
 
-        is_break = False
-        return is_break
+        # 探索は十分か？
+        if abs(B.p_error) < ABS_SMALL_P_ERROR:
+            return True     # break
+
+        return False    # continue
 
 
 ########################################
@@ -83,18 +86,6 @@ if __name__ == '__main__':
 
         # ［将棋の先手勝率］を尋ねます
         specified_p = PromptCatalog.what_is_the_probability_of_flipping_a_coin_and_getting_heads()
-
-
-        # ［目標の点数］を尋ねます
-        specified_span = PromptCatalog.how_many_goal_win_points()
-
-
-        # ［後手で勝ったときの勝ち点］を尋ねます
-        specified_t_step = PromptCatalog.how_many_win_points_of_tail_of_coin()
-
-
-        # ［先手で勝ったときの勝ち点］を尋ねます
-        specified_h_step = PromptCatalog.how_many_win_points_of_head_of_coin()
 
 
         # EPDTファイル読取り。無ければスキップ
@@ -126,10 +117,10 @@ if __name__ == '__main__':
 
             ForEachSeriesRule.execute(
                     spec=spec,
-                    span=specified_span,
-                    t_step=specified_t_step,
-                    h_step=specified_h_step,
-                    upper_limit_span=DEFAULT_LIMIT_SPAN,
+                    start_span=1,
+                    start_t_step=1,
+                    start_h_step=1,
+                    end_span=DEFAULT_UPPER_LIMIT_SPAN,
                     on_each=stepo1o08o0_series_rule.execute)
 
 

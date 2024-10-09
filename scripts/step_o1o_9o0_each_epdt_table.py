@@ -6,7 +6,7 @@ from library.database import EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from scripts import SaveOrIgnore, ForEachSeriesRule
 from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachEdptRecord, SeriesRuleCursor
-from config import DEFAULT_LIMIT_SPAN
+from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
 # CSV保存間隔（秒）
@@ -165,10 +165,10 @@ class Automation():
 
             ForEachSeriesRule.execute(
                     spec=spec,
-                    span=start_span,
-                    t_step=start_t_step,
-                    h_step=start_h_step,
-                    upper_limit_span=DEFAULT_LIMIT_SPAN,
+                    start_span=start_span,
+                    start_t_step=start_t_step,
+                    start_h_step=start_h_step,
+                    end_span=DEFAULT_UPPER_LIMIT_SPAN,
                     on_each=stepo1o08o0_series_rule.execute)
 
 

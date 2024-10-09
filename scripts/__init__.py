@@ -118,7 +118,7 @@ class ForEachSeriesRule():
 
 
     @staticmethod
-    def execute(spec, span, t_step, h_step, upper_limit_span, on_each):
+    def execute(spec, start_span, start_t_step, start_h_step, end_span, on_each):
         """実行
 
         ［目標の点数］、［裏番で勝ったときの勝ち点］、［表番で勝ったときの勝ち点］を１つずつ進めていく探索です。
@@ -128,18 +128,23 @@ class ForEachSeriesRule():
         ----------
         spec : Specification
             ［仕様］
-        span : int
-            ［目標の点数］の初期値
-        t_step : int
-            ［裏番で勝ったときの勝ち点］
-        h_step : int
-            ［表番で勝ったときの勝ち点］
-        upper_limit_span : int
-            ［目標の点数］の上限値。この数を含む
+        start_span : int
+            ［目標の点数］の開始値
+        start_t_step : int
+            ［裏番で勝ったときの勝ち点］の開始値
+        start_h_step : int
+            ［表番で勝ったときの勝ち点］の開始値
+        end_span : int
+            ［目標の点数］の終了値。この数を含まない
         on_each : func
             コールバック関数
         """
-        while span <= upper_limit_span:
+
+        span = start_span
+        t_step = start_t_step
+        h_step = start_h_step
+
+        while span < end_span:
 
             # ［シリーズ・ルール］
             series_rule = SeriesRule.make_series_rule_base(
@@ -153,7 +158,10 @@ class ForEachSeriesRule():
             if is_break:
                 break
 
-            span, t_step, h_step = ForEachSeriesRule.increase(span, t_step, h_step)
+            span, t_step, h_step = ForEachSeriesRule.increase(
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step)
 
 
     @staticmethod
