@@ -502,6 +502,305 @@ class KakukinDataSheetTable():
             on_each(record)
 
 
+###########
+# MARK: TPB
+###########
+
+class TheoreticalProbabilityBestRecord():
+    """理論的確率ベスト・レコード"""
+
+
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+        self._turn_system_name = turn_system_name
+        self._failure_rate = failure_rate
+        self._p = p
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._theoretical_a_win_rate = theoretical_a_win_rate
+        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+
+
+    @property
+    def turn_system_name(self):
+        return self._turn_system_name
+
+
+    @property
+    def failure_rate(self):
+        return self._failure_rate
+
+
+    @property
+    def p(self):
+        return self._p
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def theoretical_a_win_rate(self):
+        return self._theoretical_a_win_rate
+
+
+    @property
+    def theoretical_no_win_match_rate(self):
+        return self._theoretical_no_win_match_rate
+
+
+class TheoreticalProbabilityBestTable():
+    """理論的確率ベスト・テーブル"""
+
+
+    _dtype = {
+        # turn_system_name, failure_rate, p はインデックス
+        'span':'int64',
+        't_step':'int64',
+        'h_step':'int64',
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'theoretical_a_win_rate':'float64',
+        'theoretical_no_win_match_rate':'float64'}
+
+
+    def __init__(self, df):
+        self._df = df
+
+
+    @classmethod
+    def setup_data_frame(clazz, df):
+        """データフレームの設定"""
+
+        # データ型の設定
+        df.astype(clazz._dtype)
+
+        df.set_index(
+                ['turn_system_name', 'failure_rate', 'p'],
+                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+
+    @classmethod
+    def new_empty_table(clazz):
+        # turn_system_name, failure_rate, p はインデックス
+        tpb_df = pd.DataFrame.from_dict({
+                'turn_system_name': [],
+                'failure_rate': [],
+                'p': [],
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'shortest_coins': [],
+                'upper_limit_coins': [],
+                'theoretical_a_win_rate': [],
+                'theoretical_no_win_match_rate': []})
+        clazz.setup_data_frame(df=tpd_df)
+        return TheoreticalProbabilityBestTable(df=tpb_df)
+
+
+    @classmethod
+    def read_csv(clazz, new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+
+        Returns
+        -------
+        tpb_table : TheoreticalProbabilityBestTable
+            テーブル
+        is_new : bool
+            新規作成されたか？
+        """
+
+        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
+
+        is_new = not os.path.isfile(csv_file_path)
+        # ファイルが存在しなかった場合
+        if is_new:
+            if new_if_it_no_exists:
+                tpb_table = TheoreticalProbabilityBestTable.new_empty_table()
+            else:
+                tpb_table = None
+
+        # ファイルが存在した場合
+        else:
+            tpb_df = pd.read_csv(csv_file_path, encoding="utf8",
+                    dtype=clazz._dtype)
+            clazz.setup_data_frame(df=tpb_df)
+            tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
+
+
+        return tpb_table, is_new
+
+
+    @property
+    def df(self):
+        return self._df
+
+
+    def create_none_record(self):
+        return TheoreticalProbabilityBestRecord(
+                turn_system_name=None,
+                failure_rate=None,
+                p=None,
+                span=None,
+                t_step=None,
+                h_step=None,
+                shortest_coins=None,
+                upper_limit_coins=None,
+                theoretical_a_win_rate=None,
+                theoretical_no_win_match_rate=None)
+
+
+    def upsert_record(self, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        shall_record_change : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+
+        # インデックス
+        # -----------
+        # index : any
+        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
+        # turn_system_name, failure_rate, p はインデックス
+        index = (welcome_record.turn_system_name, welcome_record.failure_rate, welcome_record.p)
+
+
+        # データ変更判定
+        # -------------
+        is_new_index = index not in self._df['turn_system_name']
+
+
+        # インデックスが既存でないなら
+        if is_new_index:
+            shall_record_change = True
+
+        else:
+            # 更新の有無判定
+            # turn_system_name, failure_rate, p はインデックス
+            shall_record_change =\
+                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
+                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+
+
+        # 行の挿入または更新
+        if shall_record_change:
+            self._df.loc[index] = {
+                # turn_system_name, failure_rate, p はインデックス
+                'span': welcome_record.span,
+                't_step': welcome_record.t_step,
+                'h_step': welcome_record.h_step,
+                'shortest_coins': welcome_record.shortest_coins,
+                'upper_limit_coins': welcome_record.upper_limit_coins,
+                'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
+                'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+
+        if is_new_index:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return shall_record_change
+
+
+    def to_csv(self):
+        """CSV形式でファイルへ保存
+        
+        Returns
+        -------
+        csv_file_path : str
+            書き込んだファイルへのパス
+        """
+        # CSVファイルパス（書き込むファイル）
+        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
+
+        # turn_system_name, failure_rate, p はインデックス
+        self._df.to_csv(csv_file_path,
+                columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+
+        return csv_file_path
+
+
+    def for_each(self, on_each):
+        """
+        Parameters
+        ----------
+        on_each : func
+            関数
+        """
+
+        df = self._df
+
+        for row_number,(      turn_system_name,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate) in\
+            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+
+            # turn_system_name, failure_rate, p はインデックス
+            turn_system_name, failure_rate, p = df.index[row_number]
+
+            # FIXME これはもう要らないのでは？
+            # # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
+            # span = round_letro(span)
+            # t_step = round_letro(t_step)
+            # h_step = round_letro(h_step)
+            # shortest_coins = round_letro(shortest_coins)
+            # upper_limit_coins = round_letro(upper_limit_coins)
+
+            # レコード作成
+            record = TheoreticalProbabilityBestRecord(
+                    turn_system_name=turn_system_name,
+                    failure_rate=failure_rate,
+                    p=p,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    theoretical_a_win_rate=theoretical_a_win_rate,
+                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+
+            on_each(record)
+
+
 ##########
 # MARK: TP
 ##########
@@ -1166,297 +1465,3 @@ class CalculateProbabilityTable():
                 })
 
         return cp_df
-
-
-###########
-# MARK: TPB
-###########
-
-class TheoreticalProbabilityBestRecord():
-    """理論的確率ベスト・レコード"""
-
-
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
-        self._turn_system_name = turn_system_name
-        self._failure_rate = failure_rate
-        self._p = p
-        self._span = span
-        self._t_step = t_step
-        self._h_step = h_step
-        self._shortest_coins = shortest_coins
-        self._upper_limit_coins = upper_limit_coins
-        self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
-
-
-    @property
-    def turn_system_name(self):
-        return self._turn_system_name
-
-
-    @property
-    def failure_rate(self):
-        return self._failure_rate
-
-
-    @property
-    def p(self):
-        return self._p
-
-
-    @property
-    def span(self):
-        return self._span
-
-
-    @property
-    def t_step(self):
-        return self._t_step
-
-
-    @property
-    def h_step(self):
-        return self._h_step
-
-
-    @property
-    def shortest_coins(self):
-        return self._shortest_coins
-
-
-    @property
-    def upper_limit_coins(self):
-        return self._upper_limit_coins
-
-
-    @property
-    def theoretical_a_win_rate(self):
-        return self._theoretical_a_win_rate
-
-
-    @property
-    def theoretical_no_win_match_rate(self):
-        return self._theoretical_no_win_match_rate
-
-
-class TheoreticalProbabilityBestTable():
-    """理論的確率ベスト・テーブル"""
-
-
-    _dtype = {
-        # turn_system_name, failure_rate, p はインデックス
-        'span':'int64',
-        't_step':'int64',
-        'h_step':'int64',
-        'shortest_coins':'int64',
-        'upper_limit_coins':'int64',
-        'theoretical_a_win_rate':'float64',
-        'theoretical_no_win_match_rate':'float64'}
-
-
-    def __init__(self, df):
-        self._df = df
-
-
-    @classmethod
-    def setup_data_frame(clazz, df):
-        """データフレームの設定"""
-
-        # データ型の設定
-        df.astype(clazz._dtype)
-
-        df.set_index(
-                ['turn_system_name', 'failure_rate', 'p'],
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-
-
-    @classmethod
-    def new_empty_table(clazz):
-        # turn_system_name, failure_rate, p はインデックス
-        tpb_df = pd.DataFrame.from_dict({
-                'turn_system_name': [],
-                'failure_rate': [],
-                'p': [],
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'shortest_coins': [],
-                'upper_limit_coins': [],
-                'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []})
-        clazz.setup_data_frame(df=tpd_df)
-        return TheoreticalProbabilityBestTable(df=tpb_df)
-
-
-    @classmethod
-    def read_csv(clazz, new_if_it_no_exists=False):
-        """ファイル読込
-
-        Parameters
-        ----------
-        new_if_it_no_exists : bool
-            ファイルが存在しなければ新規作成するか？
-
-        Returns
-        -------
-        tpb_table : TheoreticalProbabilityBestTable
-            テーブル
-        is_new : bool
-            新規作成されたか？
-        """
-
-        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
-
-        is_new = not os.path.isfile(csv_file_path)
-        # ファイルが存在しなかった場合
-        if is_new:
-            if new_if_it_no_exists:
-                tpb_table = TheoreticalProbabilityBestTable.new_empty_table()
-            else:
-                tpb_table = None
-
-        # ファイルが存在した場合
-        else:
-            tpb_df = pd.read_csv(csv_file_path, encoding="utf8",
-                    dtype=clazz._dtype)
-            clazz.setup_data_frame(df=tpd_df)
-            tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
-
-
-        return tpb_table, is_new
-
-
-    def create_none_record(self):
-        return TheoreticalProbabilityBestRecord(
-                turn_system_name=None,
-                failure_rate=None,
-                p=None,
-                span=None,
-                t_step=None,
-                h_step=None,
-                shortest_coins=None,
-                upper_limit_coins=None,
-                theoretical_a_win_rate=None,
-                theoretical_no_win_match_rate=None)
-
-
-    def upsert_record(self, welcome_record):
-        """該当レコードが無ければ新規作成、あれば更新
-
-        Parameters
-        ----------
-        welcome_record : TheoreticalProbabilityBestRecord
-            レコード
-
-        Returns
-        -------
-        shall_record_change : bool
-            レコードの新規追加、または更新があれば真。変更が無ければ偽
-        """
-
-
-        # インデックス
-        # -----------
-        # index : any
-        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
-        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
-        # turn_system_name, failure_rate, p はインデックス
-        index = (welcome_record.turn_system_name, welcome_record.failure_rate, welcome_record.p)
-
-
-        # データ変更判定
-        # -------------
-        is_new_index = index not in self._df['turn_system_name']
-
-
-        # インデックスが既存でないなら
-        if is_new_index:
-            shall_record_change = True
-
-        else:
-            # 更新の有無判定
-            # turn_system_name, failure_rate, p はインデックス
-            shall_record_change =\
-                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
-                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
-                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
-                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
-
-
-        # 行の挿入または更新
-        if shall_record_change:
-            self._df.loc[index] = {
-                # turn_system_name, failure_rate, p はインデックス
-                'span': welcome_record.span,
-                't_step': welcome_record.t_step,
-                'h_step': welcome_record.h_step,
-                'shortest_coins': welcome_record.shortest_coins,
-                'upper_limit_coins': welcome_record.upper_limit_coins,
-                'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
-                'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
-
-        if is_new_index:
-            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
-            self._df.sort_index(
-                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
-
-
-        return shall_record_change
-
-
-    def to_csv(self):
-        """CSV形式でファイルへ保存
-        
-        Returns
-        -------
-        csv_file_path : str
-            書き込んだファイルへのパス
-        """
-        # CSVファイルパス（書き込むファイル）
-        csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
-
-        # turn_system_name, failure_rate, p はインデックス
-        self._df.to_csv(csv_file_path,
-                columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
-
-        return csv_file_path
-
-
-    def for_each(self, on_each):
-        """
-        Parameters
-        ----------
-        on_each : func
-            関数
-        """
-
-        df = self._df
-
-        for row_number,(      turn_system_name,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate) in\
-            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
-
-            # turn_system_name, failure_rate, p はインデックス
-            turn_system_name, failure_rate, p = df.index[row_number]
-
-            # FIXME これはもう要らないのでは？
-            # # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-            # span = round_letro(span)
-            # t_step = round_letro(t_step)
-            # h_step = round_letro(h_step)
-            # shortest_coins = round_letro(shortest_coins)
-            # upper_limit_coins = round_letro(upper_limit_coins)
-
-            # レコード作成
-            record = TheoreticalProbabilityBestRecord(
-                    turn_system_name=turn_system_name,
-                    failure_rate=failure_rate,
-                    p=p,
-                    span=span,
-                    t_step=t_step,
-                    h_step=h_step,
-                    shortest_coins=shortest_coins,
-                    upper_limit_coins=upper_limit_coins,
-                    theoretical_a_win_rate=theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
-
-            on_each(record)
