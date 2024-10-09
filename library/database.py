@@ -1119,12 +1119,12 @@ df:
 
         df = self._df
 
-        for         best_p,       best_p_error,       best_span,       best_t_step,       best_h_step,       latest_p,       latest_p_error,       latest_span,       latest_t_step,       latest_h_step,       candidate_history_text in\
-            zip(df['best_p'], df['best_p_error'], df['best_span'], df['best_t_step'], df['best_h_step'], df['latest_p'], df['latest_p_error'], df['latest_span'], df['latest_t_step'], df['latest_h_step'], df['candidate_history_text']):
+        for row_number,(        best_p,       best_p_error,       best_span,       best_t_step,       best_h_step,       latest_p,       latest_p_error,       latest_span,       latest_t_step,       latest_h_step,       candidate_history_text) in\
+            enumerate(zip(df['best_p'], df['best_p_error'], df['best_span'], df['best_t_step'], df['best_h_step'], df['latest_p'], df['latest_p_error'], df['latest_span'], df['latest_t_step'], df['latest_h_step'], df['candidate_history_text'])):
 
-            # インデックス列は、タプルに入っている
-            print(f"""{df.index[0]=}""")
-            p = df.index[0]
+            # インデックスのリストから、p を取得
+            print(f"EPDTTable#for_each {df.index[row_number]=}  {df.index=}")
+            p = df.index[row_number]
 
             # レコード作成
             record = EmpiricalProbabilityDuringTrialsRecord(

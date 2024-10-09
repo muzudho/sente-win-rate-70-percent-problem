@@ -76,7 +76,7 @@ class Automation():
         return self._number_of_passaged
 
 
-    def execute(self, epdt_record):
+    def execute_by_epdt_record(self, epdt_record):
         """実行
         
         TODO 更新が無かったとき、全て終わってるのか、何も進まなかったのかを分けたい。全部のレコードがスキップされたとき、無限ループに陥るのを防ぎたい
@@ -98,6 +98,8 @@ class Automation():
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
                 p=epdt_record.p)
+        print(f"[{datetime.datetime.now()}][p={spec.p}]", flush=True)
+
 
         # 探索開始時のベストとラテスト、候補の履歴
         self._best_series_rule_cursor = SeriesRuleCursor(
@@ -117,9 +119,6 @@ class Automation():
                         t_step=epdt_record.latest_t_step,
                         h_step=epdt_record.latest_h_step))
         self._candidate_history_text = epdt_record.candidate_history_text
-
-
-        #print(f"[p={spec.p}]", end='', flush=True)
 
 
         # まず、最後のカーソルを取得
