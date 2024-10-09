@@ -1,7 +1,7 @@
 #
-# python step_o1o_8o0_manual_epdt_record.py
+# python step_o1o_9o0_manual_epdt_table.py
 #
-# EPDTレコード１行分の探索
+# EPDTテーブル１つ分の探索
 #
 
 import traceback
@@ -12,7 +12,7 @@ from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
 from scripts import ForEachSeriesRule, SaveOrIgnore
-from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachEdptRecord
+from scripts.step_o1o_9o0_each_epdt_table import Automation as StepO1o09o0EachEdptTable
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
@@ -108,20 +108,16 @@ if __name__ == '__main__':
                     p=specified_p)
 
 
-            automation = StepO1o08o0EachEdptRecord(
+            automation = StepO1o09o0EachEdptTable(
                     specified_trial_series=specified_trial_series,
                     specified_turn_system_id=specified_turn_system_id,
                     specified_failure_rate=specified_failure_rate,
-                    on_callback=manual.on_callback_each_epdt_record)
+                    specified_abs_small_error=ABS_SMALL_P_ERROR,
+                    epdt_table=epdt_table)
 
 
-            ForEachSeriesRule.execute(
-                    spec=spec,
-                    start_span=1,
-                    start_t_step=1,
-                    start_h_step=1,
-                    end_span=DEFAULT_UPPER_LIMIT_SPAN,
-                    on_each=automation.execute)
+            # 各レコード
+            epdt_table.for_each(on_each=automation.execute)
 
 
         print("完了")

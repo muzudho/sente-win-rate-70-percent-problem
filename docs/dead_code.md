@@ -153,7 +153,7 @@
 ```
 
 ```
-    while span < DEFAULT_UPPER_LIMIT_SPAN + 1:
+    while span < OUT_OF_UPPER_SPAN + 1:
 
         calculation_status = automatic_in_loop(
                 df=df,
@@ -266,4 +266,18 @@
             raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {span=}  {t_step=}  {h_step=}")
 
         return result_set_df
+```
+
+
+```
+            # # 空振りが多いとき、探索を打ち切ります
+            # if self._passage_upper_limit < self._passage_count:
+            #     self._is_cutoff = True
+            #     self._number_of_passaged += 1
+
+            #     # # 進捗バー
+            #     # print('cutoff (procrastinate)', flush=True)
+            #     return True     # break
+
+            # print() # 改行
 ```
