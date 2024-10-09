@@ -5,6 +5,7 @@
 
 import time
 import datetime
+import pandas as pd
 
 from library import ABS_OUT_OF_ERROR
 from library.database import EmpiricalProbabilityDuringTrialsTable
@@ -45,7 +46,7 @@ class Automation():
         None
         """
 
-        # ファイル読取り。無ければスキップ
+        # EPDTファイル読取り。無ければスキップ
         self._epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,

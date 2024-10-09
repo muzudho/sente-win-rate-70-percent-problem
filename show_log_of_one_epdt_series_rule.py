@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
@@ -159,8 +159,8 @@ if __name__ == '__main__':
             if specified_failure_rate != failure_rate:
                 return
 
-            if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-                print(f"[p={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
+            if epdt_record.best_p_error == ABS_OUT_OF_ERROR:
+                print(f"[p={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします {epdt_record.best_p_error=}")
                 return
 
             # 仕様

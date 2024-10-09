@@ -764,7 +764,7 @@ class EmpiricalProbabilityDuringTrialsRecord():
     """試行中の経験論的確率レコード"""
 
 
-    def __init__(self, p, best_p, best_p_error, best_span, best_t_step, best_h_step, latest_p, latest_p_error, latest_span, latest_t_step, latest_h_step, candidates):
+    def __init__(self, p, best_p, best_p_error, best_span, best_t_step, best_h_step, latest_p, latest_p_error, latest_span, latest_t_step, latest_h_step, candidate_history_text):
         """初期化
         
         Parameters
@@ -789,7 +789,7 @@ class EmpiricalProbabilityDuringTrialsRecord():
             ［裏番で勝ったときの勝ち点］列を更新
         latest_h_step : int
             ［表番で勝ったときの勝ち点］列を更新
-        candidates : str
+        candidate_history_text : str
             ［シリーズ・ルール候補］
         """
 
@@ -812,7 +812,7 @@ class EmpiricalProbabilityDuringTrialsRecord():
         self._latest_span=latest_span
         self._latest_t_step=latest_t_step
         self._latest_h_step=latest_h_step
-        self._candidates=candidates
+        self._candidate_history_text=candidate_history_text
 
 
     @property
@@ -871,8 +871,8 @@ class EmpiricalProbabilityDuringTrialsRecord():
 
 
     @property
-    def candidates(self):
-        return self._candidates
+    def candidate_history_text(self):
+        return self._candidate_history_text
 
 
 class EmpiricalProbabilityDuringTrialsTable():
@@ -892,7 +892,7 @@ class EmpiricalProbabilityDuringTrialsTable():
         'latest_span':'int64',
         'latest_t_step':'int64',
         'latest_h_step':'int64',
-        'candidates':'object'}
+        'candidate_history_text':'object'}
 
 
     def __init__(self, df, trial_series, turn_system_id, failure_rate):
@@ -916,7 +916,7 @@ class EmpiricalProbabilityDuringTrialsTable():
             'latest_span': [],
             'latest_t_step': [],
             'latest_h_step': [],
-            'candidates': []})
+            'candidate_history_text': []})
         clazz.setup_data_frame(df=ep_df)
         return EmpiricalProbabilityDuringTrialsTable(
                 df=ep_df,
@@ -1023,7 +1023,7 @@ df:
 
         Returns
         -------
-        shall_record_change : bool
+        is_record_update : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
@@ -1055,7 +1055,7 @@ df:
                 self._df['latest_span'][index] != welcome_record.latest_span or\
                 self._df['latest_t_step'][index] != welcome_record.latest_t_step or\
                 self._df['latest_h_step'][index] != welcome_record.latest_h_step or\
-                self._df['candidates'][index] != welcome_record.candidates
+                self._df['candidate_history_text'][index] != welcome_record.candidate_history_text
 
 
         # 行の挿入または更新
@@ -1072,7 +1072,7 @@ df:
                 'latest_span': welcome_record.latest_span,
                 'latest_t_step': welcome_record.latest_t_step,
                 'latest_h_step': welcome_record.latest_h_step,
-                'candidates': welcome_record.candidates}
+                'candidate_history_text': welcome_record.candidate_history_text}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -1104,7 +1104,7 @@ df:
                 csv_file_path,
                 # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
                 # 'p' はインデックス
-                columns=['best_p', 'best_p_error', 'best_span', 'best_t_step', 'best_h_step', 'latest_p', 'latest_p_error', 'latest_span', 'latest_t_step', 'latest_h_step', 'candidates'])
+                columns=['best_p', 'best_p_error', 'best_span', 'best_t_step', 'best_h_step', 'latest_p', 'latest_p_error', 'latest_span', 'latest_t_step', 'latest_h_step', 'candidate_history_text'])
 
         return csv_file_path
 
@@ -1119,8 +1119,8 @@ df:
 
         df = self._df
 
-        for         best_p,       best_p_error,       best_span,       best_t_step,       best_h_step,       latest_p,       latest_p_error,       latest_span,       latest_t_step,       latest_h_step,       candidates in\
-            zip(df['best_p'], df['best_p_error'], df['best_span'], df['best_t_step'], df['best_h_step'], df['latest_p'], df['latest_p_error'], df['latest_span'], df['latest_t_step'], df['latest_h_step'], df['candidates']):
+        for         best_p,       best_p_error,       best_span,       best_t_step,       best_h_step,       latest_p,       latest_p_error,       latest_span,       latest_t_step,       latest_h_step,       candidate_history_text in\
+            zip(df['best_p'], df['best_p_error'], df['best_span'], df['best_t_step'], df['best_h_step'], df['latest_p'], df['latest_p_error'], df['latest_span'], df['latest_t_step'], df['latest_h_step'], df['candidate_history_text']):
 
             # インデックス列は、タプルに入っている
             print(f"""{df.index[0]=}""")
@@ -1139,7 +1139,7 @@ df:
                     latest_span=latest_span,
                     latest_t_step=latest_t_step,
                     latest_h_step=latest_h_step,
-                    candidates=candidates)
+                    candidate_history_text=candidate_history_text)
 
             on_each(record)
 

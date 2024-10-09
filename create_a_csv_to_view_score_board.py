@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
 
         # ［目標の点数］を尋ねます
-        specified_span = PromptCatalog.hou_many_goal_win_points()
+        specified_span = PromptCatalog.how_many_goal_win_points()
 
 
         # ［後手で勝ったときの勝ち点］を尋ねます

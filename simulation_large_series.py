@@ -7,7 +7,7 @@
 
 import traceback
 
-from library import FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, try_series
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, try_series
 from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import stringify_simulation_log, PromptCatalog
@@ -92,15 +92,15 @@ if __name__ == '__main__':
         # 変数名を縮めます
         df = ep_table.df
 
-        for         p,       failure_rate,       turn_system_name,       trial_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidates in\
-            zip(df['p'], df['failure_rate'], df['turn_system_name'], df['trial_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidates']):
+        for         p,       failure_rate,       turn_system_name,       trial_series,       best_p,       best_p_error,       best_h_step,       best_t_step,       best_span,       latest_p,       latest_p_error,       latest_h_step,       latest_t_step,       latest_span,       candidate_history_text in\
+            zip(df['p'], df['failure_rate'], df['turn_system_name'], df['trial_series'], df['best_p'], df['best_p_error'], df['best_h_step'], df['best_t_step'], df['best_span'], df['latest_p'], df['latest_p_error'], df['latest_h_step'], df['latest_t_step'], df['latest_span'], df['candidate_history_text']):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:
                 continue
 
-            if best_h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-                print(f"[P={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします")
+            if best_p_error == ABS_OUT_OF_ERROR:
+                print(f"[P={p} failure_rate={failure_rate}] ベスト値が設定されていません。スキップします  {best_p_error=}")
                 continue
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある

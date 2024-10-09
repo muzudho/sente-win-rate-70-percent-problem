@@ -240,7 +240,7 @@
             'latest_span': [welcome_record.latest_span],
             'latest_t_step': [welcome_record.latest_t_step],
             'latest_h_step': [welcome_record.latest_h_step],
-            'candidates': [welcome_record.candidates]})
+            'candidate_history_text': [welcome_record.candidate_history_text]})
         clazz.setup_data_frame(new_df)
 
         # ２つのテーブルを連結します

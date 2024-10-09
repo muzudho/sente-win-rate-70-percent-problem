@@ -90,11 +90,6 @@ CONTINUE = 3            # 計算中だ。時間も譲らない。計算を続行
 CALCULATION_FAILED = 4  # 計算しようとしているが、計算できなかったケース。シェアされる時間が足りてないなど
 
 
-# h_step が 0 の場合、ベスト値が設定されていないので、その行データは有効ではありません
-# FIXME 廃止？ a_win_rate が OUT_OF_P かを判定した方がいい？
-IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO = 0
-
-
 # 0.95 より大きくなると、計算が指数関数的に膨大になっていくから、上限を決めておく
 UPPER_LIMIT_OF_P = 0.95
 
@@ -1314,9 +1309,8 @@ class SeriesRule():
         if not isinstance(span, int):
             raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
 
-        # ベスト値が未設定の場合、 h_step は 0 が入っています
-        if h_step < IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-            raise ValueError(f"非負の整数であることが必要 {h_step=}")
+        if h_step < 1:
+            raise ValueError(f"正の整数であることが必要 {h_step=}")
 
         if t_step < 1:
             raise ValueError(f"正の整数であることが必要 {t_step=}")
@@ -1337,27 +1331,18 @@ class SeriesRule():
                 span=span)
 
 
-        # 0除算を避ける
-        if h_step == IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO:
-            # ［最短対局数］
-            shortest_coins = 0
+        # ［最短対局数］
+        shortest_coins = SeriesRule.let_shortest_coins(
+                h_step=h_step,
+                t_step=t_step,
+                span=span,
+                turn_system_id=spec.turn_system_id)
 
-            # ［上限対局数］
-            upper_limit_coins = 0
-
-        else:
-            # ［最短対局数］
-            shortest_coins = SeriesRule.let_shortest_coins(
-                    h_step=h_step,
-                    t_step=t_step,
-                    span=span,
-                    turn_system_id=spec.turn_system_id)
-
-            # ［上限対局数］
-            upper_limit_coins = SeriesRule.let_upper_limit_coins(
-                    spec=spec,
-                    p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                    q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+        # ［上限対局数］
+        upper_limit_coins = SeriesRule.let_upper_limit_coins(
+                spec=spec,
+                p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
 
         if upper_limit_coins < shortest_coins:
@@ -1419,12 +1404,6 @@ step_table:
                 span=span,
                 t_step=t_step,
                 h_step=h_step)
-
-
-    @property
-    def is_enabled(self):
-        """このシリーズ・ルールは有効な値かどうか？"""
-        return self._step_table.get_step_by(face_of_coin=HEAD) != IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO
 
 
     @property

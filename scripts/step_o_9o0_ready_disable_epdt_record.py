@@ -116,7 +116,7 @@ class Automation():
                             latest_h_step=1,
                             latest_t_step=1,
                             latest_span=1,
-                            candidates=''))
+                            candidate_history_text=''))
 
             return True
         
