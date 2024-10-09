@@ -4,7 +4,7 @@
 import time
 import random
 
-from library import FROZEN_TURN, ALTERNATING_TURN, Converter, UPPER_LIMIT_FAILURE_RATE, Specification
+from library import FROZEN_TURN, ALTERNATING_TURN, Converter, UPPER_LIMIT_FAILURE_RATE, Specification, SeriesRule
 from library.logging import Logging
 
 
@@ -112,3 +112,68 @@ class ForEachSpec():
                             p=p)
                     
                     on_each_spec(spec=spec)
+
+
+class ForEachSeriesRule():
+
+
+    @staticmethod
+    def execute(spec, span, t_step, h_step, upper_limit_span, on_each):
+        """実行
+
+        ［目標の点数］、［裏番で勝ったときの勝ち点］、［表番で勝ったときの勝ち点］を１つずつ進めていく探索です。
+        ［目標の点数］＞＝［裏番で勝ったときの勝ち点］＞＝［表番で勝ったときの勝ち点］という関係があります。
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        span : int
+            ［目標の点数］の初期値
+        t_step : int
+            ［裏番で勝ったときの勝ち点］
+        h_step : int
+            ［表番で勝ったときの勝ち点］
+        upper_limit_span : int
+            ［目標の点数］の上限値。この数を含む
+        on_each : func
+            コールバック関数
+        """
+        while span <= upper_limit_span:
+
+            # ［シリーズ・ルール］
+            series_rule = SeriesRule.make_series_rule_base(
+                    spec=spec,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step)
+
+            is_break = on_each(series_rule)
+
+            if is_break:
+                break
+
+            span, t_step, h_step = ForEachSeriesRule.increase(span, t_step, h_step)
+
+
+    @staticmethod
+    def increase(span, t_step, h_step):
+        """カウントアップ"""
+        h_step += 1
+        if t_step < h_step:
+            h_step = 1
+            t_step += 1
+            if span < t_step:
+                t_step = 1
+                span += 1
+
+        return span, t_step, h_step
+
+
+    @staticmethod
+    def assert_sth(span, t_step, h_step):
+        if t_step < h_step:
+            raise ValueError(f"［コインの表が出たときの勝ち点］{h_step=} が、［コインの裏が出たときの勝ち点］ {t_step=} を上回るのはおかしいです {span=}")
+
+        if span < t_step:
+            raise ValueError(f"［コインの裏が出たときの勝ち点］{t_step=} が、［目標の点数］{span=} を上回るのはおかしいです {h_step=}")

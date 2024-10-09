@@ -1296,7 +1296,7 @@ class SeriesRule():
 
 
     @staticmethod
-    def make_series_rule_base(spec, h_step, t_step, span):
+    def make_series_rule_base(spec, span, t_step, h_step):
         """
         Parameters
         ----------
@@ -1416,9 +1416,9 @@ step_table:
 
         return SeriesRule.make_series_rule_base(
                 spec=spec,
-                h_step=h_step,
+                span=span,
                 t_step=t_step,
-                span=span)
+                h_step=h_step)
 
 
     @property

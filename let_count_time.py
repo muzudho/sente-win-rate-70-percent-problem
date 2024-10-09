@@ -44,9 +44,9 @@ if __name__ == '__main__':
 
                     series_rule_ft = SeriesRule.make_series_rule_base(
                             spec=spec_ft,
-                            h_step=h_step,
+                            span=span,
                             t_step=t_step,
-                            span=span)
+                            h_step=h_step)
 
                     # ［先後交互制］
                     # 仕様
@@ -57,9 +57,9 @@ if __name__ == '__main__':
 
                     series_rule_at = SeriesRule.make_series_rule_base(
                             spec=spec_at,
-                            h_step=h_step,
+                            span=span,
                             t_step=t_step,
-                            span=span)
+                            h_step=h_step)
 
                     # ［最短対局数］［上限対局数］
                     seg_3a = series_rule_ft.shortest_coins

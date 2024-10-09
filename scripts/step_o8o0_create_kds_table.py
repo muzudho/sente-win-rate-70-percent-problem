@@ -55,9 +55,9 @@ class Automation():
         # 理論値による［シリーズ・ルール］
         theoretical_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                h_step=tpb_record.h_step,
+                span=tpb_record.span,
                 t_step=tpb_record.t_step,
-                span=tpb_record.span)
+                h_step=tpb_record.h_step)
 
 
         # シリーズを試行します

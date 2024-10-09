@@ -62,9 +62,9 @@ if __name__ == '__main__':
         # ［シリーズ・ルール］。任意に指定します
         specified_series_rule = SeriesRule.make_series_rule_base(
                 spec=spec,
-                h_step=specified_h_step,
+                span=specified_span,
                 t_step=specified_t_step,
-                span=specified_span)
+                h_step=specified_h_step)
 
 
         # CSVファイル出力（上書き）

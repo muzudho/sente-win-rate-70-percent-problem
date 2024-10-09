@@ -64,9 +64,9 @@ class Automation():
                 # ［シリーズ・ルール］
                 specified_series_rule = SeriesRule.make_series_rule_base(
                         spec=spec,
-                        h_step=h_step,
+                        span=span,
                         t_step=t_step,
-                        span=span)
+                        h_step=h_step)
 
                 # 確率を求める
                 #

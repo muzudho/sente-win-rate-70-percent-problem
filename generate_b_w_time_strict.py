@@ -87,13 +87,11 @@ if __name__ == '__main__':
                                 p=p)
 
                         # ［シリーズ・ルール］
-                        # TODO データをちゃんと入れたい
                         latest_series_rule = SeriesRule.make_series_rule_base(
                                 spec=spec,
-                                # FIXME タイムではなくステップが欲しい
-                                h_step=-1,
-                                t_step=-1,
-                                span=-1)
+                                span=-1, # FIXME データをちゃんと入れたい
+                                t_step=-1, # FIXME データをちゃんと入れたい
+                                h_step=-1) # FIXME データをちゃんと入れたい
 
                         candidate_obj = Candidate(
                                 p_error=best_p_error,

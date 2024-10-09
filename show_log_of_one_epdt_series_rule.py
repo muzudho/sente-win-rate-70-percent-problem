@@ -9,7 +9,7 @@ import traceback
 
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, IT_IS_NOT_BEST_IF_P_STEP_IS_ZERO, Converter, round_letro, Specification, SeriesRule, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.file_paths import SimulationLargeSeriesFilePaths
-from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
+from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
 
 
@@ -71,9 +71,9 @@ def show_log_of_series_rule(spec, trial_series, h_step, t_step, span, presentabl
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
-            h_step=h_step,
+            span=span,
             t_step=t_step,
-            span=span)
+            h_step=h_step)
 
     # １シリーズをフルに対局したときのコイントスした結果の疑似リストを生成
     path_of_face_of_coin = SequenceOfFaceOfCoin.make_sequence_of_playout(

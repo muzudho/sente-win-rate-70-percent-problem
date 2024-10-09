@@ -5,7 +5,7 @@ import pandas as pd
 from library import EVEN, Converter, is_almost_zero, OUT_OF_P, Converter, SeriesRule, round_letro
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
-from scripts import SaveOrIgnore
+from scripts import SaveOrIgnore, ForEachSeriesRule
 
 
 class Automation():
@@ -104,7 +104,7 @@ class Automation():
             h_step = round_letro(tp_table._df.loc[(tp_table._df['span']==span) & (tp_table._df['t_step']==t_step), 'h_step'].max())
 
             # カウントアップ
-            span, t_step, h_step = Automation.increase(
+            span, t_step, h_step = ForEachSeriesRule.increase(
                     span=span,
                     t_step=t_step,
                     h_step=h_step)
@@ -158,7 +158,7 @@ class Automation():
 
 
             # カウントアップ
-            span, t_step, h_step = Automation.increase(
+            span, t_step, h_step = ForEachSeriesRule.increase(
                     span=span,
                     t_step=t_step,
                     h_step=h_step)
@@ -187,20 +187,6 @@ class Automation():
 
 
         return self._number_of_dirty
-
-
-    @staticmethod
-    def increase(span, t_step, h_step):
-        """カウントアップ"""
-        h_step += 1
-        if t_step < h_step:
-            h_step = 1
-            t_step += 1
-            if span < t_step:
-                t_step = 1
-                span += 1
-
-        return span, t_step, h_step
 
 
     def stringify_log_stamp(self, spec):

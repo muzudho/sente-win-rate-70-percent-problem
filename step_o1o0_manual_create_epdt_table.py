@@ -42,6 +42,9 @@ if __name__ == '__main__':
         automation.execute()
 
 
+        print("完了")
+
+
     except Exception as err:
         print(f"[unexpected error] {err=}  {type(err)=}")
 

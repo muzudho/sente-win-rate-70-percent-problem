@@ -19,9 +19,9 @@ def try_series_rule(spec, trial_series, h_step, t_step, span, presentable, comme
     # ［シリーズ・ルール］。任意に指定します
     series_rule = SeriesRule.make_series_rule_base(
             spec=spec,
-            h_step=h_step,
+            span=span,
             t_step=t_step,
-            span=span)
+            h_step=h_step)
 
 
     if not series_rule.is_enabled:
