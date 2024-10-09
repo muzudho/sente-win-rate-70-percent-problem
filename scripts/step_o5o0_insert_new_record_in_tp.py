@@ -193,5 +193,5 @@ class Automation():
     def stringify_log_stamp(self, spec):
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
         return f"""\
-[{datetime.datetime.now()}][depth={self._depth}  turn_system_name={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] \
+[{datetime.datetime.now()}][depth={self._depth}  turn_system_name={turn_system_name:11}  failure_rate={spec.failure_rate:.2f}  p={spec.p:.2f}] \
 """

@@ -218,7 +218,7 @@ class KakukinDataSheetTable():
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
         kds_df = pd.DataFrame.from_dict({
-                # p はインデックス
+                'p':[], # インデックス
                 'turn_system_name':[],
                 'failure_rate':[],
                 'span':[],
@@ -1044,8 +1044,8 @@ class TheoreticalProbabilityTable():
 
         df = self._df
 
-        for row_number,(      span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
-            enumerate(zip(df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+        for row_number,(      shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
+            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
 
             # span, t_step, h_step はインデックス
             span, t_step, h_step = df.index[row_number]
