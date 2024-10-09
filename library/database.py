@@ -5,6 +5,7 @@ import os
 import time
 import random
 import datetime
+import numpy as np
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
@@ -326,7 +327,7 @@ class KakukinDataSheetTable():
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
         df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
@@ -692,7 +693,7 @@ class TheoreticalProbabilityTable():
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
         # ソートの設定        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
         df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
@@ -962,7 +963,7 @@ class EmpiricalProbabilityDuringTrialsTable():
 
 
     _dtype = {
-        'p':'float64',
+        # 'p':'float64',                # インデックスは、列扱いされません
         'best_p':'float64',
         'best_p_error':'float64',
         'best_span':'int64',
@@ -1070,113 +1071,38 @@ class EmpiricalProbabilityDuringTrialsTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df):
+    def setup_data_frame(clazz, df, shall_set_index=True):
         """データフレームの設定"""
 
         # データ型の設定
         df.astype(clazz._dtype)
 
-        df.set_index(
-                ['p'],
-                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        if shall_set_index:
+            try:
+                df.set_index(
+                        ['p'],
+                        #drop=False,     # NOTE `drop` - ドロップすると、テーブルからその列は除外される（インデックスのタプルから値を取得することはできる）
+                        inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+            except KeyError as e:
+                print(f"""\
+df:
+{df}
+""")
+                raise
         
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
         df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
-    def get_result_set_by_index(self, p):
-        """0～複数件のレコードを含むデータフレームを返します"""
-
-        # 絞り込み。 DataFrame型が返ってくる
-        result_set_df = self._df.query('p==@p')
-
-        if 1 < len(result_set_df):
-            print(f"""\
-self._df:
-{self._df}""")
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {p=}")
-
-        return result_set_df
-
-
-    @classmethod
-    def sub_insert_record(clazz, base_df, welcome_record):
-        # 新規レコードが入ったデータフレームを新規作成します
-        new_df = pd.DataFrame.from_dict({
-            'p': [welcome_record.p],
-            'best_p': [welcome_record.best_p],
-            'best_p_error': [welcome_record.best_p_error],
-            'best_span': [welcome_record.best_span],
-            'best_t_step': [welcome_record.best_t_step],
-            'best_h_step': [welcome_record.best_h_step],
-            'latest_p': [welcome_record.latest_p],
-            'latest_p_error': [welcome_record.latest_p_error],
-            'latest_span': [welcome_record.latest_span],
-            'latest_t_step': [welcome_record.latest_t_step],
-            'latest_h_step': [welcome_record.latest_h_step],
-            'candidates': [welcome_record.candidates]})
-        clazz.setup_data_frame(new_df)
-
-        # ２つのテーブルを連結します
-        merged_df = pd.concat(
-                [base_df, new_df],
-                ignore_index=True)  # 真： インデックスを振り直します
-        clazz.setup_data_frame(merged_df)
-
-        return merged_df
-
-
-    def insert_record(self, welcome_record):
-        """
-
-        Parameters
-        ----------
-        spec : Specification
-            ［仕様］
-        """
-        self._df = EmpiricalProbabilityDuringTrialsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-
-    def update_record(self, index, welcome_record):
-        """データが既存なら、差異があれば、上書き、無ければ何もしません
-        
-        Parameters
-        ----------
-        welcome_record : EmpiricalProbabilityDuringTrialsRecord
-            レコード
-        """
-
-        # インデックスが一致するのは前提事項
-        is_dirty =\
-            self._df.at[index, 'best_p'] != welcome_record.best_p or\
-            self._df.at[index, 'best_p_error'] != welcome_record.best_p_error or\
-            self._df.at[index, 'best_span'] != welcome_record.best_span or\
-            self._df.at[index, 'best_t_step'] != welcome_record.best_t_step or\
-            self._df.at[index, 'best_h_step'] != welcome_record.best_h_step or\
-            self._df.at[index, 'latest_p'] != welcome_record.latest_p or\
-            self._df.at[index, 'latest_p_error'] != welcome_record.latest_p_error or\
-            self._df.at[index, 'latest_span'] != welcome_record.latest_span or\
-            self._df.at[index, 'latest_t_step'] != welcome_record.latest_t_step or\
-            self._df.at[index, 'latest_h_step'] != welcome_record.latest_h_step or\
-            self._df.at[index, 'candidates'] != welcome_record.candidates
-
-
-        if is_dirty:
-            # データフレーム更新
-            self._df = EmpiricalProbabilityDuringTrialsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-        return is_dirty
-
-
-    def upsert_record(self, result_set_df_by_index, welcome_record):
+    def upsert_record(self, index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        result_set_df_by_index : DataFrame
-            主キーで絞り込んだレコードセット
+        index : any
+            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
@@ -1186,21 +1112,62 @@ self._df:
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(result_set_df_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
-        # データが既存でないなら、新規追加
-        if len(result_set_df_by_index) == 0:
-            self.insert_record(welcome_record=welcome_record)
-            return True
+        # データ変更判定
+        # -------------
+        is_sort_dirty = False
+        is_record_changed = False
 
-        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = result_set_df_by_index.index[0]
+        print(f"""\
+[update_record] self._df:
+{self._df}""")
+        if index not in self._df['best_p']:
+            is_record_changed = True
+            is_sort_dirty = True
 
-        return self.update_record(
-                index=index,
-                welcome_record=welcome_record)
+        else:
+            try:
+                is_record_changed =\
+                    self._df['best_p'][index] != welcome_record.best_p or\
+                    self._df['best_p_error'][index] != welcome_record.best_p_error or\
+                    self._df['best_span'][index] != welcome_record.best_span or\
+                    self._df['best_t_step'][index] != welcome_record.best_t_step or\
+                    self._df['best_h_step'][index] != welcome_record.best_h_step or\
+                    self._df['latest_p'][index] != welcome_record.latest_p or\
+                    self._df['latest_p_error'][index] != welcome_record.latest_p_error or\
+                    self._df['latest_span'][index] != welcome_record.latest_span or\
+                    self._df['latest_t_step'][index] != welcome_record.latest_t_step or\
+                    self._df['latest_h_step'][index] != welcome_record.latest_h_step or\
+                    self._df['candidates'][index] != welcome_record.candidates
+            except KeyError:
+                print(f"""\
+self._df:
+{self._df}""")
+                raise
+
+
+        # 行の挿入または更新
+        self._df.loc[index] = {
+            'p': welcome_record.p,
+            'best_p': welcome_record.best_p,
+            'best_p_error': welcome_record.best_p_error,
+            'best_span': welcome_record.best_span,
+            'best_t_step': welcome_record.best_t_step,
+            'best_h_step': welcome_record.best_h_step,
+            'latest_p': welcome_record.latest_p,
+            'latest_p_error': welcome_record.latest_p_error,
+            'latest_span': welcome_record.latest_span,
+            'latest_t_step': welcome_record.latest_t_step,
+            'latest_h_step': welcome_record.latest_h_step,
+            'candidates': welcome_record.candidates}
+
+        if is_sort_dirty:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return is_record_changed
 
 
     def to_csv(self):
@@ -1239,8 +1206,12 @@ self._df:
 
         df = self._df
 
-        for         p,       best_p,       best_p_error,       best_span,       best_t_step,       best_h_step,       latest_p,       latest_p_error,       latest_span,       latest_t_step,       latest_h_step,       candidates in\
-            zip(df['p'], df['best_p'], df['best_p_error'], df['best_span'], df['best_t_step'], df['best_h_step'], df['latest_p'], df['latest_p_error'], df['latest_span'], df['latest_t_step'], df['latest_h_step'], df['candidates']):
+        for         best_p,       best_p_error,       best_span,       best_t_step,       best_h_step,       latest_p,       latest_p_error,       latest_span,       latest_t_step,       latest_h_step,       candidates in\
+            zip(df['best_p'], df['best_p_error'], df['best_span'], df['best_t_step'], df['best_h_step'], df['latest_p'], df['latest_p_error'], df['latest_span'], df['latest_t_step'], df['latest_h_step'], df['candidates']):
+
+            # インデックス列は、タプルに入っている
+            print(f"""{df.index[0]=}""")
+            p = df.index[0]
 
             # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
             best_span = round_letro(best_span)
@@ -1460,13 +1431,7 @@ class TheoreticalProbabilityTrialResultsTable():
         # インデックスの設定
         df.set_index(
                 ['p'],
-                drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-
-        # ソートの設定        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
-        df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
     @classmethod
@@ -1491,6 +1456,11 @@ class TheoreticalProbabilityTrialResultsTable():
                 [base_df, new_df],
                 ignore_index=True)  # 真： インデックスを振り直します
         clazz.setup_data_frame(merged_df)
+
+        # ソートの設定
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+        merged_df.sort_index(
+                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
         return merged_df
 
@@ -1705,7 +1675,7 @@ class TheoreticalProbabilityBestTable():
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
         
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない。１回設定しておくだけでよいようだ？
+        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
         df.sort_index(
                 inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 

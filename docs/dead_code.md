@@ -222,3 +222,34 @@
             list_of_enable_each_row = (ep_df['p'] == p)
             if not list_of_enable_each_row.any():
 ```
+
+
+```
+    @classmethod
+    def sub_insert_record(clazz, base_df, welcome_record):
+        # 新規レコードが入ったデータフレームを新規作成します
+        new_df = pd.DataFrame.from_dict({
+            'p': [welcome_record.p],
+            'best_p': [welcome_record.best_p],
+            'best_p_error': [welcome_record.best_p_error],
+            'best_span': [welcome_record.best_span],
+            'best_t_step': [welcome_record.best_t_step],
+            'best_h_step': [welcome_record.best_h_step],
+            'latest_p': [welcome_record.latest_p],
+            'latest_p_error': [welcome_record.latest_p_error],
+            'latest_span': [welcome_record.latest_span],
+            'latest_t_step': [welcome_record.latest_t_step],
+            'latest_h_step': [welcome_record.latest_h_step],
+            'candidates': [welcome_record.candidates]})
+        clazz.setup_data_frame(new_df)
+
+        # ２つのテーブルを連結します
+        merged_df = pd.concat(
+                [base_df, new_df],
+                ignore_index=False)  # 真： インデックスを振り直します
+
+        # FIXME 再設定はいるか？
+        clazz.setup_data_frame(merged_df, shall_set_index=False)
+
+        return merged_df
+```

@@ -47,21 +47,20 @@ class Automation():
         self._cut_off = False   # FIXME 打ち切りフラグ。本当はタイムシェアリング書くべき
 
 
-    def upsert_data_frame(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
+    def update_record(self, spec, best_p, best_p_error, best_series_rule_if_it_exists,
             latest_p, latest_p_error, latest_series_rule, candidates):
         """データフレーム更新
-        
+
+        NOTE 新規行の追加は無い
+
         Parameters
         ----------
         spec : Specification
             ［仕様］
         """
 
-        result_set_df_by_index = self._epdt_table.get_result_set_by_index(
-                p=spec.p)
-
         self._epdt_table.upsert_record(
-                result_set_df_by_index=result_set_df_by_index,
+                index=spec.p,
                 welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                         p=spec.p,
                         best_p=best_p,
@@ -214,7 +213,7 @@ class Automation():
                                 candidates = candidate_str
 
                             # 表示とデータフレーム更新
-                            self.upsert_data_frame(
+                            self.update_record(
                                     spec=spec,
                                     best_p=best_p,
                                     best_p_error=best_p_error,
@@ -289,7 +288,7 @@ class Automation():
         # 空振りが１回でもあれば、途中状態を保存
         if 0 < passage_count:
             # 表示とデータフレーム更新
-            self.upsert_data_frame(
+            self.update_record(
                     spec=spec,
                     best_p=best_p,
                     best_p_error=best_p_error,
@@ -312,27 +311,6 @@ class Automation():
                                 turn_system_id=self._specified_turn_system_id,
                                 failure_rate=self._specified_failure_rate),
                         on_save_and_get_file_name=self._epdt_table.to_csv)
-
-
-    def iteration_deeping(self):
-        """反復深化探索の１セット
-        
-        Returns
-        -------
-        is_update_table : bool
-            更新が有ったか？
-        """
-
-        is_update_table = False
-
-        self._number_of_target = 0        # 処理対象の数
-        self._number_of_smalled = 0       # 処理完了の数
-        self._number_of_yield = 0         # 処理を途中で譲った数
-        self._number_of_passaged = 0      # 空振りで終わったレコード数
-
-        self._epdt_table.for_each(on_each=self.on_each)
-
-        return is_update_table
 
 
     def execute(self):
@@ -405,7 +383,14 @@ class Automation():
             #
             #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
             #
-            is_update_table = self.iteration_deeping()
+            is_update_table = False
+
+            self._number_of_target = 0        # 処理対象の数
+            self._number_of_smalled = 0       # 処理完了の数
+            self._number_of_yield = 0         # 処理を途中で譲った数
+            self._number_of_passaged = 0      # 空振りで終わったレコード数
+
+            self._epdt_table.for_each(on_each=self.on_each)
 
 
             #
