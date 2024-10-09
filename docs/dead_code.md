@@ -598,3 +598,10 @@ class TheoreticalProbabilityTrialResultsTable():
 
             on_each(record)
 ```
+
+
+```
+            # データが１件も入っていないとき、 nan になってしまう。とりあえずワースト誤差を最大に設定する
+            if pd.isnull(worst_abs_best_p_error):
+                worst_abs_best_p_error = ABS_OUT_OF_ERROR
+```

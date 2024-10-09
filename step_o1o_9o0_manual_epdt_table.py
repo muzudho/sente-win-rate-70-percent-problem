@@ -16,6 +16,9 @@ from scripts.step_o1o_9o0_each_epdt_table import Automation as StepO1o09o0EachEd
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
+# １つのテーブルに割り当てる最大処理時間（秒）
+INTERVAL_SECONDS_ON_TABLE = 60
+
 
 ########################################
 # コマンドから実行時
@@ -52,6 +55,7 @@ if __name__ == '__main__':
                     specified_turn_system_id=specified_turn_system_id,
                     specified_failure_rate=specified_failure_rate,
                     specified_abs_small_error=ABS_SMALL_P_ERROR,
+                    interval_seconds=INTERVAL_SECONDS_ON_TABLE,
                     epdt_table=epdt_table)
 
 

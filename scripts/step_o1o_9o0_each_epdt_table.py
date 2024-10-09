@@ -9,19 +9,16 @@ from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachE
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
-# １つのテーブルに割り当てる最大処理時間（秒）
-INTERVAL_SECONDS_ON_TABLE = 60
-
-
 class Automation():
     """自動化"""
 
 
-    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, specified_abs_small_error, epdt_table):
+    def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, specified_abs_small_error, interval_seconds, epdt_table):
         self._specified_trial_series = specified_trial_series
         self._specified_turn_system_id = specified_turn_system_id
         self._specified_failure_rate = specified_failure_rate
         self._specified_abs_small_error = specified_abs_small_error
+        self._interval_seconds = interval_seconds
         self._epdt_table = epdt_table
 
         self._current_abs_lower_limit_of_error = None
@@ -202,7 +199,7 @@ class Automation():
         # 探索打切り判定
         is_cutoff = any([
                 # タイムアップ判定
-                (INTERVAL_SECONDS_ON_TABLE < time.time() - self._start_time_on_table),
+                (self._interval_seconds < time.time() - self._start_time_on_table),
                 is_sufficient,
         ])
 
