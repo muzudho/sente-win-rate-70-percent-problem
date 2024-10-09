@@ -82,6 +82,28 @@ class SaveWithRetry():
                 time.sleep(wait_for_seconds)
 
 
+class ForEachTsFr():
+
+
+    @staticmethod
+    def execute(on_each_tsfr):
+        """
+        Parameters
+        ----------
+        on_each_spec : func
+            関数
+        """
+
+        # ［先後の決め方］
+        for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
+
+            # ［将棋の引分け率］
+            for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
+                failure_rate = failure_rate_percent / 100
+                    
+                on_each_tsfr(turn_system_id=turn_system_id, failure_rate=failure_rate)
+
+
 class ForEachSpec():
 
 
@@ -96,7 +118,6 @@ class ForEachSpec():
 
         # ［先後の決め方］
         for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
-            turn_system_name = Converter.turn_system_id_to_name(turn_system_id)
 
             # ［将棋の引分け率］
             for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
