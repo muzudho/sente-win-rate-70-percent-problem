@@ -60,7 +60,6 @@ class Automation():
         """
 
         self._epdt_table.upsert_record(
-                index=spec.p,
                 welcome_record=EmpiricalProbabilityDuringTrialsRecord(
                         p=spec.p,
                         best_p=best_p,
@@ -223,9 +222,15 @@ class Automation():
                                     latest_series_rule=latest_series_rule,
                                     candidates=candidates)
 
-                            # 指定間隔（秒）で保存
+                            # 十分な答えが出たか、複数回の更新があったとき
+                            is_good_temp = abs(best_p_error) < self._current_abs_lower_limit_of_error or 2 < update_count
+
+                            # 指定間隔（秒）
                             end_time_for_save = time.time()
-                            if self._is_dirty_csv and INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save:
+                            is_timeup = INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - self._start_time_for_save
+
+                            # 保存判定
+                            if self._is_dirty_csv and (is_good_temp or is_timeup):
                                 self._start_time_for_save = end_time_for_save
                                 self._is_dirty_csv = False
 
@@ -241,8 +246,8 @@ class Automation():
                                 self._cut_off = True
 
 
-                            # 十分な答えが出たか、複数回の更新があったとき、探索を打ち切ります
-                            if abs(best_p_error) < self._current_abs_lower_limit_of_error or 2 < update_count:
+                            # 探索を打ち切ります
+                            if is_good_temp:
                                 is_good = True
                                 is_cutoff = True
                                 self._number_of_yield += 1
@@ -279,7 +284,7 @@ class Automation():
             # print() # 改行
 
 
-        # 続行
+        # 十分な答えが出たので探索打切り
         if is_good:
             return
             #continue
@@ -321,19 +326,29 @@ class Automation():
         None
         """
 
-        # ファイル読取り。無ければ空テーブル新規作成して保存
+        # ファイル読取り。無ければスキップ
         self._epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
-                new_if_it_no_exists=True)
-        #print(self._epdt_table.df)
+                new_if_it_no_exists=False)
+
+        if is_new and self._epdt_table is None:
+            print(f"[{datetime.datetime.now()}] ファイルが無いのでスキップします")
+            return
+
 
         # 対象外のケース
         # =============
 
-        # NOTE １件以上ないと、 .min() や .max() が nan になってしまう。１件以上あるときに判定する
-        if 0 < len(self._epdt_table.df):
+        # NOTE ０件だと、 .min() や .max() が nan になってしまう
+        if len(self._epdt_table.df) < 1:
+            best_p_error_min = - ABS_OUT_OF_ERROR
+            best_p_error_max = ABS_OUT_OF_ERROR
+            # ループに最初に１回入るためだけの設定
+            worst_abs_best_p_error = ABS_OUT_OF_ERROR
+
+        else:
             best_p_error_min = self._epdt_table.df['best_p_error'].min()
             best_p_error_max = self._epdt_table.df['best_p_error'].max()
             # 絶対値にする
@@ -343,12 +358,6 @@ class Automation():
             if worst_abs_best_p_error <= self._specified_abs_small_error:
                 return
         
-        else:
-            best_p_error_min = - ABS_OUT_OF_ERROR
-            best_p_error_max = ABS_OUT_OF_ERROR
-            # ループに最初に１回入るためだけの設定
-            worst_abs_best_p_error = ABS_OUT_OF_ERROR
-
 
         self._start_time_for_save = time.time()
         self._is_dirty_csv = False

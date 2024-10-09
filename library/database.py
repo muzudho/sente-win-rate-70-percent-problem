@@ -1126,14 +1126,6 @@ df:
             print(f"""{df.index[0]=}""")
             p = df.index[0]
 
-            # NOTE pandas では数は float 型で入っているので、 int 型に再変換してやる必要がある
-            best_span = round_letro(best_span)
-            best_t_step = round_letro(best_t_step)
-            best_h_step = round_letro(best_h_step)
-            latest_span = round_letro(latest_span)
-            latest_t_step = round_letro(latest_t_step)
-            latest_h_step = round_letro(latest_h_step)
-
             # レコード作成
             record = EmpiricalProbabilityDuringTrialsRecord(
                     p=p,
