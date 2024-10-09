@@ -339,14 +339,11 @@ class KakukinDataSheetTable():
             raise ValueError(f"ファイル名と failure_rate 列で内容が異なるのはおかしいです {welcome_record.failure_rate=}  {self._failure_rate=}")
 
 
-    def upsert_record(self, index, welcome_record):
+    def upsert_record(self, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        index : any
-            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
-            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
@@ -357,6 +354,14 @@ class KakukinDataSheetTable():
         """
 
         self.assert_welcome_record(welcome_record=welcome_record)
+
+
+        # インデックス
+        # -----------
+        # index : any
+        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
+        index = welcome_record.p
 
 
         # データ変更判定
@@ -651,14 +656,11 @@ class TheoreticalProbabilityTable():
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
 
-    def upsert_record(self, index, welcome_record):
+    def upsert_record(self, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        index : any
-            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
-            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
@@ -668,9 +670,16 @@ class TheoreticalProbabilityTable():
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
+        # インデックス
+        # -----------
+        # index : any
+        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
+        index = (welcome_record.span, welcome_record.t_step, welcome_record.h_step)
+
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['span']
+        is_new_index = index not in self._df['shortest_coins']
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -1331,14 +1340,11 @@ class TheoreticalProbabilityBestTable():
                 theoretical_no_win_match_rate=None)
 
 
-    def upsert_record(self, index, welcome_record):
+    def upsert_record(self, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        index : any
-            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
-            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
@@ -1347,6 +1353,15 @@ class TheoreticalProbabilityBestTable():
         shall_record_change : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
+
+
+        # インデックス
+        # -----------
+        # index : any
+        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
+        # turn_system_name, failure_rate, p はインデックス
+        index = (welcome_record.turn_system_name, welcome_record.failure_rate, welcome_record.p)
 
 
         # データ変更判定

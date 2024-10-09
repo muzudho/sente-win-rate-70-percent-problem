@@ -94,14 +94,28 @@ class Automation():
             #
 
             # FIXME ここもっと簡潔に書けそう？
+#             print(f"""\
+# tp_table._df:
+# {tp_table._df}
+
+# tp_table._df.index:
+# {tp_table._df.index}
+
+# tp_table._df.index.values[-1]:
+# {tp_table._df.index.values[-1]}
+# """)
+
+            # NOTE 昇順にソートされている前提で、最後の行のインデックスを取得
+            last_index = tp_table._df.index.values[-1]
+
             # TODO 最後に処理された span は？
-            span = round_letro(tp_table._df['span'].max())
+            span = last_index[0]    #round_letro(tp_table._df['span'].max())
 
             # TODO 最後に処理された span のうち、最後に処理された t_step は？
-            t_step = round_letro(tp_table._df.loc[tp_table._df['span']==span, 't_step'].max())
+            t_step = last_index[1]  #round_letro(tp_table._df.loc[tp_table._df['span']==span, 't_step'].max())
 
             # TODO 最後に処理された span, t_step のうち、最後に処理された h_step は？
-            h_step = round_letro(tp_table._df.loc[(tp_table._df['span']==span) & (tp_table._df['t_step']==t_step), 'h_step'].max())
+            h_step = last_index[2]  #round_letro(tp_table._df.loc[(tp_table._df['span']==span) & (tp_table._df['t_step']==t_step), 'h_step'].max())
 
             # カウントアップ
             span, t_step, h_step = ForEachSeriesRule.increase(
@@ -109,26 +123,13 @@ class Automation():
                     t_step=t_step,
                     h_step=h_step)
 
-            print(f"{datetime.datetime.now()}RESTART_ {span=:2}  {t_step=:2}  {h_step=:2}")
+            print(f"[{datetime.datetime.now()}] RESTART {span=:2}  {t_step=:2}  {h_step=:2}")
 
 
         #
         # TODO ロック機構がないと、データの整合性が取れないのでは？
         #
         while span < upper_limit_span + 1:
-
-            # インデックス
-            result_set_df_by_index = tp_table.get_result_set_by_index(
-                    span=span,
-                    t_step=t_step,
-                    h_step=h_step)
-            
-            if 1 < len(result_set_df_by_index):
-                raise ValueError(f"テーブルが壊れています。インデックスが重複するデータが {len(result_set_df_by_index)} 件ありました")
-
-            if len(result_set_df_by_index) == 1:
-                raise ValueError(f"プログラムが壊れています。指定した新しいインデックスが既に存在します")
-
 
             # ［シリーズ・ルール］
             #
@@ -142,7 +143,7 @@ class Automation():
 
             # レコードの挿入
             # FIXME 追加ではなく、先頭から上書き保存になってる？
-            tp_table.insert_record(
+            tp_table.upsert_record(
                     welcome_record=TheoreticalProbabilityRecord(
                             span=span,
                             t_step=t_step,

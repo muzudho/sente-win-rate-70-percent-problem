@@ -89,7 +89,6 @@ class AutomationOne():
 
                 # レコードの新規作成または更新
                 is_dirty_temp = self._tpb_table.upsert_record(
-                        result_set_df_by_index=tpb_result_set_df_by_index,
                         welcome_record=welcome_record)
 
                 if is_dirty_temp:

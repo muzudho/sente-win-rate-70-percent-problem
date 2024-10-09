@@ -75,12 +75,8 @@ class Automation():
         f_wins_b = S.wins(challenged=FAILED, winner=BOB)
 
 
-        result_set_df_by_index = self._kds_table.get_result_set_by_index(
-                p=spec.p)
-
         # データフレーム更新。レコードの挿入または更新
         self._kds_table.upsert_record(
-                result_set_df_by_index=result_set_df_by_index,
                 welcome_record=KakukinDataSheetRecord(
                         turn_system_name=Converter.turn_system_id_to_name(self._specified_turn_system_id),  # ［先後の決め方］
                         failure_rate=self._specified_failure_rate,                                  # ［将棋の引分け率］
