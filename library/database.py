@@ -771,8 +771,8 @@ class TheoreticalProbabilityBestTable():
 
         df = self._df
 
-        for row_number,(      turn_system_name,       failure_rate,       p,       span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate) in\
-            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+        for row_number,(      span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate) in\
+            enumerate(zip(df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
 
             # turn_system_name, failure_rate, p はインデックス
             turn_system_name, failure_rate, p = df.index[row_number]
@@ -946,8 +946,16 @@ class TheoreticalProbabilityTable():
     def setup_data_frame(clazz, df):
         """データフレームの設定"""
 
-        # データ型の設定
-        df.astype(clazz._dtype)
+        try:
+            # データ型の設定
+            df.astype(clazz._dtype)
+        except KeyError as e:
+            print(f"""\
+{e}
+df:
+{df}
+""")
+            raise
 
         # インデックスの設定
         df.set_index(
