@@ -56,10 +56,7 @@ class Automation():
                     # 途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）
                     return YIELD
 
-                # FIXME int型の行から、float型が取れてしまう？
-                h_step = int(row['h_step'])
-                t_step = int(row['t_step'])
-                span = int(row['span'])
+                span, t_step, h_step = index
 
                 # ［シリーズ・ルール］
                 specified_series_rule = SeriesRule.make_series_rule_base(
