@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.step_o1o0_create_epdt_table import Automation as StepO1o0CreateEPDTTable
+from scripts.step_o1o0_create_all_epdt_tables import Automation as StepO1o0CreateAllEPDTTables
 
 
 ########################################
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        automation = StepO1o0CreateEPDTTable(
+        automation = StepO1o0CreateAllEPDTTables(
                 specified_failure_rate=specified_failure_rate,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_trial_series=specified_trial_series,

@@ -10,7 +10,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, UPPER_LIMIT_FAILURE_RATE, ABS_SMALL_P_ERROR, Converter
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
-from scripts.step_o1o0_create_epdt_table import Automation as StepO1o0CreateEPDTTable
+from scripts.step_o1o0_create_all_epdt_tables import Automation as StepO1o0CreateAllEPDTTables
 from config import DEFAULT_TRIAL_SERIES
 
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
 
                 # CSV作成 ［試行中の経験的確率データファイル］
-                automation = StepO1o0CreateEPDTTable(
+                automation = StepO1o0CreateAllEPDTTables(
                         specified_trial_series=specified_trial_series,
                         specified_failure_rate=specified_failure_rate,
                         specified_turn_system_id=specified_turn_system_id,
