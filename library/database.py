@@ -326,63 +326,6 @@ class KakukinDataSheetTable():
                 ['p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
-        df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
-
-
-    def get_result_set_by_index(self, p):
-        """0～複数件のレコードを含むデータフレームを返します"""
-
-        # 絞り込み。 DataFrame型が返ってくる
-        # trial_series と turn_system_name と failure_rate はファイル名と同じはず
-        result_set_df = self._df.query('p==@p')
-
-        if 1 < len(result_set_df):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {p=}")
-
-        return result_set_df
-
-
-    @classmethod
-    def sub_insert_record(clazz, base_df, welcome_record):
-
-        # 新規レコードが入ったデータフレームを新規作成します
-        new_df = pd.DataFrame.from_dict({
-            'turn_system_name': [welcome_record.turn_system_name],
-            'failure_rate': [welcome_record.failure_rate],
-            'p': [welcome_record.p],
-            'span': [welcome_record.span],
-            't_step': [welcome_record.t_step],
-            'h_step': [welcome_record.h_step],
-            'shortest_coins': [welcome_record.shortest_coins],
-            'upper_limit_coins': [welcome_record.upper_limit_coins],
-            'trial_series': [welcome_record.trial_series],
-            'series_shortest_coins': [welcome_record.series_shortest_coins],
-            'series_longest_coins': [welcome_record.series_longest_coins],
-            'wins_a': [welcome_record.wins_a],
-            'wins_b': [welcome_record.wins_b],
-            'succucessful_series': [welcome_record.succucessful_series],
-            's_ful_wins_a': [welcome_record.s_ful_wins_a],
-            's_ful_wins_b': [welcome_record.s_ful_wins_b],
-            's_pts_wins_a': [welcome_record.s_pts_wins_a],
-            's_pts_wins_b': [welcome_record.s_pts_wins_b],
-            'failed_series': [welcome_record.failed_series],
-            'f_ful_wins_a': [welcome_record.f_ful_wins_a],
-            'f_ful_wins_b': [welcome_record.f_ful_wins_b],
-            'f_pts_wins_a': [welcome_record.f_pts_wins_a],
-            'f_pts_wins_b': [welcome_record.f_pts_wins_b],
-            'no_wins_ab': [welcome_record.no_wins_ab]})
-        clazz.setup_data_frame(new_df)
-
-        # ２つのテーブルを連結します
-        merged_df = pd.concat(
-                [base_df, new_df],
-                ignore_index=True)  # 真： インデックスを振り直します
-        clazz.setup_data_frame(merged_df)
-
-        return merged_df
 
 
     def assert_welcome_record(self, welcome_record):
@@ -397,79 +340,96 @@ class KakukinDataSheetTable():
             raise ValueError(f"ファイル名と failure_rate 列で内容が異なるのはおかしいです {welcome_record.failure_rate=}  {self._failure_rate=}")
 
 
-    def insert_record(self, welcome_record):
-        self.assert_welcome_record(welcome_record=welcome_record)
-        self._df = KakukinDataSheetTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-
-    def update_record(self, index, welcome_record):
-        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
-
-        # インデックスが一致するのは前提事項
-        # trial_series と turn_system_name と failure_rate はファイル名と同じはず
-        is_dirty =\
-            self._df.at[index, 'span'] != welcome_record.span or\
-            self._df.at[index, 't_step'] != welcome_record.t_step or\
-            self._df.at[index, 'h_step'] != welcome_record.h_step or\
-            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            self._df.at[index, 'trial_series'] != welcome_record.trial_series or\
-            self._df.at[index, 'series_shortest_coins'] != welcome_record.series_shortest_coins or\
-            self._df.at[index, 'series_longest_coins'] != welcome_record.series_longest_coins or\
-            self._df.at[index, 'wins_a'] != welcome_record.wins_a or\
-            self._df.at[index, 'wins_b'] != welcome_record.wins_b or\
-            self._df.at[index, 'succucessful_series'] != welcome_record.succucessful_series or\
-            self._df.at[index, 's_ful_wins_a'] != welcome_record.s_ful_wins_a or\
-            self._df.at[index, 's_ful_wins_b'] != welcome_record.s_ful_wins_b or\
-            self._df.at[index, 's_pts_wins_a'] != welcome_record.s_pts_wins_a or\
-            self._df.at[index, 's_pts_wins_b'] != welcome_record.s_pts_wins_b or\
-            self._df.at[index, 'failed_series'] != welcome_record.failed_series or\
-            self._df.at[index, 'f_ful_wins_a'] != welcome_record.f_ful_wins_a or\
-            self._df.at[index, 'f_ful_wins_b'] != welcome_record.f_ful_wins_b or\
-            self._df.at[index, 'f_pts_wins_a'] != welcome_record.f_pts_wins_a or\
-            self._df.at[index, 'f_pts_wins_b'] != welcome_record.f_pts_wins_b or\
-            self._df.at[index, 'no_wins_ab'] != welcome_record.no_wins_ab
-
-
-        if is_dirty:
-            # データフレーム更新
-            self.assert_welcome_record(welcome_record=welcome_record)
-            self._df = KakukinDataSheetTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-        return is_dirty
-
-
-    def upsert_record(self, result_set_df_by_index, welcome_record):
+    def upsert_record(self, index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        result_set_df_by_index : DataFrame
-            主キーで絞り込んだレコードセット
+        index : any
+            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
         Returns
         -------
-        is_dirty : bool
+        is_record_changed : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(result_set_df_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
+        self.assert_welcome_record(welcome_record=welcome_record)
 
-        # データが既存でないなら、新規追加
-        if len(result_set_df_by_index) == 0:
-            self.insert_record(welcome_record=welcome_record)
-            return True
 
-        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = result_set_df_by_index.index[0]
+        # データ変更判定
+        # -------------
+        is_sort_dirty = False
+        is_record_changed = False
 
-        return self.update_record(
-                index=index,
-                welcome_record=welcome_record)
+
+        # インデックスが既存でないなら
+        if index not in self._df['span']:
+            is_record_changed = True
+            is_sort_dirty = True
+
+        else:
+            # 更新の有無判定
+            # trial_series と turn_system_name と failure_rate はファイル名と同じはず
+            is_record_changed =\
+                self._df['span'][index] != welcome_record.span or\
+                self._df['t_step'][index] != welcome_record.t_step or\
+                self._df['h_step'][index] != welcome_record.h_step or\
+                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['trial_series'][index] != welcome_record.trial_series or\
+                self._df['series_shortest_coins'][index] != welcome_record.series_shortest_coins or\
+                self._df['series_longest_coins'][index] != welcome_record.series_longest_coins or\
+                self._df['wins_a'][index] != welcome_record.wins_a or\
+                self._df['wins_b'][index] != welcome_record.wins_b or\
+                self._df['succucessful_series'][index] != welcome_record.succucessful_series or\
+                self._df['s_ful_wins_a'][index] != welcome_record.s_ful_wins_a or\
+                self._df['s_ful_wins_b'][index] != welcome_record.s_ful_wins_b or\
+                self._df['s_pts_wins_a'][index] != welcome_record.s_pts_wins_a or\
+                self._df['s_pts_wins_b'][index] != welcome_record.s_pts_wins_b or\
+                self._df['failed_series'][index] != welcome_record.failed_series or\
+                self._df['f_ful_wins_a'][index] != welcome_record.f_ful_wins_a or\
+                self._df['f_ful_wins_b'][index] != welcome_record.f_ful_wins_b or\
+                self._df['f_pts_wins_a'][index] != welcome_record.f_pts_wins_a or\
+                self._df['f_pts_wins_b'][index] != welcome_record.f_pts_wins_b or\
+                self._df['no_wins_ab'][index] != welcome_record.no_wins_ab
+
+
+        # 行の挿入または更新
+        self._df.loc[index] = {
+            # p はインデックス
+            'span': welcome_record.span,
+            't_step': welcome_record.t_step,
+            'h_step': welcome_record.h_step,
+            'shortest_coins': welcome_record.shortest_coins,
+            'upper_limit_coins': welcome_record.upper_limit_coins,
+            'trial_series': welcome_record.trial_series,
+            'series_shortest_coins': welcome_record.series_shortest_coins,
+            'series_longest_coins': welcome_record.series_longest_coins,
+            'wins_a': welcome_record.wins_a,
+            'wins_b': welcome_record.wins_b,
+            'succucessful_series': welcome_record.succucessful_series,
+            's_ful_wins_a': welcome_record.s_ful_wins_a,
+            's_ful_wins_b': welcome_record.s_ful_wins_b,
+            's_pts_wins_a': welcome_record.s_pts_wins_a,
+            's_pts_wins_b': welcome_record.s_pts_wins_b,
+            'failed_series': welcome_record.failed_series,
+            'f_ful_wins_a': welcome_record.f_ful_wins_a,
+            'f_ful_wins_b': welcome_record.f_ful_wins_b,
+            'f_pts_wins_a': welcome_record.f_pts_wins_a,
+            'f_pts_wins_b': welcome_record.f_pts_wins_b,
+            'no_wins_ab': welcome_record.no_wins_ab}
+
+        if is_sort_dirty:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return is_record_changed
 
 
     def to_csv(self):
@@ -692,23 +652,6 @@ class TheoreticalProbabilityTable():
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
-        # ソートの設定        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
-        df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
-
-
-    def get_result_set_by_index(self, span, t_step, h_step):
-        """0～複数件のレコードを含むデータフレームを返します"""
-
-        # 絞り込み。 DataFrame型が返ってくる
-        result_set_df = self._df.query('span==@span & t_step==@t_step & h_step==@h_step')
-
-        if 1 < len(result_set_df):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {span=}  {t_step=}  {h_step=}")
-
-        return result_set_df
-
 
     @classmethod
     def sub_insert_record(clazz, base_df, welcome_record):
@@ -733,61 +676,63 @@ class TheoreticalProbabilityTable():
         return merged_df
 
 
-    def insert_record(self, welcome_record):
-        self._df = TheoreticalProbabilityTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-
-    def update_record(self, index, welcome_record):
-        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
-
-        # インデックスが一致するのは前提事項
-        is_dirty =\
-            self._df.at[index, 'span'] != welcome_record.span or\
-            self._df.at[index, 't_step'] != welcome_record.t_step or\
-            self._df.at[index, 'h_step'] != welcome_record.h_step or\
-            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            self._df.at[index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            self._df.at[index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
-
-        if is_dirty:
-            # データフレーム更新
-            self._df = TheoreticalProbabilityTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-        return is_dirty
-
-
-    def upsert_record(self, result_set_df_by_index, welcome_record):
+    def upsert_record(self, index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        result_set_df_by_index : DataFrame
-            主キーで絞り込んだレコードセット
+        index : any
+            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
         Returns
         -------
-        is_dirty : bool
+        is_record_changed : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(result_set_df_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
+        # データ変更判定
+        # -------------
+        is_sort_dirty = False
+        is_record_changed = False
 
-        # データが既存でないなら、新規追加
-        if len(result_set_df_by_index) == 0:
-            self.insert_record(welcome_record=welcome_record)
-            return True
 
-        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = result_set_df_by_index.index[0]
+        # インデックスが既存でないなら
+        if index not in self._df['span']:
+            is_record_changed = True
+            is_sort_dirty = True
 
-        return self.update_record(
-                index=index,
-                welcome_record=welcome_record)
+        else:
+            # 更新の有無判定
+            is_record_changed =\
+                self._df['span'][index] != welcome_record.span or\
+                self._df['t_step'][index] != welcome_record.t_step or\
+                self._df['h_step'][index] != welcome_record.h_step or\
+                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
+                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+
+
+        # 行の挿入または更新
+        self._df.loc[index] = {
+            # インデックス 'span': welcome_record.span,
+            # インデックス 't_step': welcome_record.t_step,
+            # インデックス 'h_step': welcome_record.h_step,
+            'shortest_coins': welcome_record.shortest_coins,
+            'upper_limit_coins': welcome_record.upper_limit_coins,
+            'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
+            'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+
+        if is_sort_dirty:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return is_record_changed
 
 
     def to_csv(self):
@@ -1089,10 +1034,6 @@ df:
 {df}
 """)
                 raise
-        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
-        df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
     def upsert_record(self, index, welcome_record):
@@ -1108,7 +1049,7 @@ df:
 
         Returns
         -------
-        is_dirty : bool
+        is_record_changed : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
@@ -1118,15 +1059,15 @@ df:
         is_sort_dirty = False
         is_record_changed = False
 
-        print(f"""\
-[update_record] self._df:
-{self._df}""")
+
+        # インデックスが既存でないなら
         if index not in self._df['best_p']:
             is_record_changed = True
             is_sort_dirty = True
 
         else:
             try:
+                # 更新の有無判定
                 is_record_changed =\
                     self._df['best_p'][index] != welcome_record.best_p or\
                     self._df['best_p_error'][index] != welcome_record.best_p_error or\
@@ -1148,7 +1089,7 @@ self._df:
 
         # 行の挿入または更新
         self._df.loc[index] = {
-            'p': welcome_record.p,
+            # インデックス 'p': welcome_record.p,
             'best_p': welcome_record.best_p,
             'best_p_error': welcome_record.best_p_error,
             'best_span': welcome_record.best_span,
@@ -1465,59 +1406,67 @@ class TheoreticalProbabilityTrialResultsTable():
         return merged_df
 
 
-    def insert_record(self, welcome_record):
-        self._df = TheoreticalProbabilityTrialResultsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-
-    def update_record(self, index, welcome_record):
-        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
-
-        # インデックスが一致するのは前提事項
-        is_dirty =\
-            self._df.at[index, 'span'] != welcome_record.span or\
-            self._df.at[index, 't_step'] != welcome_record.t_step or\
-            self._df.at[index, 'h_step'] != welcome_record.h_step or\
-            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            self._df.at[index, 'trial_a_win_rate'] != welcome_record.trial_a_win_rate or\
-            self._df.at[index, 'trial_no_win_match_rate'] != welcome_record.trial_no_win_match_rate
-
-        if is_dirty:
-            # データフレーム更新
-            self._df = TheoreticalProbabilityTrialResultsTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-        return is_dirty
-
-
-    def upsert_record(self, result_set_df_by_index, welcome_record):
+    def upsert_record(self, index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        result_set_df_by_index : DataFrame
-            主キーで絞り込んだレコードセット
+        index : any
+            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
         Returns
         -------
-        is_dirty : bool
+        is_record_changed : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(result_set_df_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
-        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = result_set_df_by_index.index[0]
+        # データ変更判定
+        # -------------
+        is_sort_dirty = False
+        is_record_changed = False
 
-        # データが既存でないなら、新規追加
-        if len(result_set_df_by_index) == 0:
-            self.insert_record(welcome_record=welcome_record)
-            return True
 
-        return self.update_record(index=index, welcome_record=welcome_record)
+        # インデックスが既存でないなら
+        if index not in self._df['span']:
+            is_record_changed = True
+            is_sort_dirty = True
+        
+        else:
+            # 更新の有無判定
+            is_record_changed =\
+                self._df['span'][index] != welcome_record.span or\
+                self._df['t_step'][index] != welcome_record.t_step or\
+                self._df['h_step'][index] != welcome_record.h_step or\
+                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['trial_a_win_rate'][index] != welcome_record.trial_a_win_rate or\
+                self._df['trial_no_win_match_rate'][index] != welcome_record.trial_no_win_match_rate
+
+
+        # 行の挿入または更新
+        self._df.loc[index] = {
+            'turn_system_name': welcome_record.turn_system_name,
+            'failure_rate': welcome_record.failure_rate,
+            # インデックス 'p': welcome_record.p,
+            'span': welcome_record.span,
+            't_step': welcome_record.t_step,
+            'h_step': welcome_record.h_step,
+            'shortest_coins': welcome_record.shortest_coins,
+            'upper_limit_coins': welcome_record.upper_limit_coins,
+            'trial_a_win_rate': welcome_record.trial_a_win_rate,
+            'trial_no_win_match_rate': welcome_record.trial_no_win_match_rate}
+
+        if is_sort_dirty:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return is_record_changed
 
 
     def to_csv(self, spec):
@@ -1674,22 +1623,6 @@ class TheoreticalProbabilityBestTable():
                 ['turn_system_name', 'failure_rate', 'p'],
                 drop=False,     # NOTE インデックスにした列も保持する（ドロップを解除しないとアクセスできなくなる）
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        
-        # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
-        df.sort_index(
-                inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
-
-
-    def get_result_set_by_index(self, turn_system_name, failure_rate, p):
-        """0～複数件のレコードを含むデータフレームを返します"""
-
-        # 絞り込み。 DataFrame型が返ってくる
-        result_set_df = self._df.query('turn_system_name==@turn_system_name & failure_rate==@failure_rate & p==@p')
-
-        if 1 < len(result_set_df):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {turn_system_name=}  {failure_rate=}  {p=}")
-
-        return result_set_df
 
 
     @classmethod
@@ -1761,82 +1694,64 @@ class TheoreticalProbabilityBestTable():
                 theoretical_no_win_match_rate=None)
 
 
-    def sub_insert_record(self, index, welcome_record):
-
-        # 新規レコードが入ったデータフレームを新規作成します
-        new_df = pd.DataFrame.from_dict({
-            'turn_system_name': [welcome_record.turn_system_name],
-            'failure_rate': [welcome_record.failure_rate],
-            'p': [welcome_record.p],
-            'span': [welcome_record.span],
-            't_step': [welcome_record.t_step],
-            'h_step': [welcome_record.h_step],
-            'shortest_coins': [welcome_record.shortest_coins],
-            'upper_limit_coins': [welcome_record.upper_limit_coins],
-            'theoretical_a_win_rate': [welcome_record.theoretical_a_win_rate],
-            'theoretical_no_win_match_rate': [welcome_record.theoretical_no_win_match_rate]})
-        clazz.setup_data_frame(new_df)
-
-        # ２つのテーブルを連結します
-        merged_df = pd.concat(
-                [base_df, new_df],
-                ignore_index=True)  # 真： インデックスを振り直します
-        clazz.setup_data_frame(merged_df)
-
-        return merged_df
-
-
-    def insert_record(self, welcome_record):
-        self._df = TheoreticalProbabilityBestTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-
-    def update_record(self, index, welcome_record):
-        """データが既存なら、差異があれば、上書き、無ければ何もしません"""
-
-        # インデックスが一致するのは前提事項
-        is_dirty =\
-            self._df.at[index, 'shortest_coins'] != welcome_record.shortest_coins or\
-            self._df.at[index, 'upper_limit_coins'] != welcome_record.upper_limit_coins or\
-            self._df.at[index, 'theoretical_a_win_rate'] != welcome_record.theoretical_a_win_rate or\
-            self._df.at[index, 'theoretical_no_win_match_rate'] != welcome_record.theoretical_no_win_match_rate
-
-        if is_dirty:
-            # データフレーム更新
-            self._df = TheoreticalProbabilityBestTable.sub_insert_record(base_df=self._df, welcome_record=welcome_record)
-
-        return is_dirty
-
-
-    def upsert_record(self, result_set_df_by_index, welcome_record):
+    def upsert_record(self, index, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
         Parameters
         ----------
-        result_set_df_by_index : DataFrame
-            主キーで絞り込んだレコードセット
+        index : any
+            インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+            <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
         welcome_record : TheoreticalProbabilityBestRecord
             レコード
 
         Returns
         -------
-        is_dirty : bool
+        is_record_changed : bool
             レコードの新規追加、または更新があれば真。変更が無ければ偽
         """
 
-        if 1 < len(result_set_df_by_index):
-            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df_by_index)=}")
 
-        # データが既存でないなら、新規追加
-        if len(result_set_df_by_index) == 0:
-            self.insert_record(welcome_record=welcome_record)
-            return True
+        # データ変更判定
+        # -------------
+        is_sort_dirty = False
+        is_record_changed = False
 
 
-        # NOTE インデックスを設定すると、ここで取得できる内容が変わってしまう。 numpy.int64 だったり、 tuple だったり。
-        # NOTE インデックスが複数列でない場合。 <class 'numpy.int64'>。これは int型ではないが、pandas では int型と同じように使えるようだ
-        index = result_set_df_by_index.index[0]
+        # インデックスが既存でないなら
+        if index not in self._df['turn_system_name']:
+            is_record_changed = True
+            is_sort_dirty = True
 
-        return self.update_record(index=index, welcome_record=welcome_record)
+        else:
+            # 更新の有無判定
+            is_record_changed =\
+                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
+                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+
+
+        # 行の挿入または更新
+        self._df.loc[index] = {
+            # インデックス 'turn_system_name': welcome_record.turn_system_name,
+            # インデックス 'failure_rate': welcome_record.failure_rate,
+            # インデックス 'p': welcome_record.p,
+            'span': welcome_record.span,
+            't_step': welcome_record.t_step,
+            'h_step': welcome_record.h_step,
+            'shortest_coins': welcome_record.shortest_coins,
+            'upper_limit_coins': welcome_record.upper_limit_coins,
+            'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
+            'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+
+        if is_sort_dirty:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return is_record_changed
 
 
     def to_csv(self):

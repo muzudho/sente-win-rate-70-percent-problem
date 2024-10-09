@@ -253,3 +253,17 @@
 
         return merged_df
 ```
+
+
+```
+    def get_result_set_by_index(self, span, t_step, h_step):
+        """0～複数件のレコードを含むデータフレームを返します"""
+
+        # 絞り込み。 DataFrame型が返ってくる
+        result_set_df = self._df.query('span==@span & t_step==@t_step & h_step==@h_step')
+
+        if 1 < len(result_set_df):
+            raise ValueError(f"データが重複しているのはおかしいです {len(result_set_df)=}  {span=}  {t_step=}  {h_step=}")
+
+        return result_set_df
+```
