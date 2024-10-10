@@ -49,6 +49,8 @@ class AutomationOne():
             ファイル変更の有無
         is_crush : bool
             ファイルが破損しているか？（ファイルが無いのは別扱い）
+        is_not_found : bool
+            ファイルが無い
         """
 
         if self._tpb_table is None:
@@ -65,11 +67,11 @@ class AutomationOne():
         if is_tp_crush:
             # FIXME
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}［理論的確率データ］ファイルが破損しています(C)")
-            return False, True
+            return False, True, False
 
         if self._tp_table is None:
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率データ］ファイルがない。")
-            return False, False
+            return False, False, True
 
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
@@ -78,11 +80,11 @@ class AutomationOne():
         if is_tpr_crush:
             # FIXME
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}［理論的確率の率データ］ファイルが破損しています(C)")
-            return False, True
+            return False, True, False
 
         if self._tpr_table is None:
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率の率データ］ファイルがない。")
-            return False, False
+            return False, False, True
 
 
         # TODO TP表と TPR表を完全外部結合する
@@ -98,7 +100,7 @@ class AutomationOne():
             self._on_match_tptpr_record(tptpr_record=best_tptpr_record_or_none)
 
 
-        return self._is_tpb_update, False
+        return self._is_tpb_update, False, False
 
 
     def get_best_tptpr_record_or_none(self):
@@ -215,6 +217,7 @@ class AutomationAll():
                 specified_failure_rate = failure_rate_percent / 100
 
                 # リセット
+                number_of_not_found_rows = 0
                 number_of_crush_rows = 0
                 number_of_dirty_rows = 0                # 変更された行数
                 number_of_bright_rows = 0               # 変更されなかった行数
@@ -231,12 +234,16 @@ class AutomationAll():
                             p=specified_p)
                     #print(f"{DebugWrite.stringify(spec=spec)}")
 
-                    is_dirty_temp, is_crush = automation_one.execute_a_spec(spec=spec)
+                    is_dirty_temp, is_crush, is_not_found = automation_one.execute_a_spec(spec=spec)
 
 
                     if is_crush:
                         print(f"ファイルが破損しています(E)")
                         number_of_crush_rows += 1
+
+                    elif is_not_found:
+                        print(f"ファイルが無かった")
+                        number_of_not_found_rows += 1
 
                     elif is_dirty_temp:
                         number_of_dirty_rows += 1
@@ -250,7 +257,7 @@ class AutomationAll():
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                             csv_file_path_to_wrote = tpb_table.to_csv()
-                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. ...")
+                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")
 
                             # リセット
                             start_time_for_save = time.time()
@@ -263,4 +270,4 @@ class AutomationAll():
                 if 0 < number_of_dirty_rows:
                     csv_file_path_to_wrote = tpb_table.to_csv()
                     # specified_p はまだ入ってるはず
-                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. ...")
+                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")

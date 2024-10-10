@@ -30,6 +30,7 @@ class Automation():
         self._depth = None
         self._start_time_for_save = time.time()
         self._number_of_target_rows = None
+        self._number_of_not_found_rows = None
         self._number_of_crush_rows = None
         self._number_of_dirty_rows = None
         self._number_of_bright_rows = None
@@ -38,6 +39,11 @@ class Automation():
     @property
     def number_of_target_rows(self):
         return self._number_of_target_rows
+
+
+    @property
+    def number_of_not_found_rows(self):
+        return self._number_of_not_found_rows
 
 
     @property
@@ -58,6 +64,7 @@ class Automation():
     def reset_by_depth(self, depth):
         self._depth = depth
         self._number_of_target_rows = 0
+        self._number_of_not_found_rows = 0
         self._number_of_crush_rows = 0
         self._number_of_dirty_rows = 0
         self._number_of_bright_rows = 0
@@ -68,11 +75,15 @@ class Automation():
 
         #print(f"{DebugWrite.stringify(depth=depth, spec=spec)}step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
         # ［理論的確率ベストデータ］新規作成または更新
-        is_dirty_temp, is_crush = automation_one.execute_a_spec(spec=spec)
+        is_dirty_temp, is_crush, is_not_found = automation_one.execute_a_spec(spec=spec)
 
         if is_crush:
             print(f"{DebugWrite.stringify(depth=depth,spec=spec)}ファイルが破損しています(D)")
             self._number_of_crush_rows += 1
+
+        elif is_not_found:
+            print(f"{DebugWrite.stringify(depth=depth,spec=spec)}ファイルが見つかりません")
+            self._number_of_not_found_rows += 1
 
         elif is_dirty_temp:
             self._number_of_dirty_rows += 1
@@ -95,6 +106,7 @@ class Automation():
                 # リセット
                 self._start_time_for_save = time.time()
                 self._number_of_target = 0
+                self._number_of_not_found_rows = 0
                 self._number_of_crush_rows = 0
                 self._number_of_dirty_rows = 0
                 self._number_of_bright_rows = 0
@@ -161,8 +173,13 @@ if __name__ == '__main__':
                 IntervalForRetry.sleep(min_secs=5*60, max_secs=30*60, shall_print=True)
 
 
+            # ファイルが見つからない場合、作成中かもしれません。それが作られることを期待します
+            elif 0 < automation_1.number_of_not_found_rows:
+                IntervalForRetry.sleep(min_secs=30, max_secs=5*60, shall_print=True)
+
+
             elif automation_1.number_of_target_rows == automation_1.number_of_bright_rows:
-                print(f"{DebugWrite.stringify(depth=depth)} it was over")
+                print(f"{DebugWrite.stringify(depth=depth)}it was over")
                 break
 
 
