@@ -78,7 +78,7 @@ class AllTheoreticalProbabilityFilesOperation():
         # Step o2o2o0 ［理論的確率データ］のスリー・レーツ列を更新する
         ##########################################################
 
-        print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
+        #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
         step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
                 seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
 

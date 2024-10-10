@@ -83,7 +83,7 @@ class Automation():
         # 更新が終わってるか確認
         min_best_abs_p_error = (self._epdt_table.df['best_p_error'] - EVEN).abs().min()
         if min_best_abs_p_error < self._smaller_abs_error:
-            print(f"{DebugWrite.stringify()} it was over")
+            print(f"{DebugWrite.stringify()}it was over")
             self._is_smalled = True
             return
 

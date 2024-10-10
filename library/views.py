@@ -742,6 +742,9 @@ class DebugWrite():
         if p is not None:
             breadcrumbs.append(f"p={p * 100:.1f}%")
 
-        breadcrumb_trail = '  '.join(breadcrumbs)
+        if 0 < len(breadcrumbs):
+            breadcrumb_trail = f"[{'  '.join(breadcrumbs)}]"
+        else:
+            breadcrumb_trail = ''
 
-        return f"[{datetime.datetime.now()}][{breadcrumb_trail}] "
+        return f"[{datetime.datetime.now()}]{breadcrumb_trail} "

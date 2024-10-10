@@ -66,7 +66,7 @@ if __name__ == '__main__':
                                 p=p)
 
 
-                        print(f"{DebugWrite.stringify(depth=depth, spec=spec)}step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
+                        #print(f"{DebugWrite.stringify(depth=depth, spec=spec)}step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
                         # ［理論的確率ベストデータ］新規作成または更新
                         is_dirty_temp = automation_one.execute_a_spec(spec=spec)
 

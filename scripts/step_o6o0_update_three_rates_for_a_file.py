@@ -4,6 +4,7 @@ import datetime
 
 from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule
 from library.score_board import search_all_score_boards
+from library.views import DebugWrite
 
 
 class Automation():
@@ -88,21 +89,12 @@ class Automation():
             # CSVファイルへ書き出し
             csv_file_path_to_wrote = tp_table.to_csv()
 
-            print(f"{self.stringify_log_stamp(spec=spec)}SAVE____ dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  write file to `{csv_file_path_to_wrote}` ...")
+            print(f"{DebugWrite.stringify(spec=spec)}SAVE dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  write file to `{csv_file_path_to_wrote}` ...")
 
             # このファイルは処理完了した
             return TERMINATED
 
 
         # 処理失敗
-        print(f"{self.stringify_log_stamp(spec=spec)}UNCHANGE dirty={self._number_of_dirty}")
+        print(f"{DebugWrite.stringify(spec=spec)}UNCHANGE dirty={self._number_of_dirty}")
         return CALCULATION_FAILED
-
-
-
-
-    def stringify_log_stamp(self, spec):
-        turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-        return f"""\
-[{datetime.datetime.now()}][turn_system_name={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] \
-"""

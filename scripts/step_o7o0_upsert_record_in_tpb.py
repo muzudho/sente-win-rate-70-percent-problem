@@ -110,7 +110,7 @@ class AutomationOne():
             # NOTE インデックスが重複しているデータを含んでいてはいけません
             #
             index = result_set_df.index[0]  # インデックスで１件に絞り込める前提
-            print(f"[{datetime.datetime.now()}] get_best_tp_record_or_none {index=}")
+            #print(f"[{datetime.datetime.now()}] get_best_tp_record_or_none {index=}")
             span, t_step, h_step = index
             return TheoreticalProbabilityRecord(
                     span=span,
