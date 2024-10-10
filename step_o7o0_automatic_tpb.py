@@ -1,5 +1,5 @@
 #
-# python step_o7o0_automatic.py
+# python step_o7o0_automatic_tpb.py
 #
 # ［理論的確率ベスト］（TPB）表へのレコードの挿入または更新。
 #

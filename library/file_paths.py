@@ -161,6 +161,26 @@ class TheoreticalProbabilityBestFilePaths():
         return f'logs/thoretical_probability_best.log'
 
 
+###########
+# MARK: TPR
+###########
+
+class TheoreticalProbabilityRatesFilePaths():
+    """理論的確率の率データのファイルパス一覧"""
+
+
+    @staticmethod
+    def as_csv(turn_system_id, failure_rate, p):
+        subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
+        return f'temp/theoretical_probability_rates/TPR{subname}.csv'
+
+
+    @staticmethod
+    def as_log(turn_system_id, failure_rate, p):
+        subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
+        return f'logs/theoretical_probability_rates/TPR{subname}.csv'
+
+
 ##########
 # MARK: TP
 ##########

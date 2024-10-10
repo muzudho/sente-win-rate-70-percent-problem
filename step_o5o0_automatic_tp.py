@@ -1,8 +1,8 @@
 #
 # 分析
-# python step_o5o0_automatic.py
+# python step_o5o0_automatic_tp.py
 #
-#   ［理論的確率データ］を作成します。
+#   ［理論的確率データ］（TP）表を作成します。
 #   １シリーズのコインの出目について、全パターン網羅した表を作成します
 #
 

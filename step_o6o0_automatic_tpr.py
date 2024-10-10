@@ -1,7 +1,7 @@
 #
-# python step_o6o0_automatic.py
+# python step_o6o0_automatic_tpr.py
 #
-# ［理論的確率データ］のスリー・レーツ列を更新する
+# ［理論的確率データ］（TP）表のスリー・レーツ列を更新する
 #
 
 import traceback

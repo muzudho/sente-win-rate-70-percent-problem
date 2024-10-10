@@ -1,7 +1,7 @@
 #
-# 自動プログラム o1o0 号
-# python step_o1o0_automatic.py
+# python step_o1o0_automatic_all_epdt.py
 #
+# 全ての［試行中の経験的確率］（EPDT）表を作成します
 #
 
 import traceback

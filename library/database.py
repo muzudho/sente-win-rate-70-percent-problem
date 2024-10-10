@@ -281,11 +281,11 @@ class KakukinDataSheetTable():
             else:
                 kds_table = None
         else:
-            df = pd.read_csv(csv_file_path, encoding="utf8",
+            kds_df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
-            clazz.setup_data_frame(df=df)
+            clazz.setup_data_frame(df=kds_df, csv_file_path=csv_file_path)
             kds_table = KakukinDataSheetTable(
-                    df=df,
+                    df=kds_df,
                     trial_series=trial_series,
                     turn_system_id=turn_system_id,
                     failure_rate=failure_rate)
@@ -316,13 +316,24 @@ class KakukinDataSheetTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df):
+    def setup_data_frame(clazz, df, csv_file_path=None):
         """データフレームの設定"""
 
-        # trial_series と turn_system_name と failure_rate はファイル名と同じはず
-        df.set_index(
-                ['p'],
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        try:
+            # trial_series と turn_system_name と failure_rate はファイル名と同じはず
+            df.set_index(
+                    'p',
+                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+        # FIXME KeyError: "None of ['p'] are in the columns"
+        except KeyError as e:
+            print(f"""\
+{e}
+{csv_file_path=}
+df:
+{df}
+""")
+            raise
 
         # データ型の設定
         # FIXME KeyError: "Only a column name can be used for the key in a dtype mappings argument. 'p' not found in columns."
@@ -804,6 +815,354 @@ class TheoreticalProbabilityBestTable():
             on_each(record)
 
 
+###########
+# MARK: TPR
+###########
+
+class TheoreticalProbabilityRatesRecord():
+
+
+    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._theoretical_a_win_rate = theoretical_a_win_rate
+        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def theoretical_a_win_rate(self):
+        return self._theoretical_a_win_rate
+
+
+    @property
+    def theoretical_no_win_match_rate(self):
+        return self._theoretical_no_win_match_rate
+
+
+class TheoreticalProbabilityRatesTable():
+    """理論的確率の率データ"""
+
+
+    _dtype = {
+        # span, t_step, h_step はインデックス
+        'shortest_coins':'int64',
+        'upper_limit_coins':'int64',
+        'theoretical_a_win_rate':'float64',
+        'theoretical_no_win_match_rate':'float64'}
+
+
+    def __init__(self, df, spec):
+        self._df = df
+        self._spec = spec
+
+
+    @classmethod
+    def new_empty_table(clazz, spec):
+        # span, t_step, h_step はインデックス
+        tpr_df = pd.DataFrame.from_dict({
+                'span': [],
+                't_step': [],
+                'h_step': [],
+                'shortest_coins': [],
+                'upper_limit_coins': [],
+                'theoretical_a_win_rate': [],
+                'theoretical_no_win_match_rate': []})
+
+        # tpr_df.empty は真
+
+        clazz.setup_data_frame(df=tpr_df)
+        return TheoreticalProbabilityRatesTable(df=tpr_df, spec=spec)
+
+
+    @classmethod
+    def read_csv(clazz, spec, new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+        
+        Returns
+        -------
+        tpr_table : TheoreticalProbabilityRatesTable
+            テーブル、またはナン
+        is_new : bool
+            新規作成されたか？
+        is_crush : bool
+            ファイルが破損していて続行不能か？
+        """
+
+        csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
+                turn_system_id=spec.turn_system_id,
+                failure_rate=spec.failure_rate,
+                p=spec.p)
+
+        is_file_exists = os.path.isfile(csv_file_path)
+
+        # ファイルが既存だったら、そのファイルを読む
+        if is_file_exists:
+            while True: # retry
+
+                # CSVファイルの読取り、データタイプの設定
+                try:
+                    tpr_df = pd.read_csv(csv_file_path, encoding="utf8")
+
+                    # 診断
+                    # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
+                    if tpr_df.empty:
+                        print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
+                        return None, None, True     # crush
+
+
+                # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+                except PermissionError as e:
+                    IntervalForRetry.sleep(shall_print=True)
+                    continue    # retry
+
+                # テーブルに列が無かった？ ファイルは破損してない。ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+                except pd.errors.EmptyDataError as e:
+                    # pandas.errors.EmptyDataError: No columns to parse from file
+                    print(f"""\
+[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+{e}
+{csv_file_path=}""")
+                    IntervalForRetry.sleep(shall_print=True)
+                    continue    # retry
+                
+                # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
+                except ValueError as e:
+                    # ValueError: Integer column has NA values in column 3
+                    print(f"""\
+[{datetime.datetime.now}] CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
+{e}
+{csv_file_path=}""")
+                    return None, None, True     # crush
+
+
+                # テーブルに追加の設定
+                #try:
+                clazz.setup_data_frame(df=tpr_df, csv_file_path=csv_file_path)
+
+#                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+#                 # "None of ['span', 't_step', 'h_step'] are in the columns"
+#                 # とりあえず、ファイル破損と判定する
+#                 except KeyError as e:
+#                     print(f"""\
+# [{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(A)
+# {type(e)=}
+# {e}
+# {csv_file_path=}""")
+
+#                     return None, None, True     # crush
+
+
+                # オブジェクト生成
+                tpr_table = TheoreticalProbabilityRatesTable(df=tpr_df, spec=spec)
+                break   # complete
+
+
+        # ファイルが存在しなかった場合
+        else:
+            if new_if_it_no_exists:
+                tpr_table = TheoreticalProbabilityRatesTable.new_empty_table(spec=spec)
+            else:
+                tpr_table = None
+
+
+        return tpr_table, not is_file_exists, False
+
+
+    @property
+    def df(self):
+        return self._df
+
+
+    @classmethod
+    def setup_data_frame(clazz, df, csv_file_path=None):
+        """データフレームの設定"""
+
+        # df.empty が真になるケースもある
+
+
+        try:
+            # インデックスの設定
+            #
+            #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
+            #
+            df.set_index(
+                    ['span', 't_step', 'h_step'],
+                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+        # "None of ['span', 't_step', 'h_step'] are in the columns"
+        # とりあえず、ファイル破損と判定する
+        except KeyError as e:
+            print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(B)
+{type(e)=}
+{e}
+{csv_file_path=}
+df:
+{df}""")
+            raise
+
+        try:
+            # データ型の設定
+            #
+            #   NOTE clazz._dtype には、インデックスを除いた列の設定が含まれているものとします
+            #
+            df.astype(clazz._dtype)
+
+        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+        # "None of ['span', 't_step', 'h_step'] are in the columns"
+        # とりあえず、ファイル破損と判定する
+        except KeyError as e:
+            print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(C)
+{type(e)=}
+{e}
+{csv_file_path=}""")
+            raise
+
+
+    def upsert_record(self, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        welcome_record : TheoreticalProbabilityBestRecord
+            レコード
+
+        Returns
+        -------
+        shall_record_change : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        # インデックス
+        # -----------
+        # index : any
+        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
+        index = (welcome_record.span, welcome_record.t_step, welcome_record.h_step)
+
+        # データ変更判定
+        # -------------
+        is_new_index = index not in self._df['shortest_coins']
+
+        # インデックスが既存でないなら
+        if is_new_index:
+            shall_record_change = True
+
+        else:
+            # 更新の有無判定
+            # span, t_step, h_step はインデックス
+            shall_record_change =\
+                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
+                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+
+
+        # 行の挿入または更新
+        if shall_record_change:
+            self._df.loc[index] = {
+                # span, t_step, h_step はインデックス
+                'shortest_coins': welcome_record.shortest_coins,
+                'upper_limit_coins': welcome_record.upper_limit_coins,
+                'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
+                'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+
+        if is_new_index:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return shall_record_change
+
+
+    def to_csv(self):
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
+
+        tpr_csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
+                p=self._spec.p,
+                failure_rate=self._spec.failure_rate,
+                turn_system_id=self._spec.turn_system_id)
+
+        # span, t_step, h_step はインデックス
+        self._df.to_csv(
+                tpr_csv_file_path,
+                columns=['shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+
+        return tpr_csv_file_path
+
+
+    def for_each(self, on_each):
+        """
+        Parameters
+        ----------
+        on_each : func
+            record 引数を受け取る関数
+        """
+
+        df = self._df
+
+        for row_number,(      shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
+            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+
+            # span, t_step, h_step はインデックス
+            span, t_step, h_step = df.index[row_number]
+
+            # レコード作成
+            tpr_record = TheoreticalProbabilityRatesRecord(
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=shortest_coins,
+                    upper_limit_coins=upper_limit_coins,
+                    theoretical_a_win_rate=theoretical_a_win_rate,
+                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+
+            on_each(tpr_record)
+
+
 ##########
 # MARK: TP
 ##########
@@ -885,9 +1244,7 @@ class TheoreticalProbabilityTable():
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []})
 
-        # 診断
-        if tp_df.empty:
-            raise ValueError(f"エンプティ・データフレームを指定するのはおかしい(A) {csv_file_path=}")
+        # tp_df.empty は真
 
         clazz.setup_data_frame(df=tp_df)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
@@ -930,9 +1287,9 @@ class TheoreticalProbabilityTable():
                     df = pd.read_csv(csv_file_path, encoding="utf8")
 
                     # 診断
-                    # FIXME ファイルが空テキストファイルになっていることがある。
+                    # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
                     if df.empty:
-                        print(f"空テキストファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
+                        print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
                         return None, None, True     # crush
 
 
@@ -1003,9 +1360,7 @@ class TheoreticalProbabilityTable():
     def setup_data_frame(clazz, df, csv_file_path=None):
         """データフレームの設定"""
 
-        # 診断
-        if df.empty:
-            raise ValueError(f"エンプティ・データフレームを指定するのはおかしい(C) {csv_file_path=}")
+        # df.empty が真になるケースもある
 
 
         try:
@@ -1395,7 +1750,7 @@ class EmpiricalProbabilityDuringTrialsTable():
 
         if shall_set_index:
             df.set_index(
-                    ['p'],
+                    'p',
                     inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
         # データ型の設定

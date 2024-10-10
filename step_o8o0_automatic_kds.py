@@ -1,7 +1,7 @@
 #
-# 自動プログラム
-# python step_o8o0_automatic.py
+# python step_o8o0_automatic_kds.py
 #
+# ［かくきんデータシート］（KDS）ファイルを作成する
 #
 
 import traceback

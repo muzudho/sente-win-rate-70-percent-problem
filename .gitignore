@@ -6,6 +6,8 @@ logs/kakukin_data_sheet/*
 !logs/kakukin_data_sheet/.gitkeep
 logs/theoretical_probability/*
 !logs/theoretical_probability/.gitkeep
+logs/theoretical_probability_rates/*
+!logs/theoretical_probability_rates/.gitkeep
 
 temp/empirical_probability_during_trials/*
 !temp/empirical_probability_during_trials/.gitkeep
@@ -13,6 +15,8 @@ temp/kakukin_data_sheet/*
 !temp/kakukin_data_sheet/.gitkeep
 temp/theoretical_probability/*
 !temp/theoretical_probability/.gitkeep
+temp/theoretical_probability_rates/*
+!temp/theoretical_probability_rates/.gitkeep
 temp/theoretical_probability_trial_results/*
 !temp/theoretical_probability_trial_results/.gitkeep
 
