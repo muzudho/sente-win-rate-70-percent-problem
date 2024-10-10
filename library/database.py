@@ -921,16 +921,25 @@ class TheoreticalProbabilityTable():
                 try:
                     df = pd.read_csv(csv_file_path, encoding="utf8")
 
-                # テーブルに列が無かったら、ファイル生成のタイミングと被ったか？ リトライしてみる
-                except pd.errors.EmptyDataError as e:
+                # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+                except PermissionError as e:
                     wait_for_seconds = random.randint(30, 5*60)
                     print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
                     continue    # retry
+
+                # テーブルに列が無かった？ ファイル破損か？
+                except pd.errors.EmptyDataError as e:
+                    print(f"""\
+[{datetime.datetime.now}] テーブルに列が無かった？ ファイル破損か？
+{e}
+{csv_file_path=}""")
+                    raise
                 
                 # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
                 except ValueError as e:
                     # ValueError: Integer column has NA values in column 3
                     print(f"""\
+[{datetime.datetime.now}] CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
 {e}
 {csv_file_path=}""")
                     return None, None, True     # crush
@@ -944,6 +953,7 @@ class TheoreticalProbabilityTable():
                 # とりあえず、ファイル破損と判定する
                 except KeyError as e:
                     print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
 {e}
 {csv_file_path=}""")
 
