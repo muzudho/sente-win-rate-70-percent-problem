@@ -325,6 +325,7 @@ class KakukinDataSheetTable():
                     'p',
                     inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
+        # FIXME データフレームがエンプティのときエラーになる？ 列もないとき ---> ファイルが破損している
         # FIXME KeyError: "None of ['p'] are in the columns"
         except KeyError as e:
             print(f"""\
