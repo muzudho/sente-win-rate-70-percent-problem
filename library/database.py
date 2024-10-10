@@ -928,12 +928,13 @@ class TheoreticalProbabilityTable():
                     print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
                     continue    # retry
                 
+                # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
                 except ValueError as e:
                     # ValueError: Integer column has NA values in column 3
                     print(f"""\
 {e}
 {csv_file_path=}""")
-                    raise
+                    return None, None, True     # crush
 
 
                 # テーブルに追加の設定
