@@ -89,14 +89,13 @@ class AllTheoreticalProbabilityFilesOperation():
             self._number_of_dirty += 1
 
         else:
-            # ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
-            #
-            #   FIXME このコードの書き方で動くのかわからない。もし書けないなら、１件ずつ調べていけばいいか
-            #
-            min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
-            if is_almost_zero(min_abs_error):
-                print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
-                return
+            # min() 等のメソッドを使いたいので、テーブルに１件以上入っていることを確認する
+            if 0 < len(tpr_table.df):
+                # ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
+                min_abs_error = (tpr_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
+                if is_almost_zero(min_abs_error):
+                    print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
+                    return
 
 
         ##########################################################
