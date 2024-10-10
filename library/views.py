@@ -727,20 +727,36 @@ class DebugWrite():
         if trial_series is not None:
             breadcrumbs.append(f"{trial_series=}")
 
+
+        # spec
+        # ----
+        turn_system_name_text = None
+        failure_rate_text = None
+        p_text = None
+
         if spec is not None:
-            turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)            
-            breadcrumbs.append(f"{turn_system_name=}")
-            breadcrumbs.append(f"failure_rate={spec.failure_rate * 100:.1f}%")
-            breadcrumbs.append(f"p={spec.p * 100:.1f}%")
+            turn_system_name_text = f"turn_system_name={Converter.turn_system_id_to_name(spec.turn_system_id)}"
+            failure_rate_text = f"failure_rate={spec.failure_rate * 100:.1f}%"
+            p_text = f"p={spec.p * 100:.1f}%"
 
         if turn_system_name is not None:
-            breadcrumbs.append(f"{turn_system_name=}")
+            turn_system_name_text = f"{turn_system_name=}"
 
         if failure_rate is not None:
-            breadcrumbs.append(f"failure_rate={failure_rate * 100:.1f}%")
+            failure_rate_text = f"failure_rate={failure_rate * 100:.1f}%"
         
         if p is not None:
-            breadcrumbs.append(f"p={p * 100:.1f}%")
+            p_text = f"p={p * 100:.1f}%"
+
+        if turn_system_name_text is not None:
+            breadcrumbs.append(turn_system_name_text)
+
+        if failure_rate_text is not None:
+            breadcrumbs.append(failure_rate_text)
+
+        if p_text is not None:
+            breadcrumbs.append(p_text)
+
 
         if 0 < len(breadcrumbs):
             breadcrumb_trail = f"[{'  '.join(breadcrumbs)}]"

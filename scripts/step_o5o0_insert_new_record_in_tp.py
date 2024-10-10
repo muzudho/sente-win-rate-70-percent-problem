@@ -137,7 +137,7 @@ class Automation():
                     h_step=h_step)
 
             turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)} RESTART {span=:2}  {t_step=:2}  {h_step=:2}")
+            #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)} RESTART {span=:2}  {t_step=:2}  {h_step=:2}")
 
 
         #

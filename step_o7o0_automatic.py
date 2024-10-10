@@ -1,6 +1,8 @@
 #
 # python step_o7o0_automatic.py
 #
+# ［理論的確率ベスト］（TPB）表へのレコードの挿入または更新。
+#
 
 import traceback
 import time

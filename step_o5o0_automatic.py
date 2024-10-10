@@ -13,10 +13,6 @@ from scripts import ForEachSpec
 from scripts.step_o5o0_insert_new_record_in_tp import Automation as StepO5o0InsertNewRecordInTp
 
 
-# タイムアップ間隔（秒）。タイムシェアリング間隔
-INTERVAL_SECONDS_FOR_SAVE_CSV = 5
-
-
 ########################################
 # コマンドから実行時
 ########################################
