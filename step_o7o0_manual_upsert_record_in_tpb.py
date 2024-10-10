@@ -60,10 +60,13 @@ if __name__ == '__main__':
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            is_dirty = step_o7o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
+            is_dirty, is_crush = step_o7o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
 
+            if is_crush:
+                print("ファイルが破損しています(B)")
+            
             # ファイルに変更があれば、CSVファイル保存
-            if is_dirty:
+            elif is_dirty:
                 SaveWithRetry.execute(
                         log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
                         on_save_and_get_file_name=TheoreticalProbabilityBestTable.to_csv)

@@ -175,9 +175,9 @@ class KakukinDataSheetTable():
 
 
     _dtype = {
+        # p はインデックス
         'turn_system_name':'object',    # string型は無い？
         'failure_rate':'float64',
-        'p':'float64',
         'span':'int64',
         't_step':'int64',
         'h_step':'int64',
@@ -324,6 +324,7 @@ class KakukinDataSheetTable():
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
         # データ型の設定
+        # FIXME KeyError: "Only a column name can be used for the key in a dtype mappings argument. 'p' not found in columns."
         df.astype(clazz._dtype)
 
 
@@ -374,6 +375,7 @@ class KakukinDataSheetTable():
 
         else:
             # 更新の有無判定
+            # p はインデックス
             # trial_series と turn_system_name と failure_rate はファイル名と同じはず
             shall_record_change =\
                 self._df['span'][index] != welcome_record.span or\
@@ -881,7 +883,12 @@ class TheoreticalProbabilityTable():
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []})
-        clazz.setup_data_frame(tp_df)
+
+        # 診断
+        if tp_df.empty:
+            raise ValueError(f"エンプティ・データフレームを指定するのはおかしい(A) {csv_file_path=}")
+
+        clazz.setup_data_frame(df=tp_df)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
 
@@ -921,19 +928,29 @@ class TheoreticalProbabilityTable():
                 try:
                     df = pd.read_csv(csv_file_path, encoding="utf8")
 
+                    # 診断
+                    # FIXME ファイルが空テキストファイルになっていることがある。
+                    if df.empty:
+                        print(f"空テキストファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
+                        return None, None, True     # crush
+
+
                 # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
                 except PermissionError as e:
                     wait_for_seconds = random.randint(30, 5*60)
                     print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
                     continue    # retry
 
-                # テーブルに列が無かった？ ファイル破損か？
+                # テーブルに列が無かった？ ファイルは破損してない。ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
                 except pd.errors.EmptyDataError as e:
+                    # pandas.errors.EmptyDataError: No columns to parse from file
                     print(f"""\
-[{datetime.datetime.now}] テーブルに列が無かった？ ファイル破損か？
+[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
 {e}
 {csv_file_path=}""")
-                    raise
+                    wait_for_seconds = random.randint(30, 5*60)
+                    print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
+                    continue    # retry
                 
                 # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
                 except ValueError as e:
@@ -946,18 +963,20 @@ class TheoreticalProbabilityTable():
 
 
                 # テーブルに追加の設定
-                try:
-                    clazz.setup_data_frame(df)
+                #try:
+                clazz.setup_data_frame(df=df, csv_file_path=csv_file_path)
 
-                # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
-                # とりあえず、ファイル破損と判定する
-                except KeyError as e:
-                    print(f"""\
-[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
-{e}
-{csv_file_path=}""")
+#                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+#                 # "None of ['span', 't_step', 'h_step'] are in the columns"
+#                 # とりあえず、ファイル破損と判定する
+#                 except KeyError as e:
+#                     print(f"""\
+# [{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(A)
+# {type(e)=}
+# {e}
+# {csv_file_path=}""")
 
-                    return None, None, True     # crush
+#                     return None, None, True     # crush
 
 
                 # オブジェクト生成
@@ -982,22 +1001,52 @@ class TheoreticalProbabilityTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df):
+    def setup_data_frame(clazz, df, csv_file_path=None):
         """データフレームの設定"""
 
-        # インデックスの設定
-        #
-        #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
-        #
-        df.set_index(
-                ['span', 't_step', 'h_step'],
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        # 診断
+        if df.empty:
+            raise ValueError(f"エンプティ・データフレームを指定するのはおかしい(C) {csv_file_path=}")
 
-        # データ型の設定
-        #
-        #   NOTE clazz._dtype には、インデックスを除いた列の設定が含まれているものとします
-        #
-        df.astype(clazz._dtype)
+
+        try:
+            # インデックスの設定
+            #
+            #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
+            #
+            df.set_index(
+                    ['span', 't_step', 'h_step'],
+                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+        # "None of ['span', 't_step', 'h_step'] are in the columns"
+        # とりあえず、ファイル破損と判定する
+        except KeyError as e:
+            print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(B)
+{type(e)=}
+{e}
+{csv_file_path=}
+df:
+{df}""")
+            raise
+
+        try:
+            # データ型の設定
+            #
+            #   NOTE clazz._dtype には、インデックスを除いた列の設定が含まれているものとします
+            #
+            df.astype(clazz._dtype)
+
+        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+        # "None of ['span', 't_step', 'h_step'] are in the columns"
+        # とりあえず、ファイル破損と判定する
+        except KeyError as e:
+            print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(C)
+{type(e)=}
+{e}
+{csv_file_path=}""")
+            raise
 
 
     def upsert_record(self, welcome_record):

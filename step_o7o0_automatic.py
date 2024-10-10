@@ -44,6 +44,8 @@ if __name__ == '__main__':
         for depth in range(1, DEFAULT_MAX_DEPTH):
 
             # リセット
+            number_of_target_rows = 0
+            number_of_crush_rows = 0
             number_of_dirty_rows = 0
             number_of_bright_rows = 0
 
@@ -65,12 +67,17 @@ if __name__ == '__main__':
                                 failure_rate=failure_rate,
                                 p=p)
 
+                        number_of_target_rows += 1
 
                         #print(f"{DebugWrite.stringify(depth=depth, spec=spec)}step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
                         # ［理論的確率ベストデータ］新規作成または更新
-                        is_dirty_temp = automation_one.execute_a_spec(spec=spec)
+                        is_dirty_temp, is_crush = automation_one.execute_a_spec(spec=spec)
 
-                        if is_dirty_temp:
+                        if is_crush:
+                            print(f"{DebugWrite.stringify(depth=depth,spec=spec)}ファイルが破損しています(D)")
+                            number_of_crush_rows += 1
+
+                        elif is_dirty_temp:
                             number_of_dirty_rows += 1
                         
                         else:
@@ -86,12 +93,18 @@ if __name__ == '__main__':
                                         on_save_and_get_file_name=tpb_table.to_csv)
 
                                 # コンソール表示
-                                print(f"{DebugWrite.stringify(depth=depth, spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged.")
+                                print(f"{DebugWrite.stringify(depth=depth, spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} row(s) crushed.")
 
                                 # リセット
                                 start_time_for_save = time.time()
+                                number_of_target = 0
+                                number_of_crush_rows = 0
                                 number_of_dirty_rows = 0
                                 number_of_bright_rows = 0
+
+
+            # 深さの結果
+            print(f"{DebugWrite.stringify(depth=depth)}loop end. There are {number_of_target_rows} rows. {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} row(s) crushed.")
 
 
             # 忘れずに flush
@@ -102,10 +115,18 @@ if __name__ == '__main__':
                         on_save_and_get_file_name=tpb_table.to_csv)
 
                 # コンソール表示
-                print(f"{DebugWrite.stringify(depth=depth)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged.")
+                print(f"{DebugWrite.stringify(depth=depth)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} row(s) crushed.")
 
                 # リセット
                 start_time_for_save = time.time()
+
+
+            elif number_of_target_rows == number_of_crush_rows + number_of_bright_rows:
+                print(f"{DebugWrite.stringify(depth=depth)} it was over. {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} row(s) crushed.")
+                break
+
+
+            # 次の深さへ
 
 
         # 現実的に、完了しない想定

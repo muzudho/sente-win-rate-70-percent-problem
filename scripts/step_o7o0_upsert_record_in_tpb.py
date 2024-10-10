@@ -131,6 +131,8 @@ class AutomationOne():
         -------
         is_dirty : bool
             ファイル変更の有無
+        is_crush : bool
+            ファイルが破損しているか？（ファイルが無いのは別扱い）
         """
 
         if self._tpb_table is None:
@@ -145,12 +147,13 @@ class AutomationOne():
         self._tp_table, is_new, is_crush = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
 
         if is_crush:
-            print(f"[{datetime.datetime.now()}] ファイルが破損しています")
-            return False
+            # FIXME
+            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}ファイルが破損しています(C)")
+            return False, True
 
         if self._tp_table is None:
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率データ］ファイルがない。")
-            return False
+            return False, False
 
         if is_new:
             self._is_tp_update = True
@@ -165,7 +168,7 @@ class AutomationOne():
             self._on_match_file(tp_record=best_tp_record_or_none)
 
 
-        return self._is_tp_update
+        return self._is_tp_update, False
 
 
 class AutomationAll():
@@ -191,6 +194,7 @@ class AutomationAll():
                 specified_failure_rate = failure_rate_percent / 100
 
                 # リセット
+                number_of_crush_rows = 0
                 number_of_dirty_rows = 0                # 変更された行数
                 number_of_bright_rows = 0               # 変更されなかった行数
                 start_time_for_save = time.time()       # CSV保存用タイマー
@@ -206,9 +210,14 @@ class AutomationAll():
                             p=specified_p)
                     #print(f"{DebugWrite.stringify(spec=spec)}")
 
-                    is_dirty_temp = automation_one.execute_a_spec(spec=spec)
+                    is_dirty_temp, is_crush = automation_one.execute_a_spec(spec=spec)
 
-                    if is_dirty_temp:
+
+                    if is_crush:
+                        print(f"ファイルが破損しています(E)")
+                        number_of_crush_rows += 1
+
+                    elif is_dirty_temp:
                         number_of_dirty_rows += 1
                     
                     else:
@@ -220,10 +229,11 @@ class AutomationAll():
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                             csv_file_path_to_wrote = tpb_table.to_csv()
-                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. ...")
 
                             # リセット
                             start_time_for_save = time.time()
+                            number_of_crush_rows = 0
                             number_of_dirty_rows = 0
                             number_of_bright_rows = 0
 
@@ -232,4 +242,4 @@ class AutomationAll():
                 if 0 < number_of_dirty_rows:
                     csv_file_path_to_wrote = tpb_table.to_csv()
                     # specified_p はまだ入ってるはず
-                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. ...")
