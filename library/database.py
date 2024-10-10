@@ -318,13 +318,13 @@ class KakukinDataSheetTable():
     def setup_data_frame(clazz, df):
         """データフレームの設定"""
 
-        # データ型の設定
-        df.astype(clazz._dtype)
-
         # trial_series と turn_system_name と failure_rate はファイル名と同じはず
         df.set_index(
                 ['p'],
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+        # データ型の設定
+        df.astype(clazz._dtype)
 
 
     def assert_welcome_record(self, welcome_record):
@@ -596,12 +596,12 @@ class TheoreticalProbabilityBestTable():
     def setup_data_frame(clazz, df):
         """データフレームの設定"""
 
-        # データ型の設定
-        df.astype(clazz._dtype)
-
         df.set_index(
                 ['turn_system_name', 'failure_rate', 'p'],
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+        # データ型の設定
+        df.astype(clazz._dtype)
 
 
     @classmethod
@@ -880,7 +880,7 @@ class TheoreticalProbabilityTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []}, dtype=clazz._dtype)
+                'theoretical_no_win_match_rate': []})
         clazz.setup_data_frame(tp_df)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
@@ -919,8 +919,7 @@ class TheoreticalProbabilityTable():
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
-                    df = pd.read_csv(csv_file_path, encoding="utf8",
-                            dtype=clazz._dtype)
+                    df = pd.read_csv(csv_file_path, encoding="utf8")
 
                 # テーブルに列が無かったら、ファイル生成のタイミングと被ったか？ リトライしてみる
                 except pd.errors.EmptyDataError as e:
@@ -977,9 +976,18 @@ class TheoreticalProbabilityTable():
         """データフレームの設定"""
 
         # インデックスの設定
+        #
+        #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
+        #
         df.set_index(
                 ['span', 't_step', 'h_step'],
                 inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+        # データ型の設定
+        #
+        #   NOTE clazz._dtype には、インデックスを除いた列の設定が含まれているものとします
+        #
+        df.astype(clazz._dtype)
 
 
     def upsert_record(self, welcome_record):
@@ -1327,13 +1335,13 @@ class EmpiricalProbabilityDuringTrialsTable():
     def setup_data_frame(clazz, df, shall_set_index=True):
         """データフレームの設定"""
 
-        # データ型の設定
-        df.astype(clazz._dtype)
-
         if shall_set_index:
             df.set_index(
                     ['p'],
                     inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+        # データ型の設定
+        df.astype(clazz._dtype)
 
 
     def exists_index(self, p):
