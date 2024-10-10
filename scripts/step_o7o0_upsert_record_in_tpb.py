@@ -1,9 +1,10 @@
 import traceback
 import datetime
 import time
+import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
-from library.database import TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from library.database import TpTprRecord, TheoreticalProbabilityRatesTable, TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import DebugWrite
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
@@ -25,103 +26,13 @@ class AutomationOne():
         """
 
         self._tpb_table = tpb_table
+        self._tp_table = None
+        self._tpr_table = None
+        self._tptpr_df = None
 
         self._spec = None
         self._best_record = None
-
-        self._tp_table = None
-        self._is_tp_update = False
-
-
-    def _on_match_file(self, tp_record):
-        """TP表の span, t_step, h_step をインデックスとする各行について"""
-
-        shall_upsert_record = False
-
-        # 絞り込み。 0～複数件の DataFrame型が返ってくる
-        # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］の３列
-        turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
-        #tpb_index = (turn_system_name, self._spec.failure_rate, self._spec.p)   # インデックス。例： ('alternating', 0.1, 0.7)
-        tp_index = (tp_record.span, tp_record.t_step, tp_record.h_step)
-        
-        # ［理論的確率データ］表にある span, t_step, h_step に一致する［理論的確率ベスト］表のレコードがあれば、それを取得
-        # ［理論的確率ベスト］表から、［理論的なＡさんの勝率］と、［理論的なコインを投げて表も裏も出ない確率］を抽出
-        old_theoretical_a_win_rate = self._tp_table.df['theoretical_a_win_rate'][tp_index]                 # 例： 0.5232622375064023
-        old_theoretical_no_win_match_rate = self._tp_table.df['theoretical_no_win_match_rate'][tp_index]   # 例： 0.015976
-
-        # ［理論的確率データ］表のレコードの［Ａさんの勝率の互角からの誤差］
-        welcome_theoretical_a_win_error = tp_record.theoretical_a_win_rate - EVEN           # 例： 0.51
-
-        # 誤差が縮まれば更新
-        if abs(welcome_theoretical_a_win_error) < abs(old_theoretical_a_win_rate - EVEN):
-            shall_upsert_record = True
-
-        # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
-        elif welcome_theoretical_a_win_error == abs(old_theoretical_a_win_rate - EVEN) and (old_theoretical_no_win_match_rate is None or tp_record.theoretical_no_win_match_rate < old_theoretical_no_win_match_rate):
-            shall_upsert_record = True
-
-
-        if shall_upsert_record:
-            # TP から TPB へ型変換
-            welcome_record = TheoreticalProbabilityBestRecord(
-                    turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
-                    failure_rate=self._spec.failure_rate,
-                    p=self._spec.p,
-                    span=tp_record.span,
-                    t_step=tp_record.t_step,
-                    h_step=tp_record.h_step,
-                    shortest_coins=tp_record.shortest_coins,
-                    upper_limit_coins=tp_record.upper_limit_coins,
-                    theoretical_a_win_rate=tp_record.theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=tp_record.theoretical_no_win_match_rate)
-
-            # レコードの新規作成または更新
-            is_dirty_temp = self._tpb_table.upsert_record(
-                    welcome_record=welcome_record)
-
-            if is_dirty_temp:
-                self._is_tp_update = True
-
-
-    def get_best_tp_record_or_none(self):
-        """［理論的確率データ］表から、イーブンに一番近い行を抽出します
-        
-        Returns
-        -------
-        best_tp_record : TheoreticalProbabilityRecord
-            レコード、またはナン
-        """
-
-        # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
-        result_set_df = self._tp_table.df.loc[abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5) == min(abs(self._tp_table.df['theoretical_a_win_rate'] - 0.5))]
-
-        # それでも１件に絞り込めない場合、［コインを投げて表も裏も出ない確率］が最小のレコードのセット
-        if 1 < len(result_set_df):
-            result_set_df = result_set_df.loc[result_set_df['theoretical_no_win_match_rate'] == min(result_set_df['theoretical_no_win_match_rate'])]
-
-            # それでも１件に絞り込めない場合、［上限対局数］が最小のレコードのセット
-            if 1 < len(result_set_df):
-                result_set_df = result_set_df.loc[result_set_df['upper_limit_coins'] == min(result_set_df['upper_limit_coins'])]
-
-
-        # 該当レコードがあれば、適当に先頭の１件だけ返す。無ければナンを返す
-        if 0 < len(result_set_df):
-            #
-            # NOTE インデックスが重複しているデータを含んでいてはいけません
-            #
-            index = result_set_df.index[0]  # インデックスで１件に絞り込める前提
-            #print(f"[{datetime.datetime.now()}] get_best_tp_record_or_none {index=}")
-            span, t_step, h_step = index
-            return TheoreticalProbabilityRecord(
-                    span=span,
-                    t_step=t_step,
-                    h_step=h_step,
-                    shortest_coins=result_set_df['shortest_coins'][index],
-                    upper_limit_coins=result_set_df['upper_limit_coins'][index],
-                    theoretical_a_win_rate=result_set_df['theoretical_a_win_rate'][index],
-                    theoretical_no_win_match_rate=result_set_df['theoretical_no_win_match_rate'][index])
-
-        return None
+        self._is_tpb_update = False
 
 
     def execute_a_spec(self, spec):
@@ -139,36 +50,141 @@ class AutomationOne():
             raise ValueError("self._tpb_table を先に設定しておかなければいけません")
 
         self._spec = spec
-        self._is_tp_update = False
+        self._is_tpb_update = False
 
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        self._tp_table, is_new, is_crush = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
+        self._tp_table, is_tp_new, is_tp_crush = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
 
-        if is_crush:
+        if is_tp_crush:
             # FIXME
-            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}ファイルが破損しています(C)")
+            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}［理論的確率データ］ファイルが破損しています(C)")
             return False, True
 
         if self._tp_table is None:
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率データ］ファイルがない。")
             return False, False
 
-        if is_new:
-            self._is_tp_update = True
+
+        # 読み込む［理論的確率データ］ファイルがなければ無視
+        self._tpr_table, is_tpr_new, is_tpr_crush = TheoreticalProbabilityRatesTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
+
+        if is_tpr_crush:
+            # FIXME
+            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}［理論的確率の率データ］ファイルが破損しています(C)")
+            return False, True
+
+        if self._tpr_table is None:
+            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率の率データ］ファイルがない。")
+            return False, False
+
+
+        # TODO TP表と TPR表を完全外部結合する
+        self._tptpr_df = pd.merge(self._tp_table.df, self._tpr_table.df, how='outer', on=['span', 't_step', 'h_step'])
 
 
         # ［理論的確率データ］ファイルの中から、ベストな１行を取得します
         #
         #   NOTE TPテーブルは行が膨大にあるので、for_each するのは良くない。集計を使って１回でベスト・レコードを取得すべき
         #
-        best_tp_record_or_none = self.get_best_tp_record_or_none()
-        if best_tp_record_or_none is not None:
-            self._on_match_file(tp_record=best_tp_record_or_none)
+        best_tptpr_record_or_none = self.get_best_tptpr_record_or_none()
+        if best_tptpr_record_or_none is not None:
+            self._on_match_tptpr_record(tptpr_record=best_tptpr_record_or_none)
 
 
-        return self._is_tp_update, False
+        return self._is_tpb_update, False
+
+
+    def get_best_tptpr_record_or_none(self):
+        """［理論的確率データ］表から、イーブンに一番近い行を抽出します
+        
+        Returns
+        -------
+        best_tp_record : TheoreticalProbabilityRecord
+            レコード、またはナン
+        """
+
+        # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
+        result_set_df = self._tptpr_df.loc[abs(self._tptpr_df['theoretical_a_win_rate'] - 0.5) == min(abs(self._tptpr_df['theoretical_a_win_rate'] - 0.5))]
+
+        # それでも１件に絞り込めない場合、［コインを投げて表も裏も出ない確率］が最小のレコードのセット
+        if 1 < len(result_set_df):
+            result_set_df = result_set_df.loc[result_set_df['theoretical_no_win_match_rate'] == min(result_set_df['theoretical_no_win_match_rate'])]
+
+            # それでも１件に絞り込めない場合、［上限対局数］が最小のレコードのセット
+            if 1 < len(result_set_df):
+                result_set_df = result_set_df.loc[result_set_df['upper_limit_coins'] == min(result_set_df['upper_limit_coins'])]
+
+
+        # 該当レコードがあれば、適当に先頭の１件だけ返す。無ければナンを返す
+        if 0 < len(result_set_df):
+            #
+            # NOTE インデックスが重複しているデータを含んでいてはいけません
+            #
+            index = result_set_df.index[0]  # インデックスで１件に絞り込める前提
+            #print(f"[{datetime.datetime.now()}] get_best_tptpr_record_or_none {index=}")
+            span, t_step, h_step = index
+            return TpTprRecord(
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step,
+                    shortest_coins=result_set_df['shortest_coins'][index],
+                    upper_limit_coins=result_set_df['upper_limit_coins'][index],
+                    theoretical_a_win_rate=result_set_df['theoretical_a_win_rate'][index],
+                    theoretical_no_win_match_rate=result_set_df['theoretical_no_win_match_rate'][index])
+
+        return None
+
+
+    def _on_match_tptpr_record(self, tptpr_record):
+        """TP表の span, t_step, h_step をインデックスとする各行について"""
+
+        shall_upsert_record = False
+
+        # 絞り込み。 0～複数件の DataFrame型が返ってくる
+        # とりえあず主キーは［先後の決め方］［コインを投げて表も裏も出ない確率］［コインを投げて表が出る確率］の３列
+        turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
+        #tpb_index = (turn_system_name, self._spec.failure_rate, self._spec.p)   # インデックス。例： ('alternating', 0.1, 0.7)
+        tp_index = (tptpr_record.span, tptpr_record.t_step, tptpr_record.h_step)
+        
+        # ［理論的確率データ］表にある span, t_step, h_step に一致する［理論的確率ベスト］表のレコードがあれば、それを取得
+        # ［理論的確率ベスト］表から、［理論的なＡさんの勝率］と、［理論的なコインを投げて表も裏も出ない確率］を抽出
+        old_theoretical_a_win_rate = self._tptpr_df['theoretical_a_win_rate'][tp_index]                 # 例： 0.5232622375064023
+        old_theoretical_no_win_match_rate = self._tptpr_df['theoretical_no_win_match_rate'][tp_index]   # 例： 0.015976
+
+        # ［理論的確率データ］表のレコードの［Ａさんの勝率の互角からの誤差］
+        welcome_theoretical_a_win_error = tptpr_record.theoretical_a_win_rate - EVEN           # 例： 0.51
+
+        # 誤差が縮まれば更新
+        if abs(welcome_theoretical_a_win_error) < abs(old_theoretical_a_win_rate - EVEN):
+            shall_upsert_record = True
+
+        # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
+        elif welcome_theoretical_a_win_error == abs(old_theoretical_a_win_rate - EVEN) and (old_theoretical_no_win_match_rate is None or tptpr_record.theoretical_no_win_match_rate < old_theoretical_no_win_match_rate):
+            shall_upsert_record = True
+
+
+        if shall_upsert_record:
+            # TP から TPB へ型変換
+            welcome_record = TheoreticalProbabilityBestRecord(
+                    turn_system_name=Converter.turn_system_id_to_name(self._spec.turn_system_id),
+                    failure_rate=self._spec.failure_rate,
+                    p=self._spec.p,
+                    span=tptpr_record.span,
+                    t_step=tptpr_record.t_step,
+                    h_step=tptpr_record.h_step,
+                    shortest_coins=tptpr_record.shortest_coins,
+                    upper_limit_coins=tptpr_record.upper_limit_coins,
+                    theoretical_a_win_rate=tptpr_record.theoretical_a_win_rate,
+                    theoretical_no_win_match_rate=tptpr_record.theoretical_no_win_match_rate)
+
+            # レコードの新規作成または更新
+            is_dirty_temp = self._tpb_table.upsert_record(
+                    welcome_record=welcome_record)
+
+            if is_dirty_temp:
+                self._is_tpb_update = True
 
 
 class AutomationAll():
@@ -177,7 +193,7 @@ class AutomationAll():
     def execute_all(self):
 
         # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=True)
+        tpb_table, is_tpb_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=True)
 
         if tpb_table is None:
             raise ValueError("ここで tpb_table がナンなのはおかしい")

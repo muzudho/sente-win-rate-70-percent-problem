@@ -815,6 +815,59 @@ class TheoreticalProbabilityBestTable():
             on_each(record)
 
 
+#############
+# MARK: TPTPR
+#############
+
+
+class TpTprRecord():
+
+
+    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+        self._theoretical_a_win_rate = theoretical_a_win_rate
+        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+
+
+    @property
+    def span(self):
+        return self._span
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def shortest_coins(self):
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        return self._upper_limit_coins
+
+
+    @property
+    def theoretical_a_win_rate(self):
+        return self._theoretical_a_win_rate
+
+
+    @property
+    def theoretical_no_win_match_rate(self):
+        return self._theoretical_no_win_match_rate
+
+
 ###########
 # MARK: TPR
 ###########
