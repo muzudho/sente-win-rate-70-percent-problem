@@ -35,6 +35,11 @@ class AutomationOne():
         self._is_tpb_update = False
 
 
+    @property
+    def tpb_table(self):
+        return self._tpb_table
+
+
     def execute_a_spec(self, spec):
         """
         
