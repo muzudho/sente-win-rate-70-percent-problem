@@ -10,6 +10,7 @@ import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths
+from scripts import IntervalForRetry
 
 
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
@@ -937,8 +938,7 @@ class TheoreticalProbabilityTable():
 
                 # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
                 except PermissionError as e:
-                    wait_for_seconds = random.randint(30, 5*60)
-                    print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
+                    IntervalForRetry.sleep(shall_print=True)
                     continue    # retry
 
                 # テーブルに列が無かった？ ファイルは破損してない。ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
@@ -948,8 +948,7 @@ class TheoreticalProbabilityTable():
 [{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
 {e}
 {csv_file_path=}""")
-                    wait_for_seconds = random.randint(30, 5*60)
-                    print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
+                    IntervalForRetry.sleep(shall_print=True)
                     continue    # retry
                 
                 # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき

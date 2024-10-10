@@ -4,6 +4,7 @@
 #   ファイル出力、ログ等を除く
 #
 
+import time
 import random
 import math
 from fractions import Fraction

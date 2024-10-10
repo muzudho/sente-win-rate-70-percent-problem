@@ -3,6 +3,7 @@
 #
 import time
 import random
+import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
 from library.logging import Logging
@@ -68,18 +69,17 @@ class SaveWithRetry():
                         shall_print=True)
                 break
 
+            # ファイルを開いて作業中かもしれない。しばらく待ってリトライする
             except PermissionError as e:
-                # ファイルを開いて作業中かもしれない。しばらく待ってリトライする
-                wait_for_seconds = random.randint(30, 15*60)
 
                 # ロギング
                 Logging.notice_log(
                         file_path=log_file_path,
                         # ファイルパスは例外メッセージの方に含まれている
-                        message=f"save file to failed. wait for {wait_for_seconds} seconds and retry. {e}",
+                        message=f"save file to failed. {e}",
                         shall_print=True)
 
-                time.sleep(wait_for_seconds)
+                IntervalForRetry.sleep(shall_print=True)
 
 
 class ForEachTsFr():
@@ -207,3 +207,17 @@ class ForEachSeriesRule():
 
         if span < t_step:
             raise ValueError(f"［コインの裏が出たときの勝ち点］{t_step=} が、［目標の点数］{span=} を上回るのはおかしいです {h_step=}")
+
+
+class IntervalForRetry():
+    """リトライのためのインターバル"""
+
+
+    def sleep(min_secs=30, max_secs=900, shall_print=False):
+
+        wait_for_seconds = random.randint(min_secs, max_secs)
+
+        if shall_print:
+            print(f"[{datetime.datetime.now()}] wait for {wait_for_seconds} seconds and retry.")
+
+        time.sleep(wait_for_seconds)

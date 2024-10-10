@@ -10,9 +10,9 @@ from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestTable
 from library.views import DebugWrite
-from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
-from scripts import SaveWithRetry
+from scripts import SaveWithRetry, IntervalForRetry
 from scripts.step_o7o0_upsert_record_in_tpb import AutomationOne as StepO7o0UpsertRecordInTPBOne
+from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 # CSV保存間隔（秒）
@@ -121,8 +121,13 @@ if __name__ == '__main__':
                 start_time_for_save = time.time()
 
 
-            elif number_of_target_rows == number_of_crush_rows + number_of_bright_rows:
-                print(f"{DebugWrite.stringify(depth=depth)} it was over. {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} row(s) crushed.")
+            # 破損したファイルがある場合、それが作り直されることを期待します
+            elif 0 < number_of_crush_rows:
+                IntervalForRetry.sleep(min_secs=5*60, max_secs=30*60, shall_print=True)
+
+
+            elif number_of_target_rows == number_of_bright_rows:
+                print(f"{DebugWrite.stringify(depth=depth)} it was over")
                 break
 
 
