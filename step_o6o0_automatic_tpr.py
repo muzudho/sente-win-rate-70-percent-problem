@@ -12,7 +12,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
-from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
+from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord, TheoreticalProbabilityRatesTable
 from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
@@ -30,6 +30,7 @@ class AllTheoreticalProbabilityFilesOperation():
         
         self._start_time_for_save = None    # CSV保存用タイマー
         
+        self._number_of_not_found = 0
         self._number_of_dirty = 0   # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
         self._number_of_crush = 0
 
@@ -40,24 +41,48 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
     @property
+    def number_of_not_found(self):
+        return self._number_of_not_found
+
+
+    @property
     def number_of_crush(self):
         return self._number_of_crush
 
 
     def execute_by_spec(self, spec):
+        # ファイルが存在しなければ無視する。あれば読み込む
+        tp_table, is_tp_file_created, is_tp_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
+
+
+        # FIXME ファイルが破損していて処理不能なケース
+        if is_tp_crush:
+            print(f"スキップ。［理論的確率データ］表ファイルが破損しています(A2)")
+            self._number_of_crush += 1
+            return
+
+
+        elif tp_table is None:
+            print("ファイルが存在しない？")
+            self._number_of_not_found += 1
+            return
+
+
         # ファイルが存在しなければ、新規作成する。あれば読み込む
-        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
+        tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.read_csv(spec=spec, new_if_it_no_exists=True)
 
 
-        # ファイルが破損していて処理不能なケース
-        if is_crush:
+        # FIXME ファイルが破損していて処理不能なケース
+        if is_tpr_crush:
+            print(f"スキップ。［理論的確率の率データ］表ファイルが破損しています")
             self._number_of_crush += 1
             return
 
 
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
-        if is_tp_file_created:
+
+        if is_tpr_file_created:
             print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
@@ -92,6 +117,7 @@ class AllTheoreticalProbabilityFilesOperation():
         calculation_status = step_o6o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
                 spec=spec,
                 tp_table=tp_table,
+                tpr_table=tpr_table,
 
                 #
                 # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる

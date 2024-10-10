@@ -68,16 +68,13 @@ class Automation():
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
             self._number_of_dirty += 1
 
-        else:
-            # ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
-            #
-            #   FIXME このコードの書き方で動くのかわからない。もし書けないなら、１件ずつ調べていけばいいか
-            #
-            min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
-            if is_almost_zero(min_abs_error):
-                turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-                print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
-                return self._number_of_dirty
+        # else:
+        #     # TODO ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
+        #     min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
+        #     if is_almost_zero(min_abs_error):
+        #         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+        #         print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
+        #         return self._number_of_dirty
 
         #
         # NOTE 内容をどれぐらい作るかは、 upper_limit_span （span の上限）を指定することにする。
@@ -156,18 +153,13 @@ class Automation():
                     h_step=h_step)
 
             # レコードの挿入
-            # FIXME 追加ではなく、先頭から上書き保存になってる？
             tp_table.upsert_record(
                     welcome_record=TheoreticalProbabilityRecord(
                             span=span,
                             t_step=t_step,
                             h_step=h_step,
                             shortest_coins=series_rule.shortest_coins,
-                            upper_limit_coins=series_rule.upper_limit_coins,
-
-                            # NOTE スリー・レーツを求める処理は重たいので、後回しにする
-                            theoretical_a_win_rate=OUT_OF_P,
-                            theoretical_no_win_match_rate=OUT_OF_P))
+                            upper_limit_coins=series_rule.upper_limit_coins))
             
             self._number_of_dirty += 1
 

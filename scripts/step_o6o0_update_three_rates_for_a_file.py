@@ -1,8 +1,10 @@
 import traceback
 import time
 import datetime
+import pandas as pd
 
 from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule
+from library.database import TheoreticalProbabilityRatesRecord
 from library.score_board import search_all_score_boards
 from library.views import DebugWrite
 
@@ -21,7 +23,7 @@ class Automation():
         self._number_of_dirty = 0
 
 
-    def update_three_rates_for_a_file_and_save(self, spec, tp_table, upper_limit_upper_limit_coins):
+    def update_three_rates_for_a_file_and_save(self, spec, tp_table, tpr_table, upper_limit_upper_limit_coins):
         """次に、スリー・レーツを更新する
 
         ファイルの保存機能も含む
@@ -41,10 +43,13 @@ class Automation():
         self._number_of_dirty = 0
         self._start_time_for_save = time.time()       # CSV保存用タイマー
 
+        # TODO TP表と TPR表を完全外部結合する
+        tp_tpr_df = pd.merge(tp_table.df, tpr_table.df, how='outer', on=['span', 't_step', 'h_step'])
+
 
         # 該当行にチェックを入れたリスト
         # ［理論的Ａさんの勝率］列が未設定で、かつ、［上限対局数］が、指定の上限対局数以下のとき
-        list_of_enable_each_row = (tp_table.df['theoretical_a_win_rate']==OUT_OF_P) & (tp_table.df['upper_limit_coins']<=upper_limit_upper_limit_coins)
+        list_of_enable_each_row = (pd.isnull(tp_tpr_df['theoretical_a_win_rate'])) & (tp_tpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
         # 該当行が１つでもあれば
         if list_of_enable_each_row.any():
@@ -75,11 +80,18 @@ class Automation():
                         on_score_board_created=on_score_board_created)
 
                 # データフレーム更新
+                tpr_table.upsert_record(
+                        welcome_record=TheoreticalProbabilityRatesRecord(
+                                span=span,
+                                t_step=t_step,
+                                h_step=h_step,
+                                theoretical_a_win_rate=three_rates.a_win_rate,
+                                theoretical_no_win_match_rate=three_rates.no_win_match_rate))
                 #
                 #   FIXME ここは .at[] では不正なスカラーアクセスになる。なんで？
                 #
-                tp_table.df.loc[index, 'theoretical_a_win_rate'] = three_rates.a_win_rate
-                tp_table.df.loc[index, 'theoretical_no_win_match_rate'] = three_rates.no_win_match_rate
+                # tp_table.df.loc[index, 'theoretical_a_win_rate'] = three_rates.a_win_rate
+                # tp_table.df.loc[index, 'theoretical_no_win_match_rate'] = three_rates.no_win_match_rate
 
                 self._number_of_dirty += 1
 
@@ -87,9 +99,9 @@ class Automation():
         # 変更があれば保存
         if 0 < self._number_of_dirty:
             # CSVファイルへ書き出し
-            csv_file_path_to_wrote = tp_table.to_csv()
+            tpr_csv_file_path_to_wrote = tpr_table.to_csv()
 
-            print(f"{DebugWrite.stringify(spec=spec)}SAVE dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  write file to `{csv_file_path_to_wrote}` ...")
+            print(f"{DebugWrite.stringify(spec=spec)}SAVE dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  write file to `{tpr_csv_file_path_to_wrote}` ...")
 
             # このファイルは処理完了した
             return TERMINATED

@@ -8,7 +8,7 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
-from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
+from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable, TheoreticalProbabilityRatesTable
 from library.views import PromptCatalog
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
@@ -58,12 +58,12 @@ if __name__ == '__main__':
         
         else:
 
-            # ファイルが存在しなければ、スキップ。あれば読み込む
+            # ファイルが存在しなければ無視する。あれば読み込む
             tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
 
 
             if is_crush:
-                print(f"スキップ。［理論的確率データ］表ファイルが破損しています(A)")
+                print(f"スキップ。［理論的確率データ］表ファイルが破損しています(A1)")
                 return
 
 
@@ -72,36 +72,46 @@ if __name__ == '__main__':
             
             else:
 
-                step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
-                        seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
+                # ファイルが存在しなければ、新規作成する。あれば読み込む
+                tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.read_csv(spec=spec, new_if_it_no_exists=True)
 
-                #
-                # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
-                #
-                calculation_status = step_o6o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
-                        spec=spec,
-                        tp_table=tp_table,
 
-                        #
-                        # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
-                        # 7 ぐらいで激重
-                        #
-                        upper_limit_upper_limit_coins=INTERVAL_SECONDS_FOR_SAVE_CSV)    # FIXME 5 ぐらいに設定してみる
-
-                # 途中の行まで処理したところでタイムアップ
-                if calculation_status == YIELD:
-                    print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
-
-                # このファイルは処理失敗した
-                elif calculation_status == CALCULATION_FAILED:
-                    print(f"[{datetime.datetime.now()}] このファイルは処理失敗した")
-
-                # このファイルは処理完了した
-                elif calculation_status == TERMINATED:
-                    print(f"[{datetime.datetime.now()}] このファイルは処理完了した")
+                # FIXME ファイルが破損していて処理不能なケース
+                if is_tpr_crush:
+                    print(f"スキップ。［理論的確率の率データ］表ファイルが破損しています")
                 
                 else:
-                    raise ValueError(f"{calculation_status=}")
+                    step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
+                            seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
+
+                    #
+                    # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
+                    #
+                    calculation_status = step_o6o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
+                            spec=spec,
+                            tp_table=tp_table,
+                            tpr_table=tpr_table,
+
+                            #
+                            # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
+                            # 7 ぐらいで激重
+                            #
+                            upper_limit_upper_limit_coins=INTERVAL_SECONDS_FOR_SAVE_CSV)    # FIXME 5 ぐらいに設定してみる
+
+                    # 途中の行まで処理したところでタイムアップ
+                    if calculation_status == YIELD:
+                        print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
+
+                    # このファイルは処理失敗した
+                    elif calculation_status == CALCULATION_FAILED:
+                        print(f"[{datetime.datetime.now()}] このファイルは処理失敗した")
+
+                    # このファイルは処理完了した
+                    elif calculation_status == TERMINATED:
+                        print(f"[{datetime.datetime.now()}] このファイルは処理完了した")
+                    
+                    else:
+                        raise ValueError(f"{calculation_status=}")
 
 
         print(f"おわり！")

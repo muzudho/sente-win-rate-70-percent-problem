@@ -28,13 +28,13 @@ python -m pip install pandas
 👇 `automatic` は、並行処理できるように改造中です。ターミナルを複数個開けてログを見ながら起動してください。完了するものもあれば、無限ループしているものもあります。  
 
 ```shell
-python step_o_9o0_automatic.py
-python step_o1o0_automatic.py
-python step_o5o0_automatic.py
-python step_o6o0_automatic.py
-python step_o7o0_automatic.py
-python step_o8o0_automatic.py
-python step_o9o0_automatic.py
+python step_o_9o0_automatic_all_epdt.py
+python step_o1o0_automatic_all_epdt.py
+python step_o5o0_automatic_tp.py
+python step_o6o0_automatic_tpr.py
+python step_o7o0_automatic_tpb.py
+python step_o8o0_automatic_kds.py
+python step_o9o0_automatic_kd.py
 ```
 
 

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
-from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths
+from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityRatesFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths
 from scripts import IntervalForRetry
 
 
@@ -822,12 +822,10 @@ class TheoreticalProbabilityBestTable():
 class TheoreticalProbabilityRatesRecord():
 
 
-    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+    def __init__(self, span, t_step, h_step, theoretical_a_win_rate, theoretical_no_win_match_rate):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
-        self._shortest_coins = shortest_coins
-        self._upper_limit_coins = upper_limit_coins
         self._theoretical_a_win_rate = theoretical_a_win_rate
         self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
 
@@ -848,16 +846,6 @@ class TheoreticalProbabilityRatesRecord():
 
 
     @property
-    def shortest_coins(self):
-        return self._shortest_coins
-
-
-    @property
-    def upper_limit_coins(self):
-        return self._upper_limit_coins
-
-
-    @property
     def theoretical_a_win_rate(self):
         return self._theoretical_a_win_rate
 
@@ -873,8 +861,6 @@ class TheoreticalProbabilityRatesTable():
 
     _dtype = {
         # span, t_step, h_step はインデックス
-        'shortest_coins':'int64',
-        'upper_limit_coins':'int64',
         'theoretical_a_win_rate':'float64',
         'theoretical_no_win_match_rate':'float64'}
 
@@ -891,8 +877,6 @@ class TheoreticalProbabilityRatesTable():
                 'span': [],
                 't_step': [],
                 'h_step': [],
-                'shortest_coins': [],
-                'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []})
 
@@ -1078,7 +1062,7 @@ df:
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['shortest_coins']
+        is_new_index = index not in self._df['theoretical_a_win_rate']
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -1088,8 +1072,6 @@ df:
             # 更新の有無判定
             # span, t_step, h_step はインデックス
             shall_record_change =\
-                self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
-                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
                 self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
                 self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
 
@@ -1098,8 +1080,6 @@ df:
         if shall_record_change:
             self._df.loc[index] = {
                 # span, t_step, h_step はインデックス
-                'shortest_coins': welcome_record.shortest_coins,
-                'upper_limit_coins': welcome_record.upper_limit_coins,
                 'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
                 'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
 
@@ -1129,7 +1109,7 @@ df:
         # span, t_step, h_step はインデックス
         self._df.to_csv(
                 tpr_csv_file_path,
-                columns=['shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+                columns=['theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
 
         return tpr_csv_file_path
 
@@ -1144,8 +1124,8 @@ df:
 
         df = self._df
 
-        for row_number,(      shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
-            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+        for row_number,(      theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
+            enumerate(zip(df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
 
             # span, t_step, h_step はインデックス
             span, t_step, h_step = df.index[row_number]
@@ -1155,8 +1135,6 @@ df:
                     span=span,
                     t_step=t_step,
                     h_step=h_step,
-                    shortest_coins=shortest_coins,
-                    upper_limit_coins=upper_limit_coins,
                     theoretical_a_win_rate=theoretical_a_win_rate,
                     theoretical_no_win_match_rate=theoretical_no_win_match_rate)
 
@@ -1170,14 +1148,12 @@ df:
 class TheoreticalProbabilityRecord():
 
 
-    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
-        self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
 
 
     @property
@@ -1205,16 +1181,6 @@ class TheoreticalProbabilityRecord():
         return self._upper_limit_coins
 
 
-    @property
-    def theoretical_a_win_rate(self):
-        return self._theoretical_a_win_rate
-
-
-    @property
-    def theoretical_no_win_match_rate(self):
-        return self._theoretical_no_win_match_rate
-
-
 class TheoreticalProbabilityTable():
     """理論的確率データ"""
 
@@ -1222,9 +1188,7 @@ class TheoreticalProbabilityTable():
     _dtype = {
         # span, t_step, h_step はインデックス
         'shortest_coins':'int64',
-        'upper_limit_coins':'int64',
-        'theoretical_a_win_rate':'float64',
-        'theoretical_no_win_match_rate':'float64'}
+        'upper_limit_coins':'int64'}
 
 
     def __init__(self, df, spec):
@@ -1240,9 +1204,7 @@ class TheoreticalProbabilityTable():
                 't_step': [],
                 'h_step': [],
                 'shortest_coins': [],
-                'upper_limit_coins': [],
-                'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []})
+                'upper_limit_coins': []})
 
         # tp_df.empty は真
 
@@ -1437,9 +1399,7 @@ df:
             # span, t_step, h_step はインデックス
             shall_record_change =\
                 self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
-                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
-                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
-                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins
 
 
         # 行の挿入または更新
@@ -1447,9 +1407,7 @@ df:
             self._df.loc[index] = {
                 # span, t_step, h_step はインデックス
                 'shortest_coins': welcome_record.shortest_coins,
-                'upper_limit_coins': welcome_record.upper_limit_coins,
-                'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
-                'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+                'upper_limit_coins': welcome_record.upper_limit_coins}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -1477,7 +1435,7 @@ df:
         # span, t_step, h_step はインデックス
         self._df.to_csv(
                 csv_file_path,
-                columns=['shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+                columns=['shortest_coins', 'upper_limit_coins'])
 
         return csv_file_path
 
@@ -1492,8 +1450,8 @@ df:
 
         df = self._df
 
-        for row_number,(      shortest_coins  ,     upper_limit_coins  ,     theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
-            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+        for row_number,(      shortest_coins  ,     upper_limit_coins) in\
+            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'])):
 
             # span, t_step, h_step はインデックス
             span, t_step, h_step = df.index[row_number]
@@ -1504,9 +1462,7 @@ df:
                     t_step=t_step,
                     h_step=h_step,
                     shortest_coins=shortest_coins,
-                    upper_limit_coins=upper_limit_coins,
-                    theoretical_a_win_rate=theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+                    upper_limit_coins=upper_limit_coins)
 
             on_each(record)
 
