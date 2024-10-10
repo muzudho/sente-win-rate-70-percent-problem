@@ -173,14 +173,14 @@ class Automation():
                     t_step=t_step,
                     h_step=h_step)
 
-            # FIXME DEBUG
-            print("デバッグ中166")
-            SaveOrIgnore.execute(
-                    log_file_path=TheoreticalProbabilityFilePaths.as_log(
-                            turn_system_id=spec.turn_system_id,
-                            failure_rate=spec.failure_rate,
-                            p=spec.p),
-                    on_save_and_get_file_name=tp_table.to_csv)
+            # # FIXME DEBUG 本来、ここでは保存しない
+            # print("デバッグ中166")
+            # SaveOrIgnore.execute(
+            #         log_file_path=TheoreticalProbabilityFilePaths.as_log(
+            #                 turn_system_id=spec.turn_system_id,
+            #                 failure_rate=spec.failure_rate,
+            #                 p=spec.p),
+            #         on_save_and_get_file_name=tp_table.to_csv)
 
 
         # ［理論的確率データ］（TP）ファイル保存
