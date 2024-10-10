@@ -5,6 +5,7 @@ import pandas as pd
 from library import EVEN, Converter, is_almost_zero, OUT_OF_P, Converter, SeriesRule, round_letro
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
+from library.views import DebugWrite
 from scripts import SaveOrIgnore, ForEachSeriesRule
 
 
@@ -61,7 +62,8 @@ class Automation():
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
         if is_tp_file_created:
-            print(f"{self.stringify_log_stamp(spec=spec)}NEW_FILE")
+            turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
             self._number_of_dirty += 1
@@ -73,7 +75,8 @@ class Automation():
             #
             min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
             if is_almost_zero(min_abs_error):
-                print(f"{self.stringify_log_stamp(spec=spec)}READY_EVEN....")
+                turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+                print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
                 return self._number_of_dirty
 
         #
@@ -85,7 +88,8 @@ class Automation():
         #
         # FIXME 飛び番で挿入されてる？
         #
-        #print(f"{self.stringify_log_stamp(spec=spec)}step o2o1o0 insert new record in tp...")
+        #turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+        #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o1o0 insert new record in tp...")
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
 
         # ループカウンター
@@ -132,7 +136,8 @@ class Automation():
                     t_step=t_step,
                     h_step=h_step)
 
-            print(f"[{datetime.datetime.now()}] RESTART {span=:2}  {t_step=:2}  {h_step=:2}")
+            turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)} RESTART {span=:2}  {t_step=:2}  {h_step=:2}")
 
 
         #
@@ -192,15 +197,10 @@ class Automation():
                             failure_rate=spec.failure_rate,
                             p=spec.p),
                     on_save_and_get_file_name=tp_table.to_csv)
-            print(f"{self.stringify_log_stamp(spec=spec)}SAVED dirty={self._number_of_dirty}")
+            
+            turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}SAVED dirty={self._number_of_dirty}")
             self._number_of_dirty = 0
 
 
         return self._number_of_dirty
-
-
-    def stringify_log_stamp(self, spec):
-        turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-        return f"""\
-[{datetime.datetime.now()}][depth={self._depth}  turn_system_name={turn_system_name:11}  failure_rate={spec.failure_rate:.2f}  p={spec.p:.2f}] \
-"""

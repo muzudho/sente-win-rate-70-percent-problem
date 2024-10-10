@@ -4,6 +4,7 @@ import datetime
 from library import HEAD, TAIL, ABS_OUT_OF_ERROR, EVEN, SeriesRule, Specification
 from library.database import EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
+from library.views import DebugWrite
 from scripts import SaveOrIgnore, ForEachSeriesRule
 from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachEdptRecord, SeriesRuleCursor
 from config import DEFAULT_UPPER_LIMIT_SPAN
@@ -82,7 +83,7 @@ class Automation():
         # 更新が終わってるか確認
         min_best_abs_p_error = (self._epdt_table.df['best_p_error'] - EVEN).abs().min()
         if min_best_abs_p_error < self._smaller_abs_error:
-            print(f"[{datetime.datetime.now()}] it was over")
+            print(f"{DebugWrite.stringify()} it was over")
             self._is_smalled = True
             return
 
@@ -95,7 +96,7 @@ class Automation():
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
                 p=epdt_record.p)
-        print(f"[{datetime.datetime.now()}][p={spec.p}]", flush=True)
+        print(f"{DebugWrite.stringify(spec=spec)}", flush=True)
 
 
         # 探索開始時のベストとラテスト、候補の履歴

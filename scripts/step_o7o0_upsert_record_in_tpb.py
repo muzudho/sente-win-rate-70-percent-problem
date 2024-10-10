@@ -4,6 +4,7 @@ import time
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from library.views import DebugWrite
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
@@ -148,7 +149,7 @@ class AutomationOne():
             return False
 
         if self._tp_table is None:
-            print(f"[{datetime.datetime.now()}][turn_system={Converter.turn_system_id_to_name(self._spec.turn_system_id)}  failure_rate={self._spec.failure_rate * 100:.1f}%  p={self._spec.p * 100:.1f}%] スキップ。［理論的確率データ］ファイルがない。")
+            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率データ］ファイルがない。")
             return False
 
         if is_new:
@@ -197,13 +198,13 @@ class AutomationAll():
                 # ［将棋の先手勝率］
                 for p_percent in range(50, 96):
                     specified_p = p_percent / 100
-                    #print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}  p={specified_p * 100:.1f}] ...")
 
                     # 仕様
                     spec = Specification(
                             turn_system_id=specified_turn_system_id,
                             failure_rate=specified_failure_rate,
                             p=specified_p)
+                    #print(f"{DebugWrite.stringify(spec=spec)}")
 
                     is_dirty_temp = automation_one.execute_a_spec(spec=spec)
 
@@ -219,7 +220,7 @@ class AutomationAll():
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
                             csv_file_path_to_wrote = tpb_table.to_csv()
-                            print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
 
                             # リセット
                             start_time_for_save = time.time()
@@ -231,4 +232,4 @@ class AutomationAll():
                 if 0 < number_of_dirty_rows:
                     csv_file_path_to_wrote = tpb_table.to_csv()
                     # specified_p はまだ入ってるはず
-                    print(f"[{datetime.datetime.now()}][turn_system_name={turn_system_name}  failure_rate={specified_failure_rate * 100:.1f}%  p={specified_p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")
+                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file ...")

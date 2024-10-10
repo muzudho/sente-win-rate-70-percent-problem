@@ -9,6 +9,7 @@ import datetime
 from library import ABS_OUT_OF_ERROR, EVEN, Converter, Specification
 from library.database import EmpiricalProbabilityDuringTrialsTable, EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
+from library.views import DebugWrite
 from scripts import SaveOrIgnore
 from config import DEFAULT_UPPER_LIMIT_OF_P
 
@@ -84,7 +85,7 @@ class Automation():
                     on_save_and_get_file_name=self._epdt_table.to_csv)
 
             turn_system_name = Converter.turn_system_id_to_name(self._specified_turn_system_id)
-            print(f"[{datetime.datetime.now()}][trial_series={self._specified_trial_series}  {turn_system_name=}  failure_rate={self._specified_failure_rate * 100:.1f}]% EMDT file saved")
+            print(f"{DebugWrite.stringify(trial_series=self._specified_trial_series, turn_system_name=turn_system_name, failure_rate=self._specified_failure_rate)}EMDT file saved")
             return True
 
 

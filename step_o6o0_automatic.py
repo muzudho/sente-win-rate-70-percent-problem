@@ -13,6 +13,7 @@ import pandas as pd
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, EVEN, Converter, Specification, SeriesRule, is_almost_zero
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
+from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
 
@@ -43,13 +44,6 @@ class AllTheoreticalProbabilityFilesOperation():
         return self._number_of_crush
 
 
-    def stringify_log_stamp(self, spec):
-        turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-        return f"""\
-[{datetime.datetime.now()}][depth={self._depth}  turn_system_name={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] \
-"""
-
-
     def execute_by_spec(self, spec):
         # ファイルが存在しなければ、新規作成する。あれば読み込む
         tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
@@ -64,7 +58,7 @@ class AllTheoreticalProbabilityFilesOperation():
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
         if is_tp_file_created:
-            print(f"{self.stringify_log_stamp(spec=spec)}NEW_FILE")
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
             self._number_of_dirty += 1
@@ -76,7 +70,7 @@ class AllTheoreticalProbabilityFilesOperation():
             #
             min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
             if is_almost_zero(min_abs_error):
-                print(f"{self.stringify_log_stamp(spec=spec)}READY_EVEN....")
+                print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
                 return
 
 
@@ -84,7 +78,7 @@ class AllTheoreticalProbabilityFilesOperation():
         # Step o2o2o0 ［理論的確率データ］のスリー・レーツ列を更新する
         ##########################################################
 
-        print(f"{self.stringify_log_stamp(spec=spec)}step o2o2o0 update three-rates of tp...")
+        print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
         step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
                 seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
 

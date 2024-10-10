@@ -4,6 +4,7 @@ import datetime
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, Converter, judge_series, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, Candidate
 from library.database import EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
+from library.views import DebugWrite
 
 
 class SeriesRuleCursor():
@@ -170,7 +171,7 @@ class Automation():
                     upper_limit_coins=self._best_series_rule_cursor.series_rule.upper_limit_coins)       # ［上限対局数］
             candidate_str = candidate_obj.as_str()
             turn_system_name = Converter.turn_system_id_to_name(self._specified_turn_system_id)
-            print(f"[{datetime.datetime.now()}][trial_series={self._specified_trial_series}  turn_system_name={turn_system_name}  failure_rate={self._specified_failure_rate * 100:3.0f}％  p={series_rule.spec.p * 100:3.0f}％] {candidate_str}", flush=True) # すぐ表示
+            print(f"{DebugWrite.stringify(trial_series=self._specified_trial_series, turn_system_name=turn_system_name, failure_rate=self._specified_failure_rate, p=series_rule.spec.p)}{candidate_str}", flush=True) # すぐ表示
 
             # ［シリーズ・ルール候補］列を更新
             #

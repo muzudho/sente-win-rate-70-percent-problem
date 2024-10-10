@@ -10,6 +10,7 @@ import pandas as pd
 from library import ABS_OUT_OF_ERROR
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
+from library.views import DebugWrite
 from scripts import SaveOrIgnore, ForEachTsFr
 from scripts.step_o1o_9o0_each_epdt_table import Automation as StepO1o09o0EachEpdtTable
 
@@ -134,7 +135,7 @@ class Automation():
         #
         # NOTE 小数点以下の桁を長く出しても見づらい
         #
-        print(f"[{datetime.datetime.now()}][{failure_rate=}]  is_smalled={o1o09o0_edpt_table.is_smalled}  target={o1o09o0_edpt_table.number_of_target}  smalled={o1o09o0_edpt_table.number_of_smalled}  yield={o1o09o0_edpt_table.number_of_yield}  passaged={o1o09o0_edpt_table.number_of_passaged}  interval_seconds={self._interval_seconds}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  small_error={self._specified_abs_small_error:.7f}")
+        print(f"{DebugWrite.stringify(failure_rate=failure_rate)} is_smalled={o1o09o0_edpt_table.is_smalled}  target={o1o09o0_edpt_table.number_of_target}  smalled={o1o09o0_edpt_table.number_of_smalled}  yield={o1o09o0_edpt_table.number_of_yield}  passaged={o1o09o0_edpt_table.number_of_passaged}  interval_seconds={self._interval_seconds}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  small_error={self._specified_abs_small_error:.7f}")
 
 
         # 処理が完了したから、ループを抜ける

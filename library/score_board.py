@@ -5,7 +5,7 @@ import math
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, AllPatternsFaceOfCoin, ScoreBoard, ThreeRates
-from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body
+from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, DebugWrite
 
 
 def search_all_score_boards(series_rule, on_score_board_created):
@@ -35,7 +35,7 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
         # 最短対局数を下回る対局シートはスキップします
         if len(path_of_face_of_coin) < series_rule.shortest_coins:
-            #print(f"{series_rule.spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
+            #print(f"{DebugWrite.stringify(spec=series_rule.spec)}指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません")
             continue
 
         # ［シリーズ］１つ分の試行結果を返す

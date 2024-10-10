@@ -713,9 +713,28 @@ class DebugWrite():
 
 
     @staticmethod
-    def stringify(failure_rate=None, p=None):
+    def stringify(depth=None, trial_series=None, spec=None, turn_system_name=None, failure_rate=None, p=None):
+        """文字列化
+
+        NOTE 長くても読みづらいので、浮動小数点数は切り詰める
+        """
 
         breadcrumbs = []
+
+        if depth is not None:
+            breadcrumbs.append(f"{depth=}")
+
+        if trial_series is not None:
+            breadcrumbs.append(f"{trial_series=}")
+
+        if spec is not None:
+            turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)            
+            breadcrumbs.append(f"{turn_system_name=}")
+            breadcrumbs.append(f"failure_rate={spec.failure_rate * 100:.1f}%")
+            breadcrumbs.append(f"p={spec.p * 100:.1f}%")
+
+        if turn_system_name is not None:
+            breadcrumbs.append(f"{turn_system_name=}")
 
         if failure_rate is not None:
             breadcrumbs.append(f"failure_rate={failure_rate * 100:.1f}%")
@@ -725,5 +744,4 @@ class DebugWrite():
 
         breadcrumb_trail = '  '.join(breadcrumbs)
 
-        # NOTE 長くても読みづらいので、浮動小数点数は切り詰める
         return f"[{datetime.datetime.now()}][{breadcrumb_trail}] "

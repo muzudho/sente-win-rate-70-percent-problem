@@ -7,7 +7,7 @@ import traceback
 import datetime
 
 from library import Converter
-from library.views import PromptCatalog
+from library.views import PromptCatalog, DebugWrite
 from scripts.step_o9o0_create_kakukin_data_excel_file import Automation as StepO9o0CreateKakukinDataExcelFileAutomation
 
 
@@ -29,8 +29,8 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-
-        print(f"[{datetime.datetime.now()}][turn_system_name={Converter.turn_system_id_to_name(specified_turn_system_id)}  failure_rete={specified_failure_rate * 100:.1f}%] create kakukin data excel file ...")
+        turn_system_name = Converter.turn_system_id_to_name(specified_turn_system_id)
+        print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, failure_rete=specified_failure_rate)}create kakukin data excel file ...")
 
         # ［かくきんデータ］エクセル・ファイルの作成
         #

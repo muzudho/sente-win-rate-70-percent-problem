@@ -9,6 +9,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestTable
+from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts import SaveWithRetry
 from scripts.step_o7o0_upsert_record_in_tpb import AutomationOne as StepO7o0UpsertRecordInTPBOne
@@ -65,7 +66,7 @@ if __name__ == '__main__':
                                 p=p)
 
 
-                        print(f"[{datetime.datetime.now()}][{depth=}  {turn_system_name=}  failure_rate={failure_rate * 100:.1f}%  p={p * 100:.1f}] step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
+                        print(f"{DebugWrite.stringify(depth=depth, spec=spec)}step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
                         # ［理論的確率ベストデータ］新規作成または更新
                         is_dirty_temp = automation_one.execute_a_spec(spec=spec)
 
@@ -85,7 +86,7 @@ if __name__ == '__main__':
                                         on_save_and_get_file_name=tpb_table.to_csv)
 
                                 # コンソール表示
-                                print(f"[{datetime.datetime.now()}][{depth=}  {turn_system_name=}  failure_rate={failure_rate * 100:.1f}%  p={p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged.")
+                                print(f"{DebugWrite.stringify(depth=depth, spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged.")
 
                                 # リセット
                                 start_time_for_save = time.time()
@@ -101,7 +102,7 @@ if __name__ == '__main__':
                         on_save_and_get_file_name=tpb_table.to_csv)
 
                 # コンソール表示
-                print(f"[{datetime.datetime.now()}][{depth=}  {turn_system_name=}  failure_rate={failure_rate * 100:.1f}%  p={p * 100:.1f}] {number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged.")
+                print(f"{DebugWrite.stringify(depth=depth)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged.")
 
                 # リセット
                 start_time_for_save = time.time()
