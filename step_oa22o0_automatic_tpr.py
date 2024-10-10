@@ -1,5 +1,5 @@
 #
-# python step_o6o0_automatic_tpr.py
+# python step_oa22o0_automatic_tpr.py
 #
 # ［理論的確率データ］（TP）表のスリー・レーツ列を更新する
 #

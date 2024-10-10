@@ -1,5 +1,5 @@
 #
-# python step_o_9o0_automatic_all_epdt.py
+# python step_oa12o0_automatic_all_epdt.py
 #
 # EPDTテーブルの仮行埋め
 #

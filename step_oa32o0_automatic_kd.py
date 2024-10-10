@@ -1,5 +1,5 @@
 #
-# python step_o9o0_automatic_kd.py
+# python step_oa32o0_automatic_kd.py
 #
 # ［かくきんデータ］（KD）エクセルファイルを作成する
 #

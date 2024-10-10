@@ -1,5 +1,5 @@
 #
-# python step_o8o0_automatic_kds.py
+# python step_oa31o0_automatic_kds.py
 #
 # ［かくきんデータシート］（KDS）ファイルを作成する
 #

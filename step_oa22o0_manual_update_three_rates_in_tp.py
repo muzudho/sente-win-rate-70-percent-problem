@@ -1,5 +1,5 @@
 #
-# python step_o6o0_manual_update_three_rates_in_tp.py
+# python step_oa22o0_manual_update_three_rates_in_tp.py
 #
 # 手動で［理論的確率データ］（TP）表のスリー・レーツ列を更新します
 #

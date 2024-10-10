@@ -1,5 +1,5 @@
 #
-# python step_o5o0_manual_insert_new_record_in_tp.py
+# python step_oa21o0_manual_insert_new_record_in_tp.py
 #
 # 手動で［理論的確率データ］（TP）表に新規行を挿入します
 #

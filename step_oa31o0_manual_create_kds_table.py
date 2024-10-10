@@ -1,5 +1,5 @@
 #
-# python step_o8o0_manual_create_kds_table.py
+# python step_oa31o0_manual_create_kds_table.py
 #
 #   ［かくきんデータ・シート］を作成する。
 #   ［かくきんデータ・シート］とは、Excel で［かくきんシステムの表］を表示するための CSV

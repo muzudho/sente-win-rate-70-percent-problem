@@ -1,5 +1,5 @@
 #
-# python step_o1o_9o0_manual_epdt_table.py
+# python step_oa13o_9o0_manual_epdt_table.py
 #
 # EPDTテーブル１つ分の探索
 #

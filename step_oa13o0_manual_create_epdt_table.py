@@ -1,6 +1,6 @@
 #
 # 生成
-# python step_o1o0_manual_create_epdt_table.py
+# python step_oa13o0_manual_create_epdt_table.py
 #
 #   ［表勝ちだけでの対局数］と、［裏勝ちだけでの対局数］を探索する。
 #

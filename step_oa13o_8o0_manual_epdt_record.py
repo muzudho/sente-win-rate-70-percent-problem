@@ -1,5 +1,5 @@
 #
-# python step_o1o_8o0_manual_epdt_record.py
+# python step_oa13o_8o0_manual_epdt_record.py
 #
 # EPDTレコード１行分の探索
 #

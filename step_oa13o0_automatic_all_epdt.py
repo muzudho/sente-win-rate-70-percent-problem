@@ -1,5 +1,5 @@
 #
-# python step_o1o0_automatic_all_epdt.py
+# python step_oa13o0_automatic_all_epdt.py
 #
 # 全ての［試行中の経験的確率］（EPDT）表を作成します
 #
