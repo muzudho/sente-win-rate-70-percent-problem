@@ -466,8 +466,8 @@ class KakukinDataSheetTable():
 
         df = self._df
 
-        for row_number,(      turn_system_name  ,     failure_rate  ,     p  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab) in\
-            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['p'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab'])):
+        for row_number,(      turn_system_name  ,     failure_rate  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab) in\
+            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab'])):
 
             # p はインデックス
             p = df.index[row_number]
@@ -880,7 +880,7 @@ class TheoreticalProbabilityTable():
                 'shortest_coins': [],
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []})
+                'theoretical_no_win_match_rate': []}, dtype=clazz._dtype)
         clazz.setup_data_frame(tp_df)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
@@ -916,17 +916,29 @@ class TheoreticalProbabilityTable():
         # ファイルが既存だったら、そのファイルを読む
         if is_file_exists:
             while True: # retry
+
+                # CSVファイルの読取り、データタイプの設定
                 try:
                     df = pd.read_csv(csv_file_path, encoding="utf8",
                             dtype=clazz._dtype)
-                    clazz.setup_data_frame(df)
-                    tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
-                    break
-                
+
                 # テーブルに列が無かったら、ファイル生成のタイミングと被ったか？ リトライしてみる
                 except pd.errors.EmptyDataError as e:
                     wait_for_seconds = random.randint(30, 5*60)
                     print(f"[{datetime.datetime.now()}] read to failed. wait for {wait_for_seconds} seconds and retry. {e}")
+                    continue    # retry
+                
+                except ValueError as e:
+                    # ValueError: Integer column has NA values in column 3
+                    print(f"""\
+{e}
+{csv_file_path=}""")
+                    raise
+
+
+                # テーブルに追加の設定
+                try:
+                    clazz.setup_data_frame(df)
 
                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
                 # とりあえず、ファイル破損と判定する
@@ -936,6 +948,11 @@ class TheoreticalProbabilityTable():
 {csv_file_path=}""")
 
                     return None, None, True     # crush
+
+
+                # オブジェクト生成
+                tp_table = TheoreticalProbabilityTable(df=df, spec=spec)
+                break   # complete
 
 
         # ファイルが存在しなかった場合
@@ -957,19 +974,6 @@ class TheoreticalProbabilityTable():
     @classmethod
     def setup_data_frame(clazz, df):
         """データフレームの設定"""
-
-        try:
-            # データ型の設定
-            df.astype(clazz._dtype)
-        except KeyError as e:
-            print(f"""\
-{e}
-len(df):
-{len(df)}
-df:
-{df}
-""")
-            raise
 
         # インデックスの設定
         df.set_index(
