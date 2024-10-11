@@ -26,7 +26,7 @@ class FileReadResult():
 
 
     @property
-    def is_file_not_found():
+    def is_file_not_found(self):
         return self._is_file_not_found
 
 
