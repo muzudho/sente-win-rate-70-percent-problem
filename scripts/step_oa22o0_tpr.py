@@ -130,14 +130,15 @@ class Automation():
         # 変更があれば保存
         if 0 < self._number_of_dirty:
             # CSVファイルへ書き出し
-            SaveOrIgnore.execute(
+            successful, target_file_path = SaveOrIgnore.execute(
                     log_file_path=TheoreticalProbabilityFilePaths.as_log(
                             turn_system_id=spec.turn_system_id,
                             failure_rate=spec.failure_rate,
                             p=spec.p),
                     on_save_and_get_file_name=tpr_table.to_csv)
 
-            print(f"{DebugWrite.stringify(spec=spec)}SAVED dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}")
+            if successful:
+                print(f"{DebugWrite.stringify(spec=spec)}SAVED dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=} file={target_file_path}")
 
 
         if self._row_number_when_even is not None:

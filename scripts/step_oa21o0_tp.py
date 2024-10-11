@@ -178,16 +178,17 @@ class Automation():
         # ［理論的確率データ］（TP）ファイル保存
         if 0 < self._number_of_dirty:
 
-            SaveOrIgnore.execute(
+            successful, target_file_path = SaveOrIgnore.execute(
                     log_file_path=TheoreticalProbabilityFilePaths.as_log(
                             turn_system_id=spec.turn_system_id,
                             failure_rate=spec.failure_rate,
                             p=spec.p),
                     on_save_and_get_file_name=tp_table.to_csv)
             
-            turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}SAVED dirty={self._number_of_dirty}")
-            self._number_of_dirty = 0
+            if successful:
+                turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+                print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}SAVED dirty={self._number_of_dirty} file={target_file_path}")
+                self._number_of_dirty = 0
 
 
         return self._number_of_dirty

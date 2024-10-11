@@ -11,7 +11,7 @@ from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
-from scripts import ForEachSeriesRule, SaveOrIgnore
+from scripts import ForEachSeriesRule
 from scripts.step_o1o_9o0_each_epdt_table import Automation as StepO1o09o0EachEdptTable
 from config import DEFAULT_UPPER_LIMIT_SPAN
 

@@ -77,13 +77,15 @@ if __name__ == '__main__':
 
         # ［理論的確率データ］（TP）ファイル保存
         if 0 < number_of_dirty:
-            SaveOrIgnore.execute(
+            successful, target_file_path = SaveOrIgnore.execute(
                     log_file_path=TheoreticalProbabilityFilePaths.as_log(
                             turn_system_id=specified_turn_system_id,
                             failure_rate=specified_failure_rate,
                             p=specified_p),
                     on_save_and_get_file_name=tp_table.to_csv)
-            print(f"[{datetime.datetime.now()}] SAVED {number_of_dirty=}")
+            
+            if successful:
+                print(f"[{datetime.datetime.now()}] SAVED dirty={number_of_dirty} file={target_file_path}")
 
 
         print(f"おわり！")

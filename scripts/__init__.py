@@ -29,17 +29,19 @@ class SaveOrIgnore():
         -------
         successful : bool
             保存に成功したか？
+        target_file_path : str
+            保存した対象ファイル（ログファイルではない）へのパス。保存できなかった場合、ナン
         """
         try:
             target_file_path = on_save_and_get_file_name()
 
-            # ロギング
-            Logging.notice_log(
-                    file_path=log_file_path,
-                    message=f"save to `{target_file_path}` file...",
-                    shall_print=True)
+            # # ロギング
+            # Logging.notice_log(
+            #         file_path=log_file_path,
+            #         message=f"save to `{target_file_path}` file...",
+            #         shall_print=True)
 
-            return True
+            return True, target_file_path
 
 
         except PermissionError as e:
@@ -50,7 +52,7 @@ class SaveOrIgnore():
                     message=f"save file to failed. ignored. {e}",
                     shall_print=True)
 
-            return False
+            return False, None
 
 
 class SaveWithRetry():

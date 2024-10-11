@@ -77,16 +77,17 @@ class Automation():
 
         if is_dirty:
             # CSV保存
-            SaveOrIgnore.execute(
+            successful, target_file_path = SaveOrIgnore.execute(
                     log_file_path=EmpiricalProbabilityDuringTrialsFilePaths.as_log(
                             trial_series=self._specified_trial_series,
                             turn_system_id=self._specified_turn_system_id,
                             failure_rate=self._specified_failure_rate),
                     on_save_and_get_file_name=self._epdt_table.to_csv)
 
-            turn_system_name = Converter.turn_system_id_to_name(self._specified_turn_system_id)
-            print(f"{DebugWrite.stringify(trial_series=self._specified_trial_series, turn_system_name=turn_system_name, failure_rate=self._specified_failure_rate)}EMDT file saved")
-            return True
+            if successful:
+                turn_system_name = Converter.turn_system_id_to_name(self._specified_turn_system_id)
+                print(f"{DebugWrite.stringify(trial_series=self._specified_trial_series, turn_system_name=turn_system_name, failure_rate=self._specified_failure_rate)}EPDT file saved. file={target_file_path}")
+                return True
 
 
         return False

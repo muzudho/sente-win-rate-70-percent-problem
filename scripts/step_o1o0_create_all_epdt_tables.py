@@ -11,7 +11,7 @@ from library import ABS_OUT_OF_ERROR
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.views import DebugWrite
-from scripts import SaveOrIgnore, ForEachTsFr
+from scripts import ForEachTsFr
 from scripts.step_o1o_9o0_each_epdt_table import Automation as StepO1o09o0EachEpdtTable
 
 

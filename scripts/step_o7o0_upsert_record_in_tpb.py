@@ -241,10 +241,12 @@ class AutomationAll():
                         # 指定間隔（秒）でファイル保存
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
-                            SaveOrIgnore.execute(
+                            successful, target_file_path = SaveOrIgnore.execute(
                                     log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
                                     on_save_and_get_file_name=tpb_table.to_csv)
-                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_not_found_rows} rows not found. ...")
+                            
+                            if successful:
+                                print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_not_found_rows} rows not found. file={target_file_path} ...")
 
                             # リセット
                             start_time_for_save = time.time()
@@ -254,8 +256,10 @@ class AutomationAll():
 
                 # 忘れずに flush
                 if 0 < number_of_dirty_rows:
-                    SaveOrIgnore.execute(
+                    successful, target_file_path = SaveOrIgnore.execute(
                             log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
                             on_save_and_get_file_name=tpb_table.to_csv)
-                    # specified_p はまだ入ってるはず
-                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_not_found_rows} rows not found. ...")
+
+                    if successful:
+                        # specified_p はまだ入ってるはず
+                        print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_not_found_rows} rows not found. file={target_file_path} ...")

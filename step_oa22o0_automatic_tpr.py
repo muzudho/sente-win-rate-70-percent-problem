@@ -66,7 +66,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
         if tpr_file_read_result.is_file_not_found:
             # テーブルを新規作成したのなら、ファイルとして保存しておく。保存できなかったら無視して続行する
-            successful = SaveOrIgnore.execute(
+            successful, target_file_path = SaveOrIgnore.execute(
                     log_file_path=TheoreticalProbabilityRatesFilePaths.as_log(
                             turn_system_id=spec.turn_system_id,
                             failure_rate=spec.failure_rate,
@@ -78,7 +78,7 @@ class AllTheoreticalProbabilityFilesOperation():
                 self._number_of_not_found += 1
                 return
 
-            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE(A)")
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)} NEW_FILE(A) file={target_file_path}")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
             self._number_of_dirty += 1
