@@ -21,7 +21,7 @@ from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
-INTERVAL_SECONDS_FOR_SAVE_CSV = 5
+INTERVAL_SECONDS = 5
 
 
 class AllTheoreticalProbabilityFilesOperation():
@@ -119,7 +119,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
         #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
         step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
-                seconds_of_time_up=INTERVAL_SECONDS_FOR_SAVE_CSV)
+                seconds_of_time_up=INTERVAL_SECONDS)
 
 
         # upper_limit_coins が 6 ぐらいなら計算はすぐ終わる。 7 ぐらいから激重になる

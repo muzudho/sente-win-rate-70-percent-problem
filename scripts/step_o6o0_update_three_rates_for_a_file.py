@@ -67,12 +67,18 @@ class Automation():
         # 該当行が１つでもあれば
         if list_of_enable_each_row.any():
 
+            # TP表が 5000行以上あるので、すごい時間がかかってしまう
             for index, row in tptpr_df[list_of_enable_each_row].iterrows():
+#                 print(f"""\
+# {index=}
+# {row=}
+# """)
 
                 # 指定間隔（秒）でループを抜ける
                 end_time_for_save = time.time()
                 if self._seconds_of_time_up < end_time_for_save - self._start_time_for_save:
                     # 途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）
+                    #print(f"途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）")
                     return YIELD
 
                 span, t_step, h_step = index
