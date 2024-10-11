@@ -83,9 +83,10 @@ def main():
                     tp_table=tp_table,
                     tpr_table=tpr_table,
 
+                    # ［上限対局数］の上限。探索を打ち切る閾値
                     #
-                    # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
-                    # 7 ぐらいから激重。 6ぐらいなら軽い？
+                    #   NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
+                    #   7 ぐらいから激重。 6ぐらいなら軽い？
                     #
                     upper_limit_upper_limit_coins=UPPER_LIMIT_UPPER_LIMIT_COINS)
 

@@ -17,8 +17,6 @@ temp/theoretical_probability/*
 !temp/theoretical_probability/.gitkeep
 temp/theoretical_probability_rates/*
 !temp/theoretical_probability_rates/.gitkeep
-temp/theoretical_probability_trial_results/*
-!temp/theoretical_probability_trial_results/.gitkeep
 
 *.bak
 

@@ -32,6 +32,11 @@ class Automation():
 
         ファイルの保存機能も含む
         
+        Parameters
+        ----------
+        upper_limit_upper_limit_coins : int
+            ［上限対局数］の上限。探索を打ち切る閾値
+
         Returns
         -------
         calculation_status : int
@@ -112,11 +117,6 @@ class Automation():
                                 h_step=h_step,
                                 expected_a_win_rate=three_rates.a_win_rate,
                                 expected_no_win_match_rate=three_rates.no_win_match_rate))
-                #
-                #   FIXME ここは .at[] では不正なスカラーアクセスになる。なんで？
-                #
-                # tp_table.df.loc[index, 'expected_a_win_rate'] = three_rates.a_win_rate
-                # tp_table.df.loc[index, 'expected_no_win_match_rate'] = three_rates.no_win_match_rate
 
                 self._number_of_dirty += 1
 
@@ -138,7 +138,7 @@ class Automation():
                     on_save_and_get_file_name=tpr_table.to_csv)
 
             if successful:
-                print(f"{DebugWrite.stringify(spec=spec)}SAVED dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=} file={target_file_path}")
+                print(f"{DebugWrite.stringify(spec=spec)}SAVED dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  file={target_file_path}")
 
 
         if self._row_number_when_even is not None:

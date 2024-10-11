@@ -213,19 +213,6 @@ class StepO1o0AutomaticFilePaths():
 
 
 ############
-# MARK: TPTR
-############
-
-class TheoreticalProbabilityTrialResultsFilePaths():
-    """理論的確率の試行結果データのファイルパス一覧"""
-    @staticmethod
-    def as_csv(turn_system_id, failure_rate, p):
-        subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
-        # 大量に生成されるので、GitHubに上げたくないので logs の方に入れる
-        return f'temp/theoretical_probability_trial_results/TPTR{subname}.csv'
-
-
-############
 # MARK: EPDT
 ############
 

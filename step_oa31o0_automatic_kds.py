@@ -33,14 +33,14 @@ class Automation():
         # Step.o1o2o0 かくきんデータ作成
         ###############################
 
-        # ロギング
-        Logging.notice_log(
-                file_path=KakukinDataSheetFilePaths.as_log(
-                        trial_series=self._trial_series,
-                        turn_system_id=turn_system_id,
-                        failure_rate=failure_rate),
-                message=f"Step o8o0: create KDS table...",
-                shall_print=True)
+        # # ロギング
+        # Logging.notice_log(
+        #         file_path=KakukinDataSheetFilePaths.as_log(
+        #                 trial_series=self._trial_series,
+        #                 turn_system_id=turn_system_id,
+        #                 failure_rate=failure_rate),
+        #         message=f"Step o8o0: create KDS table...",
+        #         shall_print=True)
 
         # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
         automation = StepO31o0CreateKDSTable(

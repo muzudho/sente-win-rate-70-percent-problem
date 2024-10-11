@@ -103,9 +103,9 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
         # upper_limit_coins が 6 ぐらいなら計算はすぐ終わる。 7 ぐらいから激重になる
-        upper_limit_upper_limit_coins = self._depth
-        if upper_limit_upper_limit_coins < 6:
-            upper_limit_upper_limit_coins = 6
+        upper_limit_upper_limit_coins = self._depth + 5
+        # if upper_limit_upper_limit_coins < 6:
+        #     upper_limit_upper_limit_coins = 6
 
 
         calculation_status = automation_oa22o0.update_three_rates_for_a_file_and_save(
@@ -113,9 +113,10 @@ class AllTheoreticalProbabilityFilesOperation():
                 tp_table=tp_table,
                 tpr_table=tpr_table,
 
+                # ［上限対局数］の上限。探索を打ち切る閾値
                 #
-                # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
-                # 7 ぐらいで激重
+                #   NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
+                #   7 ぐらいで激重
                 #
                 upper_limit_upper_limit_coins=upper_limit_upper_limit_coins)
 
