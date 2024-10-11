@@ -607,3 +607,102 @@ class TheoreticalProbabilityTrialResultsTable():
             if pd.isnull(worst_abs_best_p_error):
                 worst_abs_best_p_error = ABS_OUT_OF_ERROR
 ```
+
+
+```
+    def __init__(self, specified_failure_rate, specified_turn_system_id, specified_trial_series):
+        self._ws = None
+        self._row_number = 0
+
+
+    def create_kd_header(self, kds_table):
+        """KDSテーブルの列名をそのまま写します"""
+        
+        # インデックス
+        print(f"{kds_table.df.index=}")
+        #self._ws[f'{xl.utils.get_column_letter(column_number)}1'] = 'p'
+
+        # ２列目～
+        for column_number, column_name in enumerate(kds_table.df.columns.values, 2):
+            print(f"{column_number=}  {column_name=}")
+            self._ws[f'{xl.utils.get_column_letter(column_number)}1'] = column_name
+
+
+
+    def create_kd_record_by_kds_record(self, kds_record):
+
+        # ［仕様］
+        self._ws[f'A{self._row_number}'].value = Converter.turn_system_id_to_name(self._specified_turn_system_id)
+        self._ws[f'B{self._row_number}'].value = self._specified_failure_rate
+        self._ws[f'C{self._row_number}'].value = kds_record.p
+
+        # ［シリーズ・ルール］
+        self._ws[f'D{self._row_number}'].value = kds_record.span
+        self._ws[f'E{self._row_number}'].value = kds_record.t_step
+        self._ws[f'F{self._row_number}'].value = kds_record.h_step
+        self._ws[f'G{self._row_number}'].value = kds_record.shortest_coins
+        self._ws[f'H{self._row_number}'].value = kds_record.upper_limit_coins
+
+        # ［シミュレーション結果］
+        self._ws[f'I{self._row_number}'].value = self._specified_trial_series
+        self._ws[f'J{self._row_number}'].value = kds_record.series_shortest_coins   
+        self._ws[f'K{self._row_number}'].value = kds_record.series_longest_coins    
+        self._ws[f'L{self._row_number}'].value = kds_record.wins_a
+        self._ws[f'M{self._row_number}'].value = kds_record.wins_b
+        self._ws[f'N{self._row_number}'].value = kds_record.succucessful_series
+        self._ws[f'O{self._row_number}'].value = kds_record.s_ful_wins_a
+        self._ws[f'P{self._row_number}'].value = kds_record.s_ful_wins_b
+        self._ws[f'Q{self._row_number}'].value = kds_record.s_pts_wins_a
+        self._ws[f'R{self._row_number}'].value = kds_record.s_pts_wins_b
+        self._ws[f'S{self._row_number}'].value = kds_record.failed_series
+        self._ws[f'T{self._row_number}'].value = kds_record.f_ful_wins_a
+        self._ws[f'U{self._row_number}'].value = kds_record.f_ful_wins_b
+        self._ws[f'V{self._row_number}'].value = kds_record.f_pts_wins_a
+        self._ws[f'W{self._row_number}'].value = kds_record.f_pts_wins_b
+        self._ws[f'X{self._row_number}'].value = kds_record.no_wins_ab
+
+        self._row_number += 1
+
+
+    def execute(self):
+
+        # 対エクセル・ファイル用オブジェクト作成
+        kd_excel_file = KakukinDataExcelFile.instantiate(
+                turn_system_id=self._specified_turn_system_id,
+                trial_series=self._specified_trial_series)
+
+        try:
+            # KDエクセル・ファイルの読込
+            #
+            #   NOTE ファイルが破損していると、難しいエラーを出す
+            #
+            kd_excel_file.load_workbook()
+
+        # NOTE KeyError: "There is no item named '[Content_Types].xml' in the archive"
+        except KeyError as e:
+            print(f"""\
+xlsxファイルが破損してるかも
+{e=}""")
+            raise
+
+        self._ws = kd_excel_file.create_sheet(title=sheet_name, shall_overwrite=True)
+
+
+
+
+        # ヘッダー部
+        # ----------
+        self.create_kd_header(kds_table)
+
+        # データ部
+        # --------
+        self._row_number = 2
+
+        kds_table.for_each(on_each=self.create_kd_record_by_kds_record)
+
+
+        # ［かくきんデータ・エクセル・ファイル］保存
+        SaveWithRetry.execute(
+                log_file_path=KakukinDataFilePaths.as_log(),
+                on_save_and_get_file_name=kd_excel_file.save)
+```

@@ -11,35 +11,13 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.file_paths import KakukinDataFilePaths
 from library.logging import Logging
-from scripts import ForEachTsFr
-from scripts.step_oa32o0_create_kd_excel_file import Automation as StepOa32o0CreateKDExcelFileAutomation
-from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
+from scripts.step_oa32o0_create_kd_excel import Automation as StepOa32o0CreateKDExcel
+from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE, DEFAULT_TRIAL_SERIES
 
 
 # 実行間隔タイマー
-INTERVAL_SECONDS = 1   # １秒
-#INTERVAL_SECONDS = 6 * 60   # ６分
-
-
-class Automation():
-
-    def on_each_tsfr(self, turn_system_id, failure_rate):
-        # ロギング
-        Logging.notice_log(
-                file_path=KakukinDataFilePaths.as_log(),
-                message=f"[turn_system_name={Converter.turn_system_id_to_name(turn_system_id)}  failure_rete={failure_rate * 100:.1f}%] Step o9o0: create KD table",
-                shall_print=True)
-
-        # ［かくきんデータ］エクセル・ファイルの作成
-        #
-        #   NOTE 先にKDSファイルを作成しておく必要があります
-        #
-        automation = StepOa32o0CreateKDExcelFileAutomation(
-                specified_trial_series=2000,
-                specified_turn_system_id=turn_system_id,
-                specified_failure_rate=failure_rate)
-
-        automation.execute()
+INTERVAL_SECONDS = 5   # 5 秒
+#INTERVAL_SECONDS = 7 * 60   # ７分。［素数ゼミ］参考
 
 
 ########################################
@@ -50,11 +28,8 @@ if __name__ == '__main__':
         # ロギング
         Logging.notice_log(
                 file_path=KakukinDataFilePaths.as_log(),
-                message=f"Step o8o0: start to create KD table. {INTERVAL_SECONDS=}",
+                message=f"start to create KD table. {INTERVAL_SECONDS=}",
                 shall_print=True)
-
-
-        automation = Automation()
 
 
         # 無限ループ
@@ -62,12 +37,18 @@ if __name__ == '__main__':
 
             time.sleep(INTERVAL_SECONDS)
 
-            ForEachTsFr.execute(on_each_tsfr=automation.on_each_tsfr)
+            # ［かくきんデータ］エクセル・ファイルの作成
+            #
+            #   NOTE 先にKDSファイルを作成しておく必要があります
+            #
+            automation = StepOa32o0CreateKDExcel(
+                    trial_series=DEFAULT_TRIAL_SERIES)
+            automation.execute()
 
             # ロギング
             Logging.notice_log(
                     file_path=KakukinDataFilePaths.as_log(),
-                    message=f"Step o9o0: restart to create KD table. {INTERVAL_SECONDS=}",
+                    message=f"restart to create KD table. {INTERVAL_SECONDS=}",
                     shall_print=True)
 
 

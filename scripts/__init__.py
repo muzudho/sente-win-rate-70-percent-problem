@@ -100,7 +100,7 @@ class ForEachTsFr():
         """
         Parameters
         ----------
-        on_each_spec : func
+        on_each_tsfr : func
             関数
         """
 
@@ -112,6 +112,25 @@ class ForEachTsFr():
                 failure_rate = failure_rate_percent / 100
                     
                 on_each_tsfr(turn_system_id=turn_system_id, failure_rate=failure_rate)
+
+
+class ForEachFr():
+
+
+    @staticmethod
+    def execute(on_each_fr):
+        """
+        Parameters
+        ----------
+        on_each_fr : func
+            関数
+        """
+
+        # ［将棋の引分け率］
+        for failure_rate_percent in range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5): # 5％刻み。 100%は除く。0除算が発生するので
+            failure_rate = failure_rate_percent / 100
+                
+            on_each_fr(failure_rate=failure_rate)
 
 
 class ForEachSpec():

@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.step_oa32o0_create_kd_excel_file import Automation as StepOa32o0CreateKDExcelFileAutomation
+from scripts.step_oa32o0_create_kd_excel import Automation as StepOa32o0CreateKDExcelAutomation
 
 
 ########################################
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        automation = StepOa32o0CreateKDExcelFileAutomation(
+        automation = StepOa32o0CreateKDExcelAutomation(
                 specified_trial_series=specified_trial_series,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_failure_rate=specified_failure_rate)
