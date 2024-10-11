@@ -4,8 +4,10 @@ import time
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
+from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TpTprRecord, TheoreticalProbabilityRatesTable, TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import DebugWrite
+from scripts import SaveOrIgnore
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
@@ -256,8 +258,10 @@ class AutomationAll():
                         # 指定間隔（秒）でファイル保存
                         end_time_for_save = time.time()
                         if INTERVAL_SECONDS_FOR_SAVE_CSV < end_time_for_save - start_time_for_save:
-                            csv_file_path_to_wrote = tpb_table.to_csv()
-                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")
+                            SaveOrIgnore.execute(
+                                    log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
+                                    on_save_and_get_file_name=tpb_table.to_csv)
+                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")
 
                             # リセット
                             start_time_for_save = time.time()
@@ -268,6 +272,8 @@ class AutomationAll():
 
                 # 忘れずに flush
                 if 0 < number_of_dirty_rows:
-                    csv_file_path_to_wrote = tpb_table.to_csv()
+                    SaveOrIgnore.execute(
+                            log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
+                            on_save_and_get_file_name=tpb_table.to_csv)
                     # specified_p はまだ入ってるはず
-                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. write theoretical probability best to `{csv_file_path_to_wrote}` file. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")
+                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")

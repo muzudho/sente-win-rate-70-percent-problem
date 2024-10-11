@@ -4,6 +4,8 @@
 #   ファイル出力、ログ等を除く
 #
 
+import os
+import shutil
 import time
 import random
 import math
@@ -2617,3 +2619,34 @@ def try_series(spec, series_rule, specified_trial_series):
             list_of_trial_results_for_one_series=list_of_trial_results_for_one_series)
 
     return large_series_trial_summary
+
+
+class RenamingBackup():
+    """ファイルのリネーム・バックアップ
+    
+    拡張子に .bak を追加する。これは WinMerge のバックアップと同じ拡張子
+    """
+
+
+    def __init__(self, file_path):
+        self._file_path = file_path
+
+
+    def make_backup(self):
+        """既存のバックアップ・ファイルがあれば削除し、既存のファイルのバックアップ・ファイルを作成する"""
+        directory_path, file_base = os.path.split(self._file_path)
+        new_path = shutil.copy2(
+            self._file_path,
+            f'{directory_path}/{file_base}.bak')    # 第２引数にファイル名を指定すると、既存なら上書きになる
+
+
+    def remove_backup(self):
+        """TODO バックアップ・ファイルを削除する"""
+        print("作成中")
+        pass
+
+
+    def rollback(self):
+        """TODO 既存のファイルを削除し、バックアップ・ファイルを正のファイルにリネームする"""
+        print("作成中")
+        pass

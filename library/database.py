@@ -8,7 +8,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates
+from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, OUT_OF_P, EVEN, round_letro, Converter, ThreeRates, RenamingBackup
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityRatesFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths
 from scripts import IntervalForRetry
 
@@ -495,9 +495,12 @@ df:
                 turn_system_id=self._turn_system_id,
                 failure_rate=self._failure_rate)
 
-        # p はインデックス
+        # TODO ファイル保存の前のリネーム・バックアップ
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
+        renaming_backup.make_backup()
         self._df.to_csv(
                 csv_file_path,
+                # p はインデックス
                 columns=['turn_system_name', 'failure_rate', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_series', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'])
 
         return csv_file_path
@@ -811,8 +814,11 @@ class TheoreticalProbabilityBestTable():
         # CSVファイルパス（書き込むファイル）
         csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
-        # turn_system_name, failure_rate, p はインデックス
+        # TODO ファイル保存の前のリネーム・バックアップ
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
+        renaming_backup.make_backup()
         self._df.to_csv(csv_file_path,
+                # turn_system_name, failure_rate, p はインデックス
                 columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
 
         return csv_file_path
@@ -1199,17 +1205,20 @@ df:
             ファイルパス
         """
 
-        tpr_csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
+        csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
                 p=self._spec.p,
                 failure_rate=self._spec.failure_rate,
                 turn_system_id=self._spec.turn_system_id)
 
-        # span, t_step, h_step はインデックス
+        # TODO ファイル保存の前のリネーム・バックアップ
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
+        renaming_backup.make_backup()
         self._df.to_csv(
-                tpr_csv_file_path,
+                csv_file_path,
+                # span, t_step, h_step はインデックス
                 columns=['theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
 
-        return tpr_csv_file_path
+        return csv_file_path
 
 
     def for_each(self, on_each):
@@ -1544,9 +1553,12 @@ df:
                 failure_rate=self._spec.failure_rate,
                 turn_system_id=self._spec.turn_system_id)
 
-        # span, t_step, h_step はインデックス
+        # TODO ファイル保存の前のリネーム・バックアップ
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
+        renaming_backup.make_backup()
         self._df.to_csv(
                 csv_file_path,
+                # span, t_step, h_step はインデックス
                 columns=['shortest_coins', 'upper_limit_coins'])
 
         return csv_file_path
@@ -1924,6 +1936,9 @@ class EmpiricalProbabilityDuringTrialsTable():
         #print(f"[{datetime.datetime.now()}] write file to `{csv_file_path}` ...")
 
         # CSV保存
+        # TODO ファイル保存の前のリネーム・バックアップ
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
+        renaming_backup.make_backup()
         self._df.to_csv(
                 csv_file_path,
                 # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
