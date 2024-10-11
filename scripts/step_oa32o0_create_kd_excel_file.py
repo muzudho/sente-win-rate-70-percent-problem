@@ -40,7 +40,20 @@ class Automation():
         self._row_number = 0
 
 
-    def on_each_kds_record(self, kds_record):
+    def create_kd_header(self, kds_table):
+        """KDSテーブルの列名をそのまま写します"""
+        
+        # インデックス
+        print(f"{kds_table.df.index=}")
+        #self._ws[f'{xl.utils.get_column_letter(column_number)}1'] = 'p'
+
+        # ２列目～
+        for column_number, column_name in enumerate(kds_table.df.columns.values, 2):
+            print(f"{column_number=}  {column_name=}")
+            self._ws[f'{xl.utils.get_column_letter(column_number)}1'] = column_name
+
+
+    def create_kd_record_by_kds_record(self, kds_record):
 
         # ［仕様］
         self._ws[f'A{self._row_number}'].value = Converter.turn_system_id_to_name(self._specified_turn_system_id)
@@ -86,8 +99,19 @@ class Automation():
                 turn_system_id=self._specified_turn_system_id,
                 trial_series=self._specified_trial_series)
 
-        # エクセル・ファイルの読込
-        kakukin_data_excel_file.load_workbook()
+        try:
+            # エクセル・ファイルの読込
+            #
+            #   NOTE ファイルが破損していると、難しいエラーを出す
+            #
+            kakukin_data_excel_file.load_workbook()
+
+        # NOTE KeyError: "There is no item named '[Content_Types].xml' in the archive"
+        except KeyError as e:
+            print(f"""\
+xlsxファイルが破損してるかも
+{e=}""")
+            raise
 
         # シートの名前を作成するぞ（シートが既存なら上書き）
         #
@@ -115,14 +139,13 @@ class Automation():
 
         # ヘッダー部
         # ----------
-        for index, column_name in enumerate(kds_table.df.columns.values, 1):
-            self._ws[f'{xl.utils.get_column_letter(index)}1'] = column_name
+        self.create_kd_header(kds_table)
 
         # データ部
         # --------
         self._row_number = 2
 
-        kds_table.for_each(on_each=self.on_each_kds_record)
+        kds_table.for_each(on_each=self.create_kd_record_by_kds_record)
 
 
         # ［かくきんデータ・エクセル・ファイル］保存

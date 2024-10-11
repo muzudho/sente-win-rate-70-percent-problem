@@ -8,7 +8,7 @@ import datetime
 
 from library import Converter
 from library.views import PromptCatalog, DebugWrite
-from scripts.step_o9o0_create_kakukin_data_excel_file import Automation as StepO9o0CreateKakukinDataExcelFileAutomation
+from scripts.step_oa32o0_create_kd_excel_file import Automation as StepOa32o0CreateKDExcelFileAutomation
 
 
 ########################################
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         #
         #   NOTE 先にKDSファイルを作成しておく必要があります
         #
-        automation = StepO9o0CreateKakukinDataExcelFileAutomation(
+        automation = StepOa32o0CreateKDExcelFileAutomation(
                 specified_trial_series=specified_trial_series,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_failure_rate=specified_failure_rate)

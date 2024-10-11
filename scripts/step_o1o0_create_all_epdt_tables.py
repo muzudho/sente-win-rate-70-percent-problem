@@ -73,6 +73,7 @@ class Automation():
 
     def on_each_tsfr(self, turn_system_id, failure_rate):
 
+        # TODO ここでファイル作成してもいいんじゃないか？ --> 空ファイルになるからいやだということ？
         # EPDTファイル読取り。無ければスキップ
         epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
                 trial_series=self._specified_trial_series,

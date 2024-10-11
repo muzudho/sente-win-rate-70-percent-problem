@@ -12,12 +12,13 @@ from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.file_paths import KakukinDataFilePaths
 from library.logging import Logging
 from scripts import ForEachTsFr
-from scripts.step_o9o0_create_kakukin_data_excel_file import Automation as StepO9o0CreateKakukinDataExcelFileAutomation
+from scripts.step_oa32o0_create_kd_excel_file import Automation as StepOa32o0CreateKDExcelFileAutomation
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
 # 実行間隔タイマー
-INTERVAL_SECONDS = 6 * 60   # ６分
+INTERVAL_SECONDS = 1   # １秒
+#INTERVAL_SECONDS = 6 * 60   # ６分
 
 
 class Automation():
@@ -33,7 +34,7 @@ class Automation():
         #
         #   NOTE 先にKDSファイルを作成しておく必要があります
         #
-        automation = StepO9o0CreateKakukinDataExcelFileAutomation(
+        automation = StepOa32o0CreateKDExcelFileAutomation(
                 specified_trial_series=2000,
                 specified_turn_system_id=turn_system_id,
                 specified_failure_rate=failure_rate)

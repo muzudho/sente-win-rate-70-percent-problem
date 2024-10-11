@@ -134,4 +134,4 @@ class Automation():
                 log_file_path=KakukinDataSheetFilePaths.as_log(),
                 on_save_and_get_file_name=self._kds_table.to_csv)
         #csv_file_path = self._kds_table.to_csv()
-        #print(f"[{datetime.datetime.now()}] step_o8o0_create_kds_table. write view to `{csv_file_path}` file ...")
+        #print(f"[{datetime.datetime.now()}] step_oa31o0_create_kds_table. write view to `{csv_file_path}` file ...")

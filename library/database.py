@@ -24,10 +24,18 @@ class KakukinDataSheetRecord():
     """［かくきんデータ・シート］レコード"""
 
 
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+    def __init__(self, p, turn_system_name, failure_rate, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+        """初期化
+
+        p はインデックス。
+        turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
+
+        """
+        self._p = p
+
         self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
-        self._p = p
+
         self._span = span
         self._tail_step = t_step
         self._head_step = h_step
@@ -52,18 +60,24 @@ class KakukinDataSheetRecord():
 
 
     @property
+    def p(self):
+        """［コインを投げて表が出る確率］
+        インデックスです"""
+        return self._p
+
+
+    @property
     def turn_system_name(self):
+        """［先後の決め方］
+        ファイル名で示されているものと同じ"""
         return self._turn_system_name
 
 
     @property
     def failure_rate(self):
+        """［コインを投げて表も裏も出ない確率］
+        ファイル名で示されているものと同じ"""
         return self._failure_rate
-
-
-    @property
-    def p(self):
-        return self._p
 
 
     @property
@@ -93,6 +107,8 @@ class KakukinDataSheetRecord():
 
     @property
     def trial_series(self):
+        """［シリーズ試行回数］
+        ファイル名で示されているものと同じ"""
         return self._trial_series
 
 
@@ -177,8 +193,10 @@ class KakukinDataSheetTable():
 
     _dtype = {
         # p はインデックス
+        # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
         'turn_system_name':'object',    # string型は無い？
         'failure_rate':'float64',
+
         'span':'int64',
         't_step':'int64',
         'h_step':'int64',
@@ -219,9 +237,13 @@ class KakukinDataSheetTable():
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
         kds_df = pd.DataFrame.from_dict({
-                'p':[], # インデックス
+                # p はインデックス
+                'p':[],
+
+                # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
                 'turn_system_name':[],
                 'failure_rate':[],
+
                 'span':[],
                 't_step':[],
                 'h_step':[],
@@ -243,7 +265,7 @@ class KakukinDataSheetTable():
                 'f_pts_wins_a':[],
                 'f_pts_wins_b':[],
                 'no_wins_ab':[]})
-        clazz.setup_data_frame(df=kds_df)
+        clazz.setup_data_frame(df=kds_df, shall_set_index=True)
         return KakukinDataSheetTable(
                 df=kds_df,
                 trial_series=trial_series,
@@ -281,9 +303,12 @@ class KakukinDataSheetTable():
             else:
                 kds_table = None
         else:
-            kds_df = pd.read_csv(csv_file_path, encoding="utf8",
+            kds_df = pd.read_csv(
+                    csv_file_path,
+                    encoding="utf8",
+                    index_col='p',
                     dtype=clazz._dtype)
-            clazz.setup_data_frame(df=kds_df, csv_file_path=csv_file_path)
+            clazz.setup_data_frame(df=kds_df, shall_set_index=False, csv_file_path=csv_file_path)
             kds_table = KakukinDataSheetTable(
                     df=kds_df,
                     trial_series=trial_series,
@@ -316,25 +341,27 @@ class KakukinDataSheetTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df, csv_file_path=None):
+    def setup_data_frame(clazz, df, shall_set_index, csv_file_path=None):
         """データフレームの設定"""
 
-        try:
-            # trial_series と turn_system_name と failure_rate はファイル名と同じはず
-            df.set_index(
-                    'p',
-                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        if shall_set_index:
+            try:
+                # p はインデックス
+                # turn_system_name, failure_rate と trial_series はファイル名と同じはず
+                df.set_index(
+                        'p',
+                        inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
-        # FIXME データフレームがエンプティのときエラーになる？ 列もないとき ---> ファイルが破損している
-        # FIXME KeyError: "None of ['p'] are in the columns"
-        except KeyError as e:
-            print(f"""\
+            # FIXME データフレームがエンプティのときエラーになる？ 列もないとき ---> ファイルが破損している
+            # FIXME KeyError: "None of ['p'] are in the columns"
+            except KeyError as e:
+                print(f"""\
 {e}
 {csv_file_path=}
 df:
 {df}
 """)
-            raise
+                raise
 
         # データ型の設定
         # FIXME KeyError: "Only a column name can be used for the key in a dtype mappings argument. 'p' not found in columns."
@@ -342,15 +369,15 @@ df:
 
 
     def assert_welcome_record(self, welcome_record):
-        if welcome_record.trial_series != self._trial_series:
-            raise ValueError(f"ファイル名と trial_series 列で内容が異なるのはおかしいです {welcome_record.trial_series=}  {self._trial_series=}")
-
         specified_turn_system_name = Converter.turn_system_id_to_name(self._turn_system_id)
         if welcome_record.turn_system_name != specified_turn_system_name:
             raise ValueError(f"ファイル名と turn_system_name 列で内容が異なるのはおかしいです {welcome_record.turn_system_name=}  {specified_turn_system_name=}")
 
         if welcome_record.failure_rate != self._failure_rate:
             raise ValueError(f"ファイル名と failure_rate 列で内容が異なるのはおかしいです {welcome_record.failure_rate=}  {self._failure_rate=}")
+
+        if welcome_record.trial_series != self._trial_series:
+            raise ValueError(f"ファイル名と trial_series 列で内容が異なるのはおかしいです {welcome_record.trial_series=}  {self._trial_series=}")
 
 
     def upsert_record(self, welcome_record):
@@ -388,15 +415,14 @@ df:
 
         else:
             # 更新の有無判定
-            # p はインデックス
-            # trial_series と turn_system_name と failure_rate はファイル名と同じはず
+            # p はインデックスだから省略
+            # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じはずだから省略
             shall_record_change =\
                 self._df['span'][index] != welcome_record.span or\
                 self._df['t_step'][index] != welcome_record.t_step or\
                 self._df['h_step'][index] != welcome_record.h_step or\
                 self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
                 self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
-                self._df['trial_series'][index] != welcome_record.trial_series or\
                 self._df['series_shortest_coins'][index] != welcome_record.series_shortest_coins or\
                 self._df['series_longest_coins'][index] != welcome_record.series_longest_coins or\
                 self._df['wins_a'][index] != welcome_record.wins_a or\
@@ -418,6 +444,9 @@ df:
         if shall_record_change:
             self._df.loc[index] = {
                 # p はインデックス
+                # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
+                'turn_system_name': welcome_record.turn_system_name,
+                'failure_rate': welcome_record.failure_rate,
                 'span': welcome_record.span,
                 't_step': welcome_record.t_step,
                 'h_step': welcome_record.h_step,
@@ -465,7 +494,8 @@ df:
                 failure_rate=self._failure_rate)
 
         # p はインデックス
-        self._df.to_csv(csv_file_path,
+        self._df.to_csv(
+                csv_file_path,
                 columns=['turn_system_name', 'failure_rate', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_series', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'])
 
         return csv_file_path
@@ -486,12 +516,15 @@ df:
 
             # p はインデックス
             p = df.index[row_number]
+            # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
 
             # レコード作成
             record = KakukinDataSheetRecord(
+                    p=p,
+
                     turn_system_name=turn_system_name,
                     failure_rate=failure_rate,
-                    p=p,
+
                     span=span,
                     t_step=t_step,
                     h_step=h_step,
@@ -608,12 +641,13 @@ class TheoreticalProbabilityBestTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df):
+    def setup_data_frame(clazz, shall_set_index, df):
         """データフレームの設定"""
 
-        df.set_index(
-                ['turn_system_name', 'failure_rate', 'p'],
-                inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+        if shall_set_index:
+            df.set_index(
+                    ['turn_system_name', 'failure_rate', 'p'],
+                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
 
         # データ型の設定
         df.astype(clazz._dtype)
@@ -633,7 +667,7 @@ class TheoreticalProbabilityBestTable():
                 'upper_limit_coins': [],
                 'theoretical_a_win_rate': [],
                 'theoretical_no_win_match_rate': []})
-        clazz.setup_data_frame(df=tpd_df)
+        clazz.setup_data_frame(df=tpd_df, shall_set_index=True)
         return TheoreticalProbabilityBestTable(df=tpb_df)
 
 
@@ -666,9 +700,12 @@ class TheoreticalProbabilityBestTable():
 
         # ファイルが存在した場合
         else:
-            tpb_df = pd.read_csv(csv_file_path, encoding="utf8",
+            tpb_df = pd.read_csv(
+                    csv_file_path,
+                    encoding="utf8",
+                    index_col=['turn_system_name', 'failure_rate', 'p'],
                     dtype=clazz._dtype)
-            clazz.setup_data_frame(df=tpb_df)
+            clazz.setup_data_frame(df=tpb_df, shall_set_index=False)
             tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
 
 
@@ -936,7 +973,7 @@ class TheoreticalProbabilityRatesTable():
 
         # tpr_df.empty は真
 
-        clazz.setup_data_frame(df=tpr_df)
+        clazz.setup_data_frame(df=tpr_df, shall_set_index=True)
         return TheoreticalProbabilityRatesTable(df=tpr_df, spec=spec)
 
 
@@ -974,7 +1011,10 @@ class TheoreticalProbabilityRatesTable():
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
-                    tpr_df = pd.read_csv(csv_file_path, encoding="utf8")
+                    tpr_df = pd.read_csv(
+                            csv_file_path,
+                            encoding="utf8",
+                            index_col=['span', 't_step', 'h_step'])
 
                     # 診断
                     # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
@@ -1010,7 +1050,7 @@ class TheoreticalProbabilityRatesTable():
 
                 # テーブルに追加の設定
                 #try:
-                clazz.setup_data_frame(df=tpr_df, csv_file_path=csv_file_path)
+                clazz.setup_data_frame(df=tpr_df, shall_set_index=False, csv_file_path=csv_file_path)
 
 #                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
 #                 # "None of ['span', 't_step', 'h_step'] are in the columns"
@@ -1047,32 +1087,33 @@ class TheoreticalProbabilityRatesTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df, csv_file_path=None):
+    def setup_data_frame(clazz, df, shall_set_index, csv_file_path=None):
         """データフレームの設定"""
 
         # df.empty が真になるケースもある
 
-
-        try:
-            # インデックスの設定
-            #
-            #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
-            #
-            df.set_index(
-                    ['span', 't_step', 'h_step'],
-                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
-        # "None of ['span', 't_step', 'h_step'] are in the columns"
-        # とりあえず、ファイル破損と判定する
-        except KeyError as e:
-            print(f"""\
+        if shall_set_index:
+            try:
+                # インデックスの設定
+                #
+                #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
+                #
+                df.set_index(
+                        ['span', 't_step', 'h_step'],
+                        inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+            # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+            # "None of ['span', 't_step', 'h_step'] are in the columns"
+            # とりあえず、ファイル破損と判定する
+            except KeyError as e:
+                print(f"""\
 [{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(B)
 {type(e)=}
 {e}
 {csv_file_path=}
 df:
 {df}""")
-            raise
+                raise
+
 
         try:
             # データ型の設定
@@ -1262,7 +1303,7 @@ class TheoreticalProbabilityTable():
 
         # tp_df.empty は真
 
-        clazz.setup_data_frame(df=tp_df)
+        clazz.setup_data_frame(df=tp_df, shall_set_index=True)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
 
@@ -1300,7 +1341,10 @@ class TheoreticalProbabilityTable():
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
-                    df = pd.read_csv(csv_file_path, encoding="utf8")
+                    df = pd.read_csv(
+                            csv_file_path,
+                            encoding="utf8",
+                            index_col=['span', 't_step', 'h_step'])
 
                     # 診断
                     # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
@@ -1332,11 +1376,19 @@ class TheoreticalProbabilityTable():
 {e}
 {csv_file_path=}""")
                     return None, None, True     # crush
+                
+                except TypeError as e:
+                    print(f"""\
+[{datetime.datetime.now}] 想定外の型エラー。ファイルが破損してるかも？
+{e}
+{csv_file_path=}
+""")
+                    raise
 
 
                 # テーブルに追加の設定
                 #try:
-                clazz.setup_data_frame(df=df, csv_file_path=csv_file_path)
+                clazz.setup_data_frame(df=df, shall_set_index=False, csv_file_path=csv_file_path)
 
 #                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
 #                 # "None of ['span', 't_step', 'h_step'] are in the columns"
@@ -1373,32 +1425,33 @@ class TheoreticalProbabilityTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df, csv_file_path=None):
+    def setup_data_frame(clazz, df, shall_set_index, csv_file_path=None):
         """データフレームの設定"""
 
         # df.empty が真になるケースもある
 
-
-        try:
-            # インデックスの設定
-            #
-            #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
-            #
-            df.set_index(
-                    ['span', 't_step', 'h_step'],
-                    inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
-        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
-        # "None of ['span', 't_step', 'h_step'] are in the columns"
-        # とりあえず、ファイル破損と判定する
-        except KeyError as e:
-            print(f"""\
+        if shall_set_index:
+            try:
+                # インデックスの設定
+                #
+                #   NOTE インデックスに指定した列は、（デフォルトでは）テーブルから削除（ドロップ）します
+                #
+                df.set_index(
+                        ['span', 't_step', 'h_step'],
+                        inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+            # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+            # "None of ['span', 't_step', 'h_step'] are in the columns"
+            # とりあえず、ファイル破損と判定する
+            except KeyError as e:
+                print(f"""\
 [{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(B)
 {type(e)=}
 {e}
 {csv_file_path=}
 df:
 {df}""")
-            raise
+                raise
+
 
         try:
             # データ型の設定
@@ -1683,7 +1736,7 @@ class EmpiricalProbabilityDuringTrialsTable():
             'latest_t_step': [],
             'latest_h_step': [],
             'candidate_history_text': []})
-        clazz.setup_data_frame(df=ep_df)
+        clazz.setup_data_frame(df=ep_df, shall_set_index=True)
         return EmpiricalProbabilityDuringTrialsTable(
                 df=ep_df,
                 trial_series=trial_series,
@@ -1721,9 +1774,12 @@ class EmpiricalProbabilityDuringTrialsTable():
             else:
                 ep_table = None
         else:
-            df = pd.read_csv(csv_file_path, encoding="utf8",
+            df = pd.read_csv(
+                    csv_file_path,
+                    encoding="utf8",
+                    index_col='p',
                     dtype=clazz._dtype)
-            clazz.setup_data_frame(df=df)
+            clazz.setup_data_frame(df=df, shall_set_index=False)
             ep_table = EmpiricalProbabilityDuringTrialsTable(
                     df,
                     trial_series=trial_series,
@@ -1755,7 +1811,7 @@ class EmpiricalProbabilityDuringTrialsTable():
 
 
     @classmethod
-    def setup_data_frame(clazz, df, shall_set_index=True):
+    def setup_data_frame(clazz, df, shall_set_index):
         """データフレームの設定"""
 
         if shall_set_index:
