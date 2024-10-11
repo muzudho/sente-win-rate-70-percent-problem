@@ -4,9 +4,11 @@ import datetime
 import pandas as pd
 
 from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule, is_almost_even
+from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityRatesRecord
 from library.score_board import search_all_score_boards
 from library.views import DebugWrite
+from scripts import SaveOrIgnore
 
 
 class Automation():
@@ -16,7 +18,7 @@ class Automation():
     def __init__(self, seconds_of_time_up):
 
         # CSV保存用タイマー
-        self._start_time_for_save = None
+        self._start_time = None
         self._seconds_of_time_up = seconds_of_time_up
 
         # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
@@ -40,10 +42,11 @@ class Automation():
             pass
 
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
+        is_timeup = False
 
         # リセット
         self._number_of_dirty = 0
-        self._start_time_for_save = time.time()       # CSV保存用タイマー
+        self._start_time = time.time()
 
         # TODO TP表と TPR表を完全外部結合する
 #         print(f"""\
@@ -79,10 +82,10 @@ class Automation():
 
                 # 指定間隔（秒）でループを抜ける
                 end_time_for_save = time.time()
-                if self._seconds_of_time_up < end_time_for_save - self._start_time_for_save:
+                if self._seconds_of_time_up < end_time_for_save - self._start_time:
                     # 途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）
-                    #print(f"途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）")
-                    return YIELD
+                    is_timeup = True
+                    break
 
                 span, t_step, h_step = index
 
@@ -127,12 +130,25 @@ class Automation():
         # 変更があれば保存
         if 0 < self._number_of_dirty:
             # CSVファイルへ書き出し
-            tpr_csv_file_path_to_wrote = tpr_table.to_csv()
+            SaveOrIgnore.execute(
+                    log_file_path=TheoreticalProbabilityFilePaths.as_log(
+                            turn_system_id=spec.turn_system_id,
+                            failure_rate=spec.failure_rate,
+                            p=spec.p),
+                    on_save_and_get_file_name=tpr_table.to_csv)
 
-            print(f"{DebugWrite.stringify(spec=spec)}SAVE dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}  write file to `{tpr_csv_file_path_to_wrote}` ...")
+            print(f"{DebugWrite.stringify(spec=spec)}SAVED dirty={self._number_of_dirty}  {upper_limit_upper_limit_coins=}")
 
+
+        if self._row_number_when_even is not None:
             # このファイルは処理完了した
+            print("５割のデータを見つけた。ループ終了")
             return TERMINATED
+
+
+        if is_timeup:
+            print(f"途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）")
+            return YIELD
 
 
         # 処理失敗

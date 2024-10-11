@@ -69,7 +69,7 @@ class Automation():
 
         if is_tp_file_created:
             turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
-            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE")
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE(C)")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
             self._number_of_dirty += 1

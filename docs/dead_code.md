@@ -124,7 +124,7 @@
         t_step = 1      # ［後手で勝ったときの勝ち点］
         h_step = 1      # ［先手で勝ったときの勝ち点］
 
-        print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] NEW_FILE")
+        print(f"[{datetime.datetime.now()}][{depth=}  turn_system={turn_system_name:11}  p={spec.p:.2f}  failure_rate={spec.failure_rate:.2f}] NEW_FILE(B)")
 
         # １件も処理してないが、ファイルを保存したいのでフラグを立てる
         number_of_dirty += 1

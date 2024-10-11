@@ -98,7 +98,7 @@ class AllTheoreticalProbabilityFilesOperation():
                 self._number_of_crush += 1
                 return
 
-            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE")
+            print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE(A)")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる
             self._number_of_dirty += 1
