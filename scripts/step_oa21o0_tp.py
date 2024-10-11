@@ -58,7 +58,7 @@ class Automation():
         self._row_number_th += 1
 
         # ファイルが存在しなければ、新規作成する。あれば読み込む
-        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
+        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=True)
 
         if is_crush:
             self._number_of_crush += 1

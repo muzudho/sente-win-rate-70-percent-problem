@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
 
         # EPDTファイル読取り。無ければスキップ
-        epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
+        epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 trial_series=specified_trial_series,
                 turn_system_id=specified_turn_system_id,
                 failure_rate=specified_failure_rate,

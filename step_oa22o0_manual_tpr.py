@@ -47,7 +47,7 @@ def main():
     #
 
     # ［理論的確率ベスト］表を読込。無ければナン
-    tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
+    tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
 
     # ファイルが存在しなければスキップ
     if tpb_table is None:
@@ -57,7 +57,7 @@ def main():
         print(f"［理論的確率ベスト］表を読み込んだ")
 
         # ファイルが存在しなければ無視する。あれば読み込む
-        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
+        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=False)
 
 
         if is_crush:
@@ -72,7 +72,7 @@ def main():
             print(f"［理論的確率データ］表を読み込んだ")
 
             # ファイルが存在しなければ、新規作成する。あれば読み込む
-            tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.read_csv(spec=spec, new_if_it_no_exists=True)
+            tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
 
 
             # FIXME ファイルが破損していて処理不能なケース

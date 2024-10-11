@@ -54,7 +54,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
     def execute_by_spec(self, spec):
         # ファイルが存在しなければ無視する。あれば読み込む
-        tp_table, is_tp_file_created, is_tp_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=False)
+        tp_table, is_tp_file_created, is_tp_crush = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=False)
 
 
         # FIXME ファイルが破損していて処理不能なケース
@@ -71,7 +71,7 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
         # ファイルが存在しなければ、新規作成する。あれば読み込む
-        tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.read_csv(spec=spec, new_if_it_no_exists=True)
+        tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
 
 
         # FIXME ファイルが破損していて処理不能なケース

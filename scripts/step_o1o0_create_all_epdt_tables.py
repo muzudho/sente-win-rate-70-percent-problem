@@ -75,7 +75,7 @@ class Automation():
 
         # TODO ここでファイル作成してもいいんじゃないか？ --> 空ファイルになるからいやだということ？
         # EPDTファイル読取り。無ければスキップ
-        epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
+        epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate,

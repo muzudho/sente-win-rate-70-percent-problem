@@ -39,7 +39,7 @@ class Automation():
         is_dirty = False
 
         # ファイル読取り。無ければ空テーブル新規作成して保存
-        self._epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.read_csv(
+        self._epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,

@@ -2638,6 +2638,12 @@ class RenamingBackup():
         return f'{directory_path}/{file_base}.bak'
 
 
+    def check_crush(self):
+        """対象のファイルを読み込む前に呼び出してください"""
+        if os.path.isfile(self.backup_file_path):
+            raise ValueError("バックアップ・ファイルが存在しています。対象のファイルは保存中か、保存に失敗している可能性があります")
+
+
     def make_backup(self):
         """既存のバックアップ・ファイルがあれば削除し、既存のファイルのバックアップ・ファイルを作成する"""
 
@@ -2646,7 +2652,7 @@ class RenamingBackup():
             raise ValueError(f"バックアップ・ファイルが既存のまま、バックアップ・ファイルを作成しようとしたので、対象ファイルが破損したまま作業を行った可能性があります。ファイルを確認してください file={self.backup_file_path}")
 
         # 対象のファイルが存在しなければ、バックアップは作成しません
-        if os.path.isfile(self._file_path):
+        if not os.path.isfile(self._file_path):
             return
 
         new_path = shutil.copy2(

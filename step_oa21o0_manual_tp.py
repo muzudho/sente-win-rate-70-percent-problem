@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
 
         # # ［理論的確率ベスト］表を読込。無ければナン
-        # tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
+        # tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
 
         # # ファイルが存在しなければスキップ
         # if tpb_table is None:
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         # else:
 
         #     # ファイルが存在しなければ新規作成。あれば読み込む
-        #     tp_table, is_tp_file_created = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
+        #     tp_table, is_tp_file_created = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=True)
 
         #     if tp_table is None:
         #         raise ValueError(f"［理論的確率データ］表が新規作成されていないのはおかしい")

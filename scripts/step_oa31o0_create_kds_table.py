@@ -110,7 +110,7 @@ class Automation():
 
 
         # ［理論的確率ベスト］表を読込。無ければナン
-        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=False)
+        tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
 
         # ［理論的確率ベスト］ファイルが存在しなければスキップ
         if tpb_table==None:
@@ -118,7 +118,7 @@ class Automation():
 
 
         # ［かくきんデータ・シート］テーブル作成
-        self._kds_table, is_new = KakukinDataSheetTable.read_csv(
+        self._kds_table, is_new = KakukinDataSheetTable.from_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,

@@ -146,7 +146,7 @@ if __name__ == '__main__':
             f.write(f"{text}\n")    # ファイルへ出力
 
 
-        ep_table = EmpiricalProbabilityDuringTrialsTable.read_csv(
+        ep_table = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 failure_rate=specified_failure_rate,
                 turn_system_id=specified_turn_system_id,
                 trial_series=specified_trial_series,

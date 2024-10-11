@@ -276,8 +276,8 @@ class KakukinDataSheetTable():
 
 
     @classmethod
-    def read_csv(clazz, trial_series, turn_system_id, failure_rate, new_if_it_no_exists=False):
-        """
+    def from_csv(clazz, trial_series, turn_system_id, failure_rate, new_if_it_no_exists=False):
+        """ファイル読込
 
         Parameters
         ----------
@@ -305,6 +305,8 @@ class KakukinDataSheetTable():
             else:
                 kds_table = None
         else:
+            renaming_backup = RenamingBackup(file_path=csv_file_path)
+            renaming_backup.check_crush()
             kds_df = pd.read_csv(
                     csv_file_path,
                     encoding="utf8",
@@ -681,7 +683,7 @@ class TheoreticalProbabilityBestTable():
 
 
     @classmethod
-    def read_csv(clazz, new_if_it_no_exists=False):
+    def from_csv(clazz, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -709,6 +711,8 @@ class TheoreticalProbabilityBestTable():
 
         # ファイルが存在した場合
         else:
+            renaming_backup = RenamingBackup(file_path=csv_file_path)
+            renaming_backup.check_crush()
             tpb_df = pd.read_csv(
                     csv_file_path,
                     encoding="utf8",
@@ -993,7 +997,7 @@ class TheoreticalProbabilityRatesTable():
 
 
     @classmethod
-    def read_csv(clazz, spec, new_if_it_no_exists=False):
+    def from_csv(clazz, spec, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -1014,12 +1018,12 @@ class TheoreticalProbabilityRatesTable():
             ファイルが破損していて続行不能か？
         """
 
-        tpr_csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
+        csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
                 turn_system_id=spec.turn_system_id,
                 failure_rate=spec.failure_rate,
                 p=spec.p)
 
-        is_file_exists = os.path.isfile(tpr_csv_file_path)
+        is_file_exists = os.path.isfile(csv_file_path)
 
         # ファイルが既存だったら、そのファイルを読む
         if is_file_exists:
@@ -1027,8 +1031,10 @@ class TheoreticalProbabilityRatesTable():
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
+                    renaming_backup = RenamingBackup(file_path=csv_file_path)
+                    renaming_backup.check_crush()
                     tpr_df = pd.read_csv(
-                            tpr_csv_file_path,
+                            csv_file_path,
                             encoding="utf8",
                             index_col=['span', 't_step', 'h_step'])
 
@@ -1061,7 +1067,7 @@ class TheoreticalProbabilityRatesTable():
 
                 # テーブルに追加の設定
                 #try:
-                clazz.setup_data_frame(df=tpr_df, shall_set_index=False, csv_file_path=tpr_csv_file_path)
+                clazz.setup_data_frame(df=tpr_df, shall_set_index=False, csv_file_path=csv_file_path)
 
 #                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
 #                 # "None of ['span', 't_step', 'h_step'] are in the columns"
@@ -1325,7 +1331,7 @@ class TheoreticalProbabilityTable():
 
 
     @classmethod
-    def read_csv(clazz, spec, new_if_it_no_exists=False):
+    def from_csv(clazz, spec, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -1358,6 +1364,8 @@ class TheoreticalProbabilityTable():
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
+                    renaming_backup = RenamingBackup(file_path=csv_file_path)
+                    renaming_backup.check_crush()
                     df = pd.read_csv(
                             csv_file_path,
                             encoding="utf8",
@@ -1770,8 +1778,8 @@ class EmpiricalProbabilityDuringTrialsTable():
 
 
     @classmethod
-    def read_csv(clazz, trial_series, turn_system_id, failure_rate, new_if_it_no_exists):
-        """
+    def from_csv(clazz, trial_series, turn_system_id, failure_rate, new_if_it_no_exists):
+        """ファイル読込
 
         Parameters
         ----------
@@ -1799,6 +1807,8 @@ class EmpiricalProbabilityDuringTrialsTable():
             else:
                 ep_table = None
         else:
+            renaming_backup = RenamingBackup(file_path=csv_file_path)
+            renaming_backup.check_crush()
             df = pd.read_csv(
                     csv_file_path,
                     encoding="utf8",
@@ -1995,8 +2005,11 @@ class CalculateProbabilityTable():
 
 
     @staticmethod
-    def get_let_calculate_probability_df():
-        """TODO read_csv に名称変更したい"""
+    def from_csv():
+        """ファイル読込"""
+
+        renaming_backup = RenamingBackup(file_path=CSV_FILE_PATH_CAL_P)
+        renaming_backup.check_crush()
         cp_df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
                 dtype={
                     'p':'float64',

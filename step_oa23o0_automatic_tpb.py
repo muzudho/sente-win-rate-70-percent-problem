@@ -129,7 +129,7 @@ if __name__ == '__main__':
     try:
 
         # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        tpb_table, is_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=True)
+        tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=True)
 
         if tpb_table is None:
             raise ValueError("ここで tpb_table がナンなのはおかしい")

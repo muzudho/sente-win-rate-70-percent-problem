@@ -395,7 +395,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
     @classmethod
-    def read_csv(clazz, spec, new_if_it_no_exists=False):
+    def from_csv(clazz, spec, new_if_it_no_exists=False):
         """ファイル読込
 
         Parameters
@@ -429,6 +429,7 @@ class TheoreticalProbabilityTrialResultsTable():
                 tptr_table = None
 
         else:
+            RenamingBackup.check_crush(csv_file_path)
             tptr_df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
             clazz.setup_data_frame(df=tptr_df)

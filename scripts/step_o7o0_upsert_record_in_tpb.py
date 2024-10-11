@@ -64,7 +64,7 @@ class AutomationOne():
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        self._tp_table, is_tp_new, is_tp_crush = TheoreticalProbabilityTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
+        self._tp_table, is_tp_new, is_tp_crush = TheoreticalProbabilityTable.from_csv(spec=self._spec, new_if_it_no_exists=False)
 
         if is_tp_crush:
             # FIXME
@@ -77,7 +77,7 @@ class AutomationOne():
 
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        self._tpr_table, is_tpr_new, is_tpr_crush = TheoreticalProbabilityRatesTable.read_csv(spec=self._spec, new_if_it_no_exists=False)
+        self._tpr_table, is_tpr_new, is_tpr_crush = TheoreticalProbabilityRatesTable.from_csv(spec=self._spec, new_if_it_no_exists=False)
 
         if is_tpr_crush:
             # FIXME
@@ -202,7 +202,7 @@ class AutomationAll():
     def execute_all(self):
 
         # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        tpb_table, is_tpb_new = TheoreticalProbabilityBestTable.read_csv(new_if_it_no_exists=True)
+        tpb_table, is_tpb_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=True)
 
         if tpb_table is None:
             raise ValueError("ここで tpb_table がナンなのはおかしい")
