@@ -3,7 +3,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule, is_almost_even
+from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule, Precision
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityRatesRecord
 from library.score_board import search_all_score_boards
@@ -122,7 +122,7 @@ class Automation():
 
 
                 # Ａさんの勝率が５割のデータを見つけたら、ループ終了
-                if is_almost_even(three_rates.a_win_rate):
+                if Precision.is_it_even_enough(three_rates.a_win_rate):
                     self._row_number_when_even = row_number_th
                     break
 

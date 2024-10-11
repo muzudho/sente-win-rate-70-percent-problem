@@ -107,22 +107,35 @@ SMALL_P_ABS_ERROR = 0.0004
 EVEN = 0.5
 
 
-# ほぼ 0
-def is_almost_zero(rate):
-    return -0.0000000001 <= rate and rate <= 0.0000000001
+class Precision():
 
 
-# ほぼ 1
-#
-#   これは、［ほぼ］ではなく 1 なのに、２進数が割り切れない都合で 0.9999999999999984 や 1.0000000000123324 になってしまうケースを 1 と判定したいときがある
-#
-def is_almost_one(rate):
-    return 0.9999999999 <= rate and rate <= 1.0000000001
+    @staticmethod
+    def is_almost_zero(rate):
+        """ほぼ 0 か？"""
+        return -0.0000000001 <= rate and rate <= 0.0000000001
 
 
-# ほぼ五分五分
-def is_almost_even(rate):
-    return 0.4999999999 <= rate and rate <= 0.5000000001
+    @staticmethod
+    def is_almost_one(rate):
+        """ほぼ 1 か？
+        これは、［ほぼ］ではなく 1 なのに、２進数が割り切れない都合で 0.9999999999999984 や 1.0000000000123324 になってしまうケースを 1 と判定したいときがある
+        """
+        return 0.9999999999 <= rate and rate <= 1.0000000001
+
+
+    @staticmethod
+    def is_almost_even(rate):
+        """ほぼ五分か？"""
+        return 0.4999999999 <= rate and rate <= 0.5000000001
+
+
+    @staticmethod
+    def is_it_even_enough(rate):
+        """じゅうぶん五分か？
+        つまり、小数点第４位を四捨五入して５分か？
+        """
+        return 0.4995 <= rate and rate <= 0.5004
 
 
 class Converter():
@@ -2306,7 +2319,7 @@ class ScoreBoard():
         q_with_draw = (1 - spec.failure_rate) * (1 - spec.p)
         sum_rate = p_with_draw + q_with_draw + spec.failure_rate
         # ぴったり 1 にはならない。有効桁数を決めておく
-        if not is_almost_one(sum_rate):
+        if not Precision.is_almost_one(sum_rate):
             raise ValueError(f"［ほぼ］ではなく［ピッタリ］合計は1になるはずですが、コンピューターの都合でピッタリ 1 になりません。それにしても大きく外れています {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
 
         pattern_p = 1
@@ -2494,7 +2507,7 @@ class ThreeRates():
     def create_three_rates(a_win_rate, b_win_rate, no_win_match_rate):
 
         ab_win_rate = a_win_rate + b_win_rate
-        if not is_almost_one(ab_win_rate):
+        if not Precision.is_almost_one(ab_win_rate):
             raise ValueError(f"［Ａさんの勝率］と［Ｂさんの勝率］を足したら１００％になる必要があります。 {ab_win_rate=}  {a_win_rate=}  {b_win_rate=}  {no_win_match_rate=}")
 
         return ThreeRates(
@@ -2519,7 +2532,7 @@ class ThreeRates():
 
     @property
     def is_even(self):
-        return is_almost_even(self._a_win_rate)
+        return Precision.is_it_even_enough(self._a_win_rate)
 
 
 def try_series(spec, series_rule, specified_trial_series):

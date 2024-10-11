@@ -2,7 +2,7 @@ import traceback
 import datetime
 import pandas as pd
 
-from library import EVEN, Converter, is_almost_zero, OUT_OF_P, Converter, SeriesRule, round_letro
+from library import EVEN, Converter, Precision, OUT_OF_P, Converter, SeriesRule, round_letro
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
 from library.views import DebugWrite
@@ -77,7 +77,7 @@ class Automation():
         # else:
         #     # TODO ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
         #     min_abs_error = (tp_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
-        #     if is_almost_zero(min_abs_error):
+        #     if Precision.is_almost_zero(min_abs_error):
         #         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
         #         print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
         #         return self._number_of_dirty
