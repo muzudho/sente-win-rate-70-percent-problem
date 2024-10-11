@@ -1,9 +1,10 @@
 import traceback
 import time
 import datetime
+import numpy as np
 import pandas as pd
 
-from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule, Precision
+from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, EVEN, Converter, SeriesRule, Precision
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityRatesRecord
 from library.score_board import search_all_score_boards
@@ -27,7 +28,7 @@ class Automation():
         self._row_number_when_even = None   # あれば、誤差が0になった行の番号
 
 
-    def update_three_rates_for_a_file_and_save(self, spec, tp_table, tpr_table, upper_limit_upper_limit_coins):
+    def update_rates_and_save(self, spec, tp_table, tpr_table, upper_limit_upper_limit_coins):
         """次に、スリー・レーツを更新する
 
         ファイルの保存機能も含む
@@ -71,11 +72,16 @@ class Automation():
 
 
         # 該当行にチェックを入れたリスト
-        # ［理論的Ａさんの勝率］列が未設定で、かつ、［上限対局数］が、指定の上限対局数以下のとき
-        list_of_enable_each_row = (pd.isnull(tptpr_df['expected_a_win_rate'])) & (tptpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
+        # ［コインを投げて表も裏も出ない確率］列が未設定で、かつ、［上限対局数］が、指定の上限対局数以下のとき
+        list_of_enable_each_row = (pd.isnull(tptpr_df['expected_no_win_match_rate'])) & (tptpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
         # 該当行が１つでもあれば
         if list_of_enable_each_row.any():
+
+            # （高速化のために）前のループのデータを覚えておく
+            previous_span = None
+            previous_t_step = None
+            previous_a_win_rate = None
 
             # TP表が 5000行以上あるので、すごい時間がかかってしまう
             #for index, row in tptpr_df[list_of_enable_each_row].iterrows():
@@ -94,37 +100,72 @@ class Automation():
 
                 span, t_step, h_step = index
 
-                # ［シリーズ・ルール］
-                specified_series_rule = SeriesRule.make_series_rule_base(
-                        spec=spec,
-                        span=span,
-                        t_step=t_step,
-                        h_step=h_step)
+                # span と t_step が前のループと同じで、前のループでＡさんの勝率がイーブン以上なら、h_step は増えていく一方なのでＡさんの勝率はイーブンから遠ざかっていくので、行削除する
+                if previous_span==span and previous_t_step==t_step and (previous_a_win_rate is not None and EVEN <= previous_a_win_rate):
+                    # データフレーム更新
+                    tpr_table.upsert_record(
+                            welcome_record=TheoreticalProbabilityRatesRecord(
+                                    span=span,
+                                    t_step=t_step,
+                                    h_step=h_step,
+                                    expected_a_win_rate=np.nan,         # 計算を放棄。［Ａさんの勝率の期待値］を nan にする
+                                    expected_no_win_match_rate=-1))     # 計算を放棄。［コインを投げて表も裏も出ない確率］に -1 が入っていなければ、行削除のフラグ
+                    
+                    #
+                    # NOTE upper_limit_coins の制限で（例えば 7 とか）、番号が飛ぶことがある
+                    #
+                    # span,t_step,h_step,expected_a_win_rate,expected_no_win_match_rate
+                    # 3,3,3,0.51,0.0
+                    # 4,2,2,0.505002,0.0
+                    #
+                    # 飛んでるのは
+                    # 4,1,1
+                    # 4,2,1
+                    #
 
-                # 確率を求める
-                #
-                #   NOTE 指数関数的に激重になっていく処理
-                #
-                three_rates, all_patterns_p = search_all_score_boards(
-                        series_rule=specified_series_rule,
-                        on_score_board_created=on_score_board_created)
+                    three_rates = None
 
-                # データフレーム更新
-                tpr_table.upsert_record(
-                        welcome_record=TheoreticalProbabilityRatesRecord(
-                                span=span,
-                                t_step=t_step,
-                                h_step=h_step,
-                                expected_a_win_rate=three_rates.a_win_rate,
-                                expected_no_win_match_rate=three_rates.no_win_match_rate))
+                else:
+                    # ［シリーズ・ルール］
+                    specified_series_rule = SeriesRule.make_series_rule_base(
+                            spec=spec,
+                            span=span,
+                            t_step=t_step,
+                            h_step=h_step)
+
+                    # 確率を求める
+                    #
+                    #   NOTE 指数関数的に激重になっていく処理
+                    #
+                    three_rates, all_patterns_p = search_all_score_boards(
+                            series_rule=specified_series_rule,
+                            on_score_board_created=on_score_board_created)
+
+                    # データフレーム更新
+                    tpr_table.upsert_record(
+                            welcome_record=TheoreticalProbabilityRatesRecord(
+                                    span=span,
+                                    t_step=t_step,
+                                    h_step=h_step,
+                                    expected_a_win_rate=three_rates.a_win_rate,
+                                    expected_no_win_match_rate=three_rates.no_win_match_rate))
+
 
                 self._number_of_dirty += 1
 
+                previous_span = span
+                previous_t_step = t_step
 
-                # Ａさんの勝率が５割のデータを見つけたら、ループ終了
-                if Precision.is_it_even_enough(three_rates.a_win_rate):
-                    self._row_number_when_even = row_number_th
-                    break
+                if three_rates is not None:
+                    previous_a_win_rate = three_rates.a_win_rate
+
+                    # Ａさんの勝率が５割のデータを見つけたら、ループ終了
+                    if Precision.is_it_even_enough(three_rates.a_win_rate):
+                        self._row_number_when_even = row_number_th
+                        break
+                
+                else:
+                    previous_a_win_rate = None
 
 
         # 変更があれば保存
@@ -143,7 +184,7 @@ class Automation():
 
         if self._row_number_when_even is not None:
             # このファイルは処理完了した
-            print("５割のデータを見つけた。ループ終了")
+            print(f"５割のデータを見つけた。ループ終了 {self._row_number_when_even=}")
             return TERMINATED
 
 

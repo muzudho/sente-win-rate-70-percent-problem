@@ -78,7 +78,7 @@ def main():
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            calculation_status = automation_oa22o0.update_three_rates_for_a_file_and_save(
+            calculation_status = automation_oa22o0.update_rates_and_save(
                     spec=spec,
                     tp_table=tp_table,
                     tpr_table=tpr_table,
