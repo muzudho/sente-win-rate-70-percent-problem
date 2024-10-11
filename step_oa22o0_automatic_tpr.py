@@ -11,10 +11,12 @@ import datetime
 import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, OUT_OF_P, EVEN, Converter, Specification, SeriesRule, is_almost_zero
+from library.file_paths import TheoreticalProbabilityRatesFilePaths
 from library.score_board import search_all_score_boards
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord, TheoreticalProbabilityRatesTable
 from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
+from scripts import SaveOrIgnore
 from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
 
 
@@ -83,6 +85,19 @@ class AllTheoreticalProbabilityFilesOperation():
 
 
         if is_tpr_file_created:
+            # テーブルを新規作成したのなら、ファイルとして保存しておく。保存できなかったら無視して続行する
+            successful = SaveOrIgnore.execute(
+                    log_file_path=TheoreticalProbabilityRatesFilePaths.as_log(
+                            turn_system_id=spec.turn_system_id,
+                            failure_rate=spec.failure_rate,
+                            p=spec.p),
+                    on_save_and_get_file_name=tpr_table.to_csv)
+            
+            if not successful:
+                print(f"スキップ。［理論的確率の率データ］表ファイルを保存できませんでした")
+                self._number_of_crush += 1
+                return
+
             print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE")
 
             # １件も処理してないが、ファイルを保存したいのでフラグを立てる

@@ -24,6 +24,11 @@ class SaveOrIgnore():
             保存するファイルへのパス
         on_save_and_get_file_name : func
             ファイルへ保存し、そのファイル名を返す関数
+        
+        Returns
+        -------
+        successful : bool
+            保存に成功したか？
         """
         try:
             target_file_path = on_save_and_get_file_name()
@@ -34,6 +39,9 @@ class SaveOrIgnore():
                     message=f"save to `{target_file_path}` file...",
                     shall_print=True)
 
+            return True
+
+
         except PermissionError as e:
             # ロギング
             Logging.notice_log(
@@ -41,6 +49,8 @@ class SaveOrIgnore():
                     # ファイルパスは例外メッセージの方に含まれている
                     message=f"save file to failed. ignored. {e}",
                     shall_print=True)
+
+            return False
 
 
 class SaveWithRetry():

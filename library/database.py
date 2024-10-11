@@ -1001,16 +1001,17 @@ class TheoreticalProbabilityRatesTable():
             テーブル、またはナン
         is_new : bool
             新規作成されたか？
+            新規作成しても、保存はしているとは限らないことに注意
         is_crush : bool
             ファイルが破損していて続行不能か？
         """
 
-        csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
+        tpr_csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
                 turn_system_id=spec.turn_system_id,
                 failure_rate=spec.failure_rate,
                 p=spec.p)
 
-        is_file_exists = os.path.isfile(csv_file_path)
+        is_file_exists = os.path.isfile(tpr_csv_file_path)
 
         # ファイルが既存だったら、そのファイルを読む
         if is_file_exists:
@@ -1019,16 +1020,11 @@ class TheoreticalProbabilityRatesTable():
                 # CSVファイルの読取り、データタイプの設定
                 try:
                     tpr_df = pd.read_csv(
-                            csv_file_path,
+                            tpr_csv_file_path,
                             encoding="utf8",
                             index_col=['span', 't_step', 'h_step'])
 
-                    # 診断
-                    # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
-                    if tpr_df.empty:
-                        print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
-                        return None, None, True     # crush
-
+                    # NOTE TPR ファイルは、初期状態では０件なので、０件だからといってファイル破損とは認定できない
 
                 # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
                 except PermissionError as e:
@@ -1057,7 +1053,7 @@ class TheoreticalProbabilityRatesTable():
 
                 # テーブルに追加の設定
                 #try:
-                clazz.setup_data_frame(df=tpr_df, shall_set_index=False, csv_file_path=csv_file_path)
+                clazz.setup_data_frame(df=tpr_df, shall_set_index=False, csv_file_path=tpr_csv_file_path)
 
 #                 # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
 #                 # "None of ['span', 't_step', 'h_step'] are in the columns"
