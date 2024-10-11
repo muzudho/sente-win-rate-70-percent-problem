@@ -67,7 +67,7 @@ class Automation():
 
         # 該当行にチェックを入れたリスト
         # ［理論的Ａさんの勝率］列が未設定で、かつ、［上限対局数］が、指定の上限対局数以下のとき
-        list_of_enable_each_row = (pd.isnull(tptpr_df['theoretical_a_win_rate'])) & (tptpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
+        list_of_enable_each_row = (pd.isnull(tptpr_df['expected_a_win_rate'])) & (tptpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
         # 該当行が１つでもあれば
         if list_of_enable_each_row.any():
@@ -110,13 +110,13 @@ class Automation():
                                 span=span,
                                 t_step=t_step,
                                 h_step=h_step,
-                                theoretical_a_win_rate=three_rates.a_win_rate,
-                                theoretical_no_win_match_rate=three_rates.no_win_match_rate))
+                                expected_a_win_rate=three_rates.a_win_rate,
+                                expected_no_win_match_rate=three_rates.no_win_match_rate))
                 #
                 #   FIXME ここは .at[] では不正なスカラーアクセスになる。なんで？
                 #
-                # tp_table.df.loc[index, 'theoretical_a_win_rate'] = three_rates.a_win_rate
-                # tp_table.df.loc[index, 'theoretical_no_win_match_rate'] = three_rates.no_win_match_rate
+                # tp_table.df.loc[index, 'expected_a_win_rate'] = three_rates.a_win_rate
+                # tp_table.df.loc[index, 'expected_no_win_match_rate'] = three_rates.no_win_match_rate
 
                 self._number_of_dirty += 1
 

@@ -40,7 +40,7 @@ class Automation():
         if self._specified_failure_rate != tpb_record.failure_rate:
             return
 
-        if tpb_record.theoretical_a_win_rate == OUT_OF_P:
+        if tpb_record.expected_a_win_rate == OUT_OF_P:
             print(f"[trial_series={self._specified_trial_series}  failure_rate={tpb_record.failure_rate}  p={tpb_record.p}] ベスト値が設定されていません。スキップします")
             return
 

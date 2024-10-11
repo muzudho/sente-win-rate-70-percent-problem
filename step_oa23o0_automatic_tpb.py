@@ -111,7 +111,7 @@ class Automation():
 if __name__ == '__main__':
     """Step o7o0 ［理論的確率ベスト］表へレコードの挿入または更新
 
-    TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります
+    TODO 先に TP表の expected_a_win_rate列、 expected_no_win_match_rate列が更新されている必要があります
     """
 
     try:

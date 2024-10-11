@@ -464,8 +464,8 @@ df:
                 self._df['h_step'][index] != welcome_record.h_step or\
                 self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
                 self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
-                self._df['expected_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
-                self._df['expected_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate or\
+                self._df['expected_a_win_rate'][index] != welcome_record.expected_a_win_rate or\
+                self._df['expected_no_win_match_rate'][index] != welcome_record.expected_no_win_match_rate or\
                 self._df['series_shortest_coins'][index] != welcome_record.series_shortest_coins or\
                 self._df['series_longest_coins'][index] != welcome_record.series_longest_coins or\
                 self._df['wins_a'][index] != welcome_record.wins_a or\
@@ -495,8 +495,8 @@ df:
                 'h_step': welcome_record.h_step,
                 'shortest_coins': welcome_record.shortest_coins,
                 'upper_limit_coins': welcome_record.upper_limit_coins,
-                'expected_a_win_rate': welcome_record.theoretical_a_win_rate,
-                'expected_no_win_match_rate': welcome_record.theoretical_no_win_match_rate,
+                'expected_a_win_rate': welcome_record.expected_a_win_rate,
+                'expected_no_win_match_rate': welcome_record.expected_no_win_match_rate,
                 'trial_series': welcome_record.trial_series,
                 'series_shortest_coins': welcome_record.series_shortest_coins,
                 'series_longest_coins': welcome_record.series_longest_coins,
@@ -609,7 +609,7 @@ class TheoreticalProbabilityBestRecord():
     """理論的確率ベスト・レコード"""
 
 
-    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+    def __init__(self, turn_system_name, failure_rate, p, span, t_step, h_step, shortest_coins, upper_limit_coins, expected_a_win_rate, expected_no_win_match_rate):
         self._turn_system_name = turn_system_name
         self._failure_rate = failure_rate
         self._p = p
@@ -618,8 +618,8 @@ class TheoreticalProbabilityBestRecord():
         self._h_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
-        self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+        self._expected_a_win_rate = expected_a_win_rate
+        self._expected_no_win_match_rate = expected_no_win_match_rate
 
 
     @property
@@ -663,13 +663,13 @@ class TheoreticalProbabilityBestRecord():
 
 
     @property
-    def theoretical_a_win_rate(self):
-        return self._theoretical_a_win_rate
+    def expected_a_win_rate(self):
+        return self._expected_a_win_rate
 
 
     @property
-    def theoretical_no_win_match_rate(self):
-        return self._theoretical_no_win_match_rate
+    def expected_no_win_match_rate(self):
+        return self._expected_no_win_match_rate
 
 
 class TheoreticalProbabilityBestTable():
@@ -683,8 +683,8 @@ class TheoreticalProbabilityBestTable():
         'h_step':'int64',
         'shortest_coins':'int64',
         'upper_limit_coins':'int64',
-        'theoretical_a_win_rate':'float64',
-        'theoretical_no_win_match_rate':'float64'}
+        'expected_a_win_rate':'float64',
+        'expected_no_win_match_rate':'float64'}
 
 
     def __init__(self, df):
@@ -718,8 +718,8 @@ class TheoreticalProbabilityBestTable():
                     'h_step',
                     'shortest_coins',
                     'upper_limit_coins',
-                    'theoretical_a_win_rate',
-                    'theoretical_no_win_match_rate'])
+                    'expected_a_win_rate',
+                    'expected_no_win_match_rate'])
         clazz.setup_data_frame(df=tpd_df, shall_set_index=True)
 
         return TheoreticalProbabilityBestTable(df=tpb_df)
@@ -783,8 +783,8 @@ class TheoreticalProbabilityBestTable():
                 h_step=None,
                 shortest_coins=None,
                 upper_limit_coins=None,
-                theoretical_a_win_rate=None,
-                theoretical_no_win_match_rate=None)
+                expected_a_win_rate=None,
+                expected_no_win_match_rate=None)
 
 
     def upsert_record(self, welcome_record):
@@ -826,8 +826,8 @@ class TheoreticalProbabilityBestTable():
             shall_record_change =\
                 self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
                 self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
-                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
-                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+                self._df['expected_a_win_rate'][index] != welcome_record.expected_a_win_rate or\
+                self._df['expected_no_win_match_rate'][index] != welcome_record.expected_no_win_match_rate
 
 
         # 行の挿入または更新
@@ -839,8 +839,8 @@ class TheoreticalProbabilityBestTable():
                 'h_step': welcome_record.h_step,
                 'shortest_coins': welcome_record.shortest_coins,
                 'upper_limit_coins': welcome_record.upper_limit_coins,
-                'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
-                'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+                'expected_a_win_rate': welcome_record.expected_a_win_rate,
+                'expected_no_win_match_rate': welcome_record.expected_no_win_match_rate}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -867,7 +867,7 @@ class TheoreticalProbabilityBestTable():
         renaming_backup.make_backup()
         self._df.to_csv(csv_file_path,
                 # turn_system_name, failure_rate, p はインデックス
-                columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+                columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'expected_a_win_rate', 'expected_no_win_match_rate'])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -883,8 +883,8 @@ class TheoreticalProbabilityBestTable():
 
         df = self._df
 
-        for row_number,(      span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       theoretical_a_win_rate,       theoretical_no_win_match_rate) in\
-            enumerate(zip(df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+        for row_number,(      span,       t_step,       h_step,       shortest_coins,       upper_limit_coins,       expected_a_win_rate,       expected_no_win_match_rate) in\
+            enumerate(zip(df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['expected_a_win_rate'], df['expected_no_win_match_rate'])):
 
             # turn_system_name, failure_rate, p はインデックス
             turn_system_name, failure_rate, p = df.index[row_number]
@@ -907,8 +907,8 @@ class TheoreticalProbabilityBestTable():
                     h_step=h_step,
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
-                    theoretical_a_win_rate=theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+                    expected_a_win_rate=expected_a_win_rate,
+                    expected_no_win_match_rate=expected_no_win_match_rate)
 
             on_each(record)
 
@@ -921,14 +921,14 @@ class TheoreticalProbabilityBestTable():
 class TpTprRecord():
 
 
-    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, theoretical_a_win_rate, theoretical_no_win_match_rate):
+    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, expected_a_win_rate, expected_no_win_match_rate):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
-        self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+        self._expected_a_win_rate = expected_a_win_rate
+        self._expected_no_win_match_rate = expected_no_win_match_rate
 
 
     @property
@@ -957,13 +957,13 @@ class TpTprRecord():
 
 
     @property
-    def theoretical_a_win_rate(self):
-        return self._theoretical_a_win_rate
+    def expected_a_win_rate(self):
+        return self._expected_a_win_rate
 
 
     @property
-    def theoretical_no_win_match_rate(self):
-        return self._theoretical_no_win_match_rate
+    def expected_no_win_match_rate(self):
+        return self._expected_no_win_match_rate
 
 
 ###########
@@ -973,12 +973,12 @@ class TpTprRecord():
 class TheoreticalProbabilityRatesRecord():
 
 
-    def __init__(self, span, t_step, h_step, theoretical_a_win_rate, theoretical_no_win_match_rate):
+    def __init__(self, span, t_step, h_step, expected_a_win_rate, expected_no_win_match_rate):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
-        self._theoretical_a_win_rate = theoretical_a_win_rate
-        self._theoretical_no_win_match_rate = theoretical_no_win_match_rate
+        self._expected_a_win_rate = expected_a_win_rate
+        self._expected_no_win_match_rate = expected_no_win_match_rate
 
 
     @property
@@ -997,13 +997,13 @@ class TheoreticalProbabilityRatesRecord():
 
 
     @property
-    def theoretical_a_win_rate(self):
-        return self._theoretical_a_win_rate
+    def expected_a_win_rate(self):
+        return self._expected_a_win_rate
 
 
     @property
-    def theoretical_no_win_match_rate(self):
-        return self._theoretical_no_win_match_rate
+    def expected_no_win_match_rate(self):
+        return self._expected_no_win_match_rate
 
 
 class TheoreticalProbabilityRatesTable():
@@ -1012,8 +1012,8 @@ class TheoreticalProbabilityRatesTable():
 
     _dtype = {
         # span, t_step, h_step はインデックス
-        'theoretical_a_win_rate':'float64',
-        'theoretical_no_win_match_rate':'float64'}
+        'expected_a_win_rate':'float64',
+        'expected_no_win_match_rate':'float64'}
 
 
     def __init__(self, df, spec):
@@ -1030,8 +1030,8 @@ class TheoreticalProbabilityRatesTable():
                     't_step',
                     'h_step',
 
-                    'theoretical_a_win_rate',
-                    'theoretical_no_win_match_rate'])
+                    'expected_a_win_rate',
+                    'expected_no_win_match_rate'])
         clazz.setup_data_frame(df=tpr_df, shall_set_index=True)
 
         # tpr_df.empty は真
@@ -1214,7 +1214,7 @@ df:
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['theoretical_a_win_rate']
+        is_new_index = index not in self._df['expected_a_win_rate']
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -1224,16 +1224,16 @@ df:
             # 更新の有無判定
             # span, t_step, h_step はインデックス
             shall_record_change =\
-                self._df['theoretical_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
-                self._df['theoretical_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate
+                self._df['expected_a_win_rate'][index] != welcome_record.expected_a_win_rate or\
+                self._df['expected_no_win_match_rate'][index] != welcome_record.expected_no_win_match_rate
 
 
         # 行の挿入または更新
         if shall_record_change:
             self._df.loc[index] = {
                 # span, t_step, h_step はインデックス
-                'theoretical_a_win_rate': welcome_record.theoretical_a_win_rate,
-                'theoretical_no_win_match_rate': welcome_record.theoretical_no_win_match_rate}
+                'expected_a_win_rate': welcome_record.expected_a_win_rate,
+                'expected_no_win_match_rate': welcome_record.expected_no_win_match_rate}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -1264,7 +1264,7 @@ df:
         self._df.to_csv(
                 csv_file_path,
                 # span, t_step, h_step はインデックス
-                columns=['theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+                columns=['expected_a_win_rate', 'expected_no_win_match_rate'])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -1280,8 +1280,8 @@ df:
 
         df = self._df
 
-        for row_number,(      theoretical_a_win_rate  ,     theoretical_no_win_match_rate) in\
-            enumerate(zip(df['theoretical_a_win_rate'], df['theoretical_no_win_match_rate'])):
+        for row_number,(      expected_a_win_rate  ,     expected_no_win_match_rate) in\
+            enumerate(zip(df['expected_a_win_rate'], df['expected_no_win_match_rate'])):
 
             # span, t_step, h_step はインデックス
             span, t_step, h_step = df.index[row_number]
@@ -1291,8 +1291,8 @@ df:
                     span=span,
                     t_step=t_step,
                     h_step=h_step,
-                    theoretical_a_win_rate=theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=theoretical_no_win_match_rate)
+                    expected_a_win_rate=expected_a_win_rate,
+                    expected_no_win_match_rate=expected_no_win_match_rate)
 
             on_each(tpr_record)
 

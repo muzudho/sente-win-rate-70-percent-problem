@@ -21,7 +21,7 @@ from scripts.step_oa21o0_tp import Automation as StepOa21o0Tp
 if __name__ == '__main__':
     """［理論的確率データ］のスリー・レーツ列を更新する
 
-    TODO TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列の更新
+    TODO TP表の expected_a_win_rate列、 expected_no_win_match_rate列の更新
     """
 
     try:

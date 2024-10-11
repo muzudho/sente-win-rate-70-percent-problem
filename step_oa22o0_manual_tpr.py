@@ -43,7 +43,7 @@ def main():
             p=specified_p)
 
     #
-    # TODO TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列の更新
+    # TODO TP表の expected_a_win_rate列、 expected_no_win_match_rate列の更新
     #
 
     # ［理論的確率ベスト］表を読込。無ければナン

@@ -103,11 +103,11 @@ class AutomationOne():
         """
 
         # ［Ａさんの勝率］と 0.5 との誤差の絶対値が最小のレコードのセット
-        result_set_df = self._tptpr_df.loc[abs(self._tptpr_df['theoretical_a_win_rate'] - 0.5) == min(abs(self._tptpr_df['theoretical_a_win_rate'] - 0.5))]
+        result_set_df = self._tptpr_df.loc[abs(self._tptpr_df['expected_a_win_rate'] - 0.5) == min(abs(self._tptpr_df['expected_a_win_rate'] - 0.5))]
 
         # それでも１件に絞り込めない場合、［コインを投げて表も裏も出ない確率］が最小のレコードのセット
         if 1 < len(result_set_df):
-            result_set_df = result_set_df.loc[result_set_df['theoretical_no_win_match_rate'] == min(result_set_df['theoretical_no_win_match_rate'])]
+            result_set_df = result_set_df.loc[result_set_df['expected_no_win_match_rate'] == min(result_set_df['expected_no_win_match_rate'])]
 
             # それでも１件に絞り込めない場合、［上限対局数］が最小のレコードのセット
             if 1 < len(result_set_df):
@@ -128,8 +128,8 @@ class AutomationOne():
                     h_step=h_step,
                     shortest_coins=result_set_df['shortest_coins'][index],
                     upper_limit_coins=result_set_df['upper_limit_coins'][index],
-                    theoretical_a_win_rate=result_set_df['theoretical_a_win_rate'][index],
-                    theoretical_no_win_match_rate=result_set_df['theoretical_no_win_match_rate'][index])
+                    expected_a_win_rate=result_set_df['expected_a_win_rate'][index],
+                    expected_no_win_match_rate=result_set_df['expected_no_win_match_rate'][index])
 
         return None
 
@@ -147,18 +147,18 @@ class AutomationOne():
         
         # ［理論的確率データ］表にある span, t_step, h_step に一致する［理論的確率ベスト］表のレコードがあれば、それを取得
         # ［理論的確率ベスト］表から、［理論的なＡさんの勝率］と、［理論的なコインを投げて表も裏も出ない確率］を抽出
-        old_theoretical_a_win_rate = self._tptpr_df['theoretical_a_win_rate'][tp_index]                 # 例： 0.5232622375064023
-        old_theoretical_no_win_match_rate = self._tptpr_df['theoretical_no_win_match_rate'][tp_index]   # 例： 0.015976
+        old_expected_a_win_rate = self._tptpr_df['expected_a_win_rate'][tp_index]                 # 例： 0.5232622375064023
+        old_expected_no_win_match_rate = self._tptpr_df['expected_no_win_match_rate'][tp_index]   # 例： 0.015976
 
         # ［理論的確率データ］表のレコードの［Ａさんの勝率の互角からの誤差］
-        welcome_theoretical_a_win_error = tptpr_record.theoretical_a_win_rate - EVEN           # 例： 0.51
+        welcome_theoretical_a_win_error = tptpr_record.expected_a_win_rate - EVEN           # 例： 0.51
 
         # 誤差が縮まれば更新
-        if abs(welcome_theoretical_a_win_error) < abs(old_theoretical_a_win_rate - EVEN):
+        if abs(welcome_theoretical_a_win_error) < abs(old_expected_a_win_rate - EVEN):
             shall_upsert_record = True
 
         # 誤差が同じでも、引分け率が新しく判明したか、引き分け率が下がれば更新
-        elif welcome_theoretical_a_win_error == abs(old_theoretical_a_win_rate - EVEN) and (old_theoretical_no_win_match_rate is None or tptpr_record.theoretical_no_win_match_rate < old_theoretical_no_win_match_rate):
+        elif welcome_theoretical_a_win_error == abs(old_expected_a_win_rate - EVEN) and (old_expected_no_win_match_rate is None or tptpr_record.expected_no_win_match_rate < old_expected_no_win_match_rate):
             shall_upsert_record = True
 
 
@@ -173,8 +173,8 @@ class AutomationOne():
                     h_step=tptpr_record.h_step,
                     shortest_coins=tptpr_record.shortest_coins,
                     upper_limit_coins=tptpr_record.upper_limit_coins,
-                    theoretical_a_win_rate=tptpr_record.theoretical_a_win_rate,
-                    theoretical_no_win_match_rate=tptpr_record.theoretical_no_win_match_rate)
+                    expected_a_win_rate=tptpr_record.expected_a_win_rate,
+                    expected_no_win_match_rate=tptpr_record.expected_no_win_match_rate)
 
             # レコードの新規作成または更新
             is_dirty_temp = self._tpb_table.upsert_record(

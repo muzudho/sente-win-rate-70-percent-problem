@@ -24,7 +24,7 @@ from scripts.step_o7o0_upsert_record_in_tpb import AutomationOne as StepO7o0Upse
 if __name__ == '__main__':
     """Step O2o3o0 ［理論的確率ベスト］表の新規作成または更新
 
-    TODO 先に TP表の theoretical_a_win_rate列、 theoretical_no_win_match_rate列が更新されている必要があります    
+    TODO 先に TP表の expected_a_win_rate列、 expected_no_win_match_rate列が更新されている必要があります    
     """
 
     try:
