@@ -39,7 +39,7 @@ class Automation():
         is_dirty = False
 
         # ファイル読取り。無ければ空テーブル新規作成して保存
-        self._epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.from_csv(
+        self._epdt_table, epdt_file_read_result = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=self._specified_turn_system_id,
                 failure_rate=self._specified_failure_rate,
@@ -49,7 +49,7 @@ class Automation():
 
         # 対象外のテーブルは無視します
         # --------------------------
-        if is_new:
+        if epdt_file_read_result.is_file_not_found:
             is_dirty = True
 
         # NOTE １件以上ないと、 .min() や .max() が nan になってしまう。１件以上あるときに判定する

@@ -49,8 +49,6 @@ class AutomationOne():
         -------
         is_dirty : bool
             ファイル変更の有無
-        is_crush : bool
-            ファイルが破損しているか？（ファイルが無いのは別扱い）
         is_not_found : bool
             ファイルが無い
         """
@@ -64,29 +62,19 @@ class AutomationOne():
         turn_system_name = Converter.turn_system_id_to_name(self._spec.turn_system_id)
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        self._tp_table, is_tp_new, is_tp_crush = TheoreticalProbabilityTable.from_csv(spec=self._spec, new_if_it_no_exists=False)
-
-        if is_tp_crush:
-            # FIXME
-            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}［理論的確率データ］ファイルが破損しています(C)")
-            return False, True, False
+        self._tp_table, tp_file_read_result = TheoreticalProbabilityTable.from_csv(spec=self._spec, new_if_it_no_exists=False)
 
         if self._tp_table is None:
             print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率データ］ファイルがない。")
-            return False, False, True
+            return False, True
 
 
         # 読み込む［理論的確率データ］ファイルがなければ無視
-        self._tpr_table, is_tpr_new, is_tpr_crush = TheoreticalProbabilityRatesTable.from_csv(spec=self._spec, new_if_it_no_exists=False)
-
-        if is_tpr_crush:
-            # FIXME
-            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}［理論的確率の率データ］ファイルが破損しています(C)")
-            return False, True, False
+        self._tpr_table, tpr_file_read_result = TheoreticalProbabilityRatesTable.from_csv(spec=self._spec, new_if_it_no_exists=False)
 
         if self._tpr_table is None:
-            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率の率データ］ファイルがない。")
-            return False, False, True
+            print(f"{DebugWrite.stringify(turn_system_name=turn_system_name, spec=self._spec)}スキップ。［理論的確率の率データ］ファイルがない")
+            return False, True
 
 
         # TODO TP表と TPR表を完全外部結合する
@@ -102,7 +90,7 @@ class AutomationOne():
             self._on_match_tptpr_record(tptpr_record=best_tptpr_record_or_none)
 
 
-        return self._is_tpb_update, False, False
+        return self._is_tpb_update, False
 
 
     def get_best_tptpr_record_or_none(self):
@@ -202,7 +190,7 @@ class AutomationAll():
     def execute_all(self):
 
         # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        tpb_table, is_tpb_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=True)
+        tpb_table, tpb_file_read_result = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=True)
 
         if tpb_table is None:
             raise ValueError("ここで tpb_table がナンなのはおかしい")
@@ -220,7 +208,6 @@ class AutomationAll():
 
                 # リセット
                 number_of_not_found_rows = 0
-                number_of_crush_rows = 0
                 number_of_dirty_rows = 0                # 変更された行数
                 number_of_bright_rows = 0               # 変更されなかった行数
                 start_time_for_save = time.time()       # CSV保存用タイマー
@@ -236,14 +223,10 @@ class AutomationAll():
                             p=specified_p)
                     #print(f"{DebugWrite.stringify(spec=spec)}")
 
-                    is_dirty_temp, is_crush, is_not_found = automation_one.execute_a_spec(spec=spec)
+                    is_dirty_temp, is_not_found = automation_one.execute_a_spec(spec=spec)
 
 
-                    if is_crush:
-                        print(f"ファイルが破損しています(E)")
-                        number_of_crush_rows += 1
-
-                    elif is_not_found:
+                    if is_not_found:
                         print(f"ファイルが無かった")
                         number_of_not_found_rows += 1
 
@@ -261,11 +244,10 @@ class AutomationAll():
                             SaveOrIgnore.execute(
                                     log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
                                     on_save_and_get_file_name=tpb_table.to_csv)
-                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")
+                            print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_not_found_rows} rows not found. ...")
 
                             # リセット
                             start_time_for_save = time.time()
-                            number_of_crush_rows = 0
                             number_of_dirty_rows = 0
                             number_of_bright_rows = 0
 
@@ -276,4 +258,4 @@ class AutomationAll():
                             log_file_path=TheoreticalProbabilityBestFilePaths.as_log(),
                             on_save_and_get_file_name=tpb_table.to_csv)
                     # specified_p はまだ入ってるはず
-                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_crush_rows} rows crushed. {number_of_not_found_rows} rows not found. ...")
+                    print(f"{DebugWrite.stringify(spec=spec)}{number_of_dirty_rows} row(s) changed. {number_of_bright_rows} row(s) unchanged. {number_of_not_found_rows} rows not found. ...")

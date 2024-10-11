@@ -125,7 +125,7 @@ xlsxファイルが破損してるかも
         # 例えば `KDS_alter_f0.0_try2000.csv` といったファイルの内容を、シートに移していきます
         # 📖 [openpyxlで別ブックにシートをコピーする](https://qiita.com/github-nakasho/items/fb9df8e423bb8784cbbd)
 
-        kds_table, is_new = KakukinDataSheetTable.from_csv(
+        kds_table, kds_file_read_result = KakukinDataSheetTable.from_csv(
                 failure_rate=self._specified_failure_rate,
                 turn_system_id=self._specified_turn_system_id,
                 trial_series=self._specified_trial_series)

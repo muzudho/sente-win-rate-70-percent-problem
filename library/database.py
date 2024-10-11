@@ -16,6 +16,20 @@ from scripts import IntervalForRetry
 CSV_FILE_PATH_CAL_P = './data/let_calculate_probability.csv'
 
 
+class FileReadResult():
+    """ファイル読込結果"""
+
+
+    def __init__(self, is_file_not_found):
+        """初期化"""
+        self._is_file_not_found = is_file_not_found
+
+
+    @property
+    def is_file_not_found():
+        return self._is_file_not_found
+
+
 ###########
 # MARK: KDS
 ###########
@@ -287,6 +301,13 @@ class KakukinDataSheetTable():
             ［手番が回ってくる制度］
         failure_rate : float
             ［将棋の引分け率］
+        
+        Returns
+        -------
+        kds_table : KakukinDataSheetTable
+            テーブル
+        file_read_result : FileReadResult
+            ファイル読込結果
         """
 
         csv_file_path = KakukinDataSheetFilePaths.as_sheet_csv(
@@ -295,8 +316,8 @@ class KakukinDataSheetTable():
                 failure_rate=failure_rate)
 
         # ファイルが存在しなかった場合
-        is_new = not os.path.isfile(csv_file_path)
-        if is_new:
+        is_file_not_found = not os.path.isfile(csv_file_path)
+        if is_file_not_found:
             if new_if_it_no_exists:
                 kds_table = KakukinDataSheetTable.new_empty_table(
                         trial_series=trial_series,
@@ -306,7 +327,7 @@ class KakukinDataSheetTable():
                 kds_table = None
         else:
             renaming_backup = RenamingBackup(file_path=csv_file_path)
-            renaming_backup.check_crush()
+            renaming_backup.rollback_if_file_crushed()
             kds_df = pd.read_csv(
                     csv_file_path,
                     encoding="utf8",
@@ -320,7 +341,7 @@ class KakukinDataSheetTable():
                     failure_rate=failure_rate)
 
 
-        return kds_table, is_new
+        return kds_table, FileReadResult(is_file_not_found=is_file_not_found)
 
 
     @property
@@ -695,15 +716,15 @@ class TheoreticalProbabilityBestTable():
         -------
         tpb_table : TheoreticalProbabilityBestTable
             テーブル
-        is_new : bool
-            新規作成されたか？
+        table_read_result : FileReadResult
+            ファイル読込結果
         """
 
         csv_file_path = TheoreticalProbabilityBestFilePaths.as_csv()
 
-        is_new = not os.path.isfile(csv_file_path)
+        is_file_not_found = not os.path.isfile(csv_file_path)
         # ファイルが存在しなかった場合
-        if is_new:
+        if is_file_not_found:
             if new_if_it_no_exists:
                 tpb_table = TheoreticalProbabilityBestTable.new_empty_table()
             else:
@@ -712,7 +733,7 @@ class TheoreticalProbabilityBestTable():
         # ファイルが存在した場合
         else:
             renaming_backup = RenamingBackup(file_path=csv_file_path)
-            renaming_backup.check_crush()
+            renaming_backup.rollback_if_file_crushed()
             tpb_df = pd.read_csv(
                     csv_file_path,
                     encoding="utf8",
@@ -722,7 +743,7 @@ class TheoreticalProbabilityBestTable():
             tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
 
 
-        return tpb_table, is_new
+        return tpb_table, FileReadResult(is_file_not_found=is_file_not_found)
 
 
     @property
@@ -1011,11 +1032,8 @@ class TheoreticalProbabilityRatesTable():
         -------
         tpr_table : TheoreticalProbabilityRatesTable
             テーブル、またはナン
-        is_new : bool
-            新規作成されたか？
-            新規作成しても、保存はしているとは限らないことに注意
-        is_crush : bool
-            ファイルが破損していて続行不能か？
+        file_read_result : FileReadResult
+            ファイル読込結果
         """
 
         csv_file_path = TheoreticalProbabilityRatesFilePaths.as_csv(
@@ -1023,16 +1041,16 @@ class TheoreticalProbabilityRatesTable():
                 failure_rate=spec.failure_rate,
                 p=spec.p)
 
-        is_file_exists = os.path.isfile(csv_file_path)
+        is_file_not_found = not os.path.isfile(csv_file_path)
 
         # ファイルが既存だったら、そのファイルを読む
-        if is_file_exists:
+        if not is_file_not_found:
             while True: # retry
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
                     renaming_backup = RenamingBackup(file_path=csv_file_path)
-                    renaming_backup.check_crush()
+                    renaming_backup.rollback_if_file_crushed()
                     tpr_df = pd.read_csv(
                             csv_file_path,
                             encoding="utf8",
@@ -1049,11 +1067,11 @@ class TheoreticalProbabilityRatesTable():
                 except pd.errors.EmptyDataError as e:
                     # pandas.errors.EmptyDataError: No columns to parse from file
                     print(f"""\
-[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？
 {e}
 {csv_file_path=}""")
                     IntervalForRetry.sleep(shall_print=True)
-                    continue    # retry
+                    raise ValueError("ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？") from e
                 
                 # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
                 except ValueError as e:
@@ -1062,7 +1080,7 @@ class TheoreticalProbabilityRatesTable():
 [{datetime.datetime.now}] CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
 {e}
 {csv_file_path=}""")
-                    return None, None, True     # crush
+                    raise ValueError("CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき") from e
 
 
                 # テーブルに追加の設定
@@ -1095,7 +1113,7 @@ class TheoreticalProbabilityRatesTable():
                 tpr_table = None
 
 
-        return tpr_table, not is_file_exists, False
+        return tpr_table, FileReadResult(is_file_not_found=is_file_not_found)
 
 
     @property
@@ -1345,10 +1363,8 @@ class TheoreticalProbabilityTable():
         -------
         tp_table : TheoreticalProbabilityTable
             テーブル、またはナン
-        is_new : bool
-            新規作成されたか？
-        is_crush : bool
-            ファイルが破損していて続行不能か？
+        file_read_result : FileReadResult
+            ファイル読込結果
         """
 
         csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
@@ -1356,16 +1372,16 @@ class TheoreticalProbabilityTable():
                 failure_rate=spec.failure_rate,
                 p=spec.p)
 
-        is_file_exists = os.path.isfile(csv_file_path)
+        is_file_not_found = not os.path.isfile(csv_file_path)
 
         # ファイルが既存だったら、そのファイルを読む
-        if is_file_exists:
+        if not is_file_not_found:
             while True: # retry
 
                 # CSVファイルの読取り、データタイプの設定
                 try:
                     renaming_backup = RenamingBackup(file_path=csv_file_path)
-                    renaming_backup.check_crush()
+                    renaming_backup.rollback_if_file_crushed()
                     df = pd.read_csv(
                             csv_file_path,
                             encoding="utf8",
@@ -1375,7 +1391,7 @@ class TheoreticalProbabilityTable():
                     # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
                     if df.empty:
                         print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
-                        return None, None, True     # crush
+                        raise ValueError(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}") from e
 
 
                 # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
@@ -1383,15 +1399,14 @@ class TheoreticalProbabilityTable():
                     IntervalForRetry.sleep(shall_print=True)
                     continue    # retry
 
-                # テーブルに列が無かった？ ファイルは破損してない。ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+                # テーブルに列が無かった？ ファイルは破損してない。ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？
                 except pd.errors.EmptyDataError as e:
                     # pandas.errors.EmptyDataError: No columns to parse from file
                     print(f"""\
-[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？
 {e}
 {csv_file_path=}""")
-                    IntervalForRetry.sleep(shall_print=True)
-                    continue    # retry
+                    raise ValueError("ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？") from e
                 
                 # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
                 except ValueError as e:
@@ -1400,7 +1415,7 @@ class TheoreticalProbabilityTable():
 [{datetime.datetime.now}] CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
 {e}
 {csv_file_path=}""")
-                    return None, None, True     # crush
+                    raise ValueError("CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき") from e
                 
                 except TypeError as e:
                     print(f"""\
@@ -1408,7 +1423,7 @@ class TheoreticalProbabilityTable():
 {e}
 {csv_file_path=}
 """)
-                    raise
+                    raise ValueError("想定外の型エラー。ファイルが破損してるかも？") from e
 
 
                 # テーブルに追加の設定
@@ -1441,7 +1456,7 @@ class TheoreticalProbabilityTable():
                 tp_table = None
 
 
-        return tp_table, not is_file_exists, False
+        return tp_table, FileReadResult(is_file_not_found=is_file_not_found)
 
 
     @property
@@ -1789,6 +1804,11 @@ class EmpiricalProbabilityDuringTrialsTable():
             ［手番が回ってくる制度］
         failure_rate : float
             ［将棋の引分け率］
+
+        Returns
+        -------
+        file_read_result : FileReadResult
+            ファイル読込結果
         """
 
         csv_file_path = EmpiricalProbabilityDuringTrialsFilePaths.as_csv(
@@ -1797,8 +1817,9 @@ class EmpiricalProbabilityDuringTrialsTable():
                 failure_rate=failure_rate)
 
         # ファイルが存在しなかった場合
-        is_new = not os.path.isfile(csv_file_path)
-        if is_new:
+        is_file_not_found = not os.path.isfile(csv_file_path)
+
+        if is_file_not_found:
             if new_if_it_no_exists:
                 ep_table = EmpiricalProbabilityDuringTrialsTable.new_empty_table(
                         trial_series=trial_series,
@@ -1808,7 +1829,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                 ep_table = None
         else:
             renaming_backup = RenamingBackup(file_path=csv_file_path)
-            renaming_backup.check_crush()
+            renaming_backup.rollback_if_file_crushed()
             df = pd.read_csv(
                     csv_file_path,
                     encoding="utf8",
@@ -1822,7 +1843,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                     failure_rate=failure_rate)
 
 
-        return ep_table, is_new
+        return ep_table, FileReadResult(is_file_not_found=is_file_not_found)
 
 
     @property
@@ -2006,10 +2027,21 @@ class CalculateProbabilityTable():
 
     @staticmethod
     def from_csv():
-        """ファイル読込"""
+        """ファイル読込
+
+        Returns
+        -------
+        df : DataFrame
+            データフレーム
+        file_read_result : FileReadResult
+            ファイル読込結果
+        """
+
+        # ファイルが存在しなかった場合
+        is_file_not_found = not os.path.isfile(csv_file_path)
 
         renaming_backup = RenamingBackup(file_path=CSV_FILE_PATH_CAL_P)
-        renaming_backup.check_crush()
+        renaming_backup.rollback_if_file_crushed()
         cp_df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
                 dtype={
                     'p':'float64',
@@ -2020,4 +2052,4 @@ class CalculateProbabilityTable():
                     'comment':'object'
                 })
 
-        return cp_df
+        return cp_df, FileReadResult(is_file_not_found=is_file_not_found)

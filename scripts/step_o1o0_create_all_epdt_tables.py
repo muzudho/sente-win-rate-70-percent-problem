@@ -75,7 +75,7 @@ class Automation():
 
         # TODO ここでファイル作成してもいいんじゃないか？ --> 空ファイルになるからいやだということ？
         # EPDTファイル読取り。無ければスキップ
-        epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.from_csv(
+        epdt_table, epdt_file_read_result = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 trial_series=self._specified_trial_series,
                 turn_system_id=turn_system_id,
                 failure_rate=failure_rate,
@@ -86,7 +86,7 @@ class Automation():
         # ===============
 
         # ファイルが無い
-        if is_new and epdt_table is None:
+        if epdt_file_read_result.is_file_not_found and epdt_table is None:
             print(f"[{datetime.datetime.now()}] ファイルが無いのでスキップします")
             return
 

@@ -34,7 +34,6 @@ class AllTheoreticalProbabilityFilesOperation():
         
         self._number_of_not_found = 0
         self._number_of_dirty = 0   # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
-        self._number_of_crush = 0
 
 
     @property
@@ -47,44 +46,25 @@ class AllTheoreticalProbabilityFilesOperation():
         return self._number_of_not_found
 
 
-    @property
-    def number_of_crush(self):
-        return self._number_of_crush
-
-
     def execute_by_spec(self, spec):
         # ファイルが存在しなければ無視する。あれば読み込む
-        tp_table, is_tp_file_created, is_tp_crush = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=False)
+        tp_table, file_read_result = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=False)
 
 
-        # FIXME ファイルが破損していて処理不能なケース
-        if is_tp_crush:
-            print(f"スキップ。［理論的確率データ］表ファイルが破損しています(A2)")
-            self._number_of_crush += 1
-            return
-
-
-        elif tp_table is None:
+        if tp_table is None:
             print("ファイルが存在しない？")
             self._number_of_not_found += 1
             return
 
 
         # ファイルが存在しなければ、新規作成する。あれば読み込む
-        tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
-
-
-        # FIXME ファイルが破損していて処理不能なケース
-        if is_tpr_crush:
-            print(f"スキップ。［理論的確率の率データ］表ファイルが破損しています")
-            self._number_of_crush += 1
-            return
+        tpr_table, tpr_file_read_result = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
 
 
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
 
-        if is_tpr_file_created:
+        if tpr_file_read_result.is_file_not_found:
             # テーブルを新規作成したのなら、ファイルとして保存しておく。保存できなかったら無視して続行する
             successful = SaveOrIgnore.execute(
                     log_file_path=TheoreticalProbabilityRatesFilePaths.as_log(
@@ -94,8 +74,8 @@ class AllTheoreticalProbabilityFilesOperation():
                     on_save_and_get_file_name=tpr_table.to_csv)
             
             if not successful:
-                print(f"スキップ。［理論的確率の率データ］表ファイルを保存できませんでした")
-                self._number_of_crush += 1
+                print(f"スキップ。［理論的確率の率データ］表ファイルが存在せず、新規作成するも保存できませんでした")
+                self._number_of_not_found += 1
                 return
 
             print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE(A)")

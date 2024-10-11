@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     try:
 
-        cp_df = CalculateProbabilityTable.from_csv()
+        cp_df, file_read_result = CalculateProbabilityTable.from_csv()
         print(cp_df)
 
         df = cp_df

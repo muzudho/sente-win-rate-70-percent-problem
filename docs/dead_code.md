@@ -429,7 +429,8 @@ class TheoreticalProbabilityTrialResultsTable():
                 tptr_table = None
 
         else:
-            RenamingBackup.check_crush(csv_file_path)
+            renaming_backup = RenamingBackup(file_path=csv_file_path)
+            renaming_backup.rollback_if_file_crushed()
             tptr_df = pd.read_csv(csv_file_path, encoding="utf8",
                     dtype=clazz._dtype)
             clazz.setup_data_frame(df=tptr_df)

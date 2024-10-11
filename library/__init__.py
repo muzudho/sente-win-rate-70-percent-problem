@@ -9,6 +9,7 @@ import shutil
 import time
 import random
 import math
+import datetime
 from fractions import Fraction
 
 # 四捨五入 📖 [Pythonで小数・整数を四捨五入するroundとDecimal.quantize](https://note.nkmk.me/python-round-decimal-quantize/)
@@ -2638,10 +2639,15 @@ class RenamingBackup():
         return f'{directory_path}/{file_base}.bak'
 
 
-    def check_crush(self):
+    def rollback_if_file_crushed(self):
         """対象のファイルを読み込む前に呼び出してください"""
+
         if os.path.isfile(self.backup_file_path):
-            raise ValueError("バックアップ・ファイルが存在しています。対象のファイルは保存中か、保存に失敗している可能性があります")
+            seconds = random.randint(30, 15*60)
+            print(f"バックアップ・ファイルが存在しています。対象のファイルは保存中か、保存に失敗している可能性があります。 {seconds} 秒待ってから復元を試みます backup=`{self.backup_file_path}`")
+            time.sleep(seconds)
+
+            self._rollback()
 
 
     def make_backup(self):
@@ -2674,7 +2680,9 @@ class RenamingBackup():
         os.remove(s)
 
 
-    def rollback(self):
-        """TODO 既存のファイルを削除し、バックアップ・ファイルを正のファイルにリネームする"""
-        print("作成中")
-        pass
+    def _rollback(self):
+        """既存のファイルを削除し、バックアップ・ファイルを正のファイルにリネームする"""
+        print(f"[{datetime.datetime.now()}] copy `{self.backup_file_path}` to `{self._file_path}`")
+        new_path = shutil.copy2(
+            self.backup_file_path,
+            self._file_path)    # 第２引数にファイル名を指定すると、既存なら上書きになる

@@ -88,7 +88,7 @@ if __name__ == '__main__':
         title='イーブン［シリーズ・ルール］'
 
 
-        ep_table = EmpiricalProbabilityDuringTrialsTable.from_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
+        ep_table, file_read_result = EmpiricalProbabilityDuringTrialsTable.from_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
         # 変数名を縮めます
         df = ep_table.df
 

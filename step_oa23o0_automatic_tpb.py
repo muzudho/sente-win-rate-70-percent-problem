@@ -31,7 +31,6 @@ class Automation():
         self._start_time_for_save = time.time()
         self._number_of_target_rows = None
         self._number_of_not_found_rows = None
-        self._number_of_crush_rows = None
         self._number_of_dirty_rows = None
         self._number_of_bright_rows = None
 
@@ -44,11 +43,6 @@ class Automation():
     @property
     def number_of_not_found_rows(self):
         return self._number_of_not_found_rows
-
-
-    @property
-    def number_of_crush_rows(self):
-        return self._number_of_crush_rows
 
 
     @property
@@ -65,7 +59,6 @@ class Automation():
         self._depth = depth
         self._number_of_target_rows = 0
         self._number_of_not_found_rows = 0
-        self._number_of_crush_rows = 0
         self._number_of_dirty_rows = 0
         self._number_of_bright_rows = 0
 
@@ -75,13 +68,9 @@ class Automation():
 
         #print(f"{DebugWrite.stringify(depth=depth, spec=spec)}step o7o0 upsert record of tpb...  {number_of_dirty_rows=}  {number_of_bright_rows=}")
         # ［理論的確率ベストデータ］新規作成または更新
-        is_dirty_temp, is_crush, is_not_found = automation_one.execute_a_spec(spec=spec)
+        is_dirty_temp, is_not_found = automation_one.execute_a_spec(spec=spec)
 
-        if is_crush:
-            print(f"{DebugWrite.stringify(depth=depth,spec=spec)}ファイルが破損しています(D)")
-            self._number_of_crush_rows += 1
-
-        elif is_not_found:
+        if is_not_found:
             print(f"{DebugWrite.stringify(depth=depth,spec=spec)}ファイルが見つかりません")
             self._number_of_not_found_rows += 1
 
@@ -101,13 +90,12 @@ class Automation():
                         on_save_and_get_file_name=self._automation_one.tpb_table.to_csv)
 
                 # コンソール表示
-                print(f"{DebugWrite.stringify(depth=depth, spec=spec)}{self._number_of_dirty_rows} row(s) changed. {self._number_of_bright_rows} row(s) unchanged. {self._number_of_crush_rows} row(s) crushed.")
+                print(f"{DebugWrite.stringify(depth=depth, spec=spec)}{self._number_of_dirty_rows} row(s) changed. {self._number_of_bright_rows} row(s) unchanged.")
 
                 # リセット
                 self._start_time_for_save = time.time()
                 self._number_of_target = 0
                 self._number_of_not_found_rows = 0
-                self._number_of_crush_rows = 0
                 self._number_of_dirty_rows = 0
                 self._number_of_bright_rows = 0
 
@@ -129,7 +117,7 @@ if __name__ == '__main__':
     try:
 
         # 書込み先の［理論的確率ベストデータ］ファイルが存在しなかったなら、空データフレーム作成
-        tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=True)
+        tpb_table, tpb_file_read_result = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=True)
 
         if tpb_table is None:
             raise ValueError("ここで tpb_table がナンなのはおかしい")
@@ -151,7 +139,7 @@ if __name__ == '__main__':
 
 
             # 深さの結果
-            print(f"{DebugWrite.stringify(depth=depth)}loop end. There are {automation_1.number_of_target_rows} rows. {automation_1.number_of_dirty_rows} row(s) changed. {automation_1.number_of_bright_rows} row(s) unchanged. {automation_1.number_of_crush_rows} row(s) crushed.")
+            print(f"{DebugWrite.stringify(depth=depth)}loop end. There are {automation_1.number_of_target_rows} rows. {automation_1.number_of_dirty_rows} row(s) changed. {automation_1.number_of_bright_rows} row(s) unchanged.")
 
 
             # 忘れずに flush
@@ -162,15 +150,10 @@ if __name__ == '__main__':
                         on_save_and_get_file_name=tpb_table.to_csv)
 
                 # コンソール表示
-                print(f"{DebugWrite.stringify(depth=depth)}{automation_1.number_of_dirty_rows} row(s) changed. {automation_1.number_of_bright_rows} row(s) unchanged. {automation_1.number_of_crush_rows} row(s) crushed.")
+                print(f"{DebugWrite.stringify(depth=depth)}{automation_1.number_of_dirty_rows} row(s) changed. {automation_1.number_of_bright_rows} row(s) unchanged.")
 
                 # リセット
                 automation_1.on_file_saved()
-
-
-            # 破損したファイルがある場合、それが作り直されることを期待します
-            elif 0 < automation_1.number_of_crush_rows:
-                IntervalForRetry.sleep(min_secs=5*60, max_secs=30*60, shall_print=True)
 
 
             # ファイルが見つからない場合、作成中かもしれません。それが作られることを期待します

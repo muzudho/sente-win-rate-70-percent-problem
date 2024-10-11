@@ -47,7 +47,7 @@ def main():
     #
 
     # ［理論的確率ベスト］表を読込。無ければナン
-    tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
+    tpb_table, tpb_file_read_result = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
 
     # ファイルが存在しなければスキップ
     if tpb_table is None:
@@ -57,12 +57,7 @@ def main():
         print(f"［理論的確率ベスト］表を読み込んだ")
 
         # ファイルが存在しなければ無視する。あれば読み込む
-        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=False)
-
-
-        if is_crush:
-            print(f"スキップ。［理論的確率データ］表ファイルが破損しています(A1)")
-            return
+        tp_table, tp_file_read_result = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=False)
 
 
         if tp_table is None:
@@ -72,51 +67,44 @@ def main():
             print(f"［理論的確率データ］表を読み込んだ")
 
             # ファイルが存在しなければ、新規作成する。あれば読み込む
-            tpr_table, is_tpr_file_created, is_tpr_crush = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
+            tpr_table, tpr_file_read_result = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
+            print(f"［理論的確率の率データ］表を読み込んだ")
 
+            automation_oa22o0 = StepOa22o0TPR(
+                    seconds_of_time_up=INTERVAL_SECONDS)
 
-            # FIXME ファイルが破損していて処理不能なケース
-            if is_tpr_crush:
-                print(f"スキップ。［理論的確率の率データ］表ファイルが破損しています")
+            print(f"処理1")
+
+            #
+            # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
+            #
+            calculation_status = automation_oa22o0.update_three_rates_for_a_file_and_save(
+                    spec=spec,
+                    tp_table=tp_table,
+                    tpr_table=tpr_table,
+
+                    #
+                    # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
+                    # 7 ぐらいから激重。 6ぐらいなら軽い？
+                    #
+                    upper_limit_upper_limit_coins=UPPER_LIMIT_UPPER_LIMIT_COINS)
+
+            print(f"処理2")
+
+            # 途中の行まで処理したところでタイムアップ
+            if calculation_status == YIELD:
+                print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
+
+            # このファイルは処理失敗した
+            elif calculation_status == CALCULATION_FAILED:
+                print(f"[{datetime.datetime.now()}] このファイルは処理失敗した")
+
+            # このファイルは処理完了した
+            elif calculation_status == TERMINATED:
+                print(f"[{datetime.datetime.now()}] このファイルは処理完了した")
             
             else:
-                print(f"［理論的確率の率データ］表を読み込んだ")
-
-                automation_oa22o0 = StepOa22o0TPR(
-                        seconds_of_time_up=INTERVAL_SECONDS)
-
-                print(f"処理1")
-
-                #
-                # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
-                #
-                calculation_status = automation_oa22o0.update_three_rates_for_a_file_and_save(
-                        spec=spec,
-                        tp_table=tp_table,
-                        tpr_table=tpr_table,
-
-                        #
-                        # NOTE upper_limit_coins は、ツリーの深さに直結するから、数字が増えると処理が重くなる
-                        # 7 ぐらいから激重。 6ぐらいなら軽い？
-                        #
-                        upper_limit_upper_limit_coins=UPPER_LIMIT_UPPER_LIMIT_COINS)
-
-                print(f"処理2")
-
-                # 途中の行まで処理したところでタイムアップ
-                if calculation_status == YIELD:
-                    print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
-
-                # このファイルは処理失敗した
-                elif calculation_status == CALCULATION_FAILED:
-                    print(f"[{datetime.datetime.now()}] このファイルは処理失敗した")
-
-                # このファイルは処理完了した
-                elif calculation_status == TERMINATED:
-                    print(f"[{datetime.datetime.now()}] このファイルは処理完了した")
-                
-                else:
-                    raise ValueError(f"{calculation_status=}")
+                raise ValueError(f"{calculation_status=}")
 
 
     print(f"おわり！")

@@ -89,13 +89,13 @@ if __name__ == '__main__':
 
 
         # EPDTファイル読取り。無ければスキップ
-        epdt_table, is_new = EmpiricalProbabilityDuringTrialsTable.from_csv(
+        epdt_table, epdt_file_read_result = EmpiricalProbabilityDuringTrialsTable.from_csv(
                 trial_series=specified_trial_series,
                 turn_system_id=specified_turn_system_id,
                 failure_rate=specified_failure_rate,
                 new_if_it_no_exists=False)
 
-        if is_new and epdt_table is None:
+        if epdt_file_read_result.is_file_not_found and epdt_table is None:
             print(f"[{datetime.datetime.now()}] ファイルが無いのでスキップします")
         
         else:

@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
             # データ・ファイルを読み込んで、データ・フレームにして返す
             renaming_backup = RenamingBackup(file_path=DATA_CSV_FILE_PATH)
-            renaming_backup.check_crush()
+            renaming_backup.rollback_if_file_crushed()
             df = pd.read_csv(DATA_CSV_FILE_PATH, encoding="utf8",
                 dtype={'property_name' : 'object'})
 

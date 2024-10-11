@@ -25,8 +25,6 @@ class Automation():
         self._start_time_for_save = None    # CSV保存用タイマー
 
         self._number_of_dirty = 0   # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
-        self._number_of_crush = 0
-
         self._row_number_th = 0             # 行番号。先頭行を１とする
         self._row_number_when_even = None   # あれば、誤差が0になった行の番号
 
@@ -34,11 +32,6 @@ class Automation():
     @property
     def depth(self):
         return self._depth
-
-
-    @property
-    def number_of_crush(self):
-        return self._number_of_crush
 
 
     def execute_by_spec(self, spec):
@@ -58,16 +51,12 @@ class Automation():
         self._row_number_th += 1
 
         # ファイルが存在しなければ、新規作成する。あれば読み込む
-        tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=True)
-
-        if is_crush:
-            self._number_of_crush += 1
-            return
+        tp_table, tp_file_read_result = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=True)
 
 
         turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
 
-        if is_tp_file_created:
+        if tp_file_read_result.is_file_not_found:
             turn_system_name = Converter.turn_system_id_to_name(spec.turn_system_id)
             print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}NEW_FILE(C)")
 

@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
 
         # ［理論的確率ベスト］表を読込。無ければナン
-        tpb_table, is_new = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
+        tpb_table, tpb_file_read_result = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
 
         # ファイルが存在しなければスキップ
         if tpb_table==None:
@@ -60,10 +60,10 @@ if __name__ == '__main__':
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            is_dirty, is_crush = step_o7o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
+            is_dirty, is_file_not_found = step_o7o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
 
-            if is_crush:
-                print("ファイルが破損しています(B)")
+            if is_file_not_found:
+                print("ファイルが見つかりません(B)")
             
             # ファイルに変更があれば、CSVファイル保存
             elif is_dirty:
