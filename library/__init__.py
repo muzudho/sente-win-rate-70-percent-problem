@@ -2632,18 +2632,31 @@ class RenamingBackup():
         self._file_path = file_path
 
 
+    @property
+    def backup_file_path(self):
+        directory_path, file_base = os.path.split(self._file_path)
+        return f'{directory_path}/{file_base}.bak'
+
+
     def make_backup(self):
         """既存のバックアップ・ファイルがあれば削除し、既存のファイルのバックアップ・ファイルを作成する"""
-        directory_path, file_base = os.path.split(self._file_path)
+
+        # バックアップ・ファイルが既存ということは、問題が発生しているのでは？
+        if os.path.isfile(self.backup_file_path):
+            raise ValueError(f"バックアップ・ファイルが既存のまま、バックアップ・ファイルを作成しようとしたので、対象ファイルが破損したまま作業を行った可能性があります。ファイルを確認してください file={self.backup_file_path}")
+
         new_path = shutil.copy2(
             self._file_path,
-            f'{directory_path}/{file_base}.bak')    # 第２引数にファイル名を指定すると、既存なら上書きになる
+            self.backup_file_path)    # 第２引数にファイル名を指定すると、既存なら上書きになる
 
 
     def remove_backup(self):
-        """TODO バックアップ・ファイルを削除する"""
-        print("作成中")
-        pass
+        """バックアップ・ファイルを削除する"""
+        s = self.backup_file_path
+        # 安全用
+        if not s.endswith(".bak"):
+            raise ValueError(f"バックアップ・ファイル以外のものを削除しようとしました name={s}")
+        os.remove(s)
 
 
     def rollback(self):

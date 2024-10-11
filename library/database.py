@@ -502,6 +502,7 @@ df:
                 csv_file_path,
                 # p はインデックス
                 columns=['turn_system_name', 'failure_rate', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_series', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'])
+        renaming_backup.remove_backup()
 
         return csv_file_path
 
@@ -820,6 +821,7 @@ class TheoreticalProbabilityBestTable():
         self._df.to_csv(csv_file_path,
                 # turn_system_name, failure_rate, p はインデックス
                 columns=['span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+        renaming_backup.remove_backup()
 
         return csv_file_path
 
@@ -1217,6 +1219,7 @@ df:
                 csv_file_path,
                 # span, t_step, h_step はインデックス
                 columns=['theoretical_a_win_rate', 'theoretical_no_win_match_rate'])
+        renaming_backup.remove_backup()
 
         return csv_file_path
 
@@ -1560,6 +1563,7 @@ df:
                 csv_file_path,
                 # span, t_step, h_step はインデックス
                 columns=['shortest_coins', 'upper_limit_coins'])
+        renaming_backup.remove_backup()
 
         return csv_file_path
 
@@ -1944,6 +1948,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                 # ［シリーズ・ルール候補］列は長くなるので末尾に置きたい
                 # 'p' はインデックス
                 columns=['best_p', 'best_p_error', 'best_span', 'best_t_step', 'best_h_step', 'latest_p', 'latest_p_error', 'latest_span', 'latest_t_step', 'latest_h_step', 'candidate_history_text'])
+        renaming_backup.remove_backup()
 
         return csv_file_path
 
