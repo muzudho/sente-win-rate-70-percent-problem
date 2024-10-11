@@ -38,7 +38,7 @@ class KakukinDataSheetRecord():
     """［かくきんデータ・シート］レコード"""
 
 
-    def __init__(self, p, turn_system_name, failure_rate, span, t_step, h_step, shortest_coins, upper_limit_coins, trial_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
+    def __init__(self, p, turn_system_name, failure_rate, span, t_step, h_step, shortest_coins, upper_limit_coins, expected_a_win_rate, expected_no_win_match_rate, trial_series, series_shortest_coins, series_longest_coins, wins_a, wins_b, succucessful_series, s_ful_wins_a, s_ful_wins_b, s_pts_wins_a, s_pts_wins_b, failed_series, f_ful_wins_a, f_ful_wins_b, f_pts_wins_a, f_pts_wins_b, no_wins_ab):
         """初期化
 
         p はインデックス。
@@ -55,6 +55,8 @@ class KakukinDataSheetRecord():
         self._head_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
+        self._expected_a_win_rate = expected_a_win_rate
+        self._expected_no_win_match_rate= expected_no_win_match_rate
         self._trial_series = trial_series
         self._series_shortest_coins = series_shortest_coins
         self._series_longest_coins = series_longest_coins
@@ -117,6 +119,16 @@ class KakukinDataSheetRecord():
     @property
     def upper_limit_coins(self):
         return self._upper_limit_coins
+
+
+    @property
+    def expected_a_win_rate(self):
+        return self._expected_a_win_rate
+
+
+    @property
+    def expected_no_win_match_rate(self):
+        return self._expected_no_win_match_rate
 
 
     @property
@@ -216,6 +228,8 @@ class KakukinDataSheetTable():
         'h_step':'int64',
         'shortest_coins':'int64',
         'upper_limit_coins':'int64',
+        'expected_a_win_rate':'float64',
+        'expected_no_win_match_rate':'float64',
         'trial_series':'int64',
         'series_shortest_coins':'int64',
         'series_longest_coins':'int64',
@@ -262,6 +276,8 @@ class KakukinDataSheetTable():
                     'h_step',
                     'shortest_coins',
                     'upper_limit_coins',
+                    'expected_a_win_rate',
+                    'expected_no_win_match_rate',
                     'trial_series',
                     'series_shortest_coins',
                     'series_longest_coins',
@@ -448,6 +464,8 @@ df:
                 self._df['h_step'][index] != welcome_record.h_step or\
                 self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
                 self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['expected_a_win_rate'][index] != welcome_record.theoretical_a_win_rate or\
+                self._df['expected_no_win_match_rate'][index] != welcome_record.theoretical_no_win_match_rate or\
                 self._df['series_shortest_coins'][index] != welcome_record.series_shortest_coins or\
                 self._df['series_longest_coins'][index] != welcome_record.series_longest_coins or\
                 self._df['wins_a'][index] != welcome_record.wins_a or\
@@ -477,6 +495,8 @@ df:
                 'h_step': welcome_record.h_step,
                 'shortest_coins': welcome_record.shortest_coins,
                 'upper_limit_coins': welcome_record.upper_limit_coins,
+                'expected_a_win_rate': welcome_record.theoretical_a_win_rate,
+                'expected_no_win_match_rate': welcome_record.theoretical_no_win_match_rate,
                 'trial_series': welcome_record.trial_series,
                 'series_shortest_coins': welcome_record.series_shortest_coins,
                 'series_longest_coins': welcome_record.series_longest_coins,
@@ -524,7 +544,7 @@ df:
         self._df.to_csv(
                 csv_file_path,
                 # p はインデックス
-                columns=['turn_system_name', 'failure_rate', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'trial_series', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'])
+                columns=['turn_system_name', 'failure_rate', 'span', 't_step', 'h_step', 'shortest_coins', 'upper_limit_coins', 'expected_a_win_rate', 'expected_no_win_match_rate', 'trial_series', 'series_shortest_coins', 'series_longest_coins', 'wins_a', 'wins_b', 'succucessful_series', 's_ful_wins_a', 's_ful_wins_b', 's_pts_wins_a', 's_pts_wins_b', 'failed_series', 'f_ful_wins_a', 'f_ful_wins_b', 'f_pts_wins_a', 'f_pts_wins_b', 'no_wins_ab'])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -540,8 +560,8 @@ df:
 
         df = self._df
 
-        for row_number,(      turn_system_name  ,     failure_rate  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     trial_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab) in\
-            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['trial_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab'])):
+        for row_number,(      turn_system_name  ,     failure_rate  ,     span  ,     t_step  ,     h_step  ,     shortest_coins  ,     upper_limit_coins  ,     expected_a_win_rate  ,     expected_no_win_match_rate  ,     trial_series  ,     series_shortest_coins  ,     series_longest_coins  ,     wins_a  ,     wins_b  ,     succucessful_series  ,     s_ful_wins_a  ,     s_ful_wins_b  ,     s_pts_wins_a  ,     s_pts_wins_b  ,     failed_series  ,     f_ful_wins_a  ,     f_ful_wins_b  ,     f_pts_wins_a  ,     f_pts_wins_b  ,     no_wins_ab) in\
+            enumerate(zip(df['turn_system_name'], df['failure_rate'], df['span'], df['t_step'], df['h_step'], df['shortest_coins'], df['upper_limit_coins'], df['expected_a_win_rate'], df['expected_no_win_match_rate'], df['trial_series'], df['series_shortest_coins'], df['series_longest_coins'], df['wins_a'], df['wins_b'], df['succucessful_series'], df['s_ful_wins_a'], df['s_ful_wins_b'], df['s_pts_wins_a'], df['s_pts_wins_b'], df['failed_series'], df['f_ful_wins_a'], df['f_ful_wins_b'], df['f_pts_wins_a'], df['f_pts_wins_b'], df['no_wins_ab'])):
 
             # p はインデックス
             p = df.index[row_number]
@@ -559,6 +579,8 @@ df:
                     h_step=h_step,
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins,
+                    expected_a_win_rate=expected_a_win_rate,
+                    expected_no_win_match_rate=expected_no_win_match_rate,
                     trial_series=trial_series,
                     series_shortest_coins=series_shortest_coins,
                     series_longest_coins=series_longest_coins,

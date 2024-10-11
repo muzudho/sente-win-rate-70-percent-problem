@@ -17,6 +17,7 @@ from scripts.step_oa31o0_create_kds_table import Automation as StepO31o0CreateKD
 
 
 # 実行間隔タイマー
+#INTERVAL_SECONDS = 5   # ５秒
 INTERVAL_SECONDS = 5 * 60   # ５分。［素数ゼミ］参考
 
 

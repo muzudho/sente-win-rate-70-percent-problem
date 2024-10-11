@@ -16,8 +16,8 @@ from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE, DEFAULT_TRIAL_SERIES
 
 
 # 実行間隔タイマー
-INTERVAL_SECONDS = 5   # 5 秒
-#INTERVAL_SECONDS = 7 * 60   # ７分。［素数ゼミ］参考
+#INTERVAL_SECONDS = 5   # 5 秒
+INTERVAL_SECONDS = 7 * 60   # ７分。［素数ゼミ］参考
 
 
 ########################################
