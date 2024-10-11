@@ -27,6 +27,9 @@ class Automation():
         self._number_of_dirty = 0   # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
         self._number_of_crush = 0
 
+        self._row_number_th = 0             # 行番号。先頭行を１とする
+        self._row_number_when_even = None   # あれば、誤差が0になった行の番号
+
 
     @property
     def depth(self):
@@ -51,6 +54,9 @@ class Automation():
         number_of_dirty : int
             変更のあった行数
         """
+
+        self._row_number_th += 1
+
         # ファイルが存在しなければ、新規作成する。あれば読み込む
         tp_table, is_tp_file_created, is_crush = TheoreticalProbabilityTable.read_csv(spec=spec, new_if_it_no_exists=True)
 

@@ -10,7 +10,7 @@ import traceback
 
 from config import DEFAULT_MAX_DEPTH
 from scripts import ForEachSpec
-from scripts.step_o5o0_insert_new_record_in_tp import Automation as StepO5o0InsertNewRecordInTp
+from scripts.step_oa21o0_tp import Automation as StepOa21o0Tp
 
 
 ########################################
@@ -25,7 +25,7 @@ if __name__ == '__main__':
         # とりあえず、 depth が どんどん増えていくものとする。
         for depth in range(1, DEFAULT_MAX_DEPTH):
 
-            automation = StepO5o0InsertNewRecordInTp(depth=depth)
+            automation = StepOa21o0Tp(depth=depth)
 
             ForEachSpec.execute(on_each_spec=automation.execute_by_spec)
 

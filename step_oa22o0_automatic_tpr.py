@@ -17,7 +17,7 @@ from library.database import TheoreticalProbabilityTable, TheoreticalProbability
 from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts import SaveOrIgnore
-from scripts.step_o6o0_update_three_rates_for_a_file import Automation as StepO6o0UpdateThreeRatesForAFile
+from scripts.step_oa22o0_tpr import Automation as StepOa22o0TPR
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔
@@ -118,7 +118,7 @@ class AllTheoreticalProbabilityFilesOperation():
         ##########################################################
 
         #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
-        step_o6o0_update_three_rates_for_a_file = StepO6o0UpdateThreeRatesForAFile(
+        automation_oa22o0 = StepOa22o0TPR(
                 seconds_of_time_up=INTERVAL_SECONDS)
 
 
@@ -128,7 +128,7 @@ class AllTheoreticalProbabilityFilesOperation():
             upper_limit_upper_limit_coins = 6
 
 
-        calculation_status = step_o6o0_update_three_rates_for_a_file.update_three_rates_for_a_file_and_save(
+        calculation_status = automation_oa22o0.update_three_rates_for_a_file_and_save(
                 spec=spec,
                 tp_table=tp_table,
                 tpr_table=tpr_table,

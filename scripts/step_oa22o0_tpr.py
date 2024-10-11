@@ -3,7 +3,7 @@ import time
 import datetime
 import pandas as pd
 
-from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule
+from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, Converter, SeriesRule, is_almost_even
 from library.database import TheoreticalProbabilityRatesRecord
 from library.score_board import search_all_score_boards
 from library.views import DebugWrite
@@ -21,6 +21,8 @@ class Automation():
 
         # ファイルを新規作成したときに 1、レコードを１件追加したときも 1 増える
         self._number_of_dirty = 0
+
+        self._row_number_when_even = None   # あれば、誤差が0になった行の番号
 
 
     def update_three_rates_for_a_file_and_save(self, spec, tp_table, tpr_table, upper_limit_upper_limit_coins):
@@ -68,7 +70,8 @@ class Automation():
         if list_of_enable_each_row.any():
 
             # TP表が 5000行以上あるので、すごい時間がかかってしまう
-            for index, row in tptpr_df[list_of_enable_each_row].iterrows():
+            #for index, row in tptpr_df[list_of_enable_each_row].iterrows():
+            for row_number_th, (index, row) in enumerate(tptpr_df[list_of_enable_each_row].iterrows(), 1):
 #                 print(f"""\
 # {index=}
 # {row=}
@@ -113,6 +116,12 @@ class Automation():
                 # tp_table.df.loc[index, 'theoretical_no_win_match_rate'] = three_rates.no_win_match_rate
 
                 self._number_of_dirty += 1
+
+
+                # Ａさんの勝率が５割のデータを見つけたら、ループ終了
+                if is_almost_even(three_rates.a_win_rate):
+                    self._row_number_when_even = row_number_th
+                    break
 
 
         # 変更があれば保存

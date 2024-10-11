@@ -1,5 +1,5 @@
 #
-# python step_oa21o0_manual_insert_new_record_in_tp.py
+# python step_oa21o0_manual_tp.py
 #
 # 手動で［理論的確率データ］（TP）表に新規行を挿入します
 #
@@ -12,7 +12,7 @@ from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
 from library.views import PromptCatalog
 from scripts import SaveOrIgnore
-from scripts.step_o5o0_insert_new_record_in_tp import Automation as StepO5o0InsertNewRecordInTp
+from scripts.step_oa21o0_tp import Automation as StepOa21o0Tp
 
 
 ########################################
@@ -69,7 +69,7 @@ if __name__ == '__main__':
         # FIXME 飛び番で挿入されてる？ ----> 既存行を、最新行で上書きされてるのでは？
         #
         print(f"[{datetime.datetime.now()}] step o5o0 insert new record in tp...")
-        automation = StepO5o0InsertNewRecordInTp(depth=specified_depth)
+        automation = StepOa21o0Tp(depth=specified_depth)
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
         number_of_dirty = automation.execute_by_spec(spec=spec)
