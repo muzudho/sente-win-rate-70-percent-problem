@@ -13,7 +13,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, SeriesRule, FROZEN_TURN, OUT_OF_P, ABS_OUT_OF_ERROR
+from library import calculate_probability, SeriesRule, FROZEN_TURN, ABS_OUT_OF_ERROR
 from library.views import stringify_p_q_time_strict
 from config import DEFAULT_UPPER_LIMIT_OF_P
 

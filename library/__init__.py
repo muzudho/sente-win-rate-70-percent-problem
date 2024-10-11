@@ -95,7 +95,7 @@ CALCULATION_FAILED = 4  # 計算しようとしているが、計算できなか
 
 
 # 範囲外のあり得ない値。浮動小数点が大きすぎてオーバーフロー例外が出て計算不可能だったケースなど
-OUT_OF_P = 1.01
+UPPER_OUT_OF_P = 1.01
 
 
 # 誤差の範囲外のありえない値の絶対値。勝率は最低で 0.0、最大で 1.0 なので、0.5 との誤差の絶対値は 0.5 が最大
@@ -1176,7 +1176,7 @@ def calculate_probability(p, H, T):
     
     except OverflowError as ex:
         err = f"{ex}"
-        return OUT_OF_P, err
+        return UPPER_OUT_OF_P, err
 
 
 class SeriesRule():

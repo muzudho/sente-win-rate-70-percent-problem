@@ -3,7 +3,7 @@
 #
 import datetime
 
-from library import ALICE, BOB, SUCCESSFUL, FAILED, HEAD, TAIL, OUT_OF_P, Converter, Specification, SeriesRule, try_series
+from library import ALICE, BOB, SUCCESSFUL, FAILED, HEAD, TAIL, UPPER_OUT_OF_P, Converter, Specification, SeriesRule, try_series
 from library.file_paths import KakukinDataFilePaths, KakukinDataSheetFilePaths
 from library.database import TheoreticalProbabilityBestTable, KakukinDataSheetRecord, KakukinDataSheetTable
 from scripts import SaveOrIgnore
@@ -40,7 +40,7 @@ class Automation():
         if self._specified_failure_rate != tpb_record.failure_rate:
             return
 
-        if tpb_record.expected_a_win_rate == OUT_OF_P:
+        if tpb_record.expected_a_win_rate == UPPER_OUT_OF_P:
             print(f"[trial_series={self._specified_trial_series}  failure_rate={tpb_record.failure_rate}  p={tpb_record.p}] ベスト値が設定されていません。スキップします")
             return
 

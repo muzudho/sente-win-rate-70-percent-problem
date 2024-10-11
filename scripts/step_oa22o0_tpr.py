@@ -4,7 +4,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from library import TERMINATED, YIELD, CALCULATION_FAILED, OUT_OF_P, EVEN, Converter, SeriesRule, Precision
+from library import TERMINATED, YIELD, CALCULATION_FAILED, UPPER_OUT_OF_P, EVEN, Converter, SeriesRule, Precision
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityRatesRecord
 from library.score_board import search_all_score_boards
@@ -81,7 +81,7 @@ class Automation():
             # （高速化のために）前のループのデータを覚えておく
             previous_span = None
             previous_t_step = None
-            previous_a_win_rate = None
+            previous_a_win_rate = UPPER_OUT_OF_P  # あり得ない値で、かつ EVEN 以上。 NOTE 行削除が連続するようにする
 
             # TP表が 5000行以上あるので、すごい時間がかかってしまう
             #for index, row in tptpr_df[list_of_enable_each_row].iterrows():
@@ -165,7 +165,7 @@ class Automation():
                         break
                 
                 else:
-                    previous_a_win_rate = None
+                    previous_a_win_rate = UPPER_OUT_OF_P
 
 
         # 変更があれば保存

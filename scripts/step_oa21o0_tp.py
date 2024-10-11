@@ -2,7 +2,7 @@ import traceback
 import datetime
 import pandas as pd
 
-from library import EVEN, Converter, Precision, OUT_OF_P, Converter, SeriesRule, round_letro
+from library import EVEN, Converter, Precision, Converter, SeriesRule, round_letro
 from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord
 from library.views import DebugWrite
