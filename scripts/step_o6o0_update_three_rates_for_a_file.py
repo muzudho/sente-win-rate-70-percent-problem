@@ -44,17 +44,30 @@ class Automation():
         self._start_time_for_save = time.time()       # CSV保存用タイマー
 
         # TODO TP表と TPR表を完全外部結合する
-        tp_tpr_df = pd.merge(tp_table.df, tpr_table.df, how='outer', on=['span', 't_step', 'h_step'])
+#         print(f"""\
+# tp_table.df:
+# {tp_table.df}
+
+# tpr_table.df:
+# {tpr_table.df}
+# """)
+        # TODO インデックスが消えてしまうので、 .reset_index() を使って、インデックスを列として生成します。
+        # そしてマージしたあと、その列をインデックスに戻します
+        tptpr_df = pd.merge(tp_table.df.reset_index(), tpr_table.df.reset_index(), how='outer', on=['span', 't_step', 'h_step']).set_index(['span', 't_step', 'h_step'])
+#         print(f"""\
+# tptpr_df:
+# {tptpr_df}
+# """)
 
 
         # 該当行にチェックを入れたリスト
         # ［理論的Ａさんの勝率］列が未設定で、かつ、［上限対局数］が、指定の上限対局数以下のとき
-        list_of_enable_each_row = (pd.isnull(tp_tpr_df['theoretical_a_win_rate'])) & (tp_tpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
+        list_of_enable_each_row = (pd.isnull(tptpr_df['theoretical_a_win_rate'])) & (tptpr_df['upper_limit_coins']<=upper_limit_upper_limit_coins)
 
         # 該当行が１つでもあれば
         if list_of_enable_each_row.any():
 
-            for index, row in tp_table.df[list_of_enable_each_row].iterrows():
+            for index, row in tptpr_df[list_of_enable_each_row].iterrows():
 
                 # 指定間隔（秒）でループを抜ける
                 end_time_for_save = time.time()

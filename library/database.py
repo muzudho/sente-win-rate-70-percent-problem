@@ -236,36 +236,38 @@ class KakukinDataSheetTable():
 
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
-        kds_df = pd.DataFrame.from_dict({
-                # p はインデックス
-                'p':[],
+        kds_df = pd.DataFrame(
+                columns=[
+                    # 'p' は後でインデックスに変換
+                    'p',
 
-                # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
-                'turn_system_name':[],
-                'failure_rate':[],
-
-                'span':[],
-                't_step':[],
-                'h_step':[],
-                'shortest_coins':[],
-                'upper_limit_coins':[],
-                'trial_series':[],
-                'series_shortest_coins':[],
-                'series_longest_coins':[],
-                'wins_a':[],
-                'wins_b':[],
-                'succucessful_series':[],
-                's_ful_wins_a':[],
-                's_ful_wins_b':[],
-                's_pts_wins_a':[],
-                's_pts_wins_b':[],
-                'failed_series':[],
-                'f_ful_wins_a':[],
-                'f_ful_wins_b':[],
-                'f_pts_wins_a':[],
-                'f_pts_wins_b':[],
-                'no_wins_ab':[]})
+                    'turn_system_name',
+                    'failure_rate',
+                    'span',
+                    't_step',
+                    'h_step',
+                    'shortest_coins',
+                    'upper_limit_coins',
+                    'trial_series',
+                    'series_shortest_coins',
+                    'series_longest_coins',
+                    'wins_a',
+                    'wins_b',
+                    'succucessful_series',
+                    's_ful_wins_a',
+                    's_ful_wins_b',
+                    's_pts_wins_a',
+                    's_pts_wins_b',
+                    'failed_series',
+                    'f_ful_wins_a',
+                    'f_ful_wins_b',
+                    'f_pts_wins_a',
+                    'f_pts_wins_b',
+                    'no_wins_ab'])
         clazz.setup_data_frame(df=kds_df, shall_set_index=True)
+
+        # turn_system_name, failure_rate と trial_series はファイル名で示されているものと同じ
+
         return KakukinDataSheetTable(
                 df=kds_df,
                 trial_series=trial_series,
@@ -655,19 +657,22 @@ class TheoreticalProbabilityBestTable():
 
     @classmethod
     def new_empty_table(clazz):
-        # turn_system_name, failure_rate, p はインデックス
-        tpb_df = pd.DataFrame.from_dict({
-                'turn_system_name': [],
-                'failure_rate': [],
-                'p': [],
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'shortest_coins': [],
-                'upper_limit_coins': [],
-                'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []})
+        tpb_df = pd.DataFrame(
+                columns=[
+                    # 'turn_system_name', 'failure_rate', 'p' は後でインデックスに変換
+                    'turn_system_name',
+                    'failure_rate',
+                    'p',
+
+                    'span',
+                    't_step',
+                    'h_step',
+                    'shortest_coins',
+                    'upper_limit_coins',
+                    'theoretical_a_win_rate',
+                    'theoretical_no_win_match_rate'])
         clazz.setup_data_frame(df=tpd_df, shall_set_index=True)
+
         return TheoreticalProbabilityBestTable(df=tpb_df)
 
 
@@ -963,17 +968,19 @@ class TheoreticalProbabilityRatesTable():
 
     @classmethod
     def new_empty_table(clazz, spec):
-        # span, t_step, h_step はインデックス
-        tpr_df = pd.DataFrame.from_dict({
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'theoretical_a_win_rate': [],
-                'theoretical_no_win_match_rate': []})
+        tpr_df = pd.DataFrame(
+                columns=[
+                    # 'span', 't_step', 'h_step' は後でインデックスに変換
+                    'span',
+                    't_step',
+                    'h_step',
+
+                    'theoretical_a_win_rate',
+                    'theoretical_no_win_match_rate'])
+        clazz.setup_data_frame(df=tpr_df, shall_set_index=True)
 
         # tpr_df.empty は真
 
-        clazz.setup_data_frame(df=tpr_df, shall_set_index=True)
         return TheoreticalProbabilityRatesTable(df=tpr_df, spec=spec)
 
 
@@ -1293,17 +1300,19 @@ class TheoreticalProbabilityTable():
 
     @classmethod
     def new_empty_table(clazz, spec):
-        # span, t_step, h_step はインデックス
-        tp_df = pd.DataFrame.from_dict({
-                'span': [],
-                't_step': [],
-                'h_step': [],
-                'shortest_coins': [],
-                'upper_limit_coins': []})
+        tp_df = pd.DataFrame(
+                columns=[
+                    # 'span', 't_step', 'h_step' は後でインデックスに変換
+                    'span',
+                    't_step',
+                    'h_step',
+
+                    'shortest_coins',
+                    'upper_limit_coins'])
+        clazz.setup_data_frame(df=tp_df, shall_set_index=True)
 
         # tp_df.empty は真
 
-        clazz.setup_data_frame(df=tp_df, shall_set_index=True)
         return TheoreticalProbabilityTable(df=tp_df, spec=spec)
 
 
@@ -1722,21 +1731,25 @@ class EmpiricalProbabilityDuringTrialsTable():
 
     @classmethod
     def new_empty_table(clazz, trial_series, turn_system_id, failure_rate):
-        # p はインデックス
-        ep_df = pd.DataFrame.from_dict({
-            'p': [],
-            'best_p': [],
-            'best_p_error': [],
-            'best_span': [],
-            'best_t_step': [],
-            'best_h_step': [],
-            'latest_p': [],
-            'latest_p_error': [],
-            'latest_span': [],
-            'latest_t_step': [],
-            'latest_h_step': [],
-            'candidate_history_text': []})
+
+        ep_df = pd.DataFrame(
+                columns=[
+                    # 'p' は後でインデックスに変換
+                    'p',
+
+                    'best_p',
+                    'best_p_error',
+                    'best_span',
+                    'best_t_step',
+                    'best_h_step',
+                    'latest_p',
+                    'latest_p_error',
+                    'latest_span',
+                    'latest_t_step',
+                    'latest_h_step',
+                    'candidate_history_text'])
         clazz.setup_data_frame(df=ep_df, shall_set_index=True)
+
         return EmpiricalProbabilityDuringTrialsTable(
                 df=ep_df,
                 trial_series=trial_series,
