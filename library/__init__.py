@@ -131,6 +131,24 @@ class Precision():
 
 
     @staticmethod
+    def is_it_zero_enough(rate):
+        """じゅうぶん 0 か？
+        つまり、小数点第４位を四捨五入して 0 か？
+
+        負数は絶対値にして四捨五入して負の符号を付けるものとする
+        """
+        return -0.0004 <= rate and rate <= 0.0004
+
+
+    @staticmethod
+    def is_it_one_enough(rate):
+        """じゅうぶん 1 か？
+        つまり、小数点第４位を四捨五入して 1 か？
+        """
+        return 0.9995 <= rate and rate <= 1.0004
+
+
+    @staticmethod
     def is_it_even_enough(rate):
         """じゅうぶん五分か？
         つまり、小数点第４位を四捨五入して５分か？
@@ -2320,7 +2338,7 @@ class ScoreBoard():
         sum_rate = p_with_draw + q_with_draw + spec.failure_rate
         # ぴったり 1 にはならない。有効桁数を決めておく
         if not Precision.is_almost_one(sum_rate):
-            raise ValueError(f"［ほぼ］ではなく［ピッタリ］合計は1になるはずですが、コンピューターの都合でピッタリ 1 になりません。それにしても大きく外れています {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
+            raise ValueError(f"［ほぼ］ではなく合計はピッタリ 1 になるはずですが、コンピューターの都合でピッタリ 1 になりません。それにしても大きく外れています {sum_rate=}({p_with_draw=}  {q_with_draw=}  {spec.failure_rate=})")
 
         pattern_p = 1
         for face_of_coin in path_of_face_of_coin:
@@ -2508,7 +2526,7 @@ class ThreeRates():
 
         ab_win_rate = a_win_rate + b_win_rate
         if not Precision.is_almost_one(ab_win_rate):
-            raise ValueError(f"［Ａさんの勝率］と［Ｂさんの勝率］を足したら１００％になる必要があります。 {ab_win_rate=}  {a_win_rate=}  {b_win_rate=}  {no_win_match_rate=}")
+            raise ValueError(f"［Ａさんの勝率］と［Ｂさんの勝率］を足したらピッタリ１００％になる必要があります。 {ab_win_rate=}  {a_win_rate=}  {b_win_rate=}  {no_win_match_rate=}")
 
         return ThreeRates(
                 a_win_rate=a_win_rate,

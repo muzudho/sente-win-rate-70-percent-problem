@@ -108,7 +108,7 @@ class AllTheoreticalProbabilityFilesOperation():
             if 0 < len(tpr_table.df):
                 # ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
                 min_abs_error = (tpr_table.df['theoretical_a_win_rate'] - EVEN).abs().min()
-                if Precision.is_almost_zero(min_abs_error):
+                if Precision.is_it_zero_enough(min_abs_error):
                     print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN....")
                     return
 
