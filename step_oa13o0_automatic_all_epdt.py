@@ -10,7 +10,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR, Converter
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
-from scripts.step_o1o0_create_all_epdt_tables import Automation as StepO1o0CreateAllEPDTTables
+from scripts.step_oa13o0_create_all_epdt_tables import Automation as StepOa13o0CreateAllEPDTTables
 from config import DEFAULT_TRIAL_SERIES, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         # ［試行シリーズ回数］
         trial_series = DEFAULT_TRIAL_SERIES
 
-        automatic_1 = StepO1o0CreateAllEPDTTables(
+        automatic_1 = StepOa13o0CreateAllEPDTTables(
                 trial_series=trial_series,
                 abs_small_error=SMALL_P_ABS_ERROR,
                 interval_seconds=INTERVAL_SECONDS_ON_TABLE)

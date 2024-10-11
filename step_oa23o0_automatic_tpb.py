@@ -13,7 +13,7 @@ from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestTable
 from library.views import DebugWrite
 from scripts import SaveWithRetry, IntervalForRetry, ForEachSpec
-from scripts.step_o7o0_upsert_record_in_tpb import AutomationOne as StepO7o0UpsertRecordInTPBOne
+from scripts.step_oa23o0_upsert_record_in_tpb import AutomationOne as StepOa23o0UpsertRecordInTPBOne
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
             raise ValueError("ここで tpb_table がナンなのはおかしい")
 
 
-        automation_one = StepO7o0UpsertRecordInTPBOne(tpb_table=tpb_table)
+        automation_one = StepOa23o0UpsertRecordInTPBOne(tpb_table=tpb_table)
 
         automation_1 = Automation(automation_one=automation_one)
 

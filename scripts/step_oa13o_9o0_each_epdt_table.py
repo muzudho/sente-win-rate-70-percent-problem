@@ -6,7 +6,7 @@ from library.database import EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.views import DebugWrite
 from scripts import SaveOrIgnore, ForEachSeriesRule
-from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachEdptRecord, SeriesRuleCursor
+from scripts.step_oa13o_8o0_each_epdt_record import Automation as StepOa13o08o0EachEdptRecord, SeriesRuleCursor
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
@@ -145,7 +145,7 @@ class Automation():
                 h_step=start_h_step)
 
 
-        stepo1o08o0_series_rule = StepO1o08o0EachEdptRecord(
+        stepoa13o08o0_series_rule = StepOa13o08o0EachEdptRecord(
                 specified_trial_series=self._specified_trial_series,
                 specified_turn_system_id=self._specified_turn_system_id,
                 specified_failure_rate=self._specified_failure_rate,
@@ -158,7 +158,7 @@ class Automation():
                 start_t_step=start_t_step,
                 start_h_step=start_h_step,
                 end_span=DEFAULT_UPPER_LIMIT_SPAN,
-                on_each=stepo1o08o0_series_rule.execute)
+                on_each=stepoa13o08o0_series_rule.execute)
 
 
     def on_callback_each_epdt_record(self, context, is_update):

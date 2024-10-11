@@ -12,7 +12,7 @@ from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
 from scripts import ForEachSeriesRule, SaveOrIgnore
-from scripts.step_o1o_8o0_each_epdt_record import Automation as StepO1o08o0EachEdptRecord
+from scripts.step_oa13o_8o0_each_epdt_record import Automation as StepOa13o08o0EachEdptRecord
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
                     p=specified_p)
 
 
-            automation = StepO1o08o0EachEdptRecord(
+            automation = StepOa13o08o0EachEdptRecord(
                     specified_trial_series=specified_trial_series,
                     specified_turn_system_id=specified_turn_system_id,
                     specified_failure_rate=specified_failure_rate,

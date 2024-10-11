@@ -11,7 +11,7 @@ from library import FROZEN_TURN, ALTERNATING_TURN, SMALL_P_ABS_ERROR, Converter
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.logging import Logging
 from scripts import ForEachTsFr
-from scripts.step_o_9o0_ready_disable_epdt_record import Automation as StepO09o0ReadyDisableEPDTRecord
+from scripts.step_oa12o0_ready_disable_epdt_record import Automation as StepOa12o0ReadyDisableEPDTRecord
 from config import DEFAULT_TRIAL_SERIES, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
@@ -37,7 +37,7 @@ class Automatic():
 
 
         # CSV作成 ［試行中の経験的確率データファイル］
-        automation = StepO09o0ReadyDisableEPDTRecord(
+        automation = StepOa12o0ReadyDisableEPDTRecord(
                 specified_trial_series=self._trial_series,
                 specified_failure_rate=failure_rate,
                 specified_turn_system_id=turn_system_id,
