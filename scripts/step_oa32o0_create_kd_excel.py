@@ -87,8 +87,17 @@ class Automation():
                 # 削除前の安全策
                 if not kd_excel_file_path.endswith('.xlsx'):
                     raise ValueError(f"エクセル形式のファイルが指定されていません。 {kd_excel_file_path=}")
+
+                try:               
+                    os.remove(kd_excel_file_path)
                 
-                os.remove(kd_excel_file_path)
+                # FIXME エクセルファイルが開けっ放しのとき
+                # PermissionError: [WinError 32] プロセスはファイルにアクセスできません。別のプロセスが使用中です。: 'reports/kakukin/auto_generated_kakukin_data_try2000_alter.xlsx'
+                except PermissionError as e:
+                    print(f"""\
+既存のエクセルファイルを削除できませんでした。作業をスキップします。
+error={e}""")
+                    continue
 
             # （シートを追加する前に）エクセルファイルを新規作成する必要がある。エクセルファイルは .zip 圧縮ファイルなので追記モードで新規作成は行ってくれず、このような手間が必要
             # ワークブックの作成
