@@ -109,7 +109,7 @@ class Automation():
         # h_min = 1
         # h_max = t_step
 
-        # バイナリサーチを用いた行へのランダムアクセスと、for 文での逐次アクセス、どっちが効率的か分からない
+        # TODO バイナリサーチを用いた行へのランダムアクセスと、for 文での逐次アクセス、どっちが効率的か分からない
         is_complete, is_timeup = self.sequencial_access(
                 spec=spec,
                 tpr_table=tpr_table,

@@ -35,11 +35,11 @@ class SaveOrIgnore():
         try:
             target_file_path = on_save_and_get_file_name()
 
-            # # ロギング
-            # Logging.notice_log(
-            #         file_path=log_file_path,
-            #         message=f"save to `{target_file_path}` file...",
-            #         shall_print=True)
+            # ロギング
+            Logging.notice_log(
+                    file_path=log_file_path,
+                    message=f"save to `{target_file_path}` file...",
+                    shall_print=True)
 
             return True, target_file_path
 
