@@ -75,7 +75,7 @@ p != 0.5    … イカサマコインの確率。 "!=" はノットイコール�
 
 ```
 scale  = 10^n
-p_time = scale * p
+h_time = scale * p
 ```
 
 例：  
@@ -83,7 +83,7 @@ p_time = scale * p
 ```
 scale  = 10
 p      =  0.7
-p_time =  7
+h_time =  7
 ```
 
 
@@ -102,7 +102,7 @@ p_target = floor(p / (1 - p))
 表が出る確率を、裏が出る確率で割り、その小数部を取り出す。この小数部も、表が出る確率だ  
 
 ```
-carried = p_time % (scale - p_time)
+carried = h_time % (scale - h_time)
 ```
 
 
@@ -111,7 +111,7 @@ carried = p_time % (scale - p_time)
 表のポイントに、表の得を加算する  
 
 ```
-carryover_p_time = p_time + carried
+carryover_h_time = h_time + carried
 ```
 
 
@@ -121,7 +121,7 @@ carryover_p_time = p_time + carried
 
 ```
 ※ ceil(x) は x の小数点以下切り上げ
-fill_times = ceil((scale - p_time) / carried)
+fill_times = ceil((scale - h_time) / carried)
 ```
 
 

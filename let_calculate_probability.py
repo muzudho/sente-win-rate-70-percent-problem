@@ -35,20 +35,20 @@ if __name__ == '__main__':
         df = cp_df
 
         # * `p` - 先手が勝つ確率
-        # * `p_time` - ［表勝ちだけでの対局数］
-        # * `q_time` - ［裏勝ちだけでの対局数］
+        # * `h_time` - ［表勝ちだけでの対局数］
+        # * `t_time` - ［裏勝ちだけでの対局数］
         # * `best_p` - 調整後の先手が勝つ確率
         # * `best_p_error` - 調整後の表が出る確率の 0.50 からの差の絶対値です。初期値は ABS_OUT_OF_ERROR
         # * `comment` - この行データの説明
         # 
-        for         p,       p_time,       q_time,       best_p,       best_p_error,       comment in\
-            zip(df['p'], df['p_time'], df['q_time'], df['best_p'], df['best_p_error'], df['comment']):
+        for         p,       h_time,       t_time,       best_p,       best_p_error,       comment in\
+            zip(df['p'], df['h_time'], df['t_time'], df['best_p'], df['best_p_error'], df['comment']):
 
             # オーバーフロー例外に対応したプログラミングをすること
             temp_best_p, err = calculate_probability(
                     p=p,
-                    H=p_time,
-                    T=q_time)
+                    H=h_time,
+                    T=t_time)
 
             # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
             if err is not None:
@@ -64,8 +64,8 @@ if __name__ == '__main__':
 
                 text = stringify_calculate_probability(
                         p=p,
-                        p_time=p_time,
-                        q_time=q_time,
+                        h_time=h_time,
+                        t_time=t_time,
                         best_p=temp_best_p,
                         best_p_error=temp_best_p_error)
 

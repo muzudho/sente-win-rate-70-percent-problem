@@ -2,7 +2,7 @@
 # NOTE 使ってない
 #
 # 生成
-# python generate_b_q_time_strict.py
+# python generate_b_t_time_strict.py
 #
 #   先後固定制で、［表勝ちだけでの対局数］、［裏勝ちだけでの対局数］を求める（厳密）
 #
@@ -14,11 +14,11 @@ import math
 import pandas as pd
 
 from library import calculate_probability, SeriesRule, FROZEN_TURN, ABS_OUT_OF_ERROR
-from library.views import stringify_p_q_time_strict
+from library.views import stringify_p_t_time_strict
 from config import DEFAULT_UPPER_LIMIT_OF_P
 
 
-LOG_FILE_PATH = 'output/generate_b_q_time_strict.log'
+LOG_FILE_PATH = 'output/generate_b_t_time_strict.log'
 
 FAILURE_RATE = 0.0
 TURN_SYSTEM = FROZEN_TURN
@@ -45,28 +45,28 @@ if __name__ == '__main__':
             # ベストな調整後の先手勝率と、その誤差
             best_p = None
             best_p_error = ABS_OUT_OF_ERROR
-            best_p_time = 0
-            best_q_time = 0
+            best_h_time = 0
+            best_t_time = 0
 
             # ［シリーズ・ルール候補］
             candidate_list = []
 
             # p=0.5 は計算の対象外とします
-            for p_time in range(1, 101):
+            for h_time in range(1, 101):
 
                 # ［先後固定制］で、［裏勝ちだけでの対局数］の上限
-                max_q_time = p_time
-                if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_q_time:
-                    max_q_time = MAX_W_REPEAT_WHEN_FROZEN_TURN                
+                max_t_time = h_time
+                if MAX_W_REPEAT_WHEN_FROZEN_TURN < max_t_time:
+                    max_t_time = MAX_W_REPEAT_WHEN_FROZEN_TURN                
 
-                for q_time in range (1, max_q_time+1):
+                for t_time in range (1, max_t_time+1):
 
                     # 理論値
                     # オーバーフロー例外に対応したプログラミングをすること
                     latest_theoretical_p, err = calculate_probability(
                             p=p,
-                            H=p_time,
-                            T=q_time)
+                            H=h_time,
+                            T=t_time)
 
                     # FIXME とりあえず、エラーが起こっている場合は、あり得ない値をセットして計算を完了させておく
                     if err is not None:
@@ -78,8 +78,8 @@ if __name__ == '__main__':
                     if latest_error < best_p_error:
                         best_p_error = latest_theoretical_p_error
                         best_p = latest_theoretical_p
-                        best_p_time = p_time
-                        best_q_time = q_time
+                        best_h_time = h_time
+                        best_t_time = t_time
 
                         # 仕様
                         spec = Specification(
@@ -125,10 +125,10 @@ if __name__ == '__main__':
                 series_rule = SeriesRule.make_series_rule_auto_span(
                     spec=spec,
                     trial_series=specified_trial_series,
-                    p_time=best_p_time,
-                    q_time=best_q_time)
+                    h_time=best_h_time,
+                    t_time=best_t_time)
 
-                text = stringify_p_q_time_strict(
+                text = stringify_p_t_time_strict(
                         p=p,
                         best_p=best_p,
                         best_p_error=best_p_error,

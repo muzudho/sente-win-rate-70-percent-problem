@@ -284,4 +284,4 @@ class SimulationLargeSeriesFilePaths():
             ［コインを投げて表も裏も出ない確率］
         """
         subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate)
-        return f'logs/simulation_large_series{subname}.log'
+        return f'logs/simulate_large_series{subname}.log'

@@ -4,7 +4,7 @@ import re
 from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, FACE_OF_COIN, PLAYERS, IN_GAME, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Converter, SeriesRule, Candidate
 
 
-def stringify_calculate_probability(p, p_time, q_time, best_p, best_p_error):
+def stringify_calculate_probability(p, h_time, t_time, best_p, best_p_error):
     """文言の作成"""
 
     # ［タイムスタンプ］
@@ -17,10 +17,10 @@ def stringify_calculate_probability(p, p_time, q_time, best_p, best_p_error):
     seg_1b = best_p
 
     # ［表勝ちだけでの対局数］
-    seg_2 = p_time
+    seg_2 = h_time
 
     # ［裏勝ちだけでの対局数］
-    seg_3 = q_time
+    seg_3 = t_time
 
     # # 計算過程を追加する場合
     # text += f"  {''.join(candidate_list)}"
@@ -29,7 +29,7 @@ def stringify_calculate_probability(p, p_time, q_time, best_p, best_p_error):
     return text
 
 
-def stringify_p_q_time_strict(p, best_p, best_p_error, series_rule, candidate_list):
+def stringify_p_t_time_strict(p, best_p, best_p_error, series_rule, candidate_list):
 
     # ［表が出る確率（％）］
     seg_1 = p*100

@@ -2067,8 +2067,8 @@ class CalculateProbabilityTable():
         cp_df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
                 dtype={
                     'p':'float64',
-                    'p_time':'int64',
-                    'q_time':'int64',
+                    'h_time':'int64',
+                    't_time':'int64',
                     'best_p':'float64',
                     'best_p_error':'float64',
                     'comment':'object'

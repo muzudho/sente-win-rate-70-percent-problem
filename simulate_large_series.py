@@ -1,6 +1,6 @@
 #
 # シミュレーション
-# python simulation_large_series.py
+# python simulate_large_series.py
 #
 #   ［コインの表が出る確率］ p=0.50 ～ 0.99 までのデータを一覧する
 #

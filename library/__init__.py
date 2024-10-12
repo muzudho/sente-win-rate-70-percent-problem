@@ -409,7 +409,7 @@ def scale_for_float_to_int(value):
     return 10**dp_len
 
 
-def p_to_b_q_times(p):
+def p_to_b_t_times(p):
     """［表が出る確率］ p を与えると、［表勝ちだけでの対局数］、［裏勝ちだけでの対局数］を返す
     
     Parameters
@@ -419,9 +419,9 @@ def p_to_b_q_times(p):
     
     Returns
     -------
-    p_time : int
+    h_time : int
         ［表勝ちだけでの対局数］
-    q_time : int
+    t_time : int
         ［裏勝ちだけでの対局数］
     """
 
@@ -433,13 +433,13 @@ def p_to_b_q_times(p):
     #
     #   NOTE int() を使って小数点以下切り捨てしようとすると、57 が 56 になったりするので、四捨五入にする
     #
-    p_time = round_letro(p * scale)
+    h_time = round_letro(p * scale)
 
     # ［裏勝ちだけでの対局数］基礎
-    q_time = scale - p_time
+    t_time = scale - h_time
 
     # 約分する
-    fraction = Fraction(p_time, q_time)
+    fraction = Fraction(h_time, t_time)
     return fraction.numerator, fraction.denominator
 
 
@@ -1368,8 +1368,8 @@ class SeriesRule():
         # ［上限対局数］
         upper_limit_coins = SeriesRule.let_upper_limit_coins(
                 spec=spec,
-                p_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                q_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                h_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
+                t_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
 
 
         if upper_limit_coins < shortest_coins:
@@ -1397,32 +1397,32 @@ step_table:
 
 
     @staticmethod
-    def make_series_rule_auto_span(spec, p_time, q_time):
+    def make_series_rule_auto_span(spec, h_time, t_time):
         """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
         
         Parameters
         ----------
         spec : Specificetion
             ［仕様］
-        p_time : int
+        h_time : int
             ［表勝ちだけでの対局数］
-        q_time : int
+        t_time : int
             ［裏勝ちだけでの対局数］
         """
         # DO 通分したい。最小公倍数を求める
-        lcm = math.lcm(p_time, q_time)
+        lcm = math.lcm(h_time, t_time)
         # ［表番で勝ったときの勝ち点］
         #
         #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
         #
-        h_step = round_letro(lcm / p_time)
+        h_step = round_letro(lcm / h_time)
         # ［裏番で勝ったときの勝ち点］
-        t_step = round_letro(lcm / q_time)
+        t_step = round_letro(lcm / t_time)
         # ［目標の点数］
-        span = round_letro(q_time * t_step)
+        span = round_letro(t_time * t_step)
 
         # データチェック
-        span_w = round_letro(p_time * h_step)
+        span_w = round_letro(h_time * h_step)
         if span != span_w:
             raise ValueError(f"{span=}  {span_w=}")
 
@@ -1557,7 +1557,7 @@ step_table:
 
 
     @staticmethod
-    def let_upper_limit_coins_without_failure_rate(spec, p_time, q_time):
+    def let_upper_limit_coins_without_failure_rate(spec, h_time, t_time):
         """［上限対局数］を算出します
 
         Parameters
@@ -1591,7 +1591,7 @@ step_table:
                     14   2   2   2
                     14  14   4  -6
             """
-            return  p_time + q_time - 1
+            return  h_time + t_time - 1
 
 
         # ［先後交互制］
@@ -1617,7 +1617,7 @@ step_table:
                     1   1
                     1   0
         """
-            return 2 * p_time - 1
+            return 2 * h_time - 1
 
 
         else:
@@ -1671,7 +1671,7 @@ step_table:
 
 
     @staticmethod
-    def let_upper_limit_coins(spec, p_time, q_time):
+    def let_upper_limit_coins(spec, h_time, t_time):
         """［上限対局数］を算出します
 
         Parameters
@@ -1682,8 +1682,8 @@ step_table:
 
         upper_limit_coins_without_failure_rate = SeriesRule.let_upper_limit_coins_without_failure_rate(
                 spec=spec,
-                p_time=p_time,
-                q_time=q_time)
+                h_time=h_time,
+                t_time=t_time)
 
         return SeriesRule.let_upper_limit_coins_with_failure_rate(
                 spec=spec,
