@@ -20,7 +20,7 @@ from scripts import SaveOrIgnore
 from scripts.step_oa22o0_tpr import Automation as StepOa22o0TPR
 
 
-# タイムアップ間隔（秒）。タイムシェアリング間隔
+# タイムアップ間隔（秒）。タイムシェアリング間隔。短いとオーバーヘッドの時間の方が長くなる。depth 値を足すかも
 INTERVAL_SECONDS = 5
 
 
@@ -99,7 +99,8 @@ class AllTheoreticalProbabilityFilesOperation():
 
         #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
         automation_oa22o0 = StepOa22o0TPR(
-                seconds_of_time_up=INTERVAL_SECONDS)
+                # depth が深くなれば、インターバル時間も伸ばすことにする
+                seconds_of_time_up=INTERVAL_SECONDS + self._depth)
 
 
         # upper_limit_coins が 6 ぐらいなら計算はすぐ終わる。 7 ぐらいから激重になる
@@ -120,9 +121,9 @@ class AllTheoreticalProbabilityFilesOperation():
                 #
                 upper_limit_upper_limit_coins=upper_limit_upper_limit_coins)
 
-        # # 途中の行まで処理したところでタイムアップ
+        # # 途中の行まで処理したところでタイムアップ(A)
         # if calculation_status == YIELD:
-        #     #print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
+        #     #print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ(A)")
         #     pass
 
         # # このファイルは処理失敗した

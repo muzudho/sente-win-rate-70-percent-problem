@@ -138,7 +138,7 @@ class Automation():
 
 
         if is_timeup:
-            print(f"途中の行まで処理したところでタイムアップ。譲る（タイムシェアリング）")
+            print(f"途中の行まで処理したところでタイムアップ(C)。譲る（タイムシェアリング） {self._seconds_of_time_up=}")
             return YIELD
 
 

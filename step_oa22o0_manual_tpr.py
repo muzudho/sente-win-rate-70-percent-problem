@@ -92,9 +92,9 @@ def main():
 
             print(f"処理2")
 
-            # 途中の行まで処理したところでタイムアップ
+            # 途中の行まで処理したところでタイムアップ(B)
             if calculation_status == YIELD:
-                print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ")
+                print(f"[{datetime.datetime.now()}] 途中の行まで処理したところでタイムアップ(B)")
 
             # このファイルは処理失敗した
             elif calculation_status == CALCULATION_FAILED:
