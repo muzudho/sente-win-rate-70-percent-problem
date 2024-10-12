@@ -88,7 +88,16 @@ if __name__ == '__main__':
         title='イーブン［シリーズ・ルール］'
 
 
-        ep_table, file_read_result = EmpiricalProbabilityDuringTrialsTable.from_csv(failure_rate=specified_failure_rate, turn_system_id=specified_turn_system_id)
+        ep_table, file_read_result = EmpiricalProbabilityDuringTrialsTable.from_csv(
+                trial_series = specified_trial_series,
+                turn_system_id = specified_turn_system_id,
+                failure_rate = specified_failure_rate,
+                new_if_it_no_exists = False)
+
+        if file_read_result.is_file_not_found:
+            raise ValueError("ファイルがありませんでした")
+
+        
         # 変数名を縮めます
         df = ep_table.df
 
