@@ -1179,6 +1179,10 @@ def calculate_probability(p, H, T):
         return UPPER_OUT_OF_P, err
 
 
+##################
+# MARK: SeriesRule
+##################
+
 class SeriesRule():
     """［シリーズ・ルール］
     

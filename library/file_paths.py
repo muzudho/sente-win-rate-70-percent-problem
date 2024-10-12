@@ -113,7 +113,7 @@ class KakukinDataFilePaths():
     @staticmethod
     def as_excel(trial_series, turn_system_id):
         subname = make_file_subname(trial_series=trial_series, turn_system_id=turn_system_id)
-        return f'reports/auto_generated_kakukin_data{subname}.xlsx'
+        return f'reports/kakukin/auto_generated_kakukin_data{subname}.xlsx'
 
 
     @staticmethod
