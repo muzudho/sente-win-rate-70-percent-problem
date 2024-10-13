@@ -57,6 +57,11 @@ class Automatic():
         # score board view data
         V = ScoreBoardViewData.from_data(score_board)
 
+        a_span = int(V.path_of_a_count_down_points_str[1])
+        b_span = int(V.path_of_b_count_down_points_str[1])
+        a_pts = a_span
+        b_pts = b_span
+
         # [0], [1] は見出しデータ
         MIDASI = 2
         number_of_round = len(V.path_of_round_number_str) - MIDASI
@@ -65,9 +70,24 @@ class Automatic():
         node_list = []
 
         for i in range(0, number_of_round):
-            # TODO ［失敗］は表記を変える
-            # TODO 累計の勝ち点
-            edge_list.append(f"{V.path_of_head_player_str[i + MIDASI]}さん({V.path_of_face_of_coin_str[i + MIDASI]})0")
+            player_name = V.path_of_head_player_str[i + MIDASI]
+            face_of_coin = V.path_of_face_of_coin_str[i + MIDASI]
+
+            # カウントダウン式で記録されているので、カウントアップ式に変換する
+            if player_name == 'A':
+                a_pts = int(V.path_of_a_count_down_points_str[i + MIDASI])
+                pts = a_span - a_pts
+            elif player_name == 'B':
+                b_pts = int(V.path_of_b_count_down_points_str[i + MIDASI])
+                pts = b_span - b_pts
+            else:
+                raise ValueError(f'{player_name=}')
+
+            # ［失敗］表記
+            if player_name == '失':
+                edge_list.append('失敗')
+            else:
+                edge_list.append(f"{player_name}さん({face_of_coin}){pts}")
 
             # TODO 確率を計算する
             node_list.append(0.00)
