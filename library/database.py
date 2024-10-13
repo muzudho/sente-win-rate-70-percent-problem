@@ -448,7 +448,7 @@ df:
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['span']
+        is_new_index = index not in self._df.index
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -813,7 +813,7 @@ class TheoreticalProbabilityBestTable():
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['turn_system_name']
+        is_new_index = index not in self._df.index
 
 
         # インデックスが既存でないなら
@@ -1214,7 +1214,7 @@ df:
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['expected_a_win_rate']
+        is_new_index = index not in self._df.index
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -1557,7 +1557,7 @@ df:
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['shortest_coins']
+        is_new_index = index not in self._df.index
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -1901,10 +1901,6 @@ class EmpiricalProbabilityDuringTrialsTable():
         df.astype(clazz._dtype)
 
 
-    def exists_index(self, p):
-        return p in self._df['best_p']
-
-
     def upsert_record(self, welcome_record):
         """該当レコードが無ければ新規作成、あれば更新
 
@@ -1928,7 +1924,7 @@ class EmpiricalProbabilityDuringTrialsTable():
 
         # データ変更判定
         # -------------
-        is_new_index = not self.exists_index(index)
+        is_new_index = index not in self._df.index
 
         # インデックスが既存でないなら
         if is_new_index:
@@ -2390,7 +2386,7 @@ df:
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['result']
+        is_new_index = index not in self._df.index
 
         # インデックスが既存でないなら
         if is_new_index:

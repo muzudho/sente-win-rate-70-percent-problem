@@ -21,7 +21,8 @@ from scripts import SaveOrIgnore
 class Automatic():
 
 
-    def __init__(self, gt_table):
+    def __init__(self, spec, gt_table):
+        self._spec = spec
         self._gt_table = gt_table
 
 
@@ -69,28 +70,60 @@ class Automatic():
         edge_list = []
         node_list = []
 
+        pattern_rate = 1
+        successful_p = (1 - self._spec.failure_rate) * self._spec.p
+        successful_q = (1 - self._spec.failure_rate) * (1 - self._spec.p)
+
         for i in range(0, number_of_round):
-            player_name = V.path_of_head_player_str[i + MIDASI]
+            prev_a_pts = int(V.path_of_a_count_down_points_str[i + MIDASI - 1])
+            prev_b_pts = int(V.path_of_b_count_down_points_str[i + MIDASI - 1])
+            a_pts = int(V.path_of_a_count_down_points_str[i + MIDASI])
+            b_pts = int(V.path_of_b_count_down_points_str[i + MIDASI])
+
+
+            # FIXME どちらが勝ったかの判定は、カウントが減っているかで判定
+            if a_pts < prev_a_pts and b_pts < prev_b_pts:
+                raise ValueError(f'両者のポイントが変わっているのはおかしい  {prev_a_pts=}  {prev_b_pts=}  {a_pts=}  {b_pts=}')
+            elif a_pts < prev_a_pts:
+                player_name = 'A'
+            elif b_pts < prev_b_pts:
+                player_name = 'B'
+            else:
+                player_name = '失'
+
+
             face_of_coin = V.path_of_face_of_coin_str[i + MIDASI]
 
-            # カウントダウン式で記録されているので、カウントアップ式に変換する
-            if player_name == 'A':
-                a_pts = int(V.path_of_a_count_down_points_str[i + MIDASI])
-                pts = a_span - a_pts
-            elif player_name == 'B':
-                b_pts = int(V.path_of_b_count_down_points_str[i + MIDASI])
-                pts = b_span - b_pts
-            else:
-                raise ValueError(f'{player_name=}')
 
             # ［失敗］表記
             if player_name == '失':
                 edge_list.append('失敗')
+
             else:
+                # カウントダウン式で記録されているので、カウントアップ式に変換する
+                if player_name == 'A':
+                    pts = a_span - a_pts
+                elif player_name == 'B':
+                    pts = b_span - b_pts
+                else:
+                    raise ValueError(f'{player_name=}')
+
                 edge_list.append(f"{player_name}さん({face_of_coin}){pts}")
 
-            # TODO 確率を計算する
-            node_list.append(0.00)
+
+            # 確率計算
+            if player_name == 'A':
+                pattern_rate *= successful_p
+            elif player_name == 'B':
+                pattern_rate *= successful_q
+            elif player_name == '失':
+                pattern_rate *= self._spec.failure_rate
+            else:
+                raise ValueError(f'{player_name=}')
+
+
+            node_list.append(pattern_rate)
+
 
         if 0 < number_of_round:
             e1 = edge_list[0]
@@ -211,15 +244,11 @@ if __name__ == '__main__':
                 new_if_it_no_exists=True)
         
 
-        automatic = Automatic(gt_table=gt_table)
+        automatic = Automatic(spec=spec, gt_table=gt_table)
 
         three_rates, all_patterns_p = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=automatic.on_score_board_created)
-
-
-        # gt_table.df.sort_index(
-        #         inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
         # CSVファイル出力（追記）

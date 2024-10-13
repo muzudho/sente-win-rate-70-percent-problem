@@ -526,7 +526,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
         # データ変更判定
         # -------------
-        is_new_index = index not in self._df['span']
+        is_new_index = index not in self._df.index
 
         # インデックスが既存でないなら
         if is_new_index:
