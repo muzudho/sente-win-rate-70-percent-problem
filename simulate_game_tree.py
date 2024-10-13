@@ -28,7 +28,7 @@ class Automatic():
     def on_score_board_created(self, score_board):
 
 
-        no = str(score_board.pattern_no)
+        no = score_board.pattern_no
 
 
         if score_board.game_results == IN_GAME:
@@ -58,15 +58,16 @@ class Automatic():
         V = ScoreBoardViewData.from_data(score_board)
 
         # [0], [1] は見出しデータ
-        number_of_round = len(V.path_of_round_number_str) - 2
+        MIDASI = 2
+        number_of_round = len(V.path_of_round_number_str) - MIDASI
 
         edge_list = []
         node_list = []
 
-        for round_no in range(1, number_of_round + 1):
+        for i in range(0, number_of_round):
             # TODO ［失敗］は表記を変える
             # TODO 累計の勝ち点
-            edge_list.append(f"{V.path_of_head_player_str[round_no]}さん({V.path_of_face_of_coin_str[round_no]})0")
+            edge_list.append(f"{V.path_of_head_player_str[i + MIDASI]}さん({V.path_of_face_of_coin_str[i + MIDASI]})0")
 
             # TODO 確率を計算する
             node_list.append(0.00)
@@ -195,6 +196,10 @@ if __name__ == '__main__':
         three_rates, all_patterns_p = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=automatic.on_score_board_created)
+
+
+        # gt_table.df.sort_index(
+        #         inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
 
 
         # CSVファイル出力（追記）
