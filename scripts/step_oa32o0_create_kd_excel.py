@@ -12,7 +12,6 @@ from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import KakukinDataFilePaths
 from library.logging import Logging
 from library.database import KakukinDataSheetTable
-from library.excel_files import KakukinDataExcelFile
 from scripts import SaveWithRetry, ForEachFr
 
 

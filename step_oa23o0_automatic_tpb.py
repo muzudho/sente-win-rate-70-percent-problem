@@ -17,6 +17,11 @@ from scripts.step_oa23o0_upsert_record_in_tpb import AutomationOne as StepOa23o0
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
+# 実行間隔タイマー
+#INTERVAL_SECONDS = 5   # ５秒
+INTERVAL_SECONDS = 3 * 60   # ３分。［素数ゼミ］参考
+
+
 # CSV保存間隔（秒）
 INTERVAL_SECONDS_FOR_SAVE_CSV = 30
 
@@ -129,7 +134,11 @@ if __name__ == '__main__':
 
 
         # TODO 自動調整のいい方法が思い浮かばない。とりあえず、 depth が どんどん増えていくものとする。
-        for depth in range(1, DEFAULT_MAX_DEPTH):
+        depth = 1
+        while depth < DEFAULT_MAX_DEPTH:
+
+            print(f"[{datetime.datetime.now()}] {depth=}  wait for {INTERVAL_SECONDS} seconds")
+            time.sleep(INTERVAL_SECONDS)
 
             # リセット
             automation_1.reset_by_depth(depth=depth)
@@ -159,14 +168,21 @@ if __name__ == '__main__':
             # ファイルが見つからない場合、作成中かもしれません。それが作られることを期待します
             elif 0 < automation_1.number_of_not_found_rows:
                 IntervalForRetry.sleep(min_secs=30, max_secs=5*60, shall_print=True)
+                # 深さは継続
 
 
+            # 更新完了
             elif automation_1.number_of_target_rows == automation_1.number_of_bright_rows:
                 print(f"{DebugWrite.stringify(depth=depth)}it was over")
-                break
+                # あとから新しいTPデータが追加されてくるから、終了はさせない
+                #break
+                # 深さのリセット
+                depth = 1
 
 
             # 次の深さへ
+            else:
+                depth += 1
 
 
         # 現実的に、完了しない想定
