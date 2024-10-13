@@ -1,4 +1,6 @@
 # (^q^)
+*- コピー*
+
 *.log
 logs/empirical_probability_during_trials/*
 !logs/empirical_probability_during_trials/.gitkeep
