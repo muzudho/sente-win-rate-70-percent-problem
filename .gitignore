@@ -4,6 +4,8 @@
 *.log
 logs/empirical_probability_during_trials/*
 !logs/empirical_probability_during_trials/.gitkeep
+logs/game_tree/*
+!logs/game_tree/.gitkeep
 logs/kakukin_data_sheet/*
 !logs/kakukin_data_sheet/.gitkeep
 logs/theoretical_probability/*
@@ -13,6 +15,8 @@ logs/theoretical_probability_rates/*
 
 temp/empirical_probability_during_trials/*
 !temp/empirical_probability_during_trials/.gitkeep
+temp/game_tree/*
+!temp/game_tree/.gitkeep
 temp/kakukin_data_sheet/*
 !temp/kakukin_data_sheet/.gitkeep
 temp/theoretical_probability/*

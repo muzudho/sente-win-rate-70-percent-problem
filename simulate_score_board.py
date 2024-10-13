@@ -9,8 +9,6 @@ import traceback
 import random
 import math
 
-import pandas as pd
-
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import ScoreBoardFilePaths
 from library.views import stringify_series_log, stringify_csv_of_score_board_view_header, stringify_csv_of_score_board_view_body, stringify_csv_of_score_board_view_footer, PromptCatalog
@@ -67,10 +65,7 @@ if __name__ == '__main__':
                 h_step=specified_h_step)
 
 
-        # CSVファイル出力（上書き）
-        #
-        #   ファイルをクリアーしたいだけ
-        #
+        # CSVファイルパス
         csv_file_path = ScoreBoardFilePaths.as_csv(
                 p=specified_series_rule.spec.p,
                 failure_rate=specified_series_rule.spec.failure_rate,
@@ -78,6 +73,15 @@ if __name__ == '__main__':
                 h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
                 t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
                 span=specified_series_rule.step_table.span)
+
+
+        # NOTE データテーブルの形式ではない（レポート形式）ので、 pandas を使わずテキスト出力してみる
+
+
+        # CSVファイル出力（上書き）
+        #
+        #   ファイルをクリアーしたいだけ
+        #
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'w', encoding='utf8') as f:
             f.write(stringify_csv_of_score_board_view_header(spec=specified_series_rule.spec, series_rule=specified_series_rule))
@@ -107,13 +111,6 @@ if __name__ == '__main__':
 
 
         # CSVファイル出力（追記）
-        csv_file_path = ScoreBoardFilePaths.as_csv(
-                p=specified_series_rule.spec.p,
-                failure_rate=specified_series_rule.spec.failure_rate,
-                turn_system_id=specified_series_rule.spec.turn_system_id,
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                span=specified_series_rule.step_table.span)
         print(f"write csv to `{csv_file_path}` file ...")
         with open(csv_file_path, 'a', encoding='utf8') as f:
             f.write(stringify_csv_of_score_board_view_footer(

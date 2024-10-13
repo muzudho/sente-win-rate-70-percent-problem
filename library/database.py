@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, round_letro, Converter, ThreeRates, RenamingBackup
-from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityRatesFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths
+from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityRatesFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths, GameTreeFilePaths
 from scripts import IntervalForRetry
 
 
@@ -1539,7 +1539,7 @@ df:
 
         Parameters
         ----------
-        welcome_record : TheoreticalProbabilityBestRecord
+        welcome_record : TheoreticalProbabilityRecord
             レコード
 
         Returns
@@ -2075,3 +2075,431 @@ class CalculateProbabilityTable():
                 })
 
         return cp_df, FileReadResult(is_file_not_found=is_file_not_found)
+
+
+##########
+# MARK: GT
+##########
+
+class GameTreeRecord():
+
+
+    def __init__(self, no, result, e1, n1, e2, n2, e3, n3, e4, n4, e5, n5, e6, n6):
+        """TODO n6 以降も欲しいが、あとで考える"""
+        self._no = no
+        self._reulst = reulst
+        self._e1 = e1
+        self._n1 = n1
+        self._e2 = e2
+        self._n2 = n2
+        self._e3 = e3
+        self._n3 = n3
+        self._e4 = e4
+        self._n4 = n4
+        self._e5 = e5
+        self._n5 = n5
+        self._e6 = e6
+        self._n6 = n6
+
+
+    @property
+    def no(self):
+        return self._no
+
+
+    @property
+    def result(self):
+        return self._result
+
+
+    @property
+    def e1(self):
+        return self._e1
+
+
+    @property
+    def n1(self):
+        return self._n1
+
+
+    @property
+    def e2(self):
+        return self._e2
+
+
+    @property
+    def n2(self):
+        return self._n2
+
+
+    @property
+    def e3(self):
+        return self._e3
+
+
+    @property
+    def n3(self):
+        return self._n3
+
+
+    @property
+    def e4(self):
+        return self._e4
+
+
+    @property
+    def n4(self):
+        return self._n4
+
+
+    @property
+    def e5(self):
+        return self._e5
+
+
+    @property
+    def n5(self):
+        return self._n5
+
+
+    @property
+    def e6(self):
+        return self._e6
+
+
+    @property
+    def n6(self):
+        return self._n6
+
+
+class GameTreeTable():
+    """樹形図データのテーブル"""
+
+
+    _dtype = {
+        # no はインデックス
+        'result':'object',
+        'e1':'object',
+        'n1':'float64',
+        'e2':'object',
+        'n2':'float64',
+        'e3':'object',
+        'n3':'float64',
+        'e4':'object',
+        'n4':'float64',
+        'e5':'object',
+        'n5':'float64',
+        'e6':'object',
+        'n6':'float64'}
+
+
+    def __init__(self, df, spec, span, t_step, h_step):
+        self._df = df
+        self._spec = spec
+        self._span = span
+        self._t_step = t_step
+        self._h_step = h_step
+
+
+    @classmethod
+    def new_empty_table(clazz, spec, span, t_step, h_step):
+        gt_df = pd.DataFrame(
+                columns=[
+                    # 'no' は後でインデックスに変換
+                    'no',
+
+                    'result',
+                    'e1',
+                    'n1',
+                    'e2',
+                    'n2',
+                    'e3',
+                    'n3',
+                    'e4',
+                    'n4',
+                    'e5',
+                    'n5',
+                    'e6',
+                    'n6'])
+        clazz.setup_data_frame(df=gt_df, shall_set_index=True)
+        return GameTreeTable(df=gt_df, spec=spec, span=span, t_step=t_step, h_step=h_step)
+
+
+    @classmethod
+    def from_csv(clazz, spec, span, t_step, h_step, new_if_it_no_exists=False):
+        """ファイル読込
+
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        new_if_it_no_exists : bool
+            ファイルが存在しなければ新規作成するか？
+        
+        Returns
+        -------
+        gt_table : GameTreeTable
+            テーブル、またはナン
+        file_read_result : FileReadResult
+            ファイル読込結果
+        """
+
+        csv_file_path = GameTreeFilePaths.as_csv(spec=spec, span=span, t_step=t_step, h_step=h_step)
+
+        is_file_not_found = not os.path.isfile(csv_file_path)
+
+        # ファイルが既存だったら、そのファイルを読む
+        if not is_file_not_found:
+            while True: # retry
+
+                # CSVファイルの読取り、データタイプの設定
+                try:
+                    renaming_backup = RenamingBackup(file_path=csv_file_path)
+                    renaming_backup.rollback_if_file_crushed()
+                    df = pd.read_csv(
+                            csv_file_path,
+                            encoding="utf8",
+                            index_col=['no'])
+
+                    # 診断
+                    # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
+                    if df.empty:
+                        print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
+                        raise ValueError(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}") from e
+
+
+                # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
+                except PermissionError as e:
+                    IntervalForRetry.sleep(shall_print=True)
+                    continue    # retry
+
+                # テーブルに列が無かった？ ファイルは破損してない。ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？
+                except pd.errors.EmptyDataError as e:
+                    # pandas.errors.EmptyDataError: No columns to parse from file
+                    print(f"""\
+[{datetime.datetime.now}] ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？
+{e}
+{csv_file_path=}""")
+                    raise ValueError("ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？") from e
+                
+                # CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
+                except ValueError as e:
+                    # ValueError: Integer column has NA values in column 3
+                    print(f"""\
+[{datetime.datetime.now}] CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき
+{e}
+{csv_file_path=}""")
+                    raise ValueError("CSVファイルに異常データが入ってる、レコードに一部の値だけが入っているような、値が欠損しているとき") from e
+                
+                except TypeError as e:
+                    print(f"""\
+[{datetime.datetime.now}] 想定外の型エラー。ファイルが破損してるかも？
+{e}
+{csv_file_path=}
+""")
+                    raise ValueError("想定外の型エラー。ファイルが破損してるかも？") from e
+
+
+                # テーブルに追加の設定
+                #try:
+                clazz.setup_data_frame(df=df, shall_set_index=False, csv_file_path=csv_file_path)
+
+                # オブジェクト生成
+                gt_table = GameTreeTable(df=df, spec=spec, span=span, t_step=t_step, h_step=h_step)
+                break   # complete
+
+
+        # ファイルが存在しなかった場合
+        else:
+            if new_if_it_no_exists:
+                gt_table = GameTreeTable.new_empty_table(spec=spec, span=span, t_step=t_step, h_step=h_step)
+            else:
+                gt_table = None
+
+
+        return gt_table, FileReadResult(is_file_not_found=is_file_not_found)
+
+
+    @property
+    def df(self):
+        return self._df
+
+
+    @classmethod
+    def setup_data_frame(clazz, df, shall_set_index, csv_file_path=None):
+        """データフレームの設定"""
+
+        # df.empty が真になるケースもある
+
+        if shall_set_index:
+            try:
+                # インデックスの設定
+                df.set_index('no',
+                        inplace=True)   # NOTE インデックスを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身を更新します
+
+            # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+            # "None of ['span', 't_step', 'h_step'] are in the columns"
+            # とりあえず、ファイル破損と判定する
+            except KeyError as e:
+                print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(B)
+{type(e)=}
+{e}
+{csv_file_path=}
+df:
+{df}""")
+                raise
+
+
+        try:
+            # データ型の設定
+            df.astype(clazz._dtype)
+
+        # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
+        # "None of ['span', 't_step', 'h_step'] are in the columns"
+        # とりあえず、ファイル破損と判定する
+        except KeyError as e:
+            print(f"""\
+[{datetime.datetime.now}] 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う(C)
+{type(e)=}
+{e}
+{csv_file_path=}""")
+            raise
+
+
+    def upsert_record(self, welcome_record):
+        """該当レコードが無ければ新規作成、あれば更新
+
+        Parameters
+        ----------
+        welcome_record : GameTreeRecord
+            レコード
+
+        Returns
+        -------
+        shall_record_change : bool
+            レコードの新規追加、または更新があれば真。変更が無ければ偽
+        """
+
+        # インデックス
+        # -----------
+        # index : any
+        #   インデックス。整数なら numpy.int64 だったり、複数インデックスなら tuple だったり、型は変わる。
+        #   <class 'numpy.int64'> は int型ではないが、pandas では int型と同じように使えるようだ
+        index = welcome_record.no
+
+        # データ変更判定
+        # -------------
+        is_new_index = index not in self._df['result']
+
+        # インデックスが既存でないなら
+        if is_new_index:
+            shall_record_change = True
+
+        else:
+            # 更新の有無判定
+            # no はインデックス
+            shall_record_change =\
+                self._df['result'][index] != welcome_record.result or\
+                self._df['e1'][index] != welcome_record.e1 or\
+                self._df['n1'][index] != welcome_record.n1 or\
+                self._df['e2'][index] != welcome_record.e2 or\
+                self._df['n2'][index] != welcome_record.n2 or\
+                self._df['e3'][index] != welcome_record.e3 or\
+                self._df['n3'][index] != welcome_record.n3 or\
+                self._df['e4'][index] != welcome_record.e4 or\
+                self._df['n4'][index] != welcome_record.n4 or\
+                self._df['e5'][index] != welcome_record.e5 or\
+                self._df['n5'][index] != welcome_record.n5 or\
+                self._df['e6'][index] != welcome_record.e6 or\
+                self._df['n6'][index] != welcome_record.n6
+
+
+        # 行の挿入または更新
+        if shall_record_change:
+            self._df.loc[index] = {
+                # no はインデックス
+                'result': welcome_record.result,
+                'e1': welcome_record.e1,
+                'n1': welcome_record.n1,
+                'e2': welcome_record.e2,
+                'n2': welcome_record.n2,
+                'e3': welcome_record.e3,
+                'n3': welcome_record.n3,
+                'e4': welcome_record.e4,
+                'n4': welcome_record.n4,
+                'e5': welcome_record.e5,
+                'n5': welcome_record.n5,
+                'e6': welcome_record.e6,
+                'n6': welcome_record.n6}
+
+        if is_new_index:
+            # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
+            self._df.sort_index(
+                    inplace=True)   # NOTE ソートを指定したデータフレームを戻り値として返すのではなく、このインスタンス自身をソートします
+
+
+        return shall_record_change
+
+
+    def to_csv(self):
+        """ファイル書き出し
+        
+        Returns
+        -------
+        csv_file_path : str
+            ファイルパス
+        """
+
+        csv_file_path = GameTreeFilePaths.as_csv(
+                spec=self._spec,
+                span=self._span,
+                t_step=self._t_step,
+                h_step=self._h_step)
+
+        # TODO ファイル保存の前のリネーム・バックアップ
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
+        renaming_backup.make_backup()
+        self._df.to_csv(
+                csv_file_path,
+                # no はインデックス
+                columns=['result', 'e1', 'n1', 'e2', 'n2', 'e3', 'n3', 'e4', 'n4', 'e5', 'n5', 'e6', 'n6'])
+        renaming_backup.remove_backup()
+
+        return csv_file_path
+
+
+    def for_each(self, on_each):
+        """
+        Parameters
+        ----------
+        on_each : func
+            record 引数を受け取る関数
+        """
+
+        df = self._df
+
+        for row_number,(      result  ,     e1  ,     n1  ,     e2  ,     n2  ,     d3  ,     n3  ,     e4  ,     n4  ,     e5  ,     n5  ,     e6  ,     n6) in\
+            enumerate(zip(df['result'], df['e1'], df['n1'], df['e2'], df['n2'], df['e3'], df['n3'], df['e4'], df['n4'], df['e5'], df['n5'], df['e6'], df['n6'])):
+
+            # no はインデックス
+            no = df.index[row_number]
+
+            # レコード作成
+            record = GameTreeRecord(
+                    no=no,
+                    result=result,
+                    e1=e1,
+                    n1=n1,
+                    e2=e2,
+                    n2=n2,
+                    e3=e3,
+                    n3=n3,
+                    e4=e4,
+                    n4=n4,
+                    e5=e5,
+                    n5=n5,
+                    e6=e6,
+                    n6=n6)
+
+            on_each(record)
