@@ -1413,7 +1413,7 @@ class TheoreticalProbabilityTable():
                     # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
                     if df.empty:
                         print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
-                        raise ValueError(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}") from e
+                        raise ValueError(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
 
 
                 # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
@@ -2087,7 +2087,7 @@ class GameTreeRecord():
     def __init__(self, no, result, e1, n1, e2, n2, e3, n3, e4, n4, e5, n5, e6, n6):
         """TODO n6 以降も欲しいが、あとで考える"""
         self._no = no
-        self._reulst = reulst
+        self._result = result
         self._e1 = e1
         self._n1 = n1
         self._e2 = e2
@@ -2265,7 +2265,7 @@ class GameTreeTable():
                     # FIXME テキストファイルの中身が表示されないバイトで埋まっていることがある。
                     if df.empty:
                         print(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
-                        raise ValueError(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}") from e
+                        raise ValueError(f"バイナリ・ファイルを読み取ったかもしれない。ファイル破損として扱う {csv_file_path=}")
 
 
                 # ファイルの読取タイミングが、他のプログラムからのファイルのアクセス中と被ったか？ リトライしてみる
