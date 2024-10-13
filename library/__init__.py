@@ -2687,6 +2687,16 @@ class RenamingBackup():
     def _rollback(self):
         """既存のファイルを削除し、バックアップ・ファイルを正のファイルにリネームする"""
         print(f"[{datetime.datetime.now()}] copy `{self.backup_file_path}` to `{self._file_path}`")
-        new_path = shutil.copy2(
-            self.backup_file_path,
-            self._file_path)    # 第２引数にファイル名を指定すると、既存なら上書きになる
+
+        try:
+            new_path = shutil.copy2(
+                self.backup_file_path,
+                self._file_path)    # 第２引数にファイル名を指定すると、既存なら上書きになる
+
+        # FIXME FileNotFoundError: [WinError 2] 指定されたファイルが見つかりません。
+        except FileNotFoundError as e:
+            print(f"""\
+{self.backup_file_path=}
+{self._file_path=}
+""")
+            raise
