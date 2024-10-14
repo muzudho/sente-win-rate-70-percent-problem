@@ -104,11 +104,11 @@ def make_file_subname(trial_series=None, turn_system_id=None, failure_rate=None,
     return f'_{subname}'
 
 
-##########
-# MARK: KD
-##########
+############
+# MARK: KDWB
+############
 
-class KakukinDataFilePaths():
+class KakukinDataWorkbookFilePaths():
     """［かくきんデータ］関連のファイルパス一覧"""
     @staticmethod
     def as_excel(trial_series, turn_system_id):
@@ -118,7 +118,7 @@ class KakukinDataFilePaths():
 
     @staticmethod
     def as_log():
-        return 'logs/kakukin_data.log'
+        return 'logs/kakukin_data_workbook.log'
 
 
 ###########

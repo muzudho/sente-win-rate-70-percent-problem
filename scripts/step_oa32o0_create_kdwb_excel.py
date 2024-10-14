@@ -9,7 +9,7 @@ import random
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
-from library.file_paths import KakukinDataFilePaths
+from library.file_paths import KakukinDataWorkbookFilePaths
 from library.logging import Logging
 from library.database import KakukinDataSheetTable
 from scripts import SaveWithRetry, ForEachFr
@@ -77,7 +77,7 @@ class Automation():
         for turn_system_id in [ALTERNATING_TURN, FROZEN_TURN]:
 
             # KDエクセル・ファイルへのパス
-            kd_excel_file_path = KakukinDataFilePaths.as_excel(
+            kd_excel_file_path = KakukinDataWorkbookFilePaths.as_excel(
                     trial_series=self._trial_series,
                     turn_system_id=turn_system_id)
 

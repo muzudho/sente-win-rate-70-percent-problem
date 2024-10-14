@@ -2,10 +2,10 @@ import os
 import openpyxl as xl
 
 
-from library.file_paths import KakukinDataFilePaths
+from library.file_paths import KakukinDataWorkbookFilePaths
 
 
-class KakukinDataExcelFile():
+class KakukinDataWorkbookWrapper():
     """［かくきんデータ・エクセル・ファイル］"""
 
 
@@ -21,11 +21,11 @@ class KakukinDataExcelFile():
         """インスタンス生成"""
 
         # エクセル・ファイルへのパス
-        excel_file_path = KakukinDataFilePaths.as_excel(
+        excel_file_path = KakukinDataWorkbookFilePaths.as_excel(
                 turn_system_id=turn_system_id,
                 trial_series=trial_series)
 
-        return KakukinDataExcelFile(
+        return KakukinDataWorkbookWrapper(
                 excel_file_path=excel_file_path)
 
 

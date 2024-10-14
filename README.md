@@ -34,7 +34,7 @@ python step_oa21o0_automatic_tp.py
 python step_oa22o0_automatic_tpr.py
 python step_oa23o0_automatic_tpb.py
 python step_oa31o0_automatic_kds.py
-python step_oa32o0_automatic_kd.py
+python step_oa32o0_automatic_kdwb.py
 ```
 
 

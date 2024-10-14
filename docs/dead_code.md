@@ -632,7 +632,7 @@ class TheoreticalProbabilityTrialResultsTable():
         self._row_number = 0
 
 
-    def create_kd_header(self, kds_table):
+    def create_kdwb_header(self, kds_table):
         """KDSテーブルの列名をそのまま写します"""
         
         # インデックス
@@ -646,7 +646,7 @@ class TheoreticalProbabilityTrialResultsTable():
 
 
 
-    def create_kd_record_by_kds_record(self, kds_record):
+    def create_kdwb_record_by_kds_record(self, kds_record):
 
         # ［仕様］
         self._ws[f'A{self._row_number}'].value = Converter.turn_system_id_to_name(self._specified_turn_system_id)
@@ -684,7 +684,7 @@ class TheoreticalProbabilityTrialResultsTable():
     def execute(self):
 
         # 対エクセル・ファイル用オブジェクト作成
-        kd_excel_file = KakukinDataExcelFile.instantiate(
+        kdwb_excel_file = KakukinDataWorkbookWrapper.instantiate(
                 turn_system_id=self._specified_turn_system_id,
                 trial_series=self._specified_trial_series)
 
@@ -693,7 +693,7 @@ class TheoreticalProbabilityTrialResultsTable():
             #
             #   NOTE ファイルが破損していると、難しいエラーを出す
             #
-            kd_excel_file.load_workbook()
+            kdwb_excel_file.load_workbook()
 
         # NOTE KeyError: "There is no item named '[Content_Types].xml' in the archive"
         except KeyError as e:
@@ -702,24 +702,24 @@ xlsxファイルが破損してるかも
 {e=}""")
             raise
 
-        self._ws = kd_excel_file.create_sheet(title=sheet_name, shall_overwrite=True)
+        self._ws = kdwb_excel_file.create_sheet(title=sheet_name, shall_overwrite=True)
 
 
 
 
         # ヘッダー部
         # ----------
-        self.create_kd_header(kds_table)
+        self.create_kdwb_header(kds_table)
 
         # データ部
         # --------
         self._row_number = 2
 
-        kds_table.for_each(on_each=self.create_kd_record_by_kds_record)
+        kds_table.for_each(on_each=self.create_kdwb_record_by_kds_record)
 
 
         # ［かくきんデータ・エクセル・ファイル］保存
         SaveWithRetry.execute(
-                log_file_path=KakukinDataFilePaths.as_log(),
-                on_save_and_get_file_name=kd_excel_file.save)
+                log_file_path=KakukinDataWorkbookFilePaths.as_log(),
+                on_save_and_get_file_name=kdwb_excel_file.save)
 ```

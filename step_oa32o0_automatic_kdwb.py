@@ -1,5 +1,5 @@
 #
-# python step_oa32o0_automatic_kd.py
+# python step_oa32o0_automatic_kdwb.py
 #
 # ［かくきんデータ］（KD）エクセルファイルを作成する
 #
@@ -9,9 +9,9 @@ import time
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
-from library.file_paths import KakukinDataFilePaths
+from library.file_paths import KakukinDataWorkbookFilePaths
 from library.logging import Logging
-from scripts.step_oa32o0_create_kd_excel import Automation as StepOa32o0CreateKDExcel
+from scripts.step_oa32o0_create_kdwb_excel import Automation as StepOa32o0CreateKDExcel
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE, DEFAULT_TRIAL_SERIES
 
 
@@ -27,8 +27,8 @@ if __name__ == '__main__':
     try:
         # ロギング
         Logging.notice_log(
-                file_path=KakukinDataFilePaths.as_log(),
-                message=f"start to create KD table. {INTERVAL_SECONDS=}",
+                file_path=KakukinDataWorkbookFilePaths.as_log(),
+                message=f"start to create KDWB. {INTERVAL_SECONDS=}",
                 shall_print=True)
 
 
@@ -47,8 +47,8 @@ if __name__ == '__main__':
 
             # ロギング
             Logging.notice_log(
-                    file_path=KakukinDataFilePaths.as_log(),
-                    message=f"restart to create KD table. {INTERVAL_SECONDS=}",
+                    file_path=KakukinDataWorkbookFilePaths.as_log(),
+                    message=f"restart to create KDWB. {INTERVAL_SECONDS=}",
                     shall_print=True)
 
 

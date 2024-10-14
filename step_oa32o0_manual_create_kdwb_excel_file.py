@@ -1,5 +1,5 @@
 #
-# python step_oa32o0_manual_create_kd_excel_file.py
+# python step_oa32o0_manual_create_kdwb_excel_file.py
 #
 #
 
@@ -7,7 +7,7 @@ import traceback
 import datetime
 
 from library.views import PromptCatalog, DebugWrite
-from scripts.step_oa32o0_create_kd_excel import Automation as StepOa32o0CreateKDExcel
+from scripts.step_oa32o0_create_kdwb_excel import Automation as StepOa32o0CreateKDExcel
 
 
 ########################################
