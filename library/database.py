@@ -20,9 +20,15 @@ class FileReadResult():
     """ファイル読込結果"""
 
 
-    def __init__(self, is_file_not_found):
+    def __init__(self, file_path, is_file_not_found):
         """初期化"""
+        self._file_path = file_path
         self._is_file_not_found = is_file_not_found
+
+
+    @property
+    def file_path(self):
+        return self._file_path
 
 
     @property
@@ -357,7 +363,7 @@ class KakukinDataSheetTable():
                     failure_rate=failure_rate)
 
 
-        return kds_table, FileReadResult(is_file_not_found=is_file_not_found)
+        return kds_table, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
     @property
@@ -765,7 +771,7 @@ class TheoreticalProbabilityBestTable():
             tpb_table = TheoreticalProbabilityBestTable(df=tpb_df)
 
 
-        return tpb_table, FileReadResult(is_file_not_found=is_file_not_found)
+        return tpb_table, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
     @property
@@ -1135,7 +1141,7 @@ class TheoreticalProbabilityRatesTable():
                 tpr_table = None
 
 
-        return tpr_table, FileReadResult(is_file_not_found=is_file_not_found)
+        return tpr_table, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
     @property
@@ -1478,7 +1484,7 @@ class TheoreticalProbabilityTable():
                 tp_table = None
 
 
-        return tp_table, FileReadResult(is_file_not_found=is_file_not_found)
+        return tp_table, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
     @property
@@ -1865,7 +1871,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                     failure_rate=failure_rate)
 
 
-        return ep_table, FileReadResult(is_file_not_found=is_file_not_found)
+        return ep_table, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
     @property
@@ -2055,12 +2061,14 @@ class CalculateProbabilityTable():
             ファイル読込結果
         """
 
+        csv_file_path = CSV_FILE_PATH_CAL_P
+
         # ファイルが存在しなかった場合
         is_file_not_found = not os.path.isfile(csv_file_path)
 
-        renaming_backup = RenamingBackup(file_path=CSV_FILE_PATH_CAL_P)
+        renaming_backup = RenamingBackup(file_path=csv_file_path)
         renaming_backup.rollback_if_file_crushed()
-        cp_df = pd.read_csv(CSV_FILE_PATH_CAL_P, encoding="utf8",
+        cp_df = pd.read_csv(csv_file_path, encoding="utf8",
                 dtype={
                     'p':'float64',
                     'h_time':'int64',
@@ -2070,7 +2078,7 @@ class CalculateProbabilityTable():
                     'comment':'object'
                 })
 
-        return cp_df, FileReadResult(is_file_not_found=is_file_not_found)
+        return cp_df, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
 ##########
@@ -2313,7 +2321,7 @@ class GameTreeTable():
                 gt_table = None
 
 
-        return gt_table, FileReadResult(is_file_not_found=is_file_not_found)
+        return gt_table, FileReadResult(file_path=csv_file_path, is_file_not_found=is_file_not_found)
 
 
     @property

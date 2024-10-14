@@ -2688,6 +2688,9 @@ class RenamingBackup():
         """既存のファイルを削除し、バックアップ・ファイルを正のファイルにリネームする"""
         print(f"[{datetime.datetime.now()}] copy `{self.backup_file_path}` to `{self._file_path}`")
 
+        if not os.path.isfile(self.backup_file_path):
+            raise ValueError(f'ロールバックしようとしましたが、指定されたバックアップファイルが見つかりません。保存中でバックアップファイルが削除されたタイミングかもしれません {self.backup_file_path=}')
+
         try:
             new_path = shutil.copy2(
                 self.backup_file_path,
