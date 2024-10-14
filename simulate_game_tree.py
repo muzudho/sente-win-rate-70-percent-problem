@@ -112,9 +112,9 @@ class Automatic():
 
 
             # 確率計算
-            if player_name == 'A':
+            if face_of_coin == '表':
                 pattern_rate *= successful_p
-            elif player_name == 'B':
+            elif face_of_coin == '裏':
                 pattern_rate *= successful_q
             elif player_name == '失':
                 pattern_rate *= self._spec.failure_rate
