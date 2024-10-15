@@ -11,7 +11,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, IN_GAME, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule
 from library.file_paths import GameTreeFilePaths
-from library.database import GameTreeRecord, GameTreeTable
+from library.database import GameTreeNode, GameTreeRecord, GameTreeTable
 from library.views import stringify_csv_of_score_board_view_body, PromptCatalog
 from library.score_board import search_all_score_boards
 from library.views import ScoreBoardViewData
@@ -67,8 +67,10 @@ class Automatic():
         MIDASI = 2
         number_of_round = len(V.path_of_round_number_str) - MIDASI
 
-        edge_list = []
-        node_list = []
+        face_list = []
+        winner_list = []
+        pts_list = []
+        rate_list = []
 
         pattern_rate = 1
         successful_p = (1 - self._spec.failure_rate) * self._spec.p
@@ -97,7 +99,8 @@ class Automatic():
 
             # ［失敗］表記
             if player_name == '失':
-                edge_list.append('失敗')
+                winner_list.append('N')
+                pts_list.append(-1)
 
             else:
                 # カウントダウン式で記録されているので、カウントアップ式に変換する
@@ -108,81 +111,73 @@ class Automatic():
                 else:
                     raise ValueError(f'{player_name=}')
 
-                edge_list.append(f"{player_name}さん({face_of_coin}){pts}")
+                winner_list.append(player_name)
+                pts_list.append(pts)
 
 
             # 確率計算
             if face_of_coin == '表':
+                face_list.append('h')
                 pattern_rate *= successful_p
             elif face_of_coin == '裏':
+                face_list.append('t')
                 pattern_rate *= successful_q
             elif player_name == '失':
+                face_list.append('f')
                 pattern_rate *= self._spec.failure_rate
             else:
                 raise ValueError(f'{player_name=}')
 
 
-            node_list.append(pattern_rate)
+            rate_list.append(pattern_rate)
 
 
         if 0 < number_of_round:
-            e1 = edge_list[0]
-            n1 = node_list[0]
+            i = 0
+            node1 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
         else:
-            e1 = None
-            n1 = None
+            node1 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
 
         if 1 < number_of_round:
-            e2 = edge_list[1]
-            n2 = node_list[1]
+            i = 1
+            node2 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
         else:
-            e2 = None
-            n2 = None
+            node2 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
 
         if 2 < number_of_round:
-            e3 = edge_list[2]
-            n3 = node_list[2]
+            i = 2
+            node3 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
         else:
-            e3 = None
-            n3 = None
+            node3 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
 
         if 3 < number_of_round:
-            e4 = edge_list[3]
-            n4 = node_list[3]
+            i = 3
+            node4 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
         else:
-            e4 = None
-            n4 = None
+            node4 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
 
         if 4 < number_of_round:
-            e5 = edge_list[4]
-            n5 = node_list[4]
+            i = 4
+            node5 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
         else:
-            e5 = None
-            n5 = None
+            node5 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
 
         if 5 < number_of_round:
-            e6 = edge_list[5]
-            n6 = node_list[5]
+            i = 5
+            node6 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
         else:
-            e6 = None
-            n6 = None
+            node6 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
 
         gt_table.upsert_record(
                 welcome_record=GameTreeRecord(
                         no=no,
                         result=result,
-                        e1=e1,
-                        n1=n1,
-                        e2=e2,
-                        n2=n2,
-                        e3=e3,
-                        n3=n3,
-                        e4=e4,
-                        n4=n4,
-                        e5=e5,
-                        n5=n5,
-                        e6=e6,
-                        n6=n6))
+                        node1=node1,
+                        node2=node2,
+                        node3=node3,
+                        node4=node4,
+                        node5=node5,
+                        node6=node6))
 
 
 ########################################
