@@ -604,7 +604,7 @@ df:
                     f_pts_wins_b=f_pts_wins_b,
                     no_wins_ab=no_wins_ab)
 
-            on_each(record)
+            on_each(row_number, record)
 
 
 ###########
@@ -916,7 +916,7 @@ class TheoreticalProbabilityBestTable():
                     expected_a_win_rate=expected_a_win_rate,
                     expected_no_win_match_rate=expected_no_win_match_rate)
 
-            on_each(record)
+            on_each(row_number, record)
 
 
 #############
@@ -1300,7 +1300,7 @@ df:
                     expected_a_win_rate=expected_a_win_rate,
                     expected_no_win_match_rate=expected_no_win_match_rate)
 
-            on_each(tpr_record)
+            on_each(row_number, tpr_record)
 
 
 ##########
@@ -1643,7 +1643,7 @@ df:
                     shortest_coins=shortest_coins,
                     upper_limit_coins=upper_limit_coins)
 
-            on_each(record)
+            on_each(row_number, record)
 
 
 ############
@@ -2039,7 +2039,7 @@ class EmpiricalProbabilityDuringTrialsTable():
                     latest_h_step=latest_h_step,
                     candidate_history_text=candidate_history_text)
 
-            on_each(record)
+            on_each(row_number, record)
 
 
 ###########
@@ -2483,7 +2483,7 @@ df:
 
         df = self._df
 
-        for row_number,(      result  ,     e1  ,     n1  ,     e2  ,     n2  ,     d3  ,     n3  ,     e4  ,     n4  ,     e5  ,     n5  ,     e6  ,     n6) in\
+        for row_number,(      result  ,     e1  ,     n1  ,     e2  ,     n2  ,     e3  ,     n3  ,     e4  ,     n4  ,     e5  ,     n5  ,     e6  ,     n6) in\
             enumerate(zip(df['result'], df['e1'], df['n1'], df['e2'], df['n2'], df['e3'], df['n3'], df['e4'], df['n4'], df['e5'], df['n5'], df['e6'], df['n6'])):
 
             # no はインデックス
@@ -2506,4 +2506,4 @@ df:
                     e6=e6,
                     n6=n6)
 
-            on_each(record)
+            on_each(row_number, record)

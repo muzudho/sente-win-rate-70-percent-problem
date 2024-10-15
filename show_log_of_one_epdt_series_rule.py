@@ -153,7 +153,7 @@ if __name__ == '__main__':
                 new_if_it_no_exists=True)
 
 
-        def on_each(epdt_record):
+        def on_each(row_number, epdt_record):
 
             # 対象外のものはスキップ
             if specified_failure_rate != failure_rate:

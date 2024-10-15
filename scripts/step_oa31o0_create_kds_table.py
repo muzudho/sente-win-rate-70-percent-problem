@@ -30,7 +30,7 @@ class Automation():
         self._kds_table = None
 
 
-    def on_each_tpb_record(self, tpb_record):
+    def on_each_tpb_record(self, row_number, tpb_record):
 
         # 対象外のものはスキップ　［先後の決め方］
         if self._specified_turn_system_id != Converter.turn_system_code_to_id(tpb_record.turn_system_name):

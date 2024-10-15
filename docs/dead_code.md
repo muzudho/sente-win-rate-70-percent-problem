@@ -673,7 +673,7 @@ class KakukinDataWorkbookWrapper():
         return self._wb
 
 
-    def create_sheet(self, title, shall_overwrite=False):
+    def create_sheet(self, title, shall_overwrite):
         """シート作成
 
         Parameters

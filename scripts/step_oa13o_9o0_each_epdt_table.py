@@ -74,7 +74,7 @@ class Automation():
         return self._number_of_passaged
 
 
-    def execute_by_epdt_record(self, epdt_record):
+    def execute_by_epdt_record(self, row_number, epdt_record):
         """実行
         
         TODO 更新が無かったとき、全て終わってるのか、何も進まなかったのかを分けたい。全部のレコードがスキップされたとき、無限ループに陥るのを防ぎたい
