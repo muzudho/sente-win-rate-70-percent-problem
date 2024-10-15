@@ -42,20 +42,34 @@ class Automation():
 
         # 列の幅設定
         # width はだいたい 'ＭＳ Ｐゴシック' サイズ11 の半角英文字の個数
-        ws.column_dimensions['A'].width = 4
-        ws.column_dimensions['B'].width = 20
-        ws.column_dimensions['C'].width = 14    # 1
-        ws.column_dimensions['D'].width = 10
-        ws.column_dimensions['E'].width = 14    # 2
-        ws.column_dimensions['F'].width = 10
-        ws.column_dimensions['G'].width = 14    # 3
+
+        # TODO C列には確率を入れたい
+        # TODO D列は空列にしたい
+        # TODO E列の上の方の行には 1 を入れたい
+
+        ws.column_dimensions['A'].width = 4     # no
+        ws.column_dimensions['B'].width = 20    # result
+        ws.column_dimensions['C'].width = 14    # rate
+        ws.column_dimensions['D'].width = 14    # empty column
+        ws.column_dimensions['E'].width = 14    # root node
+        ws.column_dimensions['F'].width = 2    # 1
+        ws.column_dimensions['G'].width = 14
         ws.column_dimensions['H'].width = 10
-        ws.column_dimensions['I'].width = 14    # 4
-        ws.column_dimensions['J'].width = 10
-        ws.column_dimensions['K'].width = 14    # 5
-        ws.column_dimensions['L'].width = 10
-        ws.column_dimensions['M'].width = 14    # 6
+        ws.column_dimensions['I'].width = 2    # 2
+        ws.column_dimensions['J'].width = 14
+        ws.column_dimensions['K'].width = 10
+        ws.column_dimensions['L'].width = 2    # 3
+        ws.column_dimensions['M'].width = 14
         ws.column_dimensions['N'].width = 10
+        ws.column_dimensions['O'].width = 2    # 4
+        ws.column_dimensions['P'].width = 14
+        ws.column_dimensions['Q'].width = 10
+        ws.column_dimensions['R'].width = 2    # 5
+        ws.column_dimensions['S'].width = 14
+        ws.column_dimensions['T'].width = 10
+        ws.column_dimensions['U'].width = 2    # 6
+        ws.column_dimensions['V'].width = 14
+        ws.column_dimensions['W'].width = 10
 
 
         # 行の高さ設定
@@ -73,9 +87,25 @@ class Automation():
         column_number = 1
         ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = 'no'
 
-        # ２列目～
-        for column_number, column_name in enumerate(self._gt_table.df.columns.values, 2):
-            ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = column_name
+        # そのままコピーできない
+        # # ２列目～
+        # for column_number, column_name in enumerate(self._gt_table.df.columns.values, 2):
+        #     ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = column_name
+        ws[f'{xl.utils.get_column_letter(1)}{row_number}'] = 'No'
+        ws[f'{xl.utils.get_column_letter(2)}{row_number}'] = '結果'
+        ws[f'{xl.utils.get_column_letter(3)}{row_number}'] = '実現確率'
+        # 4 は空列
+
+        ws[f'{xl.utils.get_column_letter(5)}{row_number}'] = '開始前'
+
+        # 6 は分岐線
+        # 7 はedge
+        ws[f'{xl.utils.get_column_letter(8)}{row_number}'] = '1局後'   # node
+        ws[f'{xl.utils.get_column_letter(11)}{row_number}'] = '2局後'
+        ws[f'{xl.utils.get_column_letter(14)}{row_number}'] = '3局後'
+        ws[f'{xl.utils.get_column_letter(17)}{row_number}'] = '4局後'
+        ws[f'{xl.utils.get_column_letter(20)}{row_number}'] = '5局後'
+        ws[f'{xl.utils.get_column_letter(23)}{row_number}'] = '6局後'
 
         # ２行目
         # ------
@@ -93,6 +123,7 @@ class Automation():
         # style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
         upside_node_border = Border(top=side, left=side, right=side)
         downside_node_border = Border(bottom=side, left=side, right=side)
+        under_border = Border(bottom=side)
 
 
         # 変数名短縮
@@ -118,53 +149,59 @@ class Automation():
         # TODO D列は空列にしたい
         # TODO E列の上の方の行には 1 を入れたい
 
-        ws[f'F{rn1}'].value = gt_record.e1
+        ws[f'F{rn1}'].border = under_border
+        ws[f'G{rn1}'].value = gt_record.e1
+        ws[f'G{rn1}'].border = under_border
+        ws[f'H{rn1}'].value = gt_record.n1
+        ws[f'H{rn1}'].fill = node_bgcolor
+        ws[f'H{rn1}'].border = upside_node_border
+        ws[f'H{rn2}'].fill = node_bgcolor
+        ws[f'H{rn2}'].border = downside_node_border
 
-        ws[f'G{rn1}'].value = gt_record.n1
-        ws[f'G{rn1}'].fill = node_bgcolor
-        ws[f'G{rn1}'].border = upside_node_border
-        ws[f'G{rn2}'].fill = node_bgcolor
-        ws[f'G{rn2}'].border = downside_node_border
-
-        ws[f'H{rn1}'].value = gt_record.e2
-
-        ws[f'I{rn1}'].value = gt_record.n2
-        ws[f'I{rn1}'].fill = node_bgcolor
-        ws[f'I{rn1}'].border = upside_node_border
-        ws[f'I{rn2}'].fill = node_bgcolor
-        ws[f'I{rn2}'].border = downside_node_border
-
-        ws[f'J{rn1}'].value = gt_record.e3
-
-        ws[f'K{rn1}'].value = gt_record.n3
+        ws[f'I{rn1}'].border = under_border
+        ws[f'J{rn1}'].value = gt_record.e2
+        ws[f'J{rn1}'].border = under_border
+        ws[f'K{rn1}'].value = gt_record.n2
         ws[f'K{rn1}'].fill = node_bgcolor
         ws[f'K{rn1}'].border = upside_node_border
         ws[f'K{rn2}'].fill = node_bgcolor
         ws[f'K{rn2}'].border = downside_node_border
 
-        ws[f'L{rn1}'].value = gt_record.e4
+        ws[f'L{rn1}'].border = under_border
+        ws[f'M{rn1}'].value = gt_record.e3
+        ws[f'M{rn1}'].border = under_border
+        ws[f'N{rn1}'].value = gt_record.n3
+        ws[f'N{rn1}'].fill = node_bgcolor
+        ws[f'N{rn1}'].border = upside_node_border
+        ws[f'N{rn2}'].fill = node_bgcolor
+        ws[f'N{rn2}'].border = downside_node_border
 
-        ws[f'M{rn1}'].value = gt_record.n4
-        ws[f'M{rn1}'].fill = node_bgcolor
-        ws[f'M{rn1}'].border = upside_node_border
-        ws[f'M{rn2}'].fill = node_bgcolor
-        ws[f'M{rn2}'].border = downside_node_border
-
-        ws[f'N{rn1}'].value = gt_record.e5
-
-        ws[f'O{rn1}'].value = gt_record.n5
-        ws[f'O{rn1}'].fill = node_bgcolor
-        ws[f'O{rn1}'].border = upside_node_border
-        ws[f'O{rn2}'].fill = node_bgcolor
-        ws[f'O{rn2}'].border = downside_node_border
-
-        ws[f'P{rn1}'].value = gt_record.e6
-
-        ws[f'Q{rn1}'].value = gt_record.n6
+        ws[f'O{rn1}'].border = under_border
+        ws[f'P{rn1}'].value = gt_record.e4
+        ws[f'P{rn1}'].border = under_border
+        ws[f'Q{rn1}'].value = gt_record.n4
         ws[f'Q{rn1}'].fill = node_bgcolor
         ws[f'Q{rn1}'].border = upside_node_border
         ws[f'Q{rn2}'].fill = node_bgcolor
         ws[f'Q{rn2}'].border = downside_node_border
+
+        ws[f'R{rn1}'].border = under_border
+        ws[f'S{rn1}'].value = gt_record.e5
+        ws[f'S{rn1}'].border = under_border
+        ws[f'T{rn1}'].value = gt_record.n5
+        ws[f'T{rn1}'].fill = node_bgcolor
+        ws[f'T{rn1}'].border = upside_node_border
+        ws[f'T{rn2}'].fill = node_bgcolor
+        ws[f'T{rn2}'].border = downside_node_border
+
+        ws[f'U{rn1}'].border = under_border
+        ws[f'V{rn1}'].value = gt_record.e6
+        ws[f'V{rn1}'].border = under_border
+        ws[f'W{rn1}'].value = gt_record.n6
+        ws[f'W{rn1}'].fill = node_bgcolor
+        ws[f'W{rn1}'].border = upside_node_border
+        ws[f'W{rn2}'].fill = node_bgcolor
+        ws[f'W{rn2}'].border = downside_node_border
 
         # TODO GT テーブルの内容を GTWB のシートへコピー、スタイルも設定
 
