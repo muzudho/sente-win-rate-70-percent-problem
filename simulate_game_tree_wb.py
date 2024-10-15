@@ -8,6 +8,8 @@
 import traceback
 import pandas as pd
 import openpyxl as xl
+from openpyxl.styles import PatternFill, Font
+from openpyxl.styles.borders import Border, Side
 
 from library import HEAD, TAIL, ALICE, IN_GAME, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule
 from library.file_paths import GameTreeFilePaths
@@ -33,39 +35,136 @@ class Automation():
 
 
     def on_header(self):
+
+        # 変数名の短縮
+        ws = self._gt_wb_wrapper.worksheet
+
+
+        # 列の幅設定
+        # width はだいたい 'ＭＳ Ｐゴシック' サイズ11 の半角英文字の個数
+        ws.column_dimensions['A'].width = 4
+        ws.column_dimensions['B'].width = 20
+        ws.column_dimensions['C'].width = 14    # 1
+        ws.column_dimensions['D'].width = 10
+        ws.column_dimensions['E'].width = 14    # 2
+        ws.column_dimensions['F'].width = 10
+        ws.column_dimensions['G'].width = 14    # 3
+        ws.column_dimensions['H'].width = 10
+        ws.column_dimensions['I'].width = 14    # 4
+        ws.column_dimensions['J'].width = 10
+        ws.column_dimensions['K'].width = 14    # 5
+        ws.column_dimensions['L'].width = 10
+        ws.column_dimensions['M'].width = 14    # 6
+        ws.column_dimensions['N'].width = 10
+
+
+        # 行の高さ設定
+        # height の単位はポイント。昔のアメリカ人が椅子に座ってディスプレイを見たとき 1/72 インチに見える大きさが 1ポイント らしいが、そんなんワカラン。目視確認してほしい
+        ws.row_dimensions[1].height = 13
+        ws.row_dimensions[2].height = 13
+
+
+        # １行目
+        # ------
+        # ヘッダー行にする
         row_number = 1
 
         # インデックス
         column_number = 1
-        self._gt_wb_wrapper.worksheet[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = 'no'
+        ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = 'no'
 
         # ２列目～
         for column_number, column_name in enumerate(self._gt_table.df.columns.values, 2):
-            self._gt_wb_wrapper.worksheet[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = column_name
+            ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = column_name
+
+        # ２行目
+        # ------
+        # 空行にする
+        row_number = 2
 
 
     def on_gt_record(self, row_number, gt_record):
 
+        # 色の参考： 📖 [Excels 56 ColorIndex Colors](https://www.excelsupersite.com/what-are-the-56-colorindex-colors-in-excel/)
+        node_bgcolor = PatternFill(patternType='solid', fgColor='FFFFCC')
+
+        # 罫線
+        side = Side(style='thick', color='000000')
+        # style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
+        upside_node_border = Border(top=side, left=side, right=side)
+        downside_node_border = Border(bottom=side, left=side, right=side)
+
+
         # 変数名短縮
-        WS = self._gt_wb_wrapper.worksheet
+        ws = self._gt_wb_wrapper.worksheet
 
-        # データは２行目から
-        RN = row_number + 2
+        # ３行目～６行目
+        # -------------
+        # データは３行目から、１かたまり３行を使って描画する
+        rn1 = row_number * 3 + 3
+        rn2 = row_number * 3 + 3 + 1
+        rn3 = row_number * 3 + 3 + 2
 
-        WS[f'A{RN}'].value = gt_record.no
-        WS[f'B{RN}'].value = gt_record.result
-        WS[f'C{RN}'].value = gt_record.e1
-        WS[f'D{RN}'].value = gt_record.n1
-        WS[f'E{RN}'].value = gt_record.e2
-        WS[f'F{RN}'].value = gt_record.n2
-        WS[f'G{RN}'].value = gt_record.e3
-        WS[f'H{RN}'].value = gt_record.n3
-        WS[f'I{RN}'].value = gt_record.e4
-        WS[f'J{RN}'].value = gt_record.n4
-        WS[f'K{RN}'].value = gt_record.e5
-        WS[f'L{RN}'].value = gt_record.n5
-        WS[f'M{RN}'].value = gt_record.e6
-        WS[f'N{RN}'].value = gt_record.n6
+        # 行の高さ設定
+        # height の単位はポイント。昔のアメリカ人が椅子に座ってディスプレイを見たとき 1/72 インチに見える大きさが 1ポイント らしいが、そんなんワカラン。目視確認してほしい
+        ws.row_dimensions[rn1].height = 13
+        ws.row_dimensions[rn2].height = 13
+        ws.row_dimensions[rn3].height = 6
+
+        ws[f'A{rn1}'].value = gt_record.no
+        ws[f'B{rn1}'].value = gt_record.result
+
+        # TODO C列には確率を入れたい
+        # TODO D列は空列にしたい
+        # TODO E列の上の方の行には 1 を入れたい
+
+        ws[f'F{rn1}'].value = gt_record.e1
+
+        ws[f'G{rn1}'].value = gt_record.n1
+        ws[f'G{rn1}'].fill = node_bgcolor
+        ws[f'G{rn1}'].border = upside_node_border
+        ws[f'G{rn2}'].fill = node_bgcolor
+        ws[f'G{rn2}'].border = downside_node_border
+
+        ws[f'H{rn1}'].value = gt_record.e2
+
+        ws[f'I{rn1}'].value = gt_record.n2
+        ws[f'I{rn1}'].fill = node_bgcolor
+        ws[f'I{rn1}'].border = upside_node_border
+        ws[f'I{rn2}'].fill = node_bgcolor
+        ws[f'I{rn2}'].border = downside_node_border
+
+        ws[f'J{rn1}'].value = gt_record.e3
+
+        ws[f'K{rn1}'].value = gt_record.n3
+        ws[f'K{rn1}'].fill = node_bgcolor
+        ws[f'K{rn1}'].border = upside_node_border
+        ws[f'K{rn2}'].fill = node_bgcolor
+        ws[f'K{rn2}'].border = downside_node_border
+
+        ws[f'L{rn1}'].value = gt_record.e4
+
+        ws[f'M{rn1}'].value = gt_record.n4
+        ws[f'M{rn1}'].fill = node_bgcolor
+        ws[f'M{rn1}'].border = upside_node_border
+        ws[f'M{rn2}'].fill = node_bgcolor
+        ws[f'M{rn2}'].border = downside_node_border
+
+        ws[f'N{rn1}'].value = gt_record.e5
+
+        ws[f'O{rn1}'].value = gt_record.n5
+        ws[f'O{rn1}'].fill = node_bgcolor
+        ws[f'O{rn1}'].border = upside_node_border
+        ws[f'O{rn2}'].fill = node_bgcolor
+        ws[f'O{rn2}'].border = downside_node_border
+
+        ws[f'P{rn1}'].value = gt_record.e6
+
+        ws[f'Q{rn1}'].value = gt_record.n6
+        ws[f'Q{rn1}'].fill = node_bgcolor
+        ws[f'Q{rn1}'].border = upside_node_border
+        ws[f'Q{rn2}'].fill = node_bgcolor
+        ws[f'Q{rn2}'].border = downside_node_border
 
         # TODO GT テーブルの内容を GTWB のシートへコピー、スタイルも設定
 
