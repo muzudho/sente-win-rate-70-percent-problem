@@ -155,94 +155,121 @@ class Automation():
         # TODO D列は空列にしたい
         # TODO E列の上の方の行には 1 を入れたい
 
+        def edge_text(node):
+            if node.face == 'h':
+                face = '表'
+            elif node.face == 't':
+                face = '裏'
+            elif node.face == 'f':
+                face = '失敗'
+            else:
+                raise ValueError(f"{node.face=}")
+            
+            if node.winner == 'A':
+                winner = '(Ａさん'
+            elif node.winner == 'B':
+                winner = '(Ｂさん'
+            elif node.winner == 'N':
+                winner = ''
+            else:
+                raise ValueError(f"{node.winner=}")
+
+            if node.pts != -1:
+                pts = f"{node.pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
+            else:
+                pts = ''
+
+            return f"{face}{winner}{pts}"
+
+
         # 1局後
         # -----
-        if not pd.isnull(gt_record.n1) and gt_record.n1 != self._prev_n1:
+        if not pd.isnull(gt_record.node1.rate) and gt_record.node1.rate != self._prev_n1:
             ws[f'F{rn1}'].border = under_border
-            ws[f'G{rn1}'].value = gt_record.e1
+            ws[f'G{rn1}'].value = edge_text(node=gt_record.node1)
             ws[f'G{rn1}'].border = under_border
-            ws[f'H{rn1}'].value = gt_record.n1
+            ws[f'H{rn1}'].value = gt_record.node1.rate
             ws[f'H{rn1}'].fill = node_bgcolor
             ws[f'H{rn1}'].border = upside_node_border
             ws[f'H{rn2}'].fill = node_bgcolor
             ws[f'H{rn2}'].border = downside_node_border
 
-        self._prev_n1 = gt_record.n1
+        self._prev_n1 = gt_record.node1.rate
 
 
         # 2局後
         # -----
-        if not pd.isnull(gt_record.n2) and gt_record.n2 != self._prev_n2:
+        if not pd.isnull(gt_record.node2.rate) and gt_record.node2.rate != self._prev_n2:
             ws[f'I{rn1}'].border = under_border
-            ws[f'J{rn1}'].value = gt_record.e2
+            ws[f'J{rn1}'].value = edge_text(node=gt_record.node2)
             ws[f'J{rn1}'].border = under_border
-            ws[f'K{rn1}'].value = gt_record.n2
+            ws[f'K{rn1}'].value = gt_record.node2.rate
             ws[f'K{rn1}'].fill = node_bgcolor
             ws[f'K{rn1}'].border = upside_node_border
             ws[f'K{rn2}'].fill = node_bgcolor
             ws[f'K{rn2}'].border = downside_node_border
 
-        self._prev_n2 = gt_record.n2
+        self._prev_n2 = gt_record.node2.rate
 
 
         # 3局後
         # -----
-        if not pd.isnull(gt_record.n3) and gt_record.n3 != self._prev_n3:
+        if not pd.isnull(gt_record.node3.rate) and gt_record.node3.rate != self._prev_n3:
             ws[f'L{rn1}'].border = under_border
-            ws[f'M{rn1}'].value = gt_record.e3
+            ws[f'M{rn1}'].value = edge_text(node=gt_record.node3)
             ws[f'M{rn1}'].border = under_border
-            ws[f'N{rn1}'].value = gt_record.n3
+            ws[f'N{rn1}'].value = gt_record.node3.rate
             ws[f'N{rn1}'].fill = node_bgcolor
             ws[f'N{rn1}'].border = upside_node_border
             ws[f'N{rn2}'].fill = node_bgcolor
             ws[f'N{rn2}'].border = downside_node_border
 
-        self._prev_n3 = gt_record.n3
+        self._prev_n3 = gt_record.node3.rate
 
 
         # 4局後
         # -----
-        if not pd.isnull(gt_record.n4) and gt_record.n4 != self._prev_n4:
+        if not pd.isnull(gt_record.node4.rate) and gt_record.node4.rate != self._prev_n4:
             ws[f'O{rn1}'].border = under_border
-            ws[f'P{rn1}'].value = gt_record.e4
+            ws[f'P{rn1}'].value = edge_text(node=gt_record.node4)
             ws[f'P{rn1}'].border = under_border
-            ws[f'Q{rn1}'].value = gt_record.n4
+            ws[f'Q{rn1}'].value = gt_record.node4.rate
             ws[f'Q{rn1}'].fill = node_bgcolor
             ws[f'Q{rn1}'].border = upside_node_border
             ws[f'Q{rn2}'].fill = node_bgcolor
             ws[f'Q{rn2}'].border = downside_node_border
 
-        self._prev_n4 = gt_record.n4
+        self._prev_n4 = gt_record.node4.rate
 
 
         # 5局後
         # -----
-        if not pd.isnull(gt_record.n5) and gt_record.n5 != self._prev_n5:
+        if not pd.isnull(gt_record.node5.rate) and gt_record.node5.rate != self._prev_n5:
             ws[f'R{rn1}'].border = under_border
-            ws[f'S{rn1}'].value = gt_record.e5
+            ws[f'S{rn1}'].value = edge_text(node=gt_record.node5)
             ws[f'S{rn1}'].border = under_border
-            ws[f'T{rn1}'].value = gt_record.n5
+            ws[f'T{rn1}'].value = gt_record.node5.rate
             ws[f'T{rn1}'].fill = node_bgcolor
             ws[f'T{rn1}'].border = upside_node_border
             ws[f'T{rn2}'].fill = node_bgcolor
             ws[f'T{rn2}'].border = downside_node_border
 
-        self._prev_n5 = gt_record.n5
+        self._prev_n5 = gt_record.node5.rate
 
 
         # 6局後
         # -----
-        if not pd.isnull(gt_record.n6) and gt_record.n6 != self._prev_n6:
+        if not pd.isnull(gt_record.node6.rate) and gt_record.node6.rate != self._prev_n6:
             ws[f'U{rn1}'].border = under_border
-            ws[f'V{rn1}'].value = gt_record.e6
+            ws[f'V{rn1}'].value = edge_text(node=gt_record.node6)
             ws[f'V{rn1}'].border = under_border
-            ws[f'W{rn1}'].value = gt_record.n6
+            ws[f'W{rn1}'].value = gt_record.node6.rate
             ws[f'W{rn1}'].fill = node_bgcolor
             ws[f'W{rn1}'].border = upside_node_border
             ws[f'W{rn2}'].fill = node_bgcolor
             ws[f'W{rn2}'].border = downside_node_border
 
-        self._prev_n6 = gt_record.n6
+        self._prev_n6 = gt_record.node6.rate
 
 
         # TODO GT テーブルの内容を GTWB のシートへコピー、スタイルも設定

@@ -2211,28 +2211,33 @@ class GameTreeTable():
 
         'face1':'object',
         'winner1':'object',
-        'pts1':'int64',
+        'pts1':'Int64',         # NOTE NaN が含まれる場合は、int64 ではなく Int64 を使う。先頭が大文字
         'rate1':'float64',
 
         'face2':'object',
         'winner2':'object',
-        'pts2':'int64',
+        'pts2':'Int64',
         'rate2':'float64',
 
         'face3':'object',
         'winner3':'object',
-        'pts3':'int64',
+        'pts3':'Int64',
         'rate3':'float64',
 
         'face4':'object',
         'winner4':'object',
-        'pts4':'int64',
+        'pts4':'Int64',
         'rate4':'float64',
 
         'face5':'object',
         'winner5':'object',
-        'pts5':'int64',
-        'rate5':'float64'}
+        'pts5':'Int64',
+        'rate5':'float64',
+        
+        'face6':'object',
+        'winner6':'object',
+        'pts6':'Int64',
+        'rate6':'float64'}
 
 
     def __init__(self, df, spec, span, t_step, h_step):
