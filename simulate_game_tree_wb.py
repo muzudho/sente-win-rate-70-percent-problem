@@ -119,12 +119,12 @@ class Automation():
         row_number = 2
 
 
-    def on_each_gt_record(self, next_row_th, next_gt_record):
+    def on_each_gt_record(self, next_row_number, next_gt_record):
         """先読みで最初の１回を空振りさせるので、２行目から本処理です"""
-        curr_row_th = next_row_th - 1
+        curr_row_number = next_row_number - 1
 
         if self._curr_gt_record.no is None:
-            print(f"[{datetime.datetime.now()}] {curr_row_th=} 現在レコードのnoがナンだから無視")
+            print(f"[{datetime.datetime.now()}] {curr_row_number=} 現在レコードのnoがナンだから無視")
             pass
 
 
@@ -147,9 +147,9 @@ class Automation():
             # ３行目～６行目
             # -------------
             # データは３行目から、１かたまり３行を使って描画する
-            rn1 = curr_row_th * 3
-            rn2 = curr_row_th * 3 + 1
-            rn3 = curr_row_th * 3 + 2
+            rn1 = curr_row_number * 3
+            rn2 = curr_row_number * 3 + 1
+            rn3 = curr_row_number * 3 + 2
             three_row_numbers = [rn1, rn2, rn3]
 
             # 行の高さ設定
@@ -170,15 +170,15 @@ class Automation():
             def draw_node(round_th, prev_nd, nd, three_column_names, three_row_numbers):
 
                 if nd is None:
-                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  nd がナンのノードは無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  nd がナンのノードは無視")
                     return
 
                 elif pd.isnull(nd.face):
-                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  face が NaN のノードは無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  face が NaN のノードは無視")
                     return
 
                 elif pd.isnull(nd.rate):
-                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  rate が NaN のノードは無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  rate が NaN のノードは無視")
                     return
 
                 elif prev_nd is None:
@@ -186,12 +186,12 @@ class Automation():
                     pass
 
                 elif nd.rate == prev_nd.rate:
-                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  前行の同ラウンドと rate が同じなら無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  前行の同ラウンドと rate が同じなら無視")
                     return
 
 
                 # 以下、描画
-                print(f"[{datetime.datetime.now()}] {self._curr_gt_record.no}行目 {round_th}局後 ノード描画  {curr_row_th=}")
+                print(f"[{datetime.datetime.now()}] {self._curr_gt_record.no}行目 {round_th}局後 ノード描画  {curr_row_number=}")
 
                 def edge_text(node):
                     if node.face == 'h':
@@ -238,115 +238,117 @@ class Automation():
                 ws[f'{cn3}{rn2}'].border = downside_node_border
 
 
-            # 開始ノード
-            # --------
-            if rn1 == 3:
+            # 根ノード
+            # -------
+            if curr_row_number == 1:
                 ws[f'E{rn1}'].value = 1
                 ws[f'E{rn1}'].fill = node_bgcolor
                 ws[f'E{rn1}'].border = upside_node_border
                 ws[f'E{rn2}'].fill = node_bgcolor
                 ws[f'E{rn2}'].border = downside_node_border
 
-                draw_node(round_th=1, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=1, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=1, prev_nd=self._prev_gt_record.node3, nd=self._curr_gt_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=1, prev_nd=self._prev_gt_record.node4, nd=self._curr_gt_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=1, prev_nd=self._prev_gt_record.node5, nd=self._curr_gt_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=1, prev_nd=self._prev_gt_record.node6, nd=self._curr_gt_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=0, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=0, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=0, prev_nd=self._prev_gt_record.node3, nd=self._curr_gt_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=0, prev_nd=self._prev_gt_record.node4, nd=self._curr_gt_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=0, prev_nd=self._prev_gt_record.node5, nd=self._curr_gt_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=0, prev_nd=self._prev_gt_record.node6, nd=self._curr_gt_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
 
 
-            else:
-                # 実現確率
-                rate = None
+            # それ以外のノード
+            # ---------------
+
+            # 実現確率
+            rate = None
 
 
-                # 1局後
-                # -----
-                nd = self._curr_gt_record.node1
-                draw_node(
-                        round_th=1,
-                        prev_nd=self._prev_gt_record.node1,
-                        nd=nd,
-                        three_column_names=['F', 'G', 'H'],
-                        three_row_numbers=three_row_numbers)
+            # 1局後
+            # -----
+            nd = self._curr_gt_record.node1
+            draw_node(
+                    round_th=1,
+                    prev_nd=self._prev_gt_record.node1,
+                    nd=nd,
+                    three_column_names=['F', 'G', 'H'],
+                    three_row_numbers=three_row_numbers)
 
-                if not pd.isnull(nd.rate):
-                    rate = nd.rate
-
-
-                # 2局後
-                # -----
-                nd = self._curr_gt_record.node2
-                draw_node(
-                        round_th=2,
-                        prev_nd=self._prev_gt_record.node2,
-                        nd=nd,
-                        three_column_names=['I', 'J', 'K'],
-                        three_row_numbers=three_row_numbers)
-
-                if not pd.isnull(nd.rate):
-                    rate = nd.rate
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
 
 
-                # 3局後
-                # -----
-                nd = self._curr_gt_record.node3
-                draw_node(
-                        round_th=3,
-                        prev_nd=self._prev_gt_record.node3,
-                        nd=nd,
-                        three_column_names=['L', 'M', 'N'],
-                        three_row_numbers=three_row_numbers)
+            # 2局後
+            # -----
+            nd = self._curr_gt_record.node2
+            draw_node(
+                    round_th=2,
+                    prev_nd=self._prev_gt_record.node2,
+                    nd=nd,
+                    three_column_names=['I', 'J', 'K'],
+                    three_row_numbers=three_row_numbers)
 
-                if not pd.isnull(nd.rate):
-                    rate = nd.rate
-
-
-                # 4局後
-                # -----
-                nd = self._curr_gt_record.node4
-                draw_node(
-                        round_th=4,
-                        prev_nd=self._prev_gt_record.node4,
-                        nd=nd,
-                        three_column_names=['O', 'P', 'Q'],
-                        three_row_numbers=three_row_numbers)
-
-                if not pd.isnull(nd.rate):
-                    rate = nd.rate
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
 
 
-                # 5局後
-                # -----
-                nd = self._curr_gt_record.node5
-                draw_node(
-                        round_th=5,
-                        prev_nd=self._prev_gt_record.node5,
-                        nd=nd,
-                        three_column_names=['R', 'S', 'T'],
-                        three_row_numbers=three_row_numbers)
+            # 3局後
+            # -----
+            nd = self._curr_gt_record.node3
+            draw_node(
+                    round_th=3,
+                    prev_nd=self._prev_gt_record.node3,
+                    nd=nd,
+                    three_column_names=['L', 'M', 'N'],
+                    three_row_numbers=three_row_numbers)
 
-                if not pd.isnull(nd.rate):
-                    rate = nd.rate
-
-
-                # 6局後
-                # -----
-                nd = self._curr_gt_record.node6
-                draw_node(
-                        round_th=6,
-                        prev_nd=self._prev_gt_record.node6,
-                        nd=nd,
-                        three_column_names=['U', 'V', 'W'],
-                        three_row_numbers=three_row_numbers)
-
-                if not pd.isnull(nd.rate):
-                    rate = nd.rate
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
 
 
-                # 実現確率
-                # --------
-                ws[f'C{rn1}'].value = rate
+            # 4局後
+            # -----
+            nd = self._curr_gt_record.node4
+            draw_node(
+                    round_th=4,
+                    prev_nd=self._prev_gt_record.node4,
+                    nd=nd,
+                    three_column_names=['O', 'P', 'Q'],
+                    three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 5局後
+            # -----
+            nd = self._curr_gt_record.node5
+            draw_node(
+                    round_th=5,
+                    prev_nd=self._prev_gt_record.node5,
+                    nd=nd,
+                    three_column_names=['R', 'S', 'T'],
+                    three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 6局後
+            # -----
+            nd = self._curr_gt_record.node6
+            draw_node(
+                    round_th=6,
+                    prev_nd=self._prev_gt_record.node6,
+                    nd=nd,
+                    three_column_names=['U', 'V', 'W'],
+                    three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 実現確率
+            # --------
+            ws[f'C{rn1}'].value = rate
 
 
         # 送り出し
@@ -445,10 +447,10 @@ gt_table:
         gt_table.for_each(on_each=automation.on_each_gt_record)
 
         # 最終行 - 1の実行
-        automation.on_each_gt_record(next_row_th=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
+        automation.on_each_gt_record(next_row_number=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
 
         # 最終行の実行
-        automation.on_each_gt_record(next_row_th=len(gt_table.df) + 1, next_gt_record=GameTreeRecord.new_empty())
+        automation.on_each_gt_record(next_row_number=len(gt_table.df) + 1, next_gt_record=GameTreeRecord.new_empty())
 
         # GTWB ファイルの保存
         gt_wb_wrapper.save()
