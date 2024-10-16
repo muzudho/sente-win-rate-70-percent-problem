@@ -2201,6 +2201,25 @@ class GameTreeRecord():
         return self._node6
 
 
+    def update(self, no=None, result=None, node1=None, node2=None, node3=None, node4=None, node5=None, node6=None):
+        """no inplace"""
+
+        def new_or_default(new, default):
+            if new is None:
+                return default
+            return new
+
+        return GameTreeRecord(
+            no=new_or_default(no, self._no),
+            result=new_or_default(result, self._result),
+            node1=new_or_default(node1, self._node1),
+            node2=new_or_default(node2, self._node2),
+            node3=new_or_default(node3, self._node3),
+            node4=new_or_default(node4, self._node4),
+            node5=new_or_default(node5, self._node5),
+            node6=new_or_default(node6, self._node6))
+
+
 class GameTreeTable():
     """樹形図データのテーブル"""
 
