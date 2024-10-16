@@ -2158,6 +2158,19 @@ class GameTreeRecord():
         self._node6 = node6
 
 
+    @staticmethod
+    def new_empty():
+        return GameTreeRecord(
+                no=None,
+                result=None,
+                node1=None,
+                node2=None,
+                node3=None,
+                node4=None,
+                node5=None,
+                node6=None)
+
+
     @property
     def no(self):
         return self._no

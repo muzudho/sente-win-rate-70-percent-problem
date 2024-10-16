@@ -22,230 +22,22 @@ from library.views import ScoreBoardViewData
 from scripts import SaveOrIgnore
 
 
-# pts 欄は印を入れるのにも使ってる
-PTS_MARK_SAME_RATE = -2
-
-
-class Prefetch():
-
-
-    def __init__(self, gt_table_1, gt_table_2):
-        self._gt_table_1 = gt_table_1
-        self._gt_table_2 = gt_table_2 # prefetched
-        self._prev_gt1_record = None
-
-
-    @staticmethod
-    def instantiate(spec, span, t_step, h_step):
-        # GTテーブル
-        gt_table_1, gt1_file_read_result = GameTreeTable.from_csv(
-                spec=spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                new_if_it_no_exists=False)
-
-        if gt1_file_read_result.is_file_not_found:
-            raise ValueError(f"GTファイルが見つかりません {gt1_file_read_result.file_path=}")
-
-
-        # 空のGTテーブルを用意
-        gt_table_2 = GameTreeTable.new_empty_table(
-                spec=spec,
-                span=span,
-                t_step=t_step,
-                h_step=h_step)
-
-        return Prefetch(gt_table_1=gt_table_1, gt_table_2=gt_table_2)
-
-
-    @property
-    def gt_table_1(self):
-        return self._gt_table_1
-
-
-    @property
-    def gt_table_2(self):
-        return self._gt_table_2
-
-
-    def on_gt1_record(self, row_number, gt1_record):
-        """
-        Parameters
-        ----------
-        gt1_record : GameTreeRecord
-            変更対象のレコード
-        """
-
-        # 先頭行は無条件追加
-        # -----------------
-        if self._prev_gt1_record is None:
-            # そのまんま追加
-            self._gt_table_2.upsert_record(
-                    welcome_record=gt1_record)
-
-
-        else:
-
-            # リプレース後のレコード。何も更新しなければコピーを返します
-            gt2_record = gt1_record.update()
-
-
-            def same_node_as_avobe(gt1_record, node_no):
-                """指定のノードは、上行の繰り返しか？ ただしレートが入っていないノードは常に偽とする"""
-
-                if node_no == 1:
-                    prev_nd = self._prev_gt1_record.node1
-                    nd = gt1_record.node1
-                elif node_no == 2:
-                    prev_nd = self._prev_gt1_record.node2
-                    nd = gt1_record.node2
-                elif node_no == 3:
-                    prev_nd = self._prev_gt1_record.node3
-                    nd = gt1_record.node3
-                elif node_no == 4:
-                    prev_nd = self._prev_gt1_record.node4
-                    nd = gt1_record.node4
-                elif node_no == 5:
-                    prev_nd = self._prev_gt1_record.node5
-                    nd = gt1_record.node5
-                elif node_no == 6:
-                    prev_nd = self._prev_gt1_record.node6
-                    nd = gt1_record.node6
-                else:
-                    raise ValueError(f"未対応のノード番号 {node_no=}")
-
-                # レートが入っていなければ偽
-                if pd.isnull(nd.rate):
-                    return False
-                
-                # コインの出目と、確率が上行と同じ
-                return nd.face == prev_nd.face and nd.rate == prev_nd.rate
-
-
-            # 1局後
-            # -----
-            i = 1
-            nd = gt1_record.node1
-
-            # TODO セルに上行と同じ値が入っていたら、"├"、"└"、空欄のいずれかにする。ひとまず pts に PTS_MARK_SAME_RATE=-2 を入れておく
-            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
-                gt2_record = gt2_record.update(
-                        node1=GameTreeNode(
-                                face=nd.face,
-                                winner=nd.winner,
-                                pts=PTS_MARK_SAME_RATE,
-                                rate=nd.rate))
-                self._gt_table_2.upsert_record(
-                        welcome_record=gt2_record)
-
-
-            # 2局後
-            # -----
-            i = 2
-            nd = gt1_record.node2
-
-            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
-                gt2_record = gt2_record.update(
-                        node2=GameTreeNode(
-                                face=nd.face,
-                                winner=nd.winner,
-                                pts=PTS_MARK_SAME_RATE,
-                                rate=nd.rate))
-                update = self._gt_table_2.upsert_record(
-                        welcome_record=gt2_record)
-                if not update:
-                    raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-
-            # 3局後
-            # -----
-            i = 3
-            nd = gt1_record.node3
-
-            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
-                gt2_record = gt2_record.update(
-                        node3=GameTreeNode(
-                                face=nd.face,
-                                winner=nd.winner,
-                                pts=PTS_MARK_SAME_RATE,
-                                rate=nd.rate))
-                update = self._gt_table_2.upsert_record(
-                        welcome_record=gt2_record)
-                if not update:
-                    raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-
-            # 4局後
-            # -----
-            i = 4
-            nd = gt1_record.node4
-
-            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
-                gt2_record = gt2_record.update(
-                        node4=GameTreeNode(
-                                face=nd.face,
-                                winner=nd.winner,
-                                pts=PTS_MARK_SAME_RATE,
-                                rate=nd.rate))
-                update = self._gt_table_2.upsert_record(
-                        welcome_record=gt2_record)
-                if not update:
-                    raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-
-            # 5局後
-            # -----
-            i = 5
-            nd = gt1_record.node5
-
-            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
-                gt2_record = gt2_record.update(
-                        node5=GameTreeNode(
-                                face=nd.face,
-                                winner=nd.winner,
-                                pts=PTS_MARK_SAME_RATE,
-                                rate=nd.rate))
-                update = self._gt_table_2.upsert_record(
-                        welcome_record=gt2_record)
-                if not update:
-                    raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-
-            # 6局後
-            # -----
-            i = 6
-            nd = gt1_record.node6
-
-            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
-                gt2_record = gt2_record.update(
-                        node6=GameTreeNode(
-                                face=nd.face,
-                                winner=nd.winner,
-                                pts=PTS_MARK_SAME_RATE,
-                                rate=nd.rate))
-                update = self._gt_table_2.upsert_record(
-                        welcome_record=ft2_record)
-                if not update:
-                    raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-
-        self._prev_gt1_record = gt1_record
-
-
 class Automation():
 
 
-    def __init__(self, gt_table_2, gt_wb_wrapper):
-        self._gt_table_2 = gt_table_2
+    def __init__(self, gt_table, gt_wb_wrapper):
+        self._gt_table = gt_table
         self._gt_wb_wrapper = gt_wb_wrapper
-        self._prev_gt2_record = None
+        self._prev_gt_record = GameTreeRecord.new_empty()
+        self._curr_gt_record = GameTreeRecord.new_empty()
+        self._next_gt_record = GameTreeRecord.new_empty()
+
+
+    def forward_cursor(self, next_gt_record):
+        # 送り出し
+        self._prev_gt_record = self._curr_gt_record
+        self._curr_gt_record = self._next_gt_record
+        self._next_gt_record = next_gt_record
 
 
     def on_header(self):
@@ -303,7 +95,7 @@ class Automation():
 
         # そのままコピーできない
         # # ２列目～
-        # for column_number, column_name in enumerate(self._gt_table_2.df.columns.values, 2):
+        # for column_number, column_name in enumerate(self._gt_table.df.columns.values, 2):
         #     ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = column_name
         ws[f'{xl.utils.get_column_letter(1)}{row_number}'] = 'No'
         ws[f'{xl.utils.get_column_letter(2)}{row_number}'] = '結果'
@@ -327,198 +119,238 @@ class Automation():
         row_number = 2
 
 
-    def on_each_gt2_record(self, row_number, gt2_record):
+    def on_each_gt_record(self, next_row_th, next_gt_record):
+        """先読みで最初の１回を空振りさせるので、２行目から本処理です"""
+        curr_row_th = next_row_th - 1
 
-        # 色の参考： 📖 [Excels 56 ColorIndex Colors](https://www.excelsupersite.com/what-are-the-56-colorindex-colors-in-excel/)
-        node_bgcolor = PatternFill(patternType='solid', fgColor='FFFFCC')
-
-        # 罫線
-        side = Side(style='thick', color='000000')
-        # style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
-        upside_node_border = Border(top=side, left=side, right=side)
-        downside_node_border = Border(bottom=side, left=side, right=side)
-        under_border = Border(bottom=side)
-
-
-        # 変数名短縮
-        ws = self._gt_wb_wrapper.worksheet
-
-
-        # ３行目～６行目
-        # -------------
-        # データは３行目から、１かたまり３行を使って描画する
-        rn1 = row_number * 3 + 3
-        rn2 = row_number * 3 + 3 + 1
-        rn3 = row_number * 3 + 3 + 2
-        three_row_numbers = [rn1, rn2, rn3]
-
-        # 行の高さ設定
-        # height の単位はポイント。昔のアメリカ人が椅子に座ってディスプレイを見たとき 1/72 インチに見える大きさが 1ポイント らしいが、そんなんワカラン。目視確認してほしい
-        ws.row_dimensions[rn1].height = 13
-        ws.row_dimensions[rn2].height = 13
-        ws.row_dimensions[rn3].height = 6
-
-        ws[f'A{rn1}'].value = gt2_record.no
-        ws[f'B{rn1}'].value = gt2_record.result
-
-
-        # TODO C列には確率を入れたい。あとで入れる
-        # TODO D列は空列にしたい
-        # TODO E列の上の方の行には 1 を入れたい
-
-
-        def draw_node(nd, three_column_names, three_row_numbers):
-
-            if pd.isnull(nd.face):
-                print(f"[{datetime.datetime.now()}] face が空欄のノードは無視")
-                return
-
-            def edge_text(node):
-                if node.face == 'h':
-                    face = '表'
-                elif node.face == 't':
-                    face = '裏'
-                elif node.face == 'f':
-                    face = '失敗'
-                else:
-                    raise ValueError(f"{node.face=}")
-                
-                if node.winner == 'A':
-                    winner = '(Ａさん'
-                elif node.winner == 'B':
-                    winner = '(Ｂさん'
-                elif node.winner == 'N':
-                    winner = ''
-                else:
-                    raise ValueError(f"{node.winner=}")
-
-                if node.pts != -1:
-                    pts = f"{node.pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
-                else:
-                    pts = ''
-
-                return f"{face}{winner}{pts}"
-
-            cn1 = three_column_names[0]
-            cn2 = three_column_names[1]
-            cn3 = three_column_names[2]
-            rn1 = three_row_numbers[0]
-            rn2 = three_row_numbers[1]
-            rn3 = three_row_numbers[2]
-
-            if nd.face == 'h':
-                ws[f'{cn1}{rn1}'].border = under_border
-
-            ws[f'{cn2}{rn1}'].value = edge_text(node=nd)
-            ws[f'{cn2}{rn1}'].border = under_border
-            ws[f'{cn3}{rn1}'].value = nd.rate
-            ws[f'{cn3}{rn1}'].fill = node_bgcolor
-            ws[f'{cn3}{rn1}'].border = upside_node_border
-            ws[f'{cn3}{rn2}'].fill = node_bgcolor
-            ws[f'{cn3}{rn2}'].border = downside_node_border
-
-
-        # 開始ノード
-        # --------
-        if rn1 == 3:
-            ws[f'E{rn1}'].value = 1
-            ws[f'E{rn1}'].fill = node_bgcolor
-            ws[f'E{rn1}'].border = upside_node_border
-            ws[f'E{rn2}'].fill = node_bgcolor
-            ws[f'E{rn2}'].border = downside_node_border
-
-            draw_node(nd=gt2_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
-            draw_node(nd=gt2_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
-            draw_node(nd=gt2_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
-            draw_node(nd=gt2_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
-            draw_node(nd=gt2_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
-            draw_node(nd=gt2_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+        if self._curr_gt_record.no is None:
+            print(f"[{datetime.datetime.now()}] {curr_row_th=} 現在レコードのnoがナンだから無視")
+            pass
 
 
         else:
-            # 実現確率
-            rate = None
+            # 色の参考： 📖 [Excels 56 ColorIndex Colors](https://www.excelsupersite.com/what-are-the-56-colorindex-colors-in-excel/)
+            node_bgcolor = PatternFill(patternType='solid', fgColor='FFFFCC')
+
+            # 罫線
+            side = Side(style='thick', color='000000')
+            # style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
+            upside_node_border = Border(top=side, left=side, right=side)
+            downside_node_border = Border(bottom=side, left=side, right=side)
+            under_border = Border(bottom=side)
 
 
-            # 1局後
-            # -----
-            i = 1
-            nd = gt2_record.node1
-            # NOTE 空欄にすべきところには、プリフェッチ時に pts に -2 を入れてある
-            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
-                draw_node(nd=nd, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
-
-            if not pd.isnull(nd.rate):
-                rate = nd.rate
+            # 変数名短縮
+            ws = self._gt_wb_wrapper.worksheet
 
 
-            # 2局後
-            # -----
-            i = 2
-            nd = gt2_record.node2
-            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
-                draw_node(nd=nd, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
+            # ３行目～６行目
+            # -------------
+            # データは３行目から、１かたまり３行を使って描画する
+            rn1 = curr_row_th * 3
+            rn2 = curr_row_th * 3 + 1
+            rn3 = curr_row_th * 3 + 2
+            three_row_numbers = [rn1, rn2, rn3]
 
-            if not pd.isnull(nd.rate):
-                rate = nd.rate
+            # 行の高さ設定
+            # height の単位はポイント。昔のアメリカ人が椅子に座ってディスプレイを見たとき 1/72 インチに見える大きさが 1ポイント らしいが、そんなんワカラン。目視確認してほしい
+            ws.row_dimensions[rn1].height = 13
+            ws.row_dimensions[rn2].height = 13
+            ws.row_dimensions[rn3].height = 6
 
-
-            # 3局後
-            # -----
-            i = 3
-            nd = gt2_record.node3
-            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
-                draw_node(nd=nd, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
-
-            if not pd.isnull(nd.rate):
-                rate = nd.rate
+            ws[f'A{rn1}'].value = self._curr_gt_record.no
+            ws[f'B{rn1}'].value = self._curr_gt_record.result
 
 
-            # 4局後
-            # -----
-            i = 4
-            nd = gt2_record.node4
-            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
-                draw_node(nd=nd, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
-
-            if not pd.isnull(nd.rate):
-                rate = nd.rate
+            # TODO C列には確率を入れたい。あとで入れる
+            # TODO D列は空列にしたい
+            # TODO E列の上の方の行には 1 を入れたい
 
 
-            # 5局後
-            # -----
-            i = 5
-            nd = gt2_record.node5
-            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
-                draw_node(nd=nd, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
+            def draw_node(round_th, prev_nd, nd, three_column_names, three_row_numbers):
 
-            if not pd.isnull(nd.rate):
-                rate = nd.rate
+                if nd is None:
+                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  nd がナンのノードは無視")
+                    return
+
+                elif pd.isnull(nd.face):
+                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  face が NaN のノードは無視")
+                    return
+
+                elif pd.isnull(nd.rate):
+                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  rate が NaN のノードは無視")
+                    return
+
+                elif prev_nd is None:
+                    # 前行が無ければ描画
+                    pass
+
+                elif nd.rate == prev_nd.rate:
+                    print(f"[{datetime.datetime.now()}] {curr_row_th=}  前行の同ラウンドと rate が同じなら無視")
+                    return
 
 
-            # 6局後
-            # -----
-            i = 6
-            nd = gt2_record.node6
-            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
-                draw_node(nd=nd, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+                # 以下、描画
+                print(f"[{datetime.datetime.now()}] {self._curr_gt_record.no}行目 {round_th}局後 ノード描画  {curr_row_th=}")
 
-            if not pd.isnull(nd.rate):
-                rate = nd.rate
+                def edge_text(node):
+                    if node.face == 'h':
+                        face = '表'
+                    elif node.face == 't':
+                        face = '裏'
+                    elif node.face == 'f':
+                        face = '失敗'
+                    else:
+                        raise ValueError(f"{node.face=}")
+                    
+                    if node.winner == 'A':
+                        winner = '(Ａさん'
+                    elif node.winner == 'B':
+                        winner = '(Ｂさん'
+                    elif node.winner == 'N':
+                        winner = ''
+                    else:
+                        raise ValueError(f"{node.winner=}")
+
+                    if node.pts != -1:
+                        pts = f"{node.pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
+                    else:
+                        pts = ''
+
+                    return f"{face}{winner}{pts}"
+
+                cn1 = three_column_names[0]
+                cn2 = three_column_names[1]
+                cn3 = three_column_names[2]
+                rn1 = three_row_numbers[0]
+                rn2 = three_row_numbers[1]
+                rn3 = three_row_numbers[2]
+
+                if nd.face == 'h':
+                    ws[f'{cn1}{rn1}'].border = under_border
+
+                ws[f'{cn2}{rn1}'].value = edge_text(node=nd)
+                ws[f'{cn2}{rn1}'].border = under_border
+                ws[f'{cn3}{rn1}'].value = nd.rate
+                ws[f'{cn3}{rn1}'].fill = node_bgcolor
+                ws[f'{cn3}{rn1}'].border = upside_node_border
+                ws[f'{cn3}{rn2}'].fill = node_bgcolor
+                ws[f'{cn3}{rn2}'].border = downside_node_border
 
 
-            # 実現確率
+            # 開始ノード
             # --------
-            ws[f'C{rn1}'].value = rate
+            if rn1 == 3:
+                ws[f'E{rn1}'].value = 1
+                ws[f'E{rn1}'].fill = node_bgcolor
+                ws[f'E{rn1}'].border = upside_node_border
+                ws[f'E{rn2}'].fill = node_bgcolor
+                ws[f'E{rn2}'].border = downside_node_border
+
+                draw_node(round_th=1, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=1, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=1, prev_nd=self._prev_gt_record.node3, nd=self._curr_gt_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=1, prev_nd=self._prev_gt_record.node4, nd=self._curr_gt_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=1, prev_nd=self._prev_gt_record.node5, nd=self._curr_gt_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
+                draw_node(round_th=1, prev_nd=self._prev_gt_record.node6, nd=self._curr_gt_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
 
 
-        self._prev_gt2_record = gt2_record
+            else:
+                # 実現確率
+                rate = None
+
+
+                # 1局後
+                # -----
+                nd = self._curr_gt_record.node1
+                draw_node(
+                        round_th=1,
+                        prev_nd=self._prev_gt_record.node1,
+                        nd=nd,
+                        three_column_names=['F', 'G', 'H'],
+                        three_row_numbers=three_row_numbers)
+
+                if not pd.isnull(nd.rate):
+                    rate = nd.rate
+
+
+                # 2局後
+                # -----
+                nd = self._curr_gt_record.node2
+                draw_node(
+                        round_th=2,
+                        prev_nd=self._prev_gt_record.node2,
+                        nd=nd,
+                        three_column_names=['I', 'J', 'K'],
+                        three_row_numbers=three_row_numbers)
+
+                if not pd.isnull(nd.rate):
+                    rate = nd.rate
+
+
+                # 3局後
+                # -----
+                nd = self._curr_gt_record.node3
+                draw_node(
+                        round_th=3,
+                        prev_nd=self._prev_gt_record.node3,
+                        nd=nd,
+                        three_column_names=['L', 'M', 'N'],
+                        three_row_numbers=three_row_numbers)
+
+                if not pd.isnull(nd.rate):
+                    rate = nd.rate
+
+
+                # 4局後
+                # -----
+                nd = self._curr_gt_record.node4
+                draw_node(
+                        round_th=4,
+                        prev_nd=self._prev_gt_record.node4,
+                        nd=nd,
+                        three_column_names=['O', 'P', 'Q'],
+                        three_row_numbers=three_row_numbers)
+
+                if not pd.isnull(nd.rate):
+                    rate = nd.rate
+
+
+                # 5局後
+                # -----
+                nd = self._curr_gt_record.node5
+                draw_node(
+                        round_th=5,
+                        prev_nd=self._prev_gt_record.node5,
+                        nd=nd,
+                        three_column_names=['R', 'S', 'T'],
+                        three_row_numbers=three_row_numbers)
+
+                if not pd.isnull(nd.rate):
+                    rate = nd.rate
+
+
+                # 6局後
+                # -----
+                nd = self._curr_gt_record.node6
+                draw_node(
+                        round_th=6,
+                        prev_nd=self._prev_gt_record.node6,
+                        nd=nd,
+                        three_column_names=['U', 'V', 'W'],
+                        three_row_numbers=three_row_numbers)
+
+                if not pd.isnull(nd.rate):
+                    rate = nd.rate
+
+
+                # 実現確率
+                # --------
+                ws[f'C{rn1}'].value = rate
+
+
+        # 送り出し
+        self.forward_cursor(next_gt_record=next_gt_record)
 
 
 ########################################
@@ -569,21 +401,6 @@ if __name__ == '__main__':
                 h_step=specified_h_step)
 
 
-        prefetch = Prefetch.instantiate(
-                spec=spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
-
-        # GTテーブルをプリフェッチする
-        # TODO １回シート全体を舐めて樹形のアテンションを加える必要があるか？ "├" とか "└" のアテンション
-        prefetch.gt_table_1.for_each(on_each=prefetch.on_gt1_record)
-
-        print(f"""\
-[{datetime.datetime.now()}] prefetch.gt_table_2.df:
-{prefetch.gt_table_2.df}""")
-
-
         # GTWB ファイル作成
         # オリジナルはインターフェースに癖があるので、ラッパーを作成してそれを使う
         gt_wb_wrapper = GameTreeWorkbookWrapper.instantiate(
@@ -601,13 +418,37 @@ if __name__ == '__main__':
         # 既存の Sheet シートを削除
         gt_wb_wrapper.remove_sheet('Sheet')
 
-        automation = Automation(gt_table_2=prefetch.gt_table_2, gt_wb_wrapper=gt_wb_wrapper)
+
+        # GTテーブル
+        gt_table, gt_file_read_result = GameTreeTable.from_csv(
+                spec=spec,
+                span=specified_series_rule.step_table.span,
+                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                new_if_it_no_exists=False)
+
+        if gt_file_read_result.is_file_not_found:
+            raise ValueError(f"GTファイルが見つかりません {gt_file_read_result.file_path=}")
+
+
+        print(f"""\
+gt_table:
+{gt_table}""")
+
+
+        automation = Automation(gt_table=gt_table, gt_wb_wrapper=gt_wb_wrapper)
 
         # GTWB の Sheet シートへのヘッダー書出し
         automation.on_header()
 
         # GTWB の Sheet シートへの各行書出し
-        prefetch.gt_table_2.for_each(on_each=automation.on_each_gt2_record)
+        gt_table.for_each(on_each=automation.on_each_gt_record)
+
+        # 最終行 - 1の実行
+        automation.on_each_gt_record(next_row_th=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
+
+        # 最終行の実行
+        automation.on_each_gt_record(next_row_th=len(gt_table.df) + 1, next_gt_record=GameTreeRecord.new_empty())
 
         # GTWB ファイルの保存
         gt_wb_wrapper.save()
