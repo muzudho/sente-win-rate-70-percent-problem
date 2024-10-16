@@ -142,6 +142,8 @@ class Automation():
             upside_node_border = Border(top=side, left=side, right=side)
             downside_node_border = Border(bottom=side, left=side, right=side)
             under_border = Border(bottom=side)
+            leftside_vertical_border = Border(left=side)
+            l_letter_border = Border(left=side, bottom=side)
 
 
             # 変数名短縮
@@ -230,11 +232,41 @@ class Automation():
                 rth2 = three_row_numbers[1]
                 rth3 = three_row_numbers[2]
 
+                # １列目：親ノードから伸びてきた枝
                 if nd.face == 'h':
-                    ws[f'{cn1}{rth1}'].border = under_border
+                    ws[f'{cn1}{rth1}'].border = under_border                # ［表］なら前ラウンドから生えてるので必ず引く
+                
+                elif nd.face == 't':
+                    ws[f'{cn1}{rth1}'].border = under_border                # FIXME 前ラウンドがノードか？
 
+                elif nd.face == 'f':
+                    ws[f'{cn1}{rth1}'].border = under_border                # FIXME 前ラウンドがノードか？
+                
+                else:
+                    raise ValueError(f"{nd.face=}")
+
+                # ２列目：分岐したエッジ
                 ws[f'{cn2}{rth1}'].value = edge_text(node=nd)
-                ws[f'{cn2}{rth1}'].border = under_border
+
+                if nd.face == 'h':
+                    ws[f'{cn2}{rth1}'].border = under_border                # FIXME 下に枝があるかないか？
+                    ws[f'{cn2}{rth2}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{rth3}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                
+                elif nd.face == 't':
+                    ws[f'{cn2}{rth1}'].border = l_letter_border             # FIXME 上に枝があるか？ 下に枝があるか？
+                    ws[f'{cn2}{rth2}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{rth3}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+
+                elif nd.face == 'f':
+                    ws[f'{cn2}{rth1}'].border = l_letter_border             # FIXME 上に枝があるか？
+                    ws[f'{cn2}{rth2}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{rth3}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                
+                else:
+                    raise ValueError(f"{nd.face=}")
+
+                # ３列目：箱
                 ws[f'{cn3}{rth1}'].value = nd.rate
                 ws[f'{cn3}{rth1}'].fill = node_bgcolor
                 ws[f'{cn3}{rth1}'].border = upside_node_border
