@@ -477,16 +477,16 @@ class TreeEraser():
         self._gt_wb_wrapper = gt_wb_wrapper
 
 
-    def execute(self):
+    def erase_unnecessary_border_by_column(self, column_alphabet):
+        """不要な境界線を消す"""
+
         # 変数名の短縮
         ws = self._gt_wb_wrapper.worksheet
 
-
         row_th_of_last_underline = -1
 
-        # G列の左側の垂直線を見ていく
-        # 行番号は 4 から
 
+        # 行番号は 4 から
         row_th = 4
         while True:
 
@@ -496,9 +496,9 @@ class TreeEraser():
             # ..+--  下向きの罫線が最後に出た箇所を調べる
             #   |
             #
-            border = ws[f'G{row_th}'].border
+            border = ws[f'{column_alphabet}{row_th}'].border
             if border is not None:
-                print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border=}")
+                print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 境界線有り {border=}")
 
                 there_no_border = True
 
@@ -526,9 +526,22 @@ class TreeEraser():
 
 
         # 消しゴムを掛ける
-        for row_th in range(row_th_of_last_underline+1, row_th):
-            ws[f'G{row_th}'].border = None
+        if row_th_of_last_underline != -1:
+            for row_th in range(row_th_of_last_underline+1, row_th):
+                ws[f'{column_alphabet}{row_th}'].border = None
 
+
+        return row_th_of_last_underline+1, row_th
+
+
+    def execute(self):
+
+        # G列の左側の垂直線を見ていく
+        start_row_th, end_row_th = self.erase_unnecessary_border_by_column(column_alphabet='G')
+
+        self.erase_unnecessary_border_by_column(column_alphabet='J')
+        self.erase_unnecessary_border_by_column(column_alphabet='M')
+        self.erase_unnecessary_border_by_column(column_alphabet='P')
 
 
 ########################################
