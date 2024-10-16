@@ -78,8 +78,8 @@ PLAYERS = 2
 # Geme results
 # ------------
 IN_GAME = 0             # ゲーム中
-ALICE_FULLY_WON = 1     # Ａさんの満点勝ち
-BOB_FULLY_WON = 2       # Ｂさんの満点勝ち
+ALICE_FULLY_WON = 1     # Ａさんの達成勝ち
+BOB_FULLY_WON = 2       # Ｂさんの達成勝ち
 ALICE_POINTS_WON = 3    # Ａさんの勝ち点差勝ち
 BOB_POINTS_WON = 4      # Ｂさんの勝ち点差勝ち
 NO_WIN_MATCH = 5        # 勝者無し。１局としては成立
@@ -886,21 +886,21 @@ class PointCalculation():
     def get_gameover_reason(self):
         """TODO 終局している場合、その理由を記述した文字列を返す。終局していなければナン
         
-        NOTE ［先後交互制］では、表番が満点でも勝利条件ではないことに注意すること。［先後固定制］にしろ、［先後交互制］にしろ、プレイヤーの勝ち負けを見ればよい
+        NOTE ［先後交互制］では、表番が達成でも勝利条件ではないことに注意すること。［先後固定制］にしろ、［先後交互制］にしろ、プレイヤーの勝ち負けを見ればよい
         """
 
         a_fully_won = self._series_rule.step_table.span <= self._pts_list[ALICE]
         b_fully_won = self._series_rule.step_table.span <= self._pts_list[BOB]
 
-        # 両者が同時に満点を取っているケースはおかしい
+        # 両者が同時に達成を取っているケースはおかしい
         if a_fully_won and b_fully_won:
-            raise ValueError(f"両者が同時に満点を取っているケースはおかしい  {a_fully_won=}  {b_fully_won=}")
+            raise ValueError(f"両者が同時に達成を取っているケースはおかしい  {a_fully_won=}  {b_fully_won=}")
 
-        # Ａさんが満点
+        # Ａさんが達成
         if a_fully_won:
             return 'a_fully_won'
 
-        # Ｂさんが満点
+        # Ｂさんが達成
         if b_fully_won:
             return 'b_fully_won'
 
@@ -941,7 +941,7 @@ self.stringify_dump:
 {old_pts_list=}
 """)
 
-            raise ValueError(f"ＡさんとＢさんがどちらも満点勝ちしている、これはおかしい  {self._pts_list[ALICE]=}  {self._pts_list[BOB]=}")
+            raise ValueError(f"ＡさんとＢさんがどちらも達成勝ちしている、これはおかしい  {self._pts_list[ALICE]=}  {self._pts_list[BOB]=}")
 
 
     def get_pts_of(self, player):
@@ -1779,7 +1779,7 @@ class TrialResultsForOneSeries():
 
         loser = Converter.opponent(winner)
 
-        # 両者が満点勝ちしている、これはおかしい
+        # 両者が達成勝ちしている、これはおかしい
         if self._point_calculation.is_fully_won(winner) and self._point_calculation.is_fully_won(loser):
             print(f"""\
 TrialResultsForOneSeries
@@ -1789,7 +1789,7 @@ self._point_calculation.stringify_dump:
 {self._path_of_face_of_coin=}
 """)
 
-            raise ValueError(f"両者が満点勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
+            raise ValueError(f"両者が達成勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
 
         # 両者が判定勝ちしている、これはおかしい
         if self.is_pts_won(winner=winner) and self.is_pts_won(winner=loser):
@@ -1802,7 +1802,7 @@ self._point_calculation.stringify_dump:
 """)
             raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_pts_won(winner=winner)=}  {self.is_pts_won(winner=loser)=}  {self._series_rule.step_table.span=}")
 
-        # 満点勝ちなら確定、判定勝ちでもOK 
+        # 達成勝ちなら確定、判定勝ちでもOK 
         return self.point_calculation.is_fully_won(winner) or self.is_pts_won(winner=winner)
 
 
@@ -1855,7 +1855,7 @@ class LargeSeriesTrialSummary():
         self._successful_series = None
         self._failed_series = None
 
-        # （Fully wins）［満点勝ち］数。二次元配列[challenged][PLAYERS]
+        # （Fully wins）［達成勝ち］数。二次元配列[challenged][PLAYERS]
         self._ful_wins = [
             # 未使用
             None,
@@ -1864,15 +1864,15 @@ class LargeSeriesTrialSummary():
                 None,   # 未使用
                 None,   # 未使用
                 None,   # 未使用
-                None,   # Ａさんの［満点勝ち］数
-                None],  # Ｂさんの［満点勝ち］数
+                None,   # Ａさんの［達成勝ち］数
+                None],  # Ｂさんの［達成勝ち］数
             # ［引き分けが起こったシリーズ］
             [
                 None,   # 未使用
                 None,   # 未使用
                 None,   # 未使用
-                None,   # Ａさんの［満点勝ち］数
-                None],  # Ｂさんの［満点勝ち］数
+                None,   # Ａさんの［達成勝ち］数
+                None],  # Ｂさんの［達成勝ち］数
         ]
 
         # （Points wins）［勝ち点判定勝ち］の件数。二次元配列[challenged][PLAYERS]
@@ -1884,15 +1884,15 @@ class LargeSeriesTrialSummary():
                 None,   # 未使用
                 None,   # 未使用
                 None,   # 未使用
-                None,   # Ａさんの［満点勝ち］数
-                None],  # Ｂさんの［満点勝ち］数
+                None,   # Ａさんの［達成勝ち］数
+                None],  # Ｂさんの［達成勝ち］数
             # ［引き分けが起こったシリーズ］
             [
                 None,   # 未使用
                 None,   # 未使用
                 None,   # 未使用
-                None,   # Ａさんの［満点勝ち］数
-                None],  # Ｂさんの［満点勝ち］数
+                None,   # Ａさんの［達成勝ち］数
+                None],  # Ｂさんの［達成勝ち］数
         ]
 
         # ［勝者がなかった回数］。ＡさんとＢさんについて。初期値は None
@@ -2419,13 +2419,13 @@ class ScoreBoard():
 
         # 対局不成立
         if last_a_count_down_point <= 0 and last_b_count_down_point <= 0:
-            raise ValueError(f"両者が満点はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system_id={Converter.turn_system_id_to_name(spec.turn_system_id)}  {span=}  {t_step=}  {h_step=}")
+            raise ValueError(f"両者が達成はおかしい {round_list=}  {spec.p=}  {spec.failure_rate=}  turn_system_id={Converter.turn_system_id_to_name(spec.turn_system_id)}  {span=}  {t_step=}  {h_step=}")
         
-        # 満点で,Ａさんの勝ち
+        # 達成で,Ａさんの勝ち
         elif last_a_count_down_point <= 0:
             game_results = ALICE_FULLY_WON
 
-        # 満点で,Ｂさんの勝ち
+        # 達成で,Ｂさんの勝ち
         elif last_b_count_down_point <= 0:
             game_results = BOB_FULLY_WON
 

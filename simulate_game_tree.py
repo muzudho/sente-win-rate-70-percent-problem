@@ -36,10 +36,10 @@ class Automatic():
             raise ValueError(f"対局中なのはおかしい")
         
         elif score_board.game_results == ALICE_FULLY_WON:
-            result = "満点でＡさんの勝ち"
+            result = "達成でＡさんの勝ち"
 
         elif score_board.game_results == BOB_FULLY_WON:
-            result = "満点でＢさんの勝ち"
+            result = "達成でＢさんの勝ち"
 
         elif score_board.game_results == ALICE_POINTS_WON:
             result = "勝ち点差でＡさんの勝ち"
