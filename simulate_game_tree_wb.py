@@ -23,7 +23,8 @@ from library.game_tree_view import GameTreeView
 from scripts import SaveOrIgnore
 
 
-class Automation():
+class TreeDrawer():
+    """エクセルで罫線などを駆使して、樹形図を描画します"""
 
 
     def __init__(self, gt_table, gt_wb_wrapper):
@@ -35,7 +36,7 @@ class Automation():
 
 
     def forward_cursor(self, next_gt_record):
-        # 送り出し
+        """送り出し"""
         self._prev_gt_record = self._curr_gt_record
         self._curr_gt_record = self._next_gt_record
         self._next_gt_record = next_gt_record
@@ -534,6 +535,10 @@ if __name__ == '__main__':
         gt_wb_wrapper.remove_sheet('Sheet')
 
 
+        # TODO 下につながらない垂直線（兄弟の末っ子から下に垂れる垂直線）を描画しないために、印を付けたい
+        # NOTE プリフェッチは難しい。エクセルの罫線をスキャンした方が楽か
+
+
         # GTテーブル
         gt_table, gt_file_read_result = GameTreeTable.from_csv(
                 spec=spec,
@@ -551,16 +556,16 @@ gt_table:
 {gt_table}""")
 
 
-        automation = Automation(gt_table=gt_table, gt_wb_wrapper=gt_wb_wrapper)
+        tree_drawer = TreeDrawer(gt_table=gt_table, gt_wb_wrapper=gt_wb_wrapper)
 
         # GTWB の Sheet シートへのヘッダー書出し
-        automation.on_header()
+        tree_drawer.on_header()
 
         # GTWB の Sheet シートへの各行書出し
-        gt_table.for_each(on_each=automation.on_each_gt_record)
+        gt_table.for_each(on_each=tree_drawer.on_each_gt_record)
 
         # 最終行の実行
-        automation.on_each_gt_record(next_row_number=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
+        tree_drawer.on_each_gt_record(next_row_number=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
 
         # GTWB ファイルの保存
         gt_wb_wrapper.save()

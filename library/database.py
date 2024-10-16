@@ -2228,6 +2228,18 @@ class GameTreeRecord():
 """
 
 
+    def get_round_number_of_leaf(self):
+        """葉要素のラウンド番号を取得。
+        葉要素は、次のラウンドがない要素"""
+
+        for round_no in range(0, len(self._node_list)):
+            nd = self._node_list[round_no]
+            if nd is None or pd.isnull(nd.rate):
+                return round_no - 1
+
+        return len(self._node_list) - 1
+
+
 class GameTreeTable():
     """樹形図データのテーブル"""
 
