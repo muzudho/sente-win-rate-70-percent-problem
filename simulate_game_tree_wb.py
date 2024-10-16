@@ -121,6 +121,10 @@ class Automation():
 
     def on_each_gt_record(self, next_row_number, next_gt_record):
         """先読みで最初の１回を空振りさせるので、２行目から本処理です"""
+
+        # 事前送り出し
+        self.forward_cursor(next_gt_record=next_gt_record)
+
         curr_row_number = next_row_number - 1
 
         if self._curr_gt_record.no is None:
@@ -147,19 +151,19 @@ class Automation():
             # ３行目～６行目
             # -------------
             # データは３行目から、１かたまり３行を使って描画する
-            rn1 = curr_row_number * 3
-            rn2 = curr_row_number * 3 + 1
-            rn3 = curr_row_number * 3 + 2
-            three_row_numbers = [rn1, rn2, rn3]
+            rth1 = curr_row_number * 3 + 3
+            rth2 = curr_row_number * 3 + 3 + 1
+            rth3 = curr_row_number * 3 + 3 + 2
+            three_row_numbers = [rth1, rth2, rth3]
 
             # 行の高さ設定
             # height の単位はポイント。昔のアメリカ人が椅子に座ってディスプレイを見たとき 1/72 インチに見える大きさが 1ポイント らしいが、そんなんワカラン。目視確認してほしい
-            ws.row_dimensions[rn1].height = 13
-            ws.row_dimensions[rn2].height = 13
-            ws.row_dimensions[rn3].height = 6
+            ws.row_dimensions[rth1].height = 13
+            ws.row_dimensions[rth2].height = 13
+            ws.row_dimensions[rth3].height = 6
 
-            ws[f'A{rn1}'].value = self._curr_gt_record.no
-            ws[f'B{rn1}'].value = self._curr_gt_record.result
+            ws[f'A{rth1}'].value = self._curr_gt_record.no
+            ws[f'B{rth1}'].value = self._curr_gt_record.result
 
 
             # TODO C列には確率を入れたい。あとで入れる
@@ -222,30 +226,30 @@ class Automation():
                 cn1 = three_column_names[0]
                 cn2 = three_column_names[1]
                 cn3 = three_column_names[2]
-                rn1 = three_row_numbers[0]
-                rn2 = three_row_numbers[1]
-                rn3 = three_row_numbers[2]
+                rth1 = three_row_numbers[0]
+                rth2 = three_row_numbers[1]
+                rth3 = three_row_numbers[2]
 
                 if nd.face == 'h':
-                    ws[f'{cn1}{rn1}'].border = under_border
+                    ws[f'{cn1}{rth1}'].border = under_border
 
-                ws[f'{cn2}{rn1}'].value = edge_text(node=nd)
-                ws[f'{cn2}{rn1}'].border = under_border
-                ws[f'{cn3}{rn1}'].value = nd.rate
-                ws[f'{cn3}{rn1}'].fill = node_bgcolor
-                ws[f'{cn3}{rn1}'].border = upside_node_border
-                ws[f'{cn3}{rn2}'].fill = node_bgcolor
-                ws[f'{cn3}{rn2}'].border = downside_node_border
+                ws[f'{cn2}{rth1}'].value = edge_text(node=nd)
+                ws[f'{cn2}{rth1}'].border = under_border
+                ws[f'{cn3}{rth1}'].value = nd.rate
+                ws[f'{cn3}{rth1}'].fill = node_bgcolor
+                ws[f'{cn3}{rth1}'].border = upside_node_border
+                ws[f'{cn3}{rth2}'].fill = node_bgcolor
+                ws[f'{cn3}{rth2}'].border = downside_node_border
 
 
             # 根ノード
             # -------
-            if curr_row_number == 1:
-                ws[f'E{rn1}'].value = 1
-                ws[f'E{rn1}'].fill = node_bgcolor
-                ws[f'E{rn1}'].border = upside_node_border
-                ws[f'E{rn2}'].fill = node_bgcolor
-                ws[f'E{rn2}'].border = downside_node_border
+            if curr_row_number == 0:
+                ws[f'E{rth1}'].value = 1
+                ws[f'E{rth1}'].fill = node_bgcolor
+                ws[f'E{rth1}'].border = upside_node_border
+                ws[f'E{rth2}'].fill = node_bgcolor
+                ws[f'E{rth2}'].border = downside_node_border
 
                 draw_node(round_th=0, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
                 draw_node(round_th=0, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
@@ -348,11 +352,7 @@ class Automation():
 
             # 実現確率
             # --------
-            ws[f'C{rn1}'].value = rate
-
-
-        # 送り出し
-        self.forward_cursor(next_gt_record=next_gt_record)
+            ws[f'C{rth1}'].value = rate
 
 
 ########################################
@@ -446,11 +446,8 @@ gt_table:
         # GTWB の Sheet シートへの各行書出し
         gt_table.for_each(on_each=automation.on_each_gt_record)
 
-        # 最終行 - 1の実行
-        automation.on_each_gt_record(next_row_number=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
-
         # 最終行の実行
-        automation.on_each_gt_record(next_row_number=len(gt_table.df) + 1, next_gt_record=GameTreeRecord.new_empty())
+        automation.on_each_gt_record(next_row_number=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
 
         # GTWB ファイルの保存
         gt_wb_wrapper.save()
