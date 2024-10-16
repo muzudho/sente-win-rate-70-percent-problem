@@ -1,6 +1,7 @@
 class GameTreeView():
 
 
+    @staticmethod
     def can_connect_to_parent(prev_gt_record, curr_gt_record, round_th):
         """前ラウンドのノードに接続できるか？"""
 
@@ -16,7 +17,7 @@ class GameTreeView():
             #
             #   NOTE 表0.5、裏0.5 のときレートだけ見てると同じなので、コインの出目も見る
             #
-            return prev_gt_record.node_at(prev_round_no).face != curr_gt_record.node_at(prev_round_no).face or prev_gt_record.node_at(prev_round_no).rate != curr_gt_record.node_at(prev_round_no).rate
+            return curr_gt_record.node_at(prev_round_no).face != prev_gt_record.node_at(prev_round_no).face or curr_gt_record.node_at(prev_round_no).rate != prev_gt_record.node_at(prev_round_no).rate
 
         # AttributeError: 'NoneType' object has no attribute 'rate'
         except AttributeError as e:
@@ -27,7 +28,8 @@ class GameTreeView():
             raise IndexError(f"{round_th=}  {prev_round_no=}  {prev_gt_record.len_node_list=}  {curr_gt_record.len_node_list=}") from e
 
 
-    def is_elder_sibling(prev_gt_record, curr_gt_record, next_gt_record, round_th):
+    @staticmethod
+    def is_elder_sibling(prev_gt_record, curr_gt_record, round_th):
         """兄か？"""
 
         # 先頭行に兄は無い
@@ -37,19 +39,27 @@ class GameTreeView():
         prev_round_th = round_th - 1
         prev_round_no = prev_round_th - 1
 
-        # 全ラウンドのレートが同じか？
-        pass
+        # 前ラウンドは、現業と前行で、コインの出目かつレートが等しいか？
+        return curr_gt_record.node_at(prev_round_no).face == prev_gt_record.node_at(prev_round_no).face and curr_gt_record.node_at(prev_round_no).rate == prev_gt_record.node_at(prev_round_no).rate
 
 
-    def is_younger_sibling(prev_gt_record, curr_gt_record, next_gt_record, round_th):
+    @staticmethod
+    def is_younger_sibling(curr_gt_record, next_gt_record, round_th):
         """弟か？"""
+
+        # 次行が無ければ弟は無い
+        if next_gt_record.no is None:
+            return False
+
         prev_round_th = round_th - 1
         prev_round_no = prev_round_th - 1
 
-        pass
+        # 次ラウンドは、現業と前行で、コインの出目かつレートが等しいか？
+        return curr_gt_record.node_at(prev_round_no).face == next_gt_record.node_at(prev_round_no).face and curr_gt_record.node_at(prev_round_no).rate == next_gt_record.node_at(prev_round_no).rate
 
 
-    def get_type_connect_to_child(prev_gt_record, curr_gt_record, next_gt_record, round_th):
+    @staticmethod
+    def get_kind_connect_to_child(prev_gt_record, curr_gt_record, next_gt_record, round_th):
         """
         子ノードへの接続は４種類の線がある
         
@@ -75,17 +85,17 @@ class GameTreeView():
         """
 
         # 上は兄か？
-        if is_elder_sibling(prev_gt_record=prev_gt_record, curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
+        if GameTreeView.is_elder_sibling(prev_gt_record=prev_gt_record, curr_gt_record=curr_gt_record, round_th=round_th):
 
             # 下は弟か？
-            if is_younger_sibling(prev_gt_record=prev_gt_record, curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
+            if GameTreeView.is_younger_sibling(curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
                 return 'Vertical'
 
             else:
                 return 'Up'
 
         # 下は弟か？
-        elif is_younger_sibling(prev_gt_record=prev_gt_record, curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
+        elif GameTreeView.is_younger_sibling(curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
             return 'Down'
 
 

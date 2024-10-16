@@ -138,15 +138,30 @@ class Automation():
             node_bgcolor = PatternFill(patternType='solid', fgColor='FFFFCC')
 
             # 罫線
+            #
+            #   style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
+            #
             side = Side(style='thick', color='000000')
             red_side = Side(style='thick', color='FF0000')
-            # style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
+            orange_side = Side(style='thick', color='FFCC00')
+            green_side = Side(style='thick', color='00FF00')
+            blue_side = Side(style='thick', color='0000FF')
+            yellow_side = Side(style='thick', color='FFFF00')
+            # 親への接続は赤
+            border_to_parent = Border(bottom=red_side)
+            # 子への水平接続はオレンジ
+            under_border_to_child_horizontal = Border(bottom=orange_side)
+            # 子へのダウン接続はブルー
+            under_border_to_child_down = Border(bottom=blue_side)
+            leftside_border_to_child_down = Border(left=blue_side)
+            # 子への垂直接続はイエロー
+            l_letter_border_to_child_vertical = Border(left=yellow_side, bottom=yellow_side)
+            leftside_border_to_child_vertical = Border(left=yellow_side)
+            # 子へのアップ接続はグリーン
+            l_letter_border_to_child_up = Border(left=green_side, bottom=green_side)
+
             upside_node_border = Border(top=side, left=side, right=side)
             downside_node_border = Border(bottom=side, left=side, right=side)
-            under_border = Border(bottom=side)
-            border_to_parent = Border(bottom=red_side)
-            leftside_vertical_border = Border(left=side)
-            l_letter_border = Border(left=side, bottom=side)
 
 
             # 変数名短縮
@@ -273,38 +288,48 @@ class Automation():
                 #   .    under_border
                 # ...__  
                 #   .    None
+                #   .    None
                 #
                 # (2) Down
                 #   .    under_border
                 # ..+__  
+                #   |    leftside_border
                 #   |    leftside_border
                 #
                 # (3) Vertical
                 #   |    l_letter_border
                 # ..+__  
                 #   |    leftside_border
+                #   |    leftside_border
                 #
                 # (4) Up
                 #   |    l_letter_border
                 # ..+__  
                 #   .    None
+                #   .    None
                 #
+                kind = GameTreeView.get_kind_connect_to_child(
+                        prev_gt_record=self._prev_gt_record,
+                        curr_gt_record=self._curr_gt_record,
+                        next_gt_record=self._next_gt_record,
+                        round_th=round_th)
 
-                if nd.face == 'h':
-                    ws[f'{cn2}{row1_th}'].border = under_border                # FIXME 下に枝があるかないか？
-                    ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                    ws[f'{cn2}{row3_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                if kind == 'Horizontal':
+                    ws[f'{cn2}{row1_th}'].border = under_border_to_child_horizontal
                 
-                elif nd.face == 't':
-                    ws[f'{cn2}{row1_th}'].border = l_letter_border             # FIXME 上に枝があるか？ 下に枝があるか？
-                    ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                    ws[f'{cn2}{row3_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                elif kind == 'Down':
+                    ws[f'{cn2}{row1_th}'].border = under_border_to_child_down
+                    ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_down
+                    ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_down
 
-                elif nd.face == 'f':
-                    ws[f'{cn2}{row1_th}'].border = l_letter_border             # FIXME 上に枝があるか？
-                    ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                    ws[f'{cn2}{row3_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                
+                elif kind == 'Vertical':
+                    ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_vertical
+                    ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_vertical
+                    ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_vertical
+
+                elif kind == 'Up':
+                    ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_up
+
                 else:
                     raise ValueError(f"{nd.face=}")
 
