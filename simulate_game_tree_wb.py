@@ -19,6 +19,7 @@ from library.workbooks import GameTreeWorkbookWrapper
 from library.views import stringify_csv_of_score_board_view_body, PromptCatalog
 from library.score_board import search_all_score_boards
 from library.views import ScoreBoardViewData
+from library.game_tree_view import GameTreeView
 from scripts import SaveOrIgnore
 
 
@@ -233,17 +234,16 @@ class Automation():
                 rth3 = three_row_numbers[2]
 
                 # １列目：親ノードから伸びてきた枝
-                if nd.face == 'h':
+                #
+                #   .
+                # --...
+                #   .
+                #
+                # 前ラウンドが空欄なら、この線は引かない
+                #
+                if not GameTreeView.is_node_at_prev_round(curr_gt_record=self._curr_gt_record, round_th=rth1):
                     ws[f'{cn1}{rth1}'].border = under_border                # ［表］なら前ラウンドから生えてるので必ず引く
                 
-                elif nd.face == 't':
-                    ws[f'{cn1}{rth1}'].border = under_border                # FIXME 前ラウンドがノードか？
-
-                elif nd.face == 'f':
-                    ws[f'{cn1}{rth1}'].border = under_border                # FIXME 前ラウンドがノードか？
-                
-                else:
-                    raise ValueError(f"{nd.face=}")
 
                 # ２列目：分岐したエッジ
                 ws[f'{cn2}{rth1}'].value = edge_text(node=nd)

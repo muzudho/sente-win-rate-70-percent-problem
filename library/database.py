@@ -2129,14 +2129,8 @@ class GameTreeNode():
 class GameTreeRecord():
 
 
-    def __init__(self, no, result,
-        node1,
-        node2,
-        node3,
-        node4,
-        node5,
-        node6):
-        """TODO n6 以降も欲しいが、あとで考える
+    def __init__(self, no, result, node_list):
+        """初期化
         
         Parameters
         ----------
@@ -2144,18 +2138,14 @@ class GameTreeRecord():
             1から始まる連番
         result : str
             結果
-        node1 : GameTreeNode
-            ノード１
+        node_list : list<GameTreeNode>
+            ノード１～６
+            TODO ノード７ 以降も欲しいが、あとで考える。 dtype は結局固定長で全列ベタ書きする必要がある
         """
         self._no = no
         self._result = result
 
-        self._node1 = node1
-        self._node2 = node2
-        self._node3 = node3
-        self._node4 = node4
-        self._node5 = node5
-        self._node6 = node6
+        self._node_list = node_list
 
 
     @staticmethod
@@ -2163,12 +2153,7 @@ class GameTreeRecord():
         return GameTreeRecord(
                 no=None,
                 result=None,
-                node1=None,
-                node2=None,
-                node3=None,
-                node4=None,
-                node5=None,
-                node6=None)
+                node_list=[None, None, None, None, None, None])
 
 
     @property
@@ -2181,40 +2166,17 @@ class GameTreeRecord():
         return self._result
 
 
-    @property
-    def node1(self):
-        return self._node1
+    def node_at(self, round_no):
+        """
+        Parameters
+        ----------
+        round_no : int
+            例：第１局後なら 0 を指定してください
+        """
+        return self._node_list[round_no]
 
 
-    @property
-    def node2(self):
-        return self._node2
-
-
-    @property
-    def node3(self):
-        return self._node3
-
-
-
-    @property
-    def node4(self):
-        return self._node4
-
-
-
-    @property
-    def node5(self):
-        return self._node5
-
-
-
-    @property
-    def node6(self):
-        return self._node6
-
-
-    def update(self, no=None, result=None, node1=None, node2=None, node3=None, node4=None, node5=None, node6=None):
+    def update(self, no=None, result=None, node_list=None):
         """no inplace
         何も更新しなければシャロー・コピーを返します"""
 
@@ -2226,12 +2188,7 @@ class GameTreeRecord():
         return GameTreeRecord(
             no=new_or_default(no, self._no),
             result=new_or_default(result, self._result),
-            node1=new_or_default(node1, self._node1),
-            node2=new_or_default(node2, self._node2),
-            node3=new_or_default(node3, self._node3),
-            node4=new_or_default(node4, self._node4),
-            node5=new_or_default(node5, self._node5),
-            node6=new_or_default(node6, self._node6))
+            node_list=new_or_default(node_list, self._node_list))
 
 
 class GameTreeTable():
@@ -2500,35 +2457,35 @@ df:
             shall_record_change =\
                 self._df['result'][index] != welcome_record.result or\
                 \
-                self._df['face1'][index] != welcome_record.node1.face or\
-                self._df['winner1'][index] != welcome_record.node1.winner or\
-                self._df['pts1'][index] != welcome_record.node1.pts or\
-                self._df['rate1'][index] != welcome_record.node1.rate or\
+                self._df['face1'][index] != welcome_record.node_at(0).face or\
+                self._df['winner1'][index] != welcome_record.node_at(0).winner or\
+                self._df['pts1'][index] != welcome_record.node_at(0).pts or\
+                self._df['rate1'][index] != welcome_record.node_at(0).rate or\
                 \
-                self._df['face2'][index] != welcome_record.node2.face or\
-                self._df['winner2'][index] != welcome_record.node2.winner or\
-                self._df['pts2'][index] != welcome_record.node2.pts or\
-                self._df['rate2'][index] != welcome_record.node2.rate or\
+                self._df['face2'][index] != welcome_record.node_at(1).face or\
+                self._df['winner2'][index] != welcome_record.node_at(1).winner or\
+                self._df['pts2'][index] != welcome_record.node_at(1).pts or\
+                self._df['rate2'][index] != welcome_record.node_at(1).rate or\
                 \
-                self._df['face3'][index] != welcome_record.node3.face or\
-                self._df['winner3'][index] != welcome_record.node3.winner or\
-                self._df['pts3'][index] != welcome_record.node3.pts or\
-                self._df['rate3'][index] != welcome_record.node3.rate or\
+                self._df['face3'][index] != welcome_record.node_at(2).face or\
+                self._df['winner3'][index] != welcome_record.node_at(2).winner or\
+                self._df['pts3'][index] != welcome_record.node_at(2).pts or\
+                self._df['rate3'][index] != welcome_record.node_at(2).rate or\
                 \
-                self._df['face4'][index] != welcome_record.node4.face or\
-                self._df['winner4'][index] != welcome_record.node4.winner or\
-                self._df['pts4'][index] != welcome_record.node4.pts or\
-                self._df['rate4'][index] != welcome_record.node4.rate or\
+                self._df['face4'][index] != welcome_record.node_at(3).face or\
+                self._df['winner4'][index] != welcome_record.node_at(3).winner or\
+                self._df['pts4'][index] != welcome_record.node_at(3).pts or\
+                self._df['rate4'][index] != welcome_record.node_at(3).rate or\
                 \
-                self._df['face5'][index] != welcome_record.node5.face or\
-                self._df['winner5'][index] != welcome_record.node5.winner or\
-                self._df['pts5'][index] != welcome_record.node5.pts or\
-                self._df['rate5'][index] != welcome_record.node5.rate or\
+                self._df['face5'][index] != welcome_record.node_at(4).face or\
+                self._df['winner5'][index] != welcome_record.node_at(4).winner or\
+                self._df['pts5'][index] != welcome_record.node_at(4).pts or\
+                self._df['rate5'][index] != welcome_record.node_at(4).rate or\
                 \
-                self._df['face6'][index] != welcome_record.node6.face or\
-                self._df['winner6'][index] != welcome_record.node6.winner or\
-                self._df['pts6'][index] != welcome_record.node6.pts or\
-                self._df['rate6'][index] != welcome_record.node6.rate
+                self._df['face6'][index] != welcome_record.node_at(5).face or\
+                self._df['winner6'][index] != welcome_record.node_at(5).winner or\
+                self._df['pts6'][index] != welcome_record.node_at(5).pts or\
+                self._df['rate6'][index] != welcome_record.node_at(5).rate
 
 
         # 行の挿入または更新
@@ -2537,35 +2494,35 @@ df:
                 # no はインデックス
                 'result': welcome_record.result,
 
-                'face1': welcome_record.node1.face,
-                'winner1': welcome_record.node1.winner,
-                'pts1': welcome_record.node1.pts,
-                'rate1': welcome_record.node1.rate,
+                'face1': welcome_record.node_at(0).face,
+                'winner1': welcome_record.node_at(0).winner,
+                'pts1': welcome_record.node_at(0).pts,
+                'rate1': welcome_record.node_at(0).rate,
 
-                'face2': welcome_record.node2.face,
-                'winner2': welcome_record.node2.winner,
-                'pts2': welcome_record.node2.pts,
-                'rate2': welcome_record.node2.rate,
+                'face2': welcome_record.node_at(1).face,
+                'winner2': welcome_record.node_at(1).winner,
+                'pts2': welcome_record.node_at(1).pts,
+                'rate2': welcome_record.node_at(1).rate,
 
-                'face3': welcome_record.node3.face,
-                'winner3': welcome_record.node3.winner,
-                'pts3': welcome_record.node3.pts,
-                'rate3': welcome_record.node3.rate,
+                'face3': welcome_record.node_at(2).face,
+                'winner3': welcome_record.node_at(2).winner,
+                'pts3': welcome_record.node_at(2).pts,
+                'rate3': welcome_record.node_at(2).rate,
 
-                'face4': welcome_record.node4.face,
-                'winner4': welcome_record.node4.winner,
-                'pts4': welcome_record.node4.pts,
-                'rate4': welcome_record.node4.rate,
+                'face4': welcome_record.node_at(3).face,
+                'winner4': welcome_record.node_at(3).winner,
+                'pts4': welcome_record.node_at(3).pts,
+                'rate4': welcome_record.node_at(3).rate,
 
-                'face5': welcome_record.node5.face,
-                'winner5': welcome_record.node5.winner,
-                'pts5': welcome_record.node5.pts,
-                'rate5': welcome_record.node5.rate,
+                'face5': welcome_record.node_at(4).face,
+                'winner5': welcome_record.node_at(4).winner,
+                'pts5': welcome_record.node_at(4).pts,
+                'rate5': welcome_record.node_at(4).rate,
 
-                'face6': welcome_record.node6.face,
-                'winner6': welcome_record.node6.winner,
-                'pts6': welcome_record.node6.pts,
-                'rate6': welcome_record.node6.rate}
+                'face6': welcome_record.node_at(5).face,
+                'winner6': welcome_record.node_at(5).winner,
+                'pts6': welcome_record.node_at(5).pts,
+                'rate6': welcome_record.node_at(5).rate}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -2644,11 +2601,13 @@ df:
             record = GameTreeRecord(
                     no=no,
                     result=result,
-                    node1=GameTreeNode(face=face1, winner=winner1, pts=pts1, rate=rate1),
-                    node2=GameTreeNode(face=face2, winner=winner2, pts=pts2, rate=rate2),
-                    node3=GameTreeNode(face=face3, winner=winner3, pts=pts3, rate=rate3),
-                    node4=GameTreeNode(face=face4, winner=winner4, pts=pts4, rate=rate4),
-                    node5=GameTreeNode(face=face5, winner=winner5, pts=pts5, rate=rate5),
-                    node6=GameTreeNode(face=face6, winner=winner6, pts=pts6, rate=rate6))
+                    # TODO 今のところ固定長サイズ６
+                    node_list=[
+                        GameTreeNode(face=face1, winner=winner1, pts=pts1, rate=rate1),
+                        GameTreeNode(face=face2, winner=winner2, pts=pts2, rate=rate2),
+                        GameTreeNode(face=face3, winner=winner3, pts=pts3, rate=rate3),
+                        GameTreeNode(face=face4, winner=winner4, pts=pts4, rate=rate4),
+                        GameTreeNode(face=face5, winner=winner5, pts=pts5, rate=rate5),
+                        GameTreeNode(face=face6, winner=winner6, pts=pts6, rate=rate6)])
 
             on_each(row_number, record)

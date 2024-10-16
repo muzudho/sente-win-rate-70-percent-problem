@@ -132,59 +132,55 @@ class Automatic():
             rate_list.append(pattern_rate)
 
 
+        node_list = []
+
         if 0 < number_of_round:
             i = 0
-            node1 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
+            node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
         else:
-            node1 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
+            node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
 
         if 1 < number_of_round:
             i = 1
-            node2 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
+            node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
         else:
-            node2 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
+            node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
 
         if 2 < number_of_round:
             i = 2
-            node3 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
+            node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
         else:
-            node3 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
+            node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
 
         if 3 < number_of_round:
             i = 3
-            node4 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
+            node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
         else:
-            node4 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
+            node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
 
         if 4 < number_of_round:
             i = 4
-            node5 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
+            node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
         else:
-            node5 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
+            node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
 
         if 5 < number_of_round:
             i = 5
-            node6 = GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i])
+            node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
         else:
-            node6 = GameTreeNode(face=None, winner=None, pts=None, rate=None)
+            node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
+
 
         gt_table.upsert_record(
                 welcome_record=GameTreeRecord(
                         no=no,
                         result=result,
-                        node1=node1,
-                        node2=node2,
-                        node3=node3,
-                        node4=node4,
-                        node5=node5,
-                        node6=node6))
+                        node_list=node_list))
 
 
 ########################################
 # コマンドから実行時
 ########################################
-
-
 if __name__ == '__main__':
     """コマンドから実行時"""
 
