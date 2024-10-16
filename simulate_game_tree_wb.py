@@ -488,56 +488,56 @@ class TreeEraser():
 
         # 行番号は 4 から
         row_th = 4
-        while True:
+        while row_th <= ws.max_row: # 最終行まで全部見る
 
-            # 罫線を確認
-            #
-            #   .
-            # ..+--  下向きの罫線が最後に出た箇所を調べる
-            #   |
-            #
-            border = ws[f'{column_alphabet}{row_th}'].border
-            if border is not None:
-                print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 境界線有り {border=}")
+            while True:
 
-                there_no_border = True
+                # 罫線を確認
+                #
+                #   .
+                # ..+--  下向きの罫線が最後に出た箇所を調べる
+                #   |
+                #
+                border = ws[f'{column_alphabet}{row_th}'].border
+                if border is not None:
+                    #print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 境界線有り {border=}")
 
-                if border.left is not None:
-                    print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.left.style=}")
-                    if border.left.style == 'thick':
-                        there_no_border = False
-                        print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 左側に罫線")
+                    there_no_border = True
 
-                if border.bottom is not None:
-                    print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.bottom.style=}")
-                    if border.bottom.style == 'thick':
-                        there_no_border = False
-                        row_th_of_last_underline = row_th
-                        print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} アンダーライン")
+                    if border.left is not None:
+                        #print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.left.style=}")
+                        if border.left.style == 'thick':
+                            there_no_border = False
+                            #print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 左側に罫線")
 
-                # 境界線が無かったらループを抜ける
-                if there_no_border:
-                    print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} ループ抜ける")
-                    break
+                    if border.bottom is not None:
+                        #print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.bottom.style=}")
+                        if border.bottom.style == 'thick':
+                            there_no_border = False
+                            row_th_of_last_underline = row_th
+                            print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} アンダーライン")
 
+                    # 境界線が無かったらループを抜ける
+                    if there_no_border:
+                        print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} ループ抜ける {ws.max_row=}")
+                        break
+
+                row_th += 1
+
+            print(f"[{datetime.datetime.now()}] 消しゴムを掛けたい行の番号 {row_th_of_last_underline+1}～{row_th-1}")
+            # 消しゴムを掛ける
+            if row_th_of_last_underline != -1:
+                for temp_row_th in range(row_th_of_last_underline+1, row_th):
+                    ws[f'{column_alphabet}{temp_row_th}'].border = None
+
+            # 次行から続行
             row_th += 1
-
-        print(f"[{datetime.datetime.now()}] 消しゴムを掛けたい行の番号 {row_th_of_last_underline+1}～{row_th-1}")
-
-
-        # 消しゴムを掛ける
-        if row_th_of_last_underline != -1:
-            for row_th in range(row_th_of_last_underline+1, row_th):
-                ws[f'{column_alphabet}{row_th}'].border = None
-
-
-        return row_th_of_last_underline+1, row_th
 
 
     def execute(self):
 
         # G列の左側の垂直線を見ていく
-        start_row_th, end_row_th = self.erase_unnecessary_border_by_column(column_alphabet='G')
+        self.erase_unnecessary_border_by_column(column_alphabet='G')
 
         self.erase_unnecessary_border_by_column(column_alphabet='J')
         self.erase_unnecessary_border_by_column(column_alphabet='M')
