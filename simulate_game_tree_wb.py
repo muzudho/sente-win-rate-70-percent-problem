@@ -6,6 +6,7 @@
 #
 
 import traceback
+import datetime
 import pandas as pd
 import openpyxl as xl
 from openpyxl.styles import PatternFill, Font
@@ -129,7 +130,7 @@ class Prefetch():
 
             # TODO セルに上行と同じ値が入っていたら、"├"、"└"、空欄のいずれかにする。ひとまず pts に PTS_MARK_SAME_RATE=-2 を入れておく
             if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
                 gt2_record = gt2_record.update(
                         node1=GameTreeNode(
                                 face=nd.face,
@@ -146,7 +147,7 @@ class Prefetch():
             nd = gt1_record.node2
 
             if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
                 gt2_record = gt2_record.update(
                         node2=GameTreeNode(
                                 face=nd.face,
@@ -165,7 +166,7 @@ class Prefetch():
             nd = gt1_record.node3
 
             if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
                 gt2_record = gt2_record.update(
                         node3=GameTreeNode(
                                 face=nd.face,
@@ -184,7 +185,7 @@ class Prefetch():
             nd = gt1_record.node4
 
             if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
                 gt2_record = gt2_record.update(
                         node4=GameTreeNode(
                                 face=nd.face,
@@ -203,7 +204,7 @@ class Prefetch():
             nd = gt1_record.node5
 
             if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
                 gt2_record = gt2_record.update(
                         node5=GameTreeNode(
                                 face=nd.face,
@@ -222,7 +223,7 @@ class Prefetch():
             nd = gt1_record.node6
 
             if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
-                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                print(f"[{datetime.datetime.now()}] {gt1_record.no}行目 {i}局後 SAME")
                 gt2_record = gt2_record.update(
                         node6=GameTreeNode(
                                 face=nd.face,
@@ -244,7 +245,7 @@ class Automation():
     def __init__(self, gt_table_2, gt_wb_wrapper):
         self._gt_table_2 = gt_table_2
         self._gt_wb_wrapper = gt_wb_wrapper
-        self._prev_gt1_record = None
+        self._prev_gt2_record = None
 
 
     def on_header(self):
@@ -326,7 +327,7 @@ class Automation():
         row_number = 2
 
 
-    def on_gt2_record(self, row_number, gt_record):
+    def on_each_gt2_record(self, row_number, gt2_record):
 
         # 色の参考： 📖 [Excels 56 ColorIndex Colors](https://www.excelsupersite.com/what-are-the-56-colorindex-colors-in-excel/)
         node_bgcolor = PatternFill(patternType='solid', fgColor='FFFFCC')
@@ -357,8 +358,8 @@ class Automation():
         ws.row_dimensions[rn2].height = 13
         ws.row_dimensions[rn3].height = 6
 
-        ws[f'A{rn1}'].value = gt_record.no
-        ws[f'B{rn1}'].value = gt_record.result
+        ws[f'A{rn1}'].value = gt2_record.no
+        ws[f'B{rn1}'].value = gt2_record.result
 
 
         # TODO C列には確率を入れたい。あとで入れる
@@ -366,48 +367,38 @@ class Automation():
         # TODO E列の上の方の行には 1 を入れたい
 
 
-        # 開始ノード
-        # --------
-        if rn1 == 3:
-            ws[f'E{rn1}'].value = 1
-            ws[f'E{rn1}'].fill = node_bgcolor
-            ws[f'E{rn1}'].border = upside_node_border
-            ws[f'E{rn2}'].fill = node_bgcolor
-            ws[f'E{rn2}'].border = downside_node_border
+        def draw_node(nd, three_column_names, three_row_numbers):
 
+            if pd.isnull(nd.face):
+                print(f"[{datetime.datetime.now()}] face が空欄のノードは無視")
+                return
 
-        def edge_text(node):
-            if node.face == 'h':
-                face = '表'
-            elif node.face == 't':
-                face = '裏'
-            elif node.face == 'f':
-                face = '失敗'
-            else:
-                raise ValueError(f"{node.face=}")
-            
-            if node.winner == 'A':
-                winner = '(Ａさん'
-            elif node.winner == 'B':
-                winner = '(Ｂさん'
-            elif node.winner == 'N':
-                winner = ''
-            else:
-                raise ValueError(f"{node.winner=}")
+            def edge_text(node):
+                if node.face == 'h':
+                    face = '表'
+                elif node.face == 't':
+                    face = '裏'
+                elif node.face == 'f':
+                    face = '失敗'
+                else:
+                    raise ValueError(f"{node.face=}")
+                
+                if node.winner == 'A':
+                    winner = '(Ａさん'
+                elif node.winner == 'B':
+                    winner = '(Ｂさん'
+                elif node.winner == 'N':
+                    winner = ''
+                else:
+                    raise ValueError(f"{node.winner=}")
 
-            if node.pts != -1:
-                pts = f"{node.pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
-            else:
-                pts = ''
+                if node.pts != -1:
+                    pts = f"{node.pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
+                else:
+                    pts = ''
 
-            return f"{face}{winner}{pts}"
+                return f"{face}{winner}{pts}"
 
-
-        # 実現確率
-        rate = None
-
-
-        def draw_node(three_column_names, three_row_numbers):
             cn1 = three_column_names[0]
             cn2 = three_column_names[1]
             cn3 = three_column_names[2]
@@ -426,86 +417,108 @@ class Automation():
             ws[f'{cn3}{rn2}'].fill = node_bgcolor
             ws[f'{cn3}{rn2}'].border = downside_node_border
 
-            # TODO 表と失敗は必ず対になるから、その間には枝の垂線を引けるはず。何局目に表があったか記憶してはどうか？
 
-
-
-        # 1局後
-        # -----
-        i = 1
-        nd = gt_record.node1
-        # NOTE 空欄にすべきところには、プリフェッチ時に pts に -2 を入れてある
-        if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-            print(f"{gt_record.no}行目 {i}局後 not same")
-            draw_node(three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
-
-        if not pd.isnull(nd.rate):
-            rate = nd.rate
-
-
-        # 2局後
-        # -----
-        i = 2
-        nd = gt_record.node2
-        if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-            print(f"{gt_record.no}行目 {i}局後 not same")
-            draw_node(three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
-
-        if not pd.isnull(nd.rate):
-            rate = nd.rate
-
-
-        # 3局後
-        # -----
-        i = 3
-        nd = gt_record.node3
-        if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-            print(f"{gt_record.no}行目 {i}局後 not same")
-            draw_node(three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
-
-        if not pd.isnull(nd.rate):
-            rate = nd.rate
-
-
-        # 4局後
-        # -----
-        i = 4
-        nd = gt_record.node4
-        if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-            print(f"{gt_record.no}行目 {i}局後 not same")
-            draw_node(three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
-
-        if not pd.isnull(nd.rate):
-            rate = nd.rate
-
-
-        # 5局後
-        # -----
-        i = 5
-        nd = gt_record.node5
-        if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-            print(f"{gt_record.no}行目 {i}局後 not same")
-            draw_node(three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
-
-        if not pd.isnull(nd.rate):
-            rate = nd.rate
-
-
-        # 6局後
-        # -----
-        i = 6
-        nd = gt_record.node6
-        if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
-            print(f"{gt_record.no}行目 {i}局後 not same")
-            draw_node(three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
-
-        if not pd.isnull(nd.rate):
-            rate = nd.rate
-
-
-        # 実現確率
+        # 開始ノード
         # --------
-        ws[f'C{rn1}'].value = rate
+        if rn1 == 3:
+            ws[f'E{rn1}'].value = 1
+            ws[f'E{rn1}'].fill = node_bgcolor
+            ws[f'E{rn1}'].border = upside_node_border
+            ws[f'E{rn2}'].fill = node_bgcolor
+            ws[f'E{rn2}'].border = downside_node_border
+
+            draw_node(nd=gt2_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
+            draw_node(nd=gt2_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
+            draw_node(nd=gt2_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
+            draw_node(nd=gt2_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
+            draw_node(nd=gt2_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
+            draw_node(nd=gt2_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+
+
+        else:
+            # 実現確率
+            rate = None
+
+
+            # 1局後
+            # -----
+            i = 1
+            nd = gt2_record.node1
+            # NOTE 空欄にすべきところには、プリフェッチ時に pts に -2 を入れてある
+            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
+                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
+                draw_node(nd=nd, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 2局後
+            # -----
+            i = 2
+            nd = gt2_record.node2
+            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
+                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
+                draw_node(nd=nd, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 3局後
+            # -----
+            i = 3
+            nd = gt2_record.node3
+            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
+                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
+                draw_node(nd=nd, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 4局後
+            # -----
+            i = 4
+            nd = gt2_record.node4
+            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
+                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
+                draw_node(nd=nd, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 5局後
+            # -----
+            i = 5
+            nd = gt2_record.node5
+            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
+                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
+                draw_node(nd=nd, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 6局後
+            # -----
+            i = 6
+            nd = gt2_record.node6
+            if not pd.isnull(nd.pts) and nd.pts != PTS_MARK_SAME_RATE:
+                print(f"[{datetime.datetime.now()}] {gt2_record.no}行目 {i}局後 not same")
+                draw_node(nd=nd, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+
+            if not pd.isnull(nd.rate):
+                rate = nd.rate
+
+
+            # 実現確率
+            # --------
+            ws[f'C{rn1}'].value = rate
+
+
+        self._prev_gt2_record = gt2_record
 
 
 ########################################
@@ -567,7 +580,7 @@ if __name__ == '__main__':
         prefetch.gt_table_1.for_each(on_each=prefetch.on_gt1_record)
 
         print(f"""\
-prefetch.gt_table_2.df:
+[{datetime.datetime.now()}] prefetch.gt_table_2.df:
 {prefetch.gt_table_2.df}""")
 
 
@@ -594,7 +607,7 @@ prefetch.gt_table_2.df:
         automation.on_header()
 
         # GTWB の Sheet シートへの各行書出し
-        prefetch.gt_table_2.for_each(on_each=automation.on_gt2_record)
+        prefetch.gt_table_2.for_each(on_each=automation.on_each_gt2_record)
 
         # GTWB ファイルの保存
         gt_wb_wrapper.save()
