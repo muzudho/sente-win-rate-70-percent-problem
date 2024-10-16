@@ -147,6 +147,7 @@ class Automation():
             green_side = Side(style='thick', color='00FF00')
             blue_side = Side(style='thick', color='0000FF')
             yellow_side = Side(style='thick', color='FFFF00')
+            magenta_side = Side(style='thick', color='FF00FF')
             # 親への接続は赤
             border_to_parent = Border(bottom=red_side)
             # 子への水平接続はオレンジ
@@ -154,11 +155,13 @@ class Automation():
             # 子へのダウン接続はブルー
             under_border_to_child_down = Border(bottom=blue_side)
             leftside_border_to_child_down = Border(left=blue_side)
-            # 子への垂直接続はイエロー
-            l_letter_border_to_child_vertical = Border(left=yellow_side, bottom=yellow_side)
-            leftside_border_to_child_vertical = Border(left=yellow_side)
+            # 子へのＴ字接続はイエロー
+            l_letter_border_to_child_t_letter = Border(left=yellow_side, bottom=yellow_side)
+            leftside_border_to_child_t_letter = Border(left=yellow_side)
             # 子へのアップ接続はグリーン
             l_letter_border_to_child_up = Border(left=green_side, bottom=green_side)
+            # 垂直接続はマゼンタ
+            leftside_border_to_vertical = Border(left=magenta_side)
 
             upside_node_border = Border(top=side, left=side, right=side)
             downside_node_border = Border(bottom=side, left=side, right=side)
@@ -223,10 +226,6 @@ class Automation():
                     # 前行が無ければ描画
                     pass
 
-                elif nd.rate == prev_nd.rate:
-                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  前行の同ラウンドと rate が同じなら無視")
-                    return nd
-
 
                 # 以下、描画
                 print(f"[{datetime.datetime.now()}] {self._curr_gt_record.no}行目 {round_th}局後 ノード描画  {curr_row_number=}")
@@ -264,6 +263,28 @@ class Automation():
                 row2_th = three_row_numbers[1]
                 row3_th = three_row_numbers[2]
 
+
+                if prev_nd is not None and nd.rate == prev_nd.rate:
+                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  前行の同ラウンドと rate が同じなら垂直線か空欄")
+
+                    # 垂直線
+                    #
+                    #   |    leftside_border
+                    # ..+..  
+                    #   |    leftside_border
+                    #   |    leftside_border
+                    #
+                    if GameTreeView.is_same_as_avobe(
+                            curr_gt_record=self._curr_gt_record,
+                            prev_gt_record=self._prev_gt_record,
+                            round_th=round_th):
+                        ws[f'{cn2}{row1_th}'].border = leftside_border_to_vertical
+                        ws[f'{cn2}{row2_th}'].border = leftside_border_to_vertical
+                        ws[f'{cn2}{row3_th}'].border = leftside_border_to_vertical                    
+
+                    return nd
+
+
                 # １列目：親ノードから伸びてきた枝
                 #
                 #   .
@@ -282,6 +303,7 @@ class Automation():
                 # ２列目：分岐したエッジ
                 ws[f'{cn2}{row1_th}'].value = edge_text(node=nd)
 
+
                 # 子ノードへの接続は４種類の線がある
                 #
                 # (1) Horizontal
@@ -296,7 +318,7 @@ class Automation():
                 #   |    leftside_border
                 #   |    leftside_border
                 #
-                # (3) Vertical
+                # (3) TLetter
                 #   |    l_letter_border
                 # ..+__  
                 #   |    leftside_border
@@ -322,14 +344,14 @@ class Automation():
                     ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_down
                     ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_down
 
-                elif kind == 'Vertical':
-                    ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_vertical
-                    ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_vertical
-                    ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_vertical
+                elif kind == 'TLetter':
+                    ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_t_letter
+                    ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_t_letter
+                    ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_t_letter
 
                 elif kind == 'Up':
                     ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_up
-
+                
                 else:
                     raise ValueError(f"{nd.face=}")
 

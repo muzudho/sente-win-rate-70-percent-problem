@@ -1,3 +1,6 @@
+import datetime
+
+
 class GameTreeView():
 
 
@@ -30,6 +33,26 @@ class GameTreeView():
         # IndexError: round_th=9  prev_round_no=7  prev_gt_record.len_node_list=6  curr_gt_record.len_node_list=6
         except IndexError as e:
             raise IndexError(f"{round_th=}  {prev_round_no=}  {prev_gt_record.len_node_list=}  {curr_gt_record.len_node_list=}") from e
+
+
+    @staticmethod
+    def is_same_as_avobe(curr_gt_record, prev_gt_record, round_th):
+        # 先頭行に兄は無い
+        if curr_gt_record.no == 1:
+            return False
+
+        curr_round_no = round_th - 1
+        # prev_round_th = round_th - 1
+        # prev_round_no = prev_round_th - 1
+
+        # 現業と前行は、現ラウンドについて、コインの出目もレートも等しい
+        a = curr_gt_record.node_at(curr_round_no).face
+        b = prev_gt_record.node_at(curr_round_no).face
+        c = curr_gt_record.node_at(curr_round_no).rate
+        d = prev_gt_record.node_at(curr_round_no).rate
+        print(f"[{datetime.datetime.now()}] {round_th=}  {a=}  {b=}  {c=}  {d=}")
+        return a == b and\
+            c == d
 
 
     @staticmethod
@@ -80,7 +103,7 @@ class GameTreeView():
         ..+__  
           |    leftside_border
         
-        (3) Vertical
+        (3) TLetter
           |    l_letter_border
         ..+__  
           |    leftside_border
@@ -96,7 +119,7 @@ class GameTreeView():
 
             # 下は弟か？
             if GameTreeView.is_younger_sibling(curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
-                return 'Vertical'
+                return 'TLetter'
 
             else:
                 return 'Up'
