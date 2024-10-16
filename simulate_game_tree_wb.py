@@ -273,8 +273,8 @@ class Automation():
                 # 前ラウンドにノードがあれば、接続線を引く
                 #
                 if GameTreeView.can_connect_to_parent(
-                        prev_gt_record=self._prev_gt_record,
                         curr_gt_record=self._curr_gt_record,
+                        prev_gt_record=self._prev_gt_record,
                         round_th=round_th):
                     ws[f'{cn1}{row1_th}'].border = border_to_parent
                 

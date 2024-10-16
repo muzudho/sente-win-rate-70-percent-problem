@@ -2,7 +2,7 @@ class GameTreeView():
 
 
     @staticmethod
-    def can_connect_to_parent(prev_gt_record, curr_gt_record, round_th):
+    def can_connect_to_parent(curr_gt_record, prev_gt_record, round_th):
         """前ラウンドのノードに接続できるか？"""
 
         prev_round_th = round_th - 1
@@ -11,6 +11,10 @@ class GameTreeView():
         # 先頭行は、ラウンド０も含め、全部親ノードに接続できる
         if curr_gt_record.no == 1:
             return True
+
+        # 先頭行以外の第１ラウンドは、親ノードに接続できない
+        elif round_th == 1:
+            return False
 
         try:
             # 前ラウンドは、前行とコインの出目またはレートが異なるか？
@@ -29,7 +33,7 @@ class GameTreeView():
 
 
     @staticmethod
-    def is_elder_sibling(prev_gt_record, curr_gt_record, round_th):
+    def is_elder_sibling(curr_gt_record, prev_gt_record, round_th):
         """兄か？"""
 
         # 先頭行に兄は無い
@@ -45,7 +49,10 @@ class GameTreeView():
 
     @staticmethod
     def is_younger_sibling(curr_gt_record, next_gt_record, round_th):
-        """弟か？"""
+        """弟か？
+
+        TODO 下方に弟ノードがあるかどうかは、数行読み進めないと分からない
+        """
 
         # 次行が無ければ弟は無い
         if next_gt_record.no is None:
@@ -85,7 +92,7 @@ class GameTreeView():
         """
 
         # 上は兄か？
-        if GameTreeView.is_elder_sibling(prev_gt_record=prev_gt_record, curr_gt_record=curr_gt_record, round_th=round_th):
+        if GameTreeView.is_elder_sibling(curr_gt_record=curr_gt_record, prev_gt_record=prev_gt_record, round_th=round_th):
 
             # 下は弟か？
             if GameTreeView.is_younger_sibling(curr_gt_record=curr_gt_record, next_gt_record=next_gt_record, round_th=round_th):
