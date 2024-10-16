@@ -2467,35 +2467,35 @@ df:
             shall_record_change =\
                 self._df['result'][index] != welcome_record.result or\
                 \
-                self._df['face1'][index] != welcome_record.e1 or\
-                self._df['winner1'][index] != welcome_record.e1 or\
-                self._df['pts1'][index] != welcome_record.e1 or\
-                self._df['rate1'][index] != welcome_record.n1 or\
+                self._df['face1'][index] != welcome_record.node1.face or\
+                self._df['winner1'][index] != welcome_record.node1.winner or\
+                self._df['pts1'][index] != welcome_record.node1.pts or\
+                self._df['rate1'][index] != welcome_record.node1.rate or\
                 \
-                self._df['face2'][index] != welcome_record.e2 or\
-                self._df['winner2'][index] != welcome_record.e2 or\
-                self._df['pts2'][index] != welcome_record.e2 or\
-                self._df['rate2'][index] != welcome_record.n2 or\
+                self._df['face2'][index] != welcome_record.node2.face or\
+                self._df['winner2'][index] != welcome_record.node2.winner or\
+                self._df['pts2'][index] != welcome_record.node2.pts or\
+                self._df['rate2'][index] != welcome_record.node2.rate or\
                 \
-                self._df['face3'][index] != welcome_record.e3 or\
-                self._df['winner3'][index] != welcome_record.e3 or\
-                self._df['pts3'][index] != welcome_record.e3 or\
-                self._df['rate3'][index] != welcome_record.n3 or\
+                self._df['face3'][index] != welcome_record.node3.face or\
+                self._df['winner3'][index] != welcome_record.node3.winner or\
+                self._df['pts3'][index] != welcome_record.node3.pts or\
+                self._df['rate3'][index] != welcome_record.node3.rate or\
                 \
-                self._df['face4'][index] != welcome_record.e4 or\
-                self._df['winner4'][index] != welcome_record.e4 or\
-                self._df['pts4'][index] != welcome_record.e4 or\
-                self._df['rate4'][index] != welcome_record.n4 or\
+                self._df['face4'][index] != welcome_record.node4.face or\
+                self._df['winner4'][index] != welcome_record.node4.winner or\
+                self._df['pts4'][index] != welcome_record.node4.pts or\
+                self._df['rate4'][index] != welcome_record.node4.rate or\
                 \
-                self._df['face5'][index] != welcome_record.e5 or\
-                self._df['winner5'][index] != welcome_record.e5 or\
-                self._df['pts5'][index] != welcome_record.e5 or\
-                self._df['rate5'][index] != welcome_record.n5 or\
+                self._df['face5'][index] != welcome_record.node5.face or\
+                self._df['winner5'][index] != welcome_record.node5.winner or\
+                self._df['pts5'][index] != welcome_record.node5.pts or\
+                self._df['rate5'][index] != welcome_record.node5.rate or\
                 \
-                self._df['face6'][index] != welcome_record.e6 or\
-                self._df['winner6'][index] != welcome_record.e6 or\
-                self._df['pts6'][index] != welcome_record.e6 or\
-                self._df['rate6'][index] != welcome_record.n6
+                self._df['face6'][index] != welcome_record.node6.face or\
+                self._df['winner6'][index] != welcome_record.node6.winner or\
+                self._df['pts6'][index] != welcome_record.node6.pts or\
+                self._df['rate6'][index] != welcome_record.node6.rate
 
 
         # 行の挿入または更新

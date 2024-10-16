@@ -249,13 +249,13 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
     c101 = S.wins(winner=ALICE)                       # Ａさんの勝ちの総数
     c102 = S.wins(winner=BOB)                         # Ｂさんの勝ちの総数
 
-    c103 = S.ful_wins(challenged=SUCCESSFUL, winner=ALICE)       # Ａさん満点勝ち
-    c104 = S.ful_wins(challenged=SUCCESSFUL, winner=BOB)         # Ｂさん満点勝ち
+    c103 = S.ful_wins(challenged=SUCCESSFUL, winner=ALICE)       # Ａさん達成勝ち
+    c104 = S.ful_wins(challenged=SUCCESSFUL, winner=BOB)         # Ｂさん達成勝ち
     c103b = S.pts_wins(challenged=SUCCESSFUL, winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
     c104b = S.pts_wins(challenged=SUCCESSFUL, winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
 
-    c105b = S.ful_wins(challenged=FAILED, winner=ALICE)       # Ａさん満点勝ち
-    c106b = S.ful_wins(challenged=FAILED, winner=BOB)         # Ｂさん満点勝ち
+    c105b = S.ful_wins(challenged=FAILED, winner=ALICE)       # Ａさん達成勝ち
+    c106b = S.ful_wins(challenged=FAILED, winner=BOB)         # Ｂさん達成勝ち
     c105 = S.pts_wins(challenged=FAILED, winner=ALICE)     # Ａさん判定勝ち（引分けがなければ零です）
     c106 = S.pts_wins(challenged=FAILED, winner=BOB)     # Ｂさん判定勝ち（引分けがなければ零です）
 
@@ -302,7 +302,7 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
               |                               |                               |                                               |               |
               | 先手勝ち      | 後手勝ち      |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    |               |
               |                |                |///////////////|///////////////|///////////////|///////////////|   {c17:>8} 回 |               |
-              |               |               | 先手満点勝ち  | 後手満点勝ち  | 先手点数勝ち  | 後手点数勝ち  |               | 対局数        |
+              |               |               | 先手達成勝ち  | 後手達成勝ち  | 先手点数勝ち  | 後手点数勝ち  |               | 対局数        |
               |               |               |              |               |              |               |               |               |
               |                                                                                                               |               |
     引分除く  |                                                                                                                |               |
@@ -317,7 +317,7 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
               |                               |                               |                                               |               |
               | Ａさん勝ち    | Ｂさん勝ち    |///////////////|///////////////|///////////////|///////////////| 勝敗付かず    |               |
               |   {c101:>8} 回 |   {c102:>8} 回 |///////////////|///////////////|///////////////|///////////////|   {c107:>8} 回 |               |
-              |               |               | Ａさん満点勝ち| Ｂさん満点勝ち| Ａさん点数勝ち| Ｂさん点数勝ち|               |               |
+              |               |               | Ａさん達成勝ち| Ｂさん達成勝ち| Ａさん点数勝ち| Ｂさん点数勝ち|               |               |
               |               |               |   {c103:>8} 回 |   {c104:>8} 回 |   {c105:>8} 回 |   {c106:>8} 回 |               |               |
               |                                                                                                               |               |
     引分除く  |   { ab71:8.4f} ％     { ab72:8.4f} ％                                                                                 |               |
@@ -484,11 +484,11 @@ def stringify_csv_of_score_board_view_body(score_board):
         raise ValueError(f"対局中なのはおかしい")
     
     elif score_board.game_results == ALICE_FULLY_WON:
-        game_result_reason = "満点で"
+        game_result_reason = "達成で"
         game_result = "Ａさんの勝ち"
 
     elif score_board.game_results == BOB_FULLY_WON:
-        game_result_reason = "満点で"
+        game_result_reason = "達成で"
         game_result = "Ｂさんの勝ち"
 
     elif score_board.game_results == ALICE_POINTS_WON:

@@ -102,12 +102,12 @@ def search_all_score_boards(series_rule, on_score_board_created):
 
         all_patterns_p += score_board.pattern_p
 
-        # 満点で,Ａさんの勝ち
+        # 達成で,Ａさんの勝ち
         # 勝ち点差で,Ａさんの勝ち
         if score_board.game_results == ALICE_FULLY_WON or score_board.game_results == ALICE_POINTS_WON:
             a_win_rate_with_draw += score_board.pattern_p
 
-        # 満点で,Ｂさんの勝ち
+        # 達成で,Ｂさんの勝ち
         # 勝ち点差で,Ｂさんの勝ち
         #
         #   NOTE ［Ａさんの勝ち］が分かれば［Ｂさんの勝ち］は調べなくていいが、一応、検算のために取っておく
