@@ -139,10 +139,12 @@ class Automation():
 
             # 罫線
             side = Side(style='thick', color='000000')
+            red_side = Side(style='thick', color='FF0000')
             # style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
             upside_node_border = Border(top=side, left=side, right=side)
             downside_node_border = Border(bottom=side, left=side, right=side)
             under_border = Border(bottom=side)
+            border_to_parent = Border(bottom=red_side)
             leftside_vertical_border = Border(left=side)
             l_letter_border = Border(left=side, bottom=side)
 
@@ -154,19 +156,19 @@ class Automation():
             # ３行目～６行目
             # -------------
             # データは３行目から、１かたまり３行を使って描画する
-            rth1 = curr_row_number * 3 + 3
-            rth2 = curr_row_number * 3 + 3 + 1
-            rth3 = curr_row_number * 3 + 3 + 2
-            three_row_numbers = [rth1, rth2, rth3]
+            row1_th = curr_row_number * 3 + 3
+            row2_th = curr_row_number * 3 + 3 + 1
+            row3_th = curr_row_number * 3 + 3 + 2
+            three_row_numbers = [row1_th, row2_th, row3_th]
 
             # 行の高さ設定
             # height の単位はポイント。昔のアメリカ人が椅子に座ってディスプレイを見たとき 1/72 インチに見える大きさが 1ポイント らしいが、そんなんワカラン。目視確認してほしい
-            ws.row_dimensions[rth1].height = 13
-            ws.row_dimensions[rth2].height = 13
-            ws.row_dimensions[rth3].height = 6
+            ws.row_dimensions[row1_th].height = 13
+            ws.row_dimensions[row2_th].height = 13
+            ws.row_dimensions[row3_th].height = 6
 
-            ws[f'A{rth1}'].value = self._curr_gt_record.no
-            ws[f'B{rth1}'].value = self._curr_gt_record.result
+            ws[f'A{row1_th}'].value = self._curr_gt_record.no
+            ws[f'B{row1_th}'].value = self._curr_gt_record.result
 
 
             # TODO C列には確率を入れたい。あとで入れる
@@ -176,6 +178,11 @@ class Automation():
 
             def draw_node(round_th, three_column_names, three_row_numbers):
                 """
+                Parameters
+                ----------
+                round_th : int
+                    第何局後
+                
                 Return
                 ------
                 nd : GameTreeNode
@@ -238,9 +245,9 @@ class Automation():
                 cn1 = three_column_names[0]
                 cn2 = three_column_names[1]
                 cn3 = three_column_names[2]
-                rth1 = three_row_numbers[0]
-                rth2 = three_row_numbers[1]
-                rth3 = three_row_numbers[2]
+                row1_th = three_row_numbers[0]
+                row2_th = three_row_numbers[1]
+                row3_th = three_row_numbers[2]
 
                 # １列目：親ノードから伸びてきた枝
                 #
@@ -248,39 +255,42 @@ class Automation():
                 # --...
                 #   .
                 #
-                # 前ラウンドが空欄なら、この線は引かない
+                # 前ラウンドにノードがあれば、接続線を引く
                 #
-                if not GameTreeView.is_node_at_prev_round(curr_gt_record=self._curr_gt_record, round_th=rth1):
-                    ws[f'{cn1}{rth1}'].border = under_border                # ［表］なら前ラウンドから生えてるので必ず引く
+                if GameTreeView.can_connect_to_parent(
+                        prev_gt_record=self._prev_gt_record,
+                        curr_gt_record=self._curr_gt_record,
+                        round_th=round_th):
+                    ws[f'{cn1}{row1_th}'].border = border_to_parent
                 
 
                 # ２列目：分岐したエッジ
-                ws[f'{cn2}{rth1}'].value = edge_text(node=nd)
+                ws[f'{cn2}{row1_th}'].value = edge_text(node=nd)
 
                 if nd.face == 'h':
-                    ws[f'{cn2}{rth1}'].border = under_border                # FIXME 下に枝があるかないか？
-                    ws[f'{cn2}{rth2}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                    ws[f'{cn2}{rth3}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{row1_th}'].border = under_border                # FIXME 下に枝があるかないか？
+                    ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{row3_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
                 
                 elif nd.face == 't':
-                    ws[f'{cn2}{rth1}'].border = l_letter_border             # FIXME 上に枝があるか？ 下に枝があるか？
-                    ws[f'{cn2}{rth2}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                    ws[f'{cn2}{rth3}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{row1_th}'].border = l_letter_border             # FIXME 上に枝があるか？ 下に枝があるか？
+                    ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{row3_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
 
                 elif nd.face == 'f':
-                    ws[f'{cn2}{rth1}'].border = l_letter_border             # FIXME 上に枝があるか？
-                    ws[f'{cn2}{rth2}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
-                    ws[f'{cn2}{rth3}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{row1_th}'].border = l_letter_border             # FIXME 上に枝があるか？
+                    ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
+                    ws[f'{cn2}{row3_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
                 
                 else:
                     raise ValueError(f"{nd.face=}")
 
                 # ３列目：箱
-                ws[f'{cn3}{rth1}'].value = nd.rate
-                ws[f'{cn3}{rth1}'].fill = node_bgcolor
-                ws[f'{cn3}{rth1}'].border = upside_node_border
-                ws[f'{cn3}{rth2}'].fill = node_bgcolor
-                ws[f'{cn3}{rth2}'].border = downside_node_border
+                ws[f'{cn3}{row1_th}'].value = nd.rate
+                ws[f'{cn3}{row1_th}'].fill = node_bgcolor
+                ws[f'{cn3}{row1_th}'].border = upside_node_border
+                ws[f'{cn3}{row2_th}'].fill = node_bgcolor
+                ws[f'{cn3}{row2_th}'].border = downside_node_border
 
                 return nd
 
@@ -288,19 +298,11 @@ class Automation():
             # 根ノード
             # -------
             if curr_row_number == 0:
-                ws[f'E{rth1}'].value = 1
-                ws[f'E{rth1}'].fill = node_bgcolor
-                ws[f'E{rth1}'].border = upside_node_border
-                ws[f'E{rth2}'].fill = node_bgcolor
-                ws[f'E{rth2}'].border = downside_node_border
-
-                # TODO
-                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
-                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
-                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node3, nd=self._curr_gt_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
-                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node4, nd=self._curr_gt_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
-                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node5, nd=self._curr_gt_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
-                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node6, nd=self._curr_gt_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+                ws[f'E{row1_th}'].value = 1
+                ws[f'E{row1_th}'].fill = node_bgcolor
+                ws[f'E{row1_th}'].border = upside_node_border
+                ws[f'E{row2_th}'].fill = node_bgcolor
+                ws[f'E{row2_th}'].border = downside_node_border
 
 
             # それ以外のノード
@@ -378,7 +380,7 @@ class Automation():
 
             # 実現確率
             # --------
-            ws[f'C{rth1}'].value = rate
+            ws[f'C{row1_th}'].value = rate
 
 
 ########################################

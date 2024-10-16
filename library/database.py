@@ -2166,6 +2166,11 @@ class GameTreeRecord():
         return self._result
 
 
+    @property
+    def len_node_list(self):
+        return len(self._node_list)
+
+
     def node_at(self, round_no):
         """
         Parameters
