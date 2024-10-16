@@ -481,6 +481,9 @@ class TreeEraser():
         # 変数名の短縮
         ws = self._gt_wb_wrapper.worksheet
 
+
+        row_th_of_last_underline = -1
+
         # G列の左側の垂直線を見ていく
         # 行番号は 4 から
 
@@ -497,21 +500,35 @@ class TreeEraser():
             if border is not None:
                 print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border=}")
 
-                if border.left.style is not None:
+                there_no_border = True
+
+                if border.left is not None:
                     print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.left.style=}")
                     if border.left.style == 'thick':
+                        there_no_border = False
                         print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 左側に罫線")
 
-                elif border.bottom.style is not None:
+                if border.bottom is not None:
                     print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.bottom.style=}")
                     if border.bottom.style == 'thick':
+                        there_no_border = False
+                        row_th_of_last_underline = row_th
                         print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} アンダーライン")
 
-                else:
+                # 境界線が無かったらループを抜ける
+                if there_no_border:
                     print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} ループ抜ける")
                     break
 
             row_th += 1
+
+        print(f"[{datetime.datetime.now()}] 消しゴムを掛けたい行の番号 {row_th_of_last_underline+1}～{row_th-1}")
+
+
+        # 消しゴムを掛ける
+        for row_th in range(row_th_of_last_underline+1, row_th):
+            ws[f'G{row_th}'].border = None
+
 
 
 ########################################
