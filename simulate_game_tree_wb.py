@@ -174,19 +174,28 @@ class Automation():
             # TODO E列の上の方の行には 1 を入れたい
 
 
-            def draw_node(round_th, prev_nd, nd, three_column_names, three_row_numbers):
+            def draw_node(round_th, three_column_names, three_row_numbers):
+                """
+                Return
+                ------
+                nd : GameTreeNode
+                    対象ノード
+                """
+
+                prev_nd = self._prev_gt_record.node_at(round_th - 1)
+                nd = self._curr_gt_record.node_at(round_th - 1)
 
                 if nd is None:
                     print(f"[{datetime.datetime.now()}] {curr_row_number=}  nd がナンのノードは無視")
-                    return
+                    return nd
 
                 elif pd.isnull(nd.face):
                     print(f"[{datetime.datetime.now()}] {curr_row_number=}  face が NaN のノードは無視")
-                    return
+                    return nd
 
                 elif pd.isnull(nd.rate):
                     print(f"[{datetime.datetime.now()}] {curr_row_number=}  rate が NaN のノードは無視")
-                    return
+                    return nd
 
                 elif prev_nd is None:
                     # 前行が無ければ描画
@@ -194,7 +203,7 @@ class Automation():
 
                 elif nd.rate == prev_nd.rate:
                     print(f"[{datetime.datetime.now()}] {curr_row_number=}  前行の同ラウンドと rate が同じなら無視")
-                    return
+                    return nd
 
 
                 # 以下、描画
@@ -273,6 +282,8 @@ class Automation():
                 ws[f'{cn3}{rth2}'].fill = node_bgcolor
                 ws[f'{cn3}{rth2}'].border = downside_node_border
 
+                return nd
+
 
             # 根ノード
             # -------
@@ -283,12 +294,13 @@ class Automation():
                 ws[f'E{rth2}'].fill = node_bgcolor
                 ws[f'E{rth2}'].border = downside_node_border
 
-                draw_node(round_th=0, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=0, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=0, prev_nd=self._prev_gt_record.node3, nd=self._curr_gt_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=0, prev_nd=self._prev_gt_record.node4, nd=self._curr_gt_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=0, prev_nd=self._prev_gt_record.node5, nd=self._curr_gt_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
-                draw_node(round_th=0, prev_nd=self._prev_gt_record.node6, nd=self._curr_gt_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
+                # TODO
+                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node1, nd=self._curr_gt_record.node1, three_column_names=['F', 'G', 'H'], three_row_numbers=three_row_numbers)
+                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node2, nd=self._curr_gt_record.node2, three_column_names=['I', 'J', 'K'], three_row_numbers=three_row_numbers)
+                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node3, nd=self._curr_gt_record.node3, three_column_names=['L', 'M', 'N'], three_row_numbers=three_row_numbers)
+                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node4, nd=self._curr_gt_record.node4, three_column_names=['O', 'P', 'Q'], three_row_numbers=three_row_numbers)
+                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node5, nd=self._curr_gt_record.node5, three_column_names=['R', 'S', 'T'], three_row_numbers=three_row_numbers)
+                # draw_node(round_th=0, prev_nd=self._prev_gt_record.node6, nd=self._curr_gt_record.node6, three_column_names=['U', 'V', 'W'], three_row_numbers=three_row_numbers)
 
 
             # それ以外のノード
@@ -300,11 +312,8 @@ class Automation():
 
             # 1局後
             # -----
-            nd = self._curr_gt_record.node1
-            draw_node(
+            nd = draw_node(
                     round_th=1,
-                    prev_nd=self._prev_gt_record.node1,
-                    nd=nd,
                     three_column_names=['F', 'G', 'H'],
                     three_row_numbers=three_row_numbers)
 
@@ -314,11 +323,8 @@ class Automation():
 
             # 2局後
             # -----
-            nd = self._curr_gt_record.node2
-            draw_node(
+            nd = draw_node(
                     round_th=2,
-                    prev_nd=self._prev_gt_record.node2,
-                    nd=nd,
                     three_column_names=['I', 'J', 'K'],
                     three_row_numbers=three_row_numbers)
 
@@ -328,11 +334,8 @@ class Automation():
 
             # 3局後
             # -----
-            nd = self._curr_gt_record.node3
-            draw_node(
+            nd = draw_node(
                     round_th=3,
-                    prev_nd=self._prev_gt_record.node3,
-                    nd=nd,
                     three_column_names=['L', 'M', 'N'],
                     three_row_numbers=three_row_numbers)
 
@@ -342,11 +345,8 @@ class Automation():
 
             # 4局後
             # -----
-            nd = self._curr_gt_record.node4
-            draw_node(
+            nd = draw_node(
                     round_th=4,
-                    prev_nd=self._prev_gt_record.node4,
-                    nd=nd,
                     three_column_names=['O', 'P', 'Q'],
                     three_row_numbers=three_row_numbers)
 
@@ -356,11 +356,8 @@ class Automation():
 
             # 5局後
             # -----
-            nd = self._curr_gt_record.node5
-            draw_node(
+            nd = draw_node(
                     round_th=5,
-                    prev_nd=self._prev_gt_record.node5,
-                    nd=nd,
                     three_column_names=['R', 'S', 'T'],
                     three_row_numbers=three_row_numbers)
 
@@ -370,11 +367,8 @@ class Automation():
 
             # 6局後
             # -----
-            nd = self._curr_gt_record.node6
-            draw_node(
+            nd = draw_node(
                     round_th=6,
-                    prev_nd=self._prev_gt_record.node6,
-                    nd=nd,
                     three_column_names=['U', 'V', 'W'],
                     three_row_numbers=three_row_numbers)
 
