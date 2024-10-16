@@ -199,18 +199,41 @@ class Automation():
         rate = None
 
 
+        def draw_node(three_column_names, three_row_numbers):
+            cn1 = three_column_names[0]
+            cn2 = three_column_names[1]
+            cn3 = three_column_names[2]
+            rn1 = three_row_numbers[0]
+            rn2 = three_row_numbers[1]
+            rn3 = three_row_numbers[2]
+
+            if nd.face == 'h':
+                ws[f'{cn1}{rn1}'].border = under_border
+
+            ws[f'{cn2}{rn1}'].value = edge_text(node=nd)
+            ws[f'{cn2}{rn1}'].border = under_border
+            ws[f'{cn3}{rn1}'].value = nd.rate
+            ws[f'{cn3}{rn1}'].fill = node_bgcolor
+            ws[f'{cn3}{rn1}'].border = upside_node_border
+            ws[f'{cn3}{rn2}'].fill = node_bgcolor
+            ws[f'{cn3}{rn2}'].border = downside_node_border
+
+
         # 1局後
         # -----
         nd = gt_record.node1
         if not pd.isnull(nd.rate) and nd.rate != self._prev_n1:
-            ws[f'F{rn1}'].border = under_border
-            ws[f'G{rn1}'].value = edge_text(node=nd)
-            ws[f'G{rn1}'].border = under_border
-            ws[f'H{rn1}'].value = nd.rate
-            ws[f'H{rn1}'].fill = node_bgcolor
-            ws[f'H{rn1}'].border = upside_node_border
-            ws[f'H{rn2}'].fill = node_bgcolor
-            ws[f'H{rn2}'].border = downside_node_border
+            draw_node(three_column_names=['F', 'G', 'H'], three_row_numbers=[rn1, rn2, rn3])
+            # if nd.face == 'h':
+            #     ws[f'F{rn1}'].border = under_border
+
+            # ws[f'G{rn1}'].value = edge_text(node=nd)
+            # ws[f'G{rn1}'].border = under_border
+            # ws[f'H{rn1}'].value = nd.rate
+            # ws[f'H{rn1}'].fill = node_bgcolor
+            # ws[f'H{rn1}'].border = upside_node_border
+            # ws[f'H{rn2}'].fill = node_bgcolor
+            # ws[f'H{rn2}'].border = downside_node_border
 
         self._prev_n1 = nd.rate
 
@@ -222,14 +245,17 @@ class Automation():
         # -----
         nd = gt_record.node2
         if not pd.isnull(nd.rate) and nd.rate != self._prev_n2:
-            ws[f'I{rn1}'].border = under_border
-            ws[f'J{rn1}'].value = edge_text(node=nd)
-            ws[f'J{rn1}'].border = under_border
-            ws[f'K{rn1}'].value = nd.rate
-            ws[f'K{rn1}'].fill = node_bgcolor
-            ws[f'K{rn1}'].border = upside_node_border
-            ws[f'K{rn2}'].fill = node_bgcolor
-            ws[f'K{rn2}'].border = downside_node_border
+            draw_node(three_column_names=['I', 'J', 'K'], three_row_numbers=[rn1, rn2, rn3])
+            # if nd.face == 'h':
+            #     ws[f'I{rn1}'].border = under_border
+            
+            # ws[f'J{rn1}'].value = edge_text(node=nd)
+            # ws[f'J{rn1}'].border = under_border
+            # ws[f'K{rn1}'].value = nd.rate
+            # ws[f'K{rn1}'].fill = node_bgcolor
+            # ws[f'K{rn1}'].border = upside_node_border
+            # ws[f'K{rn2}'].fill = node_bgcolor
+            # ws[f'K{rn2}'].border = downside_node_border
 
         self._prev_n2 = nd.rate
 
@@ -241,14 +267,17 @@ class Automation():
         # -----
         nd = gt_record.node3
         if not pd.isnull(nd.rate) and nd.rate != self._prev_n3:
-            ws[f'L{rn1}'].border = under_border
-            ws[f'M{rn1}'].value = edge_text(node=nd)
-            ws[f'M{rn1}'].border = under_border
-            ws[f'N{rn1}'].value = nd.rate
-            ws[f'N{rn1}'].fill = node_bgcolor
-            ws[f'N{rn1}'].border = upside_node_border
-            ws[f'N{rn2}'].fill = node_bgcolor
-            ws[f'N{rn2}'].border = downside_node_border
+            draw_node(three_column_names=['L', 'M', 'N'], three_row_numbers=[rn1, rn2, rn3])
+            # if nd.face == 'h':
+            #     ws[f'L{rn1}'].border = under_border
+            
+            # ws[f'M{rn1}'].value = edge_text(node=nd)
+            # ws[f'M{rn1}'].border = under_border
+            # ws[f'N{rn1}'].value = nd.rate
+            # ws[f'N{rn1}'].fill = node_bgcolor
+            # ws[f'N{rn1}'].border = upside_node_border
+            # ws[f'N{rn2}'].fill = node_bgcolor
+            # ws[f'N{rn2}'].border = downside_node_border
 
         self._prev_n3 = nd.rate
 
@@ -260,14 +289,17 @@ class Automation():
         # -----
         nd = gt_record.node4
         if not pd.isnull(nd.rate) and nd.rate != self._prev_n4:
-            ws[f'O{rn1}'].border = under_border
-            ws[f'P{rn1}'].value = edge_text(node=nd)
-            ws[f'P{rn1}'].border = under_border
-            ws[f'Q{rn1}'].value = nd.rate
-            ws[f'Q{rn1}'].fill = node_bgcolor
-            ws[f'Q{rn1}'].border = upside_node_border
-            ws[f'Q{rn2}'].fill = node_bgcolor
-            ws[f'Q{rn2}'].border = downside_node_border
+            draw_node(three_column_names=['O', 'P', 'Q'], three_row_numbers=[rn1, rn2, rn3])
+            # if nd.face == 'h':
+            #     ws[f'O{rn1}'].border = under_border
+            
+            # ws[f'P{rn1}'].value = edge_text(node=nd)
+            # ws[f'P{rn1}'].border = under_border
+            # ws[f'Q{rn1}'].value = nd.rate
+            # ws[f'Q{rn1}'].fill = node_bgcolor
+            # ws[f'Q{rn1}'].border = upside_node_border
+            # ws[f'Q{rn2}'].fill = node_bgcolor
+            # ws[f'Q{rn2}'].border = downside_node_border
 
         self._prev_n4 = nd.rate
 
@@ -279,14 +311,17 @@ class Automation():
         # -----
         nd = gt_record.node5
         if not pd.isnull(nd.rate) and nd.rate != self._prev_n5:
-            ws[f'R{rn1}'].border = under_border
-            ws[f'S{rn1}'].value = edge_text(node=nd)
-            ws[f'S{rn1}'].border = under_border
-            ws[f'T{rn1}'].value = nd.rate
-            ws[f'T{rn1}'].fill = node_bgcolor
-            ws[f'T{rn1}'].border = upside_node_border
-            ws[f'T{rn2}'].fill = node_bgcolor
-            ws[f'T{rn2}'].border = downside_node_border
+            draw_node(three_column_names=['R', 'S', 'T'], three_row_numbers=[rn1, rn2, rn3])
+            # if nd.face == 'h':
+            #     ws[f'R{rn1}'].border = under_border
+            
+            # ws[f'S{rn1}'].value = edge_text(node=nd)
+            # ws[f'S{rn1}'].border = under_border
+            # ws[f'T{rn1}'].value = nd.rate
+            # ws[f'T{rn1}'].fill = node_bgcolor
+            # ws[f'T{rn1}'].border = upside_node_border
+            # ws[f'T{rn2}'].fill = node_bgcolor
+            # ws[f'T{rn2}'].border = downside_node_border
 
         self._prev_n5 = nd.rate
 
@@ -298,14 +333,17 @@ class Automation():
         # -----
         nd = gt_record.node6
         if not pd.isnull(nd.rate) and nd.rate != self._prev_n6:
-            ws[f'U{rn1}'].border = under_border
-            ws[f'V{rn1}'].value = edge_text(node=nd)
-            ws[f'V{rn1}'].border = under_border
-            ws[f'W{rn1}'].value = nd.rate
-            ws[f'W{rn1}'].fill = node_bgcolor
-            ws[f'W{rn1}'].border = upside_node_border
-            ws[f'W{rn2}'].fill = node_bgcolor
-            ws[f'W{rn2}'].border = downside_node_border
+            draw_node(three_column_names=['U', 'V', 'W'], three_row_numbers=[rn1, rn2, rn3])
+            # if nd.face == 'h':
+            #     ws[f'U{rn1}'].border = under_border
+            
+            # ws[f'V{rn1}'].value = edge_text(node=nd)
+            # ws[f'V{rn1}'].border = under_border
+            # ws[f'W{rn1}'].value = nd.rate
+            # ws[f'W{rn1}'].fill = node_bgcolor
+            # ws[f'W{rn1}'].border = upside_node_border
+            # ws[f'W{rn2}'].fill = node_bgcolor
+            # ws[f'W{rn2}'].border = downside_node_border
 
         self._prev_n6 = nd.rate
 
