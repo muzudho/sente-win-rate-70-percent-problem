@@ -127,9 +127,10 @@ class Automation():
         self.forward_cursor(next_gt_record=next_gt_record)
 
         curr_row_number = next_row_number - 1
+        curr_row_th = curr_row_number + 1
 
         if self._curr_gt_record.no is None:
-            print(f"[{datetime.datetime.now()}] {curr_row_number=} 現在レコードのnoがナンだから無視")
+            print(f"[{datetime.datetime.now()}] {curr_row_th}行目 現在レコードのnoがナンだから無視（先読みのため、初回は空回し）")
             pass
 
 
@@ -146,7 +147,8 @@ class Automation():
             orange_side = Side(style='thick', color='FFCC00')
             green_side = Side(style='thick', color='00FF00')
             blue_side = Side(style='thick', color='0000FF')
-            yellow_side = Side(style='thick', color='FFFF00')
+            # 黄色は白字の上で見にくいのでやめとく
+            cyan_side = Side(style='thick', color='00FFFF')
             magenta_side = Side(style='thick', color='FF00FF')
             # 親への接続は赤
             border_to_parent = Border(bottom=red_side)
@@ -155,9 +157,9 @@ class Automation():
             # 子へのダウン接続はブルー
             under_border_to_child_down = Border(bottom=blue_side)
             leftside_border_to_child_down = Border(left=blue_side)
-            # 子へのＴ字接続はイエロー
-            l_letter_border_to_child_t_letter = Border(left=yellow_side, bottom=yellow_side)
-            leftside_border_to_child_t_letter = Border(left=yellow_side)
+            # 子へのＴ字接続はシアン
+            l_letter_border_to_child_t_letter = Border(left=cyan_side, bottom=cyan_side)
+            leftside_border_to_child_t_letter = Border(left=cyan_side)
             # 子へのアップ接続はグリーン
             l_letter_border_to_child_up = Border(left=green_side, bottom=green_side)
             # 垂直接続はマゼンタ
@@ -207,28 +209,32 @@ class Automation():
                     対象ノード
                 """
 
-                prev_nd = self._prev_gt_record.node_at(round_th - 1)
-                nd = self._curr_gt_record.node_at(round_th - 1)
+                round_no = round_th - 1
+                prerow_nd = self._prev_gt_record.node_at(round_no=round_no)
+                nd = self._curr_gt_record.node_at(round_no=round_no)
 
                 if nd is None:
-                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  nd がナンのノードは無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  nd がナンのノードは無視")
                     return nd
 
                 elif pd.isnull(nd.face):
-                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  face が NaN のノードは無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  nd.face が NaN のノードは無視")
                     return nd
 
                 elif pd.isnull(nd.rate):
-                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  rate が NaN のノードは無視")
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  nd.rate が NaN のノードは無視")
                     return nd
 
-                elif prev_nd is None:
+                elif prerow_nd is None:
                     # 前行が無ければ描画
                     pass
 
 
                 # 以下、描画
-                print(f"[{datetime.datetime.now()}] {self._curr_gt_record.no}行目 {round_th}局後 ノード描画  {curr_row_number=}")
+                if curr_row_th != self._curr_gt_record.no:
+                    raise ValueError(f"行番号がずれている {curr_row_th=}  {self._curr_gt_record.no=}")
+                print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後 ノード描画...")
+
 
                 def edge_text(node):
                     if node.face == 'h':
@@ -264,8 +270,7 @@ class Automation():
                 row3_th = three_row_numbers[2]
 
 
-                if prev_nd is not None and nd.rate == prev_nd.rate:
-                    print(f"[{datetime.datetime.now()}] {curr_row_number=}  前行の同ラウンドと rate が同じなら垂直線か空欄")
+                if prerow_nd is not None and nd.rate == prerow_nd.rate:
 
                     # 垂直線
                     #
@@ -278,9 +283,15 @@ class Automation():
                             curr_gt_record=self._curr_gt_record,
                             prev_gt_record=self._prev_gt_record,
                             round_th=round_th):
+                        print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  垂直線")
+                        
                         ws[f'{cn2}{row1_th}'].border = leftside_border_to_vertical
                         ws[f'{cn2}{row2_th}'].border = leftside_border_to_vertical
-                        ws[f'{cn2}{row3_th}'].border = leftside_border_to_vertical                    
+                        ws[f'{cn2}{row3_th}'].border = leftside_border_to_vertical
+                    
+                    else:
+                        print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  空欄")
+                        pass
 
                     return nd
 
@@ -338,19 +349,23 @@ class Automation():
 
                 if kind == 'Horizontal':
                     ws[f'{cn2}{row1_th}'].border = under_border_to_child_horizontal
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  水平線")
                 
                 elif kind == 'Down':
                     ws[f'{cn2}{row1_th}'].border = under_border_to_child_down
                     ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_down
                     ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_down
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  ダウン線")
 
                 elif kind == 'TLetter':
                     ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_t_letter
                     ws[f'{cn2}{row2_th}'].border = leftside_border_to_child_t_letter
                     ws[f'{cn2}{row3_th}'].border = leftside_border_to_child_t_letter
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  Ｔ字線")
 
                 elif kind == 'Up':
                     ws[f'{cn2}{row1_th}'].border = l_letter_border_to_child_up
+                    print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  アップ線")
                 
                 else:
                     raise ValueError(f"{nd.face=}")

@@ -8,7 +8,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, round_letro, Converter, ThreeRates, RenamingBackup
+from library import INDENT, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, round_letro, Converter, ThreeRates, RenamingBackup
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityRatesFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths, GameTreeFilePaths
 from scripts import IntervalForRetry
 
@@ -2126,6 +2126,18 @@ class GameTreeNode():
         return self._rate
 
 
+    def stringify_dump(self, indent):
+        succ_indent = indent + INDENT
+        return f"""\
+{indent}GameTreeNode
+{indent}------------
+{succ_indent}{self._face=}
+{succ_indent}{self._winner=}
+{succ_indent}{self._pts=}
+{succ_indent}{self._rate=}
+"""
+
+
 class GameTreeRecord():
 
 
@@ -2178,6 +2190,10 @@ class GameTreeRecord():
         round_no : int
             例：第１局後なら 0 を指定してください
         """
+
+        if round_no < 0:
+            raise ValueError(f'round_no に負数を設定しないでください。意図した動作はしません {round_no=}')
+
         return self._node_list[round_no]
 
 
@@ -2194,6 +2210,22 @@ class GameTreeRecord():
             no=new_or_default(no, self._no),
             result=new_or_default(result, self._result),
             node_list=new_or_default(node_list, self._node_list))
+
+
+    def stringify_dump(self, indent):
+        succ_indent = indent + INDENT
+
+        blocks = []
+        for node in self._node_list:
+            blocks.append(node.stringify_dump(succ_indent))
+
+        return f"""\
+{indent}GameTreeRecord
+{indent}--------------
+{succ_indent}{self._no=}
+{succ_indent}{self._result=}
+{'\n'.join(blocks)}
+"""
 
 
 class GameTreeTable():
