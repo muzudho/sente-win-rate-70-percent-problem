@@ -31,22 +31,7 @@ class Prefetch():
     def __init__(self, gt_table_1, gt_table_2):
         self._gt_table_1 = gt_table_1
         self._gt_table_2 = gt_table_2 # prefetched
-        self._node_face_as_avobe = [
-            None,   # 未使用
-            None,   # 1局後
-            None,
-            None,
-            None,
-            None,
-            None]
-        self._node_rate_as_avobe = [
-            None,   # 未使用
-            None,   # 1局後
-            None,
-            None,
-            None,
-            None,
-            None]
+        self._prev_gt1_record = None
 
 
     @staticmethod
@@ -84,194 +69,173 @@ class Prefetch():
 
 
     def on_gt1_record(self, row_number, gt1_record):
+        """
+        Parameters
+        ----------
+        gt1_record : GameTreeRecord
+            変更対象のレコード
+        """
 
-        # 1行目は無条件追加
-        # ----------------
-        if gt1_record.no == 1:
+        # 先頭行は無条件追加
+        # -----------------
+        if self._prev_gt1_record is None:
+            # そのまんま追加
             self._gt_table_2.upsert_record(
-                    welcome_record=GameTreeRecord(
-                            no=gt1_record.no,
-                            result=gt1_record.result,
-                            node1=gt1_record.node1,
-                            node2=gt1_record.node2,
-                            node3=gt1_record.node3,
-                            node4=gt1_record.node4,
-                            node5=gt1_record.node5,
-                            node6=gt1_record.node6))
-
-            self._node_face_as_avobe[1] = gt1_record.node1.face
-            self._node_rate_as_avobe[1] = gt1_record.node1.rate
-            self._node_face_as_avobe[1] = gt1_record.node2.face
-            self._node_rate_as_avobe[1] = gt1_record.node2.rate
-            self._node_face_as_avobe[1] = gt1_record.node3.face
-            self._node_rate_as_avobe[1] = gt1_record.node3.rate
-            self._node_face_as_avobe[1] = gt1_record.node4.face
-            self._node_rate_as_avobe[1] = gt1_record.node4.rate
-            self._node_face_as_avobe[1] = gt1_record.node5.face
-            self._node_rate_as_avobe[1] = gt1_record.node5.rate
-            self._node_face_as_avobe[1] = gt1_record.node6.face
-            self._node_rate_as_avobe[1] = gt1_record.node6.rate
+                    welcome_record=gt1_record)
 
 
-        # DEBUG
-        print(f"""\
-{gt1_record.no}行目\
-  (1){self._node_face_as_avobe[1]} {self._node_rate_as_avobe[1]}\
-  (2){self._node_face_as_avobe[2]} {self._node_rate_as_avobe[2]}\
-  (3){self._node_face_as_avobe[3]} {self._node_rate_as_avobe[3]}\
-  (4){self._node_face_as_avobe[4]} {self._node_rate_as_avobe[4]}\
-  (5){self._node_face_as_avobe[5]} {self._node_rate_as_avobe[5]}\
-  (6){self._node_face_as_avobe[6]} {self._node_rate_as_avobe[6]}\
-""")
+        else:
+
+            # リプレース後のレコード。何も更新しなければコピーを返します
+            gt2_record = gt1_record.update()
 
 
-        # リプレース後のレコード
-        gt2_record = GameTreeRecord(
-                no=gt1_record.no,
-                result=gt1_record.result,
-                node1=gt1_record.node1,
-                node2=gt1_record.node2,
-                node3=gt1_record.node3,
-                node4=gt1_record.node4,
-                node5=gt1_record.node5,
-                node6=gt1_record.node6)
+            def same_node_as_avobe(gt1_record, node_no):
+                """指定のノードは、上行の繰り返しか？ ただしレートが入っていないノードは常に偽とする"""
+
+                if node_no == 1:
+                    prev_nd = self._prev_gt1_record.node1
+                    nd = gt1_record.node1
+                elif node_no == 2:
+                    prev_nd = self._prev_gt1_record.node2
+                    nd = gt1_record.node2
+                elif node_no == 3:
+                    prev_nd = self._prev_gt1_record.node3
+                    nd = gt1_record.node3
+                elif node_no == 4:
+                    prev_nd = self._prev_gt1_record.node4
+                    nd = gt1_record.node4
+                elif node_no == 5:
+                    prev_nd = self._prev_gt1_record.node5
+                    nd = gt1_record.node5
+                elif node_no == 6:
+                    prev_nd = self._prev_gt1_record.node6
+                    nd = gt1_record.node6
+                else:
+                    raise ValueError(f"未対応のノード番号 {node_no=}")
+
+                # レートが入っていなければ偽
+                if pd.isnull(nd.rate):
+                    return False
+                
+                # コインの出目と、確率が上行と同じ
+                return nd.face == prev_nd.face and nd.rate == prev_nd.rate
 
 
-        def same_node_as_avobe(i, nd):
-            """枝の垂線判定"""
-            # レートが入っており、コインの出目と、確率が上行と同じ
-            return not pd.isnull(nd.rate) and nd.face == self._node_face_as_avobe[i] and nd.rate == self._node_rate_as_avobe[i]
+            # 1局後
+            # -----
+            i = 1
+            nd = gt1_record.node1
+
+            # TODO セルに上行と同じ値が入っていたら、"├"、"└"、空欄のいずれかにする。ひとまず pts に PTS_MARK_SAME_RATE=-2 を入れておく
+            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
+                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                gt2_record = gt2_record.update(
+                        node1=GameTreeNode(
+                                face=nd.face,
+                                winner=nd.winner,
+                                pts=PTS_MARK_SAME_RATE,
+                                rate=nd.rate))
+                self._gt_table_2.upsert_record(
+                        welcome_record=gt2_record)
 
 
-        # 1局後
-        # -----
-        i = 1
-        nd = gt1_record.node1
+            # 2局後
+            # -----
+            i = 2
+            nd = gt1_record.node2
 
-        # TODO セルに上行と同じ値が入っていたら、"├"、"└"、空欄のいずれかにする。ひとまず pts に PTS_MARK_SAME_RATE=-2 を入れておく
-        if same_node_as_avobe(i=i, nd=nd):
-            print(f"{gt1_record.no}行目 {i}局後 SAME")
-            gt2_record = gt2_record.update(
-                    node1=GameTreeNode(
-                            face=nd.face,
-                            winner=nd.winner,
-                            pts=PTS_MARK_SAME_RATE,
-                            rate=nd.rate))
-            self._gt_table_2.upsert_record(
-                    welcome_record=gt2_record)
-
-        self._node_face_as_avobe[i] = nd.face
-        self._node_rate_as_avobe[i] = nd.rate
+            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
+                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                gt2_record = gt2_record.update(
+                        node2=GameTreeNode(
+                                face=nd.face,
+                                winner=nd.winner,
+                                pts=PTS_MARK_SAME_RATE,
+                                rate=nd.rate))
+                update = self._gt_table_2.upsert_record(
+                        welcome_record=gt2_record)
+                if not update:
+                    raise ValueError(f"アップデートしないのはおかしい {i=}")
 
 
-        # 2局後
-        # -----
-        i = 2
-        nd = gt1_record.node2
+            # 3局後
+            # -----
+            i = 3
+            nd = gt1_record.node3
 
-        if same_node_as_avobe(i=i, nd=nd):
-            print(f"{gt1_record.no}行目 {i}局後 SAME")
-            gt2_record = gt2_record.update(
-                    node2=GameTreeNode(
-                            face=nd.face,
-                            winner=nd.winner,
-                            pts=PTS_MARK_SAME_RATE,
-                            rate=nd.rate))
-            update = self._gt_table_2.upsert_record(
-                    welcome_record=gt2_record)
-            if not update:
-                raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-        self._node_face_as_avobe[i] = nd.face
-        self._node_rate_as_avobe[i] = nd.rate
+            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
+                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                gt2_record = gt2_record.update(
+                        node3=GameTreeNode(
+                                face=nd.face,
+                                winner=nd.winner,
+                                pts=PTS_MARK_SAME_RATE,
+                                rate=nd.rate))
+                update = self._gt_table_2.upsert_record(
+                        welcome_record=gt2_record)
+                if not update:
+                    raise ValueError(f"アップデートしないのはおかしい {i=}")
 
 
-        # 3局後
-        # -----
-        i = 3
-        nd = gt1_record.node3
+            # 4局後
+            # -----
+            i = 4
+            nd = gt1_record.node4
 
-        if same_node_as_avobe(i=i, nd=nd):
-            print(f"{gt1_record.no}行目 {i}局後 SAME")
-            gt2_record = gt2_record.update(
-                    node3=GameTreeNode(
-                            face=nd.face,
-                            winner=nd.winner,
-                            pts=PTS_MARK_SAME_RATE,
-                            rate=nd.rate))
-            update = self._gt_table_2.upsert_record(
-                    welcome_record=gt2_record)
-            if not update:
-                raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-        self._node_face_as_avobe[i] = nd.face
-        self._node_rate_as_avobe[i] = nd.rate
+            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
+                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                gt2_record = gt2_record.update(
+                        node4=GameTreeNode(
+                                face=nd.face,
+                                winner=nd.winner,
+                                pts=PTS_MARK_SAME_RATE,
+                                rate=nd.rate))
+                update = self._gt_table_2.upsert_record(
+                        welcome_record=gt2_record)
+                if not update:
+                    raise ValueError(f"アップデートしないのはおかしい {i=}")
 
 
-        # 4局後
-        # -----
-        i = 4
-        nd = gt1_record.node4
+            # 5局後
+            # -----
+            i = 5
+            nd = gt1_record.node5
 
-        if same_node_as_avobe(i=i, nd=nd):
-            print(f"{gt1_record.no}行目 {i}局後 SAME")
-            gt2_record = gt2_record.update(
-                    node4=GameTreeNode(
-                            face=nd.face,
-                            winner=nd.winner,
-                            pts=PTS_MARK_SAME_RATE,
-                            rate=nd.rate))
-            update = self._gt_table_2.upsert_record(
-                    welcome_record=gt2_record)
-            if not update:
-                raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-        self._node_face_as_avobe[i] = nd.face
-        self._node_rate_as_avobe[i] = nd.rate
+            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
+                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                gt2_record = gt2_record.update(
+                        node5=GameTreeNode(
+                                face=nd.face,
+                                winner=nd.winner,
+                                pts=PTS_MARK_SAME_RATE,
+                                rate=nd.rate))
+                update = self._gt_table_2.upsert_record(
+                        welcome_record=gt2_record)
+                if not update:
+                    raise ValueError(f"アップデートしないのはおかしい {i=}")
 
 
-        # 5局後
-        # -----
-        i = 5
-        nd = gt1_record.node5
+            # 6局後
+            # -----
+            i = 6
+            nd = gt1_record.node6
 
-        if same_node_as_avobe(i=i, nd=nd):
-            print(f"{gt1_record.no}行目 {i}局後 SAME")
-            gt2_record = gt2_record.update(
-                    node5=GameTreeNode(
-                            face=nd.face,
-                            winner=nd.winner,
-                            pts=PTS_MARK_SAME_RATE,
-                            rate=nd.rate))
-            update = self._gt_table_2.upsert_record(
-                    welcome_record=gt2_record)
-            if not update:
-                raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-        self._node_face_as_avobe[i] = nd.face
-        self._node_rate_as_avobe[i] = nd.rate
+            if same_node_as_avobe(gt1_record=gt1_record, node_no=i):
+                print(f"{gt1_record.no}行目 {i}局後 SAME")
+                gt2_record = gt2_record.update(
+                        node6=GameTreeNode(
+                                face=nd.face,
+                                winner=nd.winner,
+                                pts=PTS_MARK_SAME_RATE,
+                                rate=nd.rate))
+                update = self._gt_table_2.upsert_record(
+                        welcome_record=ft2_record)
+                if not update:
+                    raise ValueError(f"アップデートしないのはおかしい {i=}")
 
 
-        # 6局後
-        # -----
-        i = 6
-        nd = gt1_record.node6
-
-        if same_node_as_avobe(i=i, nd=nd):
-            print(f"{gt1_record.no}行目 {i}局後 SAME")
-            gt2_record = gt2_record.update(
-                    node6=GameTreeNode(
-                            face=nd.face,
-                            winner=nd.winner,
-                            pts=PTS_MARK_SAME_RATE,
-                            rate=nd.rate))
-            update = self._gt_table_2.upsert_record(
-                    welcome_record=ft2_record)
-            if not update:
-                raise ValueError(f"アップデートしないのはおかしい {i=}")
-
-        self._node_face_as_avobe[i] = nd.face
-        self._node_rate_as_avobe[i] = nd.rate
+        self._prev_gt1_record = gt1_record
 
 
 class Automation():
@@ -280,6 +244,7 @@ class Automation():
     def __init__(self, gt_table_2, gt_wb_wrapper):
         self._gt_table_2 = gt_table_2
         self._gt_wb_wrapper = gt_wb_wrapper
+        self._prev_gt1_record = None
 
 
     def on_header(self):

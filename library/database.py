@@ -2202,7 +2202,8 @@ class GameTreeRecord():
 
 
     def update(self, no=None, result=None, node1=None, node2=None, node3=None, node4=None, node5=None, node6=None):
-        """no inplace"""
+        """no inplace
+        何も更新しなければシャロー・コピーを返します"""
 
         def new_or_default(new, default):
             if new is None:
