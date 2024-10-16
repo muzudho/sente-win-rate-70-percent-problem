@@ -469,6 +469,51 @@ class TreeDrawer():
             ws[f'C{row1_th}'].value = rate
 
 
+class TreeEraser():
+    """要らない罫線を消す"""
+
+
+    def __init__(self, gt_wb_wrapper):
+        self._gt_wb_wrapper = gt_wb_wrapper
+
+
+    def execute(self):
+        # 変数名の短縮
+        ws = self._gt_wb_wrapper.worksheet
+
+        # G列の左側の垂直線を見ていく
+        # 行番号は 4 から
+
+        row_th = 4
+        while True:
+
+            # 罫線を確認
+            #
+            #   .
+            # ..+--  下向きの罫線が最後に出た箇所を調べる
+            #   |
+            #
+            border = ws[f'G{row_th}'].border
+            if border is not None:
+                print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border=}")
+
+                if border.left.style is not None:
+                    print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.left.style=}")
+                    if border.left.style == 'thick':
+                        print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} 左側に罫線")
+
+                elif border.bottom.style is not None:
+                    print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} {border.bottom.style=}")
+                    if border.bottom.style == 'thick':
+                        print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} アンダーライン")
+
+                else:
+                    print(f"[{datetime.datetime.now()}] 消しゴム {row_th=} ループ抜ける")
+                    break
+
+            row_th += 1
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -566,6 +611,12 @@ gt_table:
 
         # 最終行の実行
         tree_drawer.on_each_gt_record(next_row_number=len(gt_table.df), next_gt_record=GameTreeRecord.new_empty())
+
+
+        # 要らない罫線を消す
+        tree_eraser = TreeEraser(gt_wb_wrapper=gt_wb_wrapper)
+        tree_eraser.execute()
+
 
         # GTWB ファイルの保存
         gt_wb_wrapper.save()
