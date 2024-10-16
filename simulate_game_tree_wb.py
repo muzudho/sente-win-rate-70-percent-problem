@@ -267,6 +267,29 @@ class Automation():
                 # ２列目：分岐したエッジ
                 ws[f'{cn2}{row1_th}'].value = edge_text(node=nd)
 
+                # 子ノードへの接続は４種類の線がある
+                #
+                # (1) Horizontal
+                #   .    under_border
+                # ...__  
+                #   .    None
+                #
+                # (2) Down
+                #   .    under_border
+                # ..+__  
+                #   |    leftside_border
+                #
+                # (3) Vertical
+                #   |    l_letter_border
+                # ..+__  
+                #   |    leftside_border
+                #
+                # (4) Up
+                #   |    l_letter_border
+                # ..+__  
+                #   .    None
+                #
+
                 if nd.face == 'h':
                     ws[f'{cn2}{row1_th}'].border = under_border                # FIXME 下に枝があるかないか？
                     ws[f'{cn2}{row2_th}'].border = leftside_vertical_border    # FIXME 下に枝があるか？
