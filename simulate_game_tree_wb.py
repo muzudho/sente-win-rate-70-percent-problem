@@ -12,15 +12,11 @@ import openpyxl as xl
 from openpyxl.styles import PatternFill, Font
 from openpyxl.styles.borders import Border, Side
 
-from library import HEAD, TAIL, ALICE, IN_GAME, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule
-from library.file_paths import GameTreeFilePaths
+from library import HEAD, TAIL, Specification, SeriesRule
 from library.database import GameTreeNode, GameTreeRecord, GameTreeTable
 from library.workbooks import GameTreeWorkbookWrapper
-from library.views import stringify_csv_of_score_board_view_body, PromptCatalog
-from library.score_board import search_all_score_boards
-from library.views import ScoreBoardViewData
+from library.views import PromptCatalog
 from library.game_tree_view import GameTreeView
-from scripts import SaveOrIgnore
 
 
 class TreeDrawer():
@@ -86,39 +82,35 @@ class TreeDrawer():
         ws.row_dimensions[2].height = 13
 
 
-        # １行目
+        # 第１行
         # ------
         # ヘッダー行にする
-        row_number = 1
-
-        # インデックス
-        column_number = 1
-        ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = 'no'
+        row_th = 1
 
         # そのままコピーできない
         # # ２列目～
         # for column_number, column_name in enumerate(self._gt_table.df.columns.values, 2):
-        #     ws[f'{xl.utils.get_column_letter(column_number)}{row_number}'] = column_name
-        ws[f'{xl.utils.get_column_letter(1)}{row_number}'] = 'No'
-        ws[f'{xl.utils.get_column_letter(2)}{row_number}'] = '結果'
-        ws[f'{xl.utils.get_column_letter(3)}{row_number}'] = '実現確率'
+        #     ws[f'{xl.utils.get_column_letter(column_number)}{row_th}'] = column_name
+        ws[f'{xl.utils.get_column_letter(1)}{row_th}'] = 'No'
+        ws[f'{xl.utils.get_column_letter(2)}{row_th}'] = '結果'
+        ws[f'{xl.utils.get_column_letter(3)}{row_th}'] = '実現確率'
         # 4 は空列
 
-        ws[f'{xl.utils.get_column_letter(5)}{row_number}'] = '開始前'
+        ws[f'{xl.utils.get_column_letter(5)}{row_th}'] = '開始前'
 
         # 6 は分岐線
         # 7 はedge
-        ws[f'{xl.utils.get_column_letter(8)}{row_number}'] = '1局後'   # node
-        ws[f'{xl.utils.get_column_letter(11)}{row_number}'] = '2局後'
-        ws[f'{xl.utils.get_column_letter(14)}{row_number}'] = '3局後'
-        ws[f'{xl.utils.get_column_letter(17)}{row_number}'] = '4局後'
-        ws[f'{xl.utils.get_column_letter(20)}{row_number}'] = '5局後'
-        ws[f'{xl.utils.get_column_letter(23)}{row_number}'] = '6局後'
+        ws[f'{xl.utils.get_column_letter(8)}{row_th}'] = '1局後'   # node
+        ws[f'{xl.utils.get_column_letter(11)}{row_th}'] = '2局後'
+        ws[f'{xl.utils.get_column_letter(14)}{row_th}'] = '3局後'
+        ws[f'{xl.utils.get_column_letter(17)}{row_th}'] = '4局後'
+        ws[f'{xl.utils.get_column_letter(20)}{row_th}'] = '5局後'
+        ws[f'{xl.utils.get_column_letter(23)}{row_th}'] = '6局後'
 
-        # ２行目
+        # 第２行
         # ------
         # 空行にする
-        row_number = 2
+        row_th = 2
 
 
     def on_each_gt_record(self, next_row_number, next_gt_record):
@@ -144,13 +136,14 @@ class TreeDrawer():
             #   style に入るもの： 'dashDot', 'dashDotDot', 'double', 'hair', 'dotted', 'mediumDashDotDot', 'dashed', 'mediumDashed', 'slantDashDot', 'thick', 'thin', 'medium', 'mediumDashDot'
             #
             side = Side(style='thick', color='000000')
-            red_side = Side(style='thick', color='FF0000')
-            orange_side = Side(style='thick', color='FFCC00')
-            green_side = Side(style='thick', color='00FF00')
-            blue_side = Side(style='thick', color='0000FF')
+            # デバッグ用に色を付けておく
+            red_side = Side(style='thick', color='660000')      # FF0000
+            orange_side = Side(style='thick', color='663300')   # FFCC00
+            green_side = Side(style='thick', color='006600')    # 00FF00
+            blue_side = Side(style='thick', color='000066')     # 0000FF
             # 黄色は白字の上で見にくいのでやめとく
-            cyan_side = Side(style='thick', color='00FFFF')
-            magenta_side = Side(style='thick', color='FF00FF')
+            cyan_side = Side(style='thick', color='006666')     # 00FFFF
+            magenta_side = Side(style='thick', color='660066')  # FF00FF
             # 親への接続は赤
             border_to_parent = Border(bottom=red_side)
             # 子への水平接続はオレンジ
@@ -369,7 +362,7 @@ class TreeDrawer():
                     print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後  アップ線")
                 
                 else:
-                    raise ValueError(f"{nd.face=}")
+                    raise ValueError(f"{kind=}")
 
                 # ３列目：箱
                 ws[f'{cn3}{row1_th}'].value = nd.rate
@@ -536,9 +529,9 @@ class TreeEraser():
 
     def execute(self):
 
+        # TODO 可変長に対応したい
         # G列の左側の垂直線を見ていく
         self.erase_unnecessary_border_by_column(column_alphabet='G')
-
         self.erase_unnecessary_border_by_column(column_alphabet='J')
         self.erase_unnecessary_border_by_column(column_alphabet='M')
         self.erase_unnecessary_border_by_column(column_alphabet='P')

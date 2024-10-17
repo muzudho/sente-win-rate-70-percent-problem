@@ -2207,9 +2207,9 @@ class GameTreeRecord():
             return new
 
         return GameTreeRecord(
-            no=new_or_default(no, self._no),
-            result=new_or_default(result, self._result),
-            node_list=new_or_default(node_list, self._node_list))
+                no=new_or_default(no, self._no),
+                result=new_or_default(result, self._result),
+                node_list=new_or_default(node_list, self._node_list))
 
 
     def stringify_dump(self, indent):
