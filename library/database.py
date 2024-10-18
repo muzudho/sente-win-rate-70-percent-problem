@@ -2158,7 +2158,7 @@ class GameTreeNode():
 
 
     @staticmethod
-    def get_edge_text(self, face, winner, pts):
+    def get_edge_text(face, winner, pts):
         if face == 'h':
             face_str = '表'
         elif face == 't':
