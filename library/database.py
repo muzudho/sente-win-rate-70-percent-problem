@@ -2120,7 +2120,7 @@ class GameTreeNode():
 
     @property
     def text(self):
-        return self.text
+        return self._text
 
 
     @property
@@ -2267,31 +2267,43 @@ class GameTreeTable():
         # no はインデックス
         'result':'object',
 
+        'edge_text1':'object',
+        'text1':'object',
         'face1':'object',
         'winner1':'object',
         'pts1':'Int64',         # NOTE NaN が含まれる場合は、int64 ではなく Int64 を使う。先頭が大文字
         'rate1':'float64',
 
+        'edge_text2':'object',
+        'text2':'object',
         'face2':'object',
         'winner2':'object',
         'pts2':'Int64',
         'rate2':'float64',
 
+        'edge_text3':'object',
+        'text3':'object',
         'face3':'object',
         'winner3':'object',
         'pts3':'Int64',
         'rate3':'float64',
 
+        'edge_text4':'object',
+        'text4':'object',
         'face4':'object',
         'winner4':'object',
         'pts4':'Int64',
         'rate4':'float64',
 
+        'edge_text5':'object',
+        'text5':'object',
         'face5':'object',
         'winner5':'object',
         'pts5':'Int64',
         'rate5':'float64',
         
+        'edge_text6':'object',
+        'text6':'object',
         'face6':'object',
         'winner6':'object',
         'pts6':'Int64',
@@ -2315,31 +2327,43 @@ class GameTreeTable():
 
                     'result',
 
+                    'edge_text1',
+                    'text1',
                     'face1',
                     'winner1',
                     'pts1',
                     'rate1',
 
+                    'edge_text2',
+                    'text2',
                     'face2',
                     'winner2',
                     'pts2',
                     'rate2',
 
+                    'edge_text3',
+                    'text3',
                     'face3',
                     'winner3',
                     'pts3',
                     'rate3',
 
+                    'edge_text4',
+                    'text4',
                     'face4',
                     'winner4',
                     'pts4',
                     'rate4',
 
+                    'edge_text5',
+                    'text5',
                     'face5',
                     'winner5',
                     'pts5',
                     'rate5',
 
+                    'edge_text6',
+                    'text6',
                     'face6',
                     'winner6',
                     'pts6',
@@ -2525,31 +2549,43 @@ df:
             shall_record_change =\
                 self._df['result'][index] != welcome_record.result or\
                 \
+                self._df['edge_text1'][index] != welcome_record.node_at(0).edge_text or\
+                self._df['text1'][index] != welcome_record.node_at(0).text or\
                 self._df['face1'][index] != welcome_record.node_at(0).face or\
                 self._df['winner1'][index] != welcome_record.node_at(0).winner or\
                 self._df['pts1'][index] != welcome_record.node_at(0).pts or\
                 self._df['rate1'][index] != welcome_record.node_at(0).rate or\
                 \
+                self._df['edge_text2'][index] != welcome_record.node_at(1).edge_text or\
+                self._df['text2'][index] != welcome_record.node_at(1).text or\
                 self._df['face2'][index] != welcome_record.node_at(1).face or\
                 self._df['winner2'][index] != welcome_record.node_at(1).winner or\
                 self._df['pts2'][index] != welcome_record.node_at(1).pts or\
                 self._df['rate2'][index] != welcome_record.node_at(1).rate or\
                 \
+                self._df['edge_text3'][index] != welcome_record.node_at(2).edge_text or\
+                self._df['text3'][index] != welcome_record.node_at(2).text or\
                 self._df['face3'][index] != welcome_record.node_at(2).face or\
                 self._df['winner3'][index] != welcome_record.node_at(2).winner or\
                 self._df['pts3'][index] != welcome_record.node_at(2).pts or\
                 self._df['rate3'][index] != welcome_record.node_at(2).rate or\
                 \
+                self._df['edge_text4'][index] != welcome_record.node_at(3).edge_text or\
+                self._df['text4'][index] != welcome_record.node_at(3).text or\
                 self._df['face4'][index] != welcome_record.node_at(3).face or\
                 self._df['winner4'][index] != welcome_record.node_at(3).winner or\
                 self._df['pts4'][index] != welcome_record.node_at(3).pts or\
                 self._df['rate4'][index] != welcome_record.node_at(3).rate or\
                 \
+                self._df['edge_text5'][index] != welcome_record.node_at(4).edge_text or\
+                self._df['text5'][index] != welcome_record.node_at(4).text or\
                 self._df['face5'][index] != welcome_record.node_at(4).face or\
                 self._df['winner5'][index] != welcome_record.node_at(4).winner or\
                 self._df['pts5'][index] != welcome_record.node_at(4).pts or\
                 self._df['rate5'][index] != welcome_record.node_at(4).rate or\
                 \
+                self._df['edge_text6'][index] != welcome_record.node_at(5).edge_text or\
+                self._df['text6'][index] != welcome_record.node_at(5).text or\
                 self._df['face6'][index] != welcome_record.node_at(5).face or\
                 self._df['winner6'][index] != welcome_record.node_at(5).winner or\
                 self._df['pts6'][index] != welcome_record.node_at(5).pts or\
@@ -2562,31 +2598,43 @@ df:
                 # no はインデックス
                 'result': welcome_record.result,
 
+                'edge_text1': welcome_record.node_at(0).edge_text,
+                'text1': welcome_record.node_at(0).text,
                 'face1': welcome_record.node_at(0).face,
                 'winner1': welcome_record.node_at(0).winner,
                 'pts1': welcome_record.node_at(0).pts,
                 'rate1': welcome_record.node_at(0).rate,
 
+                'edge_text2': welcome_record.node_at(1).edge_text,
+                'text2': welcome_record.node_at(1).text,
                 'face2': welcome_record.node_at(1).face,
                 'winner2': welcome_record.node_at(1).winner,
                 'pts2': welcome_record.node_at(1).pts,
                 'rate2': welcome_record.node_at(1).rate,
 
+                'edge_text3': welcome_record.node_at(2).edge_text,
+                'text3': welcome_record.node_at(2).text,
                 'face3': welcome_record.node_at(2).face,
                 'winner3': welcome_record.node_at(2).winner,
                 'pts3': welcome_record.node_at(2).pts,
                 'rate3': welcome_record.node_at(2).rate,
 
+                'edge_text4': welcome_record.node_at(3).edge_text,
+                'text4': welcome_record.node_at(3).text,
                 'face4': welcome_record.node_at(3).face,
                 'winner4': welcome_record.node_at(3).winner,
                 'pts4': welcome_record.node_at(3).pts,
                 'rate4': welcome_record.node_at(3).rate,
 
+                'edge_text5': welcome_record.node_at(4).edge_text,
+                'text5': welcome_record.node_at(4).text,
                 'face5': welcome_record.node_at(4).face,
                 'winner5': welcome_record.node_at(4).winner,
                 'pts5': welcome_record.node_at(4).pts,
                 'rate5': welcome_record.node_at(4).rate,
 
+                'edge_text6': welcome_record.node_at(5).edge_text,
+                'text6': welcome_record.node_at(5).text,
                 'face6': welcome_record.node_at(5).face,
                 'winner6': welcome_record.node_at(5).winner,
                 'pts6': welcome_record.node_at(5).pts,
@@ -2624,12 +2672,12 @@ df:
                 # no はインデックス
                 columns=[
                     'result',
-                    'face1', 'winner1', 'pts1', 'rate1',
-                    'face2', 'winner2', 'pts2', 'rate2',
-                    'face3', 'winner3', 'pts3', 'rate3',
-                    'face4', 'winner4', 'pts4', 'rate4',
-                    'face5', 'winner5', 'pts5', 'rate5',
-                    'face6', 'winner6', 'pts6', 'rate6'])
+                    'edge_text1', 'text1', 'face1', 'winner1', 'pts1', 'rate1',
+                    'edge_text2', 'text2', 'face2', 'winner2', 'pts2', 'rate2',
+                    'edge_text3', 'text3', 'face3', 'winner3', 'pts3', 'rate3',
+                    'edge_text4', 'text4', 'face4', 'winner4', 'pts4', 'rate4',
+                    'edge_text5', 'text5', 'face5', 'winner5', 'pts5', 'rate5',
+                    'edge_text6', 'text6', 'face6', 'winner6', 'pts6', 'rate6'])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -2647,29 +2695,23 @@ df:
 
         for row_number,(
                 result,
-                face1, winner1, pts1, rate1,
-                face2, winner2, pts2, rate2,
-                face3, winner3, pts3, rate3,
-                face4, winner4, pts4, rate4,
-                face5, winner5, pts5, rate5,
-                face6, winner6, pts6, rate6) in\
+                edge_text1, text1, face1, winner1, pts1, rate1,
+                edge_text2, text2, face2, winner2, pts2, rate2,
+                edge_text3, text3, face3, winner3, pts3, rate3,
+                edge_text4, text4, face4, winner4, pts4, rate4,
+                edge_text5, text5, face5, winner5, pts5, rate5,
+                edge_text6, text6, face6, winner6, pts6, rate6) in\
                 enumerate(zip(
                     df['result'],
-                    df['face1'], df['winner1'], df['pts1'], df['rate1'],
-                    df['face2'], df['winner2'], df['pts2'], df['rate2'],
-                    df['face3'], df['winner3'], df['pts3'], df['rate3'],
-                    df['face4'], df['winner4'], df['pts4'], df['rate4'],
-                    df['face5'], df['winner5'], df['pts5'], df['rate5'],
-                    df['face6'], df['winner6'], df['pts6'], df['rate6'])):
+                    df['edge_text1'], df['text1'], df['face1'], df['winner1'], df['pts1'], df['rate1'],
+                    df['edge_text2'], df['text2'], df['face2'], df['winner2'], df['pts2'], df['rate2'],
+                    df['edge_text3'], df['text3'], df['face3'], df['winner3'], df['pts3'], df['rate3'],
+                    df['edge_text4'], df['text4'], df['face4'], df['winner4'], df['pts4'], df['rate4'],
+                    df['edge_text5'], df['text5'], df['face5'], df['winner5'], df['pts5'], df['rate5'],
+                    df['edge_text6'], df['text6'], df['face6'], df['winner6'], df['pts6'], df['rate6'])):
 
             # no はインデックス
             no = df.index[row_number]
-
-            edge_text_list = [None]
-            text_list = [None]
-            for th in range(1, 7):
-                edge_text_list.append(f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)")
-                text_list.append(str(rate_list[i]))
 
             # レコード作成
             record = GameTreeRecord(
@@ -2677,11 +2719,11 @@ df:
                     result=result,
                     # TODO 今のところ固定長サイズ６
                     node_list=[
-                        GameTreeNode(edge_text=edge_text_list[1], text=text_list[1], face=face1, winner=winner1, pts=pts1, rate=rate1),
-                        GameTreeNode(edge_text=edge_text_list[2], text=text_list[2], face=face2, winner=winner2, pts=pts2, rate=rate2),
-                        GameTreeNode(edge_text=edge_text_list[3], text=text_list[3], face=face3, winner=winner3, pts=pts3, rate=rate3),
-                        GameTreeNode(edge_text=edge_text_list[4], text=text_list[4], face=face4, winner=winner4, pts=pts4, rate=rate4),
-                        GameTreeNode(edge_text=edge_text_list[5], text=text_list[5], face=face5, winner=winner5, pts=pts5, rate=rate5),
-                        GameTreeNode(edge_text=edge_text_list[6], text=text_list[6], face=face6, winner=winner6, pts=pts6, rate=rate6)])
+                        GameTreeNode(edge_text=edge_text1, text=text1, face=face1, winner=winner1, pts=pts1, rate=rate1),
+                        GameTreeNode(edge_text=edge_text2, text=text2, face=face2, winner=winner2, pts=pts2, rate=rate2),
+                        GameTreeNode(edge_text=edge_text3, text=text3, face=face3, winner=winner3, pts=pts3, rate=rate3),
+                        GameTreeNode(edge_text=edge_text4, text=text4, face=face4, winner=winner4, pts=pts4, rate=rate4),
+                        GameTreeNode(edge_text=edge_text5, text=text5, face=face5, winner=winner5, pts=pts5, rate=rate5),
+                        GameTreeNode(edge_text=edge_text6, text=text6, face=face6, winner=winner6, pts=pts6, rate=rate6)])
 
             on_each(row_number, record)

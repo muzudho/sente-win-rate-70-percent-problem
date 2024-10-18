@@ -141,46 +141,6 @@ class Automatic():
             else:
                 node_list.append(GameTreeNode(edge_text=None, text=None, face=None, winner=None, pts=None, rate=None))
 
-        # if 1 < number_of_round:
-        #     i = 1
-        #     edge_text = f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)"
-        #     text = rate_list[i]
-        #     node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
-        # else:
-        #     node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
-
-        # if 2 < number_of_round:
-        #     i = 2
-        #     edge_text = f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)"
-        #     text = rate_list[i]
-        #     node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
-        # else:
-        #     node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
-
-        # if 3 < number_of_round:
-        #     i = 3
-        #     edge_text = f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)"
-        #     text = rate_list[i]
-        #     node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
-        # else:
-        #     node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
-
-        # if 4 < number_of_round:
-        #     i = 4
-        #     edge_text = f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)"
-        #     text = rate_list[i]
-        #     node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
-        # else:
-        #     node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
-
-        # if 5 < number_of_round:
-        #     i = 5
-        #     edge_text = f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)"
-        #     text = rate_list[i]
-        #     node_list.append(GameTreeNode(face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
-        # else:
-        #     node_list.append(GameTreeNode(face=None, winner=None, pts=None, rate=None))
-
 
         gt_table.upsert_record(
                 welcome_record=GameTreeRecord(
