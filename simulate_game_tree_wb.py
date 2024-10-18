@@ -9,7 +9,7 @@ import traceback
 import datetime
 import pandas as pd
 import openpyxl as xl
-from openpyxl.styles import PatternFill, Font
+from openpyxl.styles import PatternFill
 from openpyxl.styles.borders import Border, Side
 
 from library import HEAD, TAIL, Specification, SeriesRule

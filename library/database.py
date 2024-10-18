@@ -1526,6 +1526,7 @@ df:
             #
             #   NOTE clazz._dtype には、インデックスを除いた列の設定が含まれているものとします
             #
+            # FIXME [unexpected error] err=IntCastingNaNError("Cannot convert non-finite values (NA or inf) to integer: Error while type casting for column 'shortest_coins'")  type(err)=<class 'pandas.errors.IntCastingNaNError'>
             df.astype(clazz._dtype)
 
         # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
@@ -2085,8 +2086,12 @@ class CalculateProbabilityTable():
 # MARK: GT
 ##########
 class GameTreeNode():
+    """
+    TODO face, winner, pts を廃止して edge_text に統合したい
+    TODO rate を廃止して text に統合したい
+    """
 
-    def __init__(self, face, winner, pts, rate):
+    def __init__(self, edge_text, text, face, winner, pts, rate):
         """初期化
         
         Parameters
@@ -2100,10 +2105,22 @@ class GameTreeNode():
         rate : float
             そのノードの実現確率
         """
+        self._edge_text = edge_text
+        self._text = text
         self._face = face
         self._winner = winner
         self._pts = pts
         self._rate = rate
+
+
+    @property
+    def edge_text(self):
+        return self._edge_text
+
+
+    @property
+    def text(self):
+        return self.text
 
 
     @property
@@ -2131,6 +2148,8 @@ class GameTreeNode():
         return f"""\
 {indent}GameTreeNode
 {indent}------------
+{succ_indent}{self._edge_text=}
+{succ_indent}{self._text=}
 {succ_indent}{self._face=}
 {succ_indent}{self._winner=}
 {succ_indent}{self._pts=}
@@ -2646,17 +2665,23 @@ df:
             # no はインデックス
             no = df.index[row_number]
 
+            edge_text_list = [None]
+            text_list = [None]
+            for th in range(1, 7):
+                edge_text_list.append(f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)")
+                text_list.append(str(rate_list[i]))
+
             # レコード作成
             record = GameTreeRecord(
                     no=no,
                     result=result,
                     # TODO 今のところ固定長サイズ６
                     node_list=[
-                        GameTreeNode(face=face1, winner=winner1, pts=pts1, rate=rate1),
-                        GameTreeNode(face=face2, winner=winner2, pts=pts2, rate=rate2),
-                        GameTreeNode(face=face3, winner=winner3, pts=pts3, rate=rate3),
-                        GameTreeNode(face=face4, winner=winner4, pts=pts4, rate=rate4),
-                        GameTreeNode(face=face5, winner=winner5, pts=pts5, rate=rate5),
-                        GameTreeNode(face=face6, winner=winner6, pts=pts6, rate=rate6)])
+                        GameTreeNode(edge_text=edge_text_list[1], text=text_list[1], face=face1, winner=winner1, pts=pts1, rate=rate1),
+                        GameTreeNode(edge_text=edge_text_list[2], text=text_list[2], face=face2, winner=winner2, pts=pts2, rate=rate2),
+                        GameTreeNode(edge_text=edge_text_list[3], text=text_list[3], face=face3, winner=winner3, pts=pts3, rate=rate3),
+                        GameTreeNode(edge_text=edge_text_list[4], text=text_list[4], face=face4, winner=winner4, pts=pts4, rate=rate4),
+                        GameTreeNode(edge_text=edge_text_list[5], text=text_list[5], face=face5, winner=winner5, pts=pts5, rate=rate5),
+                        GameTreeNode(edge_text=edge_text_list[6], text=text_list[6], face=face6, winner=winner6, pts=pts6, rate=rate6)])
 
             on_each(row_number, record)
