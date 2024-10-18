@@ -137,7 +137,7 @@ class Automatic():
 
         for i in range(0, 6):
             if i < number_of_round:
-                edge_text = f"{face_list[i]}({winner_list[i]}さん {pts_list[i]}点)"
+                edge_text = GameTreeNode.get_edge_text(face=face_list[i], winner=winner_list[i], pts=pts_list[i])
                 text = rate_list[i]
                 node_list.append(GameTreeNode(edge_text=edge_text, text=text, face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
             else:

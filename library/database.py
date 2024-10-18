@@ -2157,6 +2157,35 @@ class GameTreeNode():
 """
 
 
+    @staticmethod
+    def get_edge_text(self, face, winner, pts):
+        if face == 'h':
+            face_str = '表'
+        elif face == 't':
+            face_str = '裏'
+        elif face == 'f':
+            face_str = '失敗'
+        else:
+            raise ValueError(f"{face=}")
+        
+        if winner == 'A':
+            winner_str = '(Ａさん'
+        elif winner == 'B':
+            winner_str = '(Ｂさん'
+        elif winner == 'N':
+            winner_str = ''
+        else:
+            raise ValueError(f"{winner=}")
+
+        if pts != -1:
+            pts_str = f"{pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
+        else:
+            pts_str = ''
+
+        return f"{face_str}{winner_str}{pts_str}"
+
+
+
 class GameTreeRecord():
 
 

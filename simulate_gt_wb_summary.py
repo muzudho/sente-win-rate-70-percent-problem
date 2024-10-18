@@ -1,8 +1,10 @@
 #
-# python simulate_gt_wb.py
+# TODO 作りかけ
 #
-#   * `wb` - Workbook
-#   GT を GTWB へ変換します
+# python simulate_gt_wb_summary.py
+#
+#   * GTWB の Tree シートの葉要素を一覧 Leafs シート
+#   * Aさんの勝率など、科目別に集計 Sum シート
 #
 
 import traceback
@@ -11,8 +13,6 @@ import pandas as pd
 import openpyxl as xl
 from openpyxl.styles import PatternFill
 from openpyxl.styles.borders import Border, Side
-
-from xltree import Config, WorkbookControl
 
 from library import HEAD, TAIL, Specification, SeriesRule
 from library.file_paths import GameTreeWorkbookFilePaths, GameTreeFilePaths
@@ -77,39 +77,26 @@ if __name__ == '__main__':
                 t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
                 h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
 
-        # 構成
-        config = Config(
-                # 省略可能
-                dictionary = {
-                    # 列の幅
-                    'no_width':                         4,      # A列の幅。no列
-                    'row_header_separator_width':       3,      # B列の幅。空列
-                    'node_width':                       20,     # 例：C, F, I ...列の幅。ノードの箱の幅
-                    'parent_side_edge_width':           2,      # 例：D, G, J ...列の幅。エッジの水平線のうち、親ノードの方
-                    'child_side_edge_width':            4,      # 例：E, H, K ...列の幅。エッジの水平線のうち、子ノードの方
+        # TODO ワークブック読込
+        wb = xl.load_workbook(filename=wb_file_path)
 
-                    # 行の高さ
-                    'header_height':                    13,     # 第１行。ヘッダー
-                    'column_header_separator_height':   13,     # 第２行。空行
-                })
+        # TODO ワークブックの Tree シート読込
 
-        # 出力先ワークブック指定
-        wbc = WorkbookControl(target=wb_file_path, mode='w')
+        # TODO ワークブックに Leafs シート追加
+        wb.create_sheet(title='Leafs')
 
-        csv_file_path=GameTreeFilePaths.as_csv(
-                spec=spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+        # TODO Tree シートの葉要素を Leafs シートへ一覧
+        tree_ws = wb['Tree']
+        for row_no in range(1, ws.max_row + 1):
+            for column_no in range(1, ws.max_column+ 1):
+                # 最後の有効な列のテキストを葉ノードテキストとみなす
+                column_letter = xl.utils.get_column_letter(column_number)
+                pass
 
-        # ワークシート描画
-        wbc.render_worksheet(target='Tree', based_on=csv_file_path)
+        # TODO Leafs シートを、科目ごとに集計
 
-        # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
-        wbc.remove_worksheet(target='Sheet')
+        # TODO ワークブックを保存
 
-        # 保存
-        wbc.save_workbook()
 
         print(f"[{datetime.datetime.now()}] Please look {wb_file_path}")
 

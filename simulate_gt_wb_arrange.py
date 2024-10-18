@@ -1,5 +1,6 @@
 #
-# 分析
+# TODO 廃止予定
+#
 # python simulate_gt_wb_arrange.py
 #
 #   GTWB をアレンジします
@@ -229,33 +230,6 @@ class TreeDrawer():
                     raise ValueError(f"行番号がずれている {curr_row_th=}  {self._curr_gt_record.no=}")
                 print(f"[{datetime.datetime.now()}] {curr_row_th}行目 {round_th}局後 ノード描画...")
 
-
-                def edge_text(node):
-                    if node.face == 'h':
-                        face = '表'
-                    elif node.face == 't':
-                        face = '裏'
-                    elif node.face == 'f':
-                        face = '失敗'
-                    else:
-                        raise ValueError(f"{node.face=}")
-                    
-                    if node.winner == 'A':
-                        winner = '(Ａさん'
-                    elif node.winner == 'B':
-                        winner = '(Ｂさん'
-                    elif node.winner == 'N':
-                        winner = ''
-                    else:
-                        raise ValueError(f"{node.winner=}")
-
-                    if node.pts != -1:
-                        pts = f"{node.pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
-                    else:
-                        pts = ''
-
-                    return f"{face}{winner}{pts}"
-
                 cn1 = three_column_names[0]
                 cn2 = three_column_names[1]
                 cn3 = three_column_names[2]
@@ -306,7 +280,7 @@ class TreeDrawer():
                 
 
                 # ２列目：分岐したエッジ
-                ws[f'{cn2}{row1_th}'].value = edge_text(node=nd)
+                ws[f'{cn2}{row1_th}'].value = GameTreeNode.get_edge_text(face=nd.face, winner=nd.winner, pts=nd.pts)
 
 
                 # 子ノードへの接続は４種類の線がある
