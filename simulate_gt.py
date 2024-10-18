@@ -1,5 +1,7 @@
 #
-# python simulate_game_tree.py
+# python simulate_gt.py
+#
+#   * `gt`` - game tree
 #
 #   １シリーズのコインの出目について、全パターン網羅した樹形図をCSV形式で出力します。
 #   レコードは可変列です

@@ -1,7 +1,8 @@
 #
-# python simulate_game_tree_xltree.py
+# python simulate_game_tree_wb.py
 #
-#   GB を GBWB へ変換します
+#   * `wb` - Workbook
+#   GT を GTWB へ変換します
 #
 
 import traceback

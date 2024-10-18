@@ -1,8 +1,8 @@
 #
 # 分析
-# python simulate_game_tree_wb.py
+# python simulate_gt_wb_arrange.py
 #
-#   GB を GBWB へ変換します
+#   GTWB をアレンジします
 #
 
 import traceback
