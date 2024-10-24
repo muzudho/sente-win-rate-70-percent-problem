@@ -5,6 +5,7 @@
 #   GT を GTWB へ変換します
 #
 
+import math
 import traceback
 import datetime
 import pandas as pd
@@ -101,7 +102,7 @@ if __name__ == '__main__':
 
             # テーブル読取
             df = pd.read_csv(csv_file_path, encoding="utf8", index_col=['no'])
-            print(df)   # FIXME
+            #print(df)
 
             # 読取元CSVを指定し、ワークシートハンドル取得
             with b.prepare_worksheet(target='Tree', based_on=csv_file_path) as s:
@@ -125,12 +126,32 @@ if __name__ == '__main__':
 
                 for root_node in s.multiple_root_node.values():
                     search(all_leaf_nodes=all_leaf_nodes, node=root_node)
-                
+                                
+                # leaf_th と result列 を紐づける
+                rate_list_by_result = {}
                 for leaf in all_leaf_nodes:
-                    print(f"葉テスト {leaf.text=}  {leaf.leaf_th=}")
-                
-                # TODO result行も取得する
-                # TODO result 別に確率を sum する
+                    result = df.at[leaf.leaf_th, 'result']
+                    #print(f"葉テスト {leaf.text=}  {leaf.leaf_th=}  {result}")
+
+                    if result not in rate_list_by_result:
+                        rate_list_by_result[result] = []
+                    
+                    rate_list_by_result[result].append(float(leaf.text))
+
+                # result 別に確率を高精度 sum する
+                sum_rate_by_result = {}
+                for result, rate_list in rate_list_by_result.items():
+                    sum_rate = math.fsum(rate_list)
+                    #print(f"{result=}  {sum_rate=}")
+                    sum_rate_by_result[result] = sum_rate
+
+                # 結果表示 ＆ Total検算
+                total = math.fsum(sum_rate_by_result.values())
+                #print(f"検算 {total=}")
+
+                if total != 1:
+                    raise ValueError(f"total must be 1. but {total}")
+
 
             # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
             b.remove_worksheet(target='Sheet')
