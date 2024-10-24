@@ -11,8 +11,7 @@ import pandas as pd
 import openpyxl as xl
 from openpyxl.styles import PatternFill
 from openpyxl.styles.borders import Border, Side
-
-from xltree import Config, WorkbookControl
+import xltree as tr
 
 from library import HEAD, TAIL, Specification, SeriesRule
 from library.file_paths import GameTreeWorkbookFilePaths, GameTreeFilePaths
@@ -78,40 +77,68 @@ if __name__ == '__main__':
                 h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
 
         # 構成
-        config = Config(
-                # 省略可能
-                dictionary = {
-                    # 列の幅
-                    'no_width':                         4,      # A列の幅。no列
-                    'row_header_separator_width':       3,      # B列の幅。空列
-                    'node_width':                       20,     # 例：C, F, I ...列の幅。ノードの箱の幅
-                    'parent_side_edge_width':           2,      # 例：D, G, J ...列の幅。エッジの水平線のうち、親ノードの方
-                    'child_side_edge_width':            4,      # 例：E, H, K ...列の幅。エッジの水平線のうち、子ノードの方
+        settings ={
+            # # 列の幅
+            # 'no_width':                         4,      # A列の幅。no列
+            # 'row_header_separator_width':       3,      # B列の幅。空列
+            # 'node_width':                       20,     # 例：C, F, I ...列の幅。ノードの箱の幅
+            # 'parent_side_edge_width':           2,      # 例：D, G, J ...列の幅。エッジの水平線のうち、親ノードの方
+            # 'child_side_edge_width':            4,      # 例：E, H, K ...列の幅。エッジの水平線のうち、子ノードの方
 
-                    # 行の高さ
-                    'header_height':                    13,     # 第１行。ヘッダー
-                    'column_header_separator_height':   13,     # 第２行。空行
-                })
+            # # 行の高さ
+            # 'header_height':                    13,     # 第１行。ヘッダー
+            # 'column_header_separator_height':   13,     # 第２行。空行
+        }
 
-        # 出力先ワークブック指定
-        wbc = WorkbookControl(target=wb_file_path, mode='w')
+        # 出力先ワークブックを指定し、ワークブックハンドル取得
+        with tr.prepare_workbook(target=wb_file_path, mode='w', settings=settings) as b:
 
-        csv_file_path=GameTreeFilePaths.as_csv(
-                spec=spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+            csv_file_path=GameTreeFilePaths.as_csv(
+                    spec=spec,
+                    span=specified_series_rule.step_table.span,
+                    t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                    h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
 
-        # ワークシート描画
-        wbc.render_worksheet(target='Tree', based_on=csv_file_path)
+            # テーブル読取
+            df = pd.read_csv(csv_file_path, encoding="utf8", index_col=['no'])
+            print(df)   # FIXME
 
-        # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
-        wbc.remove_worksheet(target='Sheet')
+            # 読取元CSVを指定し、ワークシートハンドル取得
+            with b.prepare_worksheet(target='Tree', based_on=csv_file_path) as s:
 
-        # 保存
-        wbc.save_workbook()
+                # ワークシートへ木構造図を描画
+                s.render_tree()
 
-        print(f"[{datetime.datetime.now()}] Please look {wb_file_path}")
+                # TODO 集計を行いたい。ツリー構造の全ての葉を取得する                
+                all_leaf_nodes = []
+
+                def search(all_leaf_nodes, node):
+                    """再帰的に子ノードを表示"""
+                    for child_node in node.child_nodes.values():
+                        # 葉ノード
+                        if len(child_node.child_nodes) < 1:
+                            all_leaf_nodes.append(child_node)
+                        
+                        # 中間ノード
+                        else:
+                            search(all_leaf_nodes=all_leaf_nodes, node=child_node) # 再帰
+
+                for root_node in s.multiple_root_node.values():
+                    search(all_leaf_nodes=all_leaf_nodes, node=root_node)
+                
+                for leaf in all_leaf_nodes:
+                    print(f"葉テスト {leaf.text=}  {leaf.leaf_th=}")
+                
+                # TODO result行も取得する
+                # TODO result 別に確率を sum する
+
+            # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
+            b.remove_worksheet(target='Sheet')
+
+            # 保存
+            b.save_workbook()
+
+            print(f"[{datetime.datetime.now()}] Please look {wb_file_path}")
 
 
     except Exception as err:
