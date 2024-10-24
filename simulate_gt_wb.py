@@ -152,6 +152,18 @@ if __name__ == '__main__':
                 if total != 1:
                     raise ValueError(f"total must be 1. but {total}")
 
+            # 読取元CSVを指定し、ワークシートハンドル取得
+            with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
+                ws = s._ws  # 非公式な方法。将来的にサポートされるか分からない方法
+
+                # 列名
+                ws['A1'] = 'result'
+                ws['B1'] = sum_rate
+
+                for row_th, (result, sum_rate) in enumerate(sum_rate_by_result.items(), 2):
+                    ws[f'A{row_th}'] = result
+                    ws[f'B{row_th}'] = sum_rate
+
 
             # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
             b.remove_worksheet(target='Sheet')
