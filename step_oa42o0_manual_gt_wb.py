@@ -1,5 +1,5 @@
 #
-# python simulate_gt_wb.py
+# python step_oa42o0_manual_gt_wb.py
 #
 #   * `wb` - Workbook
 #   GT を GTWB へ変換します
