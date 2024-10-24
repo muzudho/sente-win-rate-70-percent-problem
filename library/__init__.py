@@ -110,6 +110,9 @@ SMALL_P_ABS_ERROR = 0.0004
 EVEN = 0.5
 
 
+#################
+# MARK: Precision
+#################
 class Precision():
 
 
@@ -159,6 +162,9 @@ class Precision():
         return 0.4995 <= rate and rate <= 0.5004
 
 
+#################
+# MARK: Converter
+#################
 class Converter():
     """変換する機能まとめ"""
 
@@ -302,6 +308,9 @@ class Converter():
         return clazz._calculation_status_to_code[calculation_status]
 
 
+#####################
+# MARK: Specification
+#####################
 class Specification():
     """仕様"""
 
@@ -470,6 +479,9 @@ def toss_a_coin(p, failure_rate=0.0):
     return TAIL
 
 
+############################
+# MARK: SequenceOfFaceOfCoin
+############################
 class SequenceOfFaceOfCoin():
     """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印が並んだもの"""
 
@@ -508,6 +520,9 @@ class SequenceOfFaceOfCoin():
         return path_of_face_of_coin[0:number_of_coins]
 
 
+############################
+# MARK: TreeNodeOfFaceOfCoin
+############################
 class TreeNodeOfFaceOfCoin():
     """コインの出目のツリー構造のノード"""
 
@@ -630,6 +645,9 @@ class TreeNodeOfFaceOfCoin():
         return path_of_face_of_coin
 
 
+########################
+# MARK: TreeOfFaceOfCoin
+########################
 class TreeOfFaceOfCoin():
     """コインの出目のツリー構造"""
 
@@ -727,6 +745,9 @@ class TreeOfFaceOfCoin():
         return list_of_path
 
 
+#############################
+# MARK: AllPatternsFaceOfCoin
+#############################
 class AllPatternsFaceOfCoin():
     """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印の組み合わせが全て入っているリスト"""
 
@@ -806,6 +827,9 @@ class AllPatternsFaceOfCoin():
         return self._tree_of_face_of_coin
 
 
+########################
+# MARK: PointCalculation
+########################
 class PointCalculation():
     """勝ち点計算に使う"""
 
@@ -1182,7 +1206,6 @@ def calculate_probability(p, H, T):
 ##################
 # MARK: SeriesRule
 ##################
-
 class SeriesRule():
     """［シリーズ・ルール］
     
@@ -1704,6 +1727,9 @@ step_table:
 """
 
 
+################################
+# MARK: TrialResultsForOneSeries
+################################
 class TrialResultsForOneSeries():
     """［シリーズ］１つ分の試行結果"""
 
@@ -1833,6 +1859,9 @@ self._point_calculation.stringify_dump:
 """
     
 
+###############################
+# MARK: LargeSeriesTrialSummary
+###############################
 class LargeSeriesTrialSummary():
     """［大量のシリーズを試行した結果］"""
 
@@ -2156,6 +2185,9 @@ class LargeSeriesTrialSummary():
         return self._no_wins
 
 
+#################
+# MARK: Candidate
+#################
 class Candidate():
     """［シリーズ・ルール候補］"""
 
@@ -2251,6 +2283,9 @@ class Candidate():
         raise ValueError(f"パースできません {candidate=}")
 
 
+##################
+# MARK: ScoreBoard
+##################
 class ScoreBoard():
     """１シリーズ分の経過の記録。
     以下の表のようなものを作る。CSVで出力する
@@ -2507,6 +2542,9 @@ class ScoreBoard():
 """
 
 
+##################
+# MARK: ThreeRates
+##################
 class ThreeRates():
 
 
@@ -2626,6 +2664,9 @@ def try_series(spec, series_rule, specified_trial_series):
     return large_series_trial_summary
 
 
+######################
+# MARK: RenamingBackup
+######################
 class RenamingBackup():
     """ファイルのリネーム・バックアップ
     
