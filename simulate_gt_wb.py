@@ -157,6 +157,24 @@ if __name__ == '__main__':
             with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
                 ws = s._ws  # 非公式な方法。将来的にサポートされるか分からない方法
 
+                # 操作が便利なので、pandas に移し替える
+                records = []
+                for result, sum_rate in sum_rate_by_result.items():
+                    records.append([result, sum_rate])
+
+                df = pd.DataFrame(records, columns=['result', 'sum_rate'])
+                df.sort_values('sum_rate', inplace=True, ascending=False)
+                print(df)
+
+
+                # 最長の文字数も図っておく
+                if len(df) == 0:
+                    max_length_of_a = 0
+                    max_length_of_b = 0
+                else:
+                    max_length_of_a = df['result'].str.len().max()  # 文字列の長さ
+                    max_length_of_b = df['sum_rate'].abs().astype(str).str.len().max()-1    # 浮動小数点数の長さ
+
 
                 # 列名
                 ws['A1'] = 'result'
@@ -171,21 +189,21 @@ if __name__ == '__main__':
                 ws['B1'].font = font
 
 
-                # 最長の文字数も図っておく
-                max_length_of_a = 0
-                max_length_of_b = 0
+                # # 最長の文字数も図っておく
+                # max_length_of_a = 0
+                # max_length_of_b = 0
 
                 for row_th, (result, sum_rate) in enumerate(sum_rate_by_result.items(), 2):
                     ws[f'A{row_th}'] = result
                     ws[f'B{row_th}'] = sum_rate
                     ws[f'B{row_th}'].alignment = Alignment(horizontal='left')
 
-                    # 最長の文字数も図っておく
-                    if max_length_of_a < len(result):
-                        max_length_of_a = len(result)
+                    # # 最長の文字数も図っておく
+                    # if max_length_of_a < len(result):
+                    #     max_length_of_a = len(result)
                     
-                    if max_length_of_b < len(str(sum_rate)):
-                        max_length_of_b = len(str(sum_rate))
+                    # if max_length_of_b < len(str(sum_rate)):
+                    #     max_length_of_b = len(str(sum_rate))
 
 
                 # 列幅の自動調整
