@@ -123,9 +123,9 @@ class Automatic():
             if i < number_of_round:
                 edge_text = GameTreeNode.get_edge_text(face=face_list[i], winner=winner_list[i], pts=pts_list[i])
                 text = rate_list[i]
-                node_list.append(GameTreeNode(edge_text=edge_text, text=text, face=face_list[i], winner=winner_list[i], pts=pts_list[i], rate=rate_list[i]))
+                node_list.append(GameTreeNode(edge_text=edge_text, text=text))
             else:
-                node_list.append(GameTreeNode(edge_text=None, text=None, face=None, winner=None, pts=None, rate=None))
+                node_list.append(GameTreeNode(edge_text=None, text=None))
 
 
         self._gt_table.upsert_record(

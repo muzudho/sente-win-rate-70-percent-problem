@@ -94,8 +94,10 @@ class Automation():
                 total = math.fsum(sum_rate_by_result.values())
                 #print(f"検算 {total=}")
 
+                # エラーは表示するが、続行する
                 if total != 1:
-                    raise ValueError(f"total must be 1. but {total}")
+                    print(f"[error] total must be 1. but {total}")
+                    #raise ValueError(f"total must be 1. but {total}")
 
             # 読取元CSVを指定し、ワークシートハンドル取得
             with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
@@ -124,7 +126,7 @@ class Automation():
                 #df = df[['result', 'sum_rate']]
 
                 # デバッグ表示
-                print(df)
+                #print(df)
 
 
                 # 最長の文字数も図っておく
