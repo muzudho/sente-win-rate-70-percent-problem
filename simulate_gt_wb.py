@@ -10,8 +10,9 @@ import traceback
 import datetime
 import pandas as pd
 import openpyxl as xl
-from openpyxl.styles import PatternFill
+from openpyxl.styles import PatternFill, Font
 from openpyxl.styles.borders import Border, Side
+from openpyxl.styles.alignment import Alignment
 import xltree as tr
 
 from library import HEAD, TAIL, Specification, SeriesRule
@@ -156,13 +157,54 @@ if __name__ == '__main__':
             with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
                 ws = s._ws  # 非公式な方法。将来的にサポートされるか分からない方法
 
+
                 # 列名
                 ws['A1'] = 'result'
-                ws['B1'] = sum_rate
+                ws['B1'] = 'sum_rate'
+
+                fill = PatternFill(patternType='solid', fgColor='111111')
+                ws['A1'].fill = fill
+                ws['B1'].fill = fill
+
+                font = Font(color='EEEEEE')
+                ws['A1'].font = font
+                ws['B1'].font = font
+
+
+                # 最長の文字数も図っておく
+                max_length_of_a = 0
+                max_length_of_b = 0
 
                 for row_th, (result, sum_rate) in enumerate(sum_rate_by_result.items(), 2):
                     ws[f'A{row_th}'] = result
                     ws[f'B{row_th}'] = sum_rate
+                    ws[f'B{row_th}'].alignment = Alignment(horizontal='left')
+
+                    # 最長の文字数も図っておく
+                    if max_length_of_a < len(result):
+                        max_length_of_a = len(result)
+                    
+                    if max_length_of_b < len(str(sum_rate)):
+                        max_length_of_b = len(str(sum_rate))
+
+
+                # 列幅の自動調整
+                ws.column_dimensions['A'].width = max_length_of_a * 2       # 日本語
+                ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
+
+                # トータル
+                row_th += 1
+                ws[f'A{row_th}'] = 'Total'
+                ws[f'B{row_th}'] = math.fsum(sum_rate_by_result.values())
+                ws[f'B{row_th}'].alignment = Alignment(horizontal='left')
+
+                # 罫線
+                side = Side(style='thick', color='111111')
+                border = Border(top=side)
+                ws[f'A{row_th}'].border = border
+                ws[f'B{row_th}'].border = border
+
+
 
 
             # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
