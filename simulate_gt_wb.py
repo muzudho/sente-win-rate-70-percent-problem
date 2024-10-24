@@ -157,13 +157,29 @@ if __name__ == '__main__':
             with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
                 ws = s._ws  # 非公式な方法。将来的にサポートされるか分からない方法
 
+                # データフレームの操作
+                # ------------------
+
                 # 操作が便利なので、pandas に移し替える
                 records = []
                 for result, sum_rate in sum_rate_by_result.items():
                     records.append([result, sum_rate])
 
                 df = pd.DataFrame(records, columns=['result', 'sum_rate'])
-                df.sort_values('sum_rate', inplace=True, ascending=False)
+
+                # sum_rate 列の値の大きい順に並び変える
+                df.sort_values(['sum_rate', 'result'], inplace=True, ascending=[False, True])
+
+                # 連番列を追加
+                df['no'] = range(0, len(df))
+
+                # 連番列を、（列を止めて）インデックスに変更
+                df.set_index('no', inplace=True)
+
+                # 列の並び替え
+                #df = df[['result', 'sum_rate']]
+
+                # デバッグ表示
                 print(df)
 
 
@@ -176,53 +192,51 @@ if __name__ == '__main__':
                     max_length_of_b = df['sum_rate'].abs().astype(str).str.len().max()-1    # 浮動小数点数の長さ
 
 
+                # Total を集計
+                total_sum_rate = df['sum_rate'].sum()
+
+
+                # ワークシートへの出力
+                # ------------------
+
                 # 列名
                 ws['A1'] = 'result'
                 ws['B1'] = 'sum_rate'
-
-                fill = PatternFill(patternType='solid', fgColor='111111')
-                ws['A1'].fill = fill
-                ws['B1'].fill = fill
-
-                font = Font(color='EEEEEE')
-                ws['A1'].font = font
-                ws['B1'].font = font
-
-
-                # # 最長の文字数も図っておく
-                # max_length_of_a = 0
-                # max_length_of_b = 0
-
-                for row_th, (result, sum_rate) in enumerate(sum_rate_by_result.items(), 2):
-                    ws[f'A{row_th}'] = result
-                    ws[f'B{row_th}'] = sum_rate
-                    ws[f'B{row_th}'].alignment = Alignment(horizontal='left')
-
-                    # # 最長の文字数も図っておく
-                    # if max_length_of_a < len(result):
-                    #     max_length_of_a = len(result)
-                    
-                    # if max_length_of_b < len(str(sum_rate)):
-                    #     max_length_of_b = len(str(sum_rate))
-
 
                 # 列幅の自動調整
                 ws.column_dimensions['A'].width = max_length_of_a * 2       # 日本語
                 ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
 
-                # トータル
-                row_th += 1
-                ws[f'A{row_th}'] = 'Total'
-                ws[f'B{row_th}'] = math.fsum(sum_rate_by_result.values())
-                ws[f'B{row_th}'].alignment = Alignment(horizontal='left')
+                # ヘッダーの背景色
+                fill = PatternFill(patternType='solid', fgColor='111111')
+                ws['A1'].fill = fill
+                ws['B1'].fill = fill
 
-                # 罫線
+                # ヘッダーの文字色
+                font = Font(color='EEEEEE')
+                ws['A1'].font = font
+                ws['B1'].font = font
+
+                # データ部のコピー
+                for row_no in range(0, len(df)):
+                    result = df.at[row_no, 'result']
+                    sum_rate = df.at[row_no, 'sum_rate']
+                    # データ部は 2nd 行目から
+                    ws[f'A{row_no + 2}'] = result
+                    ws[f'B{row_no + 2}'] = sum_rate
+                    ws[f'B{row_no + 2}'].alignment = Alignment(horizontal='left')
+
+                # データ部のトータル行の追加
+                row_no += 1
+                ws[f'A{row_no + 2}'] = 'Total'
+                ws[f'B{row_no + 2}'] = total_sum_rate
+                ws[f'B{row_no + 2}'].alignment = Alignment(horizontal='left')
+
+                # データ部のトータル行を区切る罫線
                 side = Side(style='thick', color='111111')
                 border = Border(top=side)
-                ws[f'A{row_th}'].border = border
-                ws[f'B{row_th}'].border = border
-
-
+                ws[f'A{row_no + 2}'].border = border
+                ws[f'B{row_no + 2}'].border = border
 
 
             # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
