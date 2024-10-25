@@ -51,6 +51,11 @@ class Automation():
             if debug_write:
                 print(df)
 
+
+            ############
+            # MARK: Tree
+            ############
+
             # 読取元CSVを指定し、ワークシートハンドル取得
             with b.prepare_worksheet(target='Tree', based_on=csv_file_path) as s:
 
@@ -123,6 +128,10 @@ class Automation():
                     #raise ValueError(f"total must be 1. but {total}")
 
 
+            ###############
+            # MARK: Summary
+            ###############
+
             # 読取元CSVを指定し、ワークシートハンドル取得
             with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
                 ws = s._ws  # 非公式な方法。将来的にサポートされるか分からない方法
@@ -153,60 +162,26 @@ class Automation():
                 #print(df)
 
 
-                # 最長の文字数も図っておく
-                if len(df) == 0:
-                    max_length_of_a = 0
-                    max_length_of_b = 0
-                else:
-                    max_length_of_a = df['result'].str.len().max()  # 文字列の長さ
-                    max_length_of_b = df['sum_rate'].abs().astype(str).str.len().max()-1    # 浮動小数点数の長さ
-
-
-                # Total を集計
-                total_sum_rate = df['sum_rate'].sum()
-
-
                 # ワークシートへの出力
                 # ------------------
+                self.write_header(df=df, ws=ws, row_th=1)
 
-                # 列名
-                ws['A1'] = 'result'
-                ws['B1'] = 'sum_rate'
-
-                # 列幅の自動調整
-                ws.column_dimensions['A'].width = max_length_of_a * 2       # 日本語
-                ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
-
-                # ヘッダーの背景色
-                fill = PatternFill(patternType='solid', fgColor='111111')
-                ws['A1'].fill = fill
-                ws['B1'].fill = fill
-
-                # ヘッダーの文字色
-                font = Font(color='EEEEEE')
-                ws['A1'].font = font
-                ws['B1'].font = font
 
                 # データ部のコピー
-                for row_no in range(0, len(df)):
-                    result = df.at[row_no, 'result']
-                    sum_rate = df.at[row_no, 'sum_rate']
-                    # データ部は 2nd 行目から
-                    ws[f'A{row_no + 2}'] = result
-                    ws[f'B{row_no + 2}'] = sum_rate
-                    ws[f'B{row_no + 2}'].alignment = Alignment(horizontal='left')
+                for source_row_no in range(0, len(df)):
+                    destination_row_th = source_row_no + 2      # データ部は 2nd 行目から
 
-                # データ部のトータル行の追加
-                row_no += 1
-                ws[f'A{row_no + 2}'] = 'Total'
-                ws[f'B{row_no + 2}'] = total_sum_rate
-                ws[f'B{row_no + 2}'].alignment = Alignment(horizontal='left')
+                    self.write_sections(
+                            df=df,
+                            ws=ws,
+                            source_row_no=source_row_no,
+                            destination_row_th=destination_row_th)
 
-                # データ部のトータル行を区切る罫線
-                side = Side(style='thick', color='111111')
-                border = Border(top=side)
-                ws[f'A{row_no + 2}'].border = border
-                ws[f'B{row_no + 2}'].border = border
+
+                self.write_total(
+                        df=df,
+                        ws = ws,
+                        destination_row_th=destination_row_th + 1)
 
 
             # 何かワークシートを１つ作成したあとで、最初から入っている 'Sheet' を削除
@@ -216,3 +191,58 @@ class Automation():
             b.save_workbook()
 
             print(f"[{datetime.datetime.now()}] Please look {wb_file_path}")
+
+
+    def write_header(self, df, ws, row_th):
+        # 列幅の自動調整
+        # -------------
+
+        # 最長の文字数を図ります
+        if len(df) == 0:
+            max_length_of_a = 0
+            max_length_of_b = 0
+        else:
+            max_length_of_a = df['result'].str.len().max()  # 文字列の長さ
+            max_length_of_b = df['sum_rate'].abs().astype(str).str.len().max()-1    # 浮動小数点数の長さ
+
+        ws.column_dimensions['A'].width = max_length_of_a * 2       # 日本語
+        ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
+
+        # 列名
+        ws[f'A{row_th}'] = 'result'
+        ws[f'B{row_th}'] = 'sum_rate'
+
+        # ヘッダーの背景色
+        fill = PatternFill(patternType='solid', fgColor='111111')
+        ws[f'A{row_th}'].fill = fill
+        ws[f'B{row_th}'].fill = fill
+
+        # ヘッダーの文字色
+        font = Font(color='EEEEEE')
+        ws[f'A{row_th}'].font = font
+        ws[f'B{row_th}'].font = font
+
+
+    def write_sections(self, df, ws, source_row_no, destination_row_th):
+        result = df.at[source_row_no, 'result']
+        sum_rate = df.at[source_row_no, 'sum_rate']
+
+        ws[f'A{destination_row_th}'] = result
+        ws[f'B{destination_row_th}'] = sum_rate
+        ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
+
+
+    def write_total(self, df, ws, destination_row_th):
+        # Total を集計
+        total_sum_rate = df['sum_rate'].sum()
+
+        # データ部のトータル行の追加
+        ws[f'A{destination_row_th}'] = 'Total'
+        ws[f'B{destination_row_th}'] = total_sum_rate
+        ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
+
+        # データ部のトータル行を区切る罫線
+        side = Side(style='thick', color='111111')
+        border = Border(top=side)
+        ws[f'A{destination_row_th}'].border = border
+        ws[f'B{destination_row_th}'].border = border

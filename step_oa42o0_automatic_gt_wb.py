@@ -57,7 +57,7 @@ class SubAutomatic():
         automation.execute(
                 spec=specified_series_rule.spec,
                 specified_series_rule=specified_series_rule,
-                debug_write=True)
+                debug_write=False)
 
 
 ########################################
