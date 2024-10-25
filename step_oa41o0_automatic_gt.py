@@ -8,72 +8,20 @@
 #
 
 import traceback
+import os
+import random
+import time
+import datetime
 import xltree as tr
 
-from library import HEAD, TAIL, Specification, SeriesRule
+from library import HEAD, TAIL, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification, SeriesRule
 from library.file_paths import GameTreeFilePaths
 from library.database import GameTreeTable
 from library.views import PromptCatalog
 from library.score_board import search_all_score_boards
 from scripts import SaveOrIgnore, ForEachSpec
 from scripts.step_oa41o1o0_gt import Automatic
-from config import DEFAULT_UPPER_LIMIT_SPAN
-
-
-class SubAutomatic():
-
-
-    def on_each_spec(self, spec):
-        # TODO ［目標の点数］
-        #for specified_span in (1, DEFAULT_UPPER_LIMIT_SPAN):
-        for specified_span in range(1, 4):
-            for specified_t_step in range(1, specified_span + 1):
-
-                for specified_h_step in range(1, specified_t_step + 1):
-
-                    # ［シリーズ・ルール］。任意に指定します
-                    specified_series_rule = SeriesRule.make_series_rule_base(
-                            spec=spec,
-                            span=specified_span,
-                            t_step=specified_t_step,
-                            h_step=specified_h_step)
-
-                    self.on_each_series_rule(specified_series_rule=specified_series_rule)
-
-            #         print(f"デバッグ ループ途中終了  {spec.stringify_dump('')}  {specified_h_step=}")
-            #         break
-
-
-            #     print(f"デバッグ ループ途中終了  {spec.stringify_dump('')}  {specified_t_step=}")
-            #     break
-
-
-            # print(f"デバッグ ループ途中終了  {spec.stringify_dump('')}  {specified_span=}")
-            # break
-
-
-    def on_each_series_rule(self, specified_series_rule):
-
-        # FIXME 便宜的に［試行シリーズ数］は 1 固定
-        specified_trial_series = 1
-
-
-        forest = tr.planting()
-        root_entry = forest.tree_root(edge_text=None, node_text='1')
-
-        automatic = Automatic(spec=specified_series_rule.spec, root_entry=root_entry)
-
-        three_rates, all_patterns_p = search_all_score_boards(
-                series_rule=specified_series_rule,
-                on_score_board_created=automatic.on_score_board_created)
-
-
-        # CSVファイル出力（追記）
-        forest.to_csv(csv_file_path=GameTreeFilePaths.as_csv(
-                spec=specified_series_rule.spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD)))
+from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE, DEFAULT_UPPER_LIMIT_SPAN
 
 
 ########################################
@@ -83,9 +31,80 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        sub_automatic = SubAutomatic()
+        turn_system_id_list = [ALTERNATING_TURN, FROZEN_TURN]
+        #print(f"{turn_system_id_list=}")
 
-        ForEachSpec.execute(on_each_spec=sub_automatic.on_each_spec)
+        # 5％刻み。 100%は除く。0除算が発生するので
+        feature_rate_list = list(map(lambda x: x/100, range(0, int(DEFAULT_UPPER_LIMIT_FAILURE_RATE * 100) + 1, 5)))
+        #print(f"{feature_rate_list=}")
+
+        p_list = list(map(lambda x: x/100, range(50, 96)))
+        #print(f"{p_list=}")
+
+
+        # 無限ループ
+        while True:
+
+            # ［先後の決め方］
+            turn_system_id = turn_system_id_list[random.randint(0, len(turn_system_id_list) - 1)]
+
+            # ［将棋の引分け率］
+            failure_rate = feature_rate_list[random.randint(0, len(feature_rate_list) - 1)]
+
+            # ［将棋の先手勝率］
+            p = p_list[random.randint(0, len(p_list) - 1)]
+
+            # ［目標の点数］
+            #span = random.randint(1, DEFAULT_UPPER_LIMIT_SPAN)
+            span = random.randint(1, 15)    # FIXME
+
+            t_step = random.randint(1, span)
+
+            h_step = random.randint(1, t_step)
+
+            print(f"[{datetime.datetime.now()}]  {Converter.turn_system_id_to_name(turn_system_id)}  {failure_rate=}  {p=}  {span=}  {t_step=}  {h_step=}")
+
+
+            # 仕様
+            spec = Specification(
+                    turn_system_id=turn_system_id,
+                    failure_rate=failure_rate,
+                    p=p)
+
+
+            # ［シリーズ・ルール］。任意に指定します
+            series_rule = SeriesRule.make_series_rule_base(
+                    spec=spec,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step)
+
+            # CSVファイルパス
+            csv_file_path = GameTreeFilePaths.as_csv(
+                    spec=series_rule.spec,
+                    span=series_rule.step_table.span,
+                    t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                    h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+
+
+            # 存在しなければ作成
+            if not os.path.isfile(csv_file_path):
+
+                forest = tr.planting()
+                root_entry = forest.tree_root(edge_text=None, node_text='1')
+
+                automatic = Automatic(spec=series_rule.spec, root_entry=root_entry)
+                three_rates, all_patterns_p = search_all_score_boards(
+                        series_rule=series_rule,
+                        on_score_board_created=automatic.on_score_board_created)
+
+                # CSVファイル出力（追記）
+                forest.to_csv(csv_file_path=csv_file_path)
+                print(f"[{datetime.datetime.now()}] please look {csv_file_path}")
+
+
+            # １秒休む
+            time.sleep(1)
 
 
     except Exception as err:
