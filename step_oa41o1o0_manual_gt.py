@@ -1,5 +1,5 @@
 #
-# python step_oa41o0_manual_gt.py
+# python step_oa41o1o0_manual_gt.py
 #
 #   * `gt`` - game tree
 #
@@ -8,6 +8,7 @@
 #
 
 import traceback
+import xltree as tr
 
 from library import HEAD, TAIL, Specification, SeriesRule
 from library.file_paths import GameTreeFilePaths
@@ -15,7 +16,7 @@ from library.database import GameTreeTable
 from library.views import PromptCatalog
 from library.score_board import search_all_score_boards
 from scripts import SaveOrIgnore
-from scripts.step_oa41o0_gt import Automatic
+from scripts.step_oa41o1o0_gt import Automatic
 
 
 ########################################
@@ -65,17 +66,11 @@ if __name__ == '__main__':
                 t_step=specified_t_step,
                 h_step=specified_h_step)
 
-
-        # GTテーブル。ファイルが無ければ作成します
-        gt_table, file_read_result = GameTreeTable.from_csv(
-                spec=spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                new_if_it_no_exists=True)
         
+        forest = tr.planting()
+        root_entry = forest.tree_root(edge_text=None, node_text='1')
 
-        automatic = Automatic(spec=spec, gt_table=gt_table)
+        automatic = Automatic(spec=spec, root_entry=root_entry)
 
         three_rates, all_patterns_p = search_all_score_boards(
                 series_rule=specified_series_rule,
@@ -83,13 +78,11 @@ if __name__ == '__main__':
 
 
         # CSVファイル出力（追記）
-        SaveOrIgnore.execute(
-                log_file_path=GameTreeFilePaths.as_log(
-                        spec=spec,
-                        span=specified_series_rule.step_table.span,
-                        t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                        h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD)),
-                on_save_and_get_file_name=gt_table.to_csv)
+        forest.to_csv(csv_file_path=GameTreeFilePaths.as_csv(
+                spec=specified_series_rule.spec,
+                span=specified_series_rule.step_table.span,
+                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD)))
 
 
     except Exception as err:

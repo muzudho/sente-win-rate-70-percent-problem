@@ -11,7 +11,6 @@ from library.file_paths import GameTreeWorkbookFilePaths, GameTreeFilePaths
 
 
 class Automation():
-    pass
 
 
     def execute(self, spec, specified_series_rule, debug_write=False):
