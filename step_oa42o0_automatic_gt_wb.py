@@ -7,9 +7,13 @@
 #   レコードは可変列です
 #
 
+import os
+import re
 import traceback
+import datetime
+import random
 
-from library import HEAD, TAIL, Specification, SeriesRule
+from library import HEAD, TAIL, Converter, Specification, SeriesRule
 from library.file_paths import GameTreeFilePaths
 from library.database import GameTreeTable
 from library.views import PromptCatalog
@@ -19,47 +23,6 @@ from scripts.step_oa42o0_gt_wb import Automation
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
-class SubAutomatic():
-
-
-    def on_each_spec(self, spec):
-        # TODO ［目標の点数］
-        #for specified_span in (1, DEFAULT_UPPER_LIMIT_SPAN):
-        for specified_span in (1, 3):
-            for specified_t_step in (1, specified_span):
-
-                for specified_h_step in (1, specified_t_step):
-
-                    # ［シリーズ・ルール］。任意に指定します
-                    specified_series_rule = SeriesRule.make_series_rule_base(
-                            spec=spec,
-                            span=specified_span,
-                            t_step=specified_t_step,
-                            h_step=specified_h_step)
-
-                    self.on_each_series_rule(specified_series_rule=specified_series_rule)
-
-            #         print(f"デバッグ ループ途中終了  {spec.stringify_dump('')}  {specified_h_step=}")
-            #         break
-
-
-            #     print(f"デバッグ ループ途中終了  {spec.stringify_dump('')}  {specified_t_step=}")
-            #     break
-
-
-            # print(f"デバッグ ループ途中終了  {spec.stringify_dump('')}  {specified_span=}")
-            # break
-
-
-    def on_each_series_rule(self, specified_series_rule):
-
-        automation = Automation()
-        automation.execute(
-                spec=specified_series_rule.spec,
-                specified_series_rule=specified_series_rule,
-                debug_write=False)
-
-
 ########################################
 # コマンドから実行時
 ########################################
@@ -67,9 +30,55 @@ if __name__ == '__main__':
     """コマンドから実行時"""
 
     try:
-        sub_automatic = SubAutomatic()
+        # GT のファイル名一覧取得
+        #
+        #   📖 [ファイル名のみの一覧を取得](https://note.nkmk.me/python-listdir-isfile-isdir/#_1)
+        #
+        dir_path = "./temp/game_tree"
 
-        ForEachSpec.execute(on_each_spec=sub_automatic.on_each_spec)
+        basenames = [
+            f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+        ]
+        #print(basenames)
+
+        # シャッフル
+        random.shuffle(basenames)
+
+        automation = Automation()
+
+        # ファイル名をパース
+        pattern = re.compile(r'GT_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.csv')
+
+        for basename in basenames:
+            result = pattern.match(basename)
+            if result:
+                print(f"[{datetime.datetime.now()}] {basename=}")
+
+                turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
+                # １００分率になってるので、0～1 に戻します
+                failure_rate = float(result.group(2)) / 100
+                p = float(result.group(3)) / 100
+                span = int(result.group(4))
+                t_step = int(result.group(5))
+                h_step = int(result.group(6))
+
+                # 仕様
+                spec = Specification(
+                        turn_system_id=turn_system_id,
+                        failure_rate=failure_rate,
+                        p=p)
+
+                # ［シリーズ・ルール］
+                series_rule = SeriesRule.make_series_rule_base(
+                        spec=spec,
+                        span=span,
+                        t_step=t_step,
+                        h_step=h_step)
+
+                automation.execute(
+                        spec=series_rule.spec,
+                        specified_series_rule=series_rule,
+                        debug_write=False)
 
 
     except Exception as err:

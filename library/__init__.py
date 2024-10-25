@@ -215,7 +215,9 @@ class Converter():
     def turn_system_code_to_id(clazz, code):
         if clazz._code_to_turn_system is None:
             clazz._code_to_turn_system = {
+                'froze' : FROZEN_TURN,      # ファイル名で使用
                 'frozen' : FROZEN_TURN,
+                'alter' : ALTERNATING_TURN, # ファイル名で使用
                 'alternating' : ALTERNATING_TURN,
             }
 
