@@ -5,13 +5,14 @@ from library.views import ScoreBoardViewData
 
 class Automatic():
     """スコアボードの結果を、ツリー構造表示に使えるCSV形式に変換します
-    TODO step_oa41o1o0_gt.py へ移行中
+    TODO step_oa41o0_gt.py から移行中
     """
 
 
-    def __init__(self, spec, gt_table):
+    def __init__(self, spec, gt_table, root_entry):
         self._spec = spec
         self._gt_table = gt_table
+        self._root_entry = root_entry
 
 
     def on_score_board_created(self, score_board):

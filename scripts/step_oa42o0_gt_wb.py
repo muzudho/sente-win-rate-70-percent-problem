@@ -14,7 +14,9 @@ class Automation():
     pass
 
 
-    def execute(self, spec, specified_series_rule):
+    def execute(self, spec, specified_series_rule, debug_write=False):
+
+
         # ワークブック（.xlsx）ファイルへのパス
         wb_file_path = GameTreeWorkbookFilePaths.as_workbook(
                 spec=spec,
@@ -47,7 +49,8 @@ class Automation():
 
             # テーブル読取
             df = pd.read_csv(csv_file_path, encoding="utf8", index_col=['no'])
-            #print(df)
+            if debug_write:
+                print(df)
 
             # 読取元CSVを指定し、ワークシートハンドル取得
             with b.prepare_worksheet(target='Tree', based_on=csv_file_path) as s:
@@ -55,49 +58,71 @@ class Automation():
                 # ワークシートへ木構造図を描画
                 s.render_tree()
 
-                # TODO 集計を行いたい。ツリー構造の全ての葉を取得する                
-                all_leaf_nodes = []
+                # 集計を行いたい。ツリー構造の全ての葉を取得する                
+                all_leaf_entries = []
 
-                def search(all_leaf_nodes, node):
+                def search(all_leaf_entries, entry):
                     """再帰的に子ノードを表示"""
-                    for child_node in node.child_nodes.values():
+
+                    if debug_write:
+                        print(f"{entry.edge_text=}  {entry.node_text=}  の子要素数={len(entry.child_entries)}  TOTAL {len(all_leaf_entries)=}")
+
+                    for child_entry in entry.child_entries.values():
                         # 葉ノード
-                        if len(child_node.child_nodes) < 1:
-                            all_leaf_nodes.append(child_node)
+                        if not child_entry.has_children():
+                            if debug_write:
+                                print("葉ノード")
+                            all_leaf_entries.append(child_entry)
                         
                         # 中間ノード
                         else:
-                            search(all_leaf_nodes=all_leaf_nodes, node=child_node) # 再帰
+                            if debug_write:
+                                print("中間ノード")
+                            search(all_leaf_entries=all_leaf_entries, entry=child_entry) # 再帰
 
-                for root_node in s.multiple_root_node.values():
-                    search(all_leaf_nodes=all_leaf_nodes, node=root_node)
-                                
+                if debug_write:
+                    # 木構造の簡易ターミナル表示
+                    print(s.forest._stringify_like_tree(''))
+                        
+
+                for root_entry in s.forest.multiple_root_entry.values():
+                    search(all_leaf_entries=all_leaf_entries, entry=root_entry)
+
+
+                if debug_write:
+                    print(f"葉の探索結果  {len(all_leaf_entries)=}")
+
+
                 # leaf_th と result列 を紐づける
                 rate_list_by_result = {}
-                for leaf in all_leaf_nodes:
+                for leaf in all_leaf_entries:
                     result = df.at[leaf.leaf_th, 'result']
-                    #print(f"葉テスト {leaf.text=}  {leaf.leaf_th=}  {result}")
+                    if debug_write:
+                        print(f"葉テスト {leaf.node_text=}  {leaf.leaf_th=}  {result}")
 
                     if result not in rate_list_by_result:
                         rate_list_by_result[result] = []
                     
-                    rate_list_by_result[result].append(float(leaf.text))
+                    rate_list_by_result[result].append(float(leaf.node_text))
 
                 # result 別に確率を高精度 sum する
                 sum_rate_by_result = {}
                 for result, rate_list in rate_list_by_result.items():
                     sum_rate = math.fsum(rate_list)
-                    #print(f"{result=}  {sum_rate=}")
+                    if debug_write:
+                        print(f"{result=}  {sum_rate=}")
                     sum_rate_by_result[result] = sum_rate
 
                 # 結果表示 ＆ Total検算
                 total = math.fsum(sum_rate_by_result.values())
-                #print(f"検算 {total=}")
+                if debug_write:
+                    print(f"検算 {total=}")
 
-                # エラーは表示するが、続行する
+                # エラーは常時表示するが、続行する
                 if total != 1:
                     print(f"[error] total must be 1. but {total}")
                     #raise ValueError(f"total must be 1. but {total}")
+
 
             # 読取元CSVを指定し、ワークシートハンドル取得
             with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:

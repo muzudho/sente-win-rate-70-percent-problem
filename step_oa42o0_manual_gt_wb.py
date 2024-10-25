@@ -63,7 +63,8 @@ if __name__ == '__main__':
         automation = Automation()
         automation.execute(
                 spec=spec,
-                specified_series_rule=specified_series_rule)
+                specified_series_rule=specified_series_rule,
+                debug_write=True)
 
 
     except Exception as err:
