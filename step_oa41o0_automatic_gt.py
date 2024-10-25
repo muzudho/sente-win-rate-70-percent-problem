@@ -26,10 +26,10 @@ class SubAutomatic():
     def on_each_spec(self, spec):
         # TODO ［目標の点数］
         #for specified_span in (1, DEFAULT_UPPER_LIMIT_SPAN):
-        for specified_span in (1, 3):
-            for specified_t_step in (1, specified_span):
+        for specified_span in range(1, 4):
+            for specified_t_step in range(1, specified_span + 1):
 
-                for specified_h_step in (1, specified_t_step):
+                for specified_h_step in range(1, specified_t_step + 1):
 
                     # ［シリーズ・ルール］。任意に指定します
                     specified_series_rule = SeriesRule.make_series_rule_base(

@@ -14,7 +14,7 @@ import datetime
 import random
 
 from library import HEAD, TAIL, Converter, Specification, SeriesRule
-from library.file_paths import GameTreeFilePaths
+from library.file_paths import GameTreeFilePaths, GameTreeWorkbookFilePaths
 from library.database import GameTreeTable
 from library.views import PromptCatalog
 from library.score_board import search_all_score_boards
@@ -75,10 +75,21 @@ if __name__ == '__main__':
                         t_step=t_step,
                         h_step=h_step)
 
-                automation.execute(
-                        spec=series_rule.spec,
-                        specified_series_rule=series_rule,
-                        debug_write=False)
+
+                # 出力先のファイル名を作成
+                wb_file_path = GameTreeWorkbookFilePaths.as_workbook(
+                        spec=spec,
+                        span=span,
+                        t_step=t_step,
+                        h_step=h_step)
+
+
+                # ファイルが存在しなければ実行
+                if not os.path.isfile(wb_file_path):
+                    automation.execute(
+                            spec=series_rule.spec,
+                            specified_series_rule=series_rule,
+                            debug_write=False)
 
 
     except Exception as err:
