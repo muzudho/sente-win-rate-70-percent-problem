@@ -164,12 +164,24 @@ class Automation():
 
                 # ワークシートへの出力
                 # ------------------
-                self.write_header(df=df, ws=ws, row_th=1)
 
+                # 1th ヘッダー行
+                self.write_header_of_top(df=df, ws=ws, destination_row_th=1)
 
-                # データ部のコピー
+                # 2nd 先手勝率
+                self.write_sente_win_rate(sum_rate_by_result=sum_rate_by_result, ws=ws, destination_row_th=2)
+
+                # 3rd 引分け率
+                self.write_failure_rate(sum_rate_by_result=sum_rate_by_result, ws=ws, destination_row_th=3)
+
+                # 4th 空行
+
+                # 5th ヘッダー行
+                self.write_header_of_section_and_adjust_column_width(df=df, ws=ws, destination_row_th=5)
+
+                # 6th～: データ部のコピー
                 for source_row_no in range(0, len(df)):
-                    destination_row_th = source_row_no + 2      # データ部は 2nd 行目から
+                    destination_row_th = source_row_no + 6
 
                     self.write_sections(
                             df=df,
@@ -178,6 +190,7 @@ class Automation():
                             destination_row_th=destination_row_th)
 
 
+                # トータル行
                 self.write_total(
                         df=df,
                         ws = ws,
@@ -193,7 +206,27 @@ class Automation():
             print(f"[{datetime.datetime.now()}] Please look {wb_file_path}")
 
 
-    def write_header(self, df, ws, row_th):
+    def write_header_of_top(self, df, ws, destination_row_th):
+        """トップのヘッダーを出力"""
+
+        # 列名
+        ws[f'A{destination_row_th}'] = 'name'
+        ws[f'B{destination_row_th}'] = 'value'
+
+        # ヘッダーの背景色
+        fill = PatternFill(patternType='solid', fgColor='111111')
+        ws[f'A{destination_row_th}'].fill = fill
+        ws[f'B{destination_row_th}'].fill = fill
+
+        # ヘッダーの文字色
+        font = Font(color='EEEEEE')
+        ws[f'A{destination_row_th}'].font = font
+        ws[f'B{destination_row_th}'].font = font
+
+
+    def write_header_of_section_and_adjust_column_width(self, df, ws, destination_row_th):
+        """セクションのヘッダーを出力。列幅の自動調整"""
+
         # 列幅の自動調整
         # -------------
 
@@ -205,22 +238,60 @@ class Automation():
             max_length_of_a = df['result'].str.len().max()  # 文字列の長さ
             max_length_of_b = df['sum_rate'].abs().astype(str).str.len().max()-1    # 浮動小数点数の長さ
 
+        # 列名
+        a_column_name = 'result'
+        b_column_name = 'sum_rate'
+
+        # 列名よりは長く
+        max_length_of_a = max(max_length_of_a, len(a_column_name))
+        max_length_of_b = max(max_length_of_b, len(b_column_name))
+
         ws.column_dimensions['A'].width = max_length_of_a * 2       # 日本語
         ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
 
         # 列名
-        ws[f'A{row_th}'] = 'result'
-        ws[f'B{row_th}'] = 'sum_rate'
+        ws[f'A{destination_row_th}'] = a_column_name
+        ws[f'B{destination_row_th}'] = b_column_name
 
         # ヘッダーの背景色
         fill = PatternFill(patternType='solid', fgColor='111111')
-        ws[f'A{row_th}'].fill = fill
-        ws[f'B{row_th}'].fill = fill
+        ws[f'A{destination_row_th}'].fill = fill
+        ws[f'B{destination_row_th}'].fill = fill
 
         # ヘッダーの文字色
         font = Font(color='EEEEEE')
-        ws[f'A{row_th}'].font = font
-        ws[f'B{row_th}'].font = font
+        ws[f'A{destination_row_th}'].font = font
+        ws[f'B{destination_row_th}'].font = font
+
+
+    def write_sente_win_rate(self, sum_rate_by_result, ws, destination_row_th):
+        """先手勝率を出力"""
+
+        # result 別に確率を高精度 sum する
+        rate_list = []
+
+        if '達成でＡさんの勝ち' in sum_rate_by_result:
+            rate_list.append(sum_rate_by_result['達成でＡさんの勝ち'])
+        
+        if '勝ち点差でＡさんの勝ち' in sum_rate_by_result:
+            rate_list.append(sum_rate_by_result['勝ち点差でＡさんの勝ち'])
+
+        ws[f'A{destination_row_th}'] = '先手勝率'
+        ws[f'B{destination_row_th}'] = math.fsum(rate_list)
+        ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
+
+
+    def write_failure_rate(self, sum_rate_by_result, ws, destination_row_th):
+        """引分け率を出力"""
+
+        if '勝者なし' in sum_rate_by_result:
+            rate = sum_rate_by_result['勝者なし']
+        else:
+            rate = 0
+
+        ws[f'A{destination_row_th}'] = '引分け率'
+        ws[f'B{destination_row_th}'] = rate
+        ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
     def write_sections(self, df, ws, source_row_no, destination_row_th):
