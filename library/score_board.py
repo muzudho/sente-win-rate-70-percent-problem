@@ -6,7 +6,7 @@ from library import ALICE, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB
 from library.views import DebugWrite
 
 
-def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=2100000000):
+def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
     """時間がかかる処理
     
     Parameters
@@ -58,10 +58,24 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
 
     list_of_trial_results_for_one_series = []
 
+    # FIXME ここで時間がかかってる？
     # ［出目シーケンス］の全パターンを網羅します
-    tree_of_all_pattern_face_of_coin = AllPatternsFaceOfCoin(
+    print(f"[{datetime.datetime.now()}] search_all_score_boards > make_tree_of_all_pattern_face_of_coin")
+    result = AllPatternsFaceOfCoin(
             can_failure=0 < series_rule.spec.failure_rate,
-            series_rule=series_rule).make_tree_of_all_pattern_face_of_coin()
+            series_rule=series_rule).make_tree_of_all_pattern_face_of_coin(
+                    timeup_secs=timeup_secs)
+
+    if result['timeup']:
+        return make_return_value(
+                three_rates=None,
+                all_patterns_p=None,
+                erapsed_secs=result['erapsed_secs'],
+                timeup=result['timeup'],
+                timeup_location='make_tree_of_all_pattern_face_of_coin')
+
+
+    tree_of_all_pattern_face_of_coin = result['tree_of_face_of_coin']
     
 
     distinct_set = set()
@@ -77,7 +91,7 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
                 three_rates=None,
                 all_patterns_p=None,
                 erapsed_secs=result['erapsed_secs'],
-                timeup=True,
+                timeup=result['timeup'],
                 timeup_location='create_list_of_path_of_face_of_coin')
 
 

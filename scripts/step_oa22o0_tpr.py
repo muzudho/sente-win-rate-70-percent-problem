@@ -147,7 +147,7 @@ class Automation():
         return CALCULATION_FAILED
 
 
-    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row, timeup_secs=2100000000):
+    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row, timeup_secs):
         """逐次アクセス
         
         Parameters

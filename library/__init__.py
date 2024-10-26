@@ -695,7 +695,7 @@ class TreeOfFaceOfCoin():
         self._current_node = parent_node
 
 
-    def search_for_each_node(self, cur_node, on_each_leaf_node, timeup_secs=2100000000):
+    def search_for_each_node(self, cur_node, on_each_leaf_node, timeup_secs):
 
 
         start = time.time()
@@ -745,7 +745,7 @@ class TreeOfFaceOfCoin():
             if result['timeup']:
                 return make_return_value(
                         erapsed_secs=result['erapsed_secs'],
-                        timeup=True,
+                        timeup=result['timeup'],
                         timeup_location=result['timeup_location'])
 
             child_count += 1
@@ -757,7 +757,7 @@ class TreeOfFaceOfCoin():
             if result['timeup']:
                 return make_return_value(
                         erapsed_secs=result['erapsed_secs'],
-                        timeup=True,
+                        timeup=result['timeup'],
                         timeup_location=result['timeup_location'])
 
             child_count += 1
@@ -769,7 +769,7 @@ class TreeOfFaceOfCoin():
             if result['timeup']:
                 return make_return_value(
                         erapsed_secs=result['erapsed_secs'],
-                        timeup=True,
+                        timeup=result['timeup'],
                         timeup_location=result['timeup_location'])
 
             child_count += 1
@@ -787,7 +787,7 @@ class TreeOfFaceOfCoin():
         return result
 
 
-    def create_list_of_path_of_face_of_coin(self, timeup_secs=2100000000):
+    def create_list_of_path_of_face_of_coin(self, timeup_secs):
 
 
         start = time.time()
@@ -842,7 +842,7 @@ class TreeOfFaceOfCoin():
         if result['timeup']:
             return make_return_value(
                     erapsed_secs=result['erapsed_secs'],
-                    timeup=True,
+                    timeup=result['timeup'],
                     timeup_location=result['timeup_location'])
 
 
@@ -879,14 +879,53 @@ class AllPatternsFaceOfCoin():
         self._tree_of_face_of_coin = None
 
 
-    def __search(self, depth):
+    def __search(self, depth, timeup_secs):
+
+
+        start = time.time()
+
+
+        def look_time(start):
+            end = time.time()
+            return end - start
+
+
+        def make_return_value(erapsed_secs, timeup, timeup_location):
+            """戻り値の作成
+            
+            Parameters
+            ----------
+            erapsed_secs : float
+                消費秒
+            timeup : bool
+                タイムアップしたか？
+            timeup_location : str
+                タイムアップが発生した箇所のデバッグ用情報
+            """
+            return {
+                'erapsed_secs':erapsed_secs,
+                'timeup':timeup,
+                'timeup_location':timeup_location}
+
 
         if depth < 1:
-            return
+            return make_return_value(
+                    erapsed_secs=look_time(start),
+                    timeup=False,
+                    timeup_location=None)
+
 
         # 表勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_head()            
-        self.__search(depth - 1)
+        result = self.__search(depth=depth - 1, timeup_secs=timeup_secs)
+
+
+        if result['timeup']:
+            return make_return_value(
+                    erapsed_secs=result['erapsed_secs'],
+                    timeup=result['timeup'],
+                    timeup_location=result['timeup_location'])
+
 
         # 親へ戻る
         self._tree_of_face_of_coin.back_to_parent_node()
@@ -894,7 +933,15 @@ class AllPatternsFaceOfCoin():
 
         # 裏勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_tail()
-        self.__search(depth - 1)
+        result = self.__search(depth=depth - 1, timeup_secs=timeup_secs)
+
+
+        if result['timeup']:
+            return make_return_value(
+                    erapsed_secs=result['erapsed_secs'],
+                    timeup=result['timeup'],
+                    timeup_location=result['timeup_location'])
+
 
         # 親へ戻る
         self._tree_of_face_of_coin.back_to_parent_node()
@@ -903,27 +950,75 @@ class AllPatternsFaceOfCoin():
         if self._can_failure:
             # 引分けを追加
             self._tree_of_face_of_coin.go_to_new_child_failure()
-            self.__search(depth - 1)
+            result = self.__search(depth=depth - 1, timeup_secs=timeup_secs)
+
+
+            if result['timeup']:
+                return make_return_value(
+                        erapsed_secs=result['erapsed_secs'],
+                        timeup=result['timeup'],
+                        timeup_location=result['timeup_location'])
+
 
             # 親へ戻る
             self._tree_of_face_of_coin.back_to_parent_node()
 
 
-    def make_tree_of_all_pattern_face_of_coin(self):
+        return make_return_value(
+                erapsed_secs=look_time(start),
+                timeup=False,
+                timeup_location=None)
+
+
+    def make_tree_of_all_pattern_face_of_coin(self, timeup_secs):
         """１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
         
         １コインは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
 
+        Parameters
+        ----------
+        timeup_secs : float
+            指定秒を経過したら中止します
+
         Returns
         -------
-        all_patterns : list
+        tree_of_face_of_coin : TreeOfFaceOfCoin
             勝った方の色（引き分け含む）のリストが全パターン入っているリスト
         """
+
+
+        start = time.time()
+
+
+        def look_time(start):
+            end = time.time()
+            return end - start
+
+
+        def make_return_value(tree_of_face_of_coin, erapsed_secs, timeup, timeup_location):
+            """戻り値の作成
+            
+            Parameters
+            ----------
+            erapsed_secs : float
+                消費秒
+            timeup : bool
+                タイムアップしたか？
+            timeup_location : str
+                タイムアップが発生した箇所のデバッグ用情報
+            """
+            return {
+                'tree_of_face_of_coin':tree_of_face_of_coin,
+                'erapsed_secs':erapsed_secs,
+                'timeup':timeup,
+                'timeup_location':timeup_location}
+
 
         # 要素数
         if self._can_failure:
             # 表勝ち、裏勝ち、勝者なしの３要素
             elements = [HEAD, TAIL, EMPTY]
+
         else:
             # 表勝ち、裏勝ちけの２要素
             elements = [HEAD, TAIL]
@@ -931,12 +1026,26 @@ class AllPatternsFaceOfCoin():
         # 桁数
         depth = self._series_rule.upper_limit_coins
 
+
         # FIXME リスト状だと MemoryError になるので、木構造にしたい
         self._tree_of_face_of_coin = TreeOfFaceOfCoin()
 
-        self.__search(depth)
+        result = self.__search(depth=depth, timeup_secs=timeup_secs)
 
-        return self._tree_of_face_of_coin
+
+        if result['timeup']:
+            return make_return_value(
+                    tree_of_face_of_coin=None,
+                    erapsed_secs=result['erapsed_secs'],
+                    timeup=result['timeup'],
+                    timeup_location=result['timeup_location'])
+
+
+        return make_return_value(
+                tree_of_face_of_coin=self._tree_of_face_of_coin,
+                erapsed_secs=look_time(start),
+                timeup=False,
+                timeup_location=None)
 
 
 ########################
