@@ -224,7 +224,7 @@ class Automation():
                 #
                 #   NOTE 指数関数的に激重になっていく処理
                 #
-                print(f"[{datetime.datetime.now()}] get score board ...")
+                print(f"[{datetime.datetime.now()}] get score board (4) ...")
                 result = search_all_score_boards(
                         series_rule=specified_series_rule,
                         on_score_board_created=on_score_board_created,

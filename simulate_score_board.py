@@ -106,7 +106,7 @@ if __name__ == '__main__':
                 f.write(f"{csv}\n")
 
 
-        print(f"[{datetime.datetime.now()}] get score board ...")
+        print(f"[{datetime.datetime.now()}] get score board (1) ...")
         result = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=on_score_board_created,

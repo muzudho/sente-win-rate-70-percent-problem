@@ -27,6 +27,7 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
         * `timeup_location` - タイムアップが発生した箇所のデバッグ用情報
     """
 
+
     start = time.time()
 
 
@@ -35,25 +36,24 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
         return end - start
 
 
-    def make_return_value(three_rates, all_patterns_p, timeup, erapsed_secs, timeup_location):
+    def make_return_value(three_rates, all_patterns_p, erapsed_secs, timeup, timeup_location):
         """戻り値の作成
         
         Parameters
         ----------
-        timeup : bool
-            タイムアップしたか？
         erapsed_secs : float
             消費秒
+        timeup : bool
+            タイムアップしたか？
         timeup_location : str
             タイムアップが発生した箇所のデバッグ用情報
         """
         return {
             'three_rates':three_rates,
             'all_patterns_p':all_patterns_p,
-            'timeup':timeup,
             'erapsed_secs':erapsed_secs,
-            'timeup_location':timeup_location,
-        }
+            'timeup':timeup,
+            'timeup_location':timeup_location}
 
 
     list_of_trial_results_for_one_series = []
@@ -67,8 +67,21 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
     distinct_set = set()
 
 
+    print(f"[{datetime.datetime.now()}] search_all_score_boards > create_list_of_path_of_face_of_coin")
     # tree_of_all_pattern_face_of_coin は、上限対局数の長さ
-    list_of_path_of_face_of_coin = tree_of_all_pattern_face_of_coin.create_list_of_path_of_face_of_coin()
+    result = tree_of_all_pattern_face_of_coin.create_list_of_path_of_face_of_coin(
+            timeup_secs=timeup_secs)
+
+    if result['timeup']:
+        return make_return_value(
+                three_rates=None,
+                all_patterns_p=None,
+                erapsed_secs=result['erapsed_secs'],
+                timeup=True,
+                timeup_location='create_list_of_path_of_face_of_coin')
+
+
+    list_of_path_of_face_of_coin = result['list_of_path']
     if len(list_of_path_of_face_of_coin) < 1:
         raise ValueError(f"経路が０本なのはおかしい {len(list_of_path_of_face_of_coin)=}")
 
@@ -82,8 +95,8 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
             return make_return_value(
                     three_rates=None,
                     all_patterns_p=None,
-                    timeup=True,
                     erapsed_secs=erapsed_secs,
+                    timeup=True,
                     timeup_location='path of face of coin in loop')
 
 
@@ -157,8 +170,8 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
             return make_return_value(
                     three_rates=None,
                     all_patterns_p=None,
-                    timeup=True,
                     erapsed_secs=erapsed_secs,
+                    timeup=True,
                     timeup_location='trial results in loop')
 
 
@@ -216,6 +229,6 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=210
     return make_return_value(
             three_rates=three_rates,
             all_patterns_p=all_patterns_p,
-            timeup=False,
             erapsed_secs=look_time(start),
+            timeup=False,
             timeup_location=None)

@@ -73,7 +73,7 @@ if __name__ == '__main__':
         automatic = Automatic(spec=spec, root_entry=root_entry)
 
 
-        print(f"[{datetime.datetime.now()}] get score board ...")
+        print(f"[{datetime.datetime.now()}] get score board (3) ...")
         timeup_secs = 7
         result = search_all_score_boards(
                 series_rule=specified_series_rule,

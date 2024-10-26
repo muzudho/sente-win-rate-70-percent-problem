@@ -695,34 +695,130 @@ class TreeOfFaceOfCoin():
         self._current_node = parent_node
 
 
-    def search_for_each_node(self, cur_node, on_each_leaf_node):
+    def search_for_each_node(self, cur_node, on_each_leaf_node, timeup_secs=2100000000):
+
+
+        start = time.time()
+
+
+        def look_time(start):
+            end = time.time()
+            return end - start
+
+
+        def make_return_value(erapsed_secs, timeup, timeup_location):
+            """戻り値の作成
+            
+            Parameters
+            ----------
+            erapsed_secs : float
+                消費秒
+            timeup : bool
+                タイムアップしたか？
+            timeup_location : str
+                タイムアップが発生した箇所のデバッグ用情報
+            """
+            return {
+                'erapsed_secs':erapsed_secs,
+                'timeup':timeup,
+                'timeup_location':timeup_location}
+
+
+        erapsed_secs = look_time(start)
+        if timeup_secs <= erapsed_secs:
+            return make_return_value(
+                    erapsed_secs=erapsed_secs,
+                    timeup=True,
+                    timeup_location='recursive search for each node')
+
+
         if cur_node.is_leaf_node:
             on_each_leaf_node(cur_node)
-            return
+            return make_return_value(erapsed_secs=look_time(start), timeup=False, timeup_location=None)
+
 
         child_count = 0
 
         if cur_node.child_head is not None:
-            self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node)
+            result = self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+
+            if result['timeup']:
+                return make_return_value(
+                        erapsed_secs=result['erapsed_secs'],
+                        timeup=True,
+                        timeup_location=result['timeup_location'])
+
             child_count += 1
+
 
         if cur_node.child_tail is not None:
-            self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node)
+            result = self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+
+            if result['timeup']:
+                return make_return_value(
+                        erapsed_secs=result['erapsed_secs'],
+                        timeup=True,
+                        timeup_location=result['timeup_location'])
+
             child_count += 1
 
+
         if cur_node.child_failure is not None:
-            self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node)
+            result = self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+
+            if result['timeup']:
+                return make_return_value(
+                        erapsed_secs=result['erapsed_secs'],
+                        timeup=True,
+                        timeup_location=result['timeup_location'])
+
             child_count += 1
+
 
         if child_count < 0:
             raise ValueError(f"葉ノードでないのなら、子は必ずあるはずです {child_count=}")
 
 
-    def for_each_node(self, on_each_leaf_node):
-        self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node)
+        return make_return_value(erapsed_secs=look_time(start), timeup=False, timeup_location=None)
 
 
-    def create_list_of_path_of_face_of_coin(self):
+    def for_each_node(self, on_each_leaf_node, timeup_secs):
+        result = self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+        return result
+
+
+    def create_list_of_path_of_face_of_coin(self, timeup_secs=2100000000):
+
+
+        start = time.time()
+
+
+        def look_time(start):
+            end = time.time()
+            return end - start
+
+
+        def make_return_value(list_of_path, erapsed_secs, timeup, timeup_location):
+            """戻り値の作成
+            
+            Parameters
+            ----------
+            list_of_path : list
+                パスのリスト
+            erapsed_secs : float
+                消費秒
+            timeup : bool
+                タイムアップしたか？
+            timeup_location : str
+                タイムアップが発生した箇所のデバッグ用情報
+            """
+            return {
+                'list_of_path':list_of_path,
+                'erapsed_secs':erapsed_secs,
+                'timeup':timeup,
+                'timeup_location':timeup_location}
+
+
         list_of_path = []
 
         def on_each_leaf_node(leaf_node):
@@ -739,12 +835,26 @@ class TreeOfFaceOfCoin():
 
             list_of_path.append(path_of_face_of_coin)
 
-        self.for_each_node(on_each_leaf_node=on_each_leaf_node)
+
+        result = self.for_each_node(on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+
+
+        if result['timeup']:
+            return make_return_value(
+                    erapsed_secs=result['erapsed_secs'],
+                    timeup=True,
+                    timeup_location=result['timeup_location'])
+
 
         if len(list_of_path) < 1:
             raise ValueError(f"経路の長さが０コインなのはおかしい {len(list_of_path)=}")
 
-        return list_of_path
+
+        return make_return_value(
+                list_of_path=list_of_path,
+                erapsed_secs=look_time(start),
+                timeup=False,
+                timeup_location=None)
 
 
 #############################

@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 automatic = Automatic(spec=series_rule.spec, root_entry=root_entry)
 
                 # FIXME 時間がかかる？
-                print(f"[{datetime.datetime.now()}] get score board ...")
+                print(f"[{datetime.datetime.now()}] get score board (2) ...")
                 timeup_secs = 7
                 result = search_all_score_boards(
                         series_rule=series_rule,
