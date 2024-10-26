@@ -695,82 +695,58 @@ class TreeOfFaceOfCoin():
         self._current_node = parent_node
 
 
-    def search_for_each_node(self, cur_node, on_each_leaf_node, timeup_secs):
+    def search_for_each_node(self, cur_node, on_each_leaf_node, timeout):
 
 
-        start = time.time()
-
-
-        def look_time(start):
-            end = time.time()
-            return end - start
-
-
-        def make_return_value(erapsed_secs, timeup, timeup_location):
+        def make_return_value(timeout):
             """戻り値の作成
             
             Parameters
             ----------
-            erapsed_secs : float
-                消費秒
-            timeup : bool
-                タイムアップしたか？
-            timeup_location : str
-                タイムアップが発生した箇所のデバッグ用情報
+            timeout : Timeout
+                タイムアウト
             """
             return {
-                'erapsed_secs':erapsed_secs,
-                'timeup':timeup,
-                'timeup_location':timeup_location}
+                'timeout':timeout}
 
 
-        erapsed_secs = look_time(start)
-        if timeup_secs <= erapsed_secs:
-            return make_return_value(
-                    erapsed_secs=erapsed_secs,
-                    timeup=True,
-                    timeup_location='recursive search for each node')
+        if timeout.is_expired('recursive search for each node'):
+            return make_return_value(timeout=timeout)
 
 
         if cur_node.is_leaf_node:
             on_each_leaf_node(cur_node)
-            return make_return_value(erapsed_secs=look_time(start), timeup=False, timeup_location=None)
+            return make_return_value(timeout=timeout)
 
 
         child_count = 0
 
         if cur_node.child_head is not None:
-            result = self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+            result = self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+            timeout = result['timeout']
 
-            if result['timeup']:
-                return make_return_value(
-                        erapsed_secs=result['erapsed_secs'],
-                        timeup=result['timeup'],
-                        timeup_location=result['timeup_location'])
+            if timeout.is_expired('cur_node.child_head is not None'):
+                return make_return_value(timeout=timeout)
 
             child_count += 1
 
 
         if cur_node.child_tail is not None:
-            result = self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+            result = self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+            timeout = result['timeout']
 
-            if result['timeup']:
-                return make_return_value(
-                        erapsed_secs=result['erapsed_secs'],
-                        timeup=result['timeup'],
-                        timeup_location=result['timeup_location'])
+            if timeout.is_expired('cur_node.child_tail is not None'):
+                return make_return_value(timeout=timeout)
 
             child_count += 1
 
 
         if cur_node.child_failure is not None:
-            result = self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+            result = self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+            timeout = result['timeout']
 
-            if result['timeup']:
-                return make_return_value(
-                        erapsed_secs=result['erapsed_secs'],
-                        timeup=result['timeup'],
-                        timeup_location=result['timeup_location'])
+            if timeout.is_expired('cur_node.child_failure is not None'):
+                return make_return_value(timeout=timeout)
 
             child_count += 1
 
@@ -779,44 +755,30 @@ class TreeOfFaceOfCoin():
             raise ValueError(f"葉ノードでないのなら、子は必ずあるはずです {child_count=}")
 
 
-        return make_return_value(erapsed_secs=look_time(start), timeup=False, timeup_location=None)
+        return make_return_value(timeout=timeout)
 
 
-    def for_each_node(self, on_each_leaf_node, timeup_secs):
-        result = self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+    def for_each_node(self, on_each_leaf_node, timeout):
+        result = self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
         return result
 
 
-    def create_list_of_path_of_face_of_coin(self, timeup_secs):
+    def create_list_of_path_of_face_of_coin(self, timeout):
 
 
-        start = time.time()
-
-
-        def look_time(start):
-            end = time.time()
-            return end - start
-
-
-        def make_return_value(list_of_path, erapsed_secs, timeup, timeup_location):
+        def make_return_value(list_of_path, timeout):
             """戻り値の作成
             
             Parameters
             ----------
             list_of_path : list
                 パスのリスト
-            erapsed_secs : float
-                消費秒
-            timeup : bool
-                タイムアップしたか？
-            timeup_location : str
-                タイムアップが発生した箇所のデバッグ用情報
+            timeout : Timeout
+                タイムアウト
             """
             return {
                 'list_of_path':list_of_path,
-                'erapsed_secs':erapsed_secs,
-                'timeup':timeup,
-                'timeup_location':timeup_location}
+                'timeout':timeout}
 
 
         list_of_path = []
@@ -836,14 +798,14 @@ class TreeOfFaceOfCoin():
             list_of_path.append(path_of_face_of_coin)
 
 
-        result = self.for_each_node(on_each_leaf_node=on_each_leaf_node, timeup_secs=timeup_secs)
+        result = self.for_each_node(on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+        timeout = result['timeout']
 
 
-        if result['timeup']:
+        if timeout.is_expired('create_list_of_path_of_face_of_coin'):
             return make_return_value(
-                    erapsed_secs=result['erapsed_secs'],
-                    timeup=result['timeup'],
-                    timeup_location=result['timeup_location'])
+                    list_of_path=None,
+                    timeout=timeout)
 
 
         if len(list_of_path) < 1:
@@ -852,9 +814,7 @@ class TreeOfFaceOfCoin():
 
         return make_return_value(
                 list_of_path=list_of_path,
-                erapsed_secs=look_time(start),
-                timeup=False,
-                timeup_location=None)
+                timeout=timeout)
 
 
 #############################
@@ -879,52 +839,33 @@ class AllPatternsFaceOfCoin():
         self._tree_of_face_of_coin = None
 
 
-    def __search(self, depth, timeup_secs):
+    def __search(self, depth, timeout):
 
 
-        start = time.time()
-
-
-        def look_time(start):
-            end = time.time()
-            return end - start
-
-
-        def make_return_value(erapsed_secs, timeup, timeup_location):
+        def make_return_value(timeout):
             """戻り値の作成
             
             Parameters
             ----------
-            erapsed_secs : float
-                消費秒
-            timeup : bool
-                タイムアップしたか？
-            timeup_location : str
-                タイムアップが発生した箇所のデバッグ用情報
+            timeout : Timeout
+                タイムアウト
             """
             return {
-                'erapsed_secs':erapsed_secs,
-                'timeup':timeup,
-                'timeup_location':timeup_location}
+                'timeout':timeout}
 
 
         if depth < 1:
-            return make_return_value(
-                    erapsed_secs=look_time(start),
-                    timeup=False,
-                    timeup_location=None)
+            return make_return_value(timeout=timeout)
 
 
         # 表勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_head()            
-        result = self.__search(depth=depth - 1, timeup_secs=timeup_secs)
+        result = self.__search(depth=depth - 1, timeout=timeout)
+        timeout = result['timeout']
 
 
-        if result['timeup']:
-            return make_return_value(
-                    erapsed_secs=result['erapsed_secs'],
-                    timeup=result['timeup'],
-                    timeup_location=result['timeup_location'])
+        if timeout.is_expired('TreeOfFaceOfCoin#__search head win'):
+            return make_return_value(timeout=timeout)
 
 
         # 親へ戻る
@@ -933,14 +874,12 @@ class AllPatternsFaceOfCoin():
 
         # 裏勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_tail()
-        result = self.__search(depth=depth - 1, timeup_secs=timeup_secs)
+        result = self.__search(depth=depth - 1, timeout=timeout)
+        timeout = result['timeout']
 
 
-        if result['timeup']:
-            return make_return_value(
-                    erapsed_secs=result['erapsed_secs'],
-                    timeup=result['timeup'],
-                    timeup_location=result['timeup_location'])
+        if timeout.is_expired('TreeOfFaceOfCoin#__search tail win'):
+            return make_return_value(timeout=timeout)
 
 
         # 親へ戻る
@@ -950,35 +889,30 @@ class AllPatternsFaceOfCoin():
         if self._can_failure:
             # 引分けを追加
             self._tree_of_face_of_coin.go_to_new_child_failure()
-            result = self.__search(depth=depth - 1, timeup_secs=timeup_secs)
+            result = self.__search(depth=depth - 1, timeout=timeout)
+            timeout = result['timeout']
 
 
-            if result['timeup']:
-                return make_return_value(
-                        erapsed_secs=result['erapsed_secs'],
-                        timeup=result['timeup'],
-                        timeup_location=result['timeup_location'])
+            if timeout.is_expired('TreeOfFaceOfCoin#__search draw'):
+                return make_return_value(timeout=timeout)
 
 
             # 親へ戻る
             self._tree_of_face_of_coin.back_to_parent_node()
 
 
-        return make_return_value(
-                erapsed_secs=look_time(start),
-                timeup=False,
-                timeup_location=None)
+        return make_return_value(timeout=timeout)
 
 
-    def make_tree_of_all_pattern_face_of_coin(self, timeup_secs):
+    def make_tree_of_all_pattern_face_of_coin(self, timeout):
         """１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
         
         １コインは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
 
         Parameters
         ----------
-        timeup_secs : float
-            指定秒を経過したら中止します
+        timeout : Timeout
+            タイムアウト
 
         Returns
         -------
@@ -987,31 +921,17 @@ class AllPatternsFaceOfCoin():
         """
 
 
-        start = time.time()
-
-
-        def look_time(start):
-            end = time.time()
-            return end - start
-
-
-        def make_return_value(tree_of_face_of_coin, erapsed_secs, timeup, timeup_location):
+        def make_return_value(tree_of_face_of_coin, timeout):
             """戻り値の作成
             
             Parameters
             ----------
-            erapsed_secs : float
-                消費秒
-            timeup : bool
-                タイムアップしたか？
-            timeup_location : str
-                タイムアップが発生した箇所のデバッグ用情報
+            timeout : Timeout
+                タイムアウト
             """
             return {
                 'tree_of_face_of_coin':tree_of_face_of_coin,
-                'erapsed_secs':erapsed_secs,
-                'timeup':timeup,
-                'timeup_location':timeup_location}
+                'timeout':timeout}
 
 
         # 要素数
@@ -1030,22 +950,19 @@ class AllPatternsFaceOfCoin():
         # FIXME リスト状だと MemoryError になるので、木構造にしたい
         self._tree_of_face_of_coin = TreeOfFaceOfCoin()
 
-        result = self.__search(depth=depth, timeup_secs=timeup_secs)
+        result = self.__search(depth=depth, timeout=timeout)
+        timeout = result['timeout']
 
 
-        if result['timeup']:
+        if timeout.is_expired('make_tree_of_all_pattern_face_of_coin'):
             return make_return_value(
                     tree_of_face_of_coin=None,
-                    erapsed_secs=result['erapsed_secs'],
-                    timeup=result['timeup'],
-                    timeup_location=result['timeup_location'])
+                    timeout=timeout)
 
 
         return make_return_value(
                 tree_of_face_of_coin=self._tree_of_face_of_coin,
-                erapsed_secs=look_time(start),
-                timeup=False,
-                timeup_location=None)
+                timeout=timeout)
 
 
 ########################

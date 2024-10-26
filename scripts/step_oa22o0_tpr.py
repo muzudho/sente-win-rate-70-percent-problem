@@ -147,13 +147,13 @@ class Automation():
         return CALCULATION_FAILED
 
 
-    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row, timeup_secs):
+    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row, timeout):
         """逐次アクセス
         
         Parameters
         ----------
-        timeup_secs : float
-            タイムアップ秒
+        timeout : Timeout
+            タイムアウト
 
         Returns
         -------
@@ -228,15 +228,16 @@ class Automation():
                 result = search_all_score_boards(
                         series_rule=specified_series_rule,
                         on_score_board_created=on_score_board_created,
-                        timeup_secs=timeup_secs)
+                        timeout=timeout)
+                timeout = result['timeout']
                 print(f"[{datetime.datetime.now()}] got score board")
 
 
-                if result['timeup']:
-                    print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+                if timeout.is_expired('sequencial_access'):
+                    print(f"[{datetime.datetime.now()}] time-out. {timeout.message}")
                     return False, True  # timeup
 
-                timeup_secs -= result['erapsed_secs']
+
                 three_rates = result['three_rates']
 
                 # データフレーム更新

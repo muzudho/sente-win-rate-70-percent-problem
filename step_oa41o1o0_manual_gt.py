@@ -74,18 +74,16 @@ if __name__ == '__main__':
 
 
         print(f"[{datetime.datetime.now()}] get score board (3) ...")
-        timeup_secs = 7
         result = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=automatic.on_score_board_created,
-                timeup_secs=timeup_secs)
+                timeout=tr.timeout(seconds=7))
+        timeout = result['timeout']
         print(f"[{datetime.datetime.now()}] got score board")
 
 
-        timeup_secs -= result['erapsed_secs']
-
-        if result['timeup']:
-            print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+        if timeout.is_expired('get score board (3)'):
+            print(f"[{datetime.datetime.now()}] time-out. {timeout.message}")
 
         else:
             # CSVファイル出力（追記）
@@ -94,12 +92,14 @@ if __name__ == '__main__':
                     span=specified_series_rule.step_table.span,
                     t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
                     h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+
             result = forest.to_csv(
                     csv_file_path=csv_file_path,
-                    timeup_secs=timeup_secs)
+                    timeout=timeout)
+            timeout = result['timeout']
 
-            if result['timeup']:
-                print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+            if timeout.is_expired('get score board (3b)'):
+                print(f"[{datetime.datetime.now()}] time-out. {timeout.message}")
 
 
     except Exception as err:

@@ -6,7 +6,7 @@ from library import ALICE, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB
 from library.views import DebugWrite
 
 
-def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
+def search_all_score_boards(series_rule, on_score_board_created, timeout):
     """時間がかかる処理
     
     Parameters
@@ -15,8 +15,8 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
         ［シリーズ・ルール］
     on_score_board_created : func
         スコアボード作成時のコールバック関数
-    timeup_secs : float
-        指定秒を経過したら中止します
+    timeout : Timeout
+        タイムアウト
         
     Returns
     -------
@@ -28,51 +28,39 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
     """
 
 
-    start = time.time()
-
-
-    def look_time(start):
-        end = time.time()
-        return end - start
-
-
-    def make_return_value(three_rates, all_patterns_p, erapsed_secs, timeup, timeup_location):
+    def make_return_value(three_rates, all_patterns_p, timeout):
         """戻り値の作成
         
         Parameters
         ----------
-        erapsed_secs : float
-            消費秒
-        timeup : bool
-            タイムアップしたか？
-        timeup_location : str
-            タイムアップが発生した箇所のデバッグ用情報
+        timeout : Timeout
+            タイムアウト
         """
         return {
             'three_rates':three_rates,
             'all_patterns_p':all_patterns_p,
-            'erapsed_secs':erapsed_secs,
-            'timeup':timeup,
-            'timeup_location':timeup_location}
+            'timeout':timeout}
 
 
     list_of_trial_results_for_one_series = []
 
-    # FIXME ここで時間がかかってる？
     # ［出目シーケンス］の全パターンを網羅します
-    print(f"[{datetime.datetime.now()}] search_all_score_boards > make_tree_of_all_pattern_face_of_coin")
-    result = AllPatternsFaceOfCoin(
+    # --------------------------------------
+    all_patterns_face_of_coin = AllPatternsFaceOfCoin(
             can_failure=0 < series_rule.spec.failure_rate,
-            series_rule=series_rule).make_tree_of_all_pattern_face_of_coin(
-                    timeup_secs=timeup_secs)
+            series_rule=series_rule)
 
-    if result['timeup']:
+    # FIXME ここで時間がかかってる？
+    print(f"[{datetime.datetime.now()}] search_all_score_boards > make_tree_of_all_pattern_face_of_coin  {timeout.remaining=}")
+    result = all_patterns_face_of_coin.make_tree_of_all_pattern_face_of_coin(timeout=timeout)
+    timeout = result['timeout']
+
+
+    if timeout.is_expired('make_tree_of_all_pattern_face_of_coin'):
         return make_return_value(
                 three_rates=None,
                 all_patterns_p=None,
-                erapsed_secs=result['erapsed_secs'],
-                timeup=result['timeup'],
-                timeup_location='make_tree_of_all_pattern_face_of_coin')
+                timeout=timeout)
 
 
     tree_of_all_pattern_face_of_coin = result['tree_of_face_of_coin']
@@ -83,16 +71,15 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
 
     print(f"[{datetime.datetime.now()}] search_all_score_boards > create_list_of_path_of_face_of_coin")
     # tree_of_all_pattern_face_of_coin は、上限対局数の長さ
-    result = tree_of_all_pattern_face_of_coin.create_list_of_path_of_face_of_coin(
-            timeup_secs=timeup_secs)
+    result = tree_of_all_pattern_face_of_coin.create_list_of_path_of_face_of_coin(timeout=timeout)
+    timeout = result['timeout']
 
-    if result['timeup']:
+
+    if timeout.is_expired('create_list_of_path_of_face_of_coin'):
         return make_return_value(
                 three_rates=None,
                 all_patterns_p=None,
-                erapsed_secs=result['erapsed_secs'],
-                timeup=result['timeup'],
-                timeup_location='create_list_of_path_of_face_of_coin')
+                timeout=timeout)
 
 
     list_of_path_of_face_of_coin = result['list_of_path']
@@ -104,14 +91,11 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
     for path_of_face_of_coin in list_of_path_of_face_of_coin:
         #print(f"動作テスト {path_of_face_of_coin=}")
 
-        erapsed_secs = look_time(start)
-        if timeup_secs <= erapsed_secs:
+        if timeout.is_expired('path of face of coin in loop'):
             return make_return_value(
                     three_rates=None,
                     all_patterns_p=None,
-                    erapsed_secs=erapsed_secs,
-                    timeup=True,
-                    timeup_location='path of face of coin in loop')
+                    timeout=timeout)
 
 
         if len(path_of_face_of_coin) < 1:
@@ -179,14 +163,11 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
     print(f"[{datetime.datetime.now()}] search_all_score_boards {len(list_of_trial_results_for_one_series)=}")
     for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
 
-        erapsed_secs = look_time(start)
-        if timeup_secs <= erapsed_secs:
+        if timeout.is_expired('trial results in loop'):
             return make_return_value(
                     three_rates=None,
                     all_patterns_p=None,
-                    erapsed_secs=erapsed_secs,
-                    timeup=True,
-                    timeup_location='trial results in loop')
+                    timeout=timeout)
 
 
         score_board = ScoreBoard.make_score_board(
@@ -243,6 +224,4 @@ def search_all_score_boards(series_rule, on_score_board_created, timeup_secs):
     return make_return_value(
             three_rates=three_rates,
             all_patterns_p=all_patterns_p,
-            erapsed_secs=look_time(start),
-            timeup=False,
-            timeup_location=None)
+            timeout=timeout)
