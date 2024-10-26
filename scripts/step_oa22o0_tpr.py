@@ -147,9 +147,14 @@ class Automation():
         return CALCULATION_FAILED
 
 
-    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row):
+    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row, timeup_secs=2100000000):
         """逐次アクセス
         
+        Parameters
+        ----------
+        timeup_secs : float
+            タイムアップ秒
+
         Returns
         -------
         is_complete : bool
@@ -219,9 +224,20 @@ class Automation():
                 #
                 #   NOTE 指数関数的に激重になっていく処理
                 #
-                three_rates, all_patterns_p = search_all_score_boards(
+                print(f"[{datetime.datetime.now()}] get score board ...")
+                result = search_all_score_boards(
                         series_rule=specified_series_rule,
-                        on_score_board_created=on_score_board_created)
+                        on_score_board_created=on_score_board_created,
+                        timeup_secs=timeup_secs)
+                print(f"[{datetime.datetime.now()}] got score board")
+
+
+                if result['timeup']:
+                    print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+                    return False, True  # timeup
+
+                timeup_secs -= result['erapsed_secs']
+                three_rates = result['three_rates']
 
                 # データフレーム更新
                 tpr_table.upsert_record(

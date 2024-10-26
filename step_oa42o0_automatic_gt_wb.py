@@ -18,7 +18,6 @@ from library import HEAD, TAIL, Converter, Specification, SeriesRule
 from library.file_paths import GameTreeFilePaths, GameTreeWorkbookFilePaths
 from library.database import GameTreeTable
 from library.views import PromptCatalog
-from library.score_board import search_all_score_boards
 from scripts import SaveOrIgnore, ForEachSpec
 from scripts.step_oa42o0_gt_wb import Automation
 from config import DEFAULT_UPPER_LIMIT_SPAN

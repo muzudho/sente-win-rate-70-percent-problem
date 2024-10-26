@@ -1,10 +1,60 @@
 import traceback
+import time
+import datetime
 
 from library import ALICE, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, judge_series, AllPatternsFaceOfCoin, ScoreBoard, ThreeRates
 from library.views import DebugWrite
 
 
-def search_all_score_boards(series_rule, on_score_board_created):
+def search_all_score_boards(series_rule, on_score_board_created, timeup_secs=2100000000):
+    """時間がかかる処理
+    
+    Parameters
+    ----------
+    series_rule : SeriesRule
+        ［シリーズ・ルール］
+    on_score_board_created : func
+        スコアボード作成時のコールバック関数
+    timeup_secs : float
+        指定秒を経過したら中止します
+        
+    Returns
+    -------
+    result : dict
+        * `three_rates` - ThreeRates 型。先手勝率、後手勝率、引分け率
+        * `all_patterns_p` - float 型。実現確率
+        * `timeup` - bool
+        * `timeup_location` - タイムアップが発生した箇所のデバッグ用情報
+    """
+
+    start = time.time()
+
+
+    def look_time(start):
+        end = time.time()
+        return end - start
+
+
+    def make_return_value(three_rates, all_patterns_p, timeup, erapsed_secs, timeup_location):
+        """戻り値の作成
+        
+        Parameters
+        ----------
+        timeup : bool
+            タイムアップしたか？
+        erapsed_secs : float
+            消費秒
+        timeup_location : str
+            タイムアップが発生した箇所のデバッグ用情報
+        """
+        return {
+            'three_rates':three_rates,
+            'all_patterns_p':all_patterns_p,
+            'timeup':timeup,
+            'erapsed_secs':erapsed_secs,
+            'timeup_location':timeup_location,
+        }
+
 
     list_of_trial_results_for_one_series = []
 
@@ -23,8 +73,19 @@ def search_all_score_boards(series_rule, on_score_board_created):
         raise ValueError(f"経路が０本なのはおかしい {len(list_of_path_of_face_of_coin)=}")
 
 
+    print(f"[{datetime.datetime.now()}] search_all_score_boards {len(list_of_path_of_face_of_coin)=}")
     for path_of_face_of_coin in list_of_path_of_face_of_coin:
         #print(f"動作テスト {path_of_face_of_coin=}")
+
+        erapsed_secs = look_time(start)
+        if timeup_secs <= erapsed_secs:
+            return make_return_value(
+                    three_rates=None,
+                    all_patterns_p=None,
+                    timeup=True,
+                    erapsed_secs=erapsed_secs,
+                    timeup_location='path of face of coin in loop')
+
 
         if len(path_of_face_of_coin) < 1:
             raise ValueError(f"要素を持たない経路があるのはおかしい {len(path_of_face_of_coin)=}")
@@ -88,7 +149,18 @@ def search_all_score_boards(series_rule, on_score_board_created):
     no_win_match_rate = 0
 
 
+    print(f"[{datetime.datetime.now()}] search_all_score_boards {len(list_of_trial_results_for_one_series)=}")
     for pattern_no, trial_results_for_one_series in enumerate(list_of_trial_results_for_one_series, 1):
+
+        erapsed_secs = look_time(start)
+        if timeup_secs <= erapsed_secs:
+            return make_return_value(
+                    three_rates=None,
+                    all_patterns_p=None,
+                    timeup=True,
+                    erapsed_secs=erapsed_secs,
+                    timeup_location='trial results in loop')
+
 
         score_board = ScoreBoard.make_score_board(
                 pattern_no=pattern_no,
@@ -139,4 +211,11 @@ def search_all_score_boards(series_rule, on_score_board_created):
             a_win_rate=a_win_rate,
             b_win_rate=b_win_rate,
             no_win_match_rate=no_win_match_rate)
-    return three_rates, all_patterns_p
+    
+
+    return make_return_value(
+            three_rates=three_rates,
+            all_patterns_p=all_patterns_p,
+            timeup=False,
+            erapsed_secs=look_time(start),
+            timeup_location=None)

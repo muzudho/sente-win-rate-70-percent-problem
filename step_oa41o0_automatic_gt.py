@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
             h_step = random.randint(1, t_step)
 
-            print(f"[{datetime.datetime.now()}]  {Converter.turn_system_id_to_name(turn_system_id)}  {failure_rate=}  {p=}  {span=}  {t_step=}  {h_step=}")
+            print(f"[{datetime.datetime.now()}] step {Converter.turn_system_id_to_name(turn_system_id)}  {failure_rate=}  {p=}  {span=}  {t_step=}  {h_step=}")
 
 
             # 仕様
@@ -94,13 +94,31 @@ if __name__ == '__main__':
                 root_entry = forest.tree_root(edge_text=None, node_text='1')
 
                 automatic = Automatic(spec=series_rule.spec, root_entry=root_entry)
-                three_rates, all_patterns_p = search_all_score_boards(
-                        series_rule=series_rule,
-                        on_score_board_created=automatic.on_score_board_created)
 
-                # CSVファイル出力（追記）
-                forest.to_csv(csv_file_path=csv_file_path)
-                print(f"[{datetime.datetime.now()}] please look {csv_file_path}")
+                # FIXME 時間がかかる？
+                print(f"[{datetime.datetime.now()}] get score board ...")
+                timeup_secs = 7
+                result = search_all_score_boards(
+                        series_rule=series_rule,
+                        on_score_board_created=automatic.on_score_board_created,
+                        timeup_secs=timeup_secs)
+                print(f"[{datetime.datetime.now()}] got score board")
+
+
+                timeup_secs -= result['erapsed_secs']
+
+
+                if result['timeup']:
+                    print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+
+                else:
+                    # CSVファイル出力（追記）
+                    result = forest.to_csv(csv_file_path=csv_file_path, timeup_secs=timeup_secs)
+                    if result['timeup']:
+                        print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+
+                    else:
+                        print(f"[{datetime.datetime.now()}] please look {csv_file_path}")
 
 
             # １秒休む

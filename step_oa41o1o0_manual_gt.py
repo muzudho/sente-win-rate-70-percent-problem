@@ -72,17 +72,34 @@ if __name__ == '__main__':
 
         automatic = Automatic(spec=spec, root_entry=root_entry)
 
-        three_rates, all_patterns_p = search_all_score_boards(
+
+        print(f"[{datetime.datetime.now()}] get score board ...")
+        timeup_secs = 7
+        result = search_all_score_boards(
                 series_rule=specified_series_rule,
-                on_score_board_created=automatic.on_score_board_created)
+                on_score_board_created=automatic.on_score_board_created,
+                timeup_secs=timeup_secs)
+        print(f"[{datetime.datetime.now()}] got score board")
 
 
-        # CSVファイル出力（追記）
-        forest.to_csv(csv_file_path=GameTreeFilePaths.as_csv(
-                spec=specified_series_rule.spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD)))
+        timeup_secs -= result['erapsed_secs']
+
+        if result['timeup']:
+            print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
+
+        else:
+            # CSVファイル出力（追記）
+            csv_file_path = GameTreeFilePaths.as_csv(
+                    spec=specified_series_rule.spec,
+                    span=specified_series_rule.step_table.span,
+                    t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                    h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+            result = forest.to_csv(
+                    csv_file_path=csv_file_path,
+                    timeup_secs=timeup_secs)
+
+            if result['timeup']:
+                print(f"[{datetime.datetime.now()}] time up. {result['timeup_location']}")
 
 
     except Exception as err:
