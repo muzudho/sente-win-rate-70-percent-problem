@@ -23,6 +23,62 @@ from scripts.step_oa42o0_gt_wb import GeneratorOfGTWB
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
+class Automatic():
+
+
+    # ファイル名をパース
+    _pattern = re.compile(r'GT_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.csv')
+
+
+    @staticmethod
+    def get_list_of_basename_of_gt(dir_path):
+        """GT のファイル名一覧取得
+        
+        📖 [ファイル名のみの一覧を取得](https://note.nkmk.me/python-listdir-isfile-isdir/#_1)
+        """
+        basename_list = [
+            f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+        ]
+        #print(basename_list)
+
+        return basename_list
+
+
+    @classmethod
+    def get_series_rule_by_bestname(clazz, basename):
+
+        result = clazz._pattern.match(basename)
+
+        if result:
+            print(f"[{datetime.datetime.now()}] step_oa42o0 {basename=}")
+
+            turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
+            # １００分率になってるので、0～1 に戻します
+            failure_rate = float(result.group(2)) / 100
+            p = float(result.group(3)) / 100
+            span = int(result.group(4))
+            t_step = int(result.group(5))
+            h_step = int(result.group(6))
+
+            # 仕様
+            spec = Specification(
+                    turn_system_id=turn_system_id,
+                    failure_rate=failure_rate,
+                    p=p)
+
+            # ［シリーズ・ルール］
+            series_rule = SeriesRule.make_series_rule_base(
+                    spec=spec,
+                    span=span,
+                    t_step=t_step,
+                    h_step=h_step)
+            
+            return series_rule
+        
+        
+        return None
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -32,66 +88,36 @@ if __name__ == '__main__':
     try:
         # 無限ループ
         while True:
-            # GT のファイル名一覧取得
-            #
-            #   📖 [ファイル名のみの一覧を取得](https://note.nkmk.me/python-listdir-isfile-isdir/#_1)
-            #
-            dir_path = "./temp/game_tree"
-
-            basenames = [
-                f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
-            ]
-            #print(basenames)
+            basename_list = Automatic.get_list_of_basename_of_gt(dir_path = "./temp/game_tree")
 
             # シャッフル
-            random.shuffle(basenames)
+            random.shuffle(basename_list)
 
             generator_of_gtwb = GeneratorOfGTWB()
 
-            # ファイル名をパース
-            pattern = re.compile(r'GT_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.csv')
 
-            for basename in basenames:
-                result = pattern.match(basename)
-                if result:
-                    print(f"[{datetime.datetime.now()}] step_oa42o0 {basename=}")
+            for basename in basename_list:
 
-                    turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
-                    # １００分率になってるので、0～1 に戻します
-                    failure_rate = float(result.group(2)) / 100
-                    p = float(result.group(3)) / 100
-                    span = int(result.group(4))
-                    t_step = int(result.group(5))
-                    h_step = int(result.group(6))
+                series_rule = Automatic.get_series_rule_by_bestname(basename=basename)
 
-                    # 仕様
-                    spec = Specification(
-                            turn_system_id=turn_system_id,
-                            failure_rate=failure_rate,
-                            p=p)
-
-                    # ［シリーズ・ルール］
-                    series_rule = SeriesRule.make_series_rule_base(
-                            spec=spec,
-                            span=span,
-                            t_step=t_step,
-                            h_step=h_step)
+                if series_rule is None:
+                    continue
 
 
-                    # 出力先のファイル名を作成
-                    wb_file_path = GameTreeWorkbookFilePaths.as_workbook(
-                            spec=spec,
-                            span=span,
-                            t_step=t_step,
-                            h_step=h_step)
+                # 出力先のファイル名を作成
+                wb_file_path = GameTreeWorkbookFilePaths.as_workbook(
+                        spec=series_rule.spec,
+                        span=series_rule.step_table.span,
+                        t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                        h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
 
 
-                    # ファイルが存在しなければ実行
-                    if not os.path.isfile(wb_file_path):
-                        generator_of_gtwb.execute(
-                                spec=series_rule.spec,
-                                specified_series_rule=series_rule,
-                                debug_write=False)
+                # ファイルが存在しなければ実行
+                if not os.path.isfile(wb_file_path):
+                    generator_of_gtwb.execute(
+                            spec=series_rule.spec,
+                            specified_series_rule=series_rule,
+                            debug_write=False)
 
             # １秒休む
             time.sleep(1)
