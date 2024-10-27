@@ -50,7 +50,7 @@ class SheetToAppend():
         kds_table.df.to_excel(self._excel_writer, sheet_name=sheet_name)
 
 
-class Automation():
+class GeneratorOfKDWB():
     """自動化"""
 
 

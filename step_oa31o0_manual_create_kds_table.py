@@ -9,7 +9,7 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.step_oa31o0_create_kds_table import Automation as StepO31o0CreateKDSTable
+from scripts.step_oa31o0_create_kds_table import GeneratorOfKDS
 
 
 ########################################
@@ -35,12 +35,12 @@ if __name__ == '__main__':
         # FIXME ［理論値の確率ベスト］表は先に更新されている必要があります
 
 
-        automation = StepO31o0CreateKDSTable(
+        generator_of_kds = GeneratorOfKDS(
                 specified_trial_series=specified_trial_series,
                 specified_turn_system_id=specified_turn_system_id,
                 specified_failure_rate=specified_failure_rate)
 
-        automation.execute()
+        generator_of_kds.execute()
 
 
     except Exception as err:

@@ -9,11 +9,11 @@ import traceback
 import datetime
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
-from library import TheoreticalProbabilityBestFilePaths
+from library.file_paths import TheoreticalProbabilityBestFilePaths
 from library.database import TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import PromptCatalog
 from scripts import SaveWithRetry
-from scripts.step_oa23o0_upsert_record_in_tpb import AutomationOne as StepOa23o0UpsertRecordInTPB
+from scripts.step_oa23o0_upsert_record_in_tpb import GeneratorOneOfTPB
 
 
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
             print(f"［理論的確率ベスト］表が有りません")
         
         else:
-            step_oa23o0_upsert_record_in_tpb = StepOa23o0UpsertRecordInTPB(tpb_table=tpb_table)
+            generator_one_of_tpb = GeneratorOneOfTPB(tpb_table=tpb_table)
 
             # ［仕様］
             spec = Specification(
@@ -60,7 +60,7 @@ if __name__ == '__main__':
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            is_dirty, is_file_not_found = step_oa23o0_upsert_record_in_tpb.execute_a_spec(spec=spec)
+            is_dirty, is_file_not_found = generator_one_of_tpb.execute_a_spec(spec=spec)
 
             if is_file_not_found:
                 print("ファイルが見つかりません(B)")

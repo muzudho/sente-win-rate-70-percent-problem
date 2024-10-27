@@ -12,7 +12,7 @@ from library.file_paths import TheoreticalProbabilityFilePaths
 from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable
 from library.views import PromptCatalog
 from scripts import SaveOrIgnore
-from scripts.step_oa21o0_tp import Automation as StepOa21o0Tp
+from scripts.step_oa21o0_tp import GeneratorOfTP
 
 
 ########################################
@@ -69,10 +69,10 @@ if __name__ == '__main__':
         # FIXME 飛び番で挿入されてる？ ----> 既存行を、最新行で上書きされてるのでは？
         #
         print(f"[{datetime.datetime.now()}] step o5o0 insert new record in tp...")
-        automation = StepOa21o0Tp(depth=specified_depth)
+        generator_of_tp = GeneratorOfTP(depth=specified_depth)
 
         # まず、［理論的確率データ］ファイルに span, t_step, h_step のインデックスを持った仮行をある程度の数、追加していく。このとき、スリー・レーツ列は入れず、空けておく
-        number_of_dirty = automation.execute_by_spec(spec=spec)
+        number_of_dirty = generator_of_tp.execute_by_spec(spec=spec)
 
 
         # ［理論的確率データ］（TP）ファイル保存

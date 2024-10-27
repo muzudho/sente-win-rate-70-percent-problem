@@ -9,7 +9,7 @@ import traceback
 
 from library import Specification, SeriesRule
 from library.views import PromptCatalog
-from scripts.step_oa42o0_gt_wb import Automation
+from scripts.step_oa42o0_gt_wb import GeneratorOfGTWB
 
 
 ########################################
@@ -60,8 +60,8 @@ if __name__ == '__main__':
                 h_step=specified_h_step)
 
 
-        automation = Automation()
-        automation.execute(
+        generator_of_gtwb = GeneratorOfGTWB()
+        generator_of_gtwb.execute(
                 spec=spec,
                 specified_series_rule=specified_series_rule,
                 debug_write=True)

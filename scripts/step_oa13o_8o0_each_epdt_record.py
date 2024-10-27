@@ -30,7 +30,7 @@ class SeriesRuleCursor():
         return self._series_rule
 
 
-class Automation():
+class SearchRecordOfEDPT():
     """自動化
     
     NOTE 探索の打切り判定の制御は、コールバック関数を使って呼び出し元でやるようにします

@@ -20,7 +20,7 @@ from library.database import GameTreeTable
 from library.views import PromptCatalog
 from library.score_board import search_all_score_boards
 from scripts import SaveOrIgnore, ForEachSpec
-from scripts.step_oa41o1o0_gt import Automatic
+from scripts.step_oa41o1o0_gt import GeneratorOfGT
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE, DEFAULT_UPPER_LIMIT_SPAN
 
 
@@ -93,14 +93,14 @@ if __name__ == '__main__':
                 forest = tr.planting()
                 root_entry = forest.tree_root(edge_text=None, node_text='1')
 
-                automatic = Automatic(spec=series_rule.spec, root_entry=root_entry)
+                generator_of_gt = GeneratorOfGT(spec=series_rule.spec, root_entry=root_entry)
 
                 # FIXME 時間がかかる？
                 print(f"[{datetime.datetime.now()}] get score board (2) ...")
                 timeout = tr.timeout(seconds=7)
                 result = search_all_score_boards(
                         series_rule=series_rule,
-                        on_score_board_created=automatic.on_score_board_created,
+                        on_score_board_created=generator_of_gt.on_score_board_created,
                         timeout=timeout)
                 print(f"[{datetime.datetime.now()}] got score board")
 

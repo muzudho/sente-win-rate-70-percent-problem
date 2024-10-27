@@ -9,7 +9,11 @@ import traceback
 
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.views import PromptCatalog
-from scripts.step_oa13o0_create_all_epdt_tables import Automation as StepOa13o0CreateAllEPDTTables
+from scripts.step_oa13o0_create_all_epdt_tables import GeneratorOfAllTablesOfEPDT
+
+
+# １つのテーブルに割り当てる最大処理時間（秒）
+INTERVAL_SECONDS_ON_TABLE = 60
 
 
 ########################################
@@ -25,21 +29,20 @@ if __name__ == '__main__':
         specified_trial_series, specified_abs_small_error = PromptCatalog.how_many_times_do_you_want_to_try_the_series()
 
 
-        # ［先後の決め方］を尋ねます
-        specified_turn_system_id = PromptCatalog.which_method_do_you_use_to_determine_sente_and_gote()
+        # # ［先後の決め方］を尋ねます
+        # specified_turn_system_id = PromptCatalog.which_method_do_you_use_to_determine_sente_and_gote()
 
 
-        # ［将棋の引分け率］を尋ねます
-        specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
+        # # ［将棋の引分け率］を尋ねます
+        # specified_failure_rate = PromptCatalog.what_is_the_failure_rate()
 
 
-        automation = StepOa13o0CreateAllEPDTTables(
-                specified_failure_rate=specified_failure_rate,
-                specified_turn_system_id=specified_turn_system_id,
-                specified_trial_series=specified_trial_series,
-                smaller_abs_error=specified_abs_small_error)
+        generator_of_all_tables_of_epdt = GeneratorOfAllTablesOfEPDT(
+                trial_series=specified_trial_series,
+                abs_small_error=specified_abs_small_error,
+                interval_seconds=INTERVAL_SECONDS_ON_TABLE)
         
-        automation.execute()
+        generator_of_all_tables_of_epdt.execute_all_epdt_tables()
 
 
         print("完了")

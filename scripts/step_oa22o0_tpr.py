@@ -3,6 +3,7 @@ import time
 import datetime
 import numpy as np
 import pandas as pd
+import xltree as tr
 
 from library import TERMINATED, YIELD, CALCULATION_FAILED, UPPER_OUT_OF_P, EVEN, Converter, SeriesRule, Precision
 from library.file_paths import TheoreticalProbabilityFilePaths
@@ -12,7 +13,7 @@ from library.views import DebugWrite
 from scripts import SaveOrIgnore
 
 
-class Automation():
+class GeneratorOfTPR():
     """［理論的確率データ］（TP）表のスリー・レーツ列を更新する"""
 
 
@@ -110,11 +111,13 @@ class Automation():
         # h_max = t_step
 
         # TODO バイナリサーチを用いた行へのランダムアクセスと、for 文での逐次アクセス、どっちが効率的か分からない
+        timeout = tr.timeout(seconds=7)
         is_complete, is_timeup = self.sequencial_access(
                 spec=spec,
                 tpr_table=tpr_table,
                 tptpr_df=tptpr_df,
-                list_of_enable_each_row=list_of_enable_each_row)
+                list_of_enable_each_row=list_of_enable_each_row,
+                timeout=timeout)
 
 
         # 変更があれば保存

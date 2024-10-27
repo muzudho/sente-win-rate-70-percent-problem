@@ -13,7 +13,7 @@ from library.file_paths import KakukinDataSheetFilePaths
 from library.logging import Logging
 from config import DEFAULT_TRIAL_SERIES, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts import ForEachTsFr
-from scripts.step_oa31o0_create_kds_table import Automation as StepO31o0CreateKDSTable
+from scripts.step_oa31o0_create_kds_table import GeneratorOfKDS
 
 
 # 実行間隔タイマー
@@ -43,12 +43,12 @@ class Automation():
         #         shall_print=True)
 
         # CSV作成 ［かくきんデータ・エクセル・ファイルの各シートの元データ］
-        automation = StepO31o0CreateKDSTable(
+        generator_of_kds = GeneratorOfKDS(
                 specified_trial_series=self._trial_series,
                 specified_turn_system_id=turn_system_id,
                 specified_failure_rate=failure_rate)
 
-        automation.execute()
+        generator_of_kds.execute()
 
 
 ########################################

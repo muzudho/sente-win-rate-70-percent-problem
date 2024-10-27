@@ -14,8 +14,8 @@ from scripts import SaveOrIgnore
 from config import DEFAULT_UPPER_LIMIT_OF_P
 
 
-class Automation():
-    """自動化"""
+class GeneratorOfRecordOfEDPT():
+    """EDPTファイル生成処理"""
 
 
     def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate, smaller_abs_error):
@@ -97,7 +97,7 @@ class Automation():
         """EPDTテーブルについて、まず、行の存在チェック。無ければ追加"""
             
         # 指定の p のレコードが１件も存在しなければデフォルトのレコード追加
-        if not self._epdt_table.exists_index(p=p):
+        if p not in self._epdt_table.df.index:
 
             # ［仕様］
             spec = Specification(

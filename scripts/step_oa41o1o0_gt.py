@@ -3,7 +3,7 @@ from library.database import GameTreeNode, GameTreeRecord
 from library.views import ScoreBoardViewData
 
 
-class Automatic():
+class GeneratorOfGT():
     """スコアボードの結果を、ツリー構造表示に使えるCSV形式に変換します
     TODO step_oa41o0_gt.py から移行中
     """

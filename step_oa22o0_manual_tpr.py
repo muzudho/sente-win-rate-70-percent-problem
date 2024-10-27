@@ -10,7 +10,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, YIELD, TERMINATED, CALCULATION_FAILED, Converter, Specification, ThreeRates
 from library.database import TheoreticalProbabilityBestTable, TheoreticalProbabilityTable, TheoreticalProbabilityRatesTable
 from library.views import PromptCatalog
-from scripts.step_oa22o0_tpr import Automation as StepOa22o0TPR
+from scripts.step_oa22o0_tpr import GeneratorOfTPR
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 
 
@@ -70,7 +70,7 @@ def main():
             tpr_table, tpr_file_read_result = TheoreticalProbabilityRatesTable.from_csv(spec=spec, new_if_it_no_exists=True)
             print(f"［理論的確率の率データ］表を読み込んだ")
 
-            automation_oa22o0 = StepOa22o0TPR(
+            generator_of_tpr = GeneratorOfTPR(
                     seconds_of_time_up=INTERVAL_SECONDS)
 
             print(f"処理1")
@@ -78,7 +78,7 @@ def main():
             #
             # FIXME ベスト値更新処理　激重。1分ぐらいかかる重さが何ファイルもある。どうしたもんか？
             #
-            calculation_status = automation_oa22o0.update_rates_and_save(
+            calculation_status = generator_of_tpr.update_rates_and_save(
                     spec=spec,
                     tp_table=tp_table,
                     tpr_table=tpr_table,

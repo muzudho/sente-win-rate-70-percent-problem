@@ -10,7 +10,7 @@ import traceback
 
 from config import DEFAULT_MAX_DEPTH
 from scripts import ForEachSpec
-from scripts.step_oa21o0_tp import Automation as StepOa21o0Tp
+from scripts.step_oa21o0_tp import GeneratorOfTP
 
 
 ########################################
@@ -25,9 +25,9 @@ if __name__ == '__main__':
         # とりあえず、 depth が どんどん増えていくものとする。
         for depth in range(1, DEFAULT_MAX_DEPTH):
 
-            automation = StepOa21o0Tp(depth=depth)
+            generator_of_tp = GeneratorOfTP(depth=depth)
 
-            ForEachSpec.execute(on_each_spec=automation.execute_by_spec)
+            ForEachSpec.execute(on_each_spec=generator_of_tp.execute_by_spec)
 
 
         # 現実的に、完了しない想定

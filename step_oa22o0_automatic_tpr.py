@@ -16,7 +16,7 @@ from library.database import TheoreticalProbabilityTable, TheoreticalProbability
 from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts import SaveOrIgnore
-from scripts.step_oa22o0_tpr import Automation as StepOa22o0TPR
+from scripts.step_oa22o0_tpr import GeneratorOfTPR
 
 
 # タイムアップ間隔（秒）。タイムシェアリング間隔。短いとオーバーヘッドの時間の方が長くなる。depth 値を足すかも
@@ -97,7 +97,7 @@ class AllTheoreticalProbabilityFilesOperation():
         ##########################################################
 
         #print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}step o2o2o0 update three-rates of tp...")
-        automation_oa22o0 = StepOa22o0TPR(
+        generator_of_tpr = GeneratorOfTPR(
                 # depth が深くなれば、インターバル時間も伸ばすことにする
                 seconds_of_time_up=INTERVAL_SECONDS + self._depth)
 
@@ -108,7 +108,7 @@ class AllTheoreticalProbabilityFilesOperation():
         #     upper_limit_upper_limit_coins = 6
 
 
-        calculation_status = automation_oa22o0.update_rates_and_save(
+        calculation_status = generator_of_tpr.update_rates_and_save(
                 spec=spec,
                 tp_table=tp_table,
                 tpr_table=tpr_table,

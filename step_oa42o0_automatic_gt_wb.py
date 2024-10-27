@@ -19,7 +19,7 @@ from library.file_paths import GameTreeFilePaths, GameTreeWorkbookFilePaths
 from library.database import GameTreeTable
 from library.views import PromptCatalog
 from scripts import SaveOrIgnore, ForEachSpec
-from scripts.step_oa42o0_gt_wb import Automation
+from scripts.step_oa42o0_gt_wb import GeneratorOfGTWB
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
             # シャッフル
             random.shuffle(basenames)
 
-            automation = Automation()
+            generator_of_gtwb = GeneratorOfGTWB()
 
             # ファイル名をパース
             pattern = re.compile(r'GT_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.csv')
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
                     # ファイルが存在しなければ実行
                     if not os.path.isfile(wb_file_path):
-                        automation.execute(
+                        generator_of_gtwb.execute(
                                 spec=series_rule.spec,
                                 specified_series_rule=series_rule,
                                 debug_write=False)

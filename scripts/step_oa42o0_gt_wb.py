@@ -10,7 +10,7 @@ from library import HEAD, TAIL
 from library.file_paths import GameTreeWorkbookFilePaths, GameTreeFilePaths
 
 
-class Automation():
+class GeneratorOfGTWB():
 
 
     def execute(self, spec, specified_series_rule, debug_write=False):
