@@ -74,11 +74,11 @@ if __name__ == '__main__':
 
 
         print(f"[{datetime.datetime.now()}] get score board (3) ...")
+        timeout = tr.timeout(seconds=7)
         result = search_all_score_boards(
                 series_rule=specified_series_rule,
                 on_score_board_created=automatic.on_score_board_created,
-                timeout=tr.timeout(seconds=7))
-        timeout = result['timeout']
+                timeout=timeout)
         print(f"[{datetime.datetime.now()}] got score board")
 
 
@@ -96,7 +96,6 @@ if __name__ == '__main__':
             result = forest.to_csv(
                     csv_file_path=csv_file_path,
                     timeout=timeout)
-            timeout = result['timeout']
 
             if timeout.is_expired('get score board (3b)'):
                 print(f"[{datetime.datetime.now()}] time-out. {timeout.message}")

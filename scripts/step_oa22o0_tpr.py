@@ -229,7 +229,6 @@ class Automation():
                         series_rule=specified_series_rule,
                         on_score_board_created=on_score_board_created,
                         timeout=timeout)
-                timeout = result['timeout']
                 print(f"[{datetime.datetime.now()}] got score board")
 
 

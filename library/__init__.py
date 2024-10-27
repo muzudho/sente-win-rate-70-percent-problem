@@ -698,55 +698,40 @@ class TreeOfFaceOfCoin():
     def search_for_each_node(self, cur_node, on_each_leaf_node, timeout):
 
 
-        def make_return_value(timeout):
-            """戻り値の作成
-            
-            Parameters
-            ----------
-            timeout : Timeout
-                タイムアウト
-            """
-            return {
-                'timeout':timeout}
-
-
         if timeout.is_expired('recursive search for each node'):
-            return make_return_value(timeout=timeout)
+            return
 
 
         if cur_node.is_leaf_node:
             on_each_leaf_node(cur_node)
-            return make_return_value(timeout=timeout)
+            return
 
 
         child_count = 0
 
         if cur_node.child_head is not None:
-            result = self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
-            timeout = result['timeout']
+            self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
 
             if timeout.is_expired('cur_node.child_head is not None'):
-                return make_return_value(timeout=timeout)
+                return
 
             child_count += 1
 
 
         if cur_node.child_tail is not None:
-            result = self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
-            timeout = result['timeout']
+            self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
 
             if timeout.is_expired('cur_node.child_tail is not None'):
-                return make_return_value(timeout=timeout)
+                return
 
             child_count += 1
 
 
         if cur_node.child_failure is not None:
-            result = self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
-            timeout = result['timeout']
+            self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
 
             if timeout.is_expired('cur_node.child_failure is not None'):
-                return make_return_value(timeout=timeout)
+                return
 
             child_count += 1
 
@@ -755,30 +740,25 @@ class TreeOfFaceOfCoin():
             raise ValueError(f"葉ノードでないのなら、子は必ずあるはずです {child_count=}")
 
 
-        return make_return_value(timeout=timeout)
+        return
 
 
     def for_each_node(self, on_each_leaf_node, timeout):
-        result = self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
-        return result
+        self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
 
 
     def create_list_of_path_of_face_of_coin(self, timeout):
 
 
-        def make_return_value(list_of_path, timeout):
+        def make_return_value(list_of_path):
             """戻り値の作成
             
             Parameters
             ----------
             list_of_path : list
                 パスのリスト
-            timeout : Timeout
-                タイムアウト
             """
-            return {
-                'list_of_path':list_of_path,
-                'timeout':timeout}
+            return {'list_of_path':list_of_path}
 
 
         list_of_path = []
@@ -798,23 +778,18 @@ class TreeOfFaceOfCoin():
             list_of_path.append(path_of_face_of_coin)
 
 
-        result = self.for_each_node(on_each_leaf_node=on_each_leaf_node, timeout=timeout)
-        timeout = result['timeout']
+        self.for_each_node(on_each_leaf_node=on_each_leaf_node, timeout=timeout)
 
 
         if timeout.is_expired('create_list_of_path_of_face_of_coin'):
-            return make_return_value(
-                    list_of_path=None,
-                    timeout=timeout)
+            return make_return_value(list_of_path=None)
 
 
         if len(list_of_path) < 1:
             raise ValueError(f"経路の長さが０コインなのはおかしい {len(list_of_path)=}")
 
 
-        return make_return_value(
-                list_of_path=list_of_path,
-                timeout=timeout)
+        return make_return_value(list_of_path=list_of_path)
 
 
 #############################
@@ -842,30 +817,17 @@ class AllPatternsFaceOfCoin():
     def __search(self, depth, timeout):
 
 
-        def make_return_value(timeout):
-            """戻り値の作成
-            
-            Parameters
-            ----------
-            timeout : Timeout
-                タイムアウト
-            """
-            return {
-                'timeout':timeout}
-
-
         if depth < 1:
-            return make_return_value(timeout=timeout)
+            return
 
 
         # 表勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_head()            
-        result = self.__search(depth=depth - 1, timeout=timeout)
-        timeout = result['timeout']
+        self.__search(depth=depth - 1, timeout=timeout)
 
 
         if timeout.is_expired('TreeOfFaceOfCoin#__search head win'):
-            return make_return_value(timeout=timeout)
+            return
 
 
         # 親へ戻る
@@ -874,12 +836,11 @@ class AllPatternsFaceOfCoin():
 
         # 裏勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_tail()
-        result = self.__search(depth=depth - 1, timeout=timeout)
-        timeout = result['timeout']
+        self.__search(depth=depth - 1, timeout=timeout)
 
 
         if timeout.is_expired('TreeOfFaceOfCoin#__search tail win'):
-            return make_return_value(timeout=timeout)
+            return
 
 
         # 親へ戻る
@@ -889,19 +850,18 @@ class AllPatternsFaceOfCoin():
         if self._can_failure:
             # 引分けを追加
             self._tree_of_face_of_coin.go_to_new_child_failure()
-            result = self.__search(depth=depth - 1, timeout=timeout)
-            timeout = result['timeout']
+            self.__search(depth=depth - 1, timeout=timeout)
 
 
             if timeout.is_expired('TreeOfFaceOfCoin#__search draw'):
-                return make_return_value(timeout=timeout)
+                return
 
 
             # 親へ戻る
             self._tree_of_face_of_coin.back_to_parent_node()
 
 
-        return make_return_value(timeout=timeout)
+        return
 
 
     def make_tree_of_all_pattern_face_of_coin(self, timeout):
@@ -921,17 +881,15 @@ class AllPatternsFaceOfCoin():
         """
 
 
-        def make_return_value(tree_of_face_of_coin, timeout):
+        def make_return_value(tree_of_face_of_coin):
             """戻り値の作成
             
             Parameters
             ----------
-            timeout : Timeout
-                タイムアウト
+            tree_of_face_of_coin : TreeOfFaceOfCoin
+                
             """
-            return {
-                'tree_of_face_of_coin':tree_of_face_of_coin,
-                'timeout':timeout}
+            return {'tree_of_face_of_coin':tree_of_face_of_coin}
 
 
         # 要素数
@@ -950,19 +908,14 @@ class AllPatternsFaceOfCoin():
         # FIXME リスト状だと MemoryError になるので、木構造にしたい
         self._tree_of_face_of_coin = TreeOfFaceOfCoin()
 
-        result = self.__search(depth=depth, timeout=timeout)
-        timeout = result['timeout']
+        self.__search(depth=depth, timeout=timeout)
 
 
         if timeout.is_expired('make_tree_of_all_pattern_face_of_coin'):
-            return make_return_value(
-                    tree_of_face_of_coin=None,
-                    timeout=timeout)
+            return make_return_value(tree_of_face_of_coin=None)
 
 
-        return make_return_value(
-                tree_of_face_of_coin=self._tree_of_face_of_coin,
-                timeout=timeout)
+        return make_return_value(tree_of_face_of_coin=self._tree_of_face_of_coin)
 
 
 ########################

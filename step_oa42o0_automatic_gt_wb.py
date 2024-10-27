@@ -54,7 +54,7 @@ if __name__ == '__main__':
             for basename in basenames:
                 result = pattern.match(basename)
                 if result:
-                    print(f"[{datetime.datetime.now()}] {basename=}")
+                    print(f"[{datetime.datetime.now()}] step_oa42o0 {basename=}")
 
                     turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
                     # １００分率になってるので、0～1 に戻します

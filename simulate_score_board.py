@@ -112,7 +112,6 @@ if __name__ == '__main__':
                 series_rule=specified_series_rule,
                 on_score_board_created=on_score_board_created,
                 timeout=tr.timeout(seconds=7))
-        timeout = result['timeout']
         print(f"[{datetime.datetime.now()}] got score board")
 
         
