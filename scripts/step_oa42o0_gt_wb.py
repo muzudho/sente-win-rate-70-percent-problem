@@ -7,21 +7,63 @@ from openpyxl.styles.alignment import Alignment
 import xltree as tr
 
 from library import HEAD, TAIL
-from library.file_paths import GameTreeWorkbookFilePaths, GameTreeFilePaths
+from library.file_paths import GameTreeWorkbookFilePaths, GameTreeFilePaths, GameTreeCheckedFilePaths
 
 
 class GeneratorOfGTWB():
 
 
-    def execute(self, spec, specified_series_rule, debug_write=False):
-
-
-        # ワークブック（.xlsx）ファイルへのパス
+    @staticmethod
+    def instantiate(series_rule):
+        # 出力するワークブック（.xlsx）ファイルへのパス
         wb_file_path = GameTreeWorkbookFilePaths.as_workbook(
-                spec=spec,
-                span=specified_series_rule.step_table.span,
-                t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                spec=series_rule.spec,
+                span=series_rule.step_table.span,
+                t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+
+        # 元となる CSVファイルパス
+        source_csv_file_path=GameTreeFilePaths.as_csv(
+                spec=series_rule.spec,
+                span=series_rule.step_table.span,
+                t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+
+        # チェック済みの CSVファイルパス
+        checked_csv_file_path=GameTreeCheckedFilePaths.as_csv(
+                spec=series_rule.spec,
+                span=series_rule.step_table.span,
+                t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+
+        return GeneratorOfGTWB(series_rule=series_rule, wb_file_path=wb_file_path, source_csv_file_path=source_csv_file_path, checked_csv_file_path=checked_csv_file_path)
+
+
+    def __init__(self, series_rule, wb_file_path, source_csv_file_path, checked_csv_file_path):
+        self._series_rule = series_rule
+        self._wb_file_path = wb_file_path
+        self._source_csv_file_path = source_csv_file_path
+        self._checked_csv_file_path = checked_csv_file_path
+
+
+    @property
+    def workbook_file_path(self):
+        return self._wb_file_path
+
+
+    @property
+    def source_csv_file_path(self):
+        return self._source_csv_file_path
+
+
+    @property
+    def checked_csv_file_path(self):
+        return self._checked_csv_file_path
+
+
+    def write_workbook(self, debug_write=False):
+        """ワークブック（.xlsx）ファイルを書き出す"""
+
 
         # 構成
         settings ={
@@ -38,16 +80,10 @@ class GeneratorOfGTWB():
         }
 
         # 出力先ワークブックを指定し、ワークブックハンドル取得
-        with tr.prepare_workbook(target=wb_file_path, mode='w', settings=settings) as b:
-
-            csv_file_path=GameTreeFilePaths.as_csv(
-                    spec=spec,
-                    span=specified_series_rule.step_table.span,
-                    t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                    h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+        with tr.prepare_workbook(target=self._wb_file_path, mode='w', settings=settings) as b:
 
             # テーブル読取
-            df = pd.read_csv(csv_file_path, encoding="utf8", index_col=['no'])
+            df = pd.read_csv(self._source_csv_file_path, encoding="utf8", index_col=['no'])
             if debug_write:
                 print(df)
 
@@ -57,7 +93,7 @@ class GeneratorOfGTWB():
             ############
 
             # 読取元CSVを指定し、ワークシートハンドル取得
-            with b.prepare_worksheet(target='Tree', based_on=csv_file_path) as s:
+            with b.prepare_worksheet(target='Tree', based_on=self._source_csv_file_path) as s:
 
                 # ワークシートへ木構造図を描画
                 s.render_tree()
@@ -133,7 +169,7 @@ class GeneratorOfGTWB():
             ###############
 
             # 読取元CSVを指定し、ワークシートハンドル取得
-            with b.prepare_worksheet(target='Summary', based_on=csv_file_path) as s:
+            with b.prepare_worksheet(target='Summary', based_on=self._source_csv_file_path) as s:
                 ws = s._ws  # 非公式な方法。将来的にサポートされるか分からない方法
 
                 # データフレームの操作
@@ -203,7 +239,7 @@ class GeneratorOfGTWB():
             # 保存
             b.save_workbook()
 
-            print(f"[{datetime.datetime.now()}] Please look {wb_file_path}")
+            print(f"[{datetime.datetime.now()}] Please look {self._wb_file_path}")
 
 
     def write_header_of_top(self, df, ws, destination_row_th):

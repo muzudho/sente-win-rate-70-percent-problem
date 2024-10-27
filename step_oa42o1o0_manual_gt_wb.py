@@ -6,6 +6,7 @@
 #
 
 import traceback
+import shutil
 
 from library import Specification, SeriesRule
 from library.views import PromptCatalog
@@ -60,11 +61,15 @@ if __name__ == '__main__':
                 h_step=specified_h_step)
 
 
-        generator_of_gtwb = GeneratorOfGTWB()
-        generator_of_gtwb.execute(
-                spec=spec,
-                specified_series_rule=specified_series_rule,
-                debug_write=True)
+        generator_of_gtwb = GeneratorOfGTWB.instantiate(series_rule=specified_series_rule)
+
+        # ファイルが存在しなければワークブック（.xlsx）ファイルを書き出す
+        if not os.path.isfile(generator_of_gtwb.workbook_file_path):
+            generator_of_gtwb.write_workbook(debug_write=True)
+
+            # TODO 元ファイルを、チェック済みフォルダーへ移す
+            print(f"[{datetime.datetime.now()}] move file `{generator_of_gtwb.source_csv_file_path}` to `{generator_of_gtwb.checked_csv_file_path}`")
+            shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
 
 
     except Exception as err:

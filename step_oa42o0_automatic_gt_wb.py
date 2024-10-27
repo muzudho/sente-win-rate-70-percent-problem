@@ -8,6 +8,7 @@
 #
 
 import os
+import shutil
 import re
 import traceback
 import time
@@ -88,13 +89,17 @@ if __name__ == '__main__':
     try:
         # 無限ループ
         while True:
+
+            # １秒休む
+            time.sleep(1)
+
             # './' を付ける
-            basename_list = Automatic.get_list_of_basename_of_gt(dir_path=f"./{GameTreeFilePaths.directory_path}")
+            dir_path = f"./{GameTreeFilePaths.get_directory_path()}"
+            print(f"[{datetime.datetime.now()}] step42 {dir_path=}")
+            basename_list = Automatic.get_list_of_basename_of_gt(dir_path=dir_path)
 
             # シャッフル
             random.shuffle(basename_list)
-
-            generator_of_gtwb = GeneratorOfGTWB()
 
 
             for basename in basename_list:
@@ -105,23 +110,15 @@ if __name__ == '__main__':
                     continue
 
 
-                # 出力先のファイル名を作成
-                wb_file_path = GameTreeWorkbookFilePaths.as_workbook(
-                        spec=series_rule.spec,
-                        span=series_rule.step_table.span,
-                        t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                        h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                generator_of_gtwb = GeneratorOfGTWB.instantiate(series_rule=series_rule)
 
+                # ファイルが存在しなければワークブック（.xlsx）ファイルを書き出す
+                if not os.path.isfile(generator_of_gtwb.workbook_file_path):
+                    generator_of_gtwb.write_workbook(debug_write=False)
 
-                # ファイルが存在しなければ実行
-                if not os.path.isfile(wb_file_path):
-                    generator_of_gtwb.execute(
-                            spec=series_rule.spec,
-                            specified_series_rule=series_rule,
-                            debug_write=False)
-
-            # １秒休む
-            time.sleep(1)
+                    # TODO 元ファイルを、チェック済みフォルダーへ移す
+                    print(f"[{datetime.datetime.now()}] move file `{generator_of_gtwb.source_csv_file_path}` to `{generator_of_gtwb.checked_csv_file_path}`")
+                    shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
 
 
     except Exception as err:

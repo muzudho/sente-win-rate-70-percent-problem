@@ -316,20 +316,21 @@ class GameTreeFilePaths():
 
 
     @staticmethod
-    def directory_path():
-        return "./temp/game_tree"
+    def get_directory_path():
+        # './' は付けない
+        return "temp/game_tree"
 
 
     @staticmethod
     def as_csv(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'{GameTreeFilePaths.directory_path}/GT{subname}.csv'
+        return f'{GameTreeFilePaths.get_directory_path()}/GT{subname}.csv'
 
 
     @staticmethod
     def as_log(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'{GameTreeFilePaths.directory_path}/GT{subname}.log'
+        return f'{GameTreeFilePaths.get_directory_path()}/GT{subname}.log'
 
 
 #################
@@ -341,7 +342,7 @@ class GameTreeCheckedFilePaths():
 
 
     @staticmethod
-    def directory_path():
+    def get_directory_path():
         # './' は付けない
         return "temp/game_tree_checked"
 
@@ -349,10 +350,10 @@ class GameTreeCheckedFilePaths():
     @staticmethod
     def as_csv(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'{GameTreeFilePaths.directory_path}/GT{subname}.csv'
+        return f'{GameTreeCheckedFilePaths.get_directory_path()}/GT{subname}.csv'
 
 
     @staticmethod
     def as_log(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'{GameTreeFilePaths.directory_path}/GT{subname}.log'
+        return f'{GameTreeCheckedFilePaths.get_directory_path()}/GT{subname}.log'
