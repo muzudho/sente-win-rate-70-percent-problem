@@ -6,6 +6,8 @@ logs/empirical_probability_during_trials/*
 !logs/empirical_probability_during_trials/.gitkeep
 logs/game_tree/*
 !logs/game_tree/.gitkeep
+logs/game_tree_checked/*
+!logs/game_tree_checked/.gitkeep
 logs/game_tree_wb/*
 !logs/game_tree_wb/.gitkeep
 logs/kakukin_data_sheet/*

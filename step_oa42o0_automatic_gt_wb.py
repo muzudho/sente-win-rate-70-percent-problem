@@ -88,7 +88,8 @@ if __name__ == '__main__':
     try:
         # 無限ループ
         while True:
-            basename_list = Automatic.get_list_of_basename_of_gt(dir_path = "./temp/game_tree")
+            # './' を付ける
+            basename_list = Automatic.get_list_of_basename_of_gt(dir_path=f"./{GameTreeFilePaths.directory_path}")
 
             # シャッフル
             random.shuffle(basename_list)
