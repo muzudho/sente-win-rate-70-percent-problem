@@ -43,17 +43,19 @@ if __name__ == '__main__':
 
                 # TODO GTWB ワークブック（.xlsx）ファイルの Summary シートの B2 セル（先手勝率）を見る
                 summary_ws = wb['Summary']
-                failure_rate = float(summary_ws["B3"].value)
-                sente_win_rate = float(summary_ws["B2"].value) / (1 - failure_rate)
+                failed_rate = float(summary_ws["B3"].value)    # シリーズを終えたときの勝敗無しの率
+                a_won_rate = float(summary_ws["B2"].value) / (1 - failed_rate)     # Ａさん（先手でシリーズを始めた方）が勝った確率
 
                 # TODO sente_win_rate_detail (SWRD) ファイル名を作成する。ファイル名には turn system, failure rate, p が含まれる
                 csv_file_name = SenteWinRateDetailFilePaths.as_csv(spec=series_rule.spec)
 
                 # TODO ファイルが既存ならそれを読取る
                 dtypes = {
-                    'span':'float64',
+                    'span':'int64',
                     't_step':'int64',
-                    'h_step':'int64'}
+                    'h_step':'int64',
+                    'a_won_rate':'float64',
+                    'failed_rate':'float64'}
                 
                 if os.path.isfile(csv_file_name):
                     df = pd.read_csv(
@@ -63,20 +65,22 @@ if __name__ == '__main__':
                 
                 # TODO ファイルが無ければ新規作成する
                 else:
-                    df = pd.DataFrame(columns=['span', 't_step', 'h_step'])
+                    df = pd.DataFrame(columns=['span', 't_step', 'h_step', 'a_won_rate', 'failed_rate'])
                     df.astype(dtypes)
 
+                # TODO sente_win_rate_detail (SWRD) ファイルに span, t_step, h_step 毎の先手勝率を記録する
                 # 行の追加
                 df.loc[len(df) + 1] = {
                     'span':series_rule.step_table.span,
                     't_step':series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                    'h_step':series_rule.step_table.get_step_by(face_of_coin=HEAD)}
+                    'h_step':series_rule.step_table.get_step_by(face_of_coin=HEAD),
+                    'a_won_rate':a_won_rate,
+                    'failed_rate':failed_rate}
 
                 # ファイル保存
                 df.to_csv(csv_file_name, index=False)
                 print(f"[{datetime.datetime.now()}] please look `{csv_file_name}`")
 
-                # TODO sente_win_rate_detail (SWRD) ファイルに span, t_step, h_step 毎の先手勝率を記録する
                 # SenteWinRateSummaryFilePaths
 
             # FIXME
