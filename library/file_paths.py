@@ -288,6 +288,58 @@ class SimulationLargeSeriesFilePaths():
 
 
 ############
+# MARK: SWRS
+############
+
+class SenteWinRateSummaryFilePaths():
+    """先手勝率集計ファイルへのパス"""
+
+
+    @staticmethod
+    def get_directory_path():
+        # './' は付けない
+        return 'temp/sente_win_rate_summary'
+
+
+    @staticmethod
+    def as_csv(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
+        return f'{SenteWinRateSummaryFilePaths.get_directory_path()}/SWRS{subname}.csv'
+
+
+    @staticmethod
+    def as_log(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
+        return f'{SenteWinRateSummaryFilePaths.get_directory_path()}/SWRS{subname}.log'
+
+
+############
+# MARK: SWRD
+############
+
+class SenteWinRateDetailFilePaths():
+    """先手勝率詳細ファイルへのパス"""
+
+
+    @staticmethod
+    def get_directory_path():
+        # './' は付けない
+        return 'temp/sente_win_rate_detail'
+
+
+    @staticmethod
+    def as_csv(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
+        return f'{SenteWinRateDetailFilePaths.get_directory_path()}/SWRD{subname}.csv'
+
+
+    @staticmethod
+    def as_log(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
+        return f'{SenteWinRateDetailFilePaths.get_directory_path()}/SWRD{subname}.log'
+
+
+############
 # MARK: GTWB
 ############
 

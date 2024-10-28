@@ -10,7 +10,7 @@ class BasenameOfGameTreeWorkbookFile():
 
 
     # ワークブック・ファイル名をパース
-    _pattern = re.compile(r'GTWB_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.csv')
+    _pattern = re.compile(r'GTWB_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.xlsx')
 
 
     @classmethod
