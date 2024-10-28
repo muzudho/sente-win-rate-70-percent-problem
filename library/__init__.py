@@ -2835,3 +2835,17 @@ class RenamingBackup():
 {self._file_path=}
 """)
             raise
+
+
+@staticmethod
+def get_list_of_basename(dir_path):
+    """GT のファイル名一覧取得
+    
+    📖 [ファイル名のみの一覧を取得](https://note.nkmk.me/python-listdir-isfile-isdir/#_1)
+    """
+    basename_list = [
+        f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+    ]
+    #print(basename_list)
+
+    return basename_list

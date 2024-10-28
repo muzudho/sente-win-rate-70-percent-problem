@@ -15,69 +15,14 @@ import time
 import datetime
 import random
 
-from library import HEAD, TAIL, Converter, Specification, SeriesRule
+from library import HEAD, TAIL, Converter, Specification, SeriesRule, get_list_of_basename
+from library.file_basename import BasenameOfGameTreeFile
 from library.file_paths import GameTreeFilePaths, GameTreeWorkbookFilePaths
 from library.database import GameTreeTable
 from library.views import PromptCatalog
 from scripts import SaveOrIgnore, ForEachSpec
 from scripts.step_oa42o0_gt_wb import GeneratorOfGTWB
 from config import DEFAULT_UPPER_LIMIT_SPAN
-
-
-class Automatic():
-
-
-    # ファイル名をパース
-    _pattern = re.compile(r'GT_(alter|froze)_f([\d.]+)_p([\d.]+)_s(\d+)_t(\d+)_h(\d+)\.csv')
-
-
-    @staticmethod
-    def get_list_of_basename_of_gt(dir_path):
-        """GT のファイル名一覧取得
-        
-        📖 [ファイル名のみの一覧を取得](https://note.nkmk.me/python-listdir-isfile-isdir/#_1)
-        """
-        basename_list = [
-            f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
-        ]
-        #print(basename_list)
-
-        return basename_list
-
-
-    @classmethod
-    def get_series_rule_by_bestname(clazz, basename):
-
-        result = clazz._pattern.match(basename)
-
-        if result:
-            print(f"[{datetime.datetime.now()}] step_oa42o0 {basename=}")
-
-            turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
-            # １００分率になってるので、0～1 に戻します
-            failure_rate = float(result.group(2)) / 100
-            p = float(result.group(3)) / 100
-            span = int(result.group(4))
-            t_step = int(result.group(5))
-            h_step = int(result.group(6))
-
-            # 仕様
-            spec = Specification(
-                    turn_system_id=turn_system_id,
-                    failure_rate=failure_rate,
-                    p=p)
-
-            # ［シリーズ・ルール］
-            series_rule = SeriesRule.make_series_rule_base(
-                    spec=spec,
-                    span=span,
-                    t_step=t_step,
-                    h_step=h_step)
-            
-            return series_rule
-        
-        
-        return None
 
 
 ########################################
@@ -96,15 +41,16 @@ if __name__ == '__main__':
             # './' を付ける
             dir_path = f"./{GameTreeFilePaths.get_directory_path()}"
             print(f"[{datetime.datetime.now()}] step42 {dir_path=}")
-            basename_list = Automatic.get_list_of_basename_of_gt(dir_path=dir_path)
+            basename_list = get_list_of_basename(dir_path=dir_path)
 
             # シャッフル
             random.shuffle(basename_list)
 
 
             for basename in basename_list:
+                print(f"[{datetime.datetime.now()}] step_oa42o0 {basename=}")
 
-                series_rule = Automatic.get_series_rule_by_bestname(basename=basename)
+                series_rule = BasenameOfGameTreeFile.to_series_rule(basename=basename)
 
                 if series_rule is None:
                     continue

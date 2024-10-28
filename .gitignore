@@ -12,6 +12,10 @@ logs/game_tree_wb/*
 !logs/game_tree_wb/.gitkeep
 logs/kakukin_data_sheet/*
 !logs/kakukin_data_sheet/.gitkeep
+logs/sente_win_rate_detail/*
+!logs/sente_win_rate_detail/.gitkeep
+logs/sente_win_rate_summary/*
+!logs/sente_win_rate_summary/.gitkeep
 logs/theoretical_probability/*
 !logs/theoretical_probability/.gitkeep
 logs/theoretical_probability_rates/*
@@ -27,6 +31,10 @@ temp/game_tree_wb/*
 !temp/game_tree_wb/.gitkeep
 temp/kakukin_data_sheet/*
 !temp/kakukin_data_sheet/.gitkeep
+temp/sente_win_rate_detail/*
+!temp/sente_win_rate_detail/.gitkeep
+temp/sente_win_rate_summary/*
+!temp/sente_win_rate_summary/.gitkeep
 temp/theoretical_probability/*
 !temp/theoretical_probability/.gitkeep
 temp/theoretical_probability_rates/*

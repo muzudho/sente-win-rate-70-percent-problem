@@ -287,50 +287,30 @@ class SimulationLargeSeriesFilePaths():
         return f'logs/simulate_large_series{subname}.log'
 
 
-##########
+############
 # MARK: GTWB
-##########
+############
 
 class GameTreeWorkbookFilePaths():
     """樹形図データのファイルパス一覧"""
 
 
     @staticmethod
-    def as_workbook(spec, span, t_step, h_step):
-        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'temp/game_tree_wb/GTWB{subname}.xlsx'
-
-
-    @staticmethod
-    def as_log(spec, span, t_step, h_step):
-        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'logs/game_tree_wb/GTWB{subname}.log'
-
-
-##########
-# MARK: GT
-##########
-
-class GameTreeFilePaths():
-    """樹形図データのファイルパス一覧"""
-
-
-    @staticmethod
     def get_directory_path():
         # './' は付けない
-        return "temp/game_tree"
+        return 'temp/game_tree_wb'
 
 
     @staticmethod
-    def as_csv(spec, span, t_step, h_step):
+    def as_workbook(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'{GameTreeFilePaths.get_directory_path()}/GT{subname}.csv'
+        return f'{GameTreeWorkbookFilePaths.get_directory_path()}/GTWB{subname}.xlsx'
 
 
     @staticmethod
     def as_log(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
-        return f'{GameTreeFilePaths.get_directory_path()}/GT{subname}.log'
+        return f'{GameTreeWorkbookFilePaths.get_directory_path()}/GTWB{subname}.log'
 
 
 #################
@@ -357,3 +337,29 @@ class GameTreeCheckedFilePaths():
     def as_log(spec, span, t_step, h_step):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
         return f'{GameTreeCheckedFilePaths.get_directory_path()}/GT{subname}.log'
+
+
+##########
+# MARK: GT
+##########
+
+class GameTreeFilePaths():
+    """樹形図データのファイルパス一覧"""
+
+
+    @staticmethod
+    def get_directory_path():
+        # './' は付けない
+        return "temp/game_tree"
+
+
+    @staticmethod
+    def as_csv(spec, span, t_step, h_step):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
+        return f'{GameTreeFilePaths.get_directory_path()}/GT{subname}.csv'
+
+
+    @staticmethod
+    def as_log(spec, span, t_step, h_step):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
+        return f'{GameTreeFilePaths.get_directory_path()}/GT{subname}.log'
