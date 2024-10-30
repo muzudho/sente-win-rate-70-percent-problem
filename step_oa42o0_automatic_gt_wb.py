@@ -50,6 +50,9 @@ if __name__ == '__main__':
             for basename in basename_list:
                 print(f"[{datetime.datetime.now()}] step_oa42o0 {basename=}")
 
+                # １秒休む
+                time.sleep(1)
+
                 series_rule = BasenameOfGameTreeFile.to_series_rule(basename=basename)
 
                 if series_rule is None:

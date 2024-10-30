@@ -88,10 +88,8 @@ if __name__ == '__main__':
         # 無限ループ
         while True:
 
-
             # 0.1秒休む
             time.sleep(0.1)
-
 
             series_rule = Automatic.get_series_rule_at_random()
 

@@ -2,6 +2,72 @@ import re
 from library import Converter, Specification, SeriesRule
 
 
+###########
+# MARK: VRS
+###########
+class BasenameOfVictoryRateSummaryFile():
+    """優勝率集計ファイルのベース名"""
+
+
+    # ファイル名をパース
+    _pattern = re.compile(r'VRS_(alter|froze)_f([\d.]+)_p([\d.]+)\.csv')
+
+
+    @classmethod
+    def to_spec(clazz, basename):
+        result = clazz._pattern.match(basename)
+
+        if result:
+            turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
+            # １００分率になってるので、0～1 に戻します
+            failure_rate = float(result.group(2)) / 100
+            p = float(result.group(3)) / 100
+
+            # ［仕様］
+            spec = Specification(
+                    turn_system_id=turn_system_id,
+                    failure_rate=failure_rate,
+                    p=p)
+            
+            return spec
+        
+        
+        return None
+
+
+###########
+# MARK: VRD
+###########
+class BasenameOfVictoryRateDetailFile():
+    """優勝率詳細ファイルのベース名"""
+
+
+    # ファイル名をパース
+    _pattern = re.compile(r'VRD_(alter|froze)_f([\d.]+)_p([\d.]+)\.csv')
+
+
+    @classmethod
+    def to_spec(clazz, basename):
+        result = clazz._pattern.match(basename)
+
+        if result:
+            turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
+            # １００分率になってるので、0～1 に戻します
+            failure_rate = float(result.group(2)) / 100
+            p = float(result.group(3)) / 100
+
+            # ［仕様］
+            spec = Specification(
+                    turn_system_id=turn_system_id,
+                    failure_rate=failure_rate,
+                    p=p)
+            
+            return spec
+        
+        
+        return None
+
+
 ############
 # MARK: GTWB
 ############
@@ -26,7 +92,7 @@ class BasenameOfGameTreeWorkbookFile():
             t_step = int(result.group(5))
             h_step = int(result.group(6))
 
-            # 仕様
+            # ［仕様］
             spec = Specification(
                     turn_system_id=turn_system_id,
                     failure_rate=failure_rate,
@@ -69,7 +135,7 @@ class BasenameOfGameTreeFile():
             t_step = int(result.group(5))
             h_step = int(result.group(6))
 
-            # 仕様
+            # ［仕様］
             spec = Specification(
                     turn_system_id=turn_system_id,
                     failure_rate=failure_rate,
