@@ -39,7 +39,7 @@ if __name__ == '__main__':
             time.sleep(1)
 
             # './' を付ける
-            dir_path = f"./{GameTreeFilePaths.get_directory_path()}"
+            dir_path = f"./{GameTreeFilePaths.get_temp_directory_path()}"
             print(f"[{datetime.datetime.now()}] step42 {dir_path=}")
             basename_list = get_list_of_basename(dir_path=dir_path)
 
@@ -58,18 +58,34 @@ if __name__ == '__main__':
                 if series_rule is None:
                     continue
 
+                try:
 
-                generator_of_gtwb = GeneratorOfGTWB.instantiate(series_rule=series_rule)
+                    generator_of_gtwb = GeneratorOfGTWB.instantiate(series_rule=series_rule)
 
-                # ファイルが存在しなければワークブック（.xlsx）ファイルを書き出す
-                if not os.path.isfile(generator_of_gtwb.workbook_file_path):
+                    # ファイルが存在しなければワークブック（.xlsx）ファイルを書き出す
+                    if not os.path.isfile(generator_of_gtwb.workbook_file_path):
 
-                    # TODO 高速化したい
-                    generator_of_gtwb.write_workbook(debug_write=False)
+                        # TODO 高速化したい
+                        generator_of_gtwb.write_workbook(debug_write=False)
 
-                    # TODO 元ファイルを、チェック済みフォルダーへ移す
-                    print(f"[{datetime.datetime.now()}] move file `{generator_of_gtwb.source_csv_file_path}` to `{generator_of_gtwb.checked_csv_file_path}`")
-                    shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
+                        # TODO 元ファイルを、チェック済みフォルダーへ移す
+                        print(f"[{datetime.datetime.now()}] move file `{generator_of_gtwb.source_csv_file_path}` to `{generator_of_gtwb.checked_csv_file_path}`")
+                        shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
+
+                except TypeError as e:
+                    message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {basename=} {e=}"
+                    print(message)
+
+                    log_file_path = GameTreeWorkbookFilePaths.as_log(
+                            spec=series_rule.spec,
+                            span=series_rule.step_table.span,
+                            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                    with open(log_file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{message}\n")    # ファイルへ出力
+
+                    # １分休む
+                    time.sleep(60)
 
 
     except Exception as err:

@@ -26,7 +26,7 @@ if __name__ == '__main__':
             time.sleep(1)
 
             # game_tree_wb フォルダーを見る
-            basename_list = get_list_of_basename(dir_path=GameTreeWorkbookFilePaths.get_directory_path())
+            basename_list = get_list_of_basename(dir_path=GameTreeWorkbookFilePaths.get_temp_directory_path())
 
             # シャッフル
             random.shuffle(basename_list)
@@ -41,10 +41,15 @@ if __name__ == '__main__':
                 # ファイル名から［シリーズ・ルール］を取得する
                 series_rule = BasenameOfGameTreeWorkbookFile.to_series_rule(basename=basename)
 
-                if series_rule is not None:
+                if series_rule is None:
+                    continue
+
+
+                try:
 
                     # GTWB ワークブック（.xlsx）ファイルを開く
-                    wb = xl.load_workbook(filename=f'./{GameTreeWorkbookFilePaths.get_directory_path()}/{basename}')
+                    workbook_file_path = f'./{GameTreeWorkbookFilePaths.get_temp_directory_path()}/{basename}'
+                    wb = xl.load_workbook(filename=workbook_file_path)
 
                     # GTWB ワークブック（.xlsx）ファイルの Summary シートの B2 セル（先手勝率）を見る
                     summary_ws = wb['Summary']
@@ -53,13 +58,13 @@ if __name__ == '__main__':
                     no_victory_rate = float(summary_ws["B4"].value)     # 優勝が決まらなかった率
 
                     # victory_rate_detail (VRD) ファイル名を作成する。ファイル名には turn system, failure rate, p が含まれる
-                    csv_file_name = VictoryRateDetailFilePaths.as_csv(spec=series_rule.spec)
-                    print(f"[{datetime.datetime.now()}] step_oa43o0 {csv_file_name=}")
+                    csv_file_path = VictoryRateDetailFilePaths.as_csv(spec=series_rule.spec)
+                    print(f"[{datetime.datetime.now()}] step_oa43o0 {csv_file_path=}")
                     
                     # ファイルが既存ならそれを読取る
-                    if os.path.isfile(csv_file_name):
+                    if os.path.isfile(csv_file_path):
                         df = pd.read_csv(
-                                csv_file_name,
+                                csv_file_path,
                                 encoding="utf-8")
                     
                     # ファイルが無ければ新規作成する
@@ -95,8 +100,19 @@ if __name__ == '__main__':
                     df.drop_duplicates(inplace=True)
 
                     # ファイル保存
-                    df.to_csv(csv_file_name, index=False)
-                    print(f"[{datetime.datetime.now()}] please look `{csv_file_name}`")
+                    df.to_csv(csv_file_path, index=False)
+                    print(f"[{datetime.datetime.now()}] please look `{csv_file_path}`")
+
+                except KeyError as e:
+                    message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {workbook_csv_file_name=} {csv_file_name=} {e=}"
+                    print(message)
+
+                    log_file_path = VictoryRateDetailFilePaths.as_log(spec=spec)
+                    with open(log_file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{message}\n")    # ファイルへ出力
+
+                    # １分休む
+                    time.sleep(60)
 
 
     except Exception as err:
