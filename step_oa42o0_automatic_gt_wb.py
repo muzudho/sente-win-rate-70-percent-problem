@@ -60,6 +60,8 @@ if __name__ == '__main__':
 
                 # ファイルが存在しなければワークブック（.xlsx）ファイルを書き出す
                 if not os.path.isfile(generator_of_gtwb.workbook_file_path):
+
+                    # TODO 高速化したい
                     generator_of_gtwb.write_workbook(debug_write=False)
 
                     # TODO 元ファイルを、チェック済みフォルダーへ移す

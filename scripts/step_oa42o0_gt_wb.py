@@ -62,7 +62,10 @@ class GeneratorOfGTWB():
 
 
     def write_workbook(self, debug_write=False):
-        """ワークブック（.xlsx）ファイルを書き出す"""
+        """ワークブック（.xlsx）ファイルを書き出す
+
+        TODO 高速化したい
+        """
 
 
         # 構成
@@ -125,6 +128,7 @@ class GeneratorOfGTWB():
                     print(s.forest._stringify_like_tree(''))
                         
 
+                # 各根について
                 for root_entry in s.forest.multiple_root_entry.values():
                     search(all_leaf_entries=all_leaf_entries, entry=root_entry)
 
@@ -204,20 +208,29 @@ class GeneratorOfGTWB():
                 # 1th ヘッダー行
                 self.write_header_of_top(df=df, ws=ws, destination_row_th=1)
 
-                # 2nd 先手勝率
-                self.write_sente_win_rate(sum_rate_by_result=sum_rate_by_result, ws=ws, destination_row_th=2)
+                # 2nd Ａさん（シリーズを先手で始めた方）が優勝した率
+                a_victory_rate = self.get_a_victory_rate(sum_rate_by_result=sum_rate_by_result)
+                self.write_a_victory_rate(a_victory_rate=a_victory_rate, ws=ws, destination_row_th=2)
 
-                # 3rd 引分け率
-                self.write_failure_rate(sum_rate_by_result=sum_rate_by_result, ws=ws, destination_row_th=3)
+                # 3nd Ｂさん（シリーズを後手で始めた方）が優勝した率
+                b_victory_rate = self.get_b_victory_rate(sum_rate_by_result=sum_rate_by_result)
+                self.write_b_victory_rate(b_victory_rate=b_victory_rate, ws=ws, destination_row_th=3)
 
-                # 4th 空行
+                # 4th 優勝が決まらなかった率
+                no_victory_rate = self.get_no_victory_rate(sum_rate_by_result=sum_rate_by_result)
+                self.write_no_victory_rate(no_victory_rate=no_victory_rate, ws=ws, destination_row_th=4)
 
-                # 5th ヘッダー行
-                self.write_header_of_section_and_adjust_column_width(df=df, ws=ws, destination_row_th=5)
+                # 5th トータル行
+                self.write_victory_total(a_victory_rate=a_victory_rate, b_victory_rate=b_victory_rate, no_victory_rate=no_victory_rate, ws=ws, destination_row_th=5)
 
-                # 6th～: データ部のコピー
+                # 6th 空行
+
+                # 7th ヘッダー行
+                self.write_header_of_section_and_adjust_column_width(df=df, ws=ws, destination_row_th=7)
+
+                # 8th～: データ部のコピー
                 for source_row_no in range(0, len(df)):
-                    destination_row_th = source_row_no + 6
+                    destination_row_th = source_row_no + 8
 
                     self.write_sections(
                             df=df,
@@ -226,8 +239,8 @@ class GeneratorOfGTWB():
                             destination_row_th=destination_row_th)
 
 
-                # トータル行
-                self.write_total(
+                # 詳細トータル行
+                self.write_detail_total(
                         df=df,
                         ws = ws,
                         destination_row_th=destination_row_th + 1)
@@ -268,10 +281,10 @@ class GeneratorOfGTWB():
 
         # 最長の文字数を図ります
         if len(df) == 0:
-            max_length_of_a = 0
+            # max_length_of_a = 0
             max_length_of_b = 0
         else:
-            max_length_of_a = df['result'].str.len().max()  # 文字列の長さ
+            # max_length_of_a = df['result'].str.len().max()  # 文字列の長さ
             max_length_of_b = df['sum_rate'].abs().astype(str).str.len().max()-1    # 浮動小数点数の長さ
 
         # 列名
@@ -279,10 +292,10 @@ class GeneratorOfGTWB():
         b_column_name = 'sum_rate'
 
         # 列名よりは長く
-        max_length_of_a = max(max_length_of_a, len(a_column_name))
+        # max_length_of_a = max(max_length_of_a, len(a_column_name))
         max_length_of_b = max(max_length_of_b, len(b_column_name))
 
-        ws.column_dimensions['A'].width = max_length_of_a * 2       # 日本語
+        ws.column_dimensions['A'].width = 43    # 'Ａさん（シリーズを先手で始めた方）が優勝した率' が 43 ぐらい。    #max_length_of_a * 2       # 日本語
         ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
 
         # 列名
@@ -300,9 +313,8 @@ class GeneratorOfGTWB():
         ws[f'B{destination_row_th}'].font = font
 
 
-    def write_sente_win_rate(self, sum_rate_by_result, ws, destination_row_th):
-        """先手勝率を出力"""
-
+    def get_a_victory_rate(self, sum_rate_by_result):
+        """Ａさん（シリーズを先手で始めた方）が優勝した率を算出"""
         # result 別に確率を高精度 sum する
         rate_list = []
 
@@ -312,22 +324,73 @@ class GeneratorOfGTWB():
         if '勝ち点差でＡさんの勝ち' in sum_rate_by_result:
             rate_list.append(sum_rate_by_result['勝ち点差でＡさんの勝ち'])
 
-        ws[f'A{destination_row_th}'] = '先手勝率'
-        ws[f'B{destination_row_th}'] = math.fsum(rate_list)
+        return math.fsum(rate_list)
+
+
+    def write_a_victory_rate(self, a_victory_rate, ws, destination_row_th):
+        """Ａさん（シリーズを先手で始めた方）が優勝した率を出力"""
+
+        ws[f'A{destination_row_th}'] = 'Ａさん（シリーズを先手で始めた方）が優勝した率'
+        ws[f'B{destination_row_th}'] = a_victory_rate
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
-    def write_failure_rate(self, sum_rate_by_result, ws, destination_row_th):
-        """引分け率を出力"""
+    def get_b_victory_rate(self, sum_rate_by_result):
+        """Ｂさん（シリーズを後手で始めた方）が優勝した率を算出"""
+
+        # result 別に確率を高精度 sum する
+        rate_list = []
+
+        if '達成でＢさんの勝ち' in sum_rate_by_result:
+            rate_list.append(sum_rate_by_result['達成でＢさんの勝ち'])
+        
+        if '勝ち点差でＢさんの勝ち' in sum_rate_by_result:
+            rate_list.append(sum_rate_by_result['勝ち点差でＢさんの勝ち'])
+
+        return math.fsum(rate_list)
+
+
+    def write_b_victory_rate(self, b_victory_rate, ws, destination_row_th):
+        """Ｂさん（シリーズを後手で始めた方）が優勝した率を出力"""
+
+        ws[f'A{destination_row_th}'] = 'Ｂさん（シリーズを後手で始めた方）が優勝した率'
+        ws[f'B{destination_row_th}'] = b_victory_rate
+        ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
+
+
+    def get_no_victory_rate(self, sum_rate_by_result):
+        """優勝が決まらなかった率を算出"""
 
         if '勝者なし' in sum_rate_by_result:
-            rate = sum_rate_by_result['勝者なし']
-        else:
-            rate = 0
+            return sum_rate_by_result['勝者なし']
+        
+        return 0
 
-        ws[f'A{destination_row_th}'] = '引分け率'
-        ws[f'B{destination_row_th}'] = rate
+
+    def write_no_victory_rate(self, no_victory_rate, ws, destination_row_th):
+        """優勝が決まらなかった率を出力"""
+
+        ws[f'A{destination_row_th}'] = '優勝が決まらなかった率'
+        ws[f'B{destination_row_th}'] = no_victory_rate
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
+
+
+    def write_victory_total(self, a_victory_rate, b_victory_rate, no_victory_rate, ws, destination_row_th):
+        """大分類トータル行を出力"""
+        
+        # Total を集計
+        total_sum_rate = math.fsum([a_victory_rate, b_victory_rate, no_victory_rate])
+
+        # データ部のトータル行の追加
+        ws[f'A{destination_row_th}'] = 'Total'
+        ws[f'B{destination_row_th}'] = total_sum_rate
+        ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
+
+        # データ部のトータル行を区切る罫線
+        side = Side(style='thick', color='111111')
+        border = Border(top=side)
+        ws[f'A{destination_row_th}'].border = border
+        ws[f'B{destination_row_th}'].border = border
 
 
     def write_sections(self, df, ws, source_row_no, destination_row_th):
@@ -339,7 +402,9 @@ class GeneratorOfGTWB():
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
-    def write_total(self, df, ws, destination_row_th):
+    def write_detail_total(self, df, ws, destination_row_th):
+        """詳細トータル行を出力"""
+
         # Total を集計
         total_sum_rate = df['sum_rate'].sum()
 
