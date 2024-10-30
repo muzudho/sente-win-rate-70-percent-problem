@@ -2,5 +2,6 @@
     "editor.hover.enabled": false,
     "editor.unicodeHighlight.nonBasicASCII": false,
     "editor.unicodeHighlight.includeComments": false,
-    "editor.unicodeHighlight.includeStrings": false
+    "editor.unicodeHighlight.includeStrings": false,
+    "python.REPL.enableREPLSmartSend": false
 }
