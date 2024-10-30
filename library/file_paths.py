@@ -308,15 +308,13 @@ class VictoryRateSummaryFilePaths():
 
 
     @staticmethod
-    def as_csv(spec):
-        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
-        return f'{VictoryRateSummaryFilePaths.get_temp_directory_path()}/VRS{subname}.csv'
+    def as_csv():
+        return f'{VictoryRateSummaryFilePaths.get_temp_directory_path()}/VRS.csv'
 
 
     @staticmethod
-    def as_log(spec):
-        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
-        return f'{VictoryRateSummaryFilePaths.get_logs_directory_path()}/VRS{subname}.log'
+    def as_log():
+        return f'{VictoryRateSummaryFilePaths.get_logs_directory_path()}/VRS.log'
 
 
 ###########

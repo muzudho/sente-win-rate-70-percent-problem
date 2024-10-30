@@ -85,7 +85,9 @@ if __name__ == '__main__':
                         f.write(f"{message}\n")    # ファイルへ出力
 
                     # １分休む
-                    time.sleep(60)
+                    seconds = 60
+                    print(f"[{datetime.datetime.now()}] retry after {seconds} seconds")
+                    time.sleep(seconds)
 
 
     except Exception as err:

@@ -11,8 +11,8 @@ import datetime
 import random
 import openpyxl as xl
 import pandas as pd
-from library import TAIL, HEAD, get_list_of_basename
-from library.file_basename import BasenameOfVictoryRateDetailFile, BasenameOfVictoryRateSummaryFile
+from library import TAIL, HEAD, Converter, get_list_of_basename
+from library.file_basename import BasenameOfVictoryRateDetailFile
 from library.file_paths import VictoryRateDetailFilePaths, VictoryRateSummaryFilePaths
 
 
@@ -53,19 +53,19 @@ if __name__ == '__main__':
 
                     # TODO ファイルパス指定
                     detail_csv_file_name = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{basename}'
-                    summary_csv_file_name = f'./{VictoryRateSummaryFilePaths.get_temp_directory_path()}/{basename}'
+                    summary_csv_file_name = VictoryRateSummaryFilePaths.as_csv()
                     print(f"[{datetime.datetime.now()}] step_oa44o0 {detail_csv_file_name=} {summary_csv_file_name=}")
 
                     # １秒休む
                     time.sleep(1)
 
-                    # TODO CSVファイルを開く
+                    # CSVファイルを開く
                     detail_df = pd.read_csv(detail_csv_file_name, encoding='utf-8')
 
                     if os.path.isfile(summary_csv_file_name):
                         summary_df = pd.read_csv(summary_csv_file_name, encoding='utf-8')
                     else:
-                        summary_df = pd.DataFrame(columns=['span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'])
+                        summary_df = pd.DataFrame(columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'])
 
 
                     detail_dtypes = {
@@ -77,6 +77,9 @@ if __name__ == '__main__':
                         'no_victory_rate':'float64'}
 
                     summary_dtypes = {
+                        'turn_system_name':'object',
+                        'failure_rate':'float64',
+                        'p':'float64',
                         'span':'int64',
                         't_step':'int64',
                         'h_step':'int64',
@@ -96,7 +99,7 @@ if __name__ == '__main__':
 # {summary_df}""")
 
                     # インデックス設定
-                    summary_df.set_index(['span', 't_step', 'h_step'], inplace=True)
+                    summary_df.set_index(['turn_system_name', 'failure_rate', 'p'], inplace=True)
 
 #                     print(f"""\
 # summary_df o_9o0:
@@ -126,8 +129,11 @@ if __name__ == '__main__':
 
                     # 行追加
                     detail_index = detail_df.index[0]
-                    summary_index = (detail_df.at[detail_index, 'span'], detail_df.at[detail_index, 't_step'], detail_df.at[detail_index, 'h_step'])
+                    summary_index = (Converter.turn_system_id_to_name(spec.turn_system_id), spec.failure_rate, spec.p)
                     summary_df.loc[summary_index] = {
+                        'span':detail_df.at[detail_index, 'span'],
+                        't_step':detail_df.at[detail_index, 't_step'],
+                        'h_step':detail_df.at[detail_index, 'h_step'],
                         'a_victory_rate':detail_df.at[detail_index, 'a_victory_rate'],
                         'b_victory_rate':detail_df.at[detail_index, 'b_victory_rate'],
                         'no_victory_rate':detail_df.at[detail_index, 'no_victory_rate']}
@@ -145,25 +151,42 @@ if __name__ == '__main__':
 # {summary_df}""")
 
                     # ソートする
-                    summary_df.sort_values(by=['span', 't_step', 'h_step'], inplace=True)
+                    summary_df.sort_values(by=['turn_system_name', 'failure_rate', 'p'], inplace=True)
 
                     # ファイル保存
                     summary_df.to_csv(
                             summary_csv_file_name,
-                            columns=['span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'],
+                            columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
+
 
                 except KeyError as e:
                     message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
                     print(message)
 
-                    log_file_path = VictoryRateSummaryFilePaths.as_log(spec=spec)
+                    log_file_path = VictoryRateSummaryFilePaths.as_log()
                     with open(log_file_path, 'a', encoding='utf-8') as f:
                         f.write(f"{message}\n")    # ファイルへ出力
 
                     # １分休む
-                    time.sleep(60)
+                    seconds = 60
+                    print(f"[{datetime.datetime.now()}] retry after {seconds} seconds")
+                    time.sleep(seconds)
+
+
+                except PermissionError as e:
+                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    print(message)
+
+                    log_file_path = VictoryRateSummaryFilePaths.as_log()
+                    with open(log_file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{message}\n")    # ファイルへ出力
+
+                    # １分休む
+                    seconds = 60
+                    print(f"[{datetime.datetime.now()}] retry after {seconds} seconds")
+                    time.sleep(seconds)
 
 
     except Exception as err:
