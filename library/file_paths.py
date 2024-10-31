@@ -332,7 +332,7 @@ class VictoryRateDetailFilePaths():
 
 
     @staticmethod
-    def get_temp_directory_path():
+    def get_logs_directory_path():
         # './' は付けない
         return 'logs/victory_rate_detail'
 
