@@ -3,5 +3,7 @@
     "editor.unicodeHighlight.nonBasicASCII": false,
     "editor.unicodeHighlight.includeComments": false,
     "editor.unicodeHighlight.includeStrings": false,
-    "python.REPL.enableREPLSmartSend": false
+    "python.REPL.enableREPLSmartSend": false,
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "editor.unicodeHighlight.ambiguousCharacters": false
 }
