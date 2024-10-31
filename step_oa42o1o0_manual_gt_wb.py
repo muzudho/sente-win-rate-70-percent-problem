@@ -5,8 +5,10 @@
 #   GT を GTWB へ変換します
 #
 
+import os
 import traceback
 import shutil
+import datetime
 
 from library import Specification, SeriesRule
 from library.views import PromptCatalog

@@ -29,9 +29,9 @@ if __name__ == '__main__':
         # turn_system_name = frozen
         p = 0.7     # 0.01 単位で 0 ～ 1 を想定
         q = 1 - p
-        h_step = 2
-        t_step = 3
-        span = 3
+        h_step = 1
+        t_step = 2
+        span = 2
         number_of_trial = 0     # 試行回数
         number_of_a_victory = 0
         number_of_b_victory = 0
@@ -147,6 +147,7 @@ if __name__ == '__main__':
                 a_pts = 0   # 勝ち点の合計
                 b_pts = 0
                 round_th = 1
+                list_str_of_face_of_coin = ""
 
                 print()
                 print(f"きふわらべ国王「おい、そこらへんのコクミン。")
@@ -173,6 +174,7 @@ if __name__ == '__main__':
                         time.sleep(mspd)
                         face_of_coin = 'head'
                         a_pts += h_step
+                        list_str_of_face_of_coin += "表"
 
                         print()
                         print(f"きふわらべ国王「わたしが勝ち点 {h_step} をもらって、")
@@ -205,6 +207,7 @@ if __name__ == '__main__':
                         time.sleep(mspd)
                         face_of_coin = 'tail'
                         b_pts += t_step
+                        list_str_of_face_of_coin += "ｳﾗ"    # 表と裏の字が似すぎているので、変えてみる
 
                         print()
                         print(f"数学大臣「わたしが勝ち点 {t_step} をもらって、")
@@ -274,7 +277,7 @@ if __name__ == '__main__':
 
                 # ログに残す
                 with open(file=LOG_FILE_PATH, mode='a', encoding='utf-8') as f:
-                    f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。　きふわらべ国王 {number_of_a_victory} 回優勝。　数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％\n")
+                    f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。　きふわらべ国王 {number_of_a_victory} 回優勝。　数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}\n")
 
 
                 print()
