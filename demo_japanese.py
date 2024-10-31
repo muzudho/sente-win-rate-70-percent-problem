@@ -42,7 +42,7 @@ if __name__ == '__main__':
             print()
             print(f"わらべ島の先住民たちは、")
             time.sleep(mspd / 3)
-            print(f"コインを投げて表と裏のどちらが出るかを")
+            print(f"コインを投げて表とｳﾗのどちらが出るかを")
             time.sleep(mspd / 3)
             print(f"当てる遊び（コイントス）を続けていた。")
             time.sleep(mspd)
@@ -56,7 +56,7 @@ if __name__ == '__main__':
             print()
             print(f"島から出土する金属の材質が悪くなり、")
             time.sleep(mspd / 3)
-            print(f"表と裏の出る確率が異なるコインしか")
+            print(f"表とｳﾗの出る確率が異なるコインしか")
             time.sleep(mspd / 3)
             print(f"造ることができなくなった。")
             time.sleep(mspd)
@@ -86,7 +86,7 @@ if __name__ == '__main__':
             time.sleep(mspd)
 
             print()
-            print(f"まるで表と裏が均等に出たかのような")
+            print(f"まるで表とｳﾗが均等に出たかのような")
             time.sleep(mspd / 3)
             print(f"結果に近づくことが期待できるという、")
             time.sleep(mspd)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             print()
             print(f"　表が出たら勝ち点が {h_step} 、")
             time.sleep(mspd / 3)
-            print(f"　裏が出たら勝ち点が {t_step} とし、")
+            print(f"　ｳﾗが出たら勝ち点が {t_step} とし、")
             time.sleep(mspd)
 
             print()
@@ -136,7 +136,7 @@ if __name__ == '__main__':
             time.sleep(mspd)
 
             print()
-            print(f"数学大臣は、 {q * 10:.1f} 割出るという裏が優勝する方に張った。")
+            print(f"数学大臣は、 {q * 10:.1f} 割出るというｳﾗが優勝する方に張った。")
             time.sleep(mspd)
 
 
@@ -169,12 +169,13 @@ if __name__ == '__main__':
                 while True:
 
                     if outcome < p:
+                        face_of_coin = '表'
+
                         print()
-                        print(f"　表が出た」")
+                        print(f"　{face_of_coin}が出た」")
                         time.sleep(mspd)
-                        face_of_coin = 'head'
                         a_pts += h_step
-                        list_str_of_face_of_coin += "表"
+                        list_str_of_face_of_coin += face_of_coin
 
                         print()
                         print(f"きふわらべ国王「わたしが勝ち点 {h_step} をもらって、")
@@ -202,12 +203,13 @@ if __name__ == '__main__':
                             time.sleep(mspd)
 
                     else:
+                        face_of_coin = 'ｳﾗ'    # 表と裏の字が似すぎているので、変えてみる
+
                         print()
-                        print(f"　裏が出た」")
+                        print(f"　{face_of_coin}が出た」")
                         time.sleep(mspd)
-                        face_of_coin = 'tail'
                         b_pts += t_step
-                        list_str_of_face_of_coin += "ｳﾗ"    # 表と裏の字が似すぎているので、変えてみる
+                        list_str_of_face_of_coin += face_of_coin
 
                         print()
                         print(f"数学大臣「わたしが勝ち点 {t_step} をもらって、")
@@ -277,7 +279,7 @@ if __name__ == '__main__':
 
                 # ログに残す
                 with open(file=LOG_FILE_PATH, mode='a', encoding='utf-8') as f:
-                    f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。　きふわらべ国王 {number_of_a_victory} 回優勝。　数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}\n")
+                    f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。  {face_of_coin} の優勝。　表：きふわらべ国王 {number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}\n")
 
 
                 print()
