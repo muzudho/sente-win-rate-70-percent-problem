@@ -105,135 +105,171 @@ if __name__ == '__main__':
             a_pts = 0   # 勝ち点の合計
             b_pts = 0
             number_of_trial = 0     # 試行回数
-
-            print()
-            print(f"「ここに表が {p * 10:.1f} 割出るイカサマコインがある。")
-            time.sleep(mspd)
-
-            print()
-            print(f"　表が出たら勝ち点が {h_step} 、")
-            time.sleep(mspd / 3)
-            print(f"　裏が出たら勝ち点が {t_step} とし、")
-            time.sleep(mspd)
-
-            print()
-            print(f"　どちらかが先に {span} 点を取るまで")
-            time.sleep(mspd / 3)
-            print(f"　コイントスを続け、")
-            time.sleep(mspd)
-
-            print()
-            print(f"　先に {span} 点取った方を優勝とする」")
-            time.sleep(mspd)
-
-
-            print()
-            print(f"きふわらべ国王は、 {p * 10:.1f} 割出るという表が優勝する方に張った。")
-            time.sleep(mspd)
-
-            print()
-            print(f"数学大臣は、 {q * 10:.1f} 割出るという裏が優勝する方に張った。")
-            time.sleep(mspd)
-
-            print()
-            print(f"きふわらべ国王「おい、そこらへんのコクミン。")
-            time.sleep(mspd / 3)
-            print(f"　コインを投げろだぜ」")
-            time.sleep(mspd)
-
-            round_th = 1
-
-            print()
-            print(f"国民「自分で投げればいいのに……")
-            time.sleep(mspd / 3)
-            print(f"　じゃあ {round_th} 投目」")
-            time.sleep(mspd)
-
-            # 0.0 <= X < 1.0
-            outcome = random.random()
+            number_of_a_victory = 0
+            number_of_b_victory = 0
 
             while True:
 
-                if outcome < p:
-                    print()
-                    print(f"　表が出た」")
-                    time.sleep(mspd)
-                    face_of_coin = 'head'
-                    a_pts += h_step
-
-                    print()
-                    print(f"きふわらべ国王「わたしが勝ち点 {h_step} をもらって、")
-                    time.sleep(mspd / 3)
-                    print(f"　合計 {a_pts} 点だぜ。")
-                    time.sleep(mspd)
-
-                    if span <= a_pts:
-                        print()
-                        print(f"　{span} 点取ったから、")
-                        time.sleep(mspd / 3)
-                        print(f"　わたしの優勝だな」")
-                        time.sleep(mspd)
-                        break
-
-                    else:
-                        print()
-                        print(f"　{span} 点まで")
-                        time.sleep(mspd / 3)
-                        print(f"　まだ {span - a_pts} 点足りないから、")
-                        time.sleep(mspd / 3)
-                        print(f"　続行だな」")
-                        time.sleep(mspd)
-
-                else:
-                    print()
-                    print(f"　裏が出た」")
-                    time.sleep(mspd)
-                    face_of_coin = 'tail'
-                    b_pts += t_step
-
-                    print()
-                    print(f"数学大臣「わたしが勝ち点 {t_step} をもらって、")
-                    time.sleep(mspd / 3)
-                    print(f"　合計 {b_pts} 点だぜ」")
-                    time.sleep(mspd)
-
-                    if span <= b_pts:
-                        print()
-                        print(f"　{span} 点取ったから、")
-                        time.sleep(mspd / 3)
-                        print(f"　わたしの優勝だな」")
-                        time.sleep(mspd)
-                        break
-
-                    else:
-                        print()
-                        print(f"　{span} 点まで")
-                        time.sleep(mspd / 3)
-                        print(f"　まだ {span - b_pts} 点足りないから、")
-                        time.sleep(mspd / 3)
-                        print(f"　続行だな」")
-                        time.sleep(mspd)
-
-
-                round_th += 1
+                print()
+                print(f"「ここに表が {p * 10:.1f} 割出るイカサマコインがある。")
+                time.sleep(mspd)
 
                 print()
-                print(f"国民「じゃあ {round_th} 投目」")
+                print(f"　表が出たら勝ち点が {h_step} 、")
+                time.sleep(mspd / 3)
+                print(f"　裏が出たら勝ち点が {t_step} とし、")
+                time.sleep(mspd)
+
+                print()
+                print(f"　どちらかが先に {span} 点を取るまで")
+                time.sleep(mspd / 3)
+                print(f"　コイントスを続け、")
+                time.sleep(mspd)
+
+                print()
+                print(f"　先に {span} 点取った方を優勝とする」")
+                time.sleep(mspd)
+
+
+                print()
+                print(f"きふわらべ国王は、 {p * 10:.1f} 割出るという表が優勝する方に張った。")
+                time.sleep(mspd)
+
+                print()
+                print(f"数学大臣は、 {q * 10:.1f} 割出るという裏が優勝する方に張った。")
+                time.sleep(mspd)
+
+                print()
+                print(f"きふわらべ国王「おい、そこらへんのコクミン。")
+                time.sleep(mspd / 3)
+                print(f"　コインを投げろだぜ」")
+                time.sleep(mspd)
+
+                round_th = 1
+
+                print()
+                print(f"国民「自分で投げればいいのに……")
+                time.sleep(mspd / 3)
+                print(f"　じゃあ {round_th} 投目」")
                 time.sleep(mspd)
 
                 # 0.0 <= X < 1.0
                 outcome = random.random()
 
+                while True:
 
-            number_of_trial += 1
+                    if outcome < p:
+                        print()
+                        print(f"　表が出た」")
+                        time.sleep(mspd)
+                        face_of_coin = 'head'
+                        a_pts += h_step
 
-            print()
-            print(f"国民「 {number_of_trial} 回やったぐらいじゃ、")
-            time.sleep(mspd / 3)
-            print(f"　本当に五分五分になってるのか、")
-            time.sleep(mspd / 3)
-            print(f"　よく分からないなあ」")
-            time.sleep(mspd)
+                        print()
+                        print(f"きふわらべ国王「わたしが勝ち点 {h_step} をもらって、")
+                        time.sleep(mspd / 3)
+                        print(f"　合計 {a_pts} 点だぜ。")
+                        time.sleep(mspd)
+
+                        if span <= a_pts:
+                            print()
+                            print(f"　{span} 点取ったから、")
+                            time.sleep(mspd / 3)
+                            print(f"　わたしの優勝だな」")
+                            time.sleep(mspd)
+
+                            number_of_a_victory += 1
+                            break
+
+                        else:
+                            print()
+                            print(f"　{span} 点まで")
+                            time.sleep(mspd / 3)
+                            print(f"　まだ {span - a_pts} 点足りないから、")
+                            time.sleep(mspd / 3)
+                            print(f"　続行だな」")
+                            time.sleep(mspd)
+
+                    else:
+                        print()
+                        print(f"　裏が出た」")
+                        time.sleep(mspd)
+                        face_of_coin = 'tail'
+                        b_pts += t_step
+
+                        print()
+                        print(f"数学大臣「わたしが勝ち点 {t_step} をもらって、")
+                        time.sleep(mspd / 3)
+                        print(f"　合計 {b_pts} 点だぜ」")
+                        time.sleep(mspd)
+
+                        if span <= b_pts:
+                            print()
+                            print(f"　{span} 点取ったから、")
+                            time.sleep(mspd / 3)
+                            print(f"　わたしの優勝だな」")
+                            time.sleep(mspd)
+
+                            number_of_b_victory += 1
+                            break
+
+                        else:
+                            print()
+                            print(f"　{span} 点まで")
+                            time.sleep(mspd / 3)
+                            print(f"　まだ {span - b_pts} 点足りないから、")
+                            time.sleep(mspd / 3)
+                            print(f"　続行だな」")
+                            time.sleep(mspd)
+
+
+                    round_th += 1
+
+                    print()
+                    print(f"国民「じゃあ {round_th} 投目」")
+                    time.sleep(mspd)
+
+                    # 0.0 <= X < 1.0
+                    outcome = random.random()
+
+
+                number_of_trial += 1
+
+                print()
+                print(f"きふわらべ国王「これでわたしは {number_of_a_victory} 回優勝」")
+                time.sleep(mspd)
+
+                print()
+                print(f"数学大臣「これでわたしは {number_of_b_victory} 回優勝」")
+                time.sleep(mspd)
+
+                print()
+                print(f"国民「 {number_of_trial} 回やったぐらいじゃ、")
+                time.sleep(mspd / 3)
+                print(f"　本当に五分五分になってるのか、")
+                time.sleep(mspd / 3)
+                print(f"　よく分からないなあ」")
+                time.sleep(mspd)
+
+
+                if number_of_trial < 21:
+                    break
+
+
+                print()
+                print(f"きふわらべ国王「もう１回やってみようぜ？」")
+                time.sleep(mspd * 3)
+
+
+            if number_of_trial * 47 / 100 <= number_of_a_victory and number_of_a_victory < number_of_trial * 53 / 100:
+                print()
+                print(f"きふわらべ国王「だいたい　五分五分ということでいいんじゃないか？」")
+                time.sleep(mspd)
+            
+            else:
+                print()
+                print(f"きふわらべ国王「まー、偏ってるかなあ」")
+                time.sleep(mspd)
 
 
             time.sleep(10)
