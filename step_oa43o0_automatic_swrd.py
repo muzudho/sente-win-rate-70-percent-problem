@@ -108,7 +108,7 @@ if __name__ == '__main__':
                     message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {workbook_file_path=} {csv_file_path=} {e=}"
                     print(message)
 
-                    log_file_path = VictoryRateDetailFilePaths.as_log(spec=spec)
+                    log_file_path = VictoryRateDetailFilePaths.as_log(spec=series_rule.spec)
                     with open(log_file_path, 'a', encoding='utf-8') as f:
                         f.write(f"{message}\n")    # ファイルへ出力
 
@@ -122,7 +122,7 @@ if __name__ == '__main__':
                     message = f"[{datetime.datetime.now()}] 予期せぬ例外 {workbook_file_path=} {csv_file_path=} {e=}"
                     print(message)
 
-                    log_file_path = VictoryRateDetailFilePaths.as_log(spec=spec)
+                    log_file_path = VictoryRateDetailFilePaths.as_log(spec=series_rule.spec)
                     with open(log_file_path, 'a', encoding='utf-8') as f:
                         f.write(f"{message}\n")    # ファイルへ出力
 
