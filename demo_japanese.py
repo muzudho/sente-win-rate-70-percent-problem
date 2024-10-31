@@ -55,7 +55,7 @@ if __name__ == '__main__':
             print()
             print(f"島から出土する金属の材質が悪くなり、")
             time.sleep(mspd / 3)
-            print(f"当表と裏の出る確率が異なるコインしか")
+            print(f"表と裏の出る確率が異なるコインしか")
             time.sleep(mspd / 3)
             print(f"造ることができなくなった。")
             time.sleep(mspd)
@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
 
                 # ログに残す
-                with open(file=LOG_FILE_PATH, mode='a') as f:
+                with open(file=LOG_FILE_PATH, mode='a', encoding='utf-8') as f:
                     f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。　きふわらべ国王 {number_of_a_victory} 回優勝。　数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％")
 
 
