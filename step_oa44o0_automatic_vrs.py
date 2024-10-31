@@ -1,7 +1,7 @@
 #
 # TODO 作成中
 #
-# python step_oa44o0_automatic_swrs.py
+# python step_oa44o0_automatic_vrs.py
 #
 
 import traceback

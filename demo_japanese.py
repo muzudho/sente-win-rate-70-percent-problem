@@ -26,11 +26,12 @@ if __name__ == '__main__':
         mspd = 2
 
         # ゲームデータ
+        # turn_system_name = frozen
         p = 0.7     # 0.01 単位で 0 ～ 1 を想定
         q = 1 - p
-        h_step = 1
-        t_step = 2
-        span = 4
+        h_step = 2
+        t_step = 3
+        span = 3
         number_of_trial = 0     # 試行回数
         number_of_a_victory = 0
         number_of_b_victory = 0
