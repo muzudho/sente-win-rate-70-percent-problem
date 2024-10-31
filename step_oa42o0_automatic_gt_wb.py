@@ -72,8 +72,27 @@ if __name__ == '__main__':
                         print(f"[{datetime.datetime.now()}] move file `{generator_of_gtwb.source_csv_file_path}` to `{generator_of_gtwb.checked_csv_file_path}`")
                         shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
 
+
                 except TypeError as e:
                     message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {basename=} {e=}"
+                    print(message)
+
+                    log_file_path = GameTreeWorkbookFilePaths.as_log(
+                            spec=series_rule.spec,
+                            span=series_rule.step_table.span,
+                            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                    with open(log_file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{message}\n")    # ファイルへ出力
+
+                    # １分休む
+                    seconds = 60
+                    print(f"[{datetime.datetime.now()}] retry after {seconds} seconds")
+                    time.sleep(seconds)
+
+
+                except Exception as e:
+                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {basename=} {e=}"
                     print(message)
 
                     log_file_path = GameTreeWorkbookFilePaths.as_log(

@@ -103,8 +103,23 @@ if __name__ == '__main__':
                     df.to_csv(csv_file_path, index=False)
                     print(f"[{datetime.datetime.now()}] please look `{csv_file_path}`")
 
+
                 except KeyError as e:
-                    message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {workbook_csv_file_name=} {csv_file_name=} {e=}"
+                    message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {workbook_file_path=} {csv_file_path=} {e=}"
+                    print(message)
+
+                    log_file_path = VictoryRateDetailFilePaths.as_log(spec=spec)
+                    with open(log_file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{message}\n")    # ファイルへ出力
+
+                    # １分休む
+                    seconds = 60
+                    print(f"[{datetime.datetime.now()}] retry after {seconds} seconds")
+                    time.sleep(seconds)
+
+
+                except Exception as e:
+                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {workbook_file_path=} {csv_file_path=} {e=}"
                     print(message)
 
                     log_file_path = VictoryRateDetailFilePaths.as_log(spec=spec)

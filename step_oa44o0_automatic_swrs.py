@@ -189,6 +189,20 @@ if __name__ == '__main__':
                     time.sleep(seconds)
 
 
+                except Exception as e:
+                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    print(message)
+
+                    log_file_path = VictoryRateSummaryFilePaths.as_log()
+                    with open(log_file_path, 'a', encoding='utf-8') as f:
+                        f.write(f"{message}\n")    # ファイルへ出力
+
+                    # １分休む
+                    seconds = 60
+                    print(f"[{datetime.datetime.now()}] retry after {seconds} seconds")
+                    time.sleep(seconds)
+
+
     except Exception as err:
         print(f"[unexpected error] {err=}  {type(err)=}")
 
