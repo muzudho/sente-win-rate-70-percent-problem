@@ -24,8 +24,21 @@ if __name__ == '__main__':
         # メッセージスピード
         mspd = 2
 
+        # ゲームデータ
+        p = 0.7     # 0.01 単位で 0 ～ 1 を想定
+        q = 1 - p
+        h_step = 1
+        t_step = 2
+        span = 4
+        a_pts = 0   # 勝ち点の合計
+        b_pts = 0
+        number_of_trial = 0     # 試行回数
+        number_of_a_victory = 0
+        number_of_b_victory = 0
+
         while True:
 
+            # プロローグ
             print()
             print(f"わらべ島の先住民たちは、")
             time.sleep(mspd / 3)
@@ -96,48 +109,38 @@ if __name__ == '__main__':
             print(f"数学大臣は話しを続けた。")
             time.sleep(mspd)
 
-            # 0.01 単位で 0 ～ 1 を想定
-            p = 0.7
-            q = 1 - p
-            h_step = 1
-            t_step = 2
-            span = 4
-            a_pts = 0   # 勝ち点の合計
-            b_pts = 0
-            number_of_trial = 0     # 試行回数
-            number_of_a_victory = 0
-            number_of_b_victory = 0
+
+            print()
+            print(f"「ここに表が {p * 10:.1f} 割出るイカサマコインがある。")
+            time.sleep(mspd)
+
+            print()
+            print(f"　表が出たら勝ち点が {h_step} 、")
+            time.sleep(mspd / 3)
+            print(f"　裏が出たら勝ち点が {t_step} とし、")
+            time.sleep(mspd)
+
+            print()
+            print(f"　どちらかが先に {span} 点を取るまで")
+            time.sleep(mspd / 3)
+            print(f"　コイントスを続け、")
+            time.sleep(mspd)
+
+            print()
+            print(f"　先に {span} 点取った方を優勝とする」")
+            time.sleep(mspd)
+
+
+            print()
+            print(f"きふわらべ国王は、 {p * 10:.1f} 割出るという表が優勝する方に張った。")
+            time.sleep(mspd)
+
+            print()
+            print(f"数学大臣は、 {q * 10:.1f} 割出るという裏が優勝する方に張った。")
+            time.sleep(mspd)
+
 
             while True:
-
-                print()
-                print(f"「ここに表が {p * 10:.1f} 割出るイカサマコインがある。")
-                time.sleep(mspd)
-
-                print()
-                print(f"　表が出たら勝ち点が {h_step} 、")
-                time.sleep(mspd / 3)
-                print(f"　裏が出たら勝ち点が {t_step} とし、")
-                time.sleep(mspd)
-
-                print()
-                print(f"　どちらかが先に {span} 点を取るまで")
-                time.sleep(mspd / 3)
-                print(f"　コイントスを続け、")
-                time.sleep(mspd)
-
-                print()
-                print(f"　先に {span} 点取った方を優勝とする」")
-                time.sleep(mspd)
-
-
-                print()
-                print(f"きふわらべ国王は、 {p * 10:.1f} 割出るという表が優勝する方に張った。")
-                time.sleep(mspd)
-
-                print()
-                print(f"数学大臣は、 {q * 10:.1f} 割出るという裏が優勝する方に張った。")
-                time.sleep(mspd)
 
                 print()
                 print(f"きふわらべ国王「おい、そこらへんのコクミン。")
@@ -252,8 +255,15 @@ if __name__ == '__main__':
                 time.sleep(mspd)
 
 
-                if number_of_trial < 21:
-                    break
+                if number_of_trial * 47 / 100 <= number_of_a_victory and number_of_a_victory < number_of_trial * 53 / 100:
+                    print()
+                    print(f"きふわらべ国王「だいたい　五分五分ということでいいんじゃないか？」")
+                    time.sleep(mspd)
+                
+                else:
+                    print()
+                    print(f"きふわらべ国王「まー、偏ってるかなあ」")
+                    time.sleep(mspd)
 
 
                 print()
@@ -261,18 +271,12 @@ if __name__ == '__main__':
                 time.sleep(mspd * 3)
 
 
-            if number_of_trial * 47 / 100 <= number_of_a_victory and number_of_a_victory < number_of_trial * 53 / 100:
-                print()
-                print(f"きふわらべ国王「だいたい　五分五分ということでいいんじゃないか？」")
-                time.sleep(mspd)
-            
-            else:
-                print()
-                print(f"きふわらべ国王「まー、偏ってるかなあ」")
-                time.sleep(mspd)
+                # 何回かに一度、プロローグに戻る
+                if number_of_trial % 5 == 0:
+                    break
 
 
-            time.sleep(10)
+            # 無限ループ中
 
 
     except Exception as err:
