@@ -6,10 +6,11 @@
 
 import traceback
 import random
-import math
 import datetime
 import time
-import pandas as pd
+
+
+LOG_FILE_PATH = './logs/demo_japanese.log'
 
 
 ########################################
@@ -30,8 +31,6 @@ if __name__ == '__main__':
         h_step = 1
         t_step = 2
         span = 4
-        a_pts = 0   # 勝ち点の合計
-        b_pts = 0
         number_of_trial = 0     # 試行回数
         number_of_a_victory = 0
         number_of_b_victory = 0
@@ -140,7 +139,13 @@ if __name__ == '__main__':
             time.sleep(mspd)
 
 
+            # 新シリーズ開始
             while True:
+
+                # リセット
+                a_pts = 0   # 勝ち点の合計
+                b_pts = 0
+                round_th = 1
 
                 print()
                 print(f"きふわらべ国王「おい、そこらへんのコクミン。")
@@ -148,7 +153,6 @@ if __name__ == '__main__':
                 print(f"　コインを投げろだぜ」")
                 time.sleep(mspd)
 
-                round_th = 1
 
                 print()
                 print(f"国民「自分で投げればいいのに……")
@@ -159,6 +163,7 @@ if __name__ == '__main__':
                 # 0.0 <= X < 1.0
                 outcome = random.random()
 
+                # シリーズ中
                 while True:
 
                     if outcome < p:
@@ -266,8 +271,15 @@ if __name__ == '__main__':
                     time.sleep(mspd)
 
 
+                # ログに残す
+                with open(file=LOG_FILE_PATH, mode='a') as f:
+                    f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。　きふわらべ国王 {number_of_a_victory} 回優勝。　数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％")
+
+
                 print()
                 print(f"きふわらべ国王「もう１回やってみようぜ？」")
+                print()
+                print()
                 time.sleep(mspd * 3)
 
 
