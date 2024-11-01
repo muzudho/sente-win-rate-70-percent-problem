@@ -1,7 +1,7 @@
 #
-# python o3o0_play_unfair_coin_toss.py
+# python o3o0_play_equalized_unfair_coin_toss.py
 #
-#   アンフェアコイントス
+#   イコーライズド・アンフェア・コイントス
 #
 
 import traceback
