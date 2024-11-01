@@ -18,8 +18,14 @@ python o2o0_play_fair_coin_toss.py
 python o2o5o0_play_unfair_coin_toss.py
 ```
 
-👇　アンフェアなコイントス・ゲームの優勝率を調整したものをするなら、以下のコマンドを打鍵してプレイしてください  
+👇　アンフェアなコイントス・ゲームの優勝率を均等に調整したものをするなら、以下のコマンドを打鍵してプレイしてください  
 
 ```shell
-python python o3o0_play_equalized_unfair_coin_toss.py
+python o3o0_play_equalized_unfair_coin_toss.py
+```
+
+👇　アンフェアなコイントス・ゲームの優勝率を不均等に調整したものをするなら、以下のコマンドを打鍵してプレイしてください  
+
+```shell
+python o4o0_play_unequalized_unfair_coin_toss.py
 ```

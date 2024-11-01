@@ -351,3 +351,18 @@ class Paragraphs():
 
             else:
                 raise ValueError(f"{your_choice=}")
+
+
+    @staticmethod
+    def spoilers_from_the_minister_of_mathematics(msg_spd, game_plan):
+        """数学大臣によるネタバレ"""
+        
+        print()
+        print(f"数学大臣「ちなみに、")
+        time.sleep(msg_spd / 3)
+        print(f"　先手が勝つ確率は、約 {game_plan.a_victory_rate * 100:.1f} ％")
+        time.sleep(msg_spd / 3)
+        print(f"　後手が勝つ確率は、約 {game_plan.b_victory_rate * 100:.1f} ％")
+        time.sleep(msg_spd / 3)
+        print(f"　だったんだぜ」")
+        time.sleep(msg_spd)

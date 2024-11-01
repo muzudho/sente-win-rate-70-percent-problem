@@ -86,6 +86,10 @@ if __name__ == '__main__':
             # 優勝 or 敗退後
             # -------------
 
+            # 数学大臣「ちなみに、先手が勝つ確率は　～うんぬん～　だったんだぜ」
+            Paragraphs.spoilers_from_the_minister_of_mathematics(msg_spd=msg_spd, game_plan=game_plan)
+
+
             print()
             print(f"こうして、コイントスは終わった。")
             time.sleep(msg_spd)
