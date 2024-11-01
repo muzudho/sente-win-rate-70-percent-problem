@@ -11,7 +11,7 @@ import time
 
 from library import HEAD, TAIL, ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
-from library_for_game import GamePlan, choice_game_plan
+from library_for_game import GamePlan, SeriesStatus, choice_game_plan
 
 
 DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
@@ -83,12 +83,12 @@ class DemoResult():
         return self._number_of_b_victory
 
 
-    def won_alice(self):
+    def alice_won(self):
         self._number_of_trial += 1
         self._number_of_a_victory += 1
 
 
-    def won_bob(self):
+    def bob_won(self):
         self._number_of_trial += 1
         self._number_of_b_victory += 1
 
@@ -250,9 +250,7 @@ if __name__ == '__main__':
             while True:
 
                 # リセット
-                a_pts = 0   # 勝ち点の合計
-                b_pts = 0
-                list_str_of_face_of_coin = ""
+                series_status = SeriesStatus()
 
                 print()
                 print(f"きふわらべ国王「おい、そこらへんのコクミン。")
@@ -283,16 +281,15 @@ if __name__ == '__main__':
                         print(f"　{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
                         time.sleep(msg_spd)
 
-                        a_pts += game_plan.h_step
-                        list_str_of_face_of_coin += Converter.face_of_coin_to_str(face_of_coin)
+                        series_status.alice_won(face_of_coin=face_of_coin, h_step=game_plan.h_step)
 
                         print()
                         print(f"きふわらべ国王「わたしが勝ち点 {game_plan.h_step} をもらって、")
                         time.sleep(msg_spd / 3)
-                        print(f"　合計 {a_pts} 点だぜ。")
+                        print(f"　合計 {series_status.a_pts} 点だぜ。")
                         time.sleep(msg_spd)
 
-                        if game_plan.span <= a_pts:
+                        if game_plan.span <= series_status.a_pts:
                             print()
                             print(f"　{game_plan.span} 点取ったから、")
                             time.sleep(msg_spd / 3)
@@ -300,14 +297,14 @@ if __name__ == '__main__':
                             time.sleep(msg_spd)
 
                             trial_history.append_victory(player=ALICE)
-                            demo_result.won_alice()
+                            demo_result.alice_won()
                             break
 
                         else:
                             print()
                             print(f"　{game_plan.span} 点まで")
                             time.sleep(msg_spd / 3)
-                            print(f"　まだ {game_plan.span - a_pts} 点足りないから、")
+                            print(f"　まだ {game_plan.span - series_status.a_pts} 点足りないから、")
                             time.sleep(msg_spd / 3)
                             print(f"　続行だな」")
                             time.sleep(msg_spd)
@@ -318,16 +315,15 @@ if __name__ == '__main__':
                         print()
                         print(f"　{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
                         time.sleep(msg_spd)
-                        b_pts += game_plan.t_step
-                        list_str_of_face_of_coin += Converter.face_of_coin_to_str(face_of_coin)
+                        series_status.bob_won(face_of_coin=face_of_coin, t_step=game_plan.t_step)
 
                         print()
                         print(f"数学大臣「わたしが勝ち点 {game_plan.t_step} をもらって、")
                         time.sleep(msg_spd / 3)
-                        print(f"　合計 {b_pts} 点だぜ」")
+                        print(f"　合計 {series_status.b_pts} 点だぜ」")
                         time.sleep(msg_spd)
 
-                        if game_plan.span <= b_pts:
+                        if game_plan.span <= series_status.b_pts:
                             print()
                             print(f"　{game_plan.span} 点取ったから、")
                             time.sleep(msg_spd / 3)
@@ -335,14 +331,14 @@ if __name__ == '__main__':
                             time.sleep(msg_spd)
 
                             trial_history.append_victory(player=BOB)
-                            demo_result.won_bob()
+                            demo_result.bob_won()
                             break
 
                         else:
                             print()
                             print(f"　{game_plan.span} 点まで")
                             time.sleep(msg_spd / 3)
-                            print(f"　まだ {game_plan.span - b_pts} 点足りないから、")
+                            print(f"　まだ {game_plan.span - series_status.b_pts} 点足りないから、")
                             time.sleep(msg_spd / 3)
                             print(f"　続行だな」")
                             time.sleep(msg_spd)
@@ -385,7 +381,7 @@ if __name__ == '__main__':
 
                 # ログに残す
                 # ---------
-                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(game_plan.spec.turn_system_id)} fr={game_plan.spec.failure_rate} p={game_plan.spec.p} s={game_plan.span} t={game_plan.t_step} h={game_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {Converter.face_of_coin_to_str(face_of_coin)} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
+                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(game_plan.spec.turn_system_id)} fr={game_plan.spec.failure_rate} p={game_plan.spec.p} s={game_plan.span} t={game_plan.t_step} h={game_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {Converter.face_of_coin_to_str(face_of_coin)} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{series_status._list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
 
                 log_file_path = JapaneseDemoFilePaths.as_log(spec=game_plan.spec, span=game_plan.span, t_step=game_plan.t_step, h_step=game_plan.h_step)
                 with open(file=log_file_path, mode='a', encoding='utf-8') as f:

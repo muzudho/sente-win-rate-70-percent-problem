@@ -66,6 +66,41 @@ class GamePlan():
         return self._no_victory_rate
 
 
+class SeriesStatus():
+
+
+    def __init__(self):
+        self._a_pts = 0
+        self._b_pts = 0
+        self._list_str_of_face_of_coin = ""
+
+
+    @property
+    def a_pts(self):
+        """Ａさんの勝ち点の合計"""
+        return self._a_pts
+
+
+    @property
+    def b_pts(self):
+        return self._b_pts
+
+
+    @property
+    def list_str_of_face_of_coin(self):
+        return self._list_str_of_face_of_coin
+
+
+    def alice_won(self, face_of_coin, h_step):
+        self._a_pts += h_step
+        self._list_str_of_face_of_coin += Converter.face_of_coin_to_str(face_of_coin)
+
+
+    def bob_won(self, face_of_coin, t_step):
+        self._b_pts += t_step
+        self._list_str_of_face_of_coin += Converter.face_of_coin_to_str(face_of_coin)
+
+
 class Paragraphs():
     """各段落"""
 
