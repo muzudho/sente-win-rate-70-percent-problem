@@ -216,3 +216,138 @@ class Paragraphs():
         print(f"　{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
         time.sleep(msg_spd)
         return face_of_coin
+
+
+    @staticmethod
+    def open_face_of_coin(msg_spd, game_plan, series_status, your_choice, face_of_coin):
+        """
+        Returns
+        -------
+        victory_occurred : bool
+            どちらかが優勝したか？
+        """
+        if your_choice == face_of_coin:
+            print()
+            print(f"「やったぜ！　当たった！」")
+            time.sleep(msg_spd)
+
+            if your_choice == HEAD:
+                series_status.alice_won(face_of_coin=face_of_coin, h_step=game_plan.h_step)
+
+                print()
+                print(f"「わたしが勝ち点 {game_plan.h_step} をもらって、")
+                time.sleep(msg_spd / 3)
+                print(f"　合計 {series_status.a_pts} 点だぜ。")
+                time.sleep(msg_spd)
+
+                if game_plan.span <= series_status.a_pts:
+                    print()
+                    print(f"　{game_plan.span} 点取ったから、")
+                    time.sleep(msg_spd / 3)
+                    print(f"　わたしの優勝だな」")
+                    time.sleep(msg_spd)
+                    return True
+
+
+                print()
+                print(f"　{game_plan.span} 点まで")
+                time.sleep(msg_spd / 3)
+                print(f"　まだ {game_plan.span - series_status.a_pts} 点足りないから、")
+                time.sleep(msg_spd / 3)
+                print(f"　続行だな」")
+                time.sleep(msg_spd)
+
+
+            elif your_choice == TAIL:
+                series_status.bob_won(face_of_coin=face_of_coin, t_step=game_plan.t_step)
+
+                print()
+                print(f"「わたしが勝ち点 {game_plan.t_step} をもらって、")
+                time.sleep(msg_spd / 3)
+                print(f"　合計 {series_status.b_pts} 点だぜ。")
+                time.sleep(msg_spd)
+
+                if game_plan.span <= series_status.b_pts:
+                    print()
+                    print(f"　{game_plan.span} 点取ったから、")
+                    time.sleep(msg_spd / 3)
+                    print(f"　わたしの優勝だな」")
+                    time.sleep(msg_spd)
+                    return True
+
+
+                print()
+                print(f"　{game_plan.span} 点まで")
+                time.sleep(msg_spd / 3)
+                print(f"　まだ {game_plan.span - series_status.b_pts} 点足りないから、")
+                time.sleep(msg_spd / 3)
+                print(f"　続行だな」")
+                time.sleep(msg_spd)
+
+
+            else:
+                raise ValueError(f"{your_choice=}")
+
+
+        else:
+            print()
+            print(f"「ハズレかあ」")
+            time.sleep(msg_spd)
+
+
+            if your_choice == TAIL:
+                series_status.alice_won(face_of_coin=face_of_coin, h_step=game_plan.h_step)
+
+                print()
+                print(f"「相手に勝ち点 {game_plan.h_step} が入って、")
+                time.sleep(msg_spd / 3)
+                print(f"　合計 {series_status.a_pts} 点だぜ。")
+                time.sleep(msg_spd)
+
+                if game_plan.span <= series_status.a_pts:
+                    print()
+                    print(f"　{game_plan.span} 点取られたから、")
+                    time.sleep(msg_spd / 3)
+                    print(f"　わたしの敗退だな」")
+                    time.sleep(msg_spd)
+                    return True
+
+
+                print()
+                print(f"　{game_plan.span} 点まで")
+                time.sleep(msg_spd / 3)
+                print(f"　まだ {game_plan.span - series_status.a_pts} 点足りないから、")
+                time.sleep(msg_spd / 3)
+                print(f"　続行だな」")
+                time.sleep(msg_spd)
+
+
+            elif your_choice == HEAD:
+                series_status.bob_won(face_of_coin=face_of_coin, h_step=game_plan.t_step)
+
+                print()
+                print(f"「相手に勝ち点 {game_plan.t_step} が入って、")
+                time.sleep(msg_spd / 3)
+                print(f"　合計 {series_status.b_pts} 点だぜ。")
+                time.sleep(msg_spd)
+
+                if game_plan.span <= series_status.b_pts:
+                    print()
+                    print(f"　{game_plan.span} 点取られたから、")
+                    time.sleep(msg_spd / 3)
+                    print(f"　わたしの敗退だな」")
+                    time.sleep(msg_spd)
+                    return True
+
+
+                print()
+                print(f"　{game_plan.span} 点まで")
+                time.sleep(msg_spd / 3)
+                print(f"　まだ {game_plan.span - series_status.b_pts} 点足りないから、")
+                time.sleep(msg_spd / 3)
+                print(f"　続行だな」")
+                time.sleep(msg_spd)
+
+
+            else:
+                raise ValueError(f"{your_choice=}")

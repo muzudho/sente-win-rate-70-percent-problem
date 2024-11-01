@@ -10,7 +10,7 @@ import datetime
 import time
 
 from library import HEAD, TAIL, FROZEN_TURN, Converter, Specification
-from library_for_game import GamePlan, Paragraphs, choice_game_plan
+from library_for_game import GamePlan, SeriesStatus, Paragraphs, choice_game_plan
 
 
 list_of_game_plan = [
@@ -64,8 +64,7 @@ if __name__ == '__main__':
             your_choice = Paragraphs.do_you_choice_head_or_tail(msg_spd=msg_spd, game_plan=game_plan)
 
             # リセット
-            a_pts = 0
-            b_pts = 0
+            series_status = SeriesStatus()
 
             for round_th in range(1, 100_000_001):
 
@@ -76,132 +75,12 @@ if __name__ == '__main__':
                 # 例：　ピンッ　バシッ　「表が出た」
                 face_of_coin = Paragraphs.toss_a_coin(msg_spd=msg_spd, game_plan=game_plan)
 
+                # 例：　「やったぜ！　当たった！」　～うんぬん～　「優勝だな」
+                victory_occurred = Paragraphs.open_face_of_coin(msg_spd=msg_spd, game_plan=game_plan, series_status=series_status, your_choice=your_choice, face_of_coin=face_of_coin)
 
-                if your_choice == face_of_coin:
-                    print()
-                    print(f"「やったぜ！　当たった！」")
-                    time.sleep(msg_spd)
-
-                    if your_choice == HEAD:
-                        a_pts += game_plan.h_step
-
-                        print()
-                        print(f"「わたしが勝ち点 {game_plan.h_step} をもらって、")
-                        time.sleep(msg_spd / 3)
-                        print(f"　合計 {a_pts} 点だぜ。")
-                        time.sleep(msg_spd)
-
-                        if game_plan.span <= a_pts:
-                            print()
-                            print(f"　{game_plan.span} 点取ったから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　わたしの優勝だな」")
-                            time.sleep(msg_spd)
-                            break
-
-                        else:
-                            print()
-                            print(f"　{game_plan.span} 点まで")
-                            time.sleep(msg_spd / 3)
-                            print(f"　まだ {game_plan.span - a_pts} 点足りないから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　続行だな」")
-                            time.sleep(msg_spd)
-
-
-                    elif your_choice == TAIL:
-                        b_pts += game_plan.t_step
-
-                        print()
-                        print(f"「わたしが勝ち点 {game_plan.t_step} をもらって、")
-                        time.sleep(msg_spd / 3)
-                        print(f"　合計 {b_pts} 点だぜ。")
-                        time.sleep(msg_spd)
-
-                        if game_plan.span <= b_pts:
-                            print()
-                            print(f"　{game_plan.span} 点取ったから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　わたしの優勝だな」")
-                            time.sleep(msg_spd)
-                            break
-
-                        else:
-                            print()
-                            print(f"　{game_plan.span} 点まで")
-                            time.sleep(msg_spd / 3)
-                            print(f"　まだ {game_plan.span - b_pts} 点足りないから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　続行だな」")
-                            time.sleep(msg_spd)
-
-
-                    else:
-                        raise ValueError(f"{your_choice=}")
-
-
-                else:
-                    print()
-                    print(f"「ハズレかあ」")
-                    time.sleep(msg_spd)
-
-
-                    if your_choice == TAIL:
-                        a_pts += game_plan.h_step
-
-                        print()
-                        print(f"「相手に勝ち点 {game_plan.h_step} が入って、")
-                        time.sleep(msg_spd / 3)
-                        print(f"　合計 {a_pts} 点だぜ。")
-                        time.sleep(msg_spd)
-
-                        if game_plan.span <= a_pts:
-                            print()
-                            print(f"　{game_plan.span} 点取られたから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　わたしの敗退だな」")
-                            time.sleep(msg_spd)
-                            break
-
-                        else:
-                            print()
-                            print(f"　{game_plan.span} 点まで")
-                            time.sleep(msg_spd / 3)
-                            print(f"　まだ {game_plan.span - a_pts} 点足りないから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　続行だな」")
-                            time.sleep(msg_spd)
-
-
-                    elif your_choice == HEAD:
-                        b_pts += game_plan.t_step
-
-                        print()
-                        print(f"「相手に勝ち点 {game_plan.t_step} が入って、")
-                        time.sleep(msg_spd / 3)
-                        print(f"　合計 {b_pts} 点だぜ。")
-                        time.sleep(msg_spd)
-
-                        if game_plan.span <= b_pts:
-                            print()
-                            print(f"　{game_plan.span} 点取られたから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　わたしの敗退だな」")
-                            time.sleep(msg_spd)
-                            break
-
-                        else:
-                            print()
-                            print(f"　{game_plan.span} 点まで")
-                            time.sleep(msg_spd / 3)
-                            print(f"　まだ {game_plan.span - b_pts} 点足りないから、")
-                            time.sleep(msg_spd / 3)
-                            print(f"　続行だな」")
-                            time.sleep(msg_spd)
-
-
-                    else:
-                        raise ValueError(f"{your_choice=}")
+                # どちらかが優勝したらループを抜ける
+                if victory_occurred:
+                    break
 
 
             # 優勝 or 敗退後
