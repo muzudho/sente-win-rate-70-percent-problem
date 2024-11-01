@@ -9,7 +9,8 @@ import random
 import datetime
 import time
 
-from library import HEAD, TAIL
+from library import HEAD, TAIL, FROZEN_TURN
+from library.game import GamePlan
 
 
 ########################################
@@ -39,12 +40,23 @@ if __name__ == '__main__':
             print(f"先住民が持っているコインは、")
             time.sleep(mspd)
 
+            game_plan = GamePlan(
+                    turn_system_id=FROZEN_TURN,
+                    p=0.5,
+                    failure_rate=0.0,
+                    h_step=1,
+                    t_step=1,
+                    span=1,
+                    a_victory_rate=0.5,
+                    b_victory_rate=0.5,
+                    no_victory_rate=0.0)
+
             print()
-            print(f"投げて表が出る確率　５０％")
+            print(f"投げて表が出る確率 {game_plan.spec.p * 100:.1f} ％")
             time.sleep(mspd / 3)
-            print(f"投げてｳﾗが出る確率　５０％")
+            print(f"投げてｳﾗが出る確率 {(1 - game_plan.spec.p) * 100:.1f} ％")
             time.sleep(mspd / 3)
-            print(f"投げて表もｳﾗも出ない確率　０％")
+            print(f"投げて表もｳﾗも出ない確率 {game_plan.spec.failure_rate * 100:.1f} ％")
             time.sleep(mspd / 3)
             print(f"の、")
             time.sleep(mspd)
