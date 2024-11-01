@@ -9,7 +9,7 @@ import random
 import datetime
 import time
 
-from library import HEAD, TAIL, FROZEN_TURN, Specification
+from library import HEAD, TAIL, FROZEN_TURN, Converter, Specification
 from library_for_game import GamePlan, Paragraphs, choice_game_plan
 
 
@@ -61,33 +61,8 @@ if __name__ == '__main__':
             # 例：　「表とｳﾗ、どっちが出る方に張る？」「じゃあ　ｳﾗで」
             your_choice = Paragraphs.do_you_choice_head_or_tail(msg_spd=msg_spd, game_plan=game_plan)
 
-
-            print()
-            print(f"ピンッ")
-            time.sleep(msg_spd / 3)
-            print(f"バシッ")
-            time.sleep(msg_spd)
-
-
-            # 0.0 <= X < 1.0
-            outcome = random.random()
-
-
-            if outcome < game_plan.spec.p:
-                face_of_coin = HEAD
-                face_of_coin_str = '表'
-
-                print()
-                print(f"「{face_of_coin_str}が出た」")
-                time.sleep(msg_spd)
-
-            else:
-                face_of_coin = TAIL
-                face_of_coin_str = 'ｳﾗ'    # 表と裏の字が似すぎているので、変えてみる
-
-                print()
-                print(f"　{face_of_coin_str}が出た」")
-                time.sleep(msg_spd)
+            # 例：　ピンッ　バシッ　「表が出た」
+            face_of_coin = Paragraphs.toss_a_coin(msg_spd=msg_spd, game_plan=game_plan)
 
 
             if your_choice == face_of_coin:

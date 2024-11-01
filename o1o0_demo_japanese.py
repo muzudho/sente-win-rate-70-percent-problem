@@ -9,7 +9,7 @@ import random
 import datetime
 import time
 
-from library import ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
+from library import HEAD, TAIL, ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
 from library_for_game import GamePlan, choice_game_plan
 
@@ -277,14 +277,14 @@ if __name__ == '__main__':
                     outcome = random.random()
 
                     if outcome < game_plan.spec.p:
-                        face_of_coin_str = '表'
+                        face_of_coin = HEAD
 
                         print()
-                        print(f"　{face_of_coin_str}が出た」")
+                        print(f"　{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
                         time.sleep(msg_spd)
 
                         a_pts += game_plan.h_step
-                        list_str_of_face_of_coin += face_of_coin_str
+                        list_str_of_face_of_coin += Converter.face_of_coin_to_str(face_of_coin)
 
                         print()
                         print(f"きふわらべ国王「わたしが勝ち点 {game_plan.h_step} をもらって、")
@@ -313,13 +313,13 @@ if __name__ == '__main__':
                             time.sleep(msg_spd)
 
                     else:
-                        face_of_coin_str = 'ｳﾗ'    # 表と裏の字が似すぎているので、変えてみる
+                        face_of_coin = TAIL
 
                         print()
-                        print(f"　{face_of_coin_str}が出た」")
+                        print(f"　{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
                         time.sleep(msg_spd)
                         b_pts += game_plan.t_step
-                        list_str_of_face_of_coin += face_of_coin_str
+                        list_str_of_face_of_coin += Converter.face_of_coin_to_str(face_of_coin)
 
                         print()
                         print(f"数学大臣「わたしが勝ち点 {game_plan.t_step} をもらって、")
@@ -385,7 +385,7 @@ if __name__ == '__main__':
 
                 # ログに残す
                 # ---------
-                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(game_plan.spec.turn_system_id)} fr={game_plan.spec.failure_rate} p={game_plan.spec.p} s={game_plan.span} t={game_plan.t_step} h={game_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {face_of_coin_str} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
+                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(game_plan.spec.turn_system_id)} fr={game_plan.spec.failure_rate} p={game_plan.spec.p} s={game_plan.span} t={game_plan.t_step} h={game_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {Converter.face_of_coin_to_str(face_of_coin)} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
 
                 log_file_path = JapaneseDemoFilePaths.as_log(spec=game_plan.spec, span=game_plan.span, t_step=game_plan.t_step, h_step=game_plan.h_step)
                 with open(file=log_file_path, mode='a', encoding='utf-8') as f:

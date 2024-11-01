@@ -1,6 +1,6 @@
 import time
 import random
-from library import HEAD, TAIL, Specification
+from library import HEAD, TAIL, Converter, Specification
 
 
 def choice_game_plan(list_of_game_plan):
@@ -151,3 +151,33 @@ class Paragraphs():
         print(f"「じゃあ　ｳﾗで」")
         time.sleep(msg_spd)
         return TAIL
+
+
+    @staticmethod
+    def toss_a_coin(msg_spd, game_plan):
+        print()
+        print(f"ピンッ")
+        time.sleep(msg_spd / 3)
+        print(f"バシッ")
+        time.sleep(msg_spd)
+
+
+        # 0.0 <= X < 1.0
+        outcome = random.random()
+
+
+        if outcome < game_plan.spec.p:
+            face_of_coin = HEAD
+
+            print()
+            print(f"「{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
+            time.sleep(msg_spd)
+            return face_of_coin
+
+
+        face_of_coin = TAIL
+
+        print()
+        print(f"　{Converter.face_of_coin_to_str(face_of_coin)}が出た」")
+        time.sleep(msg_spd)
+        return face_of_coin

@@ -177,7 +177,7 @@ class Converter():
             clazz._face_of_coin_to_str = {
                 EMPTY: '失',    # 失敗の頭文字
                 HEAD : '表',
-                TAIL : '裏',
+                TAIL : 'ｳﾗ',    # 表と裏の字が似すぎているので、"裏" から "ｳﾗ" へ仕様変更した
             }
         
         return clazz._face_of_coin_to_str[face_of_coin]
@@ -2524,7 +2524,6 @@ class ScoreBoard():
             else:
                 raise ValueError(f"{spec.turn_system_id=}")
 
-            face_of_coin_str = Converter.face_of_coin_to_str(face_of_coin)
 
             if face_of_coin == HEAD:
                 if head_player == 'A':
@@ -2545,7 +2544,7 @@ class ScoreBoard():
                 raise ValueError(f"{face_of_coin=}")
             
 
-            round_list.append([round_th, head_player, face_of_coin_str, a_point, b_point])
+            round_list.append([round_th, head_player, Converter.face_of_coin_to_str(face_of_coin), a_point, b_point])
 
 
         last_round = round_list[-1]
