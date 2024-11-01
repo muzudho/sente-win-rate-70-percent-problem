@@ -54,55 +54,14 @@ if __name__ == '__main__':
             # ゲーム企画
             game_plan = choice_game_plan(list_of_game_plan)
 
-            # 先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
+            # 例：　先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
             Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)
 
-            print()
-            print(f"ここで")
-            time.sleep(msg_spd / 3)
-            print(f"コインを投げて、")
-            time.sleep(msg_spd)
+            # 例：　ここでコインを投げて、～うんぬん～　点先取した方が優勝とする
+            Paragraphs.explain_series_rule(msg_spd=msg_spd, game_plan=game_plan)
 
-
-            print()
-            print(f"表が出たら、表に張った方に勝ち点が {game_plan.h_step} 、")
-            time.sleep(msg_spd / 3)
-            print(f"ｳﾗが出たら、ｳﾗに張った方に勝ち点が {game_plan.t_step} 、")
-            # time.sleep(msg_spd / 3)
-            # print(f"表も裏も出なかったら 0 点、")
-            time.sleep(msg_spd)
-
-            print()
-            print(f"先に勝ち点を {game_plan.span} 取った方を優勝とする。")
-            time.sleep(msg_spd / 3)
-
-            print()
-            print(f"「表とｳﾗ、どっちが出る方に張る？」")
-            time.sleep(msg_spd)
-
-            while True:
-                prompt = f"""\
-
-表に張るなら h を、ｳﾗに張るなら t を入力してください
-> """
-                input_str = input(prompt)
-
-                if input_str in ['h', 't']:
-                    break
-
-            if input_str == 'h':
-                your_choice = HEAD
-
-                print()
-                print(f"「じゃあ　表で」")
-                time.sleep(msg_spd)
-            
-            else:
-                your_choice = TAIL
-
-                print()
-                print(f"「じゃあ　ｳﾗで」")
-                time.sleep(msg_spd)
+            # 例：　「表とｳﾗ、どっちが出る方に張る？」「じゃあ　ｳﾗで」
+            your_choice = Paragraphs.do_you_choice_head_or_tail(msg_spd=msg_spd, game_plan=game_plan)
 
             # リセット
             a_pts = 0
@@ -125,7 +84,7 @@ if __name__ == '__main__':
                 outcome = random.random()
 
 
-                if outcome < 0.5:
+                if outcome < game_plan.spec.p:
                     face_of_coin = HEAD
                     face_of_coin_str = '表'
 

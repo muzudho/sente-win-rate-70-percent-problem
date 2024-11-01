@@ -55,36 +55,12 @@ if __name__ == '__main__':
             # ゲーム企画
             game_plan = choice_game_plan(list_of_game_plan)
 
-            # 先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
+            # 例：　先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
             Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)
 
-            print()
-            print(f"「表とｳﾗ、どっちが出る方に張る？」")
-            time.sleep(msg_spd)
+            # 例：　「表とｳﾗ、どっちが出る方に張る？」「じゃあ　ｳﾗで」
+            your_choice = Paragraphs.do_you_choice_head_or_tail(msg_spd=msg_spd, game_plan=game_plan)
 
-            while True:
-                prompt = f"""\
-
-表に張るなら h を、ｳﾗに張るなら t を入力してください
-> """
-                input_str = input(prompt)
-
-                if input_str in ['h', 't']:
-                    break
-
-            if input_str == 'h':
-                your_choice = HEAD
-
-                print()
-                print(f"「じゃあ　表で」")
-                time.sleep(msg_spd)
-            
-            else:
-                your_choice = TAIL
-
-                print()
-                print(f"「じゃあ　ｳﾗで」")
-                time.sleep(msg_spd)
 
             print()
             print(f"ピンッ")
@@ -97,7 +73,7 @@ if __name__ == '__main__':
             outcome = random.random()
 
 
-            if outcome < 0.7:
+            if outcome < game_plan.spec.p:
                 face_of_coin = HEAD
                 face_of_coin_str = '表'
 

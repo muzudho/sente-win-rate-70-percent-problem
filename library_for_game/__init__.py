@@ -1,6 +1,6 @@
 import time
 import random
-from library import Specification
+from library import HEAD, TAIL, Specification
 
 
 def choice_game_plan(list_of_game_plan):
@@ -97,3 +97,57 @@ class Paragraphs():
             print()
             print(f"アンフェアコインだ。")
             time.sleep(msg_spd)
+
+
+    @staticmethod
+    def explain_series_rule(msg_spd, game_plan):
+        """［シリーズ・ルール］の解説"""
+
+        print()
+        print(f"ここで")
+        time.sleep(msg_spd / 3)
+        print(f"コインを投げて、")
+        time.sleep(msg_spd)
+
+
+        print()
+        print(f"表が出たら、表に張った方に勝ち点が {game_plan.h_step} 、")
+        time.sleep(msg_spd / 3)
+        print(f"ｳﾗが出たら、ｳﾗに張った方に勝ち点が {game_plan.t_step} 、")
+        # time.sleep(msg_spd / 3)
+        # print(f"表も裏も出なかったら 0 点、")
+        time.sleep(msg_spd)
+
+        print()
+        print(f"先に勝ち点を {game_plan.span} 取った方を優勝とする。")
+        time.sleep(msg_spd / 3)
+
+
+    @staticmethod
+    def do_you_choice_head_or_tail(msg_spd, game_plan):
+
+        print()
+        print(f"「表とｳﾗ、どっちが出る方に張る？」")
+        time.sleep(msg_spd)
+
+        while True:
+            prompt = f"""\
+
+表に張るなら h を、ｳﾗに張るなら t を入力してください
+> """
+            input_str = input(prompt)
+
+            if input_str in ['h', 't']:
+                break
+
+
+        if input_str == 'h':
+            print()
+            print(f"「じゃあ　表で」")
+            time.sleep(msg_spd)
+            return HEAD
+        
+        print()
+        print(f"「じゃあ　ｳﾗで」")
+        time.sleep(msg_spd)
+        return TAIL
