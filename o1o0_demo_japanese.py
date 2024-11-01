@@ -1,5 +1,5 @@
 #
-# python demo_japanese.py
+# python o1o0_demo_japanese.py
 #
 #   日本語での展示デモ
 #
@@ -311,13 +311,13 @@ if __name__ == '__main__':
                 while True:
 
                     if outcome < demo_plan.spec.p:
-                        face_of_coin = '表'
+                        face_of_coin_str = '表'
 
                         print()
-                        print(f"　{face_of_coin}が出た」")
+                        print(f"　{face_of_coin_str}が出た」")
                         time.sleep(mspd)
                         a_pts += demo_plan.h_step
-                        list_str_of_face_of_coin += face_of_coin
+                        list_str_of_face_of_coin += face_of_coin_str
 
                         print()
                         print(f"きふわらべ国王「わたしが勝ち点 {demo_plan.h_step} をもらって、")
@@ -346,13 +346,13 @@ if __name__ == '__main__':
                             time.sleep(mspd)
 
                     else:
-                        face_of_coin = 'ｳﾗ'    # 表と裏の字が似すぎているので、変えてみる
+                        face_of_coin_str = 'ｳﾗ'    # 表と裏の字が似すぎているので、変えてみる
 
                         print()
-                        print(f"　{face_of_coin}が出た」")
+                        print(f"　{face_of_coin_str}が出た」")
                         time.sleep(mspd)
                         b_pts += demo_plan.t_step
-                        list_str_of_face_of_coin += face_of_coin
+                        list_str_of_face_of_coin += face_of_coin_str
 
                         print()
                         print(f"数学大臣「わたしが勝ち点 {demo_plan.t_step} をもらって、")
@@ -428,7 +428,7 @@ if __name__ == '__main__':
 
                 # ログに残す
                 # ---------
-                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(demo_plan.spec.turn_system_id)} fr={demo_plan.spec.failure_rate} p={demo_plan.spec.p} s={demo_plan.span} t={demo_plan.t_step} h={demo_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {face_of_coin} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
+                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(demo_plan.spec.turn_system_id)} fr={demo_plan.spec.failure_rate} p={demo_plan.spec.p} s={demo_plan.span} t={demo_plan.t_step} h={demo_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {face_of_coin_str} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
 
                 log_file_path = JapaneseDemoFilePaths.as_log(spec=demo_plan.spec, span=demo_plan.span, t_step=demo_plan.t_step, h_step=demo_plan.h_step)
                 with open(file=log_file_path, mode='a', encoding='utf-8') as f:
