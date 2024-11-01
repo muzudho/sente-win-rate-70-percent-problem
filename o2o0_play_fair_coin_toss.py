@@ -64,7 +64,7 @@ if __name__ == '__main__':
             while True:
                 prompt = f"""\
 
-表に貼るなら h を、ｳﾗに貼るなら t を入力してください
+表に張るなら h を、ｳﾗに張るなら t を入力してください
 > """
                 input_str = input(prompt)
 
