@@ -9,7 +9,7 @@ import random
 import datetime
 import time
 
-from library import ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Specification
+from library import ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
 
 
@@ -55,6 +55,44 @@ class TrialHistory():
         return a_victory / times #, b_victory / times
 
 
+class DemoPlan():
+    """デモ企画"""
+
+
+    def __init__(self, turn_system_id, p, failure_rate, h_step, t_step, span):
+
+        # ［仕様］
+        self._spec = Specification(
+                turn_system_id=turn_system_id,
+                failure_rate=failure_rate,
+                p=p)
+
+        self._h_step = h_step
+        self._t_step = t_step
+        self._span = span
+
+
+
+    @property
+    def spec(self):
+        return self._spec
+
+
+    @property
+    def h_step(self):
+        return self._h_step
+
+
+    @property
+    def t_step(self):
+        return self._t_step
+
+
+    @property
+    def span(self):
+        return self._span
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -66,20 +104,26 @@ if __name__ == '__main__':
         #mspd = 2
         mspd = 0.02
 
-        # ゲームデータ
-        turn_system_id = FROZEN_TURN
-        p = 0.7     # 0.01 単位で 0 ～ 1 を想定
-        q = 1 - p
-        failure_rate = 0.0
-        h_step = 1
-        t_step = 2
-        span = 2
-        number_of_trial = 0     # 試行回数。 p=0.7,s=2,t=2,h=1 のとき、 400 times ぐらいでほぼ収束
-        number_of_a_victory = 0
-        number_of_b_victory = 0
-        trial_history = TrialHistory()  # 試行履歴
 
-        while True:
+        for demo_th in range(1, 100_000_001):
+
+            # 200 回に 1 回、ゲームデータをリセットする
+            if demo_th % 200 == 1:
+                # デモ企画
+                demo_plan = DemoPlan(
+                        turn_system_id=FROZEN_TURN,
+                        p=0.7,              # 0.01 単位で 0 ～ 1 を想定
+                        failure_rate=0.0,
+                        h_step=1,
+                        t_step=2,
+                        span=2)
+
+                number_of_trial = 0     # 試行回数。 p=0.7,s=2,t=2,h=1 のとき、 400 times ぐらいでほぼ収束
+                number_of_a_victory = 0
+                number_of_b_victory = 0
+
+                trial_history = TrialHistory()  # 試行履歴
+
 
             # プロローグ
             print()
@@ -154,32 +198,32 @@ if __name__ == '__main__':
 
 
             print()
-            print(f"「ここに表が {p * 10:.1f} 割出るイカサマコインがある。")
+            print(f"「ここに表が {demo_plan.spec.p * 10:.1f} 割出るイカサマコインがある。")
             time.sleep(mspd)
 
             print()
-            print(f"　表が出たら勝ち点が {h_step} 、")
+            print(f"　表が出たら勝ち点が {demo_plan.h_step} 、")
             time.sleep(mspd / 3)
-            print(f"　ｳﾗが出たら勝ち点が {t_step} とし、")
+            print(f"　ｳﾗが出たら勝ち点が {demo_plan.t_step} とし、")
             time.sleep(mspd)
 
             print()
-            print(f"　どちらかが先に {span} 点を取るまで")
+            print(f"　どちらかが先に {demo_plan.span} 点を取るまで")
             time.sleep(mspd / 3)
             print(f"　コイントスを続け、")
             time.sleep(mspd)
 
             print()
-            print(f"　先に {span} 点取った方を優勝とする」")
+            print(f"　先に {demo_plan.span} 点取った方を優勝とする」")
             time.sleep(mspd)
 
 
             print()
-            print(f"きふわらべ国王は、 {p * 10:.1f} 割出るという表が優勝する方に張った。")
+            print(f"きふわらべ国王は、 {demo_plan.spec.p * 10:.1f} 割出るという表が優勝する方に張った。")
             time.sleep(mspd)
 
             print()
-            print(f"数学大臣は、 {q * 10:.1f} 割出るというｳﾗが優勝する方に張った。")
+            print(f"数学大臣は、 {(1 - demo_plan.spec.p) * 10:.1f} 割出るというｳﾗが優勝する方に張った。")
             time.sleep(mspd)
 
 
@@ -211,24 +255,24 @@ if __name__ == '__main__':
                 # シリーズ中
                 while True:
 
-                    if outcome < p:
+                    if outcome < demo_plan.spec.p:
                         face_of_coin = '表'
 
                         print()
                         print(f"　{face_of_coin}が出た」")
                         time.sleep(mspd)
-                        a_pts += h_step
+                        a_pts += demo_plan.h_step
                         list_str_of_face_of_coin += face_of_coin
 
                         print()
-                        print(f"きふわらべ国王「わたしが勝ち点 {h_step} をもらって、")
+                        print(f"きふわらべ国王「わたしが勝ち点 {demo_plan.h_step} をもらって、")
                         time.sleep(mspd / 3)
                         print(f"　合計 {a_pts} 点だぜ。")
                         time.sleep(mspd)
 
-                        if span <= a_pts:
+                        if demo_plan.span <= a_pts:
                             print()
-                            print(f"　{span} 点取ったから、")
+                            print(f"　{demo_plan.span} 点取ったから、")
                             time.sleep(mspd / 3)
                             print(f"　わたしの優勝だな」")
                             time.sleep(mspd)
@@ -239,9 +283,9 @@ if __name__ == '__main__':
 
                         else:
                             print()
-                            print(f"　{span} 点まで")
+                            print(f"　{demo_plan.span} 点まで")
                             time.sleep(mspd / 3)
-                            print(f"　まだ {span - a_pts} 点足りないから、")
+                            print(f"　まだ {demo_plan.span - a_pts} 点足りないから、")
                             time.sleep(mspd / 3)
                             print(f"　続行だな」")
                             time.sleep(mspd)
@@ -252,18 +296,18 @@ if __name__ == '__main__':
                         print()
                         print(f"　{face_of_coin}が出た」")
                         time.sleep(mspd)
-                        b_pts += t_step
+                        b_pts += demo_plan.t_step
                         list_str_of_face_of_coin += face_of_coin
 
                         print()
-                        print(f"数学大臣「わたしが勝ち点 {t_step} をもらって、")
+                        print(f"数学大臣「わたしが勝ち点 {demo_plan.t_step} をもらって、")
                         time.sleep(mspd / 3)
                         print(f"　合計 {b_pts} 点だぜ」")
                         time.sleep(mspd)
 
-                        if span <= b_pts:
+                        if demo_plan.span <= b_pts:
                             print()
-                            print(f"　{span} 点取ったから、")
+                            print(f"　{demo_plan.span} 点取ったから、")
                             time.sleep(mspd / 3)
                             print(f"　わたしの優勝だな」")
                             time.sleep(mspd)
@@ -274,9 +318,9 @@ if __name__ == '__main__':
 
                         else:
                             print()
-                            print(f"　{span} 点まで")
+                            print(f"　{demo_plan.span} 点まで")
                             time.sleep(mspd / 3)
-                            print(f"　まだ {span - b_pts} 点足りないから、")
+                            print(f"　まだ {demo_plan.span - b_pts} 点足りないから、")
                             time.sleep(mspd / 3)
                             print(f"　続行だな」")
                             time.sleep(mspd)
@@ -332,15 +376,9 @@ if __name__ == '__main__':
                 # ログに残す
                 # ---------
 
-                # ［仕様］
-                spec = Specification(
-                        turn_system_id=turn_system_id,
-                        failure_rate=failure_rate,
-                        p=p)
-
-                log_file_path = JapaneseDemoFilePaths.as_log(spec=spec, span=span, t_step=t_step, h_step=h_step)
+                log_file_path = JapaneseDemoFilePaths.as_log(spec=demo_plan.spec, span=demo_plan.span, t_step=demo_plan.t_step, h_step=demo_plan.h_step)
                 with open(file=log_file_path, mode='a', encoding='utf-8') as f:
-                    f.write(f"[{datetime.datetime.now()}] {number_of_trial} シリーズ目。  {face_of_coin} の優勝。　表：きふわらべ国王 {number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n")
+                    f.write(f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(demo_plan.spec.turn_system_id)} fr={demo_plan.spec.failure_rate} p={demo_plan.spec.p} s={demo_plan.span} t={demo_plan.t_step} h={demo_plan.h_step}    {number_of_trial} シリーズ目。  {face_of_coin} の優勝。　表：きふわらべ国王 {number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n")
 
 
                 print()
