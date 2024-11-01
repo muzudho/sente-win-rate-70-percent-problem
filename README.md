@@ -6,8 +6,14 @@
 python o1o0_demo_japanese.py
 ```
 
-👇　コイントス・ゲームをするなら、以下のコマンドを打鍵してプレイしてください  
+👇　フェアなコイントス・ゲームをするなら、以下のコマンドを打鍵してプレイしてください  
 
 ```shell
 python o2o0_play_fair_coin_toss.py
+```
+
+👇　アンフェアなコイントス・ゲームの優勝率を調整したものをするなら、以下のコマンドを打鍵してプレイしてください  
+
+```shell
+python python o3o0_play_equalized_unfair_coin_toss.py
 ```
