@@ -129,10 +129,12 @@ class DemoResult():
 
     def won_alice(self):
         self._number_of_trial += 1
+        self._number_of_a_victory += 1
 
 
     def won_bob(self):
         self._number_of_trial += 1
+        self._number_of_b_victory += 1
 
 
 # デモ企画
