@@ -9,11 +9,7 @@ import random
 import datetime
 import time
 
-from library import HEAD, TAIL, ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
-from library.file_paths import JapaneseDemoFilePaths
-
-
-DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
+from library import HEAD, TAIL
 
 
 ########################################

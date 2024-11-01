@@ -9,12 +9,8 @@ import random
 import datetime
 import time
 
-from library import HEAD, TAIL, ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
-from library.file_paths import JapaneseDemoFilePaths
+from library import HEAD, TAIL, FROZEN_TURN
 from library.game import GamePlan
-
-
-DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
 
 
 ########################################
@@ -174,9 +170,6 @@ if __name__ == '__main__':
                             time.sleep(mspd / 3)
                             print(f"　わたしの優勝だな」")
                             time.sleep(mspd)
-
-                            #trial_history.append_victory(player=ALICE)
-                            #demo_result.won_alice()
                             break
 
                         else:
