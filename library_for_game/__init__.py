@@ -369,7 +369,7 @@ class Paragraphs():
 
 
     @staticmethod
-    def announcer(msg_spd, game_plan, series_status, a_choice, a_name="王国兵", b_name="コクミン"):
+    def announcer(msg_spd, game_plan, series_status, a_choice, a_name="国王の代理", b_name="コクミン"):
         """アナウンサー"""
 
         if a_choice == HEAD:
