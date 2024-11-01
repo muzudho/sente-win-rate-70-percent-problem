@@ -287,6 +287,38 @@ class SimulationLargeSeriesFilePaths():
         return f'logs/simulate_large_series{subname}.log'
 
 
+##########
+# MARK: JD
+##########
+
+class JapaneseDemoFilePaths():
+    """日本語版展示デモファイルへのパス"""
+
+
+    @staticmethod
+    def get_temp_directory_path():
+        # './' は付けない
+        return 'temp/demo_japanese'
+
+
+    @staticmethod
+    def get_logs_directory_path():
+        # './' は付けない
+        return 'logs/demo_japanese'
+
+
+    @staticmethod
+    def as_csv(spec, span, t_step, h_step):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
+        return f'{JapaneseDemoFilePaths.get_temp_directory_path()}/VRS{subname}.csv'
+
+
+    @staticmethod
+    def as_log(spec, span, t_step, h_step):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p, span=span, t_step=t_step, h_step=h_step)
+        return f'{JapaneseDemoFilePaths.get_logs_directory_path()}/JD{subname}.log'
+
+
 ###########
 # MARK: VRS
 ###########

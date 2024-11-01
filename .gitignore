@@ -2,6 +2,8 @@
 *- コピー*
 
 *.log
+logs/demo_japanese/*
+!logs/demo_japanese/.gitkeep
 logs/empirical_probability_during_trials/*
 !logs/empirical_probability_during_trials/.gitkeep
 logs/game_tree/*
@@ -21,6 +23,8 @@ logs/theoretical_probability/*
 logs/theoretical_probability_rates/*
 !logs/theoretical_probability_rates/.gitkeep
 
+temp/demo_japanese/*
+!temp/demo_japanese/.gitkeep
 temp/empirical_probability_during_trials/*
 !temp/empirical_probability_during_trials/.gitkeep
 temp/game_tree/*
