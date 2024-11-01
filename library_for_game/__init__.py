@@ -1,5 +1,10 @@
 import time
+import random
 from library import Specification
+
+
+def choice_game_plan(list_of_game_plan):
+    return list_of_game_plan[random.randint(0, len(list_of_game_plan) - 1)]
 
 
 class GamePlan():

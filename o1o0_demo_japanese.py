@@ -11,7 +11,7 @@ import time
 
 from library import ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
-from library_for_game import GamePlan
+from library_for_game import GamePlan, choice_game_plan
 
 
 DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
@@ -137,7 +137,7 @@ if __name__ == '__main__':
             # 200 回に 1 回、ゲームデータをリセットする。小ループがあるので、シリーズ数は５倍ぐらい進む
             if demo_th % 100 == 1:
                 # ゲーム企画
-                game_plan = list_of_game_plan[random.randint(0, len(list_of_game_plan) - 1)]
+                game_plan = choice_game_plan(list_of_game_plan)
 
                 demo_result = DemoResult()
 
