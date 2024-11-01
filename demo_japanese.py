@@ -13,6 +13,9 @@ from library import ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specif
 from library.file_paths import JapaneseDemoFilePaths
 
 
+DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
+
+
 class TrialHistory():
     """試行履歴"""
 
@@ -60,6 +63,13 @@ class DemoPlan():
 
 
     def __init__(self, turn_system_id, p, failure_rate, h_step, t_step, span):
+        """初期化
+
+        Parameters
+        ----------
+        p : float
+            0.01 単位で 0 ～ 1 を想定
+        """
 
         # ［仕様］
         self._spec = Specification(
@@ -93,6 +103,57 @@ class DemoPlan():
         return self._span
 
 
+class DemoResult():
+
+
+    def __init__(self):
+        self._number_of_trial = 0       # 試行回数。 p=0.7,s=2,t=2,h=1 のとき、 400 times ぐらいでほぼ収束
+        self._number_of_a_victory = 0
+        self._number_of_b_victory = 0
+
+
+    @property
+    def number_of_trial(self):
+        return self._number_of_trial
+
+
+    @property
+    def number_of_a_victory(self):
+        return self._number_of_a_victory
+
+
+    @property
+    def number_of_b_victory(self):
+        return self._number_of_b_victory
+
+
+    def won_alice(self):
+        self._number_of_trial += 1
+
+
+    def won_bob(self):
+        self._number_of_trial += 1
+
+
+# デモ企画
+list_of_demo_plan = [
+    DemoPlan(
+            turn_system_id=FROZEN_TURN,
+            p=0.7,
+            failure_rate=0.0,
+            h_step=1,
+            t_step=2,
+            span=2),
+    DemoPlan(
+            turn_system_id=FROZEN_TURN,
+            p=0.61,
+            failure_rate=0.0,
+            h_step=1,
+            t_step=2,
+            span=3),
+]
+
+
 ########################################
 # コマンドから実行時
 ########################################
@@ -101,26 +162,18 @@ if __name__ == '__main__':
 
     try:
         # メッセージスピード
-        #mspd = 2
-        mspd = 0.02
+        mspd = 2
+        #mspd = 0.02
 
 
         for demo_th in range(1, 100_000_001):
 
-            # 200 回に 1 回、ゲームデータをリセットする
-            if demo_th % 200 == 1:
+            # 200 回に 1 回、ゲームデータをリセットする。小ループがあるので、シリーズ数は５倍ぐらい進む
+            if demo_th % 100 == 1:
                 # デモ企画
-                demo_plan = DemoPlan(
-                        turn_system_id=FROZEN_TURN,
-                        p=0.7,              # 0.01 単位で 0 ～ 1 を想定
-                        failure_rate=0.0,
-                        h_step=1,
-                        t_step=2,
-                        span=2)
+                demo_plan = list_of_demo_plan[random.randint(0, len(list_of_demo_plan))]
 
-                number_of_trial = 0     # 試行回数。 p=0.7,s=2,t=2,h=1 のとき、 400 times ぐらいでほぼ収束
-                number_of_a_victory = 0
-                number_of_b_victory = 0
+                demo_result = DemoResult()
 
                 trial_history = TrialHistory()  # 試行履歴
 
@@ -278,7 +331,7 @@ if __name__ == '__main__':
                             time.sleep(mspd)
 
                             trial_history.append_victory(player=ALICE)
-                            number_of_a_victory += 1
+                            demo_result.won_alice()
                             break
 
                         else:
@@ -313,7 +366,7 @@ if __name__ == '__main__':
                             time.sleep(mspd)
 
                             trial_history.append_victory(player=BOB)
-                            number_of_b_victory += 1
+                            demo_result.won_bob()
                             break
 
                         else:
@@ -336,14 +389,12 @@ if __name__ == '__main__':
                     outcome = random.random()
 
 
-                number_of_trial += 1
-
                 print()
-                print(f"きふわらべ国王「これでわたしは {number_of_a_victory} 回優勝」")
+                print(f"きふわらべ国王「これでわたしは {demo_result.number_of_a_victory} 回優勝」")
                 time.sleep(mspd)
 
                 print()
-                print(f"数学大臣「これでわたしは {number_of_b_victory} 回優勝」")
+                print(f"数学大臣「これでわたしは {demo_result.number_of_b_victory} 回優勝」")
                 time.sleep(mspd)
 
                 # FIXME DEBUG
@@ -354,7 +405,7 @@ if __name__ == '__main__':
                 time.sleep(mspd)
 
                 print()
-                print(f"国民「 {number_of_trial} 回やったぐらいじゃ、")
+                print(f"国民「 {demo_result.number_of_trial} 回やったぐらいじゃ、")
                 time.sleep(mspd / 3)
                 print(f"　本当に五分五分になってるのか、")
                 time.sleep(mspd / 3)
@@ -362,7 +413,7 @@ if __name__ == '__main__':
                 time.sleep(mspd)
 
 
-                if number_of_trial * 47 / 100 <= number_of_a_victory and number_of_a_victory < number_of_trial * 53 / 100:
+                if demo_result.number_of_trial * 47 / 100 <= demo_result.number_of_a_victory and demo_result.number_of_a_victory < demo_result.number_of_trial * 53 / 100:
                     print()
                     print(f"きふわらべ国王「だいたい　五分五分ということでいいんじゃないか？」")
                     time.sleep(mspd)
@@ -375,11 +426,16 @@ if __name__ == '__main__':
 
                 # ログに残す
                 # ---------
+                message = f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(demo_plan.spec.turn_system_id)} fr={demo_plan.spec.failure_rate} p={demo_plan.spec.p} s={demo_plan.span} t={demo_plan.t_step} h={demo_plan.h_step}    {demo_result.number_of_trial} シリーズ目。  {face_of_coin} の優勝。　表：きふわらべ国王 {demo_result.number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {demo_result.number_of_b_victory} 回優勝。　国王の勝率 {demo_result.number_of_a_victory / demo_result.number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n"
 
                 log_file_path = JapaneseDemoFilePaths.as_log(spec=demo_plan.spec, span=demo_plan.span, t_step=demo_plan.t_step, h_step=demo_plan.h_step)
                 with open(file=log_file_path, mode='a', encoding='utf-8') as f:
-                    f.write(f"[{datetime.datetime.now()}] ts={Converter.turn_system_id_to_name(demo_plan.spec.turn_system_id)} fr={demo_plan.spec.failure_rate} p={demo_plan.spec.p} s={demo_plan.span} t={demo_plan.t_step} h={demo_plan.h_step}    {number_of_trial} シリーズ目。  {face_of_coin} の優勝。　表：きふわらべ国王 {number_of_a_victory} 回優勝。　ｳﾗ：数学大臣 {number_of_b_victory} 回優勝。　国王の勝率 {number_of_a_victory / number_of_trial * 100:.1f} ％  出目：{list_str_of_face_of_coin}        直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％\n")
+                    f.write(message)
 
+                # ２重ログ
+                with open(file=DEMO_MONITOR_FILE_PATH, mode='a', encoding='utf-8') as f:
+                    f.write(message)
+                
 
                 print()
                 print(f"きふわらべ国王「もう１回やってみようぜ？」")
@@ -389,7 +445,7 @@ if __name__ == '__main__':
 
 
                 # 何回かに一度、プロローグに戻る
-                if number_of_trial % 5 == 0:
+                if demo_result.number_of_trial % 5 == 0:
                     break
 
 
