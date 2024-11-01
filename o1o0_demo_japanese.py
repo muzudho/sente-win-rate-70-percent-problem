@@ -11,7 +11,7 @@ import time
 
 from library import ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
-from library.game import GamePlan
+from library_for_game import GamePlan
 
 
 DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
@@ -96,9 +96,10 @@ class DemoResult():
 # ゲーム企画
 list_of_game_plan = [
     GamePlan(
-            turn_system_id=FROZEN_TURN,
-            p=0.7,
-            failure_rate=0.0,
+            spec=Specification.by_three_rates(
+                    turn_system_id=FROZEN_TURN,
+                    failure_rate=0.0,
+                    head_rate=0.7),
             h_step=1,
             t_step=2,
             span=2,
@@ -106,9 +107,10 @@ list_of_game_plan = [
             b_victory_rate=0.51,
             no_victory_rate=0.0),
     GamePlan(
-            turn_system_id=FROZEN_TURN,
-            p=0.61,
-            failure_rate=0.0,
+            spec=Specification.by_three_rates(
+                    turn_system_id=FROZEN_TURN,
+                    failure_rate=0.0,
+                    head_rate=0.61),
             h_step=1,
             t_step=2,
             span=3,
@@ -126,8 +128,8 @@ if __name__ == '__main__':
 
     try:
         # メッセージスピード
-        #mspd = 2
-        mspd = 0.02
+        #msg_spd = 2
+        msg_spd = 0.02
 
 
         for demo_th in range(1, 100_000_001):
@@ -145,103 +147,103 @@ if __name__ == '__main__':
             # プロローグ
             print()
             print(f"わらべ島の先住民たちは、")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"コインを投げて表とｳﾗのどちらが出るかを")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"当てる遊び（コイントス）を続けていた。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"そして　わらべ島に")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"きふわらべ王国が建国されると、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"島から出土する金属の材質が悪くなり、")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"表とｳﾗの出る確率が異なるコインしか")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"造ることができなくなった。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"熱心な国民は、")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"表の出る確率を小数点第３位までの精度で測ることができたが、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"このような材質の悪いコイン")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"（先住民からはイカサマコインと呼ばれた）で")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"コイントスすることは諦めていた。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"そこで、きふわらべ王国の数学大臣は")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"イカサマコインを使っても、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"もし、無限回対決したならば、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"まるで表とｳﾗがだいたい均等に出たかのように")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"帳尻を合わせることが期待できるという、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"コイントスの方法を次のように示した。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
             print()
             print(f"国民の１人は言った。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"「無限回も対決できないしなあ」")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
             print()
             print(f"数学大臣は話しを続けた。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
             print()
             print(f"「ここに表が {game_plan.spec.p * 10:.1f} 割出るイカサマコインがある。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"　表が出たら勝ち点が {game_plan.h_step} 、")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"　ｳﾗが出たら勝ち点が {game_plan.t_step} とし、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"　どちらかが先に {game_plan.span} 点を取るまで")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"　コイントスを続け、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"　先に {game_plan.span} 点取った方を優勝とする」")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
             print()
             print(f"きふわらべ国王は、 {game_plan.spec.p * 10:.1f} 割出るという表が優勝する方に張った。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             print()
             print(f"数学大臣は、 {(1 - game_plan.spec.p) * 10:.1f} 割出るというｳﾗが優勝する方に張った。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
             # 新シリーズ開始
@@ -254,14 +256,14 @@ if __name__ == '__main__':
 
                 print()
                 print(f"きふわらべ国王「おい、そこらへんのコクミン。")
-                time.sleep(mspd / 3)
+                time.sleep(msg_spd / 3)
                 print(f"　コインを投げろだぜ」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
 
                 print()
                 print(f"国民「自分で投げればいいのに……」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
 
                 # シリーズ中
@@ -269,7 +271,7 @@ if __name__ == '__main__':
 
                     print()
                     print(f"国民「じゃあ {round_th} 投目」")
-                    time.sleep(mspd)
+                    time.sleep(msg_spd)
 
                     # 0.0 <= X < 1.0
                     outcome = random.random()
@@ -279,23 +281,23 @@ if __name__ == '__main__':
 
                         print()
                         print(f"　{face_of_coin_str}が出た」")
-                        time.sleep(mspd)
+                        time.sleep(msg_spd)
 
                         a_pts += game_plan.h_step
                         list_str_of_face_of_coin += face_of_coin_str
 
                         print()
                         print(f"きふわらべ国王「わたしが勝ち点 {game_plan.h_step} をもらって、")
-                        time.sleep(mspd / 3)
+                        time.sleep(msg_spd / 3)
                         print(f"　合計 {a_pts} 点だぜ。")
-                        time.sleep(mspd)
+                        time.sleep(msg_spd)
 
                         if game_plan.span <= a_pts:
                             print()
                             print(f"　{game_plan.span} 点取ったから、")
-                            time.sleep(mspd / 3)
+                            time.sleep(msg_spd / 3)
                             print(f"　わたしの優勝だな」")
-                            time.sleep(mspd)
+                            time.sleep(msg_spd)
 
                             trial_history.append_victory(player=ALICE)
                             demo_result.won_alice()
@@ -304,33 +306,33 @@ if __name__ == '__main__':
                         else:
                             print()
                             print(f"　{game_plan.span} 点まで")
-                            time.sleep(mspd / 3)
+                            time.sleep(msg_spd / 3)
                             print(f"　まだ {game_plan.span - a_pts} 点足りないから、")
-                            time.sleep(mspd / 3)
+                            time.sleep(msg_spd / 3)
                             print(f"　続行だな」")
-                            time.sleep(mspd)
+                            time.sleep(msg_spd)
 
                     else:
                         face_of_coin_str = 'ｳﾗ'    # 表と裏の字が似すぎているので、変えてみる
 
                         print()
                         print(f"　{face_of_coin_str}が出た」")
-                        time.sleep(mspd)
+                        time.sleep(msg_spd)
                         b_pts += game_plan.t_step
                         list_str_of_face_of_coin += face_of_coin_str
 
                         print()
                         print(f"数学大臣「わたしが勝ち点 {game_plan.t_step} をもらって、")
-                        time.sleep(mspd / 3)
+                        time.sleep(msg_spd / 3)
                         print(f"　合計 {b_pts} 点だぜ」")
-                        time.sleep(mspd)
+                        time.sleep(msg_spd)
 
                         if game_plan.span <= b_pts:
                             print()
                             print(f"　{game_plan.span} 点取ったから、")
-                            time.sleep(mspd / 3)
+                            time.sleep(msg_spd / 3)
                             print(f"　わたしの優勝だな」")
-                            time.sleep(mspd)
+                            time.sleep(msg_spd)
 
                             trial_history.append_victory(player=BOB)
                             demo_result.won_bob()
@@ -339,46 +341,46 @@ if __name__ == '__main__':
                         else:
                             print()
                             print(f"　{game_plan.span} 点まで")
-                            time.sleep(mspd / 3)
+                            time.sleep(msg_spd / 3)
                             print(f"　まだ {game_plan.span - b_pts} 点足りないから、")
-                            time.sleep(mspd / 3)
+                            time.sleep(msg_spd / 3)
                             print(f"　続行だな」")
-                            time.sleep(mspd)
+                            time.sleep(msg_spd)
 
 
                 print()
                 print(f"きふわらべ国王「これでわたしは {demo_result.number_of_a_victory} 回優勝」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
                 print()
                 print(f"数学大臣「これでわたしは {demo_result.number_of_b_victory} 回優勝」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
                 # FIXME DEBUG
                 sma_times = 20
                 sma_percent = trial_history.get_a_victory_rate_using_simple_moving_average(times=sma_times) * 100
                 print()
                 print(f"※ 直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
                 print()
                 print(f"国民「 {demo_result.number_of_trial} 回やったぐらいじゃ、")
-                time.sleep(mspd / 3)
+                time.sleep(msg_spd / 3)
                 print(f"　本当に五分五分になってるのか、")
-                time.sleep(mspd / 3)
+                time.sleep(msg_spd / 3)
                 print(f"　よく分からないなあ」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
 
                 if demo_result.number_of_trial * 47 / 100 <= demo_result.number_of_a_victory and demo_result.number_of_a_victory < demo_result.number_of_trial * 53 / 100:
                     print()
                     print(f"きふわらべ国王「だいたい　五分五分ということでいいんじゃないか？」")
-                    time.sleep(mspd)
+                    time.sleep(msg_spd)
                 
                 else:
                     print()
                     print(f"きふわらべ国王「まー、偏ってるかなあ」")
-                    time.sleep(mspd)
+                    time.sleep(msg_spd)
 
 
                 # ログに残す
@@ -398,7 +400,7 @@ if __name__ == '__main__':
                 print(f"きふわらべ国王「もう１回やってみようぜ？」")
                 print()
                 print()
-                time.sleep(mspd * 3)
+                time.sleep(msg_spd * 3)
 
 
                 # 何回かに一度、プロローグに戻る

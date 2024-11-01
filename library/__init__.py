@@ -317,6 +317,15 @@ class Specification():
     """仕様"""
 
 
+    @staticmethod
+    def by_three_rates(turn_system_id, failure_rate, head_rate):
+        """表が出る確率、ｳﾗが出る確率、表もｳﾗも出ない確率を足して 1 になるよう指定する方法"""
+        return Specification(
+                p=(1 - failure_rate) * head_rate,
+                failure_rate=failure_rate,
+                turn_system_id=turn_system_id)
+
+
     def __init__(self, p, failure_rate, turn_system_id):
         """初期化
 

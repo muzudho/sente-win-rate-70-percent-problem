@@ -9,8 +9,8 @@ import random
 import datetime
 import time
 
-from library import HEAD, TAIL, FROZEN_TURN
-from library.game import GamePlan
+from library import HEAD, TAIL, FROZEN_TURN, Specification
+from library_for_game import GamePlan, Paragraphs
 
 
 ########################################
@@ -21,29 +21,26 @@ if __name__ == '__main__':
 
     try:
         # メッセージスピード
-        mspd = 2
-        #mspd = 0.02
+        #msg_spd = 2
+        msg_spd = 0.02
 
 
         for demo_th in range(1, 2): # ループ無し
 
             # プロローグ
             print()
-            print(f"わらべ島の先住民は言った。")
-            time.sleep(mspd)
+            print(f"きふわらべ王国の国民は言った。")
+            time.sleep(msg_spd)
 
             print()
             print(f"「コイントスしようぜ？」")
-            time.sleep(mspd)
-
-            print()
-            print(f"先住民が持っているコインは、")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             game_plan = GamePlan(
-                    turn_system_id=FROZEN_TURN,
-                    p=0.7,
-                    failure_rate=0.0,
+                    spec=Specification.by_three_rates(
+                            turn_system_id=FROZEN_TURN,
+                            failure_rate=0.0,
+                            head_rate=0.7),
                     h_step=1,
                     t_step=1,
                     span=1,
@@ -51,23 +48,12 @@ if __name__ == '__main__':
                     b_victory_rate=0.3,
                     no_victory_rate=0.0)
 
-            print()
-            print(f"投げて表が出る確率 {game_plan.spec.p * 100:.1f} ％")
-            time.sleep(mspd / 3)
-            print(f"投げてｳﾗが出る確率 {(1 - game_plan.spec.p) * 100:.1f} ％")
-            time.sleep(mspd / 3)
-            print(f"投げて表もｳﾗも出ない確率 {game_plan.spec.failure_rate * 100:.1f} ％")
-            time.sleep(mspd / 3)
-            print(f"の、")
-            time.sleep(mspd)
-
-            print()
-            print(f"アンフェアコインだ。")
-            time.sleep(mspd)
+            # 先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
+            Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)
 
             print()
             print(f"「表とｳﾗ、どっちが出る方に張る？」")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
             while True:
                 prompt = f"""\
@@ -84,20 +70,20 @@ if __name__ == '__main__':
 
                 print()
                 print(f"「じゃあ　表で」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
             
             else:
                 your_choice = TAIL
 
                 print()
                 print(f"「じゃあ　ｳﾗで」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
             print()
             print(f"ピンッ")
-            time.sleep(mspd / 3)
+            time.sleep(msg_spd / 3)
             print(f"バシッ")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
             # 0.0 <= X < 1.0
@@ -110,7 +96,7 @@ if __name__ == '__main__':
 
                 print()
                 print(f"「{face_of_coin_str}が出た」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
             else:
                 face_of_coin = TAIL
@@ -118,23 +104,23 @@ if __name__ == '__main__':
 
                 print()
                 print(f"　{face_of_coin_str}が出た」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
 
             if your_choice == face_of_coin:
                 print()
                 print(f"「やったぜ！　当たった！」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
             else:
                 print()
                 print(f"「ハズレかあ」")
-                time.sleep(mspd)
+                time.sleep(msg_spd)
 
 
             print()
             print(f"こうして、コイントスは終わった。")
-            time.sleep(mspd)
+            time.sleep(msg_spd)
 
 
     except Exception as err:
