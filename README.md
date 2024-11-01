@@ -12,6 +12,12 @@ python o1o0_demo_japanese.py
 python o2o0_play_fair_coin_toss.py
 ```
 
+👇　アンフェアなコイントス・ゲームをするなら、以下のコマンドを打鍵してプレイしてください  
+
+```shell
+python o2o5o0_play_unfair_coin_toss.py
+```
+
 👇　アンフェアなコイントス・ゲームの優勝率を調整したものをするなら、以下のコマンドを打鍵してプレイしてください  
 
 ```shell
