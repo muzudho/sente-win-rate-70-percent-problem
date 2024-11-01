@@ -173,7 +173,7 @@ if __name__ == '__main__':
             # 200 回に 1 回、ゲームデータをリセットする。小ループがあるので、シリーズ数は５倍ぐらい進む
             if demo_th % 100 == 1:
                 # デモ企画
-                demo_plan = list_of_demo_plan[random.randint(0, len(list_of_demo_plan))]
+                demo_plan = list_of_demo_plan[random.randint(0, len(list_of_demo_plan) - 1)]
 
                 demo_result = DemoResult()
 
