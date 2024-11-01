@@ -11,22 +11,7 @@ import time
 
 from library import HEAD, TAIL, FROZEN_TURN, Converter, Specification
 from library_for_game import GamePlan, Paragraphs, choice_game_plan
-
-
-list_of_game_plan = [
-    # アンフェア
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.7),
-            h_step=1,
-            t_step=1,
-            span=1,
-            a_victory_rate=0.7,
-            b_victory_rate=0.3,
-            no_victory_rate=0.0)
-]
+from library_for_game.data import exactly_unfair_list_of_game_plan
 
 
 ########################################
@@ -53,7 +38,7 @@ if __name__ == '__main__':
             time.sleep(msg_spd)
 
             # ゲーム企画
-            game_plan = choice_game_plan(list_of_game_plan)
+            game_plan = choice_game_plan(exactly_unfair_list_of_game_plan)
 
             # 例：　先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
             Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)

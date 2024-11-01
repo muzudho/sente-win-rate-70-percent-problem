@@ -110,7 +110,7 @@ class Paragraphs():
         """国民が持ってたコイン"""
 
         print()
-        print(f"国民が持っているコインは、")
+        print(f"＜投げ場＞で国民が持っているコインは、")
         time.sleep(msg_spd)
 
         print()
@@ -323,7 +323,7 @@ class Paragraphs():
 
 
             elif your_choice == HEAD:
-                series_status.bob_won(face_of_coin=face_of_coin, h_step=game_plan.t_step)
+                series_status.bob_won(face_of_coin=face_of_coin, t_step=game_plan.t_step)
 
                 print()
                 print(f"「相手に勝ち点 {game_plan.t_step} が入って、")
@@ -356,7 +356,7 @@ class Paragraphs():
     @staticmethod
     def spoilers_from_the_minister_of_mathematics(msg_spd, game_plan):
         """数学大臣によるネタバレ"""
-        
+
         print()
         print(f"数学大臣「ちなみに、")
         time.sleep(msg_spd / 3)

@@ -11,21 +11,7 @@ import time
 
 from library import HEAD, TAIL, FROZEN_TURN, Converter, Specification
 from library_for_game import GamePlan, SeriesStatus, Paragraphs, choice_game_plan
-
-
-list_of_game_plan = [
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.7),
-            h_step=1,
-            t_step=2,
-            span=2,
-            a_victory_rate=0.49,
-            b_victory_rate=0.51,
-            no_victory_rate=0.0)
-]
+from library_for_game.data import fair_list_of_game_plan
 
 
 ########################################
@@ -39,20 +25,20 @@ if __name__ == '__main__':
         #msg_spd = 2
         msg_spd = 0.02
 
+        # プロローグ
+        print()
+        print(f"きふわらべ王国の国民は言った。")
+        time.sleep(msg_spd)
+
+        print()
+        print(f"「コイントスしようぜ？」")
+        time.sleep(msg_spd)
+
 
         for demo_th in range(1, 2): # ループ無し
 
-            # プロローグ
-            print()
-            print(f"きふわらべ王国の国民は言った。")
-            time.sleep(msg_spd)
-
-            print()
-            print(f"「コイントスしようぜ？」")
-            time.sleep(msg_spd)
-
             # ゲーム企画
-            game_plan = choice_game_plan(list_of_game_plan)
+            game_plan = choice_game_plan(fair_list_of_game_plan)
 
             # 例：　先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
             Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)

@@ -12,6 +12,7 @@ import time
 from library import HEAD, TAIL, ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
 from library_for_game import GamePlan, SeriesStatus, choice_game_plan
+from library_for_game.data import fair_list_of_game_plan
 
 
 DEMO_MONITOR_FILE_PATH = './logs/demo_japanese.log'
@@ -93,33 +94,6 @@ class DemoResult():
         self._number_of_b_victory += 1
 
 
-# ゲーム企画
-list_of_game_plan = [
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.7),
-            h_step=1,
-            t_step=2,
-            span=2,
-            a_victory_rate=0.49,
-            b_victory_rate=0.51,
-            no_victory_rate=0.0),
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.61),
-            h_step=1,
-            t_step=2,
-            span=3,
-            a_victory_rate=0.49254877,
-            b_victory_rate=0.50745123,
-            no_victory_rate=0.0),
-]
-
-
 ########################################
 # コマンドから実行時
 ########################################
@@ -128,8 +102,8 @@ if __name__ == '__main__':
 
     try:
         # メッセージスピード
-        #msg_spd = 2
-        msg_spd = 0.02
+        msg_spd = 2
+        #msg_spd = 0.02
 
 
         for demo_th in range(1, 100_000_001):
@@ -137,7 +111,7 @@ if __name__ == '__main__':
             # 200 回に 1 回、ゲームデータをリセットする。小ループがあるので、シリーズ数は５倍ぐらい進む
             if demo_th % 100 == 1:
                 # ゲーム企画
-                game_plan = choice_game_plan(list_of_game_plan)
+                game_plan = choice_game_plan(fair_list_of_game_plan)
 
                 demo_result = DemoResult()
 

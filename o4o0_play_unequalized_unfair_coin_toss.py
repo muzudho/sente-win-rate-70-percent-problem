@@ -11,55 +11,7 @@ import time
 
 from library import HEAD, TAIL, FROZEN_TURN, Converter, Specification
 from library_for_game import GamePlan, SeriesStatus, Paragraphs, choice_game_plan
-
-
-list_of_game_plan = [
-    # アンフェア
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.55),
-            span=4,
-            t_step=3,
-            h_step=1,
-            a_victory_rate=0.2562175,
-            b_victory_rate=0.743782499999999,
-            no_victory_rate=0.0),
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.6),
-            span=2,
-            t_step=2,
-            h_step=1,
-            a_victory_rate=0.36,
-            b_victory_rate=0.64,
-            no_victory_rate=0.0),
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.75),
-            span=3,     # 9
-            t_step=2,   # 6
-            h_step=1,   # 3
-            a_victory_rate=0.73828125,
-            b_victory_rate=0.26171875,
-            no_victory_rate=0.0),
-    GamePlan(
-            spec=Specification.by_three_rates(
-                    turn_system_id=FROZEN_TURN,
-                    failure_rate=0.0,
-                    head_rate=0.90),
-            span=4,
-            t_step=4,
-            h_step=1,
-            a_victory_rate=0.6561,
-            b_victory_rate=0.343899999999999,
-            no_victory_rate=0.0),
-]
+from library_for_game.data import unfair_list_of_game_plan
 
 
 ########################################
@@ -70,23 +22,43 @@ if __name__ == '__main__':
 
     try:
         # メッセージスピード
-        #msg_spd = 2
-        msg_spd = 0.02
+        msg_spd = 2
+        #msg_spd = 0.02
+
+        # プロローグ
+        print()
+        print(f"きふわらべ国王は言った。")
+        time.sleep(msg_spd)
+
+        stock = 3
+
+        print()
+        print(f"「コクミンの間でコイントスが流行っている。")
+        time.sleep(msg_spd / 3)
+        print(f"　{stock} 回プレイできるチケットが余ってるから、")
+        time.sleep(msg_spd / 3)
+        print(f"　お前にやろう。")
+        time.sleep(msg_spd / 3)
+        print(f"　コイントスしてこいだぜ、ヒマだろ」")
+        time.sleep(msg_spd)
+
+        print()
+        print(f"こうして、コクミンの間で流行っているコイントスの投げ場に向かった。")
+        time.sleep(msg_spd)
 
 
-        for demo_th in range(1, 2): # ループ無し
+        while True:
 
-            # プロローグ
+            stock -= 1
+
             print()
-            print(f"きふわらべ王国の国民は言った。")
-            time.sleep(msg_spd)
-
-            print()
-            print(f"「コイントスしようぜ？」")
+            print(f"チケットを 1 枚支払った。")
+            time.sleep(msg_spd / 3)
+            print(f"残りのチケットは {stock} 枚です。")
             time.sleep(msg_spd)
 
             # ゲーム企画
-            game_plan = choice_game_plan(list_of_game_plan)
+            game_plan = choice_game_plan(unfair_list_of_game_plan)
 
             # 例：　先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
             Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)
@@ -124,9 +96,24 @@ if __name__ == '__main__':
             Paragraphs.spoilers_from_the_minister_of_mathematics(msg_spd=msg_spd, game_plan=game_plan)
 
 
-            print()
-            print(f"こうして、コイントスは終わった。")
-            time.sleep(msg_spd)
+            # プレイヤーの優勝
+            # FIXME この式は FROZEN_TURN 用
+            if (your_choice == HEAD and game_plan.span <= series_status.a_pts) or (your_choice == TAIL and game_plan.span <= series_status.b_pts):
+                print()
+                print(f"コイントスするチケットを 1 枚もらった。")
+
+                stock += 1
+
+            # 相手の優勝
+            else:
+                pass
+            
+
+            if stock < 0:
+                print()
+                print(f"こうして、コイントスは終わった。")
+                time.sleep(msg_spd)
+                break
 
 
     except Exception as err:
