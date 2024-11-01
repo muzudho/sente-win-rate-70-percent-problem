@@ -77,6 +77,49 @@ if __name__ == '__main__':
 
             for round_th in range(1, 100_000_001):
 
+                if your_choice == HEAD:
+                    your_pts = series_status.a_pts
+                    your_step = game_plan.h_step
+                    opponent_pts = series_status.b_pts
+                    opponent_step = game_plan.t_step
+
+                elif your_choice == TAIL:
+                    your_pts = series_status.b_pts
+                    your_step = game_plan.t_step
+                    opponent_pts = series_status.a_pts
+                    opponent_step = game_plan.h_step
+                
+                else:
+                    raise ValueError(f"{your_choice=}")
+
+
+                print()
+                print(f"アナウンサー「王国兵の勝ち点は {your_pts} 点")
+                time.sleep(msg_spd / 6)
+                print(f"　　コクミンの勝ち点は {opponent_pts} 点")
+                time.sleep(msg_spd / 6)
+                print(f"　　優勝に必要な点は {game_plan.span} 点です！」")
+                time.sleep(msg_spd)
+
+                print()
+                print(f"　「王国兵は {Converter.face_of_coin_to_str(your_choice)} に、")
+                time.sleep(msg_spd / 6)
+                print(f"　　コクミンは {Converter.face_of_coin_to_str(Converter.opponent(your_choice))} に張っています！」")
+                time.sleep(msg_spd)
+
+                print()
+                print(f"　「{Converter.face_of_coin_to_str(your_choice)}が出ると、王国兵に {your_step} 点が、")
+                time.sleep(msg_spd / 6)
+                print(f"　{Converter.face_of_coin_to_str(Converter.opponent(your_choice))}が出ると、コクミンに {opponent_step} 点が入ります！」")
+                time.sleep(msg_spd)
+
+                print()
+                print(f"　「しかし、表が出る確率は {game_plan.spec.p * 100:.1f} です！")
+                time.sleep(msg_spd / 6)
+                print(f"　　さあ、どっちが出るか！？」")
+                time.sleep(msg_spd)
+
+
                 print()
                 print(f"国民「 {round_th} 投目」")
                 time.sleep(msg_spd)
