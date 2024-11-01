@@ -1,7 +1,7 @@
 #
-# python o4o0_play_unequalized_unfair_coin_toss.py
+# python o5o0_play_mixed_coin_toss.py
 #
-#   アンイコーライズド・アンフェア・コイントス
+#   均等なのも不均等なのも混ぜられたコイントス
 #
 
 import traceback
@@ -11,7 +11,7 @@ import time
 
 from library import HEAD, TAIL, FROZEN_TURN, Converter, Specification
 from library_for_game import GamePlan, SeriesStatus, Paragraphs, choice_game_plan
-from library_for_game.data import unfair_list_of_game_plan
+from library_for_game.data import fair_list_of_game_plan, unfair_list_of_game_plan
 
 
 ########################################
@@ -58,7 +58,10 @@ if __name__ == '__main__':
             time.sleep(msg_spd)
 
             # ゲーム企画
-            game_plan = choice_game_plan(unfair_list_of_game_plan)
+            mixed_list_of_game_plan = []
+            mixed_list_of_game_plan.extend(fair_list_of_game_plan)
+            mixed_list_of_game_plan.extend(unfair_list_of_game_plan)
+            game_plan = choice_game_plan(mixed_list_of_game_plan)
 
             # 例：　先住民が持っているコインは、～確率うんぬん～ フェア？コインだ
             Paragraphs.coins_that_people_had(msg_spd=msg_spd, game_plan=game_plan)
