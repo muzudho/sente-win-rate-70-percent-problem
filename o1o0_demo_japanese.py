@@ -11,7 +11,7 @@ import time
 
 from library import HEAD, TAIL, ALICE, BOB, FROZEN_TURN, ALTERNATING_TURN, Converter, Specification
 from library.file_paths import JapaneseDemoFilePaths
-from library_for_game import GamePlan, SeriesStatus, choice_game_plan
+from library_for_game import GamePlan, SeriesStatus, Paragraphs, choice_game_plan
 from library_for_game.data import fair_list_of_game_plan
 
 
@@ -211,6 +211,8 @@ if __name__ == '__main__':
             time.sleep(msg_spd)
 
 
+            king_choice = HEAD
+
             print()
             print(f"きふわらべ国王は、 {game_plan.spec.p * 10:.1f} 割出るという表が優勝する方に張った。")
             time.sleep(msg_spd)
@@ -240,6 +242,9 @@ if __name__ == '__main__':
 
                 # シリーズ中
                 for round_th in range(1, 100_000_001):
+
+                    # アナウンサー「王国兵の勝ち点は　～うんぬん～」
+                    Paragraphs.announcer(msg_spd=msg_spd, game_plan=game_plan, series_status=series_status, a_choice=king_choice, a_name="きふわらべ国王さま", b_name="数学大臣")
 
                     print()
                     print(f"国民「じゃあ {round_th} 投目」")

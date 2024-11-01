@@ -366,3 +366,65 @@ class Paragraphs():
         time.sleep(msg_spd / 3)
         print(f"　だったんだぜ」")
         time.sleep(msg_spd)
+
+
+    @staticmethod
+    def announcer(msg_spd, game_plan, series_status, a_choice, a_name="王国兵", b_name="コクミン"):
+        """アナウンサー"""
+
+        if a_choice == HEAD:
+            your_pts = series_status.a_pts
+            your_step = game_plan.h_step
+            opponent_pts = series_status.b_pts
+            opponent_step = game_plan.t_step
+
+        elif a_choice == TAIL:
+            your_pts = series_status.b_pts
+            your_step = game_plan.t_step
+            opponent_pts = series_status.a_pts
+            opponent_step = game_plan.h_step
+        
+        else:
+            raise ValueError(f"{a_choice=}")
+
+
+        if series_status.list_str_of_face_of_coin == "":
+            print()
+            print(f"アナウンサー「さあ　コイントスが始まりました！")
+            time.sleep(msg_spd / 3)
+
+        else:
+            print()
+            print(f"アナウンサー「今までのコイントスの結果は")
+            time.sleep(msg_spd / 9)
+            print(f"　　{series_status.list_str_of_face_of_coin}")
+            time.sleep(msg_spd / 9)
+            print(f"　　です！")
+            time.sleep(msg_spd / 3)
+
+
+        print()
+        print(f"　{a_name}の勝ち点は {your_pts} 点")
+        time.sleep(msg_spd / 9)
+        print(f"　{b_name}の勝ち点は {opponent_pts} 点")
+        time.sleep(msg_spd / 9)
+        print(f"　優勝に必要な点は {game_plan.span} 点です！")
+        time.sleep(msg_spd / 3)
+
+        print()
+        print(f"　{a_name}は {Converter.face_of_coin_to_str(a_choice)} に、")
+        time.sleep(msg_spd / 9)
+        print(f"　{b_name}は {Converter.face_of_coin_to_str(Converter.opponent(a_choice))} に張っています！")
+        time.sleep(msg_spd / 3)
+
+        print()
+        print(f"　{Converter.face_of_coin_to_str(a_choice)}が出ると、{a_name}に {your_step} 点が、")
+        time.sleep(msg_spd / 9)
+        print(f"　{Converter.face_of_coin_to_str(Converter.opponent(a_choice))}が出ると、{b_name}に {opponent_step} 点が入ります！")
+        time.sleep(msg_spd / 3)
+
+        print()
+        print(f"　しかし、表が出る確率は {game_plan.spec.p * 100:.1f} です！")
+        time.sleep(msg_spd / 9)
+        print(f"　さあ、どっちが出るか！？」")
+        time.sleep(msg_spd / 3)

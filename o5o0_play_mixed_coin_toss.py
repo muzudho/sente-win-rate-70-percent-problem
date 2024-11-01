@@ -77,62 +77,8 @@ if __name__ == '__main__':
 
             for round_th in range(1, 100_000_001):
 
-                if your_choice == HEAD:
-                    your_pts = series_status.a_pts
-                    your_step = game_plan.h_step
-                    opponent_pts = series_status.b_pts
-                    opponent_step = game_plan.t_step
-
-                elif your_choice == TAIL:
-                    your_pts = series_status.b_pts
-                    your_step = game_plan.t_step
-                    opponent_pts = series_status.a_pts
-                    opponent_step = game_plan.h_step
-                
-                else:
-                    raise ValueError(f"{your_choice=}")
-
-
-                if series_status.list_str_of_face_of_coin == "":
-                    print()
-                    print(f"アナウンサー「さあ　コイントスが始まりました！")
-                    time.sleep(msg_spd / 3)
-
-                else:
-                    print()
-                    print(f"アナウンサー「今までのコイントスの結果は")
-                    time.sleep(msg_spd / 9)
-                    print(f"　　{series_status.list_str_of_face_of_coin}")
-                    time.sleep(msg_spd / 9)
-                    print(f"　　です！")
-                    time.sleep(msg_spd / 3)
-
-
-                print()
-                print(f"　王国兵の勝ち点は {your_pts} 点")
-                time.sleep(msg_spd / 9)
-                print(f"　コクミンの勝ち点は {opponent_pts} 点")
-                time.sleep(msg_spd / 9)
-                print(f"　優勝に必要な点は {game_plan.span} 点です！")
-                time.sleep(msg_spd / 3)
-
-                print()
-                print(f"　王国兵は {Converter.face_of_coin_to_str(your_choice)} に、")
-                time.sleep(msg_spd / 9)
-                print(f"　コクミンは {Converter.face_of_coin_to_str(Converter.opponent(your_choice))} に張っています！")
-                time.sleep(msg_spd / 3)
-
-                print()
-                print(f"　{Converter.face_of_coin_to_str(your_choice)}が出ると、王国兵に {your_step} 点が、")
-                time.sleep(msg_spd / 9)
-                print(f"　{Converter.face_of_coin_to_str(Converter.opponent(your_choice))}が出ると、コクミンに {opponent_step} 点が入ります！")
-                time.sleep(msg_spd / 3)
-
-                print()
-                print(f"　しかし、表が出る確率は {game_plan.spec.p * 100:.1f} です！")
-                time.sleep(msg_spd / 9)
-                print(f"　さあ、どっちが出るか！？」")
-                time.sleep(msg_spd / 3)
+                # アナウンサー「王国兵の勝ち点は　～うんぬん～」
+                Paragraphs.announcer(msg_spd=msg_spd, game_plan=game_plan, series_status=series_status, a_choice=your_choice)
 
 
                 print()
