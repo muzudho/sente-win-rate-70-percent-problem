@@ -585,16 +585,35 @@ class PromptCatalog():
 (4) Try   20000 series
 (5) Try  200000 series
 (6) Try 2000000 series
+(a) 自由入力 free input
 
 例：
 Example: 3
 
 シリーズを何回試行しますか？
-How many times do you want to try the series(0-6)? """
-        precision = int(input(prompt))
-        specified_trial_series = Converter.precision_to_trial_series(precision)
-        specified_abs_small_error = Converter.precision_to_small_error(precision)
+How many times do you want to try the series(0-6,a)?
+> """
+        input_str = input(prompt)
+        if input_str == 'a':
+            prompt = f"""\
 
+シリーズの回数を入力してください
+Please enter the number of times in the series.
+> """
+            input_str = input(prompt)
+            times = int(input_str)
+            specified_trial_series = times
+
+            specified_abs_small_error = 9
+            for i in range(0, len(input_str)):
+                specified_abs_small_error *= 0.1
+
+        else:
+            precision = int(input_str)
+            specified_trial_series = Converter.precision_to_trial_series(precision)
+            specified_abs_small_error = Converter.precision_to_small_error(precision)
+
+        #print(f"debug {specified_trial_series=} {specified_abs_small_error=}")
         return specified_trial_series, specified_abs_small_error
 
 

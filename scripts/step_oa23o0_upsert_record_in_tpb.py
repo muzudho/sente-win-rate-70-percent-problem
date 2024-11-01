@@ -15,7 +15,7 @@ from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE
 INTERVAL_SECONDS_FOR_SAVE_CSV = 30
 
 
-class AutomationOne():
+class GeneratorOneOfTPB():
 
 
     def __init__(self, tpb_table):
@@ -184,7 +184,8 @@ class AutomationOne():
                 self._is_tpb_update = True
 
 
-class AutomationAll():
+class GeneratorAllOfTPB():
+    """FIXME 使ってない？"""
 
 
     def execute_all(self):

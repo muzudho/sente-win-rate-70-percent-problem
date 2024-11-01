@@ -6,8 +6,10 @@
 #
 
 import traceback
+import datetime
 import random
 import math
+import xltree as tr
 
 from library import HEAD, TAIL, ALICE, SUCCESSFUL, FACE_OF_COIN, FROZEN_TURN, ALTERNATING_TURN, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, Specification, SeriesRule, judge_series, Converter, LargeSeriesTrialSummary, SequenceOfFaceOfCoin, ScoreBoard
 from library.file_paths import ScoreBoardFilePaths
@@ -105,17 +107,24 @@ if __name__ == '__main__':
                 f.write(f"{csv}\n")
 
 
-        three_rates, all_patterns_p = search_all_score_boards(
+        print(f"[{datetime.datetime.now()}] get score board (1) ...")
+        result = search_all_score_boards(
                 series_rule=specified_series_rule,
-                on_score_board_created=on_score_board_created)
+                on_score_board_created=on_score_board_created,
+                timeout=tr.timeout(seconds=7))
+        print(f"[{datetime.datetime.now()}] got score board")
 
-
-        # CSVファイル出力（追記）
-        print(f"write csv to `{csv_file_path}` file ...")
-        with open(csv_file_path, 'a', encoding='utf8') as f:
-            f.write(stringify_csv_of_score_board_view_footer(
-                    three_rates=three_rates,
-                    all_patterns_p=all_patterns_p))
+        
+        if timeout.is_expired('get score board (1)'):
+            print(f"[{datetime.datetime.now()}] time-out. {timeout.message}")
+        
+        else:
+            # CSVファイル出力（追記）
+            print(f"write csv to `{csv_file_path}` file ...")
+            with open(csv_file_path, 'a', encoding='utf8') as f:
+                f.write(stringify_csv_of_score_board_view_footer(
+                        three_rates=result['three_rates'],
+                        all_patterns_p=result['all_patterns_p']))
 
 
     except Exception as err:

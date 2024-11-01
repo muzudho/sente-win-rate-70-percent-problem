@@ -12,7 +12,7 @@ from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsRecord, EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog
 from scripts import ForEachSeriesRule
-from scripts.step_oa13o_9o0_each_epdt_table import Automation as StepOa13o09o0EachEdptTable
+from scripts.step_oa13o_9o0_each_epdt_table import SearchTableOfEDPT
 from config import DEFAULT_UPPER_LIMIT_SPAN
 
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
             print(f"[{datetime.datetime.now()}] ファイルが無いのでスキップします")
         
         else:
-            automation = StepOa13o09o0EachEdptTable(
+            search_table_of_edpt = SearchTableOfEDPT(
                     specified_trial_series=specified_trial_series,
                     specified_turn_system_id=specified_turn_system_id,
                     specified_failure_rate=specified_failure_rate,
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
 
             # 各レコード
-            epdt_table.for_each(on_each=automation.execute_by_epdt_record)
+            epdt_table.for_each(on_each=search_table_of_edpt.execute_by_epdt_record)
 
 
         print("完了")

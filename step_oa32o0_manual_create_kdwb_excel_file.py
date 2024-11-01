@@ -7,7 +7,7 @@ import traceback
 import datetime
 
 from library.views import PromptCatalog, DebugWrite
-from scripts.step_oa32o0_create_kdwb_excel import Automation as StepOa32o0CreateKDExcel
+from scripts.step_oa32o0_create_kdwb_excel import GeneratorOfKDWB
 
 
 ########################################
@@ -23,9 +23,9 @@ if __name__ == '__main__':
         #
         #   NOTE 先にKDSファイルを作成しておく必要があります
         #
-        automation = StepOa32o0CreateKDExcel(
+        generator_of_kdwb = GeneratorOfKDWB(
                 trial_series=specified_trial_series)
-        automation.execute()
+        generator_of_kdwb.execute()
 
         print(f"""\
 でーきたっ！""")

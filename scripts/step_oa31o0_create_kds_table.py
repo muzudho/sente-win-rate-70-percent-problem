@@ -9,7 +9,7 @@ from library.database import TheoreticalProbabilityBestTable, KakukinDataSheetRe
 from scripts import SaveOrIgnore
 
 
-class Automation():
+class GeneratorOfKDS():
 
 
     def __init__(self, specified_trial_series, specified_turn_system_id, specified_failure_rate):

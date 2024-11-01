@@ -12,10 +12,10 @@ from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.views import DebugWrite
 from scripts import ForEachTsFr
-from scripts.step_oa13o_9o0_each_epdt_table import Automation as StepOa13o09o0EachEpdtTable
+from scripts.step_oa13o_9o0_each_epdt_table import SearchTableOfEDPT
 
 
-class Automation():
+class GeneratorOfAllTablesOfEPDT():
     """自動化"""
 
 
@@ -123,24 +123,24 @@ class Automation():
         #
         #   TODO 探索をタイムシェアリングのために途中で譲ったのか、更新が終わってるのかを区別したい
         #
-        oa13o09o0_edpt_table = StepOa13o09o0EachEpdtTable(
+        search_table_of_edpt = SearchTableOfEDPT(
                 specified_trial_series=self._specified_trial_series,
                 specified_turn_system_id=turn_system_id,
                 specified_failure_rate=failure_rate,
                 smaller_abs_error=self._specified_abs_small_error,
                 interval_seconds=self._interval_seconds,
                 epdt_table=epdt_table)
-        epdt_table.for_each(on_each=oa13o09o0_edpt_table.execute_by_epdt_record)
+        epdt_table.for_each(on_each=search_table_of_edpt.execute_by_epdt_record)
 
 
         #
         # NOTE 小数点以下の桁を長く出しても見づらい
         #
-        print(f"{DebugWrite.stringify(failure_rate=failure_rate)} is_smalled={oa13o09o0_edpt_table.is_smalled}  target={oa13o09o0_edpt_table.number_of_target}  smalled={oa13o09o0_edpt_table.number_of_smalled}  yield={oa13o09o0_edpt_table.number_of_yield}  passaged={oa13o09o0_edpt_table.number_of_passaged}  interval_seconds={self._interval_seconds}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  small_error={self._specified_abs_small_error:.7f}")
+        print(f"{DebugWrite.stringify(failure_rate=failure_rate)} is_smalled={search_table_of_edpt.is_smalled}  target={search_table_of_edpt.number_of_target}  smalled={search_table_of_edpt.number_of_smalled}  yield={search_table_of_edpt.number_of_yield}  passaged={search_table_of_edpt.number_of_passaged}  interval_seconds={self._interval_seconds}  worst_error={worst_abs_best_p_error:.7f}(min={best_p_error_min}  max={best_p_error_max})  small_error={self._specified_abs_small_error:.7f}")
 
 
         # 処理が完了したから、ループを抜ける
-        if oa13o09o0_edpt_table.is_smalled:
+        if search_table_of_edpt.is_smalled:
             print(f"すべてのデータについて、誤差が {self._specified_abs_small_error} 以下になるよう作成完了。 {worst_abs_best_p_error=}")
             return
         
@@ -150,6 +150,6 @@ class Automation():
 
 
         # タイムシェアリングのために、処理時間が足りなくて更新が起こらず、処理を譲ることがオーバーヘッドになってきそうなら        
-        if 0 < oa13o09o0_edpt_table.number_of_passaged:
+        if 0 < search_table_of_edpt.number_of_passaged:
             self._passage_occurred = True
 

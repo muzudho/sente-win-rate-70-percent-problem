@@ -110,6 +110,9 @@ SMALL_P_ABS_ERROR = 0.0004
 EVEN = 0.5
 
 
+#################
+# MARK: Precision
+#################
 class Precision():
 
 
@@ -159,6 +162,9 @@ class Precision():
         return 0.4995 <= rate and rate <= 0.5004
 
 
+#################
+# MARK: Converter
+#################
 class Converter():
     """変換する機能まとめ"""
 
@@ -209,7 +215,9 @@ class Converter():
     def turn_system_code_to_id(clazz, code):
         if clazz._code_to_turn_system is None:
             clazz._code_to_turn_system = {
+                'froze' : FROZEN_TURN,      # ファイル名で使用
                 'frozen' : FROZEN_TURN,
+                'alter' : ALTERNATING_TURN, # ファイル名で使用
                 'alternating' : ALTERNATING_TURN,
             }
 
@@ -302,6 +310,9 @@ class Converter():
         return clazz._calculation_status_to_code[calculation_status]
 
 
+#####################
+# MARK: Specification
+#####################
 class Specification():
     """仕様"""
 
@@ -470,6 +481,9 @@ def toss_a_coin(p, failure_rate=0.0):
     return TAIL
 
 
+############################
+# MARK: SequenceOfFaceOfCoin
+############################
 class SequenceOfFaceOfCoin():
     """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印が並んだもの"""
 
@@ -508,6 +522,9 @@ class SequenceOfFaceOfCoin():
         return path_of_face_of_coin[0:number_of_coins]
 
 
+############################
+# MARK: TreeNodeOfFaceOfCoin
+############################
 class TreeNodeOfFaceOfCoin():
     """コインの出目のツリー構造のノード"""
 
@@ -630,6 +647,9 @@ class TreeNodeOfFaceOfCoin():
         return path_of_face_of_coin
 
 
+########################
+# MARK: TreeOfFaceOfCoin
+########################
 class TreeOfFaceOfCoin():
     """コインの出目のツリー構造"""
 
@@ -675,34 +695,72 @@ class TreeOfFaceOfCoin():
         self._current_node = parent_node
 
 
-    def search_for_each_node(self, cur_node, on_each_leaf_node):
+    def search_for_each_node(self, cur_node, on_each_leaf_node, timeout):
+
+
+        if timeout.is_expired('recursive search for each node'):
+            return
+
+
         if cur_node.is_leaf_node:
             on_each_leaf_node(cur_node)
             return
 
+
         child_count = 0
 
         if cur_node.child_head is not None:
-            self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node)
+            self.search_for_each_node(cur_node=cur_node.child_head, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+
+            if timeout.is_expired('cur_node.child_head is not None'):
+                return
+
             child_count += 1
+
 
         if cur_node.child_tail is not None:
-            self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node)
+            self.search_for_each_node(cur_node=cur_node.child_tail, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+
+            if timeout.is_expired('cur_node.child_tail is not None'):
+                return
+
             child_count += 1
 
+
         if cur_node.child_failure is not None:
-            self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node)
+            self.search_for_each_node(cur_node=cur_node.child_failure, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+
+            if timeout.is_expired('cur_node.child_failure is not None'):
+                return
+
             child_count += 1
+
 
         if child_count < 0:
             raise ValueError(f"葉ノードでないのなら、子は必ずあるはずです {child_count=}")
 
 
-    def for_each_node(self, on_each_leaf_node):
-        self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node)
+        return
 
 
-    def create_list_of_path_of_face_of_coin(self):
+    def for_each_node(self, on_each_leaf_node, timeout):
+        self.search_for_each_node(cur_node=self._root_node, on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+
+
+    def create_list_of_path_of_face_of_coin(self, timeout):
+
+
+        def make_return_value(list_of_path):
+            """戻り値の作成
+            
+            Parameters
+            ----------
+            list_of_path : list
+                パスのリスト
+            """
+            return {'list_of_path':list_of_path}
+
+
         list_of_path = []
 
         def on_each_leaf_node(leaf_node):
@@ -719,14 +777,24 @@ class TreeOfFaceOfCoin():
 
             list_of_path.append(path_of_face_of_coin)
 
-        self.for_each_node(on_each_leaf_node=on_each_leaf_node)
+
+        self.for_each_node(on_each_leaf_node=on_each_leaf_node, timeout=timeout)
+
+
+        if timeout.is_expired('create_list_of_path_of_face_of_coin'):
+            return make_return_value(list_of_path=None)
+
 
         if len(list_of_path) < 1:
             raise ValueError(f"経路の長さが０コインなのはおかしい {len(list_of_path)=}")
 
-        return list_of_path
+
+        return make_return_value(list_of_path=list_of_path)
 
 
+#############################
+# MARK: AllPatternsFaceOfCoin
+#############################
 class AllPatternsFaceOfCoin():
     """［コインの表］、［コインの裏］、［コインの表でも裏でもないもの］の印の組み合わせが全て入っているリスト"""
 
@@ -746,14 +814,21 @@ class AllPatternsFaceOfCoin():
         self._tree_of_face_of_coin = None
 
 
-    def __search(self, depth):
+    def __search(self, depth, timeout):
+
 
         if depth < 1:
             return
 
+
         # 表勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_head()            
-        self.__search(depth - 1)
+        self.__search(depth=depth - 1, timeout=timeout)
+
+
+        if timeout.is_expired('TreeOfFaceOfCoin#__search head win'):
+            return
+
 
         # 親へ戻る
         self._tree_of_face_of_coin.back_to_parent_node()
@@ -761,7 +836,12 @@ class AllPatternsFaceOfCoin():
 
         # 裏勝ちを追加
         self._tree_of_face_of_coin.go_to_new_child_tail()
-        self.__search(depth - 1)
+        self.__search(depth=depth - 1, timeout=timeout)
+
+
+        if timeout.is_expired('TreeOfFaceOfCoin#__search tail win'):
+            return
+
 
         # 親へ戻る
         self._tree_of_face_of_coin.back_to_parent_node()
@@ -770,27 +850,53 @@ class AllPatternsFaceOfCoin():
         if self._can_failure:
             # 引分けを追加
             self._tree_of_face_of_coin.go_to_new_child_failure()
-            self.__search(depth - 1)
+            self.__search(depth=depth - 1, timeout=timeout)
+
+
+            if timeout.is_expired('TreeOfFaceOfCoin#__search draw'):
+                return
+
 
             # 親へ戻る
             self._tree_of_face_of_coin.back_to_parent_node()
 
 
-    def make_tree_of_all_pattern_face_of_coin(self):
+        return
+
+
+    def make_tree_of_all_pattern_face_of_coin(self, timeout):
         """１シリーズについて、フル対局分の、全パターンのコイントスの結果を作りたい
         
         １コインは　勝ち、負けの２つ、または　勝ち、負け、引き分けの３つ。
 
+        Parameters
+        ----------
+        timeout : Timeout
+            タイムアウト
+
         Returns
         -------
-        all_patterns : list
+        tree_of_face_of_coin : TreeOfFaceOfCoin
             勝った方の色（引き分け含む）のリストが全パターン入っているリスト
         """
+
+
+        def make_return_value(tree_of_face_of_coin):
+            """戻り値の作成
+            
+            Parameters
+            ----------
+            tree_of_face_of_coin : TreeOfFaceOfCoin
+                
+            """
+            return {'tree_of_face_of_coin':tree_of_face_of_coin}
+
 
         # 要素数
         if self._can_failure:
             # 表勝ち、裏勝ち、勝者なしの３要素
             elements = [HEAD, TAIL, EMPTY]
+
         else:
             # 表勝ち、裏勝ちけの２要素
             elements = [HEAD, TAIL]
@@ -798,14 +904,23 @@ class AllPatternsFaceOfCoin():
         # 桁数
         depth = self._series_rule.upper_limit_coins
 
+
         # FIXME リスト状だと MemoryError になるので、木構造にしたい
         self._tree_of_face_of_coin = TreeOfFaceOfCoin()
 
-        self.__search(depth)
-
-        return self._tree_of_face_of_coin
+        self.__search(depth=depth, timeout=timeout)
 
 
+        if timeout.is_expired('make_tree_of_all_pattern_face_of_coin'):
+            return make_return_value(tree_of_face_of_coin=None)
+
+
+        return make_return_value(tree_of_face_of_coin=self._tree_of_face_of_coin)
+
+
+########################
+# MARK: PointCalculation
+########################
 class PointCalculation():
     """勝ち点計算に使う"""
 
@@ -1182,7 +1297,6 @@ def calculate_probability(p, H, T):
 ##################
 # MARK: SeriesRule
 ##################
-
 class SeriesRule():
     """［シリーズ・ルール］
     
@@ -1704,6 +1818,9 @@ step_table:
 """
 
 
+################################
+# MARK: TrialResultsForOneSeries
+################################
 class TrialResultsForOneSeries():
     """［シリーズ］１つ分の試行結果"""
 
@@ -1833,6 +1950,9 @@ self._point_calculation.stringify_dump:
 """
     
 
+###############################
+# MARK: LargeSeriesTrialSummary
+###############################
 class LargeSeriesTrialSummary():
     """［大量のシリーズを試行した結果］"""
 
@@ -2156,6 +2276,9 @@ class LargeSeriesTrialSummary():
         return self._no_wins
 
 
+#################
+# MARK: Candidate
+#################
 class Candidate():
     """［シリーズ・ルール候補］"""
 
@@ -2251,6 +2374,9 @@ class Candidate():
         raise ValueError(f"パースできません {candidate=}")
 
 
+##################
+# MARK: ScoreBoard
+##################
 class ScoreBoard():
     """１シリーズ分の経過の記録。
     以下の表のようなものを作る。CSVで出力する
@@ -2507,6 +2633,9 @@ class ScoreBoard():
 """
 
 
+##################
+# MARK: ThreeRates
+##################
 class ThreeRates():
 
 
@@ -2626,6 +2755,9 @@ def try_series(spec, series_rule, specified_trial_series):
     return large_series_trial_summary
 
 
+######################
+# MARK: RenamingBackup
+######################
 class RenamingBackup():
     """ファイルのリネーム・バックアップ
     
@@ -2703,3 +2835,17 @@ class RenamingBackup():
 {self._file_path=}
 """)
             raise
+
+
+@staticmethod
+def get_list_of_basename(dir_path):
+    """GT のファイル名一覧取得
+    
+    📖 [ファイル名のみの一覧を取得](https://note.nkmk.me/python-listdir-isfile-isdir/#_1)
+    """
+    basename_list = [
+        f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+    ]
+    #print(basename_list)
+
+    return basename_list

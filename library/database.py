@@ -8,7 +8,7 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from library import FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, round_letro, Converter, ThreeRates, RenamingBackup
+from library import INDENT, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, EVEN, round_letro, Converter, ThreeRates, RenamingBackup
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths, TheoreticalProbabilityRatesFilePaths, TheoreticalProbabilityFilePaths, TheoreticalProbabilityBestFilePaths, KakukinDataSheetFilePaths, GameTreeFilePaths
 from scripts import IntervalForRetry
 
@@ -1526,6 +1526,7 @@ df:
             #
             #   NOTE clazz._dtype には、インデックスを除いた列の設定が含まれているものとします
             #
+            # FIXME [unexpected error] err=IntCastingNaNError("Cannot convert non-finite values (NA or inf) to integer: Error while type casting for column 'shortest_coins'")  type(err)=<class 'pandas.errors.IntCastingNaNError'>
             df.astype(clazz._dtype)
 
         # FIXME 開いても読めない、容量はある、VSCodeで開けない .csv ファイルができていることがある。破損したファイルだと思う
@@ -2086,57 +2087,75 @@ class CalculateProbabilityTable():
 ##########
 class GameTreeNode():
 
-    def __init__(self, face, winner, pts, rate):
+
+    def __init__(self, edge_text, text):
         """初期化
         
         Parameters
         ----------
-        face : str
-            'h', 't', 'f' のいずれか。それぞれ head（コインの表）, tail（コインの裏）, failed（失敗）
-        winner : str
-            'A', 'B', 'N' のいずれか。それぞれ Ａさん, Ｂさん, 勝者なし（No win match）
-        pts : int
-            winner の累計の勝ち点
-        rate : float
+        edge_text : str
+            エッジテキスト
+        text : str
             そのノードの実現確率
         """
-        self._face = face
-        self._winner = winner
-        self._pts = pts
-        self._rate = rate
+        self._edge_text = edge_text
+        self._text = text
 
 
     @property
-    def face(self):
-        return self._face
+    def edge_text(self):
+        return self._edge_text
 
 
     @property
-    def winner(self):
-        return self._winner
+    def text(self):
+        return self._text
 
 
-    @property
-    def pts(self):
-        return self._pts
+    def stringify_dump(self, indent):
+        succ_indent = indent + INDENT
+        return f"""\
+{indent}GameTreeNode
+{indent}------------
+{succ_indent}{self._edge_text=}
+{succ_indent}{self._text=}
+"""
 
 
-    @property
-    def rate(self):
-        return self._rate
+    @staticmethod
+    def get_edge_text(face, winner, pts):
+        if face == 'h':
+            face_str = '表'
+        elif face == 't':
+            face_str = '裏'
+        elif face == 'f':
+            face_str = '失敗'
+        else:
+            raise ValueError(f"{face=}")
+        
+        if winner == 'A':
+            winner_str = '(Ａさん'
+        elif winner == 'B':
+            winner_str = '(Ｂさん'
+        elif winner == 'N':
+            winner_str = ''
+        else:
+            raise ValueError(f"{winner=}")
+
+        if pts != -1:
+            pts_str = f"{pts:.0f}点)" # FIXME 小数部を消してる。これで誤差で丸めを間違えるケースはあるか？
+        else:
+            pts_str = ''
+
+        return f"{face_str}{winner_str}{pts_str}"
+
 
 
 class GameTreeRecord():
 
 
-    def __init__(self, no, result,
-        node1,
-        node2,
-        node3,
-        node4,
-        node5,
-        node6):
-        """TODO n6 以降も欲しいが、あとで考える
+    def __init__(self, no, result, node_list):
+        """初期化
         
         Parameters
         ----------
@@ -2144,18 +2163,22 @@ class GameTreeRecord():
             1から始まる連番
         result : str
             結果
-        node1 : GameTreeNode
-            ノード１
+        node_list : list<GameTreeNode>
+            ノード１～６
+            TODO ノード７ 以降も欲しいが、あとで考える。 dtype は結局固定長で全列ベタ書きする必要がある
         """
         self._no = no
         self._result = result
 
-        self._node1 = node1
-        self._node2 = node2
-        self._node3 = node3
-        self._node4 = node4
-        self._node5 = node5
-        self._node6 = node6
+        self._node_list = node_list
+
+
+    @staticmethod
+    def new_empty():
+        return GameTreeRecord(
+                no=None,
+                result=None,
+                node_list=[None, None, None, None, None, None])
 
 
     @property
@@ -2169,39 +2192,25 @@ class GameTreeRecord():
 
 
     @property
-    def node1(self):
-        return self._node1
+    def len_node_list(self):
+        return len(self._node_list)
 
 
-    @property
-    def node2(self):
-        return self._node2
+    def node_at(self, round_no):
+        """
+        Parameters
+        ----------
+        round_no : int
+            例：第１局後なら 0 を指定してください
+        """
+
+        if round_no < 0:
+            raise ValueError(f'round_no に負数を設定しないでください。意図した動作はしません {round_no=}')
+
+        return self._node_list[round_no]
 
 
-    @property
-    def node3(self):
-        return self._node3
-
-
-
-    @property
-    def node4(self):
-        return self._node4
-
-
-
-    @property
-    def node5(self):
-        return self._node5
-
-
-
-    @property
-    def node6(self):
-        return self._node6
-
-
-    def update(self, no=None, result=None, node1=None, node2=None, node3=None, node4=None, node5=None, node6=None):
+    def update(self, no=None, result=None, node_list=None):
         """no inplace
         何も更新しなければシャロー・コピーを返します"""
 
@@ -2211,53 +2220,67 @@ class GameTreeRecord():
             return new
 
         return GameTreeRecord(
-            no=new_or_default(no, self._no),
-            result=new_or_default(result, self._result),
-            node1=new_or_default(node1, self._node1),
-            node2=new_or_default(node2, self._node2),
-            node3=new_or_default(node3, self._node3),
-            node4=new_or_default(node4, self._node4),
-            node5=new_or_default(node5, self._node5),
-            node6=new_or_default(node6, self._node6))
+                no=new_or_default(no, self._no),
+                result=new_or_default(result, self._result),
+                node_list=new_or_default(node_list, self._node_list))
+
+
+    def stringify_dump(self, indent):
+        succ_indent = indent + INDENT
+
+        blocks = []
+        for node in self._node_list:
+            blocks.append(node.stringify_dump(succ_indent))
+
+        return f"""\
+{indent}GameTreeRecord
+{indent}--------------
+{succ_indent}{self._no=}
+{succ_indent}{self._result=}
+{'\n'.join(blocks)}
+"""
+
+
+    def get_round_number_of_leaf(self):
+        """葉要素のラウンド番号を取得。
+        葉要素は、次のラウンドがない要素"""
+
+        for round_no in range(0, len(self._node_list)):
+            nd = self._node_list[round_no]
+            if nd is None or pd.isnull(nd.rate):
+                return round_no - 1
+
+        return len(self._node_list) - 1
 
 
 class GameTreeTable():
     """樹形図データのテーブル"""
 
 
+    # NOTE 列に NaN が含まれる場合は、int64 ではなく Int64 を使う。先頭が大文字
     _dtype = {
         # no はインデックス
         'result':'object',
 
-        'face1':'object',
-        'winner1':'object',
-        'pts1':'Int64',         # NOTE NaN が含まれる場合は、int64 ではなく Int64 を使う。先頭が大文字
-        'rate1':'float64',
+        'node0':'object',
 
-        'face2':'object',
-        'winner2':'object',
-        'pts2':'Int64',
-        'rate2':'float64',
+        'edge1':'object',
+        'node1':'object',
 
-        'face3':'object',
-        'winner3':'object',
-        'pts3':'Int64',
-        'rate3':'float64',
+        'edge2':'object',
+        'node2':'object',
 
-        'face4':'object',
-        'winner4':'object',
-        'pts4':'Int64',
-        'rate4':'float64',
+        'edge3':'object',
+        'node3':'object',
 
-        'face5':'object',
-        'winner5':'object',
-        'pts5':'Int64',
-        'rate5':'float64',
+        'edge4':'object',
+        'node4':'object',
+
+        'edge5':'object',
+        'node5':'object',
         
-        'face6':'object',
-        'winner6':'object',
-        'pts6':'Int64',
-        'rate6':'float64'}
+        'edge6':'object',
+        'node6':'object'}
 
 
     def __init__(self, df, spec, span, t_step, h_step):
@@ -2277,35 +2300,25 @@ class GameTreeTable():
 
                     'result',
 
-                    'face1',
-                    'winner1',
-                    'pts1',
-                    'rate1',
+                    'node0',
 
-                    'face2',
-                    'winner2',
-                    'pts2',
-                    'rate2',
+                    'edge1',
+                    'node1',
 
-                    'face3',
-                    'winner3',
-                    'pts3',
-                    'rate3',
+                    'edge2',
+                    'node2',
 
-                    'face4',
-                    'winner4',
-                    'pts4',
-                    'rate4',
+                    'edge3',
+                    'node3',
 
-                    'face5',
-                    'winner5',
-                    'pts5',
-                    'rate5',
+                    'edge4',
+                    'node4',
 
-                    'face6',
-                    'winner6',
-                    'pts6',
-                    'rate6'])
+                    'edge5',
+                    'node5',
+
+                    'edge6',
+                    'node6'])
         clazz.setup_data_frame(df=gt_df, shall_set_index=True)
         return GameTreeTable(df=gt_df, spec=spec, span=span, t_step=t_step, h_step=h_step)
 
@@ -2487,35 +2500,25 @@ df:
             shall_record_change =\
                 self._df['result'][index] != welcome_record.result or\
                 \
-                self._df['face1'][index] != welcome_record.node1.face or\
-                self._df['winner1'][index] != welcome_record.node1.winner or\
-                self._df['pts1'][index] != welcome_record.node1.pts or\
-                self._df['rate1'][index] != welcome_record.node1.rate or\
+                self._df['node0'][index] != '1' or\
                 \
-                self._df['face2'][index] != welcome_record.node2.face or\
-                self._df['winner2'][index] != welcome_record.node2.winner or\
-                self._df['pts2'][index] != welcome_record.node2.pts or\
-                self._df['rate2'][index] != welcome_record.node2.rate or\
+                self._df['edge1'][index] != welcome_record.node_at(0).edge_text or\
+                self._df['node1'][index] != welcome_record.node_at(0).text or\
                 \
-                self._df['face3'][index] != welcome_record.node3.face or\
-                self._df['winner3'][index] != welcome_record.node3.winner or\
-                self._df['pts3'][index] != welcome_record.node3.pts or\
-                self._df['rate3'][index] != welcome_record.node3.rate or\
+                self._df['edge2'][index] != welcome_record.node_at(1).edge_text or\
+                self._df['node2'][index] != welcome_record.node_at(1).text or\
                 \
-                self._df['face4'][index] != welcome_record.node4.face or\
-                self._df['winner4'][index] != welcome_record.node4.winner or\
-                self._df['pts4'][index] != welcome_record.node4.pts or\
-                self._df['rate4'][index] != welcome_record.node4.rate or\
+                self._df['edge3'][index] != welcome_record.node_at(2).edge_text or\
+                self._df['node3'][index] != welcome_record.node_at(2).text or\
                 \
-                self._df['face5'][index] != welcome_record.node5.face or\
-                self._df['winner5'][index] != welcome_record.node5.winner or\
-                self._df['pts5'][index] != welcome_record.node5.pts or\
-                self._df['rate5'][index] != welcome_record.node5.rate or\
+                self._df['edge4'][index] != welcome_record.node_at(3).edge_text or\
+                self._df['node4'][index] != welcome_record.node_at(3).text or\
                 \
-                self._df['face6'][index] != welcome_record.node6.face or\
-                self._df['winner6'][index] != welcome_record.node6.winner or\
-                self._df['pts6'][index] != welcome_record.node6.pts or\
-                self._df['rate6'][index] != welcome_record.node6.rate
+                self._df['edge5'][index] != welcome_record.node_at(4).edge_text or\
+                self._df['node5'][index] != welcome_record.node_at(4).text or\
+                \
+                self._df['edge6'][index] != welcome_record.node_at(5).edge_text or\
+                self._df['node6'][index] != welcome_record.node_at(5).text
 
 
         # 行の挿入または更新
@@ -2524,35 +2527,25 @@ df:
                 # no はインデックス
                 'result': welcome_record.result,
 
-                'face1': welcome_record.node1.face,
-                'winner1': welcome_record.node1.winner,
-                'pts1': welcome_record.node1.pts,
-                'rate1': welcome_record.node1.rate,
+                'node0': '1',
 
-                'face2': welcome_record.node2.face,
-                'winner2': welcome_record.node2.winner,
-                'pts2': welcome_record.node2.pts,
-                'rate2': welcome_record.node2.rate,
+                'edge1': welcome_record.node_at(0).edge_text,
+                'node1': welcome_record.node_at(0).text,
 
-                'face3': welcome_record.node3.face,
-                'winner3': welcome_record.node3.winner,
-                'pts3': welcome_record.node3.pts,
-                'rate3': welcome_record.node3.rate,
+                'edge2': welcome_record.node_at(1).edge_text,
+                'node2': welcome_record.node_at(1).text,
 
-                'face4': welcome_record.node4.face,
-                'winner4': welcome_record.node4.winner,
-                'pts4': welcome_record.node4.pts,
-                'rate4': welcome_record.node4.rate,
+                'edge3': welcome_record.node_at(2).edge_text,
+                'node3': welcome_record.node_at(2).text,
 
-                'face5': welcome_record.node5.face,
-                'winner5': welcome_record.node5.winner,
-                'pts5': welcome_record.node5.pts,
-                'rate5': welcome_record.node5.rate,
+                'edge4': welcome_record.node_at(3).edge_text,
+                'node4': welcome_record.node_at(3).text,
 
-                'face6': welcome_record.node6.face,
-                'winner6': welcome_record.node6.winner,
-                'pts6': welcome_record.node6.pts,
-                'rate6': welcome_record.node6.rate}
+                'edge5': welcome_record.node_at(4).edge_text,
+                'node5': welcome_record.node_at(4).text,
+
+                'edge6': welcome_record.node_at(5).edge_text,
+                'node6': welcome_record.node_at(5).text}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -2586,12 +2579,13 @@ df:
                 # no はインデックス
                 columns=[
                     'result',
-                    'face1', 'winner1', 'pts1', 'rate1',
-                    'face2', 'winner2', 'pts2', 'rate2',
-                    'face3', 'winner3', 'pts3', 'rate3',
-                    'face4', 'winner4', 'pts4', 'rate4',
-                    'face5', 'winner5', 'pts5', 'rate5',
-                    'face6', 'winner6', 'pts6', 'rate6'])
+                    'node0',
+                    'edge1', 'node1',
+                    'edge2', 'node2',
+                    'edge3', 'node3',
+                    'edge4', 'node4',
+                    'edge5', 'node5',
+                    'edge6', 'node6' ])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -2607,22 +2601,25 @@ df:
 
         df = self._df
 
+        # TODO face, winner, pts, rate は廃止方針
         for row_number,(
                 result,
-                face1, winner1, pts1, rate1,
-                face2, winner2, pts2, rate2,
-                face3, winner3, pts3, rate3,
-                face4, winner4, pts4, rate4,
-                face5, winner5, pts5, rate5,
-                face6, winner6, pts6, rate6) in\
+                node0,
+                edge1, node1,
+                edge2, node2,
+                edge3, node3,
+                edge4, node4,
+                edge5, node5,
+                edge6, node6 ) in\
                 enumerate(zip(
                     df['result'],
-                    df['face1'], df['winner1'], df['pts1'], df['rate1'],
-                    df['face2'], df['winner2'], df['pts2'], df['rate2'],
-                    df['face3'], df['winner3'], df['pts3'], df['rate3'],
-                    df['face4'], df['winner4'], df['pts4'], df['rate4'],
-                    df['face5'], df['winner5'], df['pts5'], df['rate5'],
-                    df['face6'], df['winner6'], df['pts6'], df['rate6'])):
+                    df['node0'],
+                    df['edge1'], df['node1'],
+                    df['edge2'], df['node2'],
+                    df['edge3'], df['node3'],
+                    df['edge4'], df['node4'],
+                    df['edge5'], df['node5'],
+                    df['edge6'], df['node6'] )):
 
             # no はインデックス
             no = df.index[row_number]
@@ -2631,11 +2628,14 @@ df:
             record = GameTreeRecord(
                     no=no,
                     result=result,
-                    node1=GameTreeNode(face=face1, winner=winner1, pts=pts1, rate=rate1),
-                    node2=GameTreeNode(face=face2, winner=winner2, pts=pts2, rate=rate2),
-                    node3=GameTreeNode(face=face3, winner=winner3, pts=pts3, rate=rate3),
-                    node4=GameTreeNode(face=face4, winner=winner4, pts=pts4, rate=rate4),
-                    node5=GameTreeNode(face=face5, winner=winner5, pts=pts5, rate=rate5),
-                    node6=GameTreeNode(face=face6, winner=winner6, pts=pts6, rate=rate6))
+                    # TODO 今のところ固定長サイズ６
+                    # TODO node0
+                    node_list=[
+                        GameTreeNode(edge_text=edge1, text=node1),
+                        GameTreeNode(edge_text=edge2, text=node2),
+                        GameTreeNode(edge_text=edge3, text=node3),
+                        GameTreeNode(edge_text=edge4, text=node4),
+                        GameTreeNode(edge_text=edge5, text=node5),
+                        GameTreeNode(edge_text=edge6, text=node6)])
 
             on_each(row_number, record)

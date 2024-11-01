@@ -3,6 +3,7 @@ import time
 import datetime
 import numpy as np
 import pandas as pd
+import xltree as tr
 
 from library import TERMINATED, YIELD, CALCULATION_FAILED, UPPER_OUT_OF_P, EVEN, Converter, SeriesRule, Precision
 from library.file_paths import TheoreticalProbabilityFilePaths
@@ -12,7 +13,7 @@ from library.views import DebugWrite
 from scripts import SaveOrIgnore
 
 
-class Automation():
+class GeneratorOfTPR():
     """［理論的確率データ］（TP）表のスリー・レーツ列を更新する"""
 
 
@@ -110,11 +111,13 @@ class Automation():
         # h_max = t_step
 
         # TODO バイナリサーチを用いた行へのランダムアクセスと、for 文での逐次アクセス、どっちが効率的か分からない
+        timeout = tr.timeout(seconds=7)
         is_complete, is_timeup = self.sequencial_access(
                 spec=spec,
                 tpr_table=tpr_table,
                 tptpr_df=tptpr_df,
-                list_of_enable_each_row=list_of_enable_each_row)
+                list_of_enable_each_row=list_of_enable_each_row,
+                timeout=timeout)
 
 
         # 変更があれば保存
@@ -147,9 +150,14 @@ class Automation():
         return CALCULATION_FAILED
 
 
-    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row):
+    def sequencial_access(self, spec, tpr_table, tptpr_df, list_of_enable_each_row, timeout):
         """逐次アクセス
         
+        Parameters
+        ----------
+        timeout : Timeout
+            タイムアウト
+
         Returns
         -------
         is_complete : bool
@@ -219,9 +227,20 @@ class Automation():
                 #
                 #   NOTE 指数関数的に激重になっていく処理
                 #
-                three_rates, all_patterns_p = search_all_score_boards(
+                print(f"[{datetime.datetime.now()}] get score board (4) ...")
+                result = search_all_score_boards(
                         series_rule=specified_series_rule,
-                        on_score_board_created=on_score_board_created)
+                        on_score_board_created=on_score_board_created,
+                        timeout=timeout)
+                print(f"[{datetime.datetime.now()}] got score board")
+
+
+                if timeout.is_expired('sequencial_access'):
+                    print(f"[{datetime.datetime.now()}] time-out. {timeout.message}")
+                    return False, True  # timeup
+
+
+                three_rates = result['three_rates']
 
                 # データフレーム更新
                 tpr_table.upsert_record(

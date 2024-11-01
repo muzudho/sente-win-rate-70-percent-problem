@@ -163,7 +163,7 @@ if __name__ == '__main__':
                 print(f"{DebugWrite.stringify(failure_rate=failure_rate, p=p)}ベスト値が設定されていません。スキップします {epdt_record.best_p_error=}")
                 return
 
-            # 仕様
+            # ［仕様］
             spec = Specification(
                     turn_system_id=specified_turn_system_id,
                     failure_rate=specified_failure_rate,

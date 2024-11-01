@@ -9,7 +9,7 @@ from library.views import DebugWrite
 from scripts import SaveOrIgnore, ForEachSeriesRule
 
 
-class Automation():
+class GeneratorOfTP():
     """［理論的確率データ］（TP）表に新規行を挿入する。
 
     FIXME 更新するつもりはないが、既存行が一斉に同じレコードになるような不具合が起こる

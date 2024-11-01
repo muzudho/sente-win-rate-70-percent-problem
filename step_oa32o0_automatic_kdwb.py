@@ -11,7 +11,7 @@ import datetime
 from library import FROZEN_TURN, ALTERNATING_TURN, Converter
 from library.file_paths import KakukinDataWorkbookFilePaths
 from library.logging import Logging
-from scripts.step_oa32o0_create_kdwb_excel import Automation as StepOa32o0CreateKDExcel
+from scripts.step_oa32o0_create_kdwb_excel import GeneratorOfKDWB
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE, DEFAULT_TRIAL_SERIES
 
 
@@ -41,9 +41,9 @@ if __name__ == '__main__':
             #
             #   NOTE 先にKDSファイルを作成しておく必要があります
             #
-            automation = StepOa32o0CreateKDExcel(
+            generator_of_kdwb = GeneratorOfKDWB(
                     trial_series=DEFAULT_TRIAL_SERIES)
-            automation.execute()
+            generator_of_kdwb.execute()
 
             # ロギング
             Logging.notice_log(
