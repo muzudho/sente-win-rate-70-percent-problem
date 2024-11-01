@@ -65,6 +65,7 @@ if __name__ == '__main__':
                     # ファイルが存在しなければワークブック（.xlsx）ファイルを書き出す
                     if not os.path.isfile(generator_of_gtwb.workbook_file_path):
 
+                        # 書出し
                         # TODO 高速化したい
                         generator_of_gtwb.write_workbook(debug_write=False)
 
@@ -73,6 +74,7 @@ if __name__ == '__main__':
                         shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
 
 
+                # テキストファイルに大量の空白が入っている？
                 except TypeError as e:
                     message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {basename=} {e=}"
                     print(message)
