@@ -1,5 +1,5 @@
 #
-# python o2o5o0_play_unfair_coin_toss.py
+# python o2o1o0_play_unfair_coin_toss.py
 #
 #   アンフェアコイントス
 #
