@@ -12,7 +12,7 @@ import pandas as pd
 
 from library import HEAD, TAIL, ALICE, FROZEN_TURN, ALTERNATING_TURN, TERMINATED, YIELD, CONTINUE, CALCULATION_FAILED, EVEN, Converter, Specification, SeriesRule, Precision
 from library.file_paths import TheoreticalProbabilityRatesFilePaths
-from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRecord, TheoreticalProbabilityRatesTable
+from library.database import TheoreticalProbabilityTable, TheoreticalProbabilityRatesTable
 from library.views import DebugWrite
 from config import DEFAULT_MAX_DEPTH, DEFAULT_UPPER_LIMIT_FAILURE_RATE
 from scripts import SaveOrIgnore

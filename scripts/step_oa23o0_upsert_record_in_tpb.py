@@ -5,7 +5,7 @@ import pandas as pd
 
 from library import FROZEN_TURN, ALTERNATING_TURN, EVEN, ABS_OUT_OF_ERROR, Converter, Specification, ThreeRates
 from library.file_paths import TheoreticalProbabilityBestFilePaths
-from library.database import TpTprRecord, TheoreticalProbabilityRatesTable, TheoreticalProbabilityRecord, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
+from library.database import TpTprRecord, TheoreticalProbabilityRatesTable, TheoreticalProbabilityTable, TheoreticalProbabilityBestRecord, TheoreticalProbabilityBestTable
 from library.views import DebugWrite
 from scripts import SaveOrIgnore
 from config import DEFAULT_UPPER_LIMIT_FAILURE_RATE

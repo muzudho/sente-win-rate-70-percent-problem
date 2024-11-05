@@ -9,6 +9,7 @@ import datetime
 import sys
 
 from scripts.scraps.convert_tp import execute as convert_tp
+from scripts.scraps.convert_tpr import execute as convert_tpr
 
 
 ########################################
@@ -24,6 +25,10 @@ if __name__ == '__main__':
 
             if args[1] == 'convert_tp':
                 convert_tp()
+
+
+            elif args[1] == 'convert_tpr':
+                convert_tpr()
 
             else:
                 raise ValueError(f'unsupported {args[1]=}')

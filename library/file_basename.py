@@ -119,3 +119,36 @@ class BasenameOfGameTreeFile():
         
         
         return None
+
+
+###########
+# MARK: TPR
+###########
+class BasenameOfTheoreticalProbabilityRates():
+    """ファイルのベース名"""
+
+
+    # ファイル名をパース
+    _pattern = re.compile(r'TPR_(alter|froze)_f([\d.]+)_p([\d.]+)\.csv')
+
+
+    @classmethod
+    def to_spec(clazz, basename):
+        result = clazz._pattern.match(basename)
+
+        if result:
+            turn_system_id = Converter.turn_system_code_to_id(code=result.group(1))
+            # １００分率になってるので、0～1 に戻します
+            failure_rate = float(result.group(2)) / 100
+            p = float(result.group(3)) / 100
+
+            # ［仕様］
+            spec = Specification(
+                    turn_system_id=turn_system_id,
+                    failure_rate=failure_rate,
+                    p=p)
+            
+            return spec
+        
+        
+        return None

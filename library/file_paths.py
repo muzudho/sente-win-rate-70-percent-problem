@@ -170,15 +170,27 @@ class TheoreticalProbabilityRatesFilePaths():
 
 
     @staticmethod
+    def get_temp_directory_path():
+        # './' は付けない
+        return 'temp/theoretical_probability_rates'
+
+
+    @staticmethod
+    def get_logs_directory_path():
+        # './' は付けない
+        return 'logs/theoretical_probability_rates'
+
+
+    @staticmethod
     def as_csv(spec):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
-        return f'temp/theoretical_probability_rates/TPR{subname}.csv'
+        return f'{TheoreticalProbabilityRatesFilePaths.get_temp_directory_path()}/TPR{subname}.csv'
 
 
     @staticmethod
     def as_log(spec):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
-        return f'logs/theoretical_probability_rates/TPR{subname}.csv'
+        return f'{TheoreticalProbabilityRatesFilePaths.get_logs_directory_path()}/TPR{subname}.csv'
 
 
 ##########
