@@ -14,6 +14,7 @@ import pandas as pd
 from library import SeriesRule, get_list_of_basename
 from library.file_basename import BasenameOfTheoreticalProbabilityRates
 from library.file_paths import TheoreticalProbabilityRatesFilePaths
+from library.database import TheoreticalProbabilityRatesRecord
 
 
 def let_uppler_limit_coins(spec, span, t_step, h_step):
@@ -27,14 +28,6 @@ def let_uppler_limit_coins(spec, span, t_step, h_step):
     return series_rule.upper_limit_coins
 
 
-def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
-    # 割り切れないなら 0
-    if t_step % h_step != 0 or t_step // h_step >= h_time:
-        return 0
-    
-
-    # 割り切れるなら、割る数
-    return t_step // h_step
 
 
 def execute():
@@ -92,7 +85,7 @@ def execute():
                 # t_step が h_step で割り切れるとき、かつ、その割る数が h_time 未満のとき、ＡさんとＢさんの勝ち点が等しくなって［勝者なし］になるケースが発生する。
                 # そうでないとき、［勝ち点差でＡさんの勝ち］など分かれるケースがある
                 if True: #if 't_step_divisible_by_h_step' not in df.columns.values:
-                    df['t_step_divisible_by_h_step'] = df[['t_step', 'h_step', 'h_time']].apply(lambda X:let_t_step_divisible_by_h_step(t_step=X['t_step'], h_step=X['h_step'], h_time=X['h_time']), axis=1)
+                    df['t_step_divisible_by_h_step'] = df[['t_step', 'h_step', 'h_time']].apply(lambda X:TheoreticalProbabilityRatesRecord.let_t_step_divisible_by_h_step(t_step=X['t_step'], h_step=X['h_step'], h_time=X['h_time']), axis=1)
                     dirty = True
 
 

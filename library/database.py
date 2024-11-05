@@ -5,6 +5,7 @@ import os
 import time
 import random
 import datetime
+import math
 import numpy as np
 import pandas as pd
 
@@ -979,12 +980,47 @@ class TpTprRecord():
 class TheoreticalProbabilityRatesRecord():
 
 
-    def __init__(self, span, t_step, h_step, expected_a_victory_rate_by_duet, expected_no_win_match_rate):
+    @staticmethod
+    def let_t_time(span, t_step):
+        """t_time の計算方法は、 span / t_step ※小数点切り上げ"""
+        return math.ceil(span / t_step)
+
+
+    @staticmethod
+    def let_h_time(span, h_step):
+        """h_time の計算方法は、 span / h_step ※小数点切り上げ"""
+        return math.ceil(span / h_step)
+
+
+    @staticmethod
+    def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
+        # 割り切れないなら 0
+        if t_step % h_step != 0 or t_step // h_step >= h_time:
+            return 0
+        
+
+        # 割り切れるなら、割る数
+        return t_step // h_step
+
+
+    def __init__(self, span, t_step, h_step, expected_a_victory_rate_by_duet, expected_no_win_match_rate, t_time=None, h_time=None, t_step_divisible_by_h_step=None):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
         self._expected_a_victory_rate_by_duet = expected_a_victory_rate_by_duet
         self._expected_no_win_match_rate = expected_no_win_match_rate
+
+        if t_time is None:
+            t_time = TheoreticalProbabilityRatesRecord.let_t_time(span=span, t_step=t_step)
+        self._t_time = t_time
+
+        if h_time is None:
+            h_time = TheoreticalProbabilityRatesRecord.let_h_time(span=span, h_step=h_step)
+        self._h_time = h_time
+
+        if t_step_divisible_by_h_step is None:
+            t_step_divisible_by_h_step = TheoreticalProbabilityRatesRecord.let_t_step_divisible_by_h_step(t_step=t_step, h_step=h_step, h_time=h_time)
+        self._t_step_divisible_by_h_step = t_step_divisible_by_h_step
 
 
     @property
@@ -1012,6 +1048,21 @@ class TheoreticalProbabilityRatesRecord():
         return self._expected_no_win_match_rate
 
 
+    @property
+    def t_time(self):
+        return self._t_time
+
+
+    @property
+    def h_time(self):
+        return self._h_time
+
+
+    @property
+    def t_step_divisible_by_h_step(self):
+        return self._t_step_divisible_by_h_step
+
+
 class TheoreticalProbabilityRatesTable():
     """理論的確率の率データ"""
 
@@ -1037,7 +1088,11 @@ class TheoreticalProbabilityRatesTable():
                     'h_step',
 
                     'expected_a_victory_rate_by_duet',
-                    'expected_no_win_match_rate'])
+                    'expected_no_win_match_rate',
+                    
+                    't_time',
+                    'h_time',
+                    't_step_divisible_by_h_step'])
         clazz.setup_data_frame(df=tpr_df, shall_set_index=True)
 
         # tpr_df.empty は真
@@ -1231,7 +1286,10 @@ df:
             # span, t_step, h_step はインデックス
             shall_record_change =\
                 self._df['expected_a_victory_rate_by_duet'][index] != welcome_record.expected_a_victory_rate_by_duet or\
-                self._df['expected_no_win_match_rate'][index] != welcome_record.expected_no_win_match_rate
+                self._df['expected_no_win_match_rate'][index] != welcome_record.expected_no_win_match_rate or\
+                self._df['t_time'][index] != welcome_record.t_time or\
+                self._df['h_time'][index] != welcome_record.h_time or\
+                self._df['t_step_divisible_by_h_step'][index] != welcome_record.t_step_divisible_by_h_step
 
 
         # 行の挿入または更新
@@ -1239,7 +1297,11 @@ df:
             self._df.loc[index] = {
                 # span, t_step, h_step はインデックス
                 'expected_a_victory_rate_by_duet': welcome_record.expected_a_victory_rate_by_duet,
-                'expected_no_win_match_rate': welcome_record.expected_no_win_match_rate}
+                'expected_no_win_match_rate': welcome_record.expected_no_win_match_rate,
+                't_time': welcome_record.t_time,
+                'h_time': welcome_record.h_time,
+                't_step_divisible_by_h_step': welcome_record.t_step_divisible_by_h_step}
+
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -1270,7 +1332,7 @@ df:
         self._df.to_csv(
                 csv_file_path,
                 # span, t_step, h_step はインデックス
-                columns=['expected_a_victory_rate_by_duet', 'expected_no_win_match_rate'])
+                columns=['expected_a_victory_rate_by_duet', 'expected_no_win_match_rate', 't_time', 'h_time', 't_step_divisible_by_h_step'])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -1286,8 +1348,8 @@ df:
 
         df = self._df
 
-        for row_number,(      expected_a_victory_rate_by_duet  ,     expected_no_win_match_rate) in\
-            enumerate(zip(df['expected_a_victory_rate_by_duet'], df['expected_no_win_match_rate'])):
+        for row_number,(      expected_a_victory_rate_by_duet  ,     expected_no_win_match_rate  ,     t_time  ,     h_time  ,     t_step_divisible_by_h_step) in\
+            enumerate(zip(df['expected_a_victory_rate_by_duet'], df['expected_no_win_match_rate'], df['t_time'], df['h_time'], df['t_step_divisible_by_h_step'])):
 
             # span, t_step, h_step はインデックス
             span, t_step, h_step = df.index[row_number]
@@ -1298,7 +1360,10 @@ df:
                     t_step=t_step,
                     h_step=h_step,
                     expected_a_victory_rate_by_duet=expected_a_victory_rate_by_duet,
-                    expected_no_win_match_rate=expected_no_win_match_rate)
+                    expected_no_win_match_rate=expected_no_win_match_rate,
+                    t_time=t_time,
+                    h_time=h_time,
+                    t_step_divisible_by_h_step=t_step_divisible_by_h_step)
 
             on_each(row_number, tpr_record)
 

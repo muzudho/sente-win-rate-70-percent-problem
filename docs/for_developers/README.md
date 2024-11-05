@@ -41,6 +41,12 @@ python step_oa32o0_automatic_kdwb.py
 
 # 以下の１つは任意です
 python simulate_game_tree.py
+
+# 樹形図をエクセルで作るためのもの
+python step_oa41o0_automatic_gt.py
+python step_oa42o0_automatic_gt_wb.py
+python step_oa43o0_automatic_vrd.py
+python step_oa44o0_automatic_vrs.py
 ```
 
 

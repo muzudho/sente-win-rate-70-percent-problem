@@ -192,8 +192,8 @@ class GeneratorOfTPR():
                                 span=span,
                                 t_step=t_step,
                                 h_step=h_step,
-                                expected_a_victory_rate_by_duet=np.nan,        # 計算を放棄。［Ａさんの勝率の期待値］を nan にする
-                                expected_no_win_match_rate=-1))                # 計算を放棄。［コインを投げて表も裏も出ない確率］に -1 が入っていなければ、行削除のフラグ
+                                expected_a_victory_rate_by_duet=np.nan,     # 計算を放棄。［Ａさんの勝率の期待値］を nan にする
+                                expected_no_win_match_rate=-1))             # 計算を放棄。［コインを投げて表も裏も出ない確率］に -1 が入っていなければ、行削除のフラグ
                 
                 #
                 # NOTE upper_limit_coins の制限で（例えば 7 とか）、番号が飛ぶことがある
