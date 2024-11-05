@@ -39,11 +39,11 @@ if __name__ == '__main__':
                 number_of_head += 1
             
             elif elementary_event == TAIL:
-                text = "裏が出た"
+                text = "ｳﾗが出た"
                 number_of_tail += 1
 
             else:
-                text = "表も裏も出なかった"
+                text = "表もｳﾗも出なかった"
                 number_of_failure += 1
 
             # 表示

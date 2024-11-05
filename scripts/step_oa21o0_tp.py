@@ -168,10 +168,7 @@ class GeneratorOfTP():
             # # FIXME DEBUG 本来、ここでは保存しない
             # print("デバッグ中166")
             # SaveOrIgnore.execute(
-            #         log_file_path=TheoreticalProbabilityFilePaths.as_log(
-            #                 turn_system_id=spec.turn_system_id,
-            #                 failure_rate=spec.failure_rate,
-            #                 p=spec.p),
+            #         log_file_path=TheoreticalProbabilityFilePaths.as_log(spec=spec),
             #         on_save_and_get_file_name=tp_table.to_csv)
 
 
@@ -179,10 +176,7 @@ class GeneratorOfTP():
         if 0 < self._number_of_dirty:
 
             successful, target_file_path = SaveOrIgnore.execute(
-                    log_file_path=TheoreticalProbabilityFilePaths.as_log(
-                            turn_system_id=spec.turn_system_id,
-                            failure_rate=spec.failure_rate,
-                            p=spec.p),
+                    log_file_path=TheoreticalProbabilityFilePaths.as_log(spec=spec),
                     on_save_and_get_file_name=tp_table.to_csv)
             
             if successful:

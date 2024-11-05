@@ -170,14 +170,14 @@ class TheoreticalProbabilityRatesFilePaths():
 
 
     @staticmethod
-    def as_csv(turn_system_id, failure_rate, p):
-        subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
+    def as_csv(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
         return f'temp/theoretical_probability_rates/TPR{subname}.csv'
 
 
     @staticmethod
-    def as_log(turn_system_id, failure_rate, p):
-        subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
+    def as_log(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
         return f'logs/theoretical_probability_rates/TPR{subname}.csv'
 
 
@@ -190,15 +190,27 @@ class TheoreticalProbabilityFilePaths():
 
 
     @staticmethod
+    def get_temp_directory_path():
+        # './' は付けない
+        return 'temp/theoretical_probability'
+
+
+    @staticmethod
+    def get_logs_directory_path():
+        # './' は付けない
+        return 'logs/theoretical_probability'
+
+
+    @staticmethod
     def as_csv(turn_system_id, failure_rate, p):
         subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
-        return f'temp/theoretical_probability/TP{subname}.csv'
+        return f'{TheoreticalProbabilityFilePaths.get_temp_directory_path()}/TP{subname}.csv'
 
 
     @staticmethod
     def as_log(turn_system_id, failure_rate, p):
         subname = make_file_subname(turn_system_id=turn_system_id, failure_rate=failure_rate, p=p)
-        return f'logs/theoretical_probability/TP{subname}.csv'
+        return f'{TheoreticalProbabilityFilePaths.get_logs_directory_path()}/TP{subname}.csv'
 
 
 ################

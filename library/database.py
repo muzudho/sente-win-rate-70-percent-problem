@@ -1395,10 +1395,7 @@ class TheoreticalProbabilityTable():
             ファイル読込結果
         """
 
-        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
-                turn_system_id=spec.turn_system_id,
-                failure_rate=spec.failure_rate,
-                p=spec.p)
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(spec=spec)
 
         is_file_not_found = not os.path.isfile(csv_file_path)
 
@@ -1603,10 +1600,7 @@ df:
             ファイルパス
         """
 
-        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(
-                p=self._spec.p,
-                failure_rate=self._spec.failure_rate,
-                turn_system_id=self._spec.turn_system_id)
+        csv_file_path = TheoreticalProbabilityFilePaths.as_csv(spec=self._spec)
 
         # TODO ファイル保存の前のリネーム・バックアップ
         renaming_backup = RenamingBackup(file_path=csv_file_path)
