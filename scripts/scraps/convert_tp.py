@@ -36,20 +36,25 @@ def execute():
             # CSVファイル読込
             df = pd.read_csv(csv_file_path)
 
+            dirty = False
+
             if 't_time' not in df.index:
                 # t_time の計算方法は、 span / t_step ※小数点切り上げ
                 a_series = df['span'] / df['t_step']
-                print(f"{type(a_series)=}")
+                #print(f"{type(a_series)=}")
                 # Series クラスの map() 関数は処理が遅いが、独自関数を使える
                 df['t_time'] = a_series.map(round_letro)
+                dirty = True
 
             if 'h_time' not in df.index:
                 # h_time の計算方法は、 span / h_step ※小数点切り上げ
                 df['h_time'] = (df['span'] / df['h_step']).map(round_letro)
-            
-            df.to_csv(csv_file_path, index=False)
+                dirty = True
 
-            break
+            if dirty:
+                df.sort_values(['t_time', 'h_time', 'upper_limit_coins'], inplace=True)
+
+            df.to_csv(csv_file_path, index=False)
 
 
     except Exception as err:
