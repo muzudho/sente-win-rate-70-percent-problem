@@ -30,31 +30,38 @@ def execute():
         random.shuffle(basename_list)
 
         for basename in basename_list:
-            csv_file_path = os.path.join(dir_path, basename)
-            print(f"[{datetime.datetime.now()}] convert_tp {csv_file_path=}")
 
-            # CSVファイル読込
-            df = pd.read_csv(csv_file_path)
+            try:
+                csv_file_path = os.path.join(dir_path, basename)
+                print(f"[{datetime.datetime.now()}] convert_tp {csv_file_path=}")
 
-            dirty = False
+                # CSVファイル読込
+                df = pd.read_csv(csv_file_path)
 
-            if 't_time' not in df.index:
-                # t_time の計算方法は、 span / t_step ※小数点切り上げ
-                a_series = df['span'] / df['t_step']
-                #print(f"{type(a_series)=}")
-                # Series クラスの map() 関数は処理が遅いが、独自関数を使える
-                df['t_time'] = a_series.map(round_letro)
-                dirty = True
+                dirty = False
 
-            if 'h_time' not in df.index:
-                # h_time の計算方法は、 span / h_step ※小数点切り上げ
-                df['h_time'] = (df['span'] / df['h_step']).map(round_letro)
-                dirty = True
+                if 't_time' not in df.index:
+                    # t_time の計算方法は、 span / t_step ※小数点切り上げ
+                    a_series = df['span'] / df['t_step']
+                    #print(f"{type(a_series)=}")
+                    # Series クラスの map() 関数は処理が遅いが、独自関数を使える
+                    df['t_time'] = a_series.map(round_letro)
+                    dirty = True
 
-            if dirty:
-                df.sort_values(['t_time', 'h_time', 'upper_limit_coins'], inplace=True)
+                if 'h_time' not in df.index:
+                    # h_time の計算方法は、 span / h_step ※小数点切り上げ
+                    df['h_time'] = (df['span'] / df['h_step']).map(round_letro)
+                    dirty = True
 
-            df.to_csv(csv_file_path, index=False)
+                if dirty:
+                    df.sort_values(['t_time', 'h_time', 'upper_limit_coins'], inplace=True)
+                    df.to_csv(csv_file_path, index=False)
+
+
+            # .gitkeep ファイルなど、CSVでないファイルも含まれているのでスキップ
+            except pd.errors.EmptyDataError as e:
+                print(f"[{datetime.datetime.now()} skip no csv file. {e}")
+                pass
 
 
     except Exception as err:
