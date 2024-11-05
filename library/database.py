@@ -1310,12 +1310,20 @@ df:
 class TheoreticalProbabilityRecord():
 
 
-    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins):
+    def __init__(self, span, t_step, h_step, shortest_coins, upper_limit_coins, t_time=None, h_time=None):
         self._span = span
         self._t_step = t_step
         self._h_step = h_step
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
+
+        if t_time is None:
+            t_time = round_letro(span / t_step)
+        self._t_time = t_time
+
+        if h_time is None:
+            h_time = round_letro(span / h_step)
+        self._h_time = h_time
 
 
     @property
@@ -1343,6 +1351,16 @@ class TheoreticalProbabilityRecord():
         return self._upper_limit_coins
 
 
+    @property
+    def t_time(self):
+        return self._t_time
+
+
+    @property
+    def h_time(self):
+        return self._h_time
+
+
 class TheoreticalProbabilityTable():
     """理論的確率データ"""
 
@@ -1350,7 +1368,9 @@ class TheoreticalProbabilityTable():
     _dtype = {
         # span, t_step, h_step はインデックス
         'shortest_coins':'int64',
-        'upper_limit_coins':'int64'}
+        'upper_limit_coins':'int64',
+        't_time':'int64',
+        'h_time':'int64'}
 
 
     def __init__(self, df, spec):
@@ -1368,7 +1388,9 @@ class TheoreticalProbabilityTable():
                     'h_step',
 
                     'shortest_coins',
-                    'upper_limit_coins'])
+                    'upper_limit_coins',
+                    't_time',
+                    'h_time'])
         clazz.setup_data_frame(df=tp_df, shall_set_index=True)
 
         # tp_df.empty は真
@@ -1572,7 +1594,9 @@ df:
             # span, t_step, h_step はインデックス
             shall_record_change =\
                 self._df['shortest_coins'][index] != welcome_record.shortest_coins or\
-                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins
+                self._df['upper_limit_coins'][index] != welcome_record.upper_limit_coins or\
+                self._df['t_time'][index] != welcome_record.upper_limit_coins or\
+                self._df['h_time'][index] != welcome_record.upper_limit_coins
 
 
         # 行の挿入または更新
@@ -1580,7 +1604,9 @@ df:
             self._df.loc[index] = {
                 # span, t_step, h_step はインデックス
                 'shortest_coins': welcome_record.shortest_coins,
-                'upper_limit_coins': welcome_record.upper_limit_coins}
+                'upper_limit_coins': welcome_record.upper_limit_coins,
+                't_time': welcome_record.t_time,
+                'h_time': welcome_record.h_time}
 
         if is_new_index:
             # NOTE ソートをしておかないと、インデックスのパフォーマンスが機能しない
@@ -1608,7 +1634,7 @@ df:
         self._df.to_csv(
                 csv_file_path,
                 # span, t_step, h_step はインデックス
-                columns=['shortest_coins', 'upper_limit_coins'])
+                columns=['shortest_coins', 'upper_limit_coins', 't_time', 'h_time'])
         renaming_backup.remove_backup()
 
         return csv_file_path
@@ -1624,8 +1650,8 @@ df:
 
         df = self._df
 
-        for row_number,(      shortest_coins  ,     upper_limit_coins) in\
-            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'])):
+        for row_number,(      shortest_coins  ,     upper_limit_coins  ,     t_time  ,     h_time   ) in\
+            enumerate(zip(df['shortest_coins'], df['upper_limit_coins'], df['t_time'], df['h_time'])):
 
             # span, t_step, h_step はインデックス
             span, t_step, h_step = df.index[row_number]
@@ -1636,7 +1662,9 @@ df:
                     t_step=t_step,
                     h_step=h_step,
                     shortest_coins=shortest_coins,
-                    upper_limit_coins=upper_limit_coins)
+                    upper_limit_coins=upper_limit_coins,
+                    t_time=t_time,
+                    h_time=h_time)
 
             on_each(row_number, record)
 
