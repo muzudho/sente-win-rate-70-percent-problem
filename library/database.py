@@ -2149,7 +2149,7 @@ class GameTreeNode():
         if face == 'h':
             face_str = '表'
         elif face == 't':
-            face_str = '裏'
+            face_str = 'ｳﾗ'
         elif face == 'f':
             face_str = '失敗'
         else:

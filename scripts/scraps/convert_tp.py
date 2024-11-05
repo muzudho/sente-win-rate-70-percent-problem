@@ -40,7 +40,7 @@ def execute():
 
                 dirty = False
 
-                if True: #'t_time' not in df.index:
+                if True: #'t_time' not in df.columns.values:
                     # t_time の計算方法は、 span / t_step ※小数点切り上げ
                     a_series = df['span'] / df['t_step']
                     #print(f"{type(a_series)=}")
@@ -48,7 +48,7 @@ def execute():
                     df['t_time'] = a_series.map(math.ceil)
                     dirty = True
 
-                if True: #'h_time' not in df.index:
+                if True: #'h_time' not in df.columns.values:
                     # h_time の計算方法は、 span / h_step ※小数点切り上げ
                     df['h_time'] = (df['span'] / df['h_step']).map(math.ceil)
                     dirty = True

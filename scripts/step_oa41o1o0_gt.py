@@ -77,14 +77,14 @@ class GeneratorOfGT():
             if face_of_coin == '表':
                 face = 'h'
                 pattern_rate *= successful_p
-            elif face_of_coin == '裏':
+            elif face_of_coin == 'ｳﾗ':
                 face = 't'
                 pattern_rate *= successful_q
-            elif player_name == '失':
+            elif face_of_coin == '失':
                 face = 'f'
                 pattern_rate *= self._spec.failure_rate
             else:
-                raise ValueError(f'{player_name=}')
+                raise ValueError(f'{face_of_coin=}')
 
 
             et = GameTreeNode.get_edge_text(face=face, winner=winner, pts=pts)

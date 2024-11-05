@@ -24,7 +24,7 @@
 * [x] h_step の初期値が 0 という仕様を廃止したい。 1 にしたい 
 * [x] PCの強制終了時にファイルが破損してしまう？ ファイルのリネーム・バックアップを利用した安全なファイル更新はできないか？ --> 一部それで対応
 * [x] 満点という言葉はおかしい、達成とかか？ --> リネームした
-* [ ] TPR 表の `expected_a_win_rate` は、 `expected_a_victory_rate_by_duet` に変更したい
+* [x] TPR 表の `expected_a_win_rate` は、 `expected_a_victory_rate_by_duet` に変更したい
 * [ ] TP、TPR のアルゴリズムの高速化
     * [ ] TP、TPR は、イーブンが見つかった行以降は無い方がいい
     * [-] TP、TPR で、span, t_step, h_step のいずれかに非素数が含まれていたらスキップしてもいいのではないか？（間引き） --> それが正しいか証明できてない
