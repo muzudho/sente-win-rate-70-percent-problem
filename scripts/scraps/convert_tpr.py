@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import SeriesRule, round_letro, get_list_of_basename
+from library import SeriesRule, get_list_of_basename
 from library.file_basename import BasenameOfTheoreticalProbabilityRates
 from library.file_paths import TheoreticalProbabilityRatesFilePaths
 
@@ -66,12 +66,12 @@ def execute():
                     a_series = df['span'] / df['t_step']
                     #print(f"{type(a_series)=}")
                     # Series クラスの map() 関数は処理が遅いが、独自関数を使える
-                    df['t_time'] = a_series.map(round_letro)
+                    df['t_time'] = a_series.map(math.ceil)
                     dirty = True
 
                 if 'h_time' not in df.index:
                     # h_time の計算方法は、 span / h_step ※小数点切り上げ
-                    df['h_time'] = (df['span'] / df['h_step']).map(round_letro)
+                    df['h_time'] = (df['span'] / df['h_step']).map(math.ceil)
                     dirty = True
 
                 if dirty:
