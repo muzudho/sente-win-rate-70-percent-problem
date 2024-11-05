@@ -86,7 +86,7 @@ class AllTheoreticalProbabilityFilesOperation():
             # min() 等のメソッドを使いたいので、テーブルに１件以上入っていることを確認する
             if 0 < len(tpr_table.df):
                 # ファイルが既存で、テーブルの中で、誤差がほぼ０の行が含まれているなら、探索打ち切り
-                min_abs_error = (tpr_table.df['expected_a_win_rate'] - EVEN).abs().min()
+                min_abs_error = (tpr_table.df['expected_a_victory_rate_by_duet'] - EVEN).abs().min()
                 if Precision.is_it_zero_enough(min_abs_error):
                     print(f"{DebugWrite.stringify(depth=self._depth, spec=spec)}READY_EVEN {min_abs_error=}")
                     return

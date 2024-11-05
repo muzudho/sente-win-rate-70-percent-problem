@@ -40,7 +40,7 @@ class GeneratorOfKDS():
         if self._specified_failure_rate != tpb_record.failure_rate:
             return
 
-        if tpb_record.expected_a_win_rate == UPPER_OUT_OF_P:
+        if tpb_record.expected_a_victory_rate_by_duet == UPPER_OUT_OF_P:
             print(f"[trial_series={self._specified_trial_series}  failure_rate={tpb_record.failure_rate}  p={tpb_record.p}] ベスト値が設定されていません。スキップします")
             return
 
@@ -86,7 +86,7 @@ class GeneratorOfKDS():
                         h_step=theoretical_series_rule.step_table.get_step_by(face_of_coin=HEAD),   # ［先手で勝ったときの勝ち点］
                         shortest_coins=theoretical_series_rule.shortest_coins,                      # ［最短対局数］
                         upper_limit_coins=theoretical_series_rule.upper_limit_coins,                # ［上限対局数］
-                        expected_a_win_rate=tpb_record.expected_a_win_rate,                         # ［Ａさんの勝率の理論値］
+                        expected_a_victory_rate_by_duet=tpb_record.expected_a_victory_rate_by_duet,   # ［Ａさんの勝率の理論値］
                         expected_no_win_match_rate=tpb_record.expected_no_win_match_rate,           # ［コインを投げて表も裏も出ない確率の理論値］
                         trial_series=self._specified_trial_series,                                  # ［シリーズ試行回数］
                         series_shortest_coins=S.series_shortest_coins,                              # ［シリーズ最短局数］

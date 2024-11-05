@@ -62,9 +62,9 @@ class GeneratorOfTPR():
 # """)
 
         # TPR表
-        #                       expected_a_win_rate  expected_no_win_match_rate
+        #                       expected_a_victory_rate_by_duet  expected_no_win_match_rate
         # span  t_step  h_step
-        #    1       1       1                  0.5                           0
+        #    1       1       1                              0.5                           0
 #         print(f"""\
 # TPR表:
 # {tpr_table.df}
@@ -74,9 +74,9 @@ class GeneratorOfTPR():
         # そしてマージしたあと、その列をインデックスに戻します
         tptpr_df = pd.merge(tp_table.df.reset_index(), tpr_table.df.reset_index(), how='outer', on=['span', 't_step', 'h_step']).set_index(['span', 't_step', 'h_step'])
         # TPTPR表　（TP表とTPR表を結合）
-        #                       shortest_coins  upper_limit_coins  expected_a_win_rate  expected_no_win_match_rate
+        #                       shortest_coins  upper_limit_coins  expected_a_victory_rate_by_duet  expected_no_win_match_rate
         # span  t_step  h_step
-        #    1       1       1               1                  1                  0.5                           0
+        #    1       1       1               1                  1                              0.5                           0
 #         print(f"""\
 # TPTPR表:
 # {tptpr_df}
@@ -96,12 +96,12 @@ class GeneratorOfTPR():
 
         # バイナリサーチをしたいので、行にランダムアクセスできるよう、連番列を追加します
         tptpr_df['no'] = range(0, len(tptpr_df.index))
-        tptpr_df = tptpr_df[['no', 'shortest_coins', 'upper_limit_coins', 'expected_a_win_rate', 'expected_no_win_match_rate']]
+        tptpr_df = tptpr_df[['no', 'shortest_coins', 'upper_limit_coins', 'expected_a_victory_rate_by_duet', 'expected_no_win_match_rate']]
 
         # TPTPR表　（TP表とTPR表を結合）
-        #                       no  shortest_coins  upper_limit_coins  expected_a_win_rate  expected_no_win_match_rate
+        #                       no  shortest_coins  upper_limit_coins  expected_a_victory_rate_by_duet  expected_no_win_match_rate
         # span  t_step  h_step
-        #    1       1       1   0               1                  1                  0.5                           0
+        #    1       1       1   0               1                  1                              0.5                           0
 #         print(f"""\
 # TPTPR表2:
 # {tptpr_df}
@@ -192,13 +192,13 @@ class GeneratorOfTPR():
                                 span=span,
                                 t_step=t_step,
                                 h_step=h_step,
-                                expected_a_win_rate=np.nan,         # 計算を放棄。［Ａさんの勝率の期待値］を nan にする
-                                expected_no_win_match_rate=-1))     # 計算を放棄。［コインを投げて表も裏も出ない確率］に -1 が入っていなければ、行削除のフラグ
+                                expected_a_victory_rate_by_duet=np.nan,        # 計算を放棄。［Ａさんの勝率の期待値］を nan にする
+                                expected_no_win_match_rate=-1))                # 計算を放棄。［コインを投げて表も裏も出ない確率］に -1 が入っていなければ、行削除のフラグ
                 
                 #
                 # NOTE upper_limit_coins の制限で（例えば 7 とか）、番号が飛ぶことがある
                 #
-                # span,t_step,h_step,expected_a_win_rate,expected_no_win_match_rate
+                # span,t_step,h_step,expected_a_victory_rate_by_duet,expected_no_win_match_rate
                 # 3,3,3,0.51,0.0
                 # 4,2,2,0.505002,0.0
                 #
@@ -245,7 +245,7 @@ class GeneratorOfTPR():
                                 span=span,
                                 t_step=t_step,
                                 h_step=h_step,
-                                expected_a_win_rate=three_rates.a_win_rate,
+                                expected_a_victory_rate_by_duet=three_rates.a_win_rate,
                                 expected_no_win_match_rate=three_rates.no_win_match_rate))
 
 

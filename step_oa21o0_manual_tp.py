@@ -21,7 +21,7 @@ from scripts.step_oa21o0_tp import GeneratorOfTP
 if __name__ == '__main__':
     """［理論的確率データ］のスリー・レーツ列を更新する
 
-    TODO TP表の expected_a_win_rate列、 expected_no_win_match_rate列の更新
+    TODO TPR表の expected_a_victory_rate_by_duet 列、 expected_no_win_match_rate列の更新
     """
 
     try:
@@ -47,22 +47,6 @@ if __name__ == '__main__':
                 turn_system_id=specified_turn_system_id,
                 failure_rate=specified_failure_rate,
                 p=specified_p)
-
-
-        # # ［理論的確率ベスト］表を読込。無ければナン
-        # tpb_table, tpb_file_read_result = TheoreticalProbabilityBestTable.from_csv(new_if_it_no_exists=False)
-
-        # # ファイルが存在しなければスキップ
-        # if tpb_table is None:
-        #     print(f"スキップ。［理論的確率ベスト］表が有りません")
-        
-        # else:
-
-        #     # ファイルが存在しなければ新規作成。あれば読み込む
-        #     tp_table, tp_file_read_result = TheoreticalProbabilityTable.from_csv(spec=spec, new_if_it_no_exists=True)
-
-        #     if tp_table is None:
-        #         raise ValueError(f"［理論的確率データ］表が新規作成されていないのはおかしい")
             
 
         #

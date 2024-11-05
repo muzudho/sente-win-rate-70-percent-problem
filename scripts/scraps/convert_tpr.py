@@ -56,7 +56,7 @@ def execute():
                         'span':'int64',
                         't_step':'int64',
                         'h_step':'int64',
-                        'expected_a_win_rate':'float64',
+                        'expected_a_victory_rate_by_duet':'float64',
                         'expected_no_win_match_rate':'float64'})
                     df['upper_limit_coins'] = df[['span', 't_step', 'h_step']].apply(lambda X:let_uppler_limit_coins(spec=spec, span=X[0], t_step=X[1], h_step=X[2]), axis=1)
                     dirty = True
@@ -75,7 +75,7 @@ def execute():
                     dirty = True
 
                 if dirty:
-                    df.sort_values(['t_time', 'h_time', 'expected_a_win_rate'], inplace=True)
+                    df.sort_values(['t_time', 'h_time', 'expected_a_victory_rate_by_duet'], inplace=True)
                     df.to_csv(csv_file_path, index=False)
 
 

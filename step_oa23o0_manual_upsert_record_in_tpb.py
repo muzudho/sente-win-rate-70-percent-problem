@@ -24,7 +24,7 @@ from scripts.step_oa23o0_upsert_record_in_tpb import GeneratorOneOfTPB
 if __name__ == '__main__':
     """Step O2o3o0 ［理論的確率ベスト］表の新規作成または更新
 
-    TODO 先に TP表の expected_a_win_rate列、 expected_no_win_match_rate列が更新されている必要があります    
+    TODO 先に TPR表の expected_a_victory_rate_by_duet 列、 expected_no_win_match_rate列が更新されている必要があります    
     """
 
     try:
