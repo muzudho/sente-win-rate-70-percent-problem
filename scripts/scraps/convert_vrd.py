@@ -54,7 +54,7 @@ def execute():
                     dirty = True
 
                 if dirty:
-                    # TODO ＡさんとＢさんの勝率が 0.5 から離れていない順に並んでほしい。［勝負なし］は少ないほど好ましい。span も短いほど好ましい。
+                    # ＡさんとＢさんの勝率が 0.5 から離れていない順に並んでほしい。［勝負なし］は少ないほど好ましい。span も短いほど好ましい。
                     df.sort_values(['unfair_point', 'no_victory_rate', 'span'], inplace=True)
                     df.to_csv(csv_file_path, index=False)
 

@@ -1,3 +1,4 @@
+#
 # python step_oa43o0_automatic_vrd.py
 #
 
@@ -25,7 +26,7 @@ if __name__ == '__main__':
             # １秒休む
             time.sleep(1)
 
-            # game_tree_wb フォルダーを見る
+            # ファイル名一覧取得
             basename_list = get_list_of_basename(dir_path=GameTreeWorkbookFilePaths.get_temp_directory_path())
 
             # シャッフル
@@ -69,7 +70,7 @@ if __name__ == '__main__':
                     
                     # ファイルが無ければ新規作成する
                     else:
-                        df = pd.DataFrame(columns=['span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate'])
+                        df = pd.DataFrame(columns=['span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate', 'a_victory_rate_by_duet', 'b_victory_rate_by_duet', 'unfair_point'])
 
 
                     # 型設定
@@ -79,22 +80,30 @@ if __name__ == '__main__':
                         'h_step':'int64',
                         'a_victory_rate_by_trio':'float64',
                         'b_victory_rate_by_trio':'float64',
-                        'no_victory_rate':'float64'}
+                        'no_victory_rate':'float64',
+                        'a_victory_rate_by_duet':'float64',
+                        'b_victory_rate_by_duet':'float64',
+                        'unfair_point':'float64'}
                     df.astype(dtypes)
 
 
                     # victory_rate_detail (VRD) ファイルに span, t_step, h_step 毎の先手勝率を記録する
                     # 行の追加
+                    a_victory_rate_by_duet = a_victory_rate_by_trio/(1 - no_victory_rate)
+                    b_victory_rate_by_duet = b_victory_rate_by_trio/(1 - no_victory_rate)
                     df.loc[len(df) + 1] = {
                         'span':series_rule.step_table.span,
                         't_step':series_rule.step_table.get_step_by(face_of_coin=TAIL),
                         'h_step':series_rule.step_table.get_step_by(face_of_coin=HEAD),
                         'a_victory_rate_by_trio':a_victory_rate_by_trio,
                         'b_victory_rate_by_trio':b_victory_rate_by_trio,
-                        'no_victory_rate':no_victory_rate}
+                        'no_victory_rate':no_victory_rate,
+                        'a_victory_rate_by_duet':a_victory_rate_by_duet,
+                        'b_victory_rate_by_duet':b_victory_rate_by_duet,
+                        'unfair_point':(a_victory_rate_by_duet - 0.5) ** 2 + (b_victory_rate_by_duet - 0.5) ** 2}
 
-                    # Ａさんの優勝率順にソートする
-                    df.sort_values(by=['a_victory_rate_by_trio', 'no_victory_rate', 'span', 't_step', 'h_step'], inplace=True)
+                    # ＡさんとＢさんの勝率が 0.5 から離れていない順に並んでほしい。［勝負なし］は少ないほど好ましい。span も短いほど好ましい。
+                    df.sort_values(['unfair_point', 'no_victory_rate', 'span', 't_step', 'h_step'], inplace=True)
                     
                     # FIXME 重複データが無いようにする ----> 効いてない？
                     df.drop_duplicates(inplace=True)
