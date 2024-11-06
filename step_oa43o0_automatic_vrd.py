@@ -53,8 +53,8 @@ if __name__ == '__main__':
 
                     # GTWB ワークブック（.xlsx）ファイルの Summary シートの B2 セル（先手勝率）を見る
                     summary_ws = wb['Summary']
-                    a_victory_rate = float(summary_ws["B2"].value)      # Ａさん（シリーズを先手で始めた方）が優勝した率
-                    b_victory_rate = float(summary_ws["B3"].value)      # Ｂさん（シリーズを後手で始めた方）が優勝した率
+                    a_victory_rate_by_trio = float(summary_ws["B2"].value)      # Ａさん（シリーズを先手で始めた方）が優勝した率
+                    b_victory_rate_by_trio = float(summary_ws["B3"].value)      # Ｂさん（シリーズを後手で始めた方）が優勝した率
                     no_victory_rate = float(summary_ws["B4"].value)     # 優勝が決まらなかった率
 
                     # victory_rate_detail (VRD) ファイル名を作成する。ファイル名には turn system, failure rate, p が含まれる
@@ -69,7 +69,7 @@ if __name__ == '__main__':
                     
                     # ファイルが無ければ新規作成する
                     else:
-                        df = pd.DataFrame(columns=['span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'])
+                        df = pd.DataFrame(columns=['span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate'])
 
 
                     # 型設定
@@ -77,8 +77,8 @@ if __name__ == '__main__':
                         'span':'int64',
                         't_step':'int64',
                         'h_step':'int64',
-                        'a_victory_rate':'float64',
-                        'b_victory_rate':'float64',
+                        'a_victory_rate_by_trio':'float64',
+                        'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64'}
                     df.astype(dtypes)
 
@@ -89,12 +89,12 @@ if __name__ == '__main__':
                         'span':series_rule.step_table.span,
                         't_step':series_rule.step_table.get_step_by(face_of_coin=TAIL),
                         'h_step':series_rule.step_table.get_step_by(face_of_coin=HEAD),
-                        'a_victory_rate':a_victory_rate,
-                        'b_victory_rate':b_victory_rate,
+                        'a_victory_rate_by_trio':a_victory_rate_by_trio,
+                        'b_victory_rate_by_trio':b_victory_rate_by_trio,
                         'no_victory_rate':no_victory_rate}
 
                     # Ａさんの優勝率順にソートする
-                    df.sort_values(by=['a_victory_rate', 'no_victory_rate', 'span', 't_step', 'h_step'], inplace=True)
+                    df.sort_values(by=['a_victory_rate_by_trio', 'no_victory_rate', 'span', 't_step', 'h_step'], inplace=True)
                     
                     # FIXME 重複データが無いようにする ----> 効いてない？
                     df.drop_duplicates(inplace=True)

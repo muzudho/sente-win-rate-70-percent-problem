@@ -63,15 +63,15 @@ if __name__ == '__main__':
                     if os.path.isfile(summary_csv_file_name):
                         summary_df = pd.read_csv(summary_csv_file_name, encoding='utf-8')
                     else:
-                        summary_df = pd.DataFrame(columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'])
+                        summary_df = pd.DataFrame(columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate'])
 
 
                     detail_dtypes = {
                         'span':'int64',
                         't_step':'int64',
                         'h_step':'int64',
-                        'a_victory_rate':'float64',
-                        'b_victory_rate':'float64',
+                        'a_victory_rate_by_trio':'float64',
+                        'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64'}
 
                     summary_dtypes = {
@@ -81,8 +81,8 @@ if __name__ == '__main__':
                         'span':'int64',
                         't_step':'int64',
                         'h_step':'int64',
-                        'a_victory_rate':'float64',
-                        'b_victory_rate':'float64',
+                        'a_victory_rate_by_trio':'float64',
+                        'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64'}
 
                     # 型設定
@@ -104,8 +104,9 @@ if __name__ == '__main__':
 # {summary_df}""")
 
 
+                    # FIXME by_trio ではなく、 by_duet の方で 0.5 に近いものを選ばないといけない
                     # a_victory_rate が一番 0.5 に近いものを選ぶ
-                    detail_df = detail_df[(detail_df['a_victory_rate'] - 0.5).abs() == (detail_df['a_victory_rate'] - 0.5).abs().min()]
+                    detail_df = detail_df[(detail_df['a_victory_rate_by_trio'] - 0.5).abs() == (detail_df['a_victory_rate_by_trio'] - 0.5).abs().min()]
 
 #                     print(f"""\
 # detail_df o0o0:
@@ -132,8 +133,8 @@ if __name__ == '__main__':
                         'span':detail_df.at[detail_index, 'span'],
                         't_step':detail_df.at[detail_index, 't_step'],
                         'h_step':detail_df.at[detail_index, 'h_step'],
-                        'a_victory_rate':detail_df.at[detail_index, 'a_victory_rate'],
-                        'b_victory_rate':detail_df.at[detail_index, 'b_victory_rate'],
+                        'a_victory_rate_by_trio':detail_df.at[detail_index, 'a_victory_rate_by_trio'],
+                        'b_victory_rate_by_trio':detail_df.at[detail_index, 'b_victory_rate_by_trio'],
                         'no_victory_rate':detail_df.at[detail_index, 'no_victory_rate']}
 
 
@@ -154,7 +155,7 @@ if __name__ == '__main__':
                     # ファイル保存
                     summary_df.to_csv(
                             summary_csv_file_name,
-                            columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate', 'b_victory_rate', 'no_victory_rate'],
+                            columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
 

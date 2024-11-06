@@ -1,4 +1,4 @@
-span,t_step,h_step,a_victory_rate,b_victory_rate,no_victory_rate
+span,t_step,h_step,a_victory_rate_by_trio,b_victory_rate_by_trio,no_victory_rate
 13,12,1,0.0290020106136899,0.9709979893863075,0.0
 14,6,1,0.0626449734040561,0.9373550265959012,0.0
 6,3,1,0.26956597886362,0.7304340211363796,0.0

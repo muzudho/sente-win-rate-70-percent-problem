@@ -209,19 +209,19 @@ class GeneratorOfGTWB():
                 self.write_header_of_top(df=df, ws=ws, destination_row_th=1)
 
                 # 2nd Ａさん（シリーズを先手で始めた方）が優勝した率
-                a_victory_rate = self.get_a_victory_rate(sum_rate_by_result=sum_rate_by_result)
-                self.write_a_victory_rate(a_victory_rate=a_victory_rate, ws=ws, destination_row_th=2)
+                a_victory_rate_by_trio = self.get_a_victory_rate_by_trio(sum_rate_by_result=sum_rate_by_result)
+                self.write_a_victory_rate_by_trio(a_victory_rate_by_trio=a_victory_rate_by_trio, ws=ws, destination_row_th=2)
 
                 # 3nd Ｂさん（シリーズを後手で始めた方）が優勝した率
-                b_victory_rate = self.get_b_victory_rate(sum_rate_by_result=sum_rate_by_result)
-                self.write_b_victory_rate(b_victory_rate=b_victory_rate, ws=ws, destination_row_th=3)
+                b_victory_rate_by_trio = self.get_b_victory_rate_by_trio(sum_rate_by_result=sum_rate_by_result)
+                self.write_b_victory_rate_by_trio(b_victory_rate_by_trio=b_victory_rate_by_trio, ws=ws, destination_row_th=3)
 
                 # 4th 優勝が決まらなかった率
                 no_victory_rate = self.get_no_victory_rate(sum_rate_by_result=sum_rate_by_result)
                 self.write_no_victory_rate(no_victory_rate=no_victory_rate, ws=ws, destination_row_th=4)
 
                 # 5th トータル行
-                self.write_victory_total(a_victory_rate=a_victory_rate, b_victory_rate=b_victory_rate, no_victory_rate=no_victory_rate, ws=ws, destination_row_th=5)
+                self.write_victory_total_by_trio(a_victory_rate_by_trio=a_victory_rate_by_trio, b_victory_rate_by_trio=b_victory_rate_by_trio, no_victory_rate=no_victory_rate, ws=ws, destination_row_th=5)
 
                 # 6th 空行
 
@@ -313,7 +313,7 @@ class GeneratorOfGTWB():
         ws[f'B{destination_row_th}'].font = font
 
 
-    def get_a_victory_rate(self, sum_rate_by_result):
+    def get_a_victory_rate_by_trio(self, sum_rate_by_result):
         """Ａさん（シリーズを先手で始めた方）が優勝した率を算出"""
         # result 別に確率を高精度 sum する
         rate_list = []
@@ -327,15 +327,15 @@ class GeneratorOfGTWB():
         return math.fsum(rate_list)
 
 
-    def write_a_victory_rate(self, a_victory_rate, ws, destination_row_th):
+    def write_a_victory_rate_by_trio(self, a_victory_rate_by_trio, ws, destination_row_th):
         """Ａさん（シリーズを先手で始めた方）が優勝した率を出力"""
 
         ws[f'A{destination_row_th}'] = 'Ａさん（シリーズを先手で始めた方）が優勝した率'
-        ws[f'B{destination_row_th}'] = a_victory_rate
+        ws[f'B{destination_row_th}'] = a_victory_rate_by_trio
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
-    def get_b_victory_rate(self, sum_rate_by_result):
+    def get_b_victory_rate_by_trio(self, sum_rate_by_result):
         """Ｂさん（シリーズを後手で始めた方）が優勝した率を算出"""
 
         # result 別に確率を高精度 sum する
@@ -350,11 +350,11 @@ class GeneratorOfGTWB():
         return math.fsum(rate_list)
 
 
-    def write_b_victory_rate(self, b_victory_rate, ws, destination_row_th):
+    def write_b_victory_rate_by_trio(self, b_victory_rate_by_trio, ws, destination_row_th):
         """Ｂさん（シリーズを後手で始めた方）が優勝した率を出力"""
 
         ws[f'A{destination_row_th}'] = 'Ｂさん（シリーズを後手で始めた方）が優勝した率'
-        ws[f'B{destination_row_th}'] = b_victory_rate
+        ws[f'B{destination_row_th}'] = b_victory_rate_by_trio
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
@@ -375,11 +375,11 @@ class GeneratorOfGTWB():
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
-    def write_victory_total(self, a_victory_rate, b_victory_rate, no_victory_rate, ws, destination_row_th):
+    def write_victory_total_by_trio(self, a_victory_rate_by_trio, b_victory_rate_by_trio, no_victory_rate, ws, destination_row_th):
         """大分類トータル行を出力"""
         
         # Total を集計
-        total_sum_rate = math.fsum([a_victory_rate, b_victory_rate, no_victory_rate])
+        total_sum_rate = math.fsum([a_victory_rate_by_trio, b_victory_rate_by_trio, no_victory_rate])
 
         # データ部のトータル行の追加
         ws[f'A{destination_row_th}'] = 'Total'

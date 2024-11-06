@@ -27,6 +27,7 @@
 * [x] TPR 表の `expected_a_win_rate` は、 `expected_a_victory_rate_by_duet` に変更したい
 * [ ] VRD, VRS 表に `expected_a_victory_rate_by_duet`、`expected_b_victory_rate_by_duet` 列を追加したい
     * [ ] 既存の `a_victory_rate`, `b_victory_rate` を `a_victory_rate_by_trio`, `b_victory_rate_by_trio` に名称変更したい
+    * [ ] `*_by_trio` で 0.5 に近いものを探しているアルゴリズムは間違い。 `*_by_duet` で 0.5 に近いものを探さないと意味ない。それも、Aさん、Bさんともに 0.5 に近いものでないとフェアではない
 * [ ] TP、TPR のアルゴリズムの高速化
     * [ ] TP、TPR は、イーブンが見つかった行以降は無い方がいい
     * [-] TP、TPR で、span, t_step, h_step のいずれかに非素数が含まれていたらスキップしてもいいのではないか？（間引き） --> それが正しいか証明できてない

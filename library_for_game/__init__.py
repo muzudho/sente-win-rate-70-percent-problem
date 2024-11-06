@@ -7,11 +7,14 @@ def choice_game_plan(list_of_game_plan):
     return list_of_game_plan[random.randint(0, len(list_of_game_plan) - 1)]
 
 
+################
+# MARK: GamePlan
+################
 class GamePlan():
     """ゲーム企画"""
 
 
-    def __init__(self, spec, h_step, t_step, span, a_victory_rate, b_victory_rate, no_victory_rate):
+    def __init__(self, spec, h_step, t_step, span, a_victory_rate_by_trio, b_victory_rate_by_trio, no_victory_rate):
         """初期化
 
         Parameters
@@ -26,8 +29,8 @@ class GamePlan():
         self._h_step = h_step
         self._t_step = t_step
         self._span = span
-        self._a_victory_rate = a_victory_rate
-        self._b_victory_rate = b_victory_rate
+        self._a_victory_rate_by_trio = a_victory_rate_by_trio
+        self._b_victory_rate_by_trio = b_victory_rate_by_trio
         self._no_victory_rate = no_victory_rate
 
 
@@ -52,13 +55,13 @@ class GamePlan():
 
 
     @property
-    def a_victory_rate(self):
-        return self._a_victory_rate
+    def a_victory_rate_by_trio(self):
+        return self._a_victory_rate_by_trio
 
 
     @property
-    def b_victory_rate(self):
-        return self._b_victory_rate
+    def b_victory_rate_by_trio(self):
+        return self._b_victory_rate_by_trio
 
 
     @property
