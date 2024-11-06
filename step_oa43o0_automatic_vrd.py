@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
 
             for basename in basename_list:
-                print(f"[{datetime.datetime.now()}] step_oa43o0 {basename=}")
+                print(f"[{datetime.datetime.now()}] step_oa43o0_automatic_vrd {basename=}")
 
                 # １秒休む
                 time.sleep(1)
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
                     # victory_rate_detail (VRD) ファイル名を作成する。ファイル名には turn system, failure rate, p が含まれる
                     csv_file_path = VictoryRateDetailFilePaths.as_csv(spec=series_rule.spec)
-                    print(f"[{datetime.datetime.now()}] step_oa43o0 {csv_file_path=}")
+                    print(f"[{datetime.datetime.now()}] step_oa43o0_automatic_vrd {csv_file_path=}")
                     
                     # ファイルが既存ならそれを読取る
                     if os.path.isfile(csv_file_path):

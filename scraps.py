@@ -10,6 +10,7 @@ import sys
 
 from scripts.scraps.convert_tp import execute as convert_tp
 from scripts.scraps.convert_tpr import execute as convert_tpr
+from scripts.scraps.convert_vrd import execute as convert_vrd
 
 
 ########################################
@@ -29,6 +30,11 @@ if __name__ == '__main__':
 
             elif args[1] == 'convert_tpr':
                 convert_tpr()
+
+
+            elif args[1] == 'convert_vrd':
+                convert_vrd()
+
 
             else:
                 raise ValueError(f'unsupported {args[1]=}')
