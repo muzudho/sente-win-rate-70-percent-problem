@@ -112,7 +112,7 @@ def search_all_score_boards(series_rule, on_score_board_created, timeout):
                 path_of_face_of_coin=path_of_face_of_coin)
 
 
-        # FIXME 検証
+        # 検証
         if trial_results_for_one_series.number_of_coins < series_rule.shortest_coins:
             text = f"{series_rule.spec.p=} 最短対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.shortest_coins} を下回った"
             print(f"""{text}
@@ -122,7 +122,7 @@ def search_all_score_boards(series_rule, on_score_board_created, timeout):
 """)
             raise ValueError(text)
 
-        # FIXME 検証
+        # 検証
         if series_rule.upper_limit_coins < trial_results_for_one_series.number_of_coins:
             text = f"{series_rule.spec.p=} 上限対局数の実際値 {trial_results_for_one_series.number_of_coins} が理論値 {series_rule.upper_limit_coins} を上回った"
             print(f"""{text}

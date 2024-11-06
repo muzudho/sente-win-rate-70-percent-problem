@@ -1049,13 +1049,13 @@ class PointCalculation():
         step = self._series_rule.step_table.get_step_by(face_of_coin=successful_face_of_coin)
 
 
-        # FIXME 検算用
+        # 検証用
         old_pts_list = list(self._pts_list)
 
         self._pts_list[successful_player] += step
 
 
-        # FIXME 検算
+        # 検証
         if self._series_rule.step_table.span <= self._pts_list[ALICE] and self._series_rule.step_table.span <= self._pts_list[BOB]:
             print(f"""\
 PointCalculation
@@ -1114,7 +1114,7 @@ def judge_series(spec, series_rule, path_of_face_of_coin):
         コイントスした結果のリスト。引き分け含む
     """
 
-    # FIXME 検証
+    # 検証
     if len(path_of_face_of_coin) < series_rule.shortest_coins:
         text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
@@ -1123,7 +1123,7 @@ def judge_series(spec, series_rule, path_of_face_of_coin):
 """)
         raise ValueError(text)
 
-    # FIXME 検証
+    # 検証
     if series_rule.upper_limit_coins < len(path_of_face_of_coin):
         text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、上限対局数の理論値 {series_rule.upper_limit_coins} を上回っています。このような対局シートを指定してはいけません"
         print(f"""{text}
@@ -1133,7 +1133,7 @@ def judge_series(spec, series_rule, path_of_face_of_coin):
         raise ValueError(text)
 
 
-    # FIXME 検算
+    # 検証
     #assert_path_of_face_of_coin(path_of_face_of_coin=path_of_face_of_coin)
 
 
@@ -1169,7 +1169,7 @@ def judge_series(spec, series_rule, path_of_face_of_coin):
         
         else:
             
-            # FIXME 検算
+            # 検証
             gameover_reason = point_calculation.get_gameover_reason()
             if gameover_reason is not None:
                 raise ValueError(f"終局後に加点してはいけません1  {gameover_reason=}")
@@ -1191,11 +1191,11 @@ def judge_series(spec, series_rule, path_of_face_of_coin):
                 break
 
 
-    # FIXME 検証
+    # 検証
     if len(path_of_face_of_coin) != time_th:
         raise ValueError(f"テープの長さがおかしい2 {len(path_of_face_of_coin)=}  {time_th=}  {point_calculation.get_gameover_reason()=}")
 
-    # FIXME 検証
+    # 検証
     if time_th < series_rule.shortest_coins:
         text = f"{spec.p=} 対局数の実際値 {time_th} が最短対局数の理論値 {series_rule.shortest_coins} を下回った2  {point_calculation.get_gameover_reason()=}"
         print(f"""{text}
@@ -1204,7 +1204,7 @@ def judge_series(spec, series_rule, path_of_face_of_coin):
 """)
         raise ValueError(text)
 
-    # FIXME 検証
+    # 検証
     if series_rule.upper_limit_coins < time_th:
         text = f"{spec.p=} 対局数の実際値 {time_th} が上限対局数の理論値 {series_rule.upper_limit_coins} を上回った2  {point_calculation.get_gameover_reason()=}"
         print(f"""{text}
@@ -2041,7 +2041,8 @@ class LargeSeriesTrialSummary():
     def total(self):
         """シリーズ数"""
 
-        # FIXME 検算をしている
+        # 検証
+        # ----
 
         # 全部＝［表でも裏でもないものは出なかったシリーズの数］＋［表でも裏でもないものが出たシリーズの数］
         succ = self.successful_series
@@ -2715,7 +2716,7 @@ def try_series(spec, series_rule, specified_trial_series):
                 spec=spec,
                 upper_limit_coins=series_rule.upper_limit_coins)
 
-        # FIXME 検証
+        # 検証
         if len(path_of_face_of_coin) < series_rule.shortest_coins:
             text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
             print(f"""{text}

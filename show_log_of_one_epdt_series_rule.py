@@ -80,7 +80,7 @@ def show_log_of_series_rule(spec, trial_series, h_step, t_step, span, presentabl
             spec=spec,
             upper_limit_coins=series_rule.upper_limit_coins)
 
-    # FIXME 検証
+    # 検証
     if len(path_of_face_of_coin) < series_rule.shortest_coins:
         text = f"{spec.p=} 指定の対局シートの長さ {len(path_of_face_of_coin)} は、最短対局数の理論値 {series_rule.shortest_coins} を下回っています。このような対局シートを指定してはいけません"
         print(f"""{text}

@@ -104,9 +104,8 @@ if __name__ == '__main__':
 # {summary_df}""")
 
 
-                    # FIXME by_trio ではなく、 by_duet の方で 0.5 に近いものを選ばないといけない
-                    # a_victory_rate が一番 0.5 に近いものを選ぶ
-                    detail_df = detail_df[(detail_df['a_victory_rate_by_trio'] - 0.5).abs() == (detail_df['a_victory_rate_by_trio'] - 0.5).abs().min()]
+                    # unfair_point が一番小さいものを選ぶ
+                    detail_df = detail_df[detail_df['unfair_point'] == detail_df['unfair_point'].min()]
 
 #                     print(f"""\
 # detail_df o0o0:
