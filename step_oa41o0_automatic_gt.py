@@ -40,7 +40,8 @@ class Automatic():
 
         # ［目標の点数］
         #span = random.randint(1, DEFAULT_UPPER_LIMIT_SPAN)
-        span = random.randint(1, 15)    # FIXME
+        #span = random.randint(1, 15)   # 15, 16
+        span = random.randint(1, 13)    # FIXME 自動最適化できるか？ 18は15秒でもタイムアウトする
 
         t_step = random.randint(1, span)
 
@@ -129,8 +130,9 @@ if __name__ == '__main__':
             generator_of_gt = GeneratorOfGT(spec=series_rule.spec, root_entry=root_entry)
 
             # FIXME 時間がかかる？
-            print(f"[{datetime.datetime.now()}] get score board (2) ...")
-            timeout = tr.timeout(seconds=7)
+            print(f"[{datetime.datetime.now()}] oa41o0 get score board (2) ...")
+            #timeout = tr.timeout(seconds=7) # 7, 15, 60
+            timeout = tr.timeout(seconds=6)    # FIXME 自動最適化できるか？
             result = search_all_score_boards(
                     series_rule=series_rule,
                     on_score_board_created=generator_of_gt.on_score_board_created,

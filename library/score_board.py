@@ -52,7 +52,7 @@ def search_all_score_boards(series_rule, on_score_board_created, timeout):
             series_rule=series_rule)
 
     # FIXME ここで時間がかかってる？
-    print(f"[{datetime.datetime.now()}] search_all_score_boards > make_tree_of_all_pattern_face_of_coin  {timeout.remaining=}")
+    print(f"[{datetime.datetime.now()}] search_all_score_boards > make_tree_of_all_pattern_face_of_coin  {timeout.remaining()=}")
     result = all_patterns_face_of_coin.make_tree_of_all_pattern_face_of_coin(timeout=timeout)
 
 

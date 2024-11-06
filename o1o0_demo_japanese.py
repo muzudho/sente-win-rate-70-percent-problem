@@ -30,7 +30,8 @@ class TrialHistory():
         self._history_of_victory.append(player)
 
 
-    def get_a_victory_rate_using_simple_moving_average(self, times):
+    def get_a_victory_rate_by_duet_using_simple_moving_average(self, times):
+        """移動平均"""
         if len(self._history_of_victory) < times:
             a_victory = 0
             #b_victory = 0
@@ -333,7 +334,7 @@ if __name__ == '__main__':
 
                 # FIXME DEBUG
                 sma_times = 20
-                sma_percent = trial_history.get_a_victory_rate_using_simple_moving_average(times=sma_times) * 100
+                sma_percent = trial_history.get_a_victory_rate_by_duet_using_simple_moving_average(times=sma_times) * 100
                 print()
                 print(f"※ 直近 {sma_times} シリーズ当たりの国王の優勝率の移動平均 {sma_percent:.1f} ％")
                 time.sleep(msg_spd)
