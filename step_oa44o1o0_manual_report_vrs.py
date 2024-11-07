@@ -12,6 +12,9 @@ import random
 import math
 import pandas as pd
 import openpyxl as xl
+from openpyxl.styles import PatternFill, Font
+from openpyxl.styles.borders import Border, Side
+from openpyxl.styles.alignment import Alignment
 
 from library import HEAD, TAIL, toss_a_coin
 from library.file_paths import VictoryRateSummaryFilePaths
@@ -74,10 +77,17 @@ if __name__ == '__main__':
             'shortest_coins':'最短対局数',
             'upper_limit_coins':'対局数上限'}
 
+        # ヘッダー文字色・背景色
+        header_font = Font(color='EEFFEE')
+        header_background_fill = PatternFill(patternType='solid', fgColor='336633')
+
         # ヘッダー出力
         for column_th, column_name in enumerate(df.columns.values, 1):
             column_letter = xl.utils.get_column_letter(column_th)
-            ws[f'{column_letter}1'].value = new_column_name_dict[column_name]
+            cell = ws[f'{column_letter}1']
+            cell.value = new_column_name_dict[column_name]
+            cell.font = header_font
+            cell.fill = header_background_fill
 
 
         # TODO データ出力
@@ -105,9 +115,11 @@ if __name__ == '__main__':
             row_th = data_no + 2
 
             for column_no in range(0, len(row)):
-                ws[f'{column_letter_and_column_name[column_no][0]}{row_th}'].value = row[column_letter_and_column_name[column_no][1]]
+                cell = ws[f'{column_letter_and_column_name[column_no][0]}{row_th}']
+                cell.value = row[column_letter_and_column_name[column_no][1]]
 
-        # TODO ウィンドウ枠の固定
+        # ウィンドウ枠の固定
+        ws.freeze_panes = 'A2'
 
         # TODO 罫線出力
 
