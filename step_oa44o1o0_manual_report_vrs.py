@@ -1,6 +1,4 @@
 #
-# TODO 作成中
-#
 # python step_oa44o1o0_manual_report_vrs.py
 #
 #   VRS表を CSV形式から XLSX形式へ変換します
@@ -168,16 +166,42 @@ if __name__ == '__main__':
         ws.freeze_panes = 'A2'
 
 
-        # 罫線出力
-        # --------
+        # データ部背景色
+        # -------------
+        light_red_fill = PatternFill(patternType='solid', fgColor='FFEEEE')
+        light_yellow_fill = PatternFill(patternType='solid', fgColor='FFFFEE')
+
+
+        # データ部罫線出力
+        # ---------------
         black_side = Side(style='thick', color='333333')
         left_border = Border(left=black_side)
-        for row_th in range(1, ws.max_row + 1):
+        right_border = Border(right=black_side)
+        for row_th in range(2, ws.max_row + 1):
+
+            # ［優勝点］
+            cell = ws[f'D{row_th}']
+            cell.border = left_border
+            cell.fill = light_red_fill
+
+            # ［ｳﾗ点］
+            cell = ws[f'E{row_th}']
+            cell.fill = light_red_fill
+
+            # ［表点］
+            cell = ws[f'F{row_th}']
+            cell.border = right_border
+            cell.fill = light_red_fill
+
+            # ［Ａさんの優勝率］
             cell = ws[f'J{row_th}']
             cell.border = left_border
+            cell.fill = light_yellow_fill
 
-            cell = ws[f'L{row_th}']
-            cell.border = left_border
+            # ［Ｂさんの優勝率］
+            cell = ws[f'K{row_th}']
+            cell.border = right_border
+            cell.fill = light_yellow_fill
 
 
         # ワークブックの保存
