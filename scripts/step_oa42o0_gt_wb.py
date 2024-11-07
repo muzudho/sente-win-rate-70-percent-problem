@@ -68,7 +68,7 @@ class GeneratorOfGTWB():
         """
 
 
-        # 構成
+        # xltree 用構成
         settings ={
             # # 列の幅
             # 'no_width':                         4,      # A列の幅。no列

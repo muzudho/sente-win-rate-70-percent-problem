@@ -369,6 +369,11 @@ class VictoryRateSummaryFilePaths():
 
 
     @staticmethod
+    def as_workbook():
+        return f'{VictoryRateSummaryFilePaths.get_temp_directory_path()}/VRS.xlsx'
+
+
+    @staticmethod
     def as_log():
         return f'{VictoryRateSummaryFilePaths.get_logs_directory_path()}/VRS.log'
 
