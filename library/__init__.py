@@ -1606,6 +1606,7 @@ step_table:
     def let_shortest_coins(h_step, t_step, span, turn_system_id):
         """［最短対局数］を算出"""
 
+
         if turn_system_id == FROZEN_TURN:
             """［先後固定制］での［最短対局数］
             
@@ -1619,6 +1620,7 @@ step_table:
 
             # ［目標の点数］は最小公倍数なので割り切れる
             return round_letro(span / t_step)
+
 
         if turn_system_id == ALTERNATING_TURN:
             """［先後交互制］での［最短対局数］
@@ -1675,6 +1677,7 @@ step_table:
             else:
                 time = 0
 
+
             # 端数があれば［裏勝ち１つの点数］を引く（１回分を加算）
             #
             #   NOTE 裏（後手）の方が step 値が表（先手）より大きいか、等しいです。［裏勝ち１つの点数］の方から先に引きます
@@ -1695,6 +1698,7 @@ step_table:
                 # remainder は零か負数になっているはず
                 elif 0 < remainder:
                     raise ValueError(f"ここで余りが零か負数になっていないのはおかしい {remainder=}  {span=}  {h_step=}  {t_step=}")
+
 
             return time
 

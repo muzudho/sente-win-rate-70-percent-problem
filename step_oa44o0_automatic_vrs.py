@@ -72,9 +72,13 @@ if __name__ == '__main__':
                         if 'h_time' not in summary_df.columns.values:
                             summary_df['h_time'] = (summary_df['span'] / summary_df['h_step']).map(math.ceil)
 
-                        # TODO upper_limit_coins が無ければ追加
+                        # shortest_coins が無ければ追加
+                        if 'shortest_coins' not in summary_df.columns.values:
+                            summary_df['shortest_coins'] = summary_df[['span', 't_step', 'h_step']].apply(lambda X:SeriesRule.let_shortest_coins(h_step=X['h_step'], t_step=X['t_step'], span=X['span'], turn_system_id=spec.turn_system_id), axis=1)
+
+                        # upper_limit_coins が無ければ追加
                         if 'upper_limit_coins' not in summary_df.columns.values:
-                            summary_df['upper_limit_coins'] = summary_df[['h_time', 't_time']].apply(lambda X:SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=X['h_time'], t_time=X['t_time']), axis=1)
+                            summary_df['upper_limit_coins'] = summary_df[['t_time', 'h_time']].apply(lambda X:SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=X['h_time'], t_time=X['t_time']), axis=1)
 
                     else:
                         summary_df = pd.DataFrame(columns=[
@@ -92,6 +96,7 @@ if __name__ == '__main__':
                             'unfair_point',
                             't_time',
                             'h_time',
+                            'shortest_coins',
                             'upper_limit_coins'])
 
 
@@ -121,6 +126,7 @@ if __name__ == '__main__':
                         'unfair_point':'float64',
                         't_time':'int64',
                         'h_time':'int64',
+                        'shortest_coins':'int64',
                         'upper_limit_coins':'int64'}
 
                     # 型設定
@@ -184,6 +190,7 @@ if __name__ == '__main__':
                         'unfair_point':detail_df.at[detail_index, 'unfair_point'],
                         't_time':t_time,
                         'h_time':h_time,
+                        'shortest_coins':SeriesRule.let_shortest_coins(h_step=h_step, t_step=t_step, span=span, turn_system_id=spec.turn_system_id),
                         'upper_limit_coins':SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=h_time, t_time=t_time)}
 
 
@@ -219,6 +226,7 @@ if __name__ == '__main__':
                                 'unfair_point',
                                 't_time',
                                 'h_time',
+                                'shortest_coins',
                                 'upper_limit_coins'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
