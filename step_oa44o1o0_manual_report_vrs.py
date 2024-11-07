@@ -51,16 +51,16 @@ if __name__ == '__main__':
                 'h_step',   # 表点
                 't_step',   # ｳﾗ点
                 'span',     # 優勝点
+                'h_time',               # 必要表回数
+                't_time',               # 必要ｳﾗ回数
+                'shortest_coins',       # 最短対局数
+                'upper_limit_coins',    # 対局数上限
                 'a_victory_rate_by_trio',
                 'b_victory_rate_by_trio',
                 'no_victory_rate',
                 'a_victory_rate_by_duet',
                 'b_victory_rate_by_duet',
-                'unfair_point',
-                't_time',
-                'h_time',
-                'shortest_coins',
-                'upper_limit_coins']]
+                'unfair_point']]
 
         else:
             raise ValueError(f"file not found {csv_file_path=}")
@@ -75,24 +75,24 @@ if __name__ == '__main__':
         # シート取得
         ws = wb['Summary']
 
-        # 列幅設定
+        # 列幅設定  数値通りにはいかないようだ
         column_width_list = [
-            ('A', 9.45),
-            ('B', 6.64),
-            ('C', 4.64),
+            ('A', 5.82),    # ターン
+            ('B', 6.64),    # 引分率
+            ('C', 4.64),    # p
             ('D', 4.64),    # 表点
             ('E', 5.00),    # ｳﾗ点
             ('F', 6.64),    # 優勝点
-            ('G', 13.91),
-            ('H', 14.00),
-            ('I', 11.91),
-            ('J', 13.91),
-            ('K', 14.00),
-            ('L', 11.91),
-            ('M', 11.18),
-            ('N', 10.73),
-            ('O', 10.73),
-            ('P', 10.73),
+            ('G', 10.73),   # 必要表回数
+            ('H', 11.18),   # 必要ｳﾗ回数
+            ('I', 10.73),   # 最短対局数
+            ('J', 10.73),   # 対局数上限
+            ('K', 4.0),     # ［Ａさんの優勝率（優勝なし率込）］
+            ('L', 4.0),     # ［Ｂさんの優勝率（優勝なし率込）］
+            ('M', 16.55),   # ［優勝なし率］
+            ('N', 13.91),   # ［Ａさんの優勝率］
+            ('O', 14.00),   # ［Ｂさんの優勝率］
+            ('P', 11.91),   # ［２乗誤差］
         ]
         for pair in column_width_list:
             ws.column_dimensions[pair[0]].width = pair[1]
@@ -100,40 +100,40 @@ if __name__ == '__main__':
         # 列名の変更
         new_column_name_dict = {
             'turn_system_name':'ターン',
-            'failure_rate':'失敗率',
+            'failure_rate':'引分率',
             'p':'p',
             'h_step':'表点',
             't_step':'ｳﾗ点',
             'span':'優勝点',
-            'a_victory_rate_by_trio':'Ａさんの三分率',
-            'b_victory_rate_by_trio':'Ｂさんの三分率',
-            'no_victory_rate':'勝者なし率',
+            'h_time':'必要表回数',
+            't_time':'必要ｳﾗ回数',
+            'shortest_coins':'最短対局数',
+            'upper_limit_coins':'対局数上限',
+            'a_victory_rate_by_trio':'Ａさんの優勝率（優勝なし率込）',
+            'b_victory_rate_by_trio':'Ｂさんの優勝率（優勝なし率込）',
+            'no_victory_rate':'優勝なし率',
             'a_victory_rate_by_duet':'Ａさんの優勝率',
             'b_victory_rate_by_duet':'Ｂさんの優勝率',
-            'unfair_point':'２乗誤差',
-            't_time':'必要ｳﾗ回数',
-            'h_time':'必要表回数',
-            'shortest_coins':'最短対局数',
-            'upper_limit_coins':'対局数上限'}
+            'unfair_point':'２乗誤差'}
 
         # 寄せ
         alignment_list = [
             Alignment(horizontal='left'),   # ターン
-            Alignment(horizontal='left'),   # 失敗率
+            Alignment(horizontal='left'),   # 引分率
             Alignment(horizontal='left'),   # p
             Alignment(horizontal='right'),  # 表点
             Alignment(horizontal='right'),  # ｳﾗ点
             Alignment(horizontal='right'),  # 優勝点
-            Alignment(horizontal='left'),   # Ａさんの三分率
-            Alignment(horizontal='left'),   # Ｂさんの三分率
-            Alignment(horizontal='left'),   # 勝者なし率
+            Alignment(horizontal='right'),  # 必要表回数
+            Alignment(horizontal='right'),  # 必要ｳﾗ回数
+            Alignment(horizontal='right'),  # 最短対局数
+            Alignment(horizontal='right'),  # 対局数上限
+            Alignment(horizontal='left'),   # Ａさんの優勝率（優勝なし率込）
+            Alignment(horizontal='left'),   # Ｂさんの優勝率（優勝なし率込）
+            Alignment(horizontal='left'),   # 優勝なし率
             Alignment(horizontal='left'),   # Ａさんの優勝率
             Alignment(horizontal='left'),   # Ｂさんの優勝率
             Alignment(horizontal='left'),   # ２乗誤差
-            Alignment(horizontal='right'),  # 必要ｳﾗ回数
-            Alignment(horizontal='right'),  # 必要表回数
-            Alignment(horizontal='right'),  # 最短対局数
-            Alignment(horizontal='right'),  # 対局数上限
         ]
 
         # ヘッダー文字色・背景色
@@ -159,17 +159,22 @@ if __name__ == '__main__':
             ('D', 'h_step'),    # 表点
             ('E', 't_step'),    # ｳﾗ点
             ('F', 'span'),      # 優勝点
-            ('G', 'a_victory_rate_by_trio'),
-            ('H', 'b_victory_rate_by_trio'),
-            ('I', 'no_victory_rate'),
-            ('J', 'a_victory_rate_by_duet'),
-            ('K', 'b_victory_rate_by_duet'),
-            ('L', 'unfair_point'),
-            ('M', 't_time'),
-            ('N', 'h_time'),
-            ('O', 'shortest_coins'),
-            ('P', 'upper_limit_coins'),
+            ('G', 'h_time'),            # 必要表回数
+            ('H', 't_time'),            # 必要ｳﾗ回数
+            ('I', 'shortest_coins'),    # 最短対局数
+            ('J', 'upper_limit_coins'), # 対局数上限
+            ('K', 'a_victory_rate_by_trio'),
+            ('L', 'b_victory_rate_by_trio'),
+            ('M', 'no_victory_rate'),
+            ('N', 'a_victory_rate_by_duet'),
+            ('O', 'b_victory_rate_by_duet'),
+            ('P', 'unfair_point'),
         ]
+
+        turn_system_name_to_jp = {
+            'alternating':'交互',
+            'frozen':'固定',
+        }
 
         for data_no, row in df.iterrows():
             #print(f"{row_th=} {type(row)=}")
@@ -179,6 +184,9 @@ if __name__ == '__main__':
                 cell = ws[f'{column_letter_and_column_name[column_no][0]}{row_th}']
                 cell.value = row[column_letter_and_column_name[column_no][1]]
                 cell.alignment = alignment_list[column_no]
+
+                if column_no == 0:
+                    cell.value = turn_system_name_to_jp[cell.value]
 
 
         # ウィンドウ枠の固定
@@ -212,13 +220,17 @@ if __name__ == '__main__':
             cell.border = right_border
             cell.fill = light_red_fill
 
+            # ［Ａさんの優勝率（優勝なし率込）］
+            cell = ws[f'K{row_th}']
+            cell.border = left_border
+
             # ［Ａさんの優勝率］
-            cell = ws[f'J{row_th}']
+            cell = ws[f'N{row_th}']
             cell.border = left_border
             cell.fill = light_yellow_fill
 
             # ［Ｂさんの優勝率］
-            cell = ws[f'K{row_th}']
+            cell = ws[f'O{row_th}']
             cell.border = right_border
             cell.fill = light_yellow_fill
 
