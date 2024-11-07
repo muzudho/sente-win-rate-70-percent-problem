@@ -43,6 +43,25 @@ if __name__ == '__main__':
                     csv_file_path,
                     encoding="utf-8")
         
+            # 列順の変更
+            df = df[[
+                'turn_system_name',
+                'failure_rate',
+                'p',
+                'h_step',   # 表点
+                't_step',   # ｳﾗ点
+                'span',     # 優勝点
+                'a_victory_rate_by_trio',
+                'b_victory_rate_by_trio',
+                'no_victory_rate',
+                'a_victory_rate_by_duet',
+                'b_victory_rate_by_duet',
+                'unfair_point',
+                't_time',
+                'h_time',
+                'shortest_coins',
+                'upper_limit_coins']]
+
         else:
             raise ValueError(f"file not found {csv_file_path=}")
 
@@ -61,9 +80,9 @@ if __name__ == '__main__':
             ('A', 9.45),
             ('B', 6.64),
             ('C', 4.64),
-            ('D', 6.64),
-            ('E', 5.00),
-            ('F', 4.64),
+            ('D', 4.64),    # 表点
+            ('E', 5.00),    # ｳﾗ点
+            ('F', 6.64),    # 優勝点
             ('G', 13.91),
             ('H', 14.00),
             ('I', 11.91),
@@ -83,9 +102,9 @@ if __name__ == '__main__':
             'turn_system_name':'ターン',
             'failure_rate':'失敗率',
             'p':'p',
-            'span':'優勝点',
-            't_step':'ｳﾗ点',
             'h_step':'表点',
+            't_step':'ｳﾗ点',
+            'span':'優勝点',
             'a_victory_rate_by_trio':'Ａさんの三分率',
             'b_victory_rate_by_trio':'Ｂさんの三分率',
             'no_victory_rate':'勝者なし率',
@@ -102,9 +121,9 @@ if __name__ == '__main__':
             Alignment(horizontal='left'),   # ターン
             Alignment(horizontal='left'),   # 失敗率
             Alignment(horizontal='left'),   # p
-            Alignment(horizontal='right'),  # 優勝点
-            Alignment(horizontal='right'),  # ｳﾗ点
             Alignment(horizontal='right'),  # 表点
+            Alignment(horizontal='right'),  # ｳﾗ点
+            Alignment(horizontal='right'),  # 優勝点
             Alignment(horizontal='left'),   # Ａさんの三分率
             Alignment(horizontal='left'),   # Ｂさんの三分率
             Alignment(horizontal='left'),   # 勝者なし率
@@ -137,9 +156,9 @@ if __name__ == '__main__':
             ('A', 'turn_system_name'),
             ('B', 'failure_rate'),
             ('C', 'p'),
-            ('D', 'span'),
-            ('E', 't_step'),
-            ('F', 'h_step'),
+            ('D', 'h_step'),    # 表点
+            ('E', 't_step'),    # ｳﾗ点
+            ('F', 'span'),      # 優勝点
             ('G', 'a_victory_rate_by_trio'),
             ('H', 'b_victory_rate_by_trio'),
             ('I', 'no_victory_rate'),
@@ -179,7 +198,7 @@ if __name__ == '__main__':
         right_border = Border(right=black_side)
         for row_th in range(2, ws.max_row + 1):
 
-            # ［優勝点］
+            # ［表点］
             cell = ws[f'D{row_th}']
             cell.border = left_border
             cell.fill = light_red_fill
@@ -188,7 +207,7 @@ if __name__ == '__main__':
             cell = ws[f'E{row_th}']
             cell.fill = light_red_fill
 
-            # ［表点］
+            # ［優勝点］
             cell = ws[f'F{row_th}']
             cell.border = right_border
             cell.fill = light_red_fill
