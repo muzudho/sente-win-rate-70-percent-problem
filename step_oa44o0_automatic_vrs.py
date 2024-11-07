@@ -72,6 +72,10 @@ if __name__ == '__main__':
                         if 'h_time' not in summary_df.columns.values:
                             summary_df['h_time'] = (summary_df['span'] / summary_df['h_step']).map(math.ceil)
 
+                        # TODO upper_limit_coins が無ければ追加
+                        if 'upper_limit_coins' not in summary_df.columns.values:
+                            summary_df['upper_limit_coins'] = summary_df[['h_time', 't_time']].apply(lambda X:SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=X['h_time'], t_time=X['t_time']), axis=1)
+
                     else:
                         summary_df = pd.DataFrame(columns=[
                             'turn_system_name',
@@ -87,7 +91,8 @@ if __name__ == '__main__':
                             'b_victory_rate_by_duet',
                             'unfair_point',
                             't_time',
-                            'h_time'])
+                            'h_time',
+                            'upper_limit_coins'])
 
 
                     detail_dtypes = {
@@ -115,7 +120,8 @@ if __name__ == '__main__':
                         'b_victory_rate_by_duet':'float64',
                         'unfair_point':'float64',
                         't_time':'int64',
-                        'h_time':'int64'}
+                        'h_time':'int64',
+                        'upper_limit_coins':'int64'}
 
                     # 型設定
                     detail_df.astype(detail_dtypes)
@@ -164,6 +170,8 @@ if __name__ == '__main__':
                     span = detail_df.at[detail_index, 'span']
                     t_step = detail_df.at[detail_index, 't_step']
                     h_step = detail_df.at[detail_index, 'h_step']
+                    t_time = SeriesRule.StepTable.let_t_time(span=span, t_step=t_step)
+                    h_time = SeriesRule.StepTable.let_h_time(span=span, h_step=h_step)
                     summary_df.loc[summary_index] = {
                         'span':span,
                         't_step':t_step,
@@ -174,8 +182,9 @@ if __name__ == '__main__':
                         'a_victory_rate_by_duet':detail_df.at[detail_index, 'a_victory_rate_by_duet'],
                         'b_victory_rate_by_duet':detail_df.at[detail_index, 'b_victory_rate_by_duet'],
                         'unfair_point':detail_df.at[detail_index, 'unfair_point'],
-                        't_time':SeriesRule.StepTable.let_t_time(span=span, t_step=t_step),
-                        'h_time':SeriesRule.StepTable.let_h_time(span=span, h_step=h_step)}
+                        't_time':t_time,
+                        'h_time':h_time,
+                        'upper_limit_coins':SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=h_time, t_time=t_time)}
 
 
 #                     print(f"""\
@@ -209,7 +218,8 @@ if __name__ == '__main__':
                                 'b_victory_rate_by_duet',
                                 'unfair_point',
                                 't_time',
-                                'h_time'],
+                                'h_time',
+                                'upper_limit_coins'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
 

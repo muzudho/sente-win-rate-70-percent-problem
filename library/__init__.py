@@ -1314,7 +1314,7 @@ class SeriesRule():
 
 
     class StepTable():
-        """［１勝の点数テーブル］"""
+        """［１優勝のための点数テーブル］"""
 
 
         @staticmethod
@@ -1706,6 +1706,8 @@ step_table:
     def let_upper_limit_coins_without_failure_rate(spec, h_time, t_time):
         """［上限対局数］を算出します
 
+        これは［コインを投げて表もｳﾗも出ない確率］がゼロのケースです
+
         Parameters
         ----------
         spec : Specification
@@ -1774,6 +1776,8 @@ step_table:
     def let_upper_limit_coins_with_failure_rate(spec, upper_limit_coins_without_failure_rate):
         """［上限対局数］を算出します
 
+        これは［コインを投げて表もｳﾗも出ない確率］がゼロのケース、ゼロではないときのケースの両方を一般化したものです
+
         Parameters
         ----------
         spec : Specification
@@ -1790,7 +1794,7 @@ step_table:
 
             y * (1 - 0.1) = 10
         
-        の y を求めたい。 y は試行シリーズ数。（10 は、failure_rate=0 のときの試行シリーズ数）
+        の y を求めたい。 y は１シリーズの中での試行対局数。（10 は、failure_rate=0 のときの試行シリーズ数）
 
             = n * (1 - 0.1) = 10
             = n             = 10 / (1 - 0.1)
