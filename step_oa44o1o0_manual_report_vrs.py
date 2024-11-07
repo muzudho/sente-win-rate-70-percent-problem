@@ -35,7 +35,7 @@ if __name__ == '__main__':
         csv_file_path = VictoryRateSummaryFilePaths.as_csv()
 
         # ワークブック
-        wb_file_path = VictoryRateSummaryFilePaths.as_workbook()
+        wb_file_path = VictoryRateSummaryFilePaths.as_workbook_on_reports()
 
         # VRS表(CSV)の読取
         if os.path.isfile(csv_file_path):   # ファイルが既存ならそれを読取る

@@ -358,6 +358,12 @@ class VictoryRateSummaryFilePaths():
 
 
     @staticmethod
+    def get_reports_directory_path():
+        # './' は付けない
+        return 'reports'
+
+
+    @staticmethod
     def get_logs_directory_path():
         # './' は付けない
         return 'logs/victory_rate_summary'
@@ -369,8 +375,8 @@ class VictoryRateSummaryFilePaths():
 
 
     @staticmethod
-    def as_workbook():
-        return f'{VictoryRateSummaryFilePaths.get_temp_directory_path()}/VRS.xlsx'
+    def as_workbook_on_reports():
+        return f'{VictoryRateSummaryFilePaths.get_reports_directory_path()}/victory_rate_summary.xlsx'
 
 
     @staticmethod
