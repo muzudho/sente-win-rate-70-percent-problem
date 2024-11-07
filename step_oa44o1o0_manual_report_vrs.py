@@ -167,7 +167,17 @@ if __name__ == '__main__':
         # ウィンドウ枠の固定
         ws.freeze_panes = 'A2'
 
-        # TODO 罫線出力
+
+        # 罫線出力
+        # --------
+        black_side = Side(style='thick', color='333333')
+        left_border = Border(left=black_side)
+        for row_th in range(1, ws.max_row + 1):
+            cell = ws[f'J{row_th}']
+            cell.border = left_border
+
+            cell = ws[f'L{row_th}']
+            cell.border = left_border
 
 
         # ワークブックの保存
