@@ -4,12 +4,13 @@
 
 import traceback
 import os
+import math
 import time
 import datetime
 import random
 import openpyxl as xl
 import pandas as pd
-from library import TAIL, HEAD, Converter, get_list_of_basename
+from library import TAIL, HEAD, Converter, SeriesRule, get_list_of_basename
 from library.file_basename import BasenameOfVictoryRateDetailFile
 from library.file_paths import VictoryRateDetailFilePaths, VictoryRateSummaryFilePaths
 
@@ -49,7 +50,7 @@ if __name__ == '__main__':
 
                 try:
 
-                    # TODO ファイルパス指定
+                    # ファイルパス指定
                     detail_csv_file_name = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{basename}'
                     summary_csv_file_name = VictoryRateSummaryFilePaths.as_csv()
                     print(f"[{datetime.datetime.now()}] step_oa44o0 {detail_csv_file_name=} {summary_csv_file_name=}")
@@ -62,6 +63,15 @@ if __name__ == '__main__':
 
                     if os.path.isfile(summary_csv_file_name):
                         summary_df = pd.read_csv(summary_csv_file_name, encoding='utf-8')
+
+                        # t_time が無ければ追加
+                        if 't_time' not in summary_df.columns.values:
+                            summary_df['t_time'] = (summary_df['span'] / summary_df['t_step']).map(math.ceil)
+
+                        # h_time が無ければ追加
+                        if 'h_time' not in summary_df.columns.values:
+                            summary_df['h_time'] = (summary_df['span'] / summary_df['h_step']).map(math.ceil)
+
                     else:
                         summary_df = pd.DataFrame(columns=[
                             'turn_system_name',
@@ -75,7 +85,9 @@ if __name__ == '__main__':
                             'no_victory_rate',
                             'a_victory_rate_by_duet',
                             'b_victory_rate_by_duet',
-                            'unfair_point'])
+                            'unfair_point',
+                            't_time',
+                            'h_time'])
 
 
                     detail_dtypes = {
@@ -101,7 +113,9 @@ if __name__ == '__main__':
                         'no_victory_rate':'float64',
                         'a_victory_rate_by_duet':'float64',
                         'b_victory_rate_by_duet':'float64',
-                        'unfair_point':'float64'}
+                        'unfair_point':'float64',
+                        't_time':'int64',
+                        'h_time':'int64'}
 
                     # 型設定
                     detail_df.astype(detail_dtypes)
@@ -146,16 +160,22 @@ if __name__ == '__main__':
                     # 行追加
                     detail_index = detail_df.index[0]
                     summary_index = (Converter.turn_system_id_to_name(spec.turn_system_id), spec.failure_rate, spec.p)
+
+                    span = detail_df.at[detail_index, 'span']
+                    t_step = detail_df.at[detail_index, 't_step']
+                    h_step = detail_df.at[detail_index, 'h_step']
                     summary_df.loc[summary_index] = {
-                        'span':detail_df.at[detail_index, 'span'],
-                        't_step':detail_df.at[detail_index, 't_step'],
-                        'h_step':detail_df.at[detail_index, 'h_step'],
+                        'span':span,
+                        't_step':t_step,
+                        'h_step':h_step,
                         'a_victory_rate_by_trio':detail_df.at[detail_index, 'a_victory_rate_by_trio'],
                         'b_victory_rate_by_trio':detail_df.at[detail_index, 'b_victory_rate_by_trio'],
                         'no_victory_rate':detail_df.at[detail_index, 'no_victory_rate'],
                         'a_victory_rate_by_duet':detail_df.at[detail_index, 'a_victory_rate_by_duet'],
                         'b_victory_rate_by_duet':detail_df.at[detail_index, 'b_victory_rate_by_duet'],
-                        'unfair_point':detail_df.at[detail_index, 'unfair_point']}
+                        'unfair_point':detail_df.at[detail_index, 'unfair_point'],
+                        't_time':SeriesRule.StepTable.let_t_time(span=span, t_step=t_step),
+                        'h_time':SeriesRule.StepTable.let_h_time(span=span, h_step=h_step)}
 
 
 #                     print(f"""\
@@ -187,7 +207,9 @@ if __name__ == '__main__':
                                 'no_victory_rate',
                                 'a_victory_rate_by_duet',
                                 'b_victory_rate_by_duet',
-                                'unfair_point'],
+                                'unfair_point',
+                                't_time',
+                                'h_time'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
 
@@ -207,7 +229,7 @@ if __name__ == '__main__':
 
 
                 except PermissionError as e:
-                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e}"
                     print(message)
 
                     log_file_path = VictoryRateSummaryFilePaths.as_log()
@@ -221,7 +243,7 @@ if __name__ == '__main__':
 
 
                 except Exception as e:
-                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_name=} {summary_csv_file_name=} {e}"
                     print(message)
 
                     log_file_path = VictoryRateSummaryFilePaths.as_log()
