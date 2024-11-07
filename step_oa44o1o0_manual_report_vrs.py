@@ -58,6 +58,28 @@ if __name__ == '__main__':
         # シート取得
         ws = wb['Summary']
 
+        # 列幅設定
+        column_width_list = [
+            ('A', 9.45),
+            ('B', 6.64),
+            ('C', 4.64),
+            ('D', 6.64),
+            ('E', 5.00),
+            ('F', 4.64),
+            ('G', 13.91),
+            ('H', 14.00),
+            ('I', 11.91),
+            ('J', 13.91),
+            ('K', 14.00),
+            ('L', 11.91),
+            ('M', 11.18),
+            ('N', 10.73),
+            ('O', 10.73),
+            ('P', 10.73),
+        ]
+        for pair in column_width_list:
+            ws.column_dimensions[pair[0]].width = pair[1]
+
         # 列名の変更
         new_column_name_dict = {
             'turn_system_name':'ターン',
@@ -77,6 +99,26 @@ if __name__ == '__main__':
             'shortest_coins':'最短対局数',
             'upper_limit_coins':'対局数上限'}
 
+        # 寄せ
+        alignment_list = [
+            Alignment(horizontal='left'),   # ターン
+            Alignment(horizontal='left'),   # 失敗率
+            Alignment(horizontal='left'),   # p
+            Alignment(horizontal='right'),  # 優勝点
+            Alignment(horizontal='right'),  # ｳﾗ点
+            Alignment(horizontal='right'),  # 表点
+            Alignment(horizontal='left'),   # Ａさんの三分率
+            Alignment(horizontal='left'),   # Ｂさんの三分率
+            Alignment(horizontal='left'),   # 勝者なし率
+            Alignment(horizontal='left'),   # Ａさんの優勝率
+            Alignment(horizontal='left'),   # Ｂさんの優勝率
+            Alignment(horizontal='left'),   # ２乗誤差
+            Alignment(horizontal='right'),  # 必要ｳﾗ回数
+            Alignment(horizontal='right'),  # 必要表回数
+            Alignment(horizontal='right'),  # 最短対局数
+            Alignment(horizontal='right'),  # 対局数上限
+        ]
+
         # ヘッダー文字色・背景色
         header_font = Font(color='EEFFEE')
         header_background_fill = PatternFill(patternType='solid', fgColor='336633')
@@ -88,9 +130,11 @@ if __name__ == '__main__':
             cell.value = new_column_name_dict[column_name]
             cell.font = header_font
             cell.fill = header_background_fill
+            cell.alignment = alignment_list[column_th - 1]
 
 
-        # TODO データ出力
+        # データ部
+        # -------
         column_letter_and_column_name = [
             ('A', 'turn_system_name'),
             ('B', 'failure_rate'),
@@ -117,6 +161,8 @@ if __name__ == '__main__':
             for column_no in range(0, len(row)):
                 cell = ws[f'{column_letter_and_column_name[column_no][0]}{row_th}']
                 cell.value = row[column_letter_and_column_name[column_no][1]]
+                cell.alignment = alignment_list[column_no]
+
 
         # ウィンドウ枠の固定
         ws.freeze_panes = 'A2'
