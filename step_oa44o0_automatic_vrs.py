@@ -63,7 +63,19 @@ if __name__ == '__main__':
                     if os.path.isfile(summary_csv_file_name):
                         summary_df = pd.read_csv(summary_csv_file_name, encoding='utf-8')
                     else:
-                        summary_df = pd.DataFrame(columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate'])
+                        summary_df = pd.DataFrame(columns=[
+                            'turn_system_name',
+                            'failure_rate',
+                            'p',
+                            'span',
+                            't_step',
+                            'h_step',
+                            'a_victory_rate_by_trio',
+                            'b_victory_rate_by_trio',
+                            'no_victory_rate',
+                            'a_victory_rate_by_duet',
+                            'b_victory_rate_by_duet',
+                            'unfair_point'])
 
 
                     detail_dtypes = {
@@ -72,7 +84,10 @@ if __name__ == '__main__':
                         'h_step':'int64',
                         'a_victory_rate_by_trio':'float64',
                         'b_victory_rate_by_trio':'float64',
-                        'no_victory_rate':'float64'}
+                        'no_victory_rate':'float64',
+                        'a_victory_rate_by_duet':'float64',
+                        'b_victory_rate_by_duet':'float64',
+                        'unfair_point':'float64'}
 
                     summary_dtypes = {
                         'turn_system_name':'object',
@@ -83,7 +98,10 @@ if __name__ == '__main__':
                         'h_step':'int64',
                         'a_victory_rate_by_trio':'float64',
                         'b_victory_rate_by_trio':'float64',
-                        'no_victory_rate':'float64'}
+                        'no_victory_rate':'float64',
+                        'a_victory_rate_by_duet':'float64',
+                        'b_victory_rate_by_duet':'float64',
+                        'unfair_point':'float64'}
 
                     # 型設定
                     detail_df.astype(detail_dtypes)
@@ -134,7 +152,10 @@ if __name__ == '__main__':
                         'h_step':detail_df.at[detail_index, 'h_step'],
                         'a_victory_rate_by_trio':detail_df.at[detail_index, 'a_victory_rate_by_trio'],
                         'b_victory_rate_by_trio':detail_df.at[detail_index, 'b_victory_rate_by_trio'],
-                        'no_victory_rate':detail_df.at[detail_index, 'no_victory_rate']}
+                        'no_victory_rate':detail_df.at[detail_index, 'no_victory_rate'],
+                        'a_victory_rate_by_duet':detail_df.at[detail_index, 'a_victory_rate_by_duet'],
+                        'b_victory_rate_by_duet':detail_df.at[detail_index, 'b_victory_rate_by_duet'],
+                        'unfair_point':detail_df.at[detail_index, 'unfair_point']}
 
 
 #                     print(f"""\
@@ -154,7 +175,19 @@ if __name__ == '__main__':
                     # ファイル保存
                     summary_df.to_csv(
                             summary_csv_file_name,
-                            columns=['turn_system_name', 'failure_rate', 'p', 'span', 't_step', 'h_step', 'a_victory_rate_by_trio', 'b_victory_rate_by_trio', 'no_victory_rate'],
+                            columns=[
+                                'turn_system_name',
+                                'failure_rate',
+                                'p',
+                                'span',
+                                't_step',
+                                'h_step',
+                                'a_victory_rate_by_trio',
+                                'b_victory_rate_by_trio',
+                                'no_victory_rate',
+                                'a_victory_rate_by_duet',
+                                'b_victory_rate_by_duet',
+                                'unfair_point'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
 

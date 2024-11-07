@@ -980,29 +980,6 @@ class TpTprRecord():
 class TheoreticalProbabilityRatesRecord():
 
 
-    @staticmethod
-    def let_t_time(span, t_step):
-        """t_time の計算方法は、 span / t_step ※小数点切り上げ"""
-        return math.ceil(span / t_step)
-
-
-    @staticmethod
-    def let_h_time(span, h_step):
-        """h_time の計算方法は、 span / h_step ※小数点切り上げ"""
-        return math.ceil(span / h_step)
-
-
-    @staticmethod
-    def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
-        # 割り切れないなら 0
-        if t_step % h_step != 0 or t_step // h_step >= h_time:
-            return 0
-        
-
-        # 割り切れるなら、割る数
-        return t_step // h_step
-
-
     def __init__(self, span, t_step, h_step, expected_a_victory_rate_by_duet, expected_no_win_match_rate, t_time=None, h_time=None, t_step_divisible_by_h_step=None):
         self._span = span
         self._t_step = t_step
@@ -1011,15 +988,15 @@ class TheoreticalProbabilityRatesRecord():
         self._expected_no_win_match_rate = expected_no_win_match_rate
 
         if t_time is None:
-            t_time = TheoreticalProbabilityRatesRecord.let_t_time(span=span, t_step=t_step)
+            t_time = SeriesRule.StepTable.let_t_time(span=span, t_step=t_step)
         self._t_time = t_time
 
         if h_time is None:
-            h_time = TheoreticalProbabilityRatesRecord.let_h_time(span=span, h_step=h_step)
+            h_time = SeriesRule.StepTable.let_h_time(span=span, h_step=h_step)
         self._h_time = h_time
 
         if t_step_divisible_by_h_step is None:
-            t_step_divisible_by_h_step = TheoreticalProbabilityRatesRecord.let_t_step_divisible_by_h_step(t_step=t_step, h_step=h_step, h_time=h_time)
+            t_step_divisible_by_h_step = SeriesRule.StepTable.let_t_step_divisible_by_h_step(t_step=t_step, h_step=h_step, h_time=h_time)
         self._t_step_divisible_by_h_step = t_step_divisible_by_h_step
 
 

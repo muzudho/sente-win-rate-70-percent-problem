@@ -85,7 +85,7 @@ def execute():
                 # t_step が h_step で割り切れるとき、かつ、その割る数が h_time 未満のとき、ＡさんとＢさんの勝ち点が等しくなって［勝者なし］になるケースが発生する。
                 # そうでないとき、［勝ち点差でＡさんの勝ち］など分かれるケースがある
                 if True: #if 't_step_divisible_by_h_step' not in df.columns.values:
-                    df['t_step_divisible_by_h_step'] = df[['t_step', 'h_step', 'h_time']].apply(lambda X:TheoreticalProbabilityRatesRecord.let_t_step_divisible_by_h_step(t_step=X['t_step'], h_step=X['h_step'], h_time=X['h_time']), axis=1)
+                    df['t_step_divisible_by_h_step'] = df[['t_step', 'h_step', 'h_time']].apply(lambda X:SeriesRule.StepTable.let_t_step_divisible_by_h_step(t_step=X['t_step'], h_step=X['h_step'], h_time=X['h_time']), axis=1)
                     dirty = True
 
 

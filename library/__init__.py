@@ -1316,6 +1316,29 @@ class SeriesRule():
     class StepTable():
         """［１勝の点数テーブル］"""
 
+
+        @staticmethod
+        def let_t_time(span, t_step):
+            """t_time の計算方法は、 span / t_step ※小数点切り上げ"""
+            return math.ceil(span / t_step)
+
+
+        @staticmethod
+        def let_h_time(span, h_step):
+            """h_time の計算方法は、 span / h_step ※小数点切り上げ"""
+            return math.ceil(span / h_step)
+
+
+        @staticmethod
+        def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
+            # 割り切れないなら 0
+            if t_step % h_step != 0 or t_step // h_step >= h_time:
+                return 0
+            
+
+            # 割り切れるなら、割る数
+            return t_step // h_step
+
         
         def __init__(self, h_step, t_step, span):
             """初期化
