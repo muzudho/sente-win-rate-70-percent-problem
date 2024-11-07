@@ -9,7 +9,7 @@
 * [x] get_step_by() の challenged=FAILED は廃止したい
 * [x] ファイル名の都合で、rate の入力は小数点第一位までにするか？それともパーミル？ ----> 小数点第一位まで
 * [x] 先手勝率、後手勝率、引き分け率は、３つ合わせて１００％にするのではなく、先手勝率と後手勝率のペアを合わせて１００％にして、それとは別に引分け率を分けた方が見やすい？ ----> ThreeRates オブジェクト作成
-* [ ] failure_rate が増えて upper_limit_coins が増えれば、かかる時間も増えていくし。 failure_rate は 70% までにするか？
+* [x] failure_rate が増えて upper_limit_coins が増えれば、かかる時間も増えていくし。 failure_rate は 70% までにするか？
 * [ ] span ではなく、 upper_limit_coins の上限を抑え込みたい
 * [x] BRUTE_FORCE とか THEORETICAL の分類を廃止したい。 BRUTE_FORCE を残して THEORETICAL を削除
 * [x] `thoretical_probability_best.csv` がキー重複データだらけ、なんで？ ----> ループするデータフレームを間違えてた？
@@ -28,7 +28,9 @@
 * [x] VRD, VRS 表に `expected_a_victory_rate_by_duet`、`expected_b_victory_rate_by_duet` 列を追加したい
     * [x] 既存の `a_victory_rate`, `b_victory_rate` を `a_victory_rate_by_trio`, `b_victory_rate_by_trio` に名称変更したい
     * [x] `*_by_trio` で 0.5 に近いものを探しているアルゴリズムは間違い。 `*_by_duet` で 0.5 に近いものを探さないと意味ない。それも、Aさん、Bさんともに 0.5 に近いものでないとフェアではない
-    * [ ] VRS 表に t_time, h_time もあると見やすいかも
+    * [x] VRS 表に t_time, h_time もあると見やすいかも
+    * [ ] VRD 表に t_time, h_time もあると見やすいかも
+    * [ ] VRS 表は、 upper_limit_coins が 7 とか 6 とか別で用意されてると大会用として実用的かも
 * [ ] 樹形図で、ツリー全体での表が出た回数、ｳﾗが出た回数、勝負無しの回数も記録してほしい
 * [ ] TP、TPR のアルゴリズムの高速化
     * [ ] TP、TPR は、イーブンが見つかった行以降は無い方がいい
