@@ -95,8 +95,15 @@ if __name__ == '__main__':
             series_rule = Automatic.get_series_rule_at_random()
 
 
-            # チェック済CSVファイルパス
-            checked_csv_file_path = GameTreeCheckedFilePaths.as_csv(
+            # ファイルパス取得
+            # ---------------
+            checked_csv_file_path = GameTreeCheckedFilePaths.as_csv(    # チェック済CSV
+                    spec=series_rule.spec,
+                    span=series_rule.step_table.span,
+                    t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                    h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+            
+            csv_file_path = GameTreeFilePaths.as_csv(       # CSV
                     spec=series_rule.spec,
                     span=series_rule.step_table.span,
                     t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
@@ -106,15 +113,6 @@ if __name__ == '__main__':
             # チェック済に存在したらスキップ
             if os.path.isfile(checked_csv_file_path):
                 continue
-
-
-            # CSVファイルパス
-            csv_file_path = GameTreeFilePaths.as_csv(
-                    spec=series_rule.spec,
-                    span=series_rule.step_table.span,
-                    t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                    h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
-
 
             # 存在したらスキップ
             if os.path.isfile(csv_file_path):
@@ -130,7 +128,7 @@ if __name__ == '__main__':
             generator_of_gt = GeneratorOfGT(spec=series_rule.spec, root_entry=root_entry)
 
             # FIXME 時間がかかる？
-            print(f"[{datetime.datetime.now()}] oa41o0 get score board (2) ...")
+            print(f"[{datetime.datetime.now()}] step_oa41o0_automatic_gt get score board (2) ...")
             #timeout = tr.timeout(seconds=7) # 7, 15, 60
             timeout = tr.timeout(seconds=6)    # FIXME 自動最適化できるか？
             result = search_all_score_boards(
