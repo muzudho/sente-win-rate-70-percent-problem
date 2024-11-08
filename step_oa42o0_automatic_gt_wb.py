@@ -69,7 +69,7 @@ if __name__ == '__main__':
                         # TODO 高速化したい
                         generator_of_gtwb.write_workbook(debug_write=False)
 
-                        # TODO 元ファイルを、チェック済みフォルダーへ移す
+                        # 元ファイルを、チェック済みフォルダーへ移す
                         print(f"[{datetime.datetime.now()}] move file `{generator_of_gtwb.source_csv_file_path}` to `{generator_of_gtwb.checked_csv_file_path}`")
                         shutil.move(generator_of_gtwb.source_csv_file_path, generator_of_gtwb.checked_csv_file_path)
 

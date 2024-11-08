@@ -127,11 +127,11 @@ if __name__ == '__main__':
                     'E': {'label':'必要ｳﾗ回数', 'name':None, 'width':11.18, 'align':Alignment(horizontal='right')},     # 't_time' 追加
                     'F': {'label':'最短対局数', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 'shortest_coins' 追加
                     'G': {'label':'対局数上限', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 'upper_limit_coins' 追加
-                    'H': {'label':'Ａさんの優勝率（優勝なし率込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
-                    'I': {'label':'Ｂさんの優勝率（優勝なし率込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
-                    'J': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':10.0, 'align':Alignment(horizontal='left')},
-                    'K': {'label':'Ａさんの優勝率', 'name':None, 'width':14.0, 'align':Alignment(horizontal='left')},       # 'a_victory_rate_by_duet' 追加
-                    'L': {'label':'Ｂさんの優勝率', 'name':None, 'width':14.0, 'align':Alignment(horizontal='left')},       # 'b_victory_rate_by_duet' 追加
+                    'H': {'label':'Ａさんの優勝率（失敗込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
+                    'I': {'label':'Ｂさんの優勝率（失敗込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
+                    'J': {'label':'優勝なし率（失敗）', 'name':'no_victory_rate', 'width':10.0, 'align':Alignment(horizontal='left')},
+                    'K': {'label':'Ａさんの優勝率（失敗抜）', 'name':None, 'width':14.0, 'align':Alignment(horizontal='left')},       # 'a_victory_rate_by_duet' 追加
+                    'L': {'label':'Ｂさんの優勝率（失敗抜）', 'name':None, 'width':14.0, 'align':Alignment(horizontal='left')},       # 'b_victory_rate_by_duet' 追加
                     'M': {'label':'不均等度', 'name':'unfair_point', 'width':8.5, 'align':Alignment(horizontal='left')},
                 }
 
@@ -187,10 +187,10 @@ if __name__ == '__main__':
                                 # あとで設定
                                 upper_limit_coins_letter = column_letter
 
-                            elif label == 'Ａさんの優勝率':
+                            elif label == 'Ａさんの優勝率（失敗抜）':
                                 cell.value = row['a_victory_rate_by_trio'] / (1 - row['no_victory_rate'])
                             
-                            elif label == 'Ｂさんの優勝率':
+                            elif label == 'Ｂさんの優勝率（失敗抜）':
                                 cell.value = row['b_victory_rate_by_trio'] / (1 - row['no_victory_rate'])
 
 
@@ -235,16 +235,16 @@ if __name__ == '__main__':
                     cell.border = right_border
                     cell.fill = light_red_fill
 
-                    # ［Ａさんの優勝率（優勝なし率込）］
+                    # ［Ａさんの優勝率（失敗込）］
                     cell = ws[f'H{row_th}']
                     cell.border = left_border
 
-                    # ［Ａさんの優勝率］
+                    # ［Ａさんの優勝率（失敗抜）］
                     cell = ws[f'K{row_th}']
                     cell.border = left_border
                     cell.fill = light_yellow_fill
 
-                    # ［Ｂさんの優勝率］
+                    # ［Ｂさんの優勝率（失敗抜）］
                     cell = ws[f'L{row_th}']
                     cell.border = right_border
                     cell.fill = light_yellow_fill

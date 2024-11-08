@@ -55,41 +55,41 @@ class Automatic():
         # GTWB ワークブック（.xlsx）ファイルの Summary シートの B2 セル（先手勝率）を見る
         summary_ws = wb['Summary']
 
-        # ［Ａさん（シリーズを表で始めた方）が優勝した率］
+        # ［Ａさん（シリーズを表で始めた方）が優勝した率（失敗込）］
         a_victory_rate_by_trio = XlUtils.lookup_vertical(
                 worksheet=summary_ws,
                 column_letter_for_scan='A',
-                find_value=['Ａさん（シリーズを表で始めた方）が優勝した率', 'Ａさん（シリーズを先手で始めた方）が優勝した率'],  # ２番目の値は旧名
+                find_value=['Ａさん（シリーズを表で始めた方）が優勝した率（失敗込）', 'Ａさん（シリーズを表で始めた方）が優勝した率', 'Ａさん（シリーズを先手で始めた方）が優勝した率'],  # １番目以外は旧名
                 column_letter_for_get='B')
 
         if a_victory_rate_by_trio is None:
-            raise ValueError("not found ［Ａさん（シリーズを表で始めた方）が優勝した率］")
+            raise ValueError("not found ［Ａさん（シリーズを表で始めた方）が優勝した率（失敗込）］")
 
         a_victory_rate_by_trio = float(a_victory_rate_by_trio)
 
 
-        # ［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率］
+        # ［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率（失敗込）］
         b_victory_rate_by_trio = XlUtils.lookup_vertical(
                 worksheet=summary_ws,
                 column_letter_for_scan='A',
-                find_value=['Ｂさん（シリーズをｳﾗで始めた方）が優勝した率', 'Ｂさん（シリーズを後手で始めた方）が優勝した率'],  # ２番目の値は旧名
+                find_value=['Ｂさん（シリーズをｳﾗで始めた方）が優勝した率（失敗込）', 'Ｂさん（シリーズをｳﾗで始めた方）が優勝した率', 'Ｂさん（シリーズを後手で始めた方）が優勝した率'],  # １番目以外は旧名
                 column_letter_for_get='B')
 
         if b_victory_rate_by_trio is None:
-            raise ValueError("not found ［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率］")
+            raise ValueError("not found ［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率（失敗込）］")
 
         b_victory_rate_by_trio = float(b_victory_rate_by_trio)
 
 
-        # ［優勝が決まらなかった率］
+        # ［優勝が決まらなかった率（失敗）］
         no_victory_rate = XlUtils.lookup_vertical(
                 worksheet=summary_ws,
                 column_letter_for_scan='A',
-                find_value='優勝が決まらなかった率',
+                find_value=['優勝が決まらなかった率（失敗）', '優勝が決まらなかった率'],  # １番目以外は旧名
                 column_letter_for_get='B')
 
         if no_victory_rate is None:
-            raise ValueError("not found ［優勝が決まらなかった率］")
+            raise ValueError("not found ［優勝が決まらなかった率（失敗）］")
 
         no_victory_rate = float(no_victory_rate)
 
