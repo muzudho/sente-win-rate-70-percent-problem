@@ -235,6 +235,8 @@ if __name__ == '__main__':
                 except KeyError as e:
                     message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
                     print(message)
+                    # スタックトレース表示
+                    print(traceback.format_exc())
 
                     log_file_path = VictoryRateSummaryFilePaths.as_log()
                     with open(log_file_path, 'a', encoding='utf-8') as f:
@@ -247,8 +249,10 @@ if __name__ == '__main__':
 
 
                 except PermissionError as e:
-                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e}"
+                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
                     print(message)
+                    # スタックトレース表示
+                    print(traceback.format_exc())
 
                     log_file_path = VictoryRateSummaryFilePaths.as_log()
                     with open(log_file_path, 'a', encoding='utf-8') as f:
@@ -261,8 +265,10 @@ if __name__ == '__main__':
 
 
                 except Exception as e:
-                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_name=} {summary_csv_file_name=} {e}"
+                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
                     print(message)
+                    # スタックトレース表示
+                    print(traceback.format_exc())
 
                     log_file_path = VictoryRateSummaryFilePaths.as_log()
                     with open(log_file_path, 'a', encoding='utf-8') as f:
