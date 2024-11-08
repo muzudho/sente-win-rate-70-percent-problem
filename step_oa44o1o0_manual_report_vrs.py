@@ -49,10 +49,6 @@ if __name__ == '__main__':
                 'h_step',                   # 表点
                 't_step',                   # ｳﾗ点
                 'span',                     # 優勝点
-                'h_time',                   # 必要表回数
-                't_time',                   # 必要ｳﾗ回数
-                #'shortest_coins',           # 最短対局数
-                #'upper_limit_coins',        # 対局数上限
                 'a_victory_rate_by_trio',
                 'b_victory_rate_by_trio',
                 'no_victory_rate',
@@ -149,6 +145,9 @@ if __name__ == '__main__':
                     failure_rate=row['failure_rate'],
                     p=row['p'])
 
+            upper_limit_coins_letter = None
+            h_time = None
+            t_time = None
             for column_letter in output_column_letters:
 
                 cell = ws[f'{column_letter}{row_th}']
@@ -162,26 +161,33 @@ if __name__ == '__main__':
                 
                 else:
                     label = output_columns[column_letter]['label']
-                    # TODO 必要表回数
+                    # 必要表回数
                     if label == '必要表回数':
-                        cell.value = math.ceil(row['span'] / row['h_step'])
+                        h_time = math.ceil(row['span'] / row['h_step'])
+                        cell.value = h_time
 
-                    # TODO 必要ｳﾗ回数
+                    # 必要ｳﾗ回数
                     elif label == '必要ｳﾗ回数':
-                        cell.value = math.ceil(row['span'] / row['t_step'])
+                        t_time = math.ceil(row['span'] / row['t_step'])
+                        cell.value = t_time
 
-                    # TODO 最短対局数
+                    # 最短対局数
                     elif label == '最短対局数':
                         cell.value = SeriesRule.let_shortest_coins(h_step=row['h_step'], t_step=row['t_step'], span=row['span'], turn_system_id=spec.turn_system_id)
 
                     elif label == '対局数上限':
-                        cell.value = SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=row['h_time'], t_time=row['t_time'])
+                        # あとで設定
+                        upper_limit_coins_letter = column_letter
 
                     else:
                         raise ValueError(f"{label=}")
 
-
                 cell.alignment = output_columns[column_letter]['align']
+
+
+            # 対局数上限
+            cell = ws[f'{upper_limit_coins_letter}{row_th}']
+            cell.value = SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=h_time, t_time=t_time)
 
 
         # ウィンドウ枠の固定
