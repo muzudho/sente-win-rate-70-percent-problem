@@ -76,22 +76,7 @@ if __name__ == '__main__':
                         df = pd.read_csv(
                                 csv_file_path,
                                 encoding="utf-8")
-                    
-                        # t_time が無ければ追加
-                        if 't_time' not in df.columns.values:
-                            df['t_time'] = (df['span'] / df['t_step']).map(math.ceil)
 
-                        # h_time が無ければ追加
-                        if 'h_time' not in df.columns.values:
-                            df['h_time'] = (df['span'] / df['h_step']).map(math.ceil)
-
-                        # shortest_coins が無ければ追加
-                        if 'shortest_coins' not in df.columns.values:
-                            df['shortest_coins'] = df[['span', 't_step', 'h_step']].apply(lambda X:SeriesRule.let_shortest_coins(h_step=X['h_step'], t_step=X['t_step'], span=X['span'], turn_system_id=series_rule.spec.turn_system_id), axis=1)
-
-                        # upper_limit_coins が無ければ追加
-                        if 'upper_limit_coins' not in df.columns.values:
-                            df['upper_limit_coins'] = df[['t_time', 'h_time']].apply(lambda X:SeriesRule.let_upper_limit_coins_without_failure_rate(spec=series_rule.spec, h_time=X['h_time'], t_time=X['t_time']), axis=1)
 
                     # ファイルの新規作成
                     # -----------------
@@ -108,11 +93,7 @@ if __name__ == '__main__':
                             'no_victory_rate',
                             'a_victory_rate_by_duet',
                             'b_victory_rate_by_duet',
-                            'unfair_point',
-                            't_time',
-                            'h_time',
-                            'shortest_coins',
-                            'upper_limit_coins'])
+                            'unfair_point'])
 
 
                     # 型設定
@@ -125,11 +106,7 @@ if __name__ == '__main__':
                         'no_victory_rate':'float64',
                         'a_victory_rate_by_duet':'float64',
                         'b_victory_rate_by_duet':'float64',
-                        'unfair_point':'float64',
-                        't_time':'int64',
-                        'h_time':'int64',
-                        'shortest_coins':'int64',
-                        'upper_limit_coins':'int64'}
+                        'unfair_point':'float64'}
                     df.astype(dtypes)
 
 
@@ -138,27 +115,18 @@ if __name__ == '__main__':
                     #
                     #   victory_rate_detail (VRD) ファイルに span, t_step, h_step 毎の先手勝率を記録する
                     #
-                    span = series_rule.step_table.span
-                    t_step = series_rule.step_table.get_step_by(face_of_coin=TAIL)
-                    h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
-                    t_time = SeriesRule.StepTable.let_t_time(span=span, t_step=t_step)
-                    h_time = SeriesRule.StepTable.let_h_time(span=span, h_step=h_step)
                     a_victory_rate_by_duet = a_victory_rate_by_trio/(1 - no_victory_rate)
                     b_victory_rate_by_duet = b_victory_rate_by_trio/(1 - no_victory_rate)
                     df.loc[len(df) + 1] = {
-                        'span':span,
-                        't_step':t_step,
-                        'h_step':h_step,
+                        'span':series_rule.step_table.span,
+                        't_step':series_rule.step_table.get_step_by(face_of_coin=TAIL),
+                        'h_step':series_rule.step_table.get_step_by(face_of_coin=HEAD),
                         'a_victory_rate_by_trio':a_victory_rate_by_trio,
                         'b_victory_rate_by_trio':b_victory_rate_by_trio,
                         'no_victory_rate':no_victory_rate,
                         'a_victory_rate_by_duet':a_victory_rate_by_duet,
                         'b_victory_rate_by_duet':b_victory_rate_by_duet,
-                        'unfair_point':(a_victory_rate_by_duet - 0.5) ** 2 + (b_victory_rate_by_duet - 0.5) ** 2,
-                        't_time':t_time,
-                        'h_time':h_time,
-                        'shortest_coins':SeriesRule.let_shortest_coins(h_step=h_step, t_step=t_step, span=span, turn_system_id=series_rule.spec.turn_system_id),
-                        'upper_limit_coins':SeriesRule.let_upper_limit_coins_without_failure_rate(spec=series_rule.spec, h_time=h_time, t_time=t_time)}
+                        'unfair_point':(a_victory_rate_by_duet - 0.5) ** 2 + (b_victory_rate_by_duet - 0.5) ** 2}
 
                     # ソート
                     # ------
