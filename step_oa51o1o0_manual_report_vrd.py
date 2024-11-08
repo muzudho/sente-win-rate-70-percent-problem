@@ -1,5 +1,5 @@
 #
-# python step_oa43o1o0_manual_report_vrd.py
+# python step_oa51o1o0_manual_report_vrd.py
 #
 #   VRS表を CSV形式から XLSX形式へ変換します
 #
