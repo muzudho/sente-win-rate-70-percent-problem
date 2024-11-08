@@ -46,7 +46,8 @@ if __name__ == '__main__':
 
                 try:
 
-                    # ファイルパス指定
+                    # ファイルパス取得
+                    # ---------------
                     detail_csv_file_path = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{detail_basename}'
                     summary_csv_file_path = VictoryRateSummaryFilePaths.as_csv()
 
@@ -75,6 +76,9 @@ if __name__ == '__main__':
                             'unfair_point'])
 
 
+                    # 型設定
+                    # ------
+
                     detail_dtypes = {
                         'span':'int64',
                         't_step':'int64',
@@ -83,6 +87,7 @@ if __name__ == '__main__':
                         'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64',
                         'unfair_point':'float64'}
+                    detail_df.astype(detail_dtypes)
 
                     summary_dtypes = {
                         'turn_system_name':'object',
@@ -95,9 +100,6 @@ if __name__ == '__main__':
                         'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64',
                         'unfair_point':'float64'}
-
-                    # 型設定
-                    detail_df.astype(detail_dtypes)
                     summary_df.astype(summary_dtypes)
 
     #                     print(f"""\

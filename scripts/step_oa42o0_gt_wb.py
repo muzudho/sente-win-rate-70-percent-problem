@@ -208,11 +208,11 @@ class GeneratorOfGTWB():
                 # 1th ヘッダー行
                 self.write_header_of_top(df=df, ws=ws, destination_row_th=1)
 
-                # 2nd Ａさん（シリーズを先手で始めた方）が優勝した率
+                # 2nd ［Ａさん（シリーズを表で始めた方）が優勝した率］
                 a_victory_rate_by_trio = self.get_a_victory_rate_by_trio(sum_rate_by_result=sum_rate_by_result)
                 self.write_a_victory_rate_by_trio(a_victory_rate_by_trio=a_victory_rate_by_trio, ws=ws, destination_row_th=2)
 
-                # 3nd Ｂさん（シリーズを後手で始めた方）が優勝した率
+                # 3nd ［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率］
                 b_victory_rate_by_trio = self.get_b_victory_rate_by_trio(sum_rate_by_result=sum_rate_by_result)
                 self.write_b_victory_rate_by_trio(b_victory_rate_by_trio=b_victory_rate_by_trio, ws=ws, destination_row_th=3)
 
@@ -295,7 +295,7 @@ class GeneratorOfGTWB():
         # max_length_of_a = max(max_length_of_a, len(a_column_name))
         max_length_of_b = max(max_length_of_b, len(b_column_name))
 
-        ws.column_dimensions['A'].width = 43    # 'Ａさん（シリーズを先手で始めた方）が優勝した率' が 43 ぐらい。    #max_length_of_a * 2       # 日本語
+        ws.column_dimensions['A'].width = 43    # ［Ａさん（シリーズを表で始めた方）が優勝した率］ が 43 ぐらい。    #max_length_of_a * 2       # 日本語
         ws.column_dimensions['B'].width = max_length_of_b * 1.2     # 浮動小数点数
 
         # 列名
@@ -314,7 +314,7 @@ class GeneratorOfGTWB():
 
 
     def get_a_victory_rate_by_trio(self, sum_rate_by_result):
-        """Ａさん（シリーズを先手で始めた方）が優勝した率を算出"""
+        """［Ａさん（シリーズを表で始めた方）が優勝した率］を算出"""
         # result 別に確率を高精度 sum する
         rate_list = []
 
@@ -328,15 +328,15 @@ class GeneratorOfGTWB():
 
 
     def write_a_victory_rate_by_trio(self, a_victory_rate_by_trio, ws, destination_row_th):
-        """Ａさん（シリーズを先手で始めた方）が優勝した率を出力"""
+        """［Ａさん（シリーズを表で始めた方）が優勝した率］を出力"""
 
-        ws[f'A{destination_row_th}'] = 'Ａさん（シリーズを先手で始めた方）が優勝した率'
+        ws[f'A{destination_row_th}'] = 'Ａさん（シリーズを表で始めた方）が優勝した率'
         ws[f'B{destination_row_th}'] = a_victory_rate_by_trio
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
 
     def get_b_victory_rate_by_trio(self, sum_rate_by_result):
-        """Ｂさん（シリーズを後手で始めた方）が優勝した率を算出"""
+        """［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率］を算出"""
 
         # result 別に確率を高精度 sum する
         rate_list = []
@@ -351,9 +351,9 @@ class GeneratorOfGTWB():
 
 
     def write_b_victory_rate_by_trio(self, b_victory_rate_by_trio, ws, destination_row_th):
-        """Ｂさん（シリーズを後手で始めた方）が優勝した率を出力"""
+        """［Ｂさん（シリーズをｳﾗで始めた方）が優勝した率］を出力"""
 
-        ws[f'A{destination_row_th}'] = 'Ｂさん（シリーズを後手で始めた方）が優勝した率'
+        ws[f'A{destination_row_th}'] = 'Ｂさん（シリーズをｳﾗで始めた方）が優勝した率'
         ws[f'B{destination_row_th}'] = b_victory_rate_by_trio
         ws[f'B{destination_row_th}'].alignment = Alignment(horizontal='left')
 
