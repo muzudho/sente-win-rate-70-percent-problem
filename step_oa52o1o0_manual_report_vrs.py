@@ -108,7 +108,7 @@ if __name__ == '__main__':
             'M': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':16.55, 'align':Alignment(horizontal='left')},
             'N': {'label':'Ａさんの優勝率', 'name':'a_victory_rate_by_duet', 'width':13.91, 'align':Alignment(horizontal='left')},
             'O': {'label':'Ｂさんの優勝率', 'name':'b_victory_rate_by_duet', 'width':14.00, 'align':Alignment(horizontal='left')},
-            'P': {'label':'不均等度', 'name':'unfair_point', 'width':11.91, 'align':Alignment(horizontal='left')}
+            'P': {'label':'不均等度', 'name':'unfair_point', 'width':8.5, 'align':Alignment(horizontal='left')}
         }
 
         for column_letter in output_column_letters:

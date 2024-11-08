@@ -122,102 +122,61 @@ if __name__ == '__main__':
                 # シート取得
                 ws = wb['Detail']
 
-                # 列幅設定
+                # 出力する列の設計
                 #
-                #   数値通りにはいかない
-                #   浮動小数点数にキリがないので、列名の長さに揃えるのも手
+                #   大した量ではないので、辞書をネストさせる
                 #
-                column_width_list = [
-                    ('A', 4.64),    # 表点
-                    ('B', 5.00),    # ｳﾗ点
-                    ('C', 6.64),    # 優勝点
-                    ('D', 10.73),   # 必要表回数
-                    ('E', 11.18),   # 必要ｳﾗ回数
-                    ('F', 10.73),   # 最短対局数
-                    ('G', 10.73),   # 対局数上限
-                    ('H', 5.0),     # ［Ａさんの優勝率（優勝なし率込）］
-                    ('I', 5.0),     # ［Ｂさんの優勝率（優勝なし率込）］
-                    ('J', 10.0),    # ［優勝なし率］
-                    ('K', 14.00),   # ［Ａさんの優勝率］
-                    ('L', 14.00),   # ［Ｂさんの優勝率］
-                    ('M', 7.5),     # ［不均等度］
-                ]
-                for pair in column_width_list:
-                    ws.column_dimensions[pair[0]].width = pair[1]
+                output_column_letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M']
+                output_columns = {
+                    # KEY:列番号
+                    # Value:
+                    #   'label' - 表示列名
+                    #   'name' - 元データ列名
+                    #   'width' - 列幅設定
+                    #                   数値通りにはいかない
+                    #                   浮動小数点数にキリがないので、列名の長さに揃えるのも手
+                    #   'align' - 位置寄せ
+                    #
+                    'A': {'label':'表点', 'name':'h_step', 'width':4.64, 'align':Alignment(horizontal='right')},
+                    'B': {'label':'ｳﾗ点', 'name':'t_step', 'width':5.00, 'align':Alignment(horizontal='right')},
+                    'C': {'label':'優勝点', 'name':'span', 'width':6.64, 'align':Alignment(horizontal='right')},
+                    'D': {'label':'必要表回数', 'name':'h_time', 'width':10.73, 'align':Alignment(horizontal='right')},
+                    'E': {'label':'必要ｳﾗ回数', 'name':'t_time', 'width':11.18, 'align':Alignment(horizontal='right')},
+                    'F': {'label':'最短対局数', 'name':'shortest_coins', 'width':10.73, 'align':Alignment(horizontal='right')},
+                    'G': {'label':'対局数上限', 'name':'upper_limit_coins', 'width':10.73, 'align':Alignment(horizontal='right')},
+                    'H': {'label':'Ａさんの優勝率（優勝なし率込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
+                    'I': {'label':'Ｂさんの優勝率（優勝なし率込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
+                    'J': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':10.0, 'align':Alignment(horizontal='left')},
+                    'K': {'label':'Ａさんの優勝率', 'name':'a_victory_rate_by_duet', 'width':14.0, 'align':Alignment(horizontal='left')},
+                    'L': {'label':'Ｂさんの優勝率', 'name':'b_victory_rate_by_duet', 'width':14.0, 'align':Alignment(horizontal='left')},
+                    'M': {'label':'不均等度', 'name':'unfair_point', 'width':8.5, 'align':Alignment(horizontal='left')},
+                }
 
-                # 列名の変更
-                new_column_name_dict = {
-                    'h_step':'表点',
-                    't_step':'ｳﾗ点',
-                    'span':'優勝点',
-                    'h_time':'必要表回数',
-                    't_time':'必要ｳﾗ回数',
-                    'shortest_coins':'最短対局数',
-                    'upper_limit_coins':'対局数上限',
-                    'a_victory_rate_by_trio':'Ａさんの優勝率（優勝なし率込）',
-                    'b_victory_rate_by_trio':'Ｂさんの優勝率（優勝なし率込）',
-                    'no_victory_rate':'優勝なし率',
-                    'a_victory_rate_by_duet':'Ａさんの優勝率',
-                    'b_victory_rate_by_duet':'Ｂさんの優勝率',
-                    'unfair_point':'不均等度'}
-
-                # 寄せ
-                alignment_list = [
-                    Alignment(horizontal='right'),  # 表点
-                    Alignment(horizontal='right'),  # ｳﾗ点
-                    Alignment(horizontal='right'),  # 優勝点
-                    Alignment(horizontal='right'),  # 必要表回数
-                    Alignment(horizontal='right'),  # 必要ｳﾗ回数
-                    Alignment(horizontal='right'),  # 最短対局数
-                    Alignment(horizontal='right'),  # 対局数上限
-                    Alignment(horizontal='left'),   # Ａさんの優勝率（優勝なし率込）
-                    Alignment(horizontal='left'),   # Ｂさんの優勝率（優勝なし率込）
-                    Alignment(horizontal='left'),   # 優勝なし率
-                    Alignment(horizontal='left'),   # Ａさんの優勝率
-                    Alignment(horizontal='left'),   # Ｂさんの優勝率
-                    Alignment(horizontal='left'),   # 不均等度
-                ]
+                for column_letter in output_column_letters:
+                    ws.column_dimensions[column_letter].width = output_columns[column_letter]['width']
 
                 # ヘッダー文字色・背景色
                 header_font = Font(color='EEFFEE')
                 header_background_fill = PatternFill(patternType='solid', fgColor='336633')
 
+
                 # ヘッダー出力
-                for column_th, column_name in enumerate(df.columns.values, 1):
-                    column_letter = xl.utils.get_column_letter(column_th)
+                for column_letter in output_column_letters:
                     cell = ws[f'{column_letter}1']
-                    cell.value = new_column_name_dict[column_name]
+                    cell.value = output_columns[column_letter]['label']
                     cell.font = header_font
                     cell.fill = header_background_fill
-                    cell.alignment = alignment_list[column_th - 1]
+                    cell.alignment = output_columns[column_letter]['align']
 
-
-                # データ部
-                # -------
-                column_letter_and_column_name = [
-                    ('A', 'h_step'),                    # 表点
-                    ('B', 't_step'),                    # ｳﾗ点
-                    ('C', 'span'),                      # 優勝点
-                    ('D', 'h_time'),                    # 必要表回数
-                    ('E', 't_time'),                    # 必要ｳﾗ回数
-                    ('F', 'shortest_coins'),            # 最短対局数
-                    ('G', 'upper_limit_coins'),         # 対局数上限
-                    ('H', 'a_victory_rate_by_trio'),
-                    ('I', 'b_victory_rate_by_trio'),
-                    ('J', 'no_victory_rate'),
-                    ('K', 'a_victory_rate_by_duet'),
-                    ('L', 'b_victory_rate_by_duet'),
-                    ('M', 'unfair_point'),
-                ]
 
                 for sorted_row_no, (row_no, row) in enumerate(df.iterrows()):
                     #print(f"{row_th=} {type(row)=}")
                     row_th = sorted_row_no + 2
 
-                    for column_no in range(0, len(row)):
-                        cell = ws[f'{column_letter_and_column_name[column_no][0]}{row_th}']
-                        cell.value = row[column_letter_and_column_name[column_no][1]]
-                        cell.alignment = alignment_list[column_no]
+                    for column_letter in output_column_letters:
+                        cell = ws[f'{column_letter}{row_th}']
+                        cell.value = row[output_columns[column_letter]['name']]
+                        cell.alignment = output_columns[column_letter]['align']
 
 
                 # ウィンドウ枠の固定
@@ -271,6 +230,8 @@ if __name__ == '__main__':
                 # ワークブックの保存
                 wb.save(detail_wb_file_path)
                 print(f"[{datetime.datetime.now()}] please look `{detail_wb_file_path}`")
+
+                time.sleep(10000000000)
 
 
             except PermissionError as e:
