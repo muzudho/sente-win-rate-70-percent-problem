@@ -209,7 +209,8 @@ if __name__ == '__main__':
                 # データ部背景色
                 # -------------
                 light_red_fill = PatternFill(patternType='solid', fgColor='FFEEEE')
-                light_yellow_fill = PatternFill(patternType='solid', fgColor='FFFFEE')
+                light_green_fill = PatternFill(patternType='solid', fgColor='EEFFEE')
+                light_blue_fill = PatternFill(patternType='solid', fgColor='EEEEFF')
 
 
                 # データ部罫線出力
@@ -235,6 +236,10 @@ if __name__ == '__main__':
                     cell.border = right_border
                     cell.fill = light_red_fill
 
+                    # ［対局数上限］
+                    cell = ws[f'G{row_th}']
+                    cell.fill = light_green_fill
+
                     # ［Ａさんの優勝率（失敗込）］
                     cell = ws[f'H{row_th}']
                     cell.border = left_border
@@ -242,12 +247,12 @@ if __name__ == '__main__':
                     # ［Ａさんの優勝率（失敗抜）］
                     cell = ws[f'K{row_th}']
                     cell.border = left_border
-                    cell.fill = light_yellow_fill
+                    cell.fill = light_blue_fill
 
                     # ［Ｂさんの優勝率（失敗抜）］
                     cell = ws[f'L{row_th}']
                     cell.border = right_border
-                    cell.fill = light_yellow_fill
+                    cell.fill = light_blue_fill
 
 
                 # ワークブックの保存
