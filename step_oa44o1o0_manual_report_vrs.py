@@ -5,6 +5,7 @@
 #
 
 import traceback
+import datetime
 import os
 import random
 import math
@@ -14,7 +15,7 @@ from openpyxl.styles import PatternFill, Font
 from openpyxl.styles.borders import Border, Side
 from openpyxl.styles.alignment import Alignment
 
-from library import HEAD, TAIL, toss_a_coin
+from library import HEAD, TAIL, Specification, Converter, SeriesRule, toss_a_coin
 from library.file_paths import VictoryRateSummaryFilePaths
 
 
@@ -30,18 +31,18 @@ if __name__ == '__main__':
 
         # ファイルパス取得
         # ---------------
-        csv_file_path = VictoryRateSummaryFilePaths.as_csv()                # VRS表 CSV
-        wb_file_path = VictoryRateSummaryFilePaths.as_workbook_on_reports() # ワークブック
+        summary_csv_file_path = VictoryRateSummaryFilePaths.as_csv()                # VRS表 CSV
+        summary_wb_file_path = VictoryRateSummaryFilePaths.as_workbook_on_reports() # ワークブック
 
         # CSV読取
         # -------
-        if os.path.isfile(csv_file_path):   # VRS表(CSV)。既存時
-            df = pd.read_csv(
-                    csv_file_path,
+        if os.path.isfile(summary_csv_file_path):   # VRS表(CSV)。既存時
+            summary_df = pd.read_csv(
+                    summary_csv_file_path,
                     encoding="utf-8")
         
             # 列順の変更
-            df = df[[
+            summary_df = summary_df[[
                 'p',                        # 先手勝率
                 'failure_rate',             # 引分け率
                 'turn_system_name',         # 手番の決め方
@@ -50,8 +51,8 @@ if __name__ == '__main__':
                 'span',                     # 優勝点
                 'h_time',                   # 必要表回数
                 't_time',                   # 必要ｳﾗ回数
-                'shortest_coins',           # 最短対局数
-                'upper_limit_coins',        # 対局数上限
+                #'shortest_coins',           # 最短対局数
+                #'upper_limit_coins',        # 対局数上限
                 'a_victory_rate_by_trio',
                 'b_victory_rate_by_trio',
                 'no_victory_rate',
@@ -60,7 +61,7 @@ if __name__ == '__main__':
                 'unfair_point']]
 
             # ソート
-            df.sort_values(
+            summary_df.sort_values(
                     by=['p','failure_rate','turn_system_name'],
                     ascending=[
                         True,
@@ -69,7 +70,7 @@ if __name__ == '__main__':
                     inplace=True)
 
         else:
-            raise ValueError(f"file not found {csv_file_path=}")
+            raise ValueError(f"file not found {summary_csv_file_path=}")
 
 
         # ワークブックの新規作成
@@ -81,119 +82,106 @@ if __name__ == '__main__':
         # シート取得
         ws = wb['Summary']
 
-        # 列幅設定  数値通りにはいかないようだ
-        column_width_list = [
-            ('A', 8.64),    # ［先手勝率］
-            ('B', 6.64),    # 引分率
-            ('C', 12.73),   # 手番の決め方
-            ('D', 4.64),    # 表点
-            ('E', 5.00),    # ｳﾗ点
-            ('F', 6.64),    # 優勝点
-            ('G', 10.73),   # 必要表回数
-            ('H', 11.18),   # 必要ｳﾗ回数
-            ('I', 10.73),   # 最短対局数
-            ('J', 10.73),   # 対局数上限
-            ('K', 5.0),     # ［Ａさんの優勝率（優勝なし率込）］
-            ('L', 5.0),     # ［Ｂさんの優勝率（優勝なし率込）］
-            ('M', 16.55),   # ［優勝なし率］
-            ('N', 13.91),   # ［Ａさんの優勝率］
-            ('O', 14.00),   # ［Ｂさんの優勝率］
-            ('P', 11.91),   # ［不均等度］
-        ]
-        for pair in column_width_list:
-            ws.column_dimensions[pair[0]].width = pair[1]
+        # 出力する列の設計
+        #
+        #   大した量ではないので、辞書をネストさせる
+        #
+        output_column_letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P']
+        output_columns = {
+            # KEY:列番号
+            # Value:
+            #   'label' - 表示列名
+            #   'name' - 元データ列名
+            #   'width' - 列幅設定
+            #                   数値通りにはいかない
+            #                   浮動小数点数にキリがないので、列名の長さに揃えるのも手
+            #   'align' - 位置寄せ
+            #
+            'A': {'label':'先手勝率', 'name':'p', 'width':8.64, 'align':Alignment(horizontal='left')},
+            'B': {'label':'引分率', 'name':'failure_rate', 'width':6.64, 'align':Alignment(horizontal='left')},
+            'C': {'label':'手番の決め方', 'name':'turn_system_name', 'width':12.73, 'align':Alignment(horizontal='left')},
+            'D': {'label':'表点', 'name':'h_step', 'width':4.64, 'align':Alignment(horizontal='right')},
+            'E': {'label':'ｳﾗ点', 'name':'t_step', 'width':5.00, 'align':Alignment(horizontal='right')},
+            'F': {'label':'優勝点', 'name':'span', 'width':6.64, 'align':Alignment(horizontal='right')},
+            'G': {'label':'必要表回数', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 追加 'h_time'
+            'H': {'label':'必要ｳﾗ回数', 'name':None, 'width':11.18, 'align':Alignment(horizontal='right')},     # 追加 't_time'
+            'I': {'label':'最短対局数', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 追加 'shortest_coins'
+            'J': {'label':'対局数上限', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 追加 'upper_limit_coins'
+            'K': {'label':'Ａさんの優勝率（優勝なし率込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
+            'L': {'label':'Ｂさんの優勝率（優勝なし率込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
+            'M': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':16.55, 'align':Alignment(horizontal='left')},
+            'N': {'label':'Ａさんの優勝率', 'name':'a_victory_rate_by_duet', 'width':13.91, 'align':Alignment(horizontal='left')},
+            'O': {'label':'Ｂさんの優勝率', 'name':'b_victory_rate_by_duet', 'width':14.00, 'align':Alignment(horizontal='left')},
+            'P': {'label':'不均等度', 'name':'unfair_point', 'width':11.91, 'align':Alignment(horizontal='left')}
+        }
 
-        # 列名の変更
-        new_column_name_dict = {
-            'p':'先手勝率',
-            'failure_rate':'引分率',
-            'turn_system_name':'手番の決め方',
-            'h_step':'表点',
-            't_step':'ｳﾗ点',
-            'span':'優勝点',
-            'h_time':'必要表回数',
-            't_time':'必要ｳﾗ回数',
-            'shortest_coins':'最短対局数',
-            'upper_limit_coins':'対局数上限',
-            'a_victory_rate_by_trio':'Ａさんの優勝率（優勝なし率込）',
-            'b_victory_rate_by_trio':'Ｂさんの優勝率（優勝なし率込）',
-            'no_victory_rate':'優勝なし率',
-            'a_victory_rate_by_duet':'Ａさんの優勝率',
-            'b_victory_rate_by_duet':'Ｂさんの優勝率',
-            'unfair_point':'不均等度'}
-
-        # 寄せ
-        alignment_list = [
-            Alignment(horizontal='left'),   # 先手勝率
-            Alignment(horizontal='left'),   # 引分率
-            Alignment(horizontal='left'),   # 手番の決め方
-            Alignment(horizontal='right'),  # 表点
-            Alignment(horizontal='right'),  # ｳﾗ点
-            Alignment(horizontal='right'),  # 優勝点
-            Alignment(horizontal='right'),  # 必要表回数
-            Alignment(horizontal='right'),  # 必要ｳﾗ回数
-            Alignment(horizontal='right'),  # 最短対局数
-            Alignment(horizontal='right'),  # 対局数上限
-            Alignment(horizontal='left'),   # Ａさんの優勝率（優勝なし率込）
-            Alignment(horizontal='left'),   # Ｂさんの優勝率（優勝なし率込）
-            Alignment(horizontal='left'),   # 優勝なし率
-            Alignment(horizontal='left'),   # Ａさんの優勝率
-            Alignment(horizontal='left'),   # Ｂさんの優勝率
-            Alignment(horizontal='left')]   # 不均等度
+        for column_letter in output_column_letters:
+            ws.column_dimensions[column_letter].width = output_columns[column_letter]['width']
         
 
         # ヘッダー文字色・背景色
         header_font = Font(color='EEFFEE')
         header_background_fill = PatternFill(patternType='solid', fgColor='336633')
 
+
         # ヘッダー出力
-        for column_th, column_name in enumerate(df.columns.values, 1):
-            column_letter = xl.utils.get_column_letter(column_th)
+        for column_letter in output_column_letters:
             cell = ws[f'{column_letter}1']
-            cell.value = new_column_name_dict[column_name]
+            cell.value = output_columns[column_letter]['label']
             cell.font = header_font
             cell.fill = header_background_fill
-            cell.alignment = alignment_list[column_th - 1]
+            cell.alignment = output_columns[column_letter]['align']
 
-
-        # データ部
-        # -------
-        column_letter_and_column_name = [
-            ('A', 'p'),                         # 先手勝率
-            ('B', 'failure_rate'),              # 引分け率
-            ('C', 'turn_system_name'),          # 手番の決め方
-            ('D', 'h_step'),                    # 表点
-            ('E', 't_step'),                    # ｳﾗ点
-            ('F', 'span'),                      # 優勝点
-            ('G', 'h_time'),                    # 必要表回数
-            ('H', 't_time'),                    # 必要ｳﾗ回数
-            ('I', 'shortest_coins'),            # 最短対局数
-            ('J', 'upper_limit_coins'),         # 対局数上限
-            ('K', 'a_victory_rate_by_trio'),
-            ('L', 'b_victory_rate_by_trio'),
-            ('M', 'no_victory_rate'),
-            ('N', 'a_victory_rate_by_duet'),
-            ('O', 'b_victory_rate_by_duet'),
-            ('P', 'unfair_point'),
-        ]
 
         turn_system_name_to_jp = {
             'alternating':'交互',
             'frozen':'固定',
         }
 
-        for sorted_row_no, (row_no, row) in enumerate(df.iterrows()):
+
+        for sorted_row_no, (row_no, row) in enumerate(summary_df.iterrows()):
             #print(f"{row_th=} {type(row)=}")
             row_th = sorted_row_no + 2
 
-            for column_no in range(0, len(row)):
-                cell = ws[f'{column_letter_and_column_name[column_no][0]}{row_th}']
-                cell.value = row[column_letter_and_column_name[column_no][1]]
-                cell.alignment = alignment_list[column_no]
+            # ［仕様］
+            spec = Specification(
+                    turn_system_id=Converter.turn_system_code_to_id(row['turn_system_name']),
+                    failure_rate=row['failure_rate'],
+                    p=row['p'])
 
-                # ［手番の決め方］
-                if column_no == 2:
-                    cell.value = turn_system_name_to_jp[cell.value]
+            for column_letter in output_column_letters:
+
+                cell = ws[f'{column_letter}{row_th}']
+                name = output_columns[column_letter]['name']
+                if name is not None:
+                    if name == 'turn_system_name':
+                        cell.value = turn_system_name_to_jp[row[name]]
+                    
+                    else:
+                        cell.value = row[name]
+                
+                else:
+                    label = output_columns[column_letter]['label']
+                    # TODO 必要表回数
+                    if label == '必要表回数':
+                        cell.value = math.ceil(row['span'] / row['h_step'])
+
+                    # TODO 必要ｳﾗ回数
+                    elif label == '必要ｳﾗ回数':
+                        cell.value = math.ceil(row['span'] / row['t_step'])
+
+                    # TODO 最短対局数
+                    elif label == '最短対局数':
+                        cell.value = SeriesRule.let_shortest_coins(h_step=row['h_step'], t_step=row['t_step'], span=row['span'], turn_system_id=spec.turn_system_id)
+
+                    elif label == '対局数上限':
+                        cell.value = SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=row['h_time'], t_time=row['t_time'])
+
+                    else:
+                        raise ValueError(f"{label=}")
+
+
+                cell.alignment = output_columns[column_letter]['align']
 
 
         # ウィンドウ枠の固定
@@ -203,7 +191,8 @@ if __name__ == '__main__':
         # データ部背景色
         # -------------
         light_red_fill = PatternFill(patternType='solid', fgColor='FFEEEE')
-        light_yellow_fill = PatternFill(patternType='solid', fgColor='FFFFEE')
+        light_green_fill = PatternFill(patternType='solid', fgColor='EEFFEE')
+        light_blue_fill = PatternFill(patternType='solid', fgColor='EEEEFF')
 
 
         # データ部罫線出力
@@ -244,19 +233,24 @@ if __name__ == '__main__':
             cell = ws[f'K{row_th}']
             cell.border = left_border
 
+            # ［対局数上限］
+            cell = ws[f'J{row_th}']
+            cell.fill = light_green_fill
+
             # ［Ａさんの優勝率］
             cell = ws[f'N{row_th}']
             cell.border = left_border
-            cell.fill = light_yellow_fill
+            cell.fill = light_blue_fill
 
             # ［Ｂさんの優勝率］
             cell = ws[f'O{row_th}']
             cell.border = right_border
-            cell.fill = light_yellow_fill
+            cell.fill = light_blue_fill
 
 
         # ワークブックの保存
-        wb.save(wb_file_path)
+        wb.save(summary_wb_file_path)
+        print(f"[{datetime.datetime.now()}] please look `{summary_wb_file_path}`")
 
 
     except Exception as err:
