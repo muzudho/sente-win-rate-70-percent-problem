@@ -30,15 +30,12 @@ if __name__ == '__main__':
 
         # ファイルパス取得
         # ---------------
+        csv_file_path = VictoryRateSummaryFilePaths.as_csv()                # VRS表 CSV
+        wb_file_path = VictoryRateSummaryFilePaths.as_workbook_on_reports() # ワークブック
 
-        # VRS表 CSV
-        csv_file_path = VictoryRateSummaryFilePaths.as_csv()
-
-        # ワークブック
-        wb_file_path = VictoryRateSummaryFilePaths.as_workbook_on_reports()
-
-        # VRS表(CSV)の読取
-        if os.path.isfile(csv_file_path):   # ファイルが既存ならそれを読取る
+        # CSV読取
+        # -------
+        if os.path.isfile(csv_file_path):   # VRS表(CSV)。既存時
             df = pd.read_csv(
                     csv_file_path,
                     encoding="utf-8")
@@ -101,7 +98,7 @@ if __name__ == '__main__':
             ('M', 16.55),   # ［優勝なし率］
             ('N', 13.91),   # ［Ａさんの優勝率］
             ('O', 14.00),   # ［Ｂさんの優勝率］
-            ('P', 11.91),   # ［２乗誤差］
+            ('P', 11.91),   # ［不均等度］
         ]
         for pair in column_width_list:
             ws.column_dimensions[pair[0]].width = pair[1]
@@ -123,7 +120,7 @@ if __name__ == '__main__':
             'no_victory_rate':'優勝なし率',
             'a_victory_rate_by_duet':'Ａさんの優勝率',
             'b_victory_rate_by_duet':'Ｂさんの優勝率',
-            'unfair_point':'２乗誤差'}
+            'unfair_point':'不均等度'}
 
         # 寄せ
         alignment_list = [
@@ -142,8 +139,8 @@ if __name__ == '__main__':
             Alignment(horizontal='left'),   # 優勝なし率
             Alignment(horizontal='left'),   # Ａさんの優勝率
             Alignment(horizontal='left'),   # Ｂさんの優勝率
-            Alignment(horizontal='left'),   # ２乗誤差
-        ]
+            Alignment(horizontal='left')]   # 不均等度
+        
 
         # ヘッダー文字色・背景色
         header_font = Font(color='EEFFEE')

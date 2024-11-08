@@ -399,6 +399,12 @@ class VictoryRateDetailFilePaths():
 
 
     @staticmethod
+    def get_reports_directory_path():
+        # './' は付けない
+        return 'reports/victory_rate_detail'
+
+
+    @staticmethod
     def get_logs_directory_path():
         # './' は付けない
         return 'logs/victory_rate_detail'
@@ -408,6 +414,12 @@ class VictoryRateDetailFilePaths():
     def as_csv(spec):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
         return f'{VictoryRateDetailFilePaths.get_temp_directory_path()}/VRD{subname}.csv'
+
+
+    @staticmethod
+    def as_workbook_on_reports(spec):
+        subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
+        return f'{VictoryRateDetailFilePaths.get_reports_directory_path()}/VRD{subname}.xlsx'
 
 
     @staticmethod

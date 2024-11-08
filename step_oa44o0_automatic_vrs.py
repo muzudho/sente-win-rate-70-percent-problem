@@ -8,9 +8,8 @@ import math
 import time
 import datetime
 import random
-import openpyxl as xl
 import pandas as pd
-from library import TAIL, HEAD, Converter, SeriesRule, get_list_of_basename
+from library import Converter, SeriesRule, get_list_of_basename
 from library.file_basename import BasenameOfVictoryRateDetailFile
 from library.file_paths import VictoryRateDetailFilePaths, VictoryRateSummaryFilePaths
 
@@ -28,21 +27,18 @@ if __name__ == '__main__':
             time.sleep(1)
 
             # victory_rate_detail フォルダーを見る
-            basename_list = get_list_of_basename(dir_path=VictoryRateDetailFilePaths.get_temp_directory_path())
+            detail_basename_list = get_list_of_basename(dir_path=VictoryRateDetailFilePaths.get_temp_directory_path())
 
             # シャッフル
-            random.shuffle(basename_list)
+            random.shuffle(detail_basename_list)
 
 
-            for basename in basename_list:
+            for detail_basename in detail_basename_list:
 
-                # print(f"[{datetime.datetime.now()}] step_oa44o0 {basename=}")
-
-                # # １秒休む
-                # time.sleep(1)
+                # print(f"[{datetime.datetime.now()}] step_oa44o0 {detail_basename=}")
 
                 # ファイル名から［仕様］を取得する
-                spec = BasenameOfVictoryRateDetailFile.to_spec(basename=basename)
+                spec = BasenameOfVictoryRateDetailFile.to_spec(basename=detail_basename)
 
                 if spec is None:
                     continue
@@ -51,18 +47,19 @@ if __name__ == '__main__':
                 try:
 
                     # ファイルパス指定
-                    detail_csv_file_name = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{basename}'
-                    summary_csv_file_name = VictoryRateSummaryFilePaths.as_csv()
-                    print(f"[{datetime.datetime.now()}] step_oa44o0 {detail_csv_file_name=} {summary_csv_file_name=}")
+                    detail_csv_file_path = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{detail_basename}'
+                    summary_csv_file_path = VictoryRateSummaryFilePaths.as_csv()
 
-                    # １秒休む
-                    time.sleep(1)
+                    print(f"[{datetime.datetime.now()}] step_oa44o0 {detail_csv_file_path=} {summary_csv_file_path=}")
+                    time.sleep(1)   # １秒休む
 
-                    # CSVファイルを開く
-                    detail_df = pd.read_csv(detail_csv_file_name, encoding='utf-8')
 
-                    if os.path.isfile(summary_csv_file_name):
-                        summary_df = pd.read_csv(summary_csv_file_name, encoding='utf-8')
+                    # CSV読取
+                    # -------
+                    detail_df = pd.read_csv(detail_csv_file_path, encoding='utf-8')
+
+                    if os.path.isfile(summary_csv_file_path):
+                        summary_df = pd.read_csv(summary_csv_file_path, encoding='utf-8')
 
                         # t_time が無ければ追加
                         if 't_time' not in summary_df.columns.values:
@@ -147,16 +144,28 @@ if __name__ == '__main__':
 # summary_df o_9o0:
 # {summary_df}""")
 
-
-                    # unfair_point が一番小さいものを選ぶ
+                    # 絞り込み
+                    # --------
+                    #
+                    #   unfair_point が一番小さいものを選ぶ
+                    #
                     detail_df = detail_df[detail_df['unfair_point'] == detail_df['unfair_point'].min()]
 
 #                     print(f"""\
 # detail_df o0o0:
 # {detail_df}""")
 
-                    # ソートする。 no_victory_rate が 0 に近く、span が小さく、t_step が小さく、 h_step が小さいものを選ぶ
-                    detail_df.sort_values(by=['no_victory_rate', 'span', 't_step', 'h_step'], inplace=True)
+                    # ソート
+                    # ------
+                    #
+                    #   互角に近いものを絞り込み済み
+                    #
+                    #   優先度１： no_victory_rate が 0 に近く
+                    #   優先度２： span が小さく
+                    #   優先度３： h_step が小さく      ※ t_step <= h_step なので、長い方を小さくしたい
+                    #   優先度４： t_step が小さい
+                    #
+                    detail_df.sort_values(by=['a_victory_rate_by_duet', 'no_victory_rate', 'span', 'h_step', 't_step'], inplace=True)
 
 #                     print(f"""\
 # detail_df o0o1o0:
@@ -210,7 +219,7 @@ if __name__ == '__main__':
 
                     # ファイル保存
                     summary_df.to_csv(
-                            summary_csv_file_name,
+                            summary_csv_file_path,
                             columns=[
                                 'turn_system_name',
                                 'failure_rate',
@@ -229,11 +238,11 @@ if __name__ == '__main__':
                                 'shortest_coins',
                                 'upper_limit_coins'],
                             index=False)
-                    print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_name}`")
+                    print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_path}`")
 
 
                 except KeyError as e:
-                    message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    message = f"[{datetime.datetime.now()}] ファイルが壊れているかも？ {detail_csv_file_path=} {summary_csv_file_path=} {e=}"
                     print(message)
                     # スタックトレース表示
                     print(traceback.format_exc())
@@ -249,7 +258,7 @@ if __name__ == '__main__':
 
 
                 except PermissionError as e:
-                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    message = f"[{datetime.datetime.now()}] ファイルが他で開かれているのかも？ {detail_csv_file_path=} {summary_csv_file_path=} {e=}"
                     print(message)
                     # スタックトレース表示
                     print(traceback.format_exc())
@@ -265,7 +274,7 @@ if __name__ == '__main__':
 
 
                 except Exception as e:
-                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_name=} {summary_csv_file_name=} {e=}"
+                    message = f"[{datetime.datetime.now()}] 予期せぬ例外 {detail_csv_file_path=} {summary_csv_file_path=} {e=}"
                     print(message)
                     # スタックトレース表示
                     print(traceback.format_exc())

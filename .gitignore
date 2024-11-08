@@ -23,6 +23,9 @@ logs/theoretical_probability/*
 logs/theoretical_probability_rates/*
 !logs/theoretical_probability_rates/.gitkeep
 
+reports/victory_rate_detail/*
+!reports/victory_rate_detail/.gitkeep
+
 temp/demo_japanese/*
 !temp/demo_japanese/.gitkeep
 temp/empirical_probability_during_trials/*
