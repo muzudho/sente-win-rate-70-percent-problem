@@ -72,8 +72,6 @@ if __name__ == '__main__':
                             'a_victory_rate_by_trio',
                             'b_victory_rate_by_trio',
                             'no_victory_rate',
-                            'a_victory_rate_by_duet',
-                            'b_victory_rate_by_duet',
                             'unfair_point'])
 
 
@@ -84,8 +82,6 @@ if __name__ == '__main__':
                         'a_victory_rate_by_trio':'float64',
                         'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64',
-                        'a_victory_rate_by_duet':'float64',
-                        'b_victory_rate_by_duet':'float64',
                         'unfair_point':'float64'}
 
                     summary_dtypes = {
@@ -98,8 +94,6 @@ if __name__ == '__main__':
                         'a_victory_rate_by_trio':'float64',
                         'b_victory_rate_by_trio':'float64',
                         'no_victory_rate':'float64',
-                        'a_victory_rate_by_duet':'float64',
-                        'b_victory_rate_by_duet':'float64',
                         'unfair_point':'float64'}
 
                     # 型設定
@@ -141,7 +135,7 @@ if __name__ == '__main__':
                     #   優先度３： h_step が小さく      ※ t_step <= h_step なので、長い方を小さくしたい
                     #   優先度４： t_step が小さい
                     #
-                    detail_df.sort_values(by=['a_victory_rate_by_duet', 'no_victory_rate', 'span', 'h_step', 't_step'], inplace=True)
+                    detail_df.sort_values(by=['no_victory_rate', 'span', 'h_step', 't_step'], inplace=True)
 
 #                     print(f"""\
 # detail_df o0o1o0:
@@ -168,8 +162,6 @@ if __name__ == '__main__':
                         'a_victory_rate_by_trio':detail_df.at[detail_index, 'a_victory_rate_by_trio'],
                         'b_victory_rate_by_trio':detail_df.at[detail_index, 'b_victory_rate_by_trio'],
                         'no_victory_rate':detail_df.at[detail_index, 'no_victory_rate'],
-                        'a_victory_rate_by_duet':detail_df.at[detail_index, 'a_victory_rate_by_duet'],
-                        'b_victory_rate_by_duet':detail_df.at[detail_index, 'b_victory_rate_by_duet'],
                         'unfair_point':detail_df.at[detail_index, 'unfair_point']}
 
 
@@ -200,8 +192,6 @@ if __name__ == '__main__':
                                 'a_victory_rate_by_trio',
                                 'b_victory_rate_by_trio',
                                 'no_victory_rate',
-                                'a_victory_rate_by_duet',
-                                'b_victory_rate_by_duet',
                                 'unfair_point'],
                             index=False)
                     print(f"[{datetime.datetime.now()}] please look `{summary_csv_file_path}`")

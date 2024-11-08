@@ -52,7 +52,7 @@ if __name__ == '__main__':
                 detail_csv_file_path = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{detail_basename}'    # VRS表 CSV
                 detail_wb_file_path = VictoryRateDetailFilePaths.as_workbook_on_reports(spec=spec)                      # ワークブック
 
-                print(f"[{datetime.datetime.now()}] step_oa43o1o0_manual_report_vrd {detail_csv_file_path=}  {detail_wb_file_path=}")
+                print(f"[{datetime.datetime.now()}] step_oa52o1o0_manual_report_vrs {detail_csv_file_path=}  {detail_wb_file_path=}")
                 time.sleep(1)   # １秒休む
 
 
@@ -77,8 +77,6 @@ if __name__ == '__main__':
                         'a_victory_rate_by_trio',
                         'b_victory_rate_by_trio',
                         'no_victory_rate',
-                        'a_victory_rate_by_duet',
-                        'b_victory_rate_by_duet',
                         'unfair_point']]
 
 
@@ -132,8 +130,8 @@ if __name__ == '__main__':
                     'H': {'label':'Ａさんの優勝率（優勝なし率込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
                     'I': {'label':'Ｂさんの優勝率（優勝なし率込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
                     'J': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':10.0, 'align':Alignment(horizontal='left')},
-                    'K': {'label':'Ａさんの優勝率', 'name':'a_victory_rate_by_duet', 'width':14.0, 'align':Alignment(horizontal='left')},
-                    'L': {'label':'Ｂさんの優勝率', 'name':'b_victory_rate_by_duet', 'width':14.0, 'align':Alignment(horizontal='left')},
+                    'K': {'label':'Ａさんの優勝率', 'name':None, 'width':14.0, 'align':Alignment(horizontal='left')},       # 'a_victory_rate_by_duet' 追加
+                    'L': {'label':'Ｂさんの優勝率', 'name':None, 'width':14.0, 'align':Alignment(horizontal='left')},       # 'b_victory_rate_by_duet' 追加
                     'M': {'label':'不均等度', 'name':'unfair_point', 'width':8.5, 'align':Alignment(horizontal='left')},
                 }
 
@@ -188,6 +186,12 @@ if __name__ == '__main__':
                             elif label == '対局数上限':
                                 # あとで設定
                                 upper_limit_coins_letter = column_letter
+
+                            elif label == 'Ａさんの優勝率':
+                                cell.value = row['a_victory_rate_by_trio'] / (1 - row['no_victory_rate'])
+                            
+                            elif label == 'Ｂさんの優勝率':
+                                cell.value = row['b_victory_rate_by_trio'] / (1 - row['no_victory_rate'])
 
 
                         cell.alignment = output_columns[column_letter]['align']

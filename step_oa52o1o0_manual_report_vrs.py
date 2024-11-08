@@ -52,8 +52,6 @@ if __name__ == '__main__':
                 'a_victory_rate_by_trio',
                 'b_victory_rate_by_trio',
                 'no_victory_rate',
-                'a_victory_rate_by_duet',
-                'b_victory_rate_by_duet',
                 'unfair_point']]
 
             # ソート
@@ -106,8 +104,8 @@ if __name__ == '__main__':
             'K': {'label':'Ａさんの優勝率（優勝なし率込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
             'L': {'label':'Ｂさんの優勝率（優勝なし率込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
             'M': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':16.55, 'align':Alignment(horizontal='left')},
-            'N': {'label':'Ａさんの優勝率', 'name':'a_victory_rate_by_duet', 'width':13.91, 'align':Alignment(horizontal='left')},
-            'O': {'label':'Ｂさんの優勝率', 'name':'b_victory_rate_by_duet', 'width':14.00, 'align':Alignment(horizontal='left')},
+            'N': {'label':'Ａさんの優勝率', 'name':None, 'width':13.91, 'align':Alignment(horizontal='left')},      # 追加 'a_victory_rate_by_duet'
+            'O': {'label':'Ｂさんの優勝率', 'name':None, 'width':14.00, 'align':Alignment(horizontal='left')},      # 追加 'b_victory_rate_by_duet'
             'P': {'label':'不均等度', 'name':'unfair_point', 'width':8.5, 'align':Alignment(horizontal='left')}
         }
 
@@ -180,6 +178,12 @@ if __name__ == '__main__':
                     elif label == '対局数上限':
                         # あとで設定
                         upper_limit_coins_letter = column_letter
+
+                    elif label == 'Ａさんの優勝率':
+                        cell.value = row['a_victory_rate_by_trio'] / (1 - row['no_victory_rate'])
+                    
+                    elif label == 'Ｂさんの優勝率':
+                        cell.value = row['b_victory_rate_by_trio'] / (1 - row['no_victory_rate'])
 
                     else:
                         raise ValueError(f"{label=}")
