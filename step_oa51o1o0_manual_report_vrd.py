@@ -63,21 +63,10 @@ if __name__ == '__main__':
                             detail_csv_file_path,
                             encoding="utf-8")
 
-                    # t_time が無ければ追加
-                    if 't_time' not in df.columns.values:
-                        df['t_time'] = (df['span'] / df['t_step']).map(math.ceil)
-
-                    # h_time が無ければ追加
-                    if 'h_time' not in df.columns.values:
-                        df['h_time'] = (df['span'] / df['h_step']).map(math.ceil)
-
-                    # shortest_coins が無ければ追加
-                    if 'shortest_coins' not in df.columns.values:
-                        df['shortest_coins'] = df[['span', 't_step', 'h_step']].apply(lambda X:SeriesRule.let_shortest_coins(h_step=X['h_step'], t_step=X['t_step'], span=X['span'], turn_system_id=spec.turn_system_id), axis=1)
-
-                    # upper_limit_coins が無ければ追加
-                    if 'upper_limit_coins' not in df.columns.values:
-                        df['upper_limit_coins'] = df[['t_time', 'h_time']].apply(lambda X:SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=X['h_time'], t_time=X['t_time']), axis=1)
+                    # TODO こういう書き方もある
+                    # # upper_limit_coins が無ければ追加
+                    # if 'upper_limit_coins' not in df.columns.values:
+                    #     df['upper_limit_coins'] = df[['t_time', 'h_time']].apply(lambda X:SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=X['h_time'], t_time=X['t_time']), axis=1)
 
 
                     # 列順の変更
@@ -85,10 +74,6 @@ if __name__ == '__main__':
                         'h_step',                   # 表点
                         't_step',                   # ｳﾗ点
                         'span',                     # 優勝点
-                        'h_time',                   # 必要表回数
-                        't_time',                   # 必要ｳﾗ回数
-                        'shortest_coins',           # 最短対局数
-                        'upper_limit_coins',        # 対局数上限
                         'a_victory_rate_by_trio',
                         'b_victory_rate_by_trio',
                         'no_victory_rate',
@@ -140,10 +125,10 @@ if __name__ == '__main__':
                     'A': {'label':'表点', 'name':'h_step', 'width':4.64, 'align':Alignment(horizontal='right')},
                     'B': {'label':'ｳﾗ点', 'name':'t_step', 'width':5.00, 'align':Alignment(horizontal='right')},
                     'C': {'label':'優勝点', 'name':'span', 'width':6.64, 'align':Alignment(horizontal='right')},
-                    'D': {'label':'必要表回数', 'name':'h_time', 'width':10.73, 'align':Alignment(horizontal='right')},
-                    'E': {'label':'必要ｳﾗ回数', 'name':'t_time', 'width':11.18, 'align':Alignment(horizontal='right')},
-                    'F': {'label':'最短対局数', 'name':'shortest_coins', 'width':10.73, 'align':Alignment(horizontal='right')},
-                    'G': {'label':'対局数上限', 'name':'upper_limit_coins', 'width':10.73, 'align':Alignment(horizontal='right')},
+                    'D': {'label':'必要表回数', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 'h_time' 追加
+                    'E': {'label':'必要ｳﾗ回数', 'name':None, 'width':11.18, 'align':Alignment(horizontal='right')},     # 't_time' 追加
+                    'F': {'label':'最短対局数', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 'shortest_coins' 追加
+                    'G': {'label':'対局数上限', 'name':None, 'width':10.73, 'align':Alignment(horizontal='right')},     # 'upper_limit_coins' 追加
                     'H': {'label':'Ａさんの優勝率（優勝なし率込）', 'name':'a_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
                     'I': {'label':'Ｂさんの優勝率（優勝なし率込）', 'name':'b_victory_rate_by_trio', 'width':5.0, 'align':Alignment(horizontal='left')},
                     'J': {'label':'優勝なし率', 'name':'no_victory_rate', 'width':10.0, 'align':Alignment(horizontal='left')},
@@ -173,10 +158,44 @@ if __name__ == '__main__':
                     #print(f"{row_th=} {type(row)=}")
                     row_th = sorted_row_no + 2
 
+                    upper_limit_coins_letter = None
+                    h_time = None
+                    t_time = None
                     for column_letter in output_column_letters:
+
                         cell = ws[f'{column_letter}{row_th}']
-                        cell.value = row[output_columns[column_letter]['name']]
+                        name = output_columns[column_letter]['name']
+
+                        # 元データにある列
+                        if name is not None:
+                            cell.value = row[output_columns[column_letter]['name']]
+
+                        # 元データにない列
+                        else:
+                            label = output_columns[column_letter]['label']
+
+                            if label == '必要表回数':
+                                h_time = math.ceil(row['span'] / row['h_step'])
+                                cell.value = h_time
+
+                            elif label == '必要ｳﾗ回数':
+                                t_time = math.ceil(row['span'] / row['t_step'])
+                                cell.value = t_time
+
+                            elif label == '最短対局数':
+                                cell.value = SeriesRule.let_shortest_coins(h_step=row['h_step'], t_step=row['t_step'], span=row['span'], turn_system_id=spec.turn_system_id)
+
+                            elif label == '対局数上限':
+                                # あとで設定
+                                upper_limit_coins_letter = column_letter
+
+
                         cell.alignment = output_columns[column_letter]['align']
+
+
+                    # 対局数上限
+                    cell = ws[f'{upper_limit_coins_letter}{row_th}']
+                    cell.value = SeriesRule.let_upper_limit_coins_without_failure_rate(spec=spec, h_time=h_time, t_time=t_time)
 
 
                 # ウィンドウ枠の固定
@@ -230,8 +249,6 @@ if __name__ == '__main__':
                 # ワークブックの保存
                 wb.save(detail_wb_file_path)
                 print(f"[{datetime.datetime.now()}] please look `{detail_wb_file_path}`")
-
-                time.sleep(10000000000)
 
 
             except PermissionError as e:

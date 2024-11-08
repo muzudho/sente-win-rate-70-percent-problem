@@ -152,26 +152,28 @@ if __name__ == '__main__':
 
                 cell = ws[f'{column_letter}{row_th}']
                 name = output_columns[column_letter]['name']
+
+                # 元データにある列
                 if name is not None:
+                    # ［手番の決め方］の値を日本語化
                     if name == 'turn_system_name':
                         cell.value = turn_system_name_to_jp[row[name]]
                     
                     else:
                         cell.value = row[name]
-                
+
+                # 元データにない列                
                 else:
                     label = output_columns[column_letter]['label']
-                    # 必要表回数
+
                     if label == '必要表回数':
                         h_time = math.ceil(row['span'] / row['h_step'])
                         cell.value = h_time
 
-                    # 必要ｳﾗ回数
                     elif label == '必要ｳﾗ回数':
                         t_time = math.ceil(row['span'] / row['t_step'])
                         cell.value = t_time
 
-                    # 最短対局数
                     elif label == '最短対局数':
                         cell.value = SeriesRule.let_shortest_coins(h_step=row['h_step'], t_step=row['t_step'], span=row['span'], turn_system_id=spec.turn_system_id)
 
@@ -181,6 +183,7 @@ if __name__ == '__main__':
 
                     else:
                         raise ValueError(f"{label=}")
+
 
                 cell.alignment = output_columns[column_letter]['align']
 
