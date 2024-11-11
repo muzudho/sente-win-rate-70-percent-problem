@@ -399,9 +399,9 @@ class VictoryRateDetailFilePaths():
 
 
     @staticmethod
-    def get_reports_directory_path():
+    def get_temp_xl_directory_path():
         # './' は付けない
-        return 'reports/victory_rate_detail'
+        return 'temp/victory_rate_detail_xl'
 
 
     @staticmethod
@@ -417,9 +417,9 @@ class VictoryRateDetailFilePaths():
 
 
     @staticmethod
-    def as_workbook_on_reports(spec):
+    def as_workbook_on_temp_xl(spec):
         subname = make_file_subname(turn_system_id=spec.turn_system_id, failure_rate=spec.failure_rate, p=spec.p)
-        return f'{VictoryRateDetailFilePaths.get_reports_directory_path()}/VRD{subname}.xlsx'
+        return f'{VictoryRateDetailFilePaths.get_temp_xl_directory_path()}/VRD{subname}.xlsx'
 
 
     @staticmethod

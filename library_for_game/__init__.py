@@ -69,6 +69,16 @@ class GamePlan():
         return self._no_victory_rate
 
 
+    @property
+    def a_victory_rate_by_duet(self):
+        return self._a_victory_rate_by_trio * (1 - self.no_victory_rate)
+
+
+    @property
+    def b_victory_rate_by_duet(self):
+        return self._b_victory_rate_by_trio * (1 - self.no_victory_rate)
+
+
 class SeriesStatus():
 
 
@@ -363,9 +373,9 @@ class Paragraphs():
         print()
         print(f"数学大臣「ちなみに、")
         time.sleep(msg_spd / 3)
-        print(f"　表が優勝する確率は、約 {game_plan.a_victory_rate * 100:.1f} ％")
+        print(f"　表が優勝する確率は、約 {game_plan.a_victory_rate_by_duet * 100:.1f} ％")
         time.sleep(msg_spd / 3)
-        print(f"　ｳﾗが優勝する確率は、約 {game_plan.b_victory_rate * 100:.1f} ％")
+        print(f"　ｳﾗが優勝する確率は、約 {game_plan.b_victory_rate_by_duet * 100:.1f} ％")
         time.sleep(msg_spd / 3)
         print(f"　だったんだぜ」")
         time.sleep(msg_spd)

@@ -50,7 +50,7 @@ if __name__ == '__main__':
                 # ファイルパス取得
                 # ---------------
                 detail_csv_file_path = f'./{VictoryRateDetailFilePaths.get_temp_directory_path()}/{detail_basename}'    # VRS表 CSV
-                detail_wb_file_path = VictoryRateDetailFilePaths.as_workbook_on_reports(spec=spec)                      # ワークブック
+                detail_wb_file_path = VictoryRateDetailFilePaths.as_workbook_on_temp_xl(spec=spec)                      # ワークブック
 
                 print(f"[{datetime.datetime.now()}] step_oa52o1o0_manual_report_vrs {detail_csv_file_path=}  {detail_wb_file_path=}")
                 time.sleep(1)   # １秒休む
