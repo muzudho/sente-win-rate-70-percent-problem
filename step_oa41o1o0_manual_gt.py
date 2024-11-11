@@ -91,8 +91,8 @@ if __name__ == '__main__':
             csv_file_path = GameTreeFilePaths.as_csv(
                     spec=specified_series_rule.spec,
                     span=specified_series_rule.step_table.span,
-                    t_step=specified_series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                    h_step=specified_series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                    t_step=specified_series_rule.get_step_by(face_of_coin=TAIL),
+                    h_step=specified_series_rule.get_step_by(face_of_coin=HEAD))
 
             result = forest.to_csv(
                     csv_file_path=csv_file_path,

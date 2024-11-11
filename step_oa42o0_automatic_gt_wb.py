@@ -82,8 +82,8 @@ if __name__ == '__main__':
                     log_file_path = GameTreeWorkbookFilePaths.as_log(
                             spec=series_rule.spec,
                             span=series_rule.step_table.span,
-                            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                            t_step=series_rule.get_step_by(face_of_coin=TAIL),
+                            h_step=series_rule.get_step_by(face_of_coin=HEAD))
                     with open(log_file_path, 'a', encoding='utf-8') as f:
                         f.write(f"{message}\n")    # ファイルへ出力
 
@@ -100,8 +100,8 @@ if __name__ == '__main__':
                     log_file_path = GameTreeWorkbookFilePaths.as_log(
                             spec=series_rule.spec,
                             span=series_rule.step_table.span,
-                            t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                            h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                            t_step=series_rule.get_step_by(face_of_coin=TAIL),
+                            h_step=series_rule.get_step_by(face_of_coin=HEAD))
                     with open(log_file_path, 'a', encoding='utf-8') as f:
                         f.write(f"{message}\n")    # ファイルへ出力
 

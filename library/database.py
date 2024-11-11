@@ -988,7 +988,7 @@ class TheoreticalProbabilityRatesRecord():
         self._expected_no_win_match_rate = expected_no_win_match_rate
 
         if t_time is None:
-            t_time = SeriesRule.StepTable.let_t_time(span=span, t_step=t_step)
+            t_time = SeriesRule.let_t_time(span=span, t_step=t_step)
         self._t_time = t_time
 
         if h_time is None:
@@ -996,7 +996,7 @@ class TheoreticalProbabilityRatesRecord():
         self._h_time = h_time
 
         if t_step_divisible_by_h_step is None:
-            t_step_divisible_by_h_step = SeriesRule.StepTable.let_t_step_divisible_by_h_step(t_step=t_step, h_step=h_step, h_time=h_time)
+            t_step_divisible_by_h_step = SeriesRule.let_t_step_divisible_by_h_step(t_step=t_step, h_step=h_step, h_time=h_time)
         self._t_step_divisible_by_h_step = t_step_divisible_by_h_step
 
 

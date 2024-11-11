@@ -1046,7 +1046,7 @@ class PointCalculation():
         successful_player = PointCalculation.get_successful_player(successful_face_of_coin, time_th, self._spec.turn_system_id)
 
         # ［勝ち点］
-        step = self._series_rule.step_table.get_step_by(face_of_coin=successful_face_of_coin)
+        step = self._series_rule.get_step_by(face_of_coin=successful_face_of_coin)
 
 
         # 検証用
@@ -1313,31 +1313,31 @@ class SeriesRule():
     """
 
 
+    @staticmethod
+    def let_t_time(span, t_step):
+        """t_time の計算方法は、 span / t_step ※小数点切り上げ"""
+        return math.ceil(span / t_step)
+
+
+    @staticmethod
+    def let_h_time(span, h_step):
+        """h_time の計算方法は、 span / h_step ※小数点切り上げ"""
+        return math.ceil(span / h_step)
+
+
+    @staticmethod
+    def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
+        # 割り切れないなら 0
+        if t_step % h_step != 0 or t_step // h_step >= h_time:
+            return 0
+        
+
+        # 割り切れるなら、割る数
+        return t_step // h_step
+
+
     class StepTable():
         """［１優勝のための点数テーブル］"""
-
-
-        @staticmethod
-        def let_t_time(span, t_step):
-            """t_time の計算方法は、 span / t_step ※小数点切り上げ"""
-            return math.ceil(span / t_step)
-
-
-        @staticmethod
-        def let_h_time(span, h_step):
-            """h_time の計算方法は、 span / h_step ※小数点切り上げ"""
-            return math.ceil(span / h_step)
-
-
-        @staticmethod
-        def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
-            # 割り切れないなら 0
-            if t_step % h_step != 0 or t_step // h_step >= h_time:
-                return 0
-            
-
-            # 割り切れるなら、割る数
-            return t_step // h_step
 
         
         def __init__(self, h_step, t_step, span):
@@ -1380,18 +1380,16 @@ class SeriesRule():
             """
 
             # ［コインの表が出たときの勝ち点］
-            if face_of_coin == HEAD:
-                return self._step_list[1]
-
             # ［コインの裏が出たときの勝ち点］
-            if face_of_coin == TAIL:
-                return self._step_list[2]
-
-            raise ValueError(f"{face_of_coin=}")
+            # の２つに対応。他の値がきたらエラー
+            return self._step_list[face_of_coin]
 
 
-        def get_time_by(self, challenged, face_of_coin):
+        @staticmethod
+        def get_time_by(span, step_list, challenged, face_of_coin):
             """［対局数］を取得
+
+            計算には step が必要
             """
 
             if challenged == SUCCESSFUL:
@@ -1408,9 +1406,9 @@ class SeriesRule():
                     #
                     #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
                     #
-                    return round_letro(math.ceil(self._span / self.get_step_by(face_of_coin=HEAD)))
+                    return round_letro(math.ceil(span / step_list[HEAD]))
 
-                elif face_of_coin == TAIL:
+                if face_of_coin == TAIL:
                     """［裏勝ちだけでの対局数］
 
                     筆算
@@ -1424,10 +1422,10 @@ class SeriesRule():
                     #
                     #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
                     #
-                    return round_letro(math.ceil(self._span / self.get_step_by(face_of_coin=TAIL)))
+                    return round_letro(math.ceil(span / step_list[TAIL]))
 
-                else:
-                    raise ValueError(f"{face_of_coin=}")
+                raise ValueError(f"{face_of_coin=}")
+
             else:
                 raise ValueError(f"{challenged=}")
 
@@ -1442,25 +1440,6 @@ class SeriesRule():
 """
 
 
-    def __init__(self, spec, step_table, shortest_coins, upper_limit_coins):
-        """初期化
-        
-        Parameters
-        ----------
-        spec : Specification
-            ［仕様］
-        step_table : StepTable
-            ［１勝の点数テーブル］
-        shortest_coins : int
-            ［最短対局数］
-        upper_limit_coins : int
-            ［上限対局数］
-        """
-
-        self._spec = spec
-        self._step_table = step_table
-        self._shortest_coins = shortest_coins
-        self._upper_limit_coins = upper_limit_coins
 
 
     @staticmethod
@@ -1514,8 +1493,8 @@ class SeriesRule():
         # ［上限対局数］
         upper_limit_coins = SeriesRule.let_upper_limit_coins(
                 spec=spec,
-                h_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=HEAD),
-                t_time=step_table.get_time_by(challenged=SUCCESSFUL, face_of_coin=TAIL))
+                h_time=SeriesRule.StepTable.get_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=HEAD),
+                t_time=SeriesRule.StepTable.get_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=TAIL))
 
 
         if upper_limit_coins < shortest_coins:
@@ -1540,6 +1519,44 @@ step_table:
                 step_table=step_table,
                 shortest_coins=shortest_coins,          # ［最短対局数］
                 upper_limit_coins=upper_limit_coins)    # ［上限対局数］
+
+
+    def __init__(self, spec, step_table, shortest_coins, upper_limit_coins):
+        """初期化
+        
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        step_table : StepTable
+            ［１勝の点数テーブル］
+        shortest_coins : int
+            ［最短対局数］
+        upper_limit_coins : int
+            ［上限対局数］
+        """
+
+        self._spec = spec
+        self._step_table = step_table
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+
+
+    def get_step_by(self, face_of_coin):
+        """［表番または裏番で勝ったときの勝ち点］を取得します
+        
+        Parameters
+        ----------
+        face_of_coin : int
+            ［コインの表か裏かそれ以外］
+        """
+        return self._step_table.get_step_by(face_of_coin=face_of_coin)
+
+
+    def get_time_by(self, span, challenged, face_of_coin):
+        """［対局数］を取得
+        """
+        return StepTable.get_time_by(span=span, step_list=self._step_table._step_list, challenged=challenged, face_of_coin=face_of_coin)
 
 
     @staticmethod
@@ -2527,8 +2544,8 @@ class ScoreBoard():
 
 
         span = series_rule.step_table.span
-        h_step = series_rule.step_table.get_step_by(face_of_coin=HEAD)
-        t_step = series_rule.step_table.get_step_by(face_of_coin=TAIL)
+        h_step = series_rule.get_step_by(face_of_coin=HEAD)
+        t_step = series_rule.get_step_by(face_of_coin=TAIL)
 
         a_point = span
         b_point = span

@@ -20,20 +20,20 @@ class GeneratorOfGTWB():
         wb_file_path = GameTreeWorkbookFilePaths.as_workbook(   # 出力するワークブック（.xlsx）ファイルへのパス
                 spec=series_rule.spec,
                 span=series_rule.step_table.span,
-                t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                t_step=series_rule.get_step_by(face_of_coin=TAIL),
+                h_step=series_rule.get_step_by(face_of_coin=HEAD))
 
         source_csv_file_path=GameTreeFilePaths.as_csv(  # 元となる CSVファイルパス
                 spec=series_rule.spec,
                 span=series_rule.step_table.span,
-                t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                t_step=series_rule.get_step_by(face_of_coin=TAIL),
+                h_step=series_rule.get_step_by(face_of_coin=HEAD))
 
         checked_csv_file_path=GameTreeCheckedFilePaths.as_csv(  # チェック済みの CSVファイルパス
                 spec=series_rule.spec,
                 span=series_rule.step_table.span,
-                t_step=series_rule.step_table.get_step_by(face_of_coin=TAIL),
-                h_step=series_rule.step_table.get_step_by(face_of_coin=HEAD))
+                t_step=series_rule.get_step_by(face_of_coin=TAIL),
+                h_step=series_rule.get_step_by(face_of_coin=HEAD))
 
         return GeneratorOfGTWB(series_rule=series_rule, wb_file_path=wb_file_path, source_csv_file_path=source_csv_file_path, checked_csv_file_path=checked_csv_file_path)
 
