@@ -1315,316 +1315,72 @@ class SeriesRule():
 
     @staticmethod
     def let_t_time(span, t_step):
-        """t_time の計算方法は、 span / t_step ※小数点切り上げ"""
+        """コインを投げてｳﾗが出続けてシリーズ優勝できる回数。
+        計算方法は、 span / t_step ※小数点切り上げ"""
         return math.ceil(span / t_step)
 
 
     @staticmethod
     def let_h_time(span, h_step):
-        """h_time の計算方法は、 span / h_step ※小数点切り上げ"""
+        """コインを投げて表が出続けてシリーズ優勝できる回数。
+        計算方法は、 span / h_step ※小数点切り上げ"""
         return math.ceil(span / h_step)
 
 
     @staticmethod
     def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
+        """t_step を h_step で割り切れるときの、その割る数。
+        割り切れないなら 0"""
+
         # 割り切れないなら 0
         if t_step % h_step != 0 or t_step // h_step >= h_time:
             return 0
-        
 
         # 割り切れるなら、割る数
         return t_step // h_step
 
 
-    class StepTable():
-        """［１優勝のための点数テーブル］"""
+    @staticmethod
+    def calculate_time_by_duet(span, step_list, face_of_coin):
+        """表、またはｳﾗについて、［対局数］を取得
 
-        
-        def __init__(self, h_step, t_step, span):
-            """初期化
-            
-            Parameters
-            ----------
-            h_step : int
-                ［表番で勝ったときの勝ち点］
-            t_step : int
-                ［裏番で勝ったときの勝ち点］
-            span : int
-                ［目標の点数］
+        ［コインを投げて表も裏も出ない確率］は 0 とする。
+        計算には step の事前計算が必要
+        """
+
+        if face_of_coin == HEAD:
+            """
+            筆算
+            ----
+            `10表 12裏 14目（先後固定制）`
+                ・  表  表  で最長２局
+                14  14  14
+                14   4  -6
             """
 
-            self._step_list = [
-                    # 0: ［未使用］
-                    None,
-                    # 1: ［表番で勝ったときの勝ち点］
-                    h_step,
-                    # 2: ［裏番で勝ったときの勝ち点］
-                    t_step]
+            #
+            #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+            #
+            return round_letro(math.ceil(span / step_list[HEAD]))
 
-            self._span = span
+        if face_of_coin == TAIL:
+            """［裏勝ちだけでの対局数］
 
-
-        @property
-        def span(self):
-            """［目標の点数］"""
-            return self._span
-
-
-        def get_step_by(self, face_of_coin):
-            """［表番または裏番で勝ったときの勝ち点］を取得します
-            
-            Parameters
-            ----------
-            face_of_coin : int
-                ［コインの表か裏かそれ以外］
+            筆算
+            ----
+            `10表 12裏 14目（先後固定制）`
+                ・  裏  で最長１局
+                14   0
+                14  14
             """
 
-            # ［コインの表が出たときの勝ち点］
-            # ［コインの裏が出たときの勝ち点］
-            # の２つに対応。他の値がきたらエラー
-            return self._step_list[face_of_coin]
+            #
+            #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+            #
+            return round_letro(math.ceil(span / step_list[TAIL]))
 
 
-        def stringify_dump(self, indent):
-            succ_indent = indent + INDENT
-            return f"""\
-{indent}StepTable
-{indent}---------
-{succ_indent}{self._step_list=}
-{succ_indent}{self._span=}
-"""
-
-
-    @staticmethod
-    def make_series_rule_base(spec, span, t_step, h_step):
-        """
-        Parameters
-        ----------
-        spec : Specification
-            ［仕様］
-        """
-
-        # NOTE numpy.int64 型は、 float NaN が入っていることがある？
-        if not isinstance(h_step, int):
-            raise ValueError(f"int 型であることが必要 {type(h_step)=}  {h_step=}")
-
-        if not isinstance(t_step, int):
-            raise ValueError(f"int 型であることが必要 {type(t_step)=}  {t_step=}")
-
-        if not isinstance(span, int):
-            raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
-
-        if h_step < 1:
-            raise ValueError(f"正の整数であることが必要 {h_step=}")
-
-        if t_step < 1:
-            raise ValueError(f"正の整数であることが必要 {t_step=}")
-
-        if span < 1:
-            raise ValueError(f"正の整数であることが必要 {span=}")
-
-        if t_step < h_step:
-            raise ValueError(f"［コインの表が出たときの勝ち点］{h_step=} が、［コインの裏が出たときの勝ち点］ {t_step} を上回るのはおかしいです")
-
-        if span < t_step:
-            raise ValueError(f"［コインの裏が出たときの勝ち点］{t_step=} が、［目標の点数］{span} を上回るのはおかしいです")
-
-
-        step_table = SeriesRule.StepTable(
-                h_step=h_step,
-                t_step=t_step,
-                span=span)
-
-
-        # ［最短対局数］
-        shortest_coins = SeriesRule.let_shortest_coins(
-                h_step=h_step,
-                t_step=t_step,
-                span=span,
-                turn_system_id=spec.turn_system_id)
-
-        # ［上限対局数］
-        upper_limit_coins = SeriesRule.let_upper_limit_coins(
-                spec=spec,
-                h_time=SeriesRule.calculate_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=HEAD),
-                t_time=SeriesRule.calculate_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=TAIL))
-
-
-        if upper_limit_coins < shortest_coins:
-            text = f"［最短対局数］{shortest_coins} が、［上限対局数］{upper_limit_coins} より長いです"
-
-            succ_indent = INDENT
-            print(f"""\
-spec:
-{spec.stringify_dump(succ_indent)}
-{text}
-{h_step=}
-{t_step=}
-{span=}
-step_table:
-{step_table.stringify_dump('   ')}
-""")
-            raise ValueError(text)
-
-
-        return SeriesRule(
-                spec=spec,
-                span=span,
-                step_table=step_table,
-                shortest_coins=shortest_coins,          # ［最短対局数］
-                upper_limit_coins=upper_limit_coins)    # ［上限対局数］
-
-
-    def __init__(self, spec, span, step_table, shortest_coins, upper_limit_coins):
-        """初期化
-        
-        Parameters
-        ----------
-        spec : Specification
-            ［仕様］
-        span : int
-            ［目標の点数］
-        step_table : StepTable
-            ［１勝の点数テーブル］
-        shortest_coins : int
-            ［最短対局数］
-        upper_limit_coins : int
-            ［上限対局数］
-        """
-
-        self._spec = spec
-        self._span = span
-        self._step_table = step_table
-        self._shortest_coins = shortest_coins
-        self._upper_limit_coins = upper_limit_coins
-
-
-    @property
-    def span(self):
-        """［目標の点数］"""
-        return self._span
-
-
-    def get_step_by(self, face_of_coin):
-        """［表番または裏番で勝ったときの勝ち点］を取得します
-        
-        Parameters
-        ----------
-        face_of_coin : int
-            ［コインの表か裏かそれ以外］
-        """
-        return self._step_table.get_step_by(face_of_coin=face_of_coin)
-
-
-    @staticmethod
-    def calculate_time_by(span, step_list, challenged, face_of_coin):
-        """［対局数］を取得
-
-        計算には step が必要
-        """
-
-        if challenged == SUCCESSFUL:
-            if face_of_coin == HEAD:
-                """
-                筆算
-                ----
-                `10表 12裏 14目（先後固定制）`
-                    ・  表  表  で最長２局
-                    14  14  14
-                    14   4  -6
-                """
-
-                #
-                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                #
-                return round_letro(math.ceil(span / step_list[HEAD]))
-
-            if face_of_coin == TAIL:
-                """［裏勝ちだけでの対局数］
-
-                筆算
-                ----
-                `10表 12裏 14目（先後固定制）`
-                    ・  裏  で最長１局
-                    14   0
-                    14  14
-                """
-
-                #
-                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                #
-                return round_letro(math.ceil(span / step_list[TAIL]))
-
-            raise ValueError(f"{face_of_coin=}")
-
-        else:
-            raise ValueError(f"{challenged=}")
-
-
-    def get_time_by(self, span, challenged, face_of_coin):
-        """［対局数］を取得
-        """
-        return SeriesRule.calculate_time_by(span=span, step_list=self._step_table._step_list, challenged=challenged, face_of_coin=face_of_coin)
-
-
-    @staticmethod
-    def make_series_rule_auto_span(spec, h_time, t_time):
-        """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
-        
-        Parameters
-        ----------
-        spec : Specificetion
-            ［仕様］
-        h_time : int
-            ［表勝ちだけでの対局数］
-        t_time : int
-            ［裏勝ちだけでの対局数］
-        """
-        # DO 通分したい。最小公倍数を求める
-        lcm = math.lcm(h_time, t_time)
-        # ［表番で勝ったときの勝ち点］
-        #
-        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
-        #
-        h_step = round_letro(lcm / h_time)
-        # ［裏番で勝ったときの勝ち点］
-        t_step = round_letro(lcm / t_time)
-        # ［目標の点数］
-        span = round_letro(t_time * t_step)
-
-        # データチェック
-        span_w = round_letro(h_time * h_step)
-        if span != span_w:
-            raise ValueError(f"{span=}  {span_w=}")
-
-        return SeriesRule.make_series_rule_base(
-                spec=spec,
-                span=span,
-                t_step=t_step,
-                h_step=h_step)
-
-
-    @property
-    def spec(self):
-        """［仕様］"""
-        return self._spec
-
-
-    @property
-    def step_table(self):
-        return self._step_table
-
-
-    @property
-    def shortest_coins(self):
-        """［最短対局数］"""
-        return self._shortest_coins
-
-
-    @property
-    def upper_limit_coins(self):
-        """［上限対局数］"""
-        return self._upper_limit_coins
+        raise ValueError(f"{face_of_coin=}")
 
 
     @staticmethod
@@ -1772,33 +1528,32 @@ step_table:
 
 
         # ［先後交互制］
-        elif spec.turn_system_id == ALTERNATING_TURN:
+        if spec.turn_system_id == ALTERNATING_TURN:
             """
             ＡさんとＢさんの両者が先手で勝ち続けた回数と同じ
 
-        筆算
-        ----
+            筆算
+            ----
 
-            理論上 `対局数  5～14（先後固定制）   7～19（先後交互制）    先手勝ち 1点、後手勝ち 2点　目標 10点（先後固定制）`
-                ・  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  で、最長１９対局
-                10  9   9   8   8   7   7   6  6   5   5   4   4   3  3   2   2   1   1   0
-                10 10   9   9   8   8   7   7  6   6   5   5   4   4  3   3   2   2   1   1
-        
-            `0.014715 10表 12裏 14目 1～1局（先後交互制）`
-                ・  Ａ  Ｂ  Ａ  で、最長３局
-                14   4   4  -6
-                14  14   4   4
+                理論上 `対局数  5～14（先後固定制）   7～19（先後交互制）    先手勝ち 1点、後手勝ち 2点　目標 10点（先後固定制）`
+                    ・  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  Ｂ  Ａ  で、最長１９対局
+                    10  9   9   8   8   7   7   6  6   5   5   4   4   3  3   2   2   1   1   0
+                    10 10   9   9   8   8   7   7  6   6   5   5   4   4  3   3   2   2   1   1
             
-            表1点、裏1点、目標1点
-                ・  Ａ  で、最長１局
-                    1   1
-                    1   0
-        """
+                `0.014715 10表 12裏 14目 1～1局（先後交互制）`
+                    ・  Ａ  Ｂ  Ａ  で、最長３局
+                    14   4   4  -6
+                    14  14   4   4
+                
+                表1点、裏1点、目標1点
+                    ・  Ａ  で、最長１局
+                        1   1
+                        1   0
+            """
             return 2 * h_time - 1
 
 
-        else:
-            raise ValueError(f"{spec.turn_system_id=}")
+        raise ValueError(f"{spec.turn_system_id=}")
 
 
     @staticmethod
@@ -1869,13 +1624,202 @@ step_table:
                 upper_limit_coins_without_failure_rate=upper_limit_coins_without_failure_rate)
 
 
+    @staticmethod
+    def make_series_rule_auto_span(spec, h_time, t_time):
+        """［表勝ちだけでの対局数］と［裏勝ちだけでの対局数］が分かれば、［かくきんシステムのｐの構成］を分析して返す
+        
+        Parameters
+        ----------
+        spec : Specificetion
+            ［仕様］
+        h_time : int
+            ［表勝ちだけでの対局数］
+        t_time : int
+            ［裏勝ちだけでの対局数］
+        """
+        # DO 通分したい。最小公倍数を求める
+        lcm = math.lcm(h_time, t_time)
+        # ［表番で勝ったときの勝ち点］
+        #
+        #   NOTE 必ず割り切れるが、 .00001 とか .99999 とか付いていることがあるので、四捨五入して整数に変換しておく
+        #
+        h_step = round_letro(lcm / h_time)
+        # ［裏番で勝ったときの勝ち点］
+        t_step = round_letro(lcm / t_time)
+        # ［目標の点数］
+        span = round_letro(t_time * t_step)
+
+        # データチェック
+        span_w = round_letro(h_time * h_step)
+        if span != span_w:
+            raise ValueError(f"{span=}  {span_w=}")
+
+        return SeriesRule.make_series_rule_base(
+                spec=spec,
+                span=span,
+                t_step=t_step,
+                h_step=h_step)
+
+
+    @staticmethod
+    def make_series_rule_base(spec, span, t_step, h_step):
+        """
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        """
+
+        # NOTE numpy.int64 型は、 float NaN が入っていることがある？
+        if not isinstance(h_step, int):
+            raise ValueError(f"int 型であることが必要 {type(h_step)=}  {h_step=}")
+
+        if not isinstance(t_step, int):
+            raise ValueError(f"int 型であることが必要 {type(t_step)=}  {t_step=}")
+
+        if not isinstance(span, int):
+            raise ValueError(f"int 型であることが必要 {type(span)=}  {span=}")
+
+        if h_step < 1:
+            raise ValueError(f"正の整数であることが必要 {h_step=}")
+
+        if t_step < 1:
+            raise ValueError(f"正の整数であることが必要 {t_step=}")
+
+        if span < 1:
+            raise ValueError(f"正の整数であることが必要 {span=}")
+
+        if t_step < h_step:
+            raise ValueError(f"［コインの表が出たときの勝ち点］{h_step=} が、［コインの裏が出たときの勝ち点］ {t_step} を上回るのはおかしいです")
+
+        if span < t_step:
+            raise ValueError(f"［コインの裏が出たときの勝ち点］{t_step=} が、［目標の点数］{span} を上回るのはおかしいです")
+
+
+        # ［最短対局数］
+        shortest_coins = SeriesRule.let_shortest_coins(
+                h_step=h_step,
+                t_step=t_step,
+                span=span,
+                turn_system_id=spec.turn_system_id)
+
+        step_list = [
+                # 0: ［未使用］
+                None,
+                # 1: ［表番で勝ったときの勝ち点］
+                h_step,
+                # 2: ［裏番で勝ったときの勝ち点］
+                t_step]
+
+        # ［上限対局数］
+        upper_limit_coins = SeriesRule.let_upper_limit_coins(
+                spec=spec,
+                h_time=SeriesRule.calculate_time_by_duet(span=span, step_list=step_list, face_of_coin=HEAD),
+                t_time=SeriesRule.calculate_time_by_duet(span=span, step_list=step_list, face_of_coin=TAIL))
+
+
+        # 検証
+        if upper_limit_coins < shortest_coins:
+            text = f"［最短対局数］{shortest_coins} が、［上限対局数］{upper_limit_coins} より長いです"
+
+            succ_indent = INDENT
+            print(f"""\
+spec:
+{spec.stringify_dump(succ_indent)}
+{text}
+{h_step=}
+{t_step=}
+{span=}
+""")
+            raise ValueError(text)
+
+
+        return SeriesRule(
+                spec=spec,
+                span=span,
+                step_list=step_list,
+                shortest_coins=shortest_coins,          # ［最短対局数］
+                upper_limit_coins=upper_limit_coins)    # ［上限対局数］
+
+
+    def __init__(self, spec, span, step_list, shortest_coins, upper_limit_coins):
+        """初期化
+        
+        Parameters
+        ----------
+        spec : Specification
+            ［仕様］
+        span : int
+            ［目標の点数］
+        step_list : list
+            [0] - 未使用
+            [1] - ［表番で勝ったときの勝ち点］
+            [2] - ［裏番で勝ったときの勝ち点］            
+        shortest_coins : int
+            ［最短対局数］
+        upper_limit_coins : int
+            ［上限対局数］
+        """
+
+        self._spec = spec
+        self._span = span
+        self._step_list = step_list
+        self._shortest_coins = shortest_coins
+        self._upper_limit_coins = upper_limit_coins
+
+
+    @property
+    def span(self):
+        """［目標の点数］"""
+        return self._span
+
+
+    @property
+    def spec(self):
+        """［仕様］"""
+        return self._spec
+
+
+    @property
+    def shortest_coins(self):
+        """［最短対局数］"""
+        return self._shortest_coins
+
+
+    @property
+    def upper_limit_coins(self):
+        """［上限対局数］"""
+        return self._upper_limit_coins
+
+
+    def get_step_by(self, face_of_coin):
+        """［表番または裏番で勝ったときの勝ち点］を取得します
+        
+        Parameters
+        ----------
+        face_of_coin : int
+            ［コインの表か裏かそれ以外］
+        """
+
+        # ［コインの表が出たときの勝ち点］
+        # ［コインの裏が出たときの勝ち点］
+        # の２つに対応。他の値がきたらエラー
+        return self._step_list[face_of_coin]
+
+
+    def get_time_by(self, span, challenged, face_of_coin):
+        """［対局数］を取得
+        """
+        return SeriesRule.calculate_time_by_duet(span=span, step_list=self._step_table._step_list, face_of_coin=face_of_coin)
+
+
     def stringify_dump(self, indent):
         succ_indent = indent + INDENT
         return f"""\
 {indent}SeriesRule
 {indent}-------------------
-{succ_indent}self._step_table:
-{self._step_table.stringify_dump(succ_indent)}
+{succ_indent}{self._step_list=}
+{succ_indent}{self._span=}
 {succ_indent}{self._shortest_coins=}
 {succ_indent}{self._upper_limit_coins=}
 {succ_indent}self._spec:
