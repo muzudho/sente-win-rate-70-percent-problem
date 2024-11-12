@@ -1315,21 +1315,21 @@ class SeriesRule():
 
     @staticmethod
     def let_t_time(span, t_step):
-        """コインを投げてｳﾗが出続けてシリーズ優勝できる回数。
+        """［コインを投げてｳﾗが出続けてシリーズ優勝できる回数］を算出。
         計算方法は、 span / t_step ※小数点切り上げ"""
         return math.ceil(span / t_step)
 
 
     @staticmethod
     def let_h_time(span, h_step):
-        """コインを投げて表が出続けてシリーズ優勝できる回数。
+        """［コインを投げて表が出続けてシリーズ優勝できる回数］を算出。
         計算方法は、 span / h_step ※小数点切り上げ"""
         return math.ceil(span / h_step)
 
 
     @staticmethod
     def let_t_step_divisible_by_h_step(t_step, h_step, h_time):
-        """t_step を h_step で割り切れるときの、その割る数。
+        """t_step を h_step で割り切れるときの、その割る数を算出。
         割り切れないなら 0"""
 
         # 割り切れないなら 0
@@ -1341,46 +1341,47 @@ class SeriesRule():
 
 
     @staticmethod
-    def calculate_time_by_duet(span, step_list, face_of_coin):
-        """表、またはｳﾗについて、［対局数］を取得
+    def let_t_time_by_duet(span, step_list):
+        """［コインを投げてｳﾗだけ出続けたときに優勝する最短対局数］を算出
 
         ［コインを投げて表も裏も出ない確率］は 0 とする。
         計算には step の事前計算が必要
+
+        筆算
+        ----
+
+        `10表 12裏 14目（先後固定制）`
+            ・  裏  で最長１局
+            14   0
+            14  14
         """
 
-        if face_of_coin == HEAD:
-            """
-            筆算
-            ----
-            `10表 12裏 14目（先後固定制）`
-                ・  表  表  で最長２局
-                14  14  14
-                14   4  -6
-            """
-
-            #
-            #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-            #
-            return round_letro(math.ceil(span / step_list[HEAD]))
-
-        if face_of_coin == TAIL:
-            """［裏勝ちだけでの対局数］
-
-            筆算
-            ----
-            `10表 12裏 14目（先後固定制）`
-                ・  裏  で最長１局
-                14   0
-                14  14
-            """
-
-            #
-            #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-            #
-            return round_letro(math.ceil(span / step_list[TAIL]))
+        #
+        #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+        #
+        return round_letro(math.ceil(span / step_list[TAIL]))
 
 
-        raise ValueError(f"{face_of_coin=}")
+    @staticmethod
+    def let_h_time_by_duet(span, step_list):
+        """［コインを投げて表だけ出続けたときに優勝する最短対局数］を算出
+
+        ［コインを投げて表も裏も出ない確率］は 0 とする。
+        計算には step の事前計算が必要
+
+        筆算
+        ----
+
+        `10表 12裏 14目（先後固定制）`
+            ・  表  表  で最長２局
+            14  14  14
+            14   4  -6
+        """
+
+        #
+        #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+        #
+        return round_letro(math.ceil(span / step_list[HEAD]))
 
 
     @staticmethod
@@ -1489,7 +1490,7 @@ class SeriesRule():
 
     @staticmethod
     def let_upper_limit_coins_without_failure_rate(spec, h_time, t_time):
-        """［上限対局数］を算出します
+        """［上限対局数］を算出
 
         これは［コインを投げて表もｳﾗも出ない確率］がゼロのケースです
 
@@ -1558,7 +1559,7 @@ class SeriesRule():
 
     @staticmethod
     def let_upper_limit_coins_with_failure_rate(spec, upper_limit_coins_without_failure_rate):
-        """［上限対局数］を算出します
+        """［上限対局数］を算出
 
         これは［コインを投げて表もｳﾗも出ない確率］がゼロのケース、ゼロではないときのケースの両方を一般化したものです
 
@@ -1605,8 +1606,8 @@ class SeriesRule():
 
 
     @staticmethod
-    def let_upper_limit_coins(spec, h_time, t_time):
-        """［上限対局数］を算出します
+    def let_upper_limit_coins(spec, time_list):
+        """［上限対局数］を算出
 
         Parameters
         ----------
@@ -1616,8 +1617,8 @@ class SeriesRule():
 
         upper_limit_coins_without_failure_rate = SeriesRule.let_upper_limit_coins_without_failure_rate(
                 spec=spec,
-                h_time=h_time,
-                t_time=t_time)
+                h_time=time_list[HEAD],
+                t_time=time_list[TAIL])
 
         return SeriesRule.let_upper_limit_coins_with_failure_rate(
                 spec=spec,
@@ -1711,11 +1712,18 @@ class SeriesRule():
                 # 2: ［裏番で勝ったときの勝ち点］
                 t_step]
 
+        time_list = [
+                # 0: ［未使用］
+                None,
+                # 1: ［コインを投げて表だけ出続けたときに優勝する最短対局数］
+                SeriesRule.let_h_time_by_duet(span=span, step_list=step_list),
+                # 2: ［コインを投げてｳﾗだけ出続けたときに優勝する最短対局数］
+                SeriesRule.let_t_time_by_duet(span=span, step_list=step_list)]
+
         # ［上限対局数］
         upper_limit_coins = SeriesRule.let_upper_limit_coins(
                 spec=spec,
-                h_time=SeriesRule.calculate_time_by_duet(span=span, step_list=step_list, face_of_coin=HEAD),
-                t_time=SeriesRule.calculate_time_by_duet(span=span, step_list=step_list, face_of_coin=TAIL))
+                time_list=time_list)
 
 
         # 検証
@@ -1738,11 +1746,12 @@ spec:
                 spec=spec,
                 span=span,
                 step_list=step_list,
+                time_list=time_list,
                 shortest_coins=shortest_coins,          # ［最短対局数］
                 upper_limit_coins=upper_limit_coins)    # ［上限対局数］
 
 
-    def __init__(self, spec, span, step_list, shortest_coins, upper_limit_coins):
+    def __init__(self, spec, span, step_list, time_list, shortest_coins, upper_limit_coins):
         """初期化
         
         Parameters
@@ -1754,7 +1763,11 @@ spec:
         step_list : list
             [0] - 未使用
             [1] - ［表番で勝ったときの勝ち点］
-            [2] - ［裏番で勝ったときの勝ち点］            
+            [2] - ［裏番で勝ったときの勝ち点］
+        time_list : list
+            [0] - 未使用
+            [1] - ［コインを投げて表だけ出続けたときに優勝する最短対局数］
+            [2] - ［コインを投げてｳﾗだけ出続けたときに優勝する最短対局数］
         shortest_coins : int
             ［最短対局数］
         upper_limit_coins : int
@@ -1764,6 +1777,7 @@ spec:
         self._spec = spec
         self._span = span
         self._step_list = step_list
+        self._time_list = time_list
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
 
@@ -1808,9 +1822,13 @@ spec:
 
 
     def get_time_by(self, span, challenged, face_of_coin):
-        """［対局数］を取得
+        """表、またはｳﾗだけが出続けたときの、優勝に必要な最短［対局数］を取得
+
+        ［コインを投げて表も裏も出ない確率］は 0 とする。
+        計算には step の事前計算が必要
         """
-        return SeriesRule.calculate_time_by_duet(span=span, step_list=self._step_table._step_list, face_of_coin=face_of_coin)
+
+        return self._time_list[face_of_coin]
 
 
     def stringify_dump(self, indent):
