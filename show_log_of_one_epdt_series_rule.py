@@ -7,7 +7,8 @@
 
 import traceback
 
-from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro, Specification, SeriesRule, judge_series, SequenceOfFaceOfCoin
+from library import HEAD, TAIL, ALICE, BOB, SUCCESSFUL, FAILED, FROZEN_TURN, ALTERNATING_TURN, ABS_OUT_OF_ERROR, Converter, round_letro, Specification, SeriesRule
+from library.eco import SequenceOfFaceOfCoin, judge_series
 from library.file_paths import SimulationLargeSeriesFilePaths
 from library.database import EmpiricalProbabilityDuringTrialsTable
 from library.views import PromptCatalog, DebugWrite

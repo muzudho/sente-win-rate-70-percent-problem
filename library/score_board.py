@@ -2,7 +2,8 @@ import traceback
 import time
 import datetime
 
-from library import ALICE, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, judge_series, AllPatternsFaceOfCoin, ScoreBoard, ThreeRates
+from library import ALICE, ALICE_FULLY_WON, BOB_FULLY_WON, ALICE_POINTS_WON, BOB_POINTS_WON, NO_WIN_MATCH, ThreeRates
+from library.eco import judge_series, ScoreBoard, AllPatternsFaceOfCoin
 from library.views import DebugWrite
 
 

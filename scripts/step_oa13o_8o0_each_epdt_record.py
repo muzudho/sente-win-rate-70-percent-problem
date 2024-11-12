@@ -1,8 +1,8 @@
 import time
 import datetime
 
-from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, Converter, judge_series, SequenceOfFaceOfCoin
-from library.eco import Candidate, LargeSeriesTrialSummary
+from library import HEAD, TAIL, ALICE, SUCCESSFUL, FAILED, Converter
+from library.eco import judge_series, Candidate, LargeSeriesTrialSummary, SequenceOfFaceOfCoin
 from library.database import EmpiricalProbabilityDuringTrialsRecord
 from library.file_paths import EmpiricalProbabilityDuringTrialsFilePaths
 from library.views import DebugWrite
