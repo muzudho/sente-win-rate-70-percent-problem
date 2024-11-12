@@ -56,7 +56,7 @@ def stringify_p_t_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     seg_4b = series_rule.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
 
     # ［目標の点数］
-    seg_4c = series_rule.step_table.span
+    seg_4c = series_rule.span
 
     text = ""
     #text += f"[{datetime.datetime.now()}]  "    # タイムスタンプ
@@ -84,7 +84,7 @@ def stringify_series_log(
 
     h_step = series_rule.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
     t_step = series_rule.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
-    span = series_rule.step_table.span
+    span = series_rule.span
     b_rest = span
     w_rest = span
     line_1_list = ['   S']
@@ -153,7 +153,7 @@ def stringify_series_log(
     # ---------
     pt1 = series_rule.get_step_by(face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
     pt2 = series_rule.get_step_by(face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
-    pt3 = series_rule.step_table.span      # ［目標の点数］
+    pt3 = series_rule.span      # ［目標の点数］
 
 
     return f"""\
@@ -214,7 +214,7 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
     # ---------------------------------------------------
     b_pt1 = series_rule.get_step_by(face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
     b_pt2 = series_rule.get_step_by(face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
-    b_pt3 = series_rule.step_table.span                                                     # ［目標の点数］
+    b_pt3 = series_rule.span                                                     # ［目標の点数］
     b_tm10 = series_rule.shortest_coins                                            # ［最短対局数］
     b_tm11 = series_rule.upper_limit_coins                                             # ［上限対局数］
 
@@ -419,7 +419,7 @@ class ScoreBoardViewData():
 
 def stringify_csv_of_score_board_view_header(spec, series_rule):
     """スコアボードCSVヘッダー作成"""
-    span = series_rule.step_table.span
+    span = series_rule.span
     h_step = series_rule.get_step_by(face_of_coin=HEAD)
     t_step = series_rule.get_step_by(face_of_coin=TAIL)
     shortest_coins = series_rule.shortest_coins

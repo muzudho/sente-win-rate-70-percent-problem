@@ -41,12 +41,12 @@ class Manual():
                             best_p_error=B.p_error,
                             best_h_step=B.series_rule.get_step_by(face_of_coin=HEAD),
                             best_t_step=B.series_rule.get_step_by(face_of_coin=TAIL),
-                            best_span=B.series_rule.step_table.span,
+                            best_span=B.series_rule.span,
                             latest_p=L.p,
                             latest_p_error=L.p_error,
                             latest_h_step=L.series_rule.get_step_by(face_of_coin=HEAD),
                             latest_t_step=L.series_rule.get_step_by(face_of_coin=TAIL),
-                            latest_span=L.series_rule.step_table.span,
+                            latest_span=L.series_rule.span,
                             candidate_history_text=context.candidate_history_text))
 
             # すぐ保存

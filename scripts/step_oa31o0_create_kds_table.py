@@ -81,7 +81,7 @@ class GeneratorOfKDS():
                         turn_system_name=Converter.turn_system_id_to_name(self._specified_turn_system_id),  # ［先後の決め方］
                         failure_rate=self._specified_failure_rate,                                  # ［将棋の引分け率］
                         p=spec.p,                                                                   # ［将棋の先手勝率］ p （Probability）
-                        span=theoretical_series_rule.step_table.span,                               # ［シリーズ勝利条件］
+                        span=theoretical_series_rule.span,                               # ［シリーズ勝利条件］
                         t_step=theoretical_series_rule.get_step_by(face_of_coin=TAIL),   # ［後手で勝ったときの勝ち点］
                         h_step=theoretical_series_rule.get_step_by(face_of_coin=HEAD),   # ［先手で勝ったときの勝ち点］
                         shortest_coins=theoretical_series_rule.shortest_coins,                      # ［最短対局数］

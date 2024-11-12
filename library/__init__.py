@@ -1013,8 +1013,8 @@ class PointCalculation():
         NOTE ［先後交互制］では、表番が達成でも勝利条件ではないことに注意すること。［先後固定制］にしろ、［先後交互制］にしろ、プレイヤーの勝ち負けを見ればよい
         """
 
-        a_fully_won = self._series_rule.step_table.span <= self._pts_list[ALICE]
-        b_fully_won = self._series_rule.step_table.span <= self._pts_list[BOB]
+        a_fully_won = self._series_rule.span <= self._pts_list[ALICE]
+        b_fully_won = self._series_rule.span <= self._pts_list[BOB]
 
         # 両者が同時に達成を取っているケースはおかしい
         if a_fully_won and b_fully_won:
@@ -1056,7 +1056,7 @@ class PointCalculation():
 
 
         # 検証
-        if self._series_rule.step_table.span <= self._pts_list[ALICE] and self._series_rule.step_table.span <= self._pts_list[BOB]:
+        if self._series_rule.span <= self._pts_list[ALICE] and self._series_rule.span <= self._pts_list[BOB]:
             print(f"""\
 PointCalculation
 ----------------
@@ -1074,7 +1074,7 @@ self.stringify_dump:
 
     def is_fully_won(self, player):
         """［目標の点数］を満たしているか？"""
-        return self._series_rule.step_table.span <= self.get_pts_of(player=player)
+        return self._series_rule.span <= self.get_pts_of(player=player)
 
 
     def x_has_more_than_y(self, x, y):
@@ -1469,18 +1469,21 @@ step_table:
 
         return SeriesRule(
                 spec=spec,
+                span=span,
                 step_table=step_table,
                 shortest_coins=shortest_coins,          # ［最短対局数］
                 upper_limit_coins=upper_limit_coins)    # ［上限対局数］
 
 
-    def __init__(self, spec, step_table, shortest_coins, upper_limit_coins):
+    def __init__(self, spec, span, step_table, shortest_coins, upper_limit_coins):
         """初期化
         
         Parameters
         ----------
         spec : Specification
             ［仕様］
+        span : int
+            ［目標の点数］
         step_table : StepTable
             ［１勝の点数テーブル］
         shortest_coins : int
@@ -1490,9 +1493,16 @@ step_table:
         """
 
         self._spec = spec
+        self._span = span
         self._step_table = step_table
         self._shortest_coins = shortest_coins
         self._upper_limit_coins = upper_limit_coins
+
+
+    @property
+    def span(self):
+        """［目標の点数］"""
+        return self._span
 
 
     def get_step_by(self, face_of_coin):
@@ -1961,7 +1971,7 @@ self._point_calculation.stringify_dump:
 {self._path_of_face_of_coin=}
 """)
 
-            raise ValueError(f"両者が達成勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.step_table.span=}")
+            raise ValueError(f"両者が達成勝ちしている、これはおかしい {winner=}  {loser=}  {self.point_calculation.is_fully_won(winner)=}  {self.point_calculation.is_fully_won(loser)=}  {self._series_rule.span=}")
 
         # 両者が判定勝ちしている、これはおかしい
         if self.is_pts_won(winner=winner) and self.is_pts_won(winner=loser):
@@ -1972,7 +1982,7 @@ self._point_calculation.stringify_dump:
 {self._point_calculation.stringify_dump(INDENT)}
 {self._path_of_face_of_coin=}
 """)
-            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_pts_won(winner=winner)=}  {self.is_pts_won(winner=loser)=}  {self._series_rule.step_table.span=}")
+            raise ValueError(f"両者が判定勝ちしている、これはおかしい {winner=}  {loser=}  {self.is_pts_won(winner=winner)=}  {self.is_pts_won(winner=loser)=}  {self._series_rule.span=}")
 
         # 達成勝ちなら確定、判定勝ちでもOK 
         return self.point_calculation.is_fully_won(winner) or self.is_pts_won(winner=winner)
@@ -2541,7 +2551,7 @@ class ScoreBoard():
                 raise ValueError(f"{face_of_coin}")
 
 
-        span = series_rule.step_table.span
+        span = series_rule.span
         h_step = series_rule.get_step_by(face_of_coin=HEAD)
         t_step = series_rule.get_step_by(face_of_coin=TAIL)
 

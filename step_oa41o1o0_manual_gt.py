@@ -90,7 +90,7 @@ if __name__ == '__main__':
             # CSVファイル出力（追記）
             csv_file_path = GameTreeFilePaths.as_csv(
                     spec=specified_series_rule.spec,
-                    span=specified_series_rule.step_table.span,
+                    span=specified_series_rule.span,
                     t_step=specified_series_rule.get_step_by(face_of_coin=TAIL),
                     h_step=specified_series_rule.get_step_by(face_of_coin=HEAD))
 

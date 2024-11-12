@@ -166,7 +166,7 @@ class SearchRecordOfEDPT():
                     trial_series=self._specified_trial_series,
                     h_step=self._best_series_rule_cursor.series_rule.get_step_by(face_of_coin=HEAD),   # FIXME FAILED の方は記録しなくていい？
                     t_step=self._best_series_rule_cursor.series_rule.get_step_by(face_of_coin=TAIL),
-                    span=self._best_series_rule_cursor.series_rule.step_table.span,
+                    span=self._best_series_rule_cursor.series_rule.span,
                     shortest_coins=self._best_series_rule_cursor.series_rule.shortest_coins,             # ［最短対局数］
                     upper_limit_coins=self._best_series_rule_cursor.series_rule.upper_limit_coins)       # ［上限対局数］
             candidate_str = candidate_obj.as_str()

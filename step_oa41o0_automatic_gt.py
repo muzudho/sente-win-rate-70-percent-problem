@@ -99,13 +99,13 @@ if __name__ == '__main__':
             # ---------------
             checked_csv_file_path = GameTreeCheckedFilePaths.as_csv(    # チェック済CSV
                     spec=series_rule.spec,
-                    span=series_rule.step_table.span,
+                    span=series_rule.span,
                     t_step=series_rule.get_step_by(face_of_coin=TAIL),
                     h_step=series_rule.get_step_by(face_of_coin=HEAD))
             
             csv_file_path = GameTreeFilePaths.as_csv(       # CSV
                     spec=series_rule.spec,
-                    span=series_rule.step_table.span,
+                    span=series_rule.span,
                     t_step=series_rule.get_step_by(face_of_coin=TAIL),
                     h_step=series_rule.get_step_by(face_of_coin=HEAD))
 
