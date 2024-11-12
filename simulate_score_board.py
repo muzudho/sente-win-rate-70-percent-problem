@@ -72,8 +72,8 @@ if __name__ == '__main__':
                 p=specified_series_rule.spec.p,
                 failure_rate=specified_series_rule.spec.failure_rate,
                 turn_system_id=specified_series_rule.spec.turn_system_id,
-                h_step=specified_series_rule.get_step_by(face_of_coin=HEAD),
-                t_step=specified_series_rule.get_step_by(face_of_coin=TAIL),
+                h_step=specified_series_rule.get_h_step,
+                t_step=specified_series_rule.get_t_step,
                 span=specified_series_rule.span)
 
 
@@ -99,8 +99,8 @@ if __name__ == '__main__':
                     p=score_board.spec.p,
                     failure_rate=score_board.spec.failure_rate,
                     turn_system_id=score_board.spec.turn_system_id,
-                    h_step=score_board.series_rule.get_step_by(face_of_coin=HEAD),
-                    t_step=score_board.series_rule.get_step_by(face_of_coin=TAIL),
+                    h_step=score_board.series_rule.h_step,
+                    t_step=score_board.series_rule.t_step,
                     span=score_board.series_rule.span)
             print(f"write csv to `{csv_file_path}` file ...")
             with open(csv_file_path, 'a', encoding='utf8') as f:

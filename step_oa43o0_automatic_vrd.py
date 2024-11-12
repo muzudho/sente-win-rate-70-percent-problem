@@ -160,8 +160,8 @@ class Automatic():
         b_victory_rate_by_duet = transfer_data.b_victory_rate_by_trio/(1 - transfer_data.no_victory_rate)
         df.loc[len(df) + 1] = {
             'span':series_rule.span,
-            't_step':series_rule.get_step_by(face_of_coin=TAIL),
-            'h_step':series_rule.get_step_by(face_of_coin=HEAD),
+            't_step':series_rule.t_step,
+            'h_step':series_rule.h_step,
             'a_victory_rate_by_trio':transfer_data.a_victory_rate_by_trio,
             'b_victory_rate_by_trio':transfer_data.b_victory_rate_by_trio,
             'no_victory_rate':transfer_data.no_victory_rate,

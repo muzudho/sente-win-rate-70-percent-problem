@@ -36,8 +36,8 @@ def stringify_log_body(p, spec, series_rule, presentable, comment, trial_results
     """
     t1 = f"{p * 100:>7.4f}"
     t2 = f"{spec.failure_rate * 100:>7.4f}"
-    t3 = f"{series_rule.get_step_by(face_of_coin=HEAD):>6}"
-    t4 = f"{series_rule.get_step_by(face_of_coin=TAIL):>6}"
+    t3 = f"{series_rule.h_step:>6}"
+    t4 = f"{series_rule.t_step:>6}"
     t5 = f"{series_rule.span:>4}"
     t6 = f"{series_rule.upper_limit_coins:>7}"
     t7 = f"{trial_results_for_one_series.number_of_coins:>7}"  # ［行われた対局数］

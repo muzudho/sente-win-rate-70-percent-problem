@@ -39,13 +39,13 @@ class Manual():
                             p=B.series_rule.spec.p,
                             best_p=B.p,
                             best_p_error=B.p_error,
-                            best_h_step=B.series_rule.get_step_by(face_of_coin=HEAD),
-                            best_t_step=B.series_rule.get_step_by(face_of_coin=TAIL),
+                            best_h_step=B.series_rule.h_step,
+                            best_t_step=B.series_rule.t_step,
                             best_span=B.series_rule.span,
                             latest_p=L.p,
                             latest_p_error=L.p_error,
-                            latest_h_step=L.series_rule.get_step_by(face_of_coin=HEAD),
-                            latest_t_step=L.series_rule.get_step_by(face_of_coin=TAIL),
+                            latest_h_step=L.series_rule.h_step,
+                            latest_t_step=L.series_rule.t_step,
                             latest_span=L.series_rule.span,
                             candidate_history_text=context.candidate_history_text))
 

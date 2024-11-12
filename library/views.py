@@ -52,8 +52,8 @@ def stringify_p_t_time_strict(p, best_p, best_p_error, series_rule, candidate_li
     seg_3a = series_rule.shortest_coins
     seg_3b = series_rule.upper_limit_coins
 
-    seg_4a = series_rule.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-    seg_4b = series_rule.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+    seg_4a = series_rule.h_step     # ［コインの表が出たときの勝ち点］
+    seg_4b = series_rule.t_step     # ［コインの裏が出たときの勝ち点］
 
     # ［目標の点数］
     seg_4c = series_rule.span
@@ -82,8 +82,8 @@ def stringify_series_log(
         タイトル
     """
 
-    h_step = series_rule.get_step_by(face_of_coin=HEAD)     # ［コインの表が出たときの勝ち点］
-    t_step = series_rule.get_step_by(face_of_coin=TAIL)     # ［コインの裏が出たときの勝ち点］
+    h_step = series_rule.h_step     # ［コインの表が出たときの勝ち点］
+    t_step = series_rule.t_step     # ［コインの裏が出たときの勝ち点］
     span = series_rule.span
     b_rest = span
     w_rest = span
@@ -151,8 +151,8 @@ def stringify_series_log(
 
     # 勝ち点構成
     # ---------
-    pt1 = series_rule.get_step_by(face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
-    pt2 = series_rule.get_step_by(face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
+    pt1 = series_rule.h_step    # ［コインの表が出たときの勝ち点］
+    pt2 = series_rule.t_step    # ［コインの裏が出たときの勝ち点］
     pt3 = series_rule.span      # ［目標の点数］
 
 
@@ -212,8 +212,8 @@ def stringify_simulation_log(spec, series_rule, large_series_trial_summary, titl
 
     # ［以下、［かくきんシステム］が算出したシリーズ・ルール］
     # ---------------------------------------------------
-    b_pt1 = series_rule.get_step_by(face_of_coin=HEAD)    # ［コインの表が出たときの勝ち点］
-    b_pt2 = series_rule.get_step_by(face_of_coin=TAIL)    # ［コインの裏が出たときの勝ち点］
+    b_pt1 = series_rule.h_step    # ［コインの表が出たときの勝ち点］
+    b_pt2 = series_rule.t_step    # ［コインの裏が出たときの勝ち点］
     b_pt3 = series_rule.span                                                     # ［目標の点数］
     b_tm10 = series_rule.shortest_coins                                            # ［最短対局数］
     b_tm11 = series_rule.upper_limit_coins                                             # ［上限対局数］
@@ -420,8 +420,8 @@ class ScoreBoardViewData():
 def stringify_csv_of_score_board_view_header(spec, series_rule):
     """スコアボードCSVヘッダー作成"""
     span = series_rule.span
-    h_step = series_rule.get_step_by(face_of_coin=HEAD)
-    t_step = series_rule.get_step_by(face_of_coin=TAIL)
+    h_step = series_rule.h_step
+    t_step = series_rule.t_step
     shortest_coins = series_rule.shortest_coins
     upper_limit_coins = series_rule.upper_limit_coins
 

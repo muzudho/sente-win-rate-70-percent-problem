@@ -1795,6 +1795,18 @@ spec:
 
 
     @property
+    def h_step(self):
+        """［コインを投げて表が出る確率］"""
+        return self._step_list[HEAD]
+
+
+    @property
+    def t_step(self):
+        """［コインを投げてｳﾗが出る確率］"""
+        return self._step_list[TAIL]
+
+
+    @property
     def shortest_coins(self):
         """［最短対局数］"""
         return self._shortest_coins
@@ -2514,8 +2526,8 @@ class ScoreBoard():
 
 
         span = series_rule.span
-        h_step = series_rule.get_step_by(face_of_coin=HEAD)
-        t_step = series_rule.get_step_by(face_of_coin=TAIL)
+        h_step = series_rule.h_step
+        t_step = series_rule.t_step
 
         a_point = span
         b_point = span
