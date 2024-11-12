@@ -1,5 +1,7 @@
 # エコ・システム
 
+import os
+
 
 #################
 # MARK: Candidate
