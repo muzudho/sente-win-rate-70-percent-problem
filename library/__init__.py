@@ -1385,51 +1385,6 @@ class SeriesRule():
             return self._step_list[face_of_coin]
 
 
-        @staticmethod
-        def get_time_by(span, step_list, challenged, face_of_coin):
-            """［対局数］を取得
-
-            計算には step が必要
-            """
-
-            if challenged == SUCCESSFUL:
-                if face_of_coin == HEAD:
-                    """
-                    筆算
-                    ----
-                    `10表 12裏 14目（先後固定制）`
-                        ・  表  表  で最長２局
-                        14  14  14
-                        14   4  -6
-                    """
-
-                    #
-                    #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                    #
-                    return round_letro(math.ceil(span / step_list[HEAD]))
-
-                if face_of_coin == TAIL:
-                    """［裏勝ちだけでの対局数］
-
-                    筆算
-                    ----
-                    `10表 12裏 14目（先後固定制）`
-                        ・  裏  で最長１局
-                        14   0
-                        14  14
-                    """
-
-                    #
-                    #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
-                    #
-                    return round_letro(math.ceil(span / step_list[TAIL]))
-
-                raise ValueError(f"{face_of_coin=}")
-
-            else:
-                raise ValueError(f"{challenged=}")
-
-
         def stringify_dump(self, indent):
             succ_indent = indent + INDENT
             return f"""\
@@ -1438,8 +1393,6 @@ class SeriesRule():
 {succ_indent}{self._step_list=}
 {succ_indent}{self._span=}
 """
-
-
 
 
     @staticmethod
@@ -1493,8 +1446,8 @@ class SeriesRule():
         # ［上限対局数］
         upper_limit_coins = SeriesRule.let_upper_limit_coins(
                 spec=spec,
-                h_time=SeriesRule.StepTable.get_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=HEAD),
-                t_time=SeriesRule.StepTable.get_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=TAIL))
+                h_time=SeriesRule.calculate_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=HEAD),
+                t_time=SeriesRule.calculate_time_by(span=span, step_list=step_table._step_list, challenged=SUCCESSFUL, face_of_coin=TAIL))
 
 
         if upper_limit_coins < shortest_coins:
@@ -1553,10 +1506,55 @@ step_table:
         return self._step_table.get_step_by(face_of_coin=face_of_coin)
 
 
+    @staticmethod
+    def calculate_time_by(span, step_list, challenged, face_of_coin):
+        """［対局数］を取得
+
+        計算には step が必要
+        """
+
+        if challenged == SUCCESSFUL:
+            if face_of_coin == HEAD:
+                """
+                筆算
+                ----
+                `10表 12裏 14目（先後固定制）`
+                    ・  表  表  で最長２局
+                    14  14  14
+                    14   4  -6
+                """
+
+                #
+                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+                #
+                return round_letro(math.ceil(span / step_list[HEAD]))
+
+            if face_of_coin == TAIL:
+                """［裏勝ちだけでの対局数］
+
+                筆算
+                ----
+                `10表 12裏 14目（先後固定制）`
+                    ・  裏  で最長１局
+                    14   0
+                    14  14
+                """
+
+                #
+                #   NOTE 切り上げても .00001 とか .99999 とか付いているかもしれない？から、四捨五入して整数に変換しておく
+                #
+                return round_letro(math.ceil(span / step_list[TAIL]))
+
+            raise ValueError(f"{face_of_coin=}")
+
+        else:
+            raise ValueError(f"{challenged=}")
+
+
     def get_time_by(self, span, challenged, face_of_coin):
         """［対局数］を取得
         """
-        return StepTable.get_time_by(span=span, step_list=self._step_table._step_list, challenged=challenged, face_of_coin=face_of_coin)
+        return SeriesRule.calculate_time_by(span=span, step_list=self._step_table._step_list, challenged=challenged, face_of_coin=face_of_coin)
 
 
     @staticmethod
