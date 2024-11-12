@@ -10,7 +10,8 @@ import datetime
 import random
 import openpyxl as xl
 import pandas as pd
-from library import TAIL, HEAD, SeriesRule, get_list_of_basename
+from library import TAIL, HEAD, SeriesRule
+from library.eco import get_list_of_basename
 from library.file_basename import BasenameOfGameTreeWorkbookFile
 from library.file_paths import GameTreeWorkbookFilePaths, VictoryRateDetailFilePaths
 from library.xlutils import XlUtils

@@ -3,7 +3,8 @@
 #
 import datetime
 
-from library import ALICE, BOB, SUCCESSFUL, FAILED, HEAD, TAIL, UPPER_OUT_OF_P, Converter, Specification, SeriesRule, try_series
+from library import ALICE, BOB, SUCCESSFUL, FAILED, HEAD, TAIL, UPPER_OUT_OF_P, Converter, Specification, SeriesRule
+from library.eco import try_series
 from library.file_paths import KakukinDataWorkbookFilePaths, KakukinDataSheetFilePaths
 from library.database import TheoreticalProbabilityBestTable, KakukinDataSheetRecord, KakukinDataSheetTable
 from scripts import SaveOrIgnore

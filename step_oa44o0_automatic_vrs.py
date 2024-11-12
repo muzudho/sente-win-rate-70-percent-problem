@@ -9,7 +9,8 @@ import time
 import datetime
 import random
 import pandas as pd
-from library import Converter, SeriesRule, get_list_of_basename
+from library import Converter, SeriesRule
+from library.eco import get_list_of_basename
 from library.file_basename import BasenameOfVictoryRateDetailFile
 from library.file_paths import VictoryRateDetailFilePaths, VictoryRateSummaryFilePaths
 

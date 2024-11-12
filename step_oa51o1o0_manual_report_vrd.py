@@ -16,7 +16,8 @@ from openpyxl.styles import PatternFill, Font
 from openpyxl.styles.borders import Border, Side
 from openpyxl.styles.alignment import Alignment
 
-from library import SeriesRule, get_list_of_basename
+from library import SeriesRule
+from library.eco import get_list_of_basename
 from library.file_basename import BasenameOfVictoryRateDetailFile
 from library.file_paths import VictoryRateDetailFilePaths
 

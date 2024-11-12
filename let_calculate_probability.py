@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability
+from library.eco import calculate_probability
 from library.database import CalculateProbabilityTable
 from library.views import stringify_calculate_probability
 

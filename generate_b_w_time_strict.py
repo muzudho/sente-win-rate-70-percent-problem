@@ -13,7 +13,8 @@ import random
 import math
 import pandas as pd
 
-from library import calculate_probability, SeriesRule, FROZEN_TURN, ABS_OUT_OF_ERROR
+from library import SeriesRule, FROZEN_TURN, ABS_OUT_OF_ERROR
+from library.eco import Candidate, calculate_probability
 from library.views import stringify_p_t_time_strict
 from config import DEFAULT_UPPER_LIMIT_OF_P
 

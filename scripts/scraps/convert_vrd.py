@@ -11,7 +11,7 @@ import random
 import math
 import pandas as pd
 
-from library import get_list_of_basename
+from library.eco import get_list_of_basename
 from library.file_paths import VictoryRateDetailFilePaths
 
 

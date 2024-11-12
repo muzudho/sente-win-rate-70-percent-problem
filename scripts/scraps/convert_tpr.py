@@ -11,7 +11,8 @@ import random
 import math
 import pandas as pd
 
-from library import SeriesRule, get_list_of_basename
+from library import SeriesRule
+from library.eco import get_list_of_basename
 from library.file_basename import BasenameOfTheoreticalProbabilityRates
 from library.file_paths import TheoreticalProbabilityRatesFilePaths
 from library.database import TheoreticalProbabilityRatesRecord

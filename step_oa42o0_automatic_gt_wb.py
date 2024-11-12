@@ -15,7 +15,8 @@ import time
 import datetime
 import random
 
-from library import HEAD, TAIL, Converter, Specification, SeriesRule, get_list_of_basename
+from library import HEAD, TAIL, Converter, Specification, SeriesRule
+from library.eco import get_list_of_basename
 from library.file_basename import BasenameOfGameTreeFile
 from library.file_paths import GameTreeFilePaths, GameTreeWorkbookFilePaths
 from library.database import GameTreeTable
